@@ -1,0 +1,12 @@
+name: TradeShop
+version: 1.0.0
+author: Lori00
+main: com.github.ShanerX.TradeShop.TradeShop
+
+description: A new powerful trading plugin.
+
+commands:
+  tradeshop:
+    description: Core command for TradeShop
+  ts:
+    description: Alias for /tradeshop
