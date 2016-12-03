@@ -117,9 +117,10 @@ public class CreateSign implements Listener {
 		if (chestInventory.contains(Enum.valueOf(Material.class, item_name1))) {
 			event.setLine(0, ChatColor.DARK_GREEN + "[Trade]");
 	    	event.getPlayer().sendMessage(ChatColor.translateAlternateColorCodes('&', "&a[&eTradeShop&a] &aYou have sucessfully setup a TradeShop!"));
+	    	return;
 		}
 
-		event.setLine(0, ChatColor.DARK_RED + "[Trade]");
+	//	event.setLine(0, ChatColor.DARK_RED + "[Trade]"); // TODO CHEST EMPTY COLOR
     	event.getPlayer().sendMessage(ChatColor.translateAlternateColorCodes('&', "&a[&eTradeShop&a] &cTradeShop empty, please remember to fill it!"));
 	}
 }

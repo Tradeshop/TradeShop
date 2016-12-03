@@ -18,7 +18,6 @@ public class ts extends Utils implements CommandExecutor{
 	}
 	
 	
-	@SuppressWarnings("deprecation")
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
 		
 		if (label.equalsIgnoreCase("tradeshop") || label.equalsIgnoreCase("ts")) {

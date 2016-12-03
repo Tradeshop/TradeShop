@@ -71,11 +71,13 @@ public class Trade implements Listener {
 	        if (!chestInventory.contains(Enum.valueOf(Material.class, item_name1))) {
 	        	buyer.sendMessage(ChatColor.translateAlternateColorCodes('&', "&a[&eTradeShop&a] &cThis shop does not have &e"
 	        		+ amount1 + " " + item_name1.toLowerCase()));
-		        s.setLine(0, ChatColor.RED + "[Trade]"); // TODO NOT WORKING!!!
+	//	        s.setLine(0, ChatColor.RED + "[Trade]"); // TODO NOT WORKING!!!
 	        	return;
 	        }
 	        
-	        s.setLine(0, ChatColor.GREEN + "[Trade]");
+	 //       s.setLine(0, ChatColor.GREEN + "[Trade]");
+	  //      e.getClickedBlock().getState().update();
+	//        buyer.sendMessage("test");
 	        
 	        playerInventory.addItem(item1);
 	        playerInventory.removeItem(item2);
