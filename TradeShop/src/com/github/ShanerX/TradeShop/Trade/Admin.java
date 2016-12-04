@@ -24,7 +24,7 @@ public class Admin implements Listener {
 	}
 	
 	
-	@SuppressWarnings("deprecation")
+	@SuppressWarnings({ "deprecation", "unused" })
 	@EventHandler
 	public void onBlockBreak(BlockBreakEvent event) {
 		Player player = event.getPlayer();
@@ -70,9 +70,35 @@ public class Admin implements Listener {
             int y = event.getBlock().getLocation().getBlockY();
             int z = event.getBlock().getLocation().getBlockZ();
             String world = event.getBlock().getLocation().getWorld().getName();
-			int sign =  plugin.getServer().getWorld(world).getBlockTypeIdAt(x, y + 1, z);
-            if ( sign != 323 ) {
+
+            Sign s;
+            try {
+            	s = (Sign) plugin.getServer().getWorld(world).getBlockAt(x, y + 1, z).getState();
+          
+            } catch (Exception ex) {
+            	return;
             }
+			
+			
+	        try {
+		        String[] signInfo1 = s.getLine(1).split(" ");
+		        String[] signInfo2 = s.getLine(2).split(" ");
+	        	int amount1 = Integer.parseInt(signInfo1[0]);
+	        	int amount2 = Integer.parseInt(signInfo2[0]);
+	        	String item_name1 = signInfo1[1].toUpperCase();
+	        	ItemStack item1 = new ItemStack(Enum.valueOf(Material.class, item_name1), amount1);
+	        	String item_name2 = signInfo2[1].toUpperCase();
+	        	ItemStack item2 = new ItemStack(Enum.valueOf(Material.class, item_name2), amount2);
+	        	
+	        } catch (Exception e) {
+	        	return;
+	        }
+			
+	        if (s.getLine(3) == null || s.getLine(3).equals(""))
+	        	return;
+	        if (s.getLine(3).equalsIgnoreCase(player.getName())) {
+	        	return;
+	        }
 			player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&a[&eTradeShop&a] &cYou may not destroy that TradeShop"));
         	event.setCancelled(true);
 		}
@@ -80,7 +106,7 @@ public class Admin implements Listener {
 	}
 	
 	
-	@SuppressWarnings("deprecation")
+	@SuppressWarnings({ "deprecation", "unused" })
 	@EventHandler
 	public void onChestOpen(PlayerInteractEvent e) {
 		if ( e.getAction() != Action.RIGHT_CLICK_BLOCK ) {
@@ -101,9 +127,36 @@ public class Admin implements Listener {
         int y = e.getClickedBlock().getLocation().getBlockY();
         int z = e.getClickedBlock().getLocation().getBlockZ();
         String world = e.getClickedBlock().getLocation().getWorld().getName();
-		int sign =  plugin.getServer().getWorld(world).getBlockTypeIdAt(x, y + 1, z);
-        if ( sign != 323 ) {
+
+        Sign s;
+        try {
+        	s = (Sign) plugin.getServer().getWorld(world).getBlockAt(x, y + 1, z).getState();
+      
+        } catch (Exception ex) {
+        	return;
         }
+		
+		
+        try {
+	        String[] signInfo1 = s.getLine(1).split(" ");
+	        String[] signInfo2 = s.getLine(2).split(" ");
+        	int amount1 = Integer.parseInt(signInfo1[0]);
+        	int amount2 = Integer.parseInt(signInfo2[0]);
+        	String item_name1 = signInfo1[1].toUpperCase();
+        	ItemStack item1 = new ItemStack(Enum.valueOf(Material.class, item_name1), amount1);
+        	String item_name2 = signInfo2[1].toUpperCase();
+        	ItemStack item2 = new ItemStack(Enum.valueOf(Material.class, item_name2), amount2);
+        	
+        } catch (Exception ex) {
+        	return;
+        }
+		
+        if (s.getLine(3) == null || s.getLine(3).equals(""))
+        	return;
+        if (s.getLine(3).equalsIgnoreCase(e.getPlayer().getName())) {
+        	return;
+        }
+
 		e.getPlayer().sendMessage(ChatColor.translateAlternateColorCodes('&', "&a[&eTradeShop&a] &cThat TradeShop does not belong to you"));
     	e.setCancelled(true);
 	}

@@ -80,14 +80,14 @@ public class ts extends Utils implements CommandExecutor{
 					return true;
 				}
 				
-				else if (args[0].equalsIgnoreCase("owner")) {
+	/*			else if (args[0].equalsIgnoreCase("owner")) {
 					if (!sender.hasPermission("tradeshop.admin")) {
 						sender.sendMessage(ChatColor.translateAlternateColorCodes('&', getPrefix() + " &aYou do not have permission to execute this command"));
 						return true;
 					}
 				}
 				
-	/*			else if (args[0].equalsIgnoreCase("bypass")) {
+				else if (args[0].equalsIgnoreCase("bypass")) {
 					if (!sender.hasPermission("tradeshop.admin")) {
 						sender.sendMessage(ChatColor.translateAlternateColorCodes('&', getPrefix() + " &aYou do not have permission to execute this command"));
 						return true;

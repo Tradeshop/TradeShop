@@ -36,6 +36,7 @@ public class CreateSign implements Listener {
         int y = event.getBlock().getLocation().getBlockY();
         int z = event.getBlock().getLocation().getBlockZ();
         String world = event.getBlock().getLocation().getWorld().getName();
+    
         @SuppressWarnings("deprecation")
         final int CHEST_ID =  plugin.getServer().getWorld(world).getBlockTypeIdAt(x, y - 1, z);
         if (! player.hasPermission("tradeshop.create") ) {
@@ -114,13 +115,14 @@ public class CreateSign implements Listener {
 		Chest chest = (Chest) chestState;
 		Inventory chestInventory = chest.getInventory();
 		
+		event.setLine(0, ChatColor.DARK_GREEN + "[Trade]");
+		
 		if (chestInventory.contains(Enum.valueOf(Material.class, item_name1))) {
 			event.setLine(0, ChatColor.DARK_GREEN + "[Trade]");
 	    	event.getPlayer().sendMessage(ChatColor.translateAlternateColorCodes('&', "&a[&eTradeShop&a] &aYou have sucessfully setup a TradeShop!"));
 	    	return;
 		}
 
-	//	event.setLine(0, ChatColor.DARK_RED + "[Trade]"); // TODO CHEST EMPTY COLOR
     	event.getPlayer().sendMessage(ChatColor.translateAlternateColorCodes('&', "&a[&eTradeShop&a] &cTradeShop empty, please remember to fill it!"));
 	}
 }
