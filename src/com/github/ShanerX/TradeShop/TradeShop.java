@@ -7,7 +7,7 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import com.github.ShanerX.TradeShop.Commands.ts;
+import com.github.ShanerX.TradeShop.Commands.Ts;
 import com.github.ShanerX.TradeShop.Trade.Admin;
 import com.github.ShanerX.TradeShop.Trade.CreateSign;
 import com.github.ShanerX.TradeShop.Trade.Trade;
@@ -16,11 +16,13 @@ import com.github.ShanerX.TradeShop.Trade.Trade;
 public class TradeShop extends JavaPlugin {
 	
 	TradeShop plugin = this;
-	
-	String dir = plugin.getDataFolder().toString();
+
+	@SuppressWarnings("unused")
+	private String dir = plugin.getDataFolder().toString();
 
 	public File configFile = new File(this.getDataFolder(), "messages.yml");
 	public FileConfiguration config;
+	
 	
 	@Override
 	public void onEnable() {
@@ -53,8 +55,8 @@ public class TradeShop extends JavaPlugin {
 		getServer().getPluginManager().registerEvents(inst, this);
 		getServer().getPluginManager().registerEvents(admn, this);
 		
-		getCommand("tradeshop").setExecutor(new ts(this));
-		getCommand("ts").setExecutor(new ts(this));
+		getCommand("tradeshop").setExecutor(new Ts(this));
+		getCommand("ts").setExecutor(new Ts(this));
 		
 	}
 	
@@ -62,10 +64,24 @@ public class TradeShop extends JavaPlugin {
 
 		if (config.getString("invalid-arguments") == null) {
 			config.set("invalid-arguments", "&eTry &6/tradeshop help &eto display help!");
+		
+			try {
+				config.save(configFile);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			
 		}
 		
 		if (config.getString("no-command-permission") == null) {
 			config.set("no-command-permission", "&aYou do not have permission to execute this command");
+		
+			try {
+				config.save(configFile);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			
 		}
 		
 		if (config.getString("setup-help") == null) {
@@ -74,6 +90,13 @@ public class TradeShop extends JavaPlugin {
 					+ "\n&2Step 2: &ePlace a sign on top of the chest."
 					+ "\n&2Step 3: &eWrite the following on the sign"
 					+ "\n&6[Trade]\n<amount> <item_you_sell>\n<amount> <item_you_buy>\n&6&oEmpty line\n");
+	
+			try {
+				config.save(configFile);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			
 		}
 		
 		if (config.getString("no-ts-create-permission") == null) {
@@ -165,7 +188,7 @@ public class TradeShop extends JavaPlugin {
 		}
 		
 		if (config.getString("insufficient-items") == null) {
-			config.set("insufficient-items", "&cYou do not have &e {AMOUNT} {ITEM}6c!");
+			config.set("insufficient-items", "&cYou do not have &e {AMOUNT} {ITEM}&c!");
 			
 			try {
 				config.save(configFile);
@@ -176,7 +199,7 @@ public class TradeShop extends JavaPlugin {
 		}
 		
 		if (config.getString("shop-empty") == null) {
-			config.set("shop-empty", "&cThis TradeShop does not have &e {AMOUNT} {ITEM}6c!");
+			config.set("shop-empty", "&cThis TradeShop does not have &e {AMOUNT} {ITEM}&c!");
 			
 			try {
 				config.save(configFile);
@@ -196,9 +219,6 @@ public class TradeShop extends JavaPlugin {
 			}
 			
 		}
-		
-		// &eExchange &6" + amount1
-		//+ " " + item_name1.toLowerCase() + "&e for &6" + amount2 + " " + item_name2.toLowerCase() + "&e?"
 		
 	}
 

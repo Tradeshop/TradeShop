@@ -11,11 +11,11 @@ import org.bukkit.entity.Player;
 import com.github.ShanerX.TradeShop.TradeShop;
 import com.github.ShanerX.TradeShop.Utils;
 
-public class ts extends Utils implements CommandExecutor{
+public class Ts extends Utils implements CommandExecutor{
 
 	TradeShop plugin;
 	
-	public ts(TradeShop instance) {
+	public Ts(TradeShop instance) {
 		plugin = instance;
 	}
 	

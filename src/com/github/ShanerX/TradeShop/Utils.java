@@ -6,7 +6,7 @@ public class Utils {
 
 	final String plugin = "TradeShop";
 	final String author = "Lori00";
-	final String version = "v1.1.0";
+	final String version = "v1.2.0";
 	final String website = null;
 	
 	final String PREFIX = "&a[&eTradeShop&a] ";
