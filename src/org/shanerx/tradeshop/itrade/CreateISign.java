@@ -1,4 +1,4 @@
-package com.github.ShanerX.TradeShop.Trade;
+package org.shanerx.tradeshop.itrade;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -13,15 +13,14 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.SignChangeEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.shanerx.tradeshop.TradeShop;
+import org.shanerx.tradeshop.Utils;
 
-import com.github.ShanerX.TradeShop.TradeShop;
-import com.github.ShanerX.TradeShop.Utils;
-
-public class CreateSign extends Utils implements Listener {
+public class CreateISign extends Utils implements Listener {
 
 	TradeShop plugin;
 	
-	public CreateSign(TradeShop instance) {
+	public CreateISign(TradeShop instance) {
 		plugin = instance;
 	}
 	
@@ -30,7 +29,7 @@ public class CreateSign extends Utils implements Listener {
 	//	BlockState state = event.getBlock().getState();
 		Player player =  event.getPlayer();
         Sign s = (Sign) event.getBlock().getState();
-        if (! (event.getLine(0).equalsIgnoreCase("[Trade]")) ) {
+        if (! (event.getLine(0).equalsIgnoreCase("[iTrade]")) ) {
 			return;
         }
         int x = event.getBlock().getLocation().getBlockX();
@@ -40,7 +39,7 @@ public class CreateSign extends Utils implements Listener {
     
         @SuppressWarnings("deprecation")
         final int CHEST_ID =  plugin.getServer().getWorld(world).getBlockTypeIdAt(x, y - 1, z);
-        if (! player.hasPermission("tradeshop.create") ) {
+        if (! player.hasPermission("tradeshop.create.infinite") ) {
         	s.setLine(0, "");
         	s.update();
 	    	s.setLine(1, "");
@@ -53,7 +52,7 @@ public class CreateSign extends Utils implements Listener {
         	return;
         }
         if ( CHEST_ID != 54 ) {
-        	event.setLine(0, ChatColor.DARK_RED + "[Trade]");
+        	event.setLine(0, ChatColor.DARK_RED + "[iTrade]");
         	event.setLine(1, "");
         	event.setLine(2, "");
         	event.setLine(3, "");
@@ -99,7 +98,7 @@ public class CreateSign extends Utils implements Listener {
         
         if ( signIsValid == false ) {
         	event.getPlayer().sendMessage(ChatColor.translateAlternateColorCodes('&', getPrefix() + plugin.config.getString("invalid-sign")));
-        	event.setLine(0, ChatColor.DARK_RED + "[Trade]");
+        	event.setLine(0, ChatColor.DARK_RED + "[iTrade]");
 	    	event.setLine(1, "");
 	    	event.setLine(2, "");
         	event.setLine(3, "");
@@ -116,10 +115,10 @@ public class CreateSign extends Utils implements Listener {
 		Chest chest = (Chest) chestState;
 		Inventory chestInventory = chest.getInventory();
 		
-		event.setLine(0, ChatColor.DARK_GREEN + "[Trade]");
+		event.setLine(0, ChatColor.DARK_GREEN + "[iTrade]");
 		
 		if (chestInventory.contains(Enum.valueOf(Material.class, item_name1))) {
-			event.setLine(0, ChatColor.DARK_GREEN + "[Trade]");
+			event.setLine(0, ChatColor.DARK_GREEN + "[iTrade]");
 	    	event.getPlayer().sendMessage(ChatColor.translateAlternateColorCodes('&', getPrefix() + plugin.config.getString("successful-setup")));
 	    	return;
 		}

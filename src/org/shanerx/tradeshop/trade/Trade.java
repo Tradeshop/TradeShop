@@ -1,4 +1,4 @@
-package com.github.ShanerX.TradeShop.Trade;
+package org.shanerx.tradeshop.trade;
 
 import java.awt.Event;
 
@@ -17,9 +17,8 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-
-import com.github.ShanerX.TradeShop.TradeShop;
-import com.github.ShanerX.TradeShop.Utils;
+import org.shanerx.tradeshop.TradeShop;
+import org.shanerx.tradeshop.Utils;
 
 public class Trade extends Utils implements Listener {
 
@@ -83,13 +82,9 @@ public class Trade extends Utils implements Listener {
 	        if (!chestInventory.contains(Enum.valueOf(Material.class, item_name1))) {
 	        	buyer.sendMessage(ChatColor.translateAlternateColorCodes('&', getPrefix() + plugin.config.getString("shop-empty")
 	        			.replace("{ITEM}", item_name1.toLowerCase()).replace("{AMOUNT}", String.valueOf(amount1))));
-	
-	//	        s.setLine(0, ChatColor.RED + "[Trade]");
 	        	return;
 	        }
-	        
-	 //      s.setLine(0, ChatColor.GREEN + "[Trade]");
-	 //      e.getClickedBlock().getState().update();
+
 	        for (ItemStack i : playerInventory.getContents()) {
 	        	if (i == null) {
 	        		continue;
@@ -133,16 +128,23 @@ public class Trade extends Utils implements Listener {
 			if (! "[Trade]".equalsIgnoreCase(ChatColor.stripColor(s.getLine(0)))) {
 				return;
 			}
-		    String line1 = s.getLine(1);
-	        String line2 = s.getLine(2);
-	        String[] info1 = line1.split(" ");
-	        String[] info2 = line2.split(" ");
-	        int amount1 = Integer.parseInt(info2[0]);
-	        int amount2 = Integer.parseInt(info2[0]);
-	        String item_name1 = info1[1].toUpperCase();
-	        String item_name2 = info2[1].toUpperCase();
-	        
-        	buyer.sendMessage(ChatColor.translateAlternateColorCodes('&', getPrefix() + plugin.config.getString("confirm-trade").replace("{AMOUNT1}", String.valueOf(amount1)).replace("{AMOUNT2}", String.valueOf(amount2)).replace("{ITEM1}", item_name1.toLowerCase()).replace("{ITEM2}", item_name2.toLowerCase())));
+			
+			try {
+			    String line1 = s.getLine(1);
+		        String line2 = s.getLine(2);
+		        String[] info1 = line1.split(" ");
+		        String[] info2 = line2.split(" ");
+		        int amount1 = Integer.parseInt(info1[0]);
+		        int amount2 = Integer.parseInt(info2[0]);
+		        String item_name1 = info1[1].toUpperCase();
+		        String item_name2 = info2[1].toUpperCase();
+		        
+	        	buyer.sendMessage(ChatColor.translateAlternateColorCodes('&', getPrefix() + plugin.config.getString("confirm-trade").replace("{AMOUNT1}", String.valueOf(amount1)).replace("{AMOUNT2}", String.valueOf(amount2)).replace("{ITEM1}", item_name1.toLowerCase()).replace("{ITEM2}", item_name2.toLowerCase())));
+			} catch (Exception ex) {
+				return;
+			}
+
 		}
+		
 	}
 }

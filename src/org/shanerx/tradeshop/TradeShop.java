@@ -1,4 +1,4 @@
-package com.github.ShanerX.TradeShop;
+package org.shanerx.tradeshop;
 
 import java.io.File;
 import java.io.IOException;
@@ -6,12 +6,12 @@ import java.io.IOException;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
-
-import com.github.ShanerX.TradeShop.Commands.Ts;
-import com.github.ShanerX.TradeShop.Trade.Admin;
-import com.github.ShanerX.TradeShop.Trade.CreateSign;
-import com.github.ShanerX.TradeShop.Trade.Trade;
-
+import org.shanerx.tradeshop.commands.Ts;
+import org.shanerx.tradeshop.itrade.CreateISign;
+import org.shanerx.tradeshop.itrade.ITrade;
+import org.shanerx.tradeshop.trade.Admin;
+import org.shanerx.tradeshop.trade.CreateSign;
+import org.shanerx.tradeshop.trade.Trade;
 
 public class TradeShop extends JavaPlugin {
 	
@@ -55,8 +55,10 @@ public class TradeShop extends JavaPlugin {
 		getServer().getPluginManager().registerEvents(inst, this);
 		getServer().getPluginManager().registerEvents(admn, this);
 		
+		getServer().getPluginManager().registerEvents(new ITrade(this), this);
+		getServer().getPluginManager().registerEvents(new CreateISign(this), this);
+		
 		getCommand("tradeshop").setExecutor(new Ts(this));
-		getCommand("ts").setExecutor(new Ts(this));
 		
 	}
 	

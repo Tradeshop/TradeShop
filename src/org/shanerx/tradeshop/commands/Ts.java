@@ -1,4 +1,4 @@
-package com.github.ShanerX.TradeShop.Commands;
+package org.shanerx.tradeshop.commands;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -7,9 +7,9 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
-
-import com.github.ShanerX.TradeShop.TradeShop;
-import com.github.ShanerX.TradeShop.Utils;
+import org.shanerx.tradeshop.TradeShop;
+import org.shanerx.tradeshop.Utils;
+import org.shanerx.tradeshop.trade.Trade;
 
 public class Ts extends Utils implements CommandExecutor{
 
@@ -22,7 +22,7 @@ public class Ts extends Utils implements CommandExecutor{
 	
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
 		
-		if (label.equalsIgnoreCase("tradeshop") || label.equalsIgnoreCase("ts")) {
+		if (cmd.getName().equalsIgnoreCase("tradeshop")) {
 			if (args.length == 0) {
 				sender.sendMessage(ChatColor.translateAlternateColorCodes('&', getPrefix() + plugin.config.getString("invalid-arguments")));
 				return true;
