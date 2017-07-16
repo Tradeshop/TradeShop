@@ -95,7 +95,6 @@ public class Trade extends Utils implements Listener {
     	                {
     	                    if(i.getAmount() >= amount2)
     	                    {
-    	                        buyer.sendMessage(i.getAmount() + "");
     	                        item2.setData(i.getData());
                 	            item2.setDurability(i.getDurability());
                 	            item2.setItemMeta(i.getItemMeta());
