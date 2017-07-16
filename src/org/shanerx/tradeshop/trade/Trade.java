@@ -136,9 +136,7 @@ public class Trade extends Utils implements Listener {
 			} catch (Exception ex) {
 				return;
 			}
-
 		}
-		
 	}
 
     //checks to see if a string is an integer, IDK if i use this in this plugin but its here
