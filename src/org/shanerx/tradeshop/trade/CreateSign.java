@@ -63,7 +63,6 @@ public class CreateSign extends Utils implements Listener {
         
         String line1 = event.getLine(1);
         String line2 = event.getLine(2);
-        String line3 = event.getLine(3);
         
         if ( !line1.contains(" ") || !line2.contains(" ") ) {
         	signIsValid = false;
@@ -114,9 +113,6 @@ public class CreateSign extends Utils implements Listener {
 	    	event.setLine(1, "");
 	    	event.setLine(2, "");
         	event.setLine(3, "");
-        	return;
-        }
-        if ( line3.equals(event.getPlayer().getName()) ) {
         	return;
         }
         
