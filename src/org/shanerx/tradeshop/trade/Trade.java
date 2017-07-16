@@ -25,7 +25,7 @@ public class Trade extends Utils implements Listener {
 		plugin = instance;
 	}
 	
-	
+	@SuppressWarnings("deprecation")
 	@EventHandler
 	public void onBlockInteract(PlayerInteractEvent e) {
 		
