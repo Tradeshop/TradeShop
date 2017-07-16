@@ -25,8 +25,9 @@ public class Trade extends Utils implements Listener {
 		plugin = instance;
 	}
 	
+	
 	@SuppressWarnings("deprecation")
-	@EventHandler
+    @EventHandler
 	public void onBlockInteract(PlayerInteractEvent e) {
 		
 		Player buyer = e.getPlayer();
@@ -79,31 +80,76 @@ public class Trade extends Utils implements Listener {
 	        
 			ItemStack item1 = new ItemStack(Material.getMaterial(item_name1), amount1); // What the player gets
 	        ItemStack item2 = new ItemStack(Material.getMaterial(item_name2), amount2); // What the player pays
+	        boolean item1check = false, item2check = false;
 	        
-	        if (!playerInventory.containsAtLeast(item2, amount2)) {
+	        if (!containsAtLeast(playerInventory, item2.getType(), amount2)) {
 	        	buyer.sendMessage(ChatColor.translateAlternateColorCodes('&', getPrefix() + plugin.config.getString("insufficient-items")
 	        			.replace("{ITEM}", item_name2.toLowerCase()).replace("{AMOUNT}", String.valueOf(amount2))));
 	        	return;
 	        } else {
-	            item1.setData(chestInventory.getItem(chestInventory.first(Material.getMaterial(item_name1))).getData());
-	            item1.setDurability(chestInventory.getItem(chestInventory.first(Material.getMaterial(item_name1))).getDurability());
-	            item1.setItemMeta(chestInventory.getItem(chestInventory.first(Material.getMaterial(item_name1))).getItemMeta());
+	            for(ItemStack i : playerInventory.getContents())
+	            {
+	                if(i != null)
+	                {
+    	                if(i.getType() == item2.getType())
+    	                {
+    	                    if(i.getAmount() >= amount2)
+    	                    {
+    	                        buyer.sendMessage(i.getAmount() + "");
+    	                        item2.setData(i.getData());
+                	            item2.setDurability(i.getDurability());
+                	            item2.setItemMeta(i.getItemMeta());
+                	            item2check = true;
+                	            break;
+    	                    }
+    	                }
+	                }
+	            }
 	        }
 	        
-	        if (!chestInventory.containsAtLeast(item1, amount1)) {
-	        	buyer.sendMessage(ChatColor.translateAlternateColorCodes('&', getPrefix() + plugin.config.getString("shop-empty")
+	        if (!containsAtLeast(chestInventory, item1.getType(), amount1)) {
+	            buyer.sendMessage(ChatColor.translateAlternateColorCodes('&', getPrefix() + plugin.config.getString("shop-empty")
 	        			.replace("{ITEM}", item_name1.toLowerCase()).replace("{AMOUNT}", String.valueOf(amount1))));
 	        	return;
 	        } else  {
-	            item2.setData(playerInventory.getItem(playerInventory.first(Material.getMaterial(item_name2))).getData());
-	            item2.setDurability(playerInventory.getItem(playerInventory.first(Material.getMaterial(item_name2))).getDurability());
-	            item2.setItemMeta(playerInventory.getItem(playerInventory.first(Material.getMaterial(item_name2))).getItemMeta());
+	            for(ItemStack i : chestInventory.getContents())
+                {
+	                if(i != null)
+	                {
+	                    if(i.getType() == item1.getType())
+                        {
+                            if(i.getAmount() >= amount1)
+                            {
+                                item1.setData(i.getData());
+                                item1.setDurability(i.getDurability());
+                                item1.setItemMeta(i.getItemMeta());
+                                item1check = true;
+                                break;
+                            }
+                        }
+	                }
+                }
 	        }
-
-            playerInventory.removeItem(item2);
-            chestInventory.removeItem(item1);
-            chestInventory.addItem(item2);
-            playerInventory.addItem(item1);
+	        
+	        if(item1check && item2check)
+	        {
+                playerInventory.removeItem(item2);
+                chestInventory.removeItem(item1);
+                chestInventory.addItem(item2);
+                playerInventory.addItem(item1);
+	        }
+	        else if(!item1check)
+	        {
+	            buyer.sendMessage(ChatColor.translateAlternateColorCodes('&', getPrefix() + plugin.config.getString("shop-full-amount")
+                .replace("{ITEM}", item_name1.toLowerCase()).replace("{AMOUNT}", String.valueOf(amount1)))); 
+	            return;
+	        }
+            else if(!item2check)
+            {
+                buyer.sendMessage(ChatColor.translateAlternateColorCodes('&', getPrefix() + plugin.config.getString("full-amount")
+                .replace("{ITEM}", item_name2.toLowerCase()).replace("{AMOUNT}", String.valueOf(amount2)))); 
+                return;
+            }
 	        
 	        String message = plugin.config.getString("on-trade").replace("{AMOUNT1}", String.valueOf(amount1)).replace("{AMOUNT2}", String.valueOf(amount2)).replace("{ITEM1}", item_name1.toLowerCase()).replace("{ITEM2}", item_name2.toLowerCase()).replace("{SELLER}", s.getLine(3));
 	        
@@ -136,8 +182,28 @@ public class Trade extends Utils implements Listener {
 			} catch (Exception ex) {
 				return;
 			}
+
 		}
+		
 	}
+	
+	public static boolean containsAtLeast(Inventory inv, Material mat, int amt)
+    {
+	    int count = 0;
+        for(ItemStack itm : inv.getContents())
+        {
+            if(itm != null)
+                if(itm.getType() == mat)
+                {
+                    count += itm.getAmount();
+                }
+                
+            if(count >= amt)
+                return true;
+        }
+        
+        return false;
+    }
 
     //checks to see if a string is an integer, IDK if i use this in this plugin but its here
     public static boolean isInt(String str)
