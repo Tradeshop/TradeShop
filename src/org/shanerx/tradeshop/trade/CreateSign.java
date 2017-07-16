@@ -24,7 +24,8 @@ public class CreateSign extends Utils implements Listener {
 		plugin = instance;
 	}
 	
-	@EventHandler
+	@SuppressWarnings("deprecation")
+    @EventHandler
 	public void onSignChange(SignChangeEvent event) throws InterruptedException {
 	//	BlockState state = event.getBlock().getState();
 		Player player =  event.getPlayer();
@@ -37,7 +38,6 @@ public class CreateSign extends Utils implements Listener {
         int z = event.getBlock().getLocation().getBlockZ();
         String world = event.getBlock().getLocation().getWorld().getName();
     
-        @SuppressWarnings("deprecation")
         final int CHEST_ID =  plugin.getServer().getWorld(world).getBlockTypeIdAt(x, y - 1, z);
         if (! player.hasPermission("tradeshop.create") ) {
         	s.setLine(0, "");
@@ -84,13 +84,25 @@ public class CreateSign extends Utils implements Listener {
 		ItemStack item1;
         @SuppressWarnings("unused")
         ItemStack item2;
-        try {
-        	amount1 = Integer.parseInt(info1[0]);
+        
+        try 
+        {
+            amount1 = Integer.parseInt(info1[0]);
         	amount2 = Integer.parseInt(info2[0]);
-        	item_name1 = info1[1].toUpperCase();
-        	item1 = new ItemStack(Enum.valueOf(Material.class, item_name1), amount1);
-        	item_name2 = info2[1].toUpperCase();
-        	item2 = new ItemStack(Enum.valueOf(Material.class, item_name2), amount2);
+        	
+        	if(isInt(info1[1]))
+        	    item_name1 = Material.getMaterial(Integer.parseInt(info1[1])).name();
+        	else
+        	    item_name1 = info1[1].toUpperCase();
+        	
+        	item1 = new ItemStack(Material.getMaterial(item_name1), amount1);
+
+            if(isInt(info2[1]))
+                item_name2 = Material.getMaterial(Integer.parseInt(info2[1])).name();
+            else
+                item_name2 = info2[1].toUpperCase();
+            
+        	item2 = new ItemStack(Material.getMaterial(item_name2), amount2);
         	
         } catch (Exception e) {
         	signIsValid = false;
@@ -125,6 +137,17 @@ public class CreateSign extends Utils implements Listener {
 
     	event.getPlayer().sendMessage(ChatColor.translateAlternateColorCodes('&', getPrefix() + plugin.config.getString("empty-ts-on-setup")));
 	}
+
+	//checks to see if a string is an integer, IDK if i use this in this plugin but its here
+	public static boolean isInt(String str)
+	{
+	    try{
+	        Integer.parseInt(str);
+	    }catch(Exception e){
+	        return false;
+	    }
+	    
+	    return true;
+	}
 	
 }
-
