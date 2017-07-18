@@ -1,12 +1,14 @@
 package org.shanerx.tradeshop;
 
+import org.bukkit.Bukkit;
+
 import java.util.ArrayList;
 
 public class Utils {
 
 	final String plugin = "TradeShop";
 	final String author = "Lori00";
-	final String version = "v1.3.0";
+	final String version = Bukkit.getPluginManager().getPlugin("TradeShop").getDescription().getVersion();
 	final String website = null;
 	
 	final String PREFIX = "&a[&eTradeShop&a] ";
