@@ -200,30 +200,41 @@ public class TradeShop extends JavaPlugin {
 			
 		}
         
-        if (config.getString("shop-full-amount") == null) {
-            config.set("shop-full-amount", "&cThe shop does not have &e{AMOUNT} &cof a single type of &e{ITEM}&c!");
-            
-            try {
-                config.save(configFile);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            
-        }
+		if (config.getString("shop-full-amount") == null) {
+		    config.set("shop-full-amount", "&cThe shop does not have &e{AMOUNT} &cof a single type of &e{ITEM}&c!");
+
+		    try {
+			config.save(configFile);
+		    } catch (IOException e) {
+			e.printStackTrace();
+		    }
+
+		}
 		
 		if (config.getString("full-amount") == null) {
-            config.set("full-amount", "&cYou must have &e{AMOUNT} &cof a single type of &e{ITEM}&c!");
-            
-            try {
-                config.save(configFile);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            
-        }
+		    config.set("full-amount", "&cYou must have &e{AMOUNT} &cof a single type of &e{ITEM}&c!");
+
+		    try {
+			config.save(configFile);
+		    } catch (IOException e) {
+			e.printStackTrace();
+		    }
+
+		}
 		
 		if (config.getString("shop-empty") == null) {
 			config.set("shop-empty", "&cThis TradeShop does not have &e {AMOUNT} {ITEM}&c!");
+			
+			try {
+				config.save(configFile);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			
+		}
+		
+		if (config.getString("shop-full") == null) {
+			config.set("shop-full", "&cThis TradeShop please contact the owner to get it emptied!");
 			
 			try {
 				config.save(configFile);
