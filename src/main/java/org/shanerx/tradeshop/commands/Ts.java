@@ -19,9 +19,9 @@ public class Ts extends Utils implements CommandExecutor {
 		if (args.length == 0) {
 			sender.sendMessage(ChatColor.translateAlternateColorCodes('&', getPrefix() + plugin.getConfig().getString("invalid-arguments")));
 			return true;
-		}
 		
-		if (args.length == 1) {
+		}
+		else if (args.length == 1) {
 			if (args[0].equalsIgnoreCase("help")) {
 				if (!sender.hasPermission("tradeshop.help")) {
 					sender.sendMessage(ChatColor.translateAlternateColorCodes('&', getPrefix() + plugin.getConfig().getString("no-command-permission")));
@@ -65,7 +65,6 @@ public class Ts extends Utils implements CommandExecutor {
 				plugin.reloadConfig();
 				sender.sendMessage(ChatColor.translateAlternateColorCodes('&', getPrefix() + "&6The configuration files have been reloaded!"));
 				return true;
-				
 			}
 		}
 		sender.sendMessage(ChatColor.translateAlternateColorCodes('&', getPrefix() + plugin.getConfig().getString("invalid-arguments")));
