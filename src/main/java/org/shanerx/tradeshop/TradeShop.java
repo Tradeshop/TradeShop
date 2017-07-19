@@ -16,9 +16,17 @@ import org.shanerx.tradeshop.trade.Trade;
 
 public class TradeShop extends JavaPlugin {
 
-    public File configFile = new File(this.getDataFolder(), "messages.yml");
-    public FileConfiguration config;
+    private File configFile = new File(this.getDataFolder(), "messages.yml");
+    private FileConfiguration config;
 
+    public File getConfigFile() {
+    	return configFile;
+	}
+	
+	@Override
+	public FileConfiguration getConfig() {
+    	return config;
+	}
 
     @Override
     public void onEnable() {
@@ -52,25 +60,14 @@ public class TradeShop extends JavaPlugin {
     }
 
     private void addConfigDefaults(FileConfiguration config) {
-
         if (config.getString("invalid-arguments") == null) {
             config.set("invalid-arguments", "&eTry &6/tradeshop help &eto display help!");
-
-            try {
-                config.save(configFile);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+			save();
         }
 
         if (config.getString("no-command-permission") == null) {
             config.set("no-command-permission", "&aYou do not have permission to execute this command");
-
-            try {
-                config.save(configFile);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+			save();
         }
 
         if (config.getString("setup-help") == null) {
@@ -79,154 +76,87 @@ public class TradeShop extends JavaPlugin {
                     + "\n&2Step 2: &ePlace a sign on top of the chest."
                     + "\n&2Step 3: &eWrite the following on the sign"
                     + "\n&6[Trade]\n<amount> <item_you_sell>\n<amount> <item_you_buy>\n&6&oEmpty line\n");
-
-            try {
-                config.save(configFile);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+			save();
         }
 
         if (config.getString("no-ts-create-permission") == null) {
             config.set("no-ts-create-permission", "&cYou don't have permission to create TradeShops!");
-
-            try {
-                config.save(configFile);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+			save();
         }
 
         if (config.getString("no-chest") == null) {
             config.set("no-chest", "&cYou need to put a chest under the sign!");
-
-            try {
-                config.save(configFile);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+			save();
         }
 
         if (config.getString("invalid-sign") == null) {
             config.set("invalid-sign", "&cInvalid sign format!");
-
-            try {
-                config.save(configFile);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+			save();
         }
 
         if (config.getString("no-ts-destroy") == null) {
             config.set("no-ts-destroy", "&cYou may not destroy that TradeShop");
-
-            try {
-                config.save(configFile);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+			save();
         }
 
         if (config.getString("successful-setup") == null) {
             config.set("successful-setup", "&aYou have sucessfully setup a TradeShop!");
-
-            try {
-                config.save(configFile);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+			save();
         }
 
         if (config.getString("no-ts-open") == null) {
             config.set("no-ts-open", "&cThat TradeShop does not belong to you");
-
-            try {
-                config.save(configFile);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+			save();
         }
 
         if (config.getString("empty-ts-on-setup") == null) {
             config.set("empty-ts-on-setup", "&cTradeShop empty, please remember to fill it!");
-
-            try {
-                config.save(configFile);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+			save();
         }
 
         if (config.getString("on-trade") == null) {
             config.set("on-trade", "&aYou have traded your&e {AMOUNT2} {ITEM2} &a for &e {AMOUNT1} {ITEM1} &awith {SELLER}");
-
-            try {
-                config.save(configFile);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+			save();
         }
 
         if (config.getString("insufficient-items") == null) {
             config.set("insufficient-items", "&cYou do not have &e {AMOUNT} {ITEM}&c!");
-
-            try {
-                config.save(configFile);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            save();
         }
 
         if (config.getString("shop-full-amount") == null) {
             config.set("shop-full-amount", "&cThe shop does not have &e{AMOUNT} &cof a single type of &e{ITEM}&c!");
-
-            try {
-                config.save(configFile);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            save();
         }
 
         if (config.getString("full-amount") == null) {
             config.set("full-amount", "&cYou must have &e{AMOUNT} &cof a single type of &e{ITEM}&c!");
-
-            try {
-                config.save(configFile);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            save();
         }
 
         if (config.getString("shop-empty") == null) {
             config.set("shop-empty", "&cThis TradeShop does not have &e {AMOUNT} {ITEM}&c!");
-
-            try {
-                config.save(configFile);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            save();
         }
 
         if (config.getString("shop-full") == null) {
             config.set("shop-full", "&cThis TradeShop is full, please contact the owner to get it emptied!");
-
-            try {
-                config.save(configFile);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            save();
         }
 
         if (config.getString("confirm-trade") == null) {
             config.set("confirm-trade", "&eTrade &6 {AMOUNT1} {ITEM1} &e for &6 {AMOUNT2} {ITEM2} &e?");
-
-            try {
-                config.save(configFile);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            save();
         }
     }
+    
+    private void save() {
+		try {
+			config.save(configFile);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
 
     @Override
     public void onDisable() {}
