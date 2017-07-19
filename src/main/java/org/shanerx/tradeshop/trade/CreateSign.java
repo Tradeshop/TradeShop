@@ -76,10 +76,14 @@ public class CreateSign extends Utils implements Listener {
         }
         
 		
+        int durability1 = 0;
+		int durability2 = 0;
 		if (line1.split(":").length > 1) {
+			durability1 = Integer.parseInt(info1[1].split(":")[1]);
 			info1[1] = info1[1].split(":")[0];
 		}
 		if (line2.split(":").length > 1) {
+			durability2 = Integer.parseInt(info2[1].split(":")[1]);
 			info2[1] = info2[1].split(":")[0];
 		}
         
@@ -130,10 +134,11 @@ public class CreateSign extends Utils implements Listener {
 		BlockState chestState = Bukkit.getServer().getWorld(world).getBlockAt(new Location(event.getBlock().getWorld(), x, y - 1, z)).getState();
 		Chest chest = (Chest) chestState;
 		Inventory chestInventory = chest.getInventory();
-		
+		item1 = new ItemStack(Material.getMaterial(item_name1), amount1);
+		item1.setDurability((short)durability1);
 		event.setLine(0, ChatColor.DARK_GREEN + "[Trade]");
-		
-		if (chestInventory.contains(Enum.valueOf(Material.class, item_name1))) {
+		if (chestInventory.containsAtLeast(item1, amount1)) {
+			
 			event.setLine(0, ChatColor.DARK_GREEN + "[Trade]");
 	    	event.getPlayer().sendMessage(ChatColor.translateAlternateColorCodes('&', getPrefix() + plugin.config.getString("successful-setup")));
 	    	return;
