@@ -7,11 +7,11 @@ import org.bukkit.command.CommandSender;
 import org.shanerx.tradeshop.TradeShop;
 import org.shanerx.tradeshop.Utils;
 
-public class Ts extends Utils implements CommandExecutor {
+public class Executor extends Utils implements CommandExecutor {
 	
 	private TradeShop plugin;
 	
-	public Ts(TradeShop instance) {
+	public Executor(TradeShop instance) {
 		plugin = instance;
 	}
 	

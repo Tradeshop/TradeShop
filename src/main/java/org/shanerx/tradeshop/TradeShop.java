@@ -7,7 +7,7 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.shanerx.tradeshop.commands.Ts;
+import org.shanerx.tradeshop.commands.Executor;
 import org.shanerx.tradeshop.itrade.CreateISign;
 import org.shanerx.tradeshop.itrade.ITrade;
 import org.shanerx.tradeshop.trade.Admin;
@@ -60,7 +60,7 @@ public class TradeShop extends JavaPlugin {
         pm.registerEvents(new ITrade(this), this);
         pm.registerEvents(new CreateISign(this), this);
 
-        getCommand("tradeshop").setExecutor(new Ts(this));
+        getCommand("tradeshop").setExecutor(new Executor(this));
     }
 
     private void addConfigDefaults(FileConfiguration config) {
