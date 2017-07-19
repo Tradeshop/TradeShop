@@ -14,6 +14,7 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.plugin.Plugin;
 import org.shanerx.tradeshop.TradeShop;
 import org.shanerx.tradeshop.Utils;
 
@@ -116,6 +117,12 @@ public class Trade extends Utils implements Listener {
 				}
 			}
 			
+			if (!canFit(chestInventory, item2, amount2)) {
+				buyer.sendMessage(ChatColor.translateAlternateColorCodes('&', getPrefix() + plugin.config.getString("shop-full")
+						.replace("{ITEM}", item_name1.toLowerCase()).replace("{AMOUNT}", String.valueOf(amount1))));
+				return;
+			}
+			
 			if (item1check && item2check) {
 				playerInventory.removeItem(item2);
 				chestInventory.removeItem(item1);
@@ -138,10 +145,10 @@ public class Trade extends Utils implements Listener {
 			
 		} else if (e.getAction() == Action.LEFT_CLICK_BLOCK) {
 			
-			if (!isTradeShopSign(e.getClickedBlock())) {
-				return;
-			}
-			Sign s = (Sign) e.getClickedBlock().getState();
+		    if (!isTradeShopSign(e.getClickedBlock())) {
+                return;
+            }
+            Sign s = (Sign) e.getClickedBlock().getState();
 			
 			try {
 				String line1 = s.getLine(1);
@@ -159,6 +166,25 @@ public class Trade extends Utils implements Listener {
 		}
 		
 	}
+	
+    public static boolean canFit(Inventory inv, ItemStack itm, int amt) {
+        int count = 0;
+        if(inv.firstEmpty() >= 0)
+            return true;
+        for (ItemStack i : inv.getContents()) {
+            if (i != null) {
+                if (i.getType() == itm.getType() && i.getData() == itm.getData() && i.getDurability() == itm.getDurability() && i.getItemMeta() == itm.getItemMeta()) {
+                    count += i.getAmount();
+                }
+            }
+        }
+        
+        while(count >= itm.getMaxStackSize())
+        {
+            count -= itm.getMaxStackSize();
+        }
+        return count + amt <= itm.getMaxStackSize();
+    }
 	
 	public static boolean containsAtLeast(Inventory inv, Material mat, int amt) {
 		int count = 0;
