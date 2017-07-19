@@ -234,7 +234,7 @@ public class TradeShop extends JavaPlugin {
 		}
 		
 		if (config.getString("shop-full") == null) {
-			config.set("shop-full", "&cThis TradeShop please contact the owner to get it emptied!");
+			config.set("shop-full", "&cThis TradeShop is full, please contact the owner to get it emptied!");
 			
 			try {
 				config.save(configFile);
