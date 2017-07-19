@@ -60,7 +60,7 @@ public class Admin extends Utils implements Listener {
             if (! lines[3].equalsIgnoreCase(player.getName()) ) {
             	event.setCancelled(true);
             }
-			player.sendMessage(ChatColor.translateAlternateColorCodes('&', getPrefix() + plugin.config.getString("no-ts-destroy")));
+			player.sendMessage(ChatColor.translateAlternateColorCodes('&', getPrefix() + plugin.getConfig().getString("no-ts-destroy")));
 			return;
 		}
 		
@@ -159,7 +159,7 @@ public class Admin extends Utils implements Listener {
         	return;
         }
 
-		e.getPlayer().sendMessage(ChatColor.translateAlternateColorCodes('&', getPrefix() + plugin.config.getString("no-ts-open")));
+		e.getPlayer().sendMessage(ChatColor.translateAlternateColorCodes('&', getPrefix() + plugin.getConfig().getString("no-ts-open")));
     	e.setCancelled(true);
 	}
 }

@@ -61,7 +61,7 @@ public class IAdmin extends Utils implements Listener {
             	return;
             }
         	event.setCancelled(true);
-			player.sendMessage(ChatColor.translateAlternateColorCodes('&', getPrefix() + plugin.config.getString("no-ts-destroy")));
+			player.sendMessage(ChatColor.translateAlternateColorCodes('&', getPrefix() + plugin.getConfig().getString("no-ts-destroy")));
 			return;
 		}
 		
@@ -161,7 +161,7 @@ public class IAdmin extends Utils implements Listener {
         	return;
         }
 
-		e.getPlayer().sendMessage(ChatColor.translateAlternateColorCodes('&', getPrefix() + plugin.config.getString("no-ts-open")));
+		e.getPlayer().sendMessage(ChatColor.translateAlternateColorCodes('&', getPrefix() + plugin.getConfig().getString("no-ts-open")));
     	e.setCancelled(true);
 	}
 }

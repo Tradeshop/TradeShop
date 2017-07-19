@@ -88,7 +88,7 @@ public class Trade extends Utils implements Listener {
 			boolean item2check = false;
 			
 			if (!containsAtLeast(playerInventory, item2.getType(), amount2)) {
-				buyer.sendMessage(ChatColor.translateAlternateColorCodes('&', getPrefix() + plugin.config.getString("insufficient-items")
+				buyer.sendMessage(ChatColor.translateAlternateColorCodes('&', getPrefix() + plugin.getConfig().getString("insufficient-items")
 						.replace("{ITEM}", item_name2.toLowerCase()).replace("{AMOUNT}", String.valueOf(amount2))));
 				return;
 			} else {
@@ -108,7 +108,7 @@ public class Trade extends Utils implements Listener {
 			}
 			
 			if (!containsAtLeast(chestInventory, item1.getType(), amount1)) {
-				buyer.sendMessage(ChatColor.translateAlternateColorCodes('&', getPrefix() + plugin.config.getString("shop-empty")
+				buyer.sendMessage(ChatColor.translateAlternateColorCodes('&', getPrefix() + plugin.getConfig().getString("shop-empty")
 						.replace("{ITEM}", item_name1.toLowerCase()).replace("{AMOUNT}", String.valueOf(amount1))));
 				return;
 			} else {
@@ -128,7 +128,7 @@ public class Trade extends Utils implements Listener {
 			}
 			
 			if (!canFit(chestInventory, item1, amount1)) {
-                buyer.sendMessage(ChatColor.translateAlternateColorCodes('&', getPrefix() + plugin.config.getString("shop-full")
+                buyer.sendMessage(ChatColor.translateAlternateColorCodes('&', getPrefix() + plugin.getConfig().getString("shop-full")
                         .replace("{ITEM}", item_name1.toLowerCase()).replace("{AMOUNT}", String.valueOf(amount1))));
                 return;
             }
@@ -140,17 +140,17 @@ public class Trade extends Utils implements Listener {
 				playerInventory.addItem(item1);
 				
 			} else if (!item1check) {
-				buyer.sendMessage(ChatColor.translateAlternateColorCodes('&', getPrefix() + plugin.config.getString("shop-full-amount")
+				buyer.sendMessage(ChatColor.translateAlternateColorCodes('&', getPrefix() + plugin.getConfig().getString("shop-full-amount")
 						.replace("{ITEM}", item_name1.toLowerCase()).replace("{AMOUNT}", String.valueOf(amount1))));
 				return;
 				
 			} else if (!item2check) {
-				buyer.sendMessage(ChatColor.translateAlternateColorCodes('&', getPrefix() + plugin.config.getString("full-amount")
+				buyer.sendMessage(ChatColor.translateAlternateColorCodes('&', getPrefix() + plugin.getConfig().getString("full-amount")
 						.replace("{ITEM}", item_name2.toLowerCase()).replace("{AMOUNT}", String.valueOf(amount2))));
 				return;
 				
 			}
-			String message = plugin.config.getString("on-trade").replace("{AMOUNT1}", String.valueOf(amount1)).replace("{AMOUNT2}", String.valueOf(amount2)).replace("{ITEM1}", item_name1.toLowerCase()).replace("{ITEM2}", item_name2.toLowerCase()).replace("{SELLER}", s.getLine(3));
+			String message = plugin.getConfig().getString("on-trade").replace("{AMOUNT1}", String.valueOf(amount1)).replace("{AMOUNT2}", String.valueOf(amount2)).replace("{ITEM1}", item_name1.toLowerCase()).replace("{ITEM2}", item_name2.toLowerCase()).replace("{SELLER}", s.getLine(3));
 			buyer.sendMessage(ChatColor.translateAlternateColorCodes('&', getPrefix() + message));
 			
 		} else if (e.getAction() == Action.LEFT_CLICK_BLOCK) {
@@ -170,7 +170,7 @@ public class Trade extends Utils implements Listener {
 				String item_name1 = info1[1].toUpperCase();
 				String item_name2 = info2[1].toUpperCase();
 				
-				buyer.sendMessage(ChatColor.translateAlternateColorCodes('&', getPrefix() + plugin.config.getString("confirm-trade").replace("{AMOUNT1}", String.valueOf(amount1)).replace("{AMOUNT2}", String.valueOf(amount2)).replace("{ITEM1}", item_name1.toLowerCase()).replace("{ITEM2}", item_name2.toLowerCase())));
+				buyer.sendMessage(ChatColor.translateAlternateColorCodes('&', getPrefix() + plugin.getConfig().getString("confirm-trade").replace("{AMOUNT1}", String.valueOf(amount1)).replace("{AMOUNT2}", String.valueOf(amount2)).replace("{ITEM1}", item_name1.toLowerCase()).replace("{ITEM2}", item_name2.toLowerCase())));
 			} catch (Exception ex) {
 			}
 		}

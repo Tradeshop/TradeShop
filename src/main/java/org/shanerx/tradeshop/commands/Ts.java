@@ -24,7 +24,7 @@ public class Ts extends Utils implements CommandExecutor{
 		
 		if (cmd.getName().equalsIgnoreCase("tradeshop")) {
 			if (args.length == 0) {
-				sender.sendMessage(ChatColor.translateAlternateColorCodes('&', getPrefix() + plugin.config.getString("invalid-arguments")));
+				sender.sendMessage(ChatColor.translateAlternateColorCodes('&', getPrefix() + plugin.getConfig().getString("invalid-arguments")));
 				return true;
 			}
 			
@@ -33,7 +33,7 @@ public class Ts extends Utils implements CommandExecutor{
 				if (args[0].equalsIgnoreCase("help")) {
 					
 					if (! sender.hasPermission("tradeshop.help")) {
-						sender.sendMessage(ChatColor.translateAlternateColorCodes('&', getPrefix() + plugin.config.getString("no-command-permission")));
+						sender.sendMessage(ChatColor.translateAlternateColorCodes('&', getPrefix() + plugin.getConfig().getString("no-command-permission")));
 						return true;
 					}
 
@@ -60,13 +60,6 @@ public class Ts extends Utils implements CommandExecutor{
 					
 				}
 				
-	/*			if (args[0].equalsIgnoreCase("admin")) {
-					if (!sender.hasPermission("tradeshop.admin")) {
-						sender.sendMessage(ChatColor.translateAlternateColorCodes('&', getPrefix() + " &aYou do not have permission to execute this command"));
-						return true;
-					}
-				}
-	*/			
 				else if (args[0].equalsIgnoreCase("bugs")) {
 					sender.sendMessage(ChatColor.translateAlternateColorCodes('&', "\n &2To report any bugs to the author, either send a PM on"
 							+ " &cSpigot &2- &egoo.gl/s6Jk23 &2or open an issue on &cGitHub &2-&e goo.gl/X4qqyg\n"));
@@ -74,26 +67,25 @@ public class Ts extends Utils implements CommandExecutor{
 				}
 				
 				else if (args[0].equalsIgnoreCase("setup")) {
-					sender.sendMessage(ChatColor.translateAlternateColorCodes('&', getPrefix() + plugin.config.getString("setup-help")));
+					sender.sendMessage(ChatColor.translateAlternateColorCodes('&', getPrefix() + plugin.getConfig().getString("setup-help")));
 					return true;
 				}
 				
 				else if (args[0].equalsIgnoreCase("reload")) {
 					
 					if (! sender.hasPermission("tradeshop.admin")) {
-						sender.sendMessage(ChatColor.translateAlternateColorCodes('&', getPrefix() + plugin.config.getString("no-command-permission")));
+						sender.sendMessage(ChatColor.translateAlternateColorCodes('&', getPrefix() + plugin.getConfig().getString("no-command-permission")));
 						return true;
 					}
 					
-					plugin.config = null;
-					plugin.config = YamlConfiguration.loadConfiguration(plugin.configFile);
+					plugin.reloadConfig();
 					sender.sendMessage(ChatColor.translateAlternateColorCodes('&', getPrefix() + "&6The configuration files have been reloaded!"));
 					return true;
 				}
 			
 			}
 			
-			sender.sendMessage(ChatColor.translateAlternateColorCodes('&', getPrefix() + plugin.config.getString("invalid-arguments")));
+			sender.sendMessage(ChatColor.translateAlternateColorCodes('&', getPrefix() + plugin.getConfig().getString("invalid-arguments")));
 			return true;
 			
 		}
