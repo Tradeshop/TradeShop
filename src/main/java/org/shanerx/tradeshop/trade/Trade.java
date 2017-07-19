@@ -25,7 +25,6 @@ public class Trade extends Utils implements Listener {
 		plugin = instance;
 	}
 	
-	
 	@SuppressWarnings("deprecation")
 	@EventHandler
 	public void onBlockInteract(PlayerInteractEvent e) {
@@ -55,8 +54,20 @@ public class Trade extends Utils implements Listener {
 			String[] info1 = line1.split(" ");
 			String[] info2 = line2.split(" ");
 			
+			
 			int amount1 = Integer.parseInt(info1[0]);
 			int amount2 = Integer.parseInt(info2[0]);
+			
+			int durability1 = 0;
+			int durability2 = 0;
+			if (line1.split(":").length > 1) {
+				durability1 = Integer.parseInt(info1[1].split(":")[1]);
+				info1[1] = info1[1].split(":")[0];
+			}
+			if (line2.split(":").length > 1) {
+				durability2 = Integer.parseInt(info2[1].split(":")[1]);
+				info2[1] = info2[1].split(":")[0];
+			}
 			
 			String item_name1, item_name2;
 			
@@ -83,10 +94,10 @@ public class Trade extends Utils implements Listener {
 			} else {
 				for (ItemStack i : playerInventory.getContents()) {
 					if (i != null) {
-						if (i.getType() == item2.getType()) {
+						if (i.getType() == item2.getType() && i.getDurability() == durability2) {
 							if (i.getAmount() >= amount2) {
 								item2.setData(i.getData());
-								item2.setDurability(i.getDurability());
+								item2.setDurability((short)durability2);
 								item2.setItemMeta(i.getItemMeta());
 								item2check = true;
 								break;
@@ -103,10 +114,10 @@ public class Trade extends Utils implements Listener {
 			} else {
 				for (ItemStack i : chestInventory.getContents()) {
 					if (i != null) {
-						if (i.getType() == item1.getType()) {
+						if (i.getType() == item1.getType() && i.getDurability() == durability1) {
 							if (i.getAmount() >= amount1) {
 								item1.setData(i.getData());
-								item1.setDurability(i.getDurability());
+								item1.setDurability((short)durability1);
 								item1.setItemMeta(i.getItemMeta());
 								item1check = true;
 								break;
@@ -117,11 +128,11 @@ public class Trade extends Utils implements Listener {
 			}
 			
 			if (!canFit(chestInventory, item1, amount1)) {
-				buyer.sendMessage(ChatColor.translateAlternateColorCodes('&', getPrefix() + plugin.config.getString("shop-full")
-						.replace("{ITEM}", item_name1.toLowerCase()).replace("{AMOUNT}", String.valueOf(amount1))));
-				return;
-			}
-			
+                buyer.sendMessage(ChatColor.translateAlternateColorCodes('&', getPrefix() + plugin.config.getString("shop-full")
+                        .replace("{ITEM}", item_name1.toLowerCase()).replace("{AMOUNT}", String.valueOf(amount1))));
+                return;
+            }
+            
 			if (item1check && item2check) {
 				playerInventory.removeItem(item2);
 				chestInventory.removeItem(item1);
@@ -144,10 +155,10 @@ public class Trade extends Utils implements Listener {
 			
 		} else if (e.getAction() == Action.LEFT_CLICK_BLOCK) {
 			
-		    if (!isTradeShopSign(e.getClickedBlock())) {
-                return;
-            }
-            Sign s = (Sign) e.getClickedBlock().getState();
+			if (!isTradeShopSign(e.getClickedBlock())) {
+				return;
+			}
+			Sign s = (Sign) e.getClickedBlock().getState();
 			
 			try {
 				String line1 = s.getLine(1);
@@ -166,34 +177,4 @@ public class Trade extends Utils implements Listener {
 		
 	}
 	
-    public static boolean canFit(Inventory inv, ItemStack itm, int amt) {
-        int count = 0;
-        if(inv.firstEmpty() >= 0)
-            return true;
-        for (ItemStack i : inv.getContents()) {
-            if (i != null) {
-                if (i.getType() == itm.getType() && i.getData() == itm.getData() && i.getDurability() == itm.getDurability() && i.getItemMeta() == itm.getItemMeta()) {
-                    count += i.getAmount();
-                }
-            }
-        }
-        
-        while(count >= itm.getMaxStackSize())
-        {
-            count -= itm.getMaxStackSize();
-        }
-        return count + amt <= itm.getMaxStackSize();
-    }
-	
-	public static boolean containsAtLeast(Inventory inv, Material mat, int amt) {
-		int count = 0;
-		for (ItemStack itm : inv.getContents()) {
-			if (itm != null) {
-				if (itm.getType() == mat) {
-					count += itm.getAmount();
-				}
-			}
-		}
-		return count >= amt;
-	}
 }
