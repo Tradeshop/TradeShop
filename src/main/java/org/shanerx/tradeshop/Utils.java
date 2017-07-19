@@ -7,30 +7,30 @@ import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.plugin.PluginDescriptionFile;
+
+import java.util.List;
 
 public class Utils {
-	
-	final String plugin = "TradeShop";
-	final String author = "Lori00";
-	final String version = Bukkit.getPluginManager().getPlugin("TradeShop").getDescription().getVersion();
-	final String website = null;
-	
-	final String PREFIX = "&a[&eTradeShop&a] ";
+
+	protected final String VERSION = Bukkit.getPluginManager().getPlugin("TradeShop").getDescription().getVersion();
+	protected final PluginDescriptionFile pdf = Bukkit.getPluginManager().getPlugin("TradeShop").getDescription();
+	protected final String PREFIX = "&a[&eTradeShop&a] ";
 	
 	public String getPluginName() {
-		return plugin;
+		return pdf.getName();
 	}
 	
 	public String getVersion() {
-		return version;
+		return pdf.getVersion();
 	}
 	
-	public String getAuthor() {
-		return author;
+	public List<String> getAuthors() {
+		return pdf.getAuthors();
 	}
 	
 	public String getWebsite() {
-		return website;
+		return pdf.getWebsite();
 	}
 	
 	public String getPrefix() {
@@ -81,11 +81,9 @@ public class Utils {
 				}
 			}
 		}
-		
 		while (count >= itm.getMaxStackSize()) {
 			count -= itm.getMaxStackSize();
 		}
-		
 		if (count == 0) {
 			return false;
 		} else {
