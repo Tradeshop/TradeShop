@@ -19,7 +19,7 @@ import org.shanerx.tradeshop.Utils;
 
 public class ITrade extends Utils implements Listener {
 
-	TradeShop plugin;
+	private TradeShop plugin;
 	
 	public ITrade(TradeShop instance) {
 		plugin = instance;
@@ -34,18 +34,10 @@ public class ITrade extends Utils implements Listener {
 		
 		if ( e.getAction() == Action.RIGHT_CLICK_BLOCK) {
 			
-			Sign s;
-			
-			try {
-				
-				s = (Sign) e.getClickedBlock().getState();
-			} catch (Exception ex) {
+			if (!isInfiniteTradeShopSign(e.getClickedBlock())) {
 				return;
 			}
-			
-			if (! "[iTrade]".equalsIgnoreCase(ChatColor.stripColor(s.getLine(0))))  {
-				return;
-			}
+			Sign s = (Sign) e.getClickedBlock().getState();
 			
 	        int x = e.getClickedBlock().getLocation().getBlockX();
 	        int y = e.getClickedBlock().getLocation().getBlockY();
@@ -94,7 +86,7 @@ public class ITrade extends Utils implements Listener {
             boolean item1check = false, item2check = false;
             
             if (!containsAtLeast(playerInventory, item2.getType(), amount2)) {
-                buyer.sendMessage(ChatColor.translateAlternateColorCodes('&', getPrefix() + plugin.config.getString("insufficient-items")
+                buyer.sendMessage(ChatColor.translateAlternateColorCodes('&', getPrefix() + plugin.getConfig().getString("insufficient-items")
                         .replace("{ITEM}", item_name2.toLowerCase()).replace("{AMOUNT}", String.valueOf(amount2))));
                 return;
             } else {
@@ -148,27 +140,22 @@ public class ITrade extends Utils implements Listener {
             }
             else if(!item2check)
             {
-                buyer.sendMessage(ChatColor.translateAlternateColorCodes('&', getPrefix() + plugin.config.getString("full-amount")
+                buyer.sendMessage(ChatColor.translateAlternateColorCodes('&', getPrefix() + plugin.getConfig().getString("full-amount")
                 .replace("{ITEM}", item_name2.toLowerCase()).replace("{AMOUNT}", String.valueOf(amount2)))); 
                 return;
             }
             
-            String message = plugin.config.getString("on-trade").replace("{AMOUNT1}", String.valueOf(amount1)).replace("{AMOUNT2}", String.valueOf(amount2)).replace("{ITEM1}", item_name1.toLowerCase()).replace("{ITEM2}", item_name2.toLowerCase()).replace("{SELLER}", s.getLine(3));
+            String message = plugin.getConfig().getString("on-trade").replace("{AMOUNT1}", String.valueOf(amount1)).replace("{AMOUNT2}", String.valueOf(amount2)).replace("{ITEM1}", item_name1.toLowerCase()).replace("{ITEM2}", item_name2.toLowerCase()).replace("{SELLER}", s.getLine(3));
             
             buyer.sendMessage(ChatColor.translateAlternateColorCodes('&', getPrefix() + message));
             return;
         }
         
         else if (e.getAction() == Action.LEFT_CLICK_BLOCK) {
-            Sign s;
-            try {
-                s = (Sign) e.getClickedBlock().getState();
-            } catch (Exception ex) {
-                return;
-            }
-            if (! "[iTrade]".equalsIgnoreCase(ChatColor.stripColor(s.getLine(0)))) {
-                return;
-            }
+            if (!isInfiniteTradeShopSign(e.getClickedBlock())) {
+            	return;
+			}
+			Sign s = (Sign) e.getClickedBlock().getState();
             
             try {
                 String line1 = s.getLine(1);
@@ -180,12 +167,10 @@ public class ITrade extends Utils implements Listener {
                 String item_name1 = info1[1].toUpperCase();
                 String item_name2 = info2[1].toUpperCase();
                 
-                buyer.sendMessage(ChatColor.translateAlternateColorCodes('&', getPrefix() + plugin.config.getString("confirm-trade").replace("{AMOUNT1}", String.valueOf(amount1)).replace("{AMOUNT2}", String.valueOf(amount2)).replace("{ITEM1}", item_name1.toLowerCase()).replace("{ITEM2}", item_name2.toLowerCase())));
+                buyer.sendMessage(ChatColor.translateAlternateColorCodes('&', getPrefix() + plugin.getConfig().getString("confirm-trade").replace("{AMOUNT1}", String.valueOf(amount1)).replace("{AMOUNT2}", String.valueOf(amount2)).replace("{ITEM1}", item_name1.toLowerCase()).replace("{ITEM2}", item_name2.toLowerCase())));
             } catch (Exception ex) {
                 return;
             }
-
         }
-        
     }
 }
