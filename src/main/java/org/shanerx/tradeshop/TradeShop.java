@@ -8,11 +8,12 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.shanerx.tradeshop.commands.Executor;
-import org.shanerx.tradeshop.itrade.CreateISign;
-import org.shanerx.tradeshop.itrade.ITrade;
-import org.shanerx.tradeshop.trade.Admin;
-import org.shanerx.tradeshop.trade.CreateSign;
-import org.shanerx.tradeshop.trade.Trade;
+import org.shanerx.tradeshop.itrade.IShopCreateEventListener;
+import org.shanerx.tradeshop.itrade.IShopCreateEventListener;
+import org.shanerx.tradeshop.itrade.ITradeEventListener;
+import org.shanerx.tradeshop.trade.AdminEventListener;
+import org.shanerx.tradeshop.trade.ShopCreateEventListener;
+import org.shanerx.tradeshop.trade.TradeEventListener;
 
 public class TradeShop extends JavaPlugin {
 
@@ -49,16 +50,16 @@ public class TradeShop extends JavaPlugin {
         }
         reloadConfig();
 
-        Trade shop = new Trade(this);
-        CreateSign inst = new CreateSign(this);
-        Admin admn = new Admin(this);
+        TradeEventListener shop = new TradeEventListener(this);
+		ShopCreateEventListener inst = new ShopCreateEventListener(this);
+        AdminEventListener admn = new AdminEventListener(this);
     
         PluginManager pm = getServer().getPluginManager();
         pm.registerEvents(shop, this);
         pm.registerEvents(inst, this);
         pm.registerEvents(admn, this);
-        pm.registerEvents(new ITrade(this), this);
-        pm.registerEvents(new CreateISign(this), this);
+        pm.registerEvents(new ITradeEventListener(this), this);
+        pm.registerEvents(new IShopCreateEventListener(this), this);
 
         getCommand("tradeshop").setExecutor(new Executor(this));
     }

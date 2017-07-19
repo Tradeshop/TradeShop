@@ -1,4 +1,4 @@
-package org.shanerx.tradeshop.trade;
+package org.shanerx.tradeshop.itrade;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -15,11 +15,11 @@ import org.bukkit.inventory.ItemStack;
 import org.shanerx.tradeshop.TradeShop;
 import org.shanerx.tradeshop.Utils;
 
-public class Admin extends Utils implements Listener {
+public class IAdminEventListener extends Utils implements Listener {
 	
-	TradeShop plugin;
+	private TradeShop plugin;
 	
-	public Admin(TradeShop instance) {
+	public IAdminEventListener(TradeShop instance) {
 		
 		plugin = instance;
 		
@@ -34,7 +34,7 @@ public class Admin extends Utils implements Listener {
 		if ( event.getBlock().getType() == Material.SIGN_POST || event.getBlock().getType() == Material.WALL_SIGN ) {	
 			Sign s = (Sign) event.getBlock().getState();
 			
-			if (! "[Trade]".equalsIgnoreCase(ChatColor.stripColor(s.getLine(0)))) {
+			if (! "[iTrade]".equalsIgnoreCase(ChatColor.stripColor(s.getLine(0)))) {
 				return;
 			}
 
@@ -57,14 +57,15 @@ public class Admin extends Utils implements Listener {
 	        }
 	        
             String[] lines = s.getLines();
-            if (! lines[3].equalsIgnoreCase(player.getName()) ) {
-            	event.setCancelled(true);
+            if (lines[3].equalsIgnoreCase(player.getName()) ) {
+            	return;
             }
+        	event.setCancelled(true);
 			player.sendMessage(ChatColor.translateAlternateColorCodes('&', getPrefix() + plugin.getConfig().getString("no-ts-destroy")));
 			return;
 		}
 		
-		if ( state instanceof Chest ) {	
+		if ( state instanceof Chest ) {
 			if ( player.hasPermission("tradeshop.admin") ) {
 				return;
 			}
@@ -96,8 +97,9 @@ public class Admin extends Utils implements Listener {
 	        	return;
 	        }
 			
-	        if (s.getLine(3) == null || s.getLine(3).equals(""))
+	        if (s.getLine(3) == null || s.getLine(3).equals("")) {
 	        	return;
+	        }
 	        if (s.getLine(3).equalsIgnoreCase(player.getName())) {
 	        	return;
 	        }

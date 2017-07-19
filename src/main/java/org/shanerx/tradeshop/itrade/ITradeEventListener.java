@@ -17,11 +17,11 @@ import org.bukkit.inventory.ItemStack;
 import org.shanerx.tradeshop.TradeShop;
 import org.shanerx.tradeshop.Utils;
 
-public class ITrade extends Utils implements Listener {
+public class ITradeEventListener extends Utils implements Listener {
 
 	private TradeShop plugin;
 	
-	public ITrade(TradeShop instance) {
+	public ITradeEventListener(TradeShop instance) {
 		plugin = instance;
 	}
 	
