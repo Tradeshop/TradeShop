@@ -150,4 +150,3 @@ boolean signIsValid = true; // If this is true, the information on the sign is v
         event.getPlayer().sendMessage(ChatColor.translateAlternateColorCodes('&', getPrefix() + plugin.getConfig().getString("successful-setup")));
     }
 }
-
