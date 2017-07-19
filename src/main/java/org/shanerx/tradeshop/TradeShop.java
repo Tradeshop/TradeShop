@@ -27,6 +27,12 @@ public class TradeShop extends JavaPlugin {
 	public FileConfiguration getConfig() {
     	return config;
 	}
+	
+	@Override
+	public void reloadConfig() {
+    	config = YamlConfiguration.loadConfiguration(configFile);
+    	addConfigDefaults(config);
+	}
 
     @Override
     public void onEnable() {
@@ -41,9 +47,7 @@ public class TradeShop extends JavaPlugin {
                 e.printStackTrace();
             }
         }
-
-        config = YamlConfiguration.loadConfiguration(configFile);
-        addConfigDefaults(config);
+        reloadConfig();
 
         Trade shop = new Trade(this);
         CreateSign inst = new CreateSign(this);
