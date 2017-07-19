@@ -174,7 +174,5 @@ public class Trade extends Utils implements Listener {
 			} catch (Exception ex) {
 			}
 		}
-		
 	}
-	
 }

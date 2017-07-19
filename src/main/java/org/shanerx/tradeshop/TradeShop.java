@@ -5,6 +5,7 @@ import java.io.IOException;
 
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.shanerx.tradeshop.commands.Ts;
 import org.shanerx.tradeshop.itrade.CreateISign;
@@ -15,11 +16,6 @@ import org.shanerx.tradeshop.trade.Trade;
 
 public class TradeShop extends JavaPlugin {
 
-    TradeShop plugin = this;
-
-    @SuppressWarnings("unused")
-    private String dir = plugin.getDataFolder().toString();
-
     public File configFile = new File(this.getDataFolder(), "messages.yml");
     public FileConfiguration config;
 
@@ -28,38 +24,31 @@ public class TradeShop extends JavaPlugin {
     public void onEnable() {
 
         if (! configFile.exists()) {
-
             if (! getDataFolder().exists()) {
-
                 getDataFolder().mkdir();
-
             }
-
             try {
                 configFile.createNewFile();
             } catch (IOException e) {
                 e.printStackTrace();
             }
-
         }
 
         config = YamlConfiguration.loadConfiguration(configFile);
-
         addConfigDefaults(config);
 
         Trade shop = new Trade(this);
         CreateSign inst = new CreateSign(this);
         Admin admn = new Admin(this);
-
-        getServer().getPluginManager().registerEvents(shop, this);
-        getServer().getPluginManager().registerEvents(inst, this);
-        getServer().getPluginManager().registerEvents(admn, this);
-
-        getServer().getPluginManager().registerEvents(new ITrade(this), this);
-        getServer().getPluginManager().registerEvents(new CreateISign(this), this);
+    
+        PluginManager pm = getServer().getPluginManager();
+        pm.registerEvents(shop, this);
+        pm.registerEvents(inst, this);
+        pm.registerEvents(admn, this);
+        pm.registerEvents(new ITrade(this), this);
+        pm.registerEvents(new CreateISign(this), this);
 
         getCommand("tradeshop").setExecutor(new Ts(this));
-
     }
 
     private void addConfigDefaults(FileConfiguration config) {
@@ -72,7 +61,6 @@ public class TradeShop extends JavaPlugin {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-
         }
 
         if (config.getString("no-command-permission") == null) {
@@ -83,7 +71,6 @@ public class TradeShop extends JavaPlugin {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-
         }
 
         if (config.getString("setup-help") == null) {
@@ -98,7 +85,6 @@ public class TradeShop extends JavaPlugin {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-
         }
 
         if (config.getString("no-ts-create-permission") == null) {
@@ -109,7 +95,6 @@ public class TradeShop extends JavaPlugin {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-
         }
 
         if (config.getString("no-chest") == null) {
@@ -120,7 +105,6 @@ public class TradeShop extends JavaPlugin {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-
         }
 
         if (config.getString("invalid-sign") == null) {
@@ -131,7 +115,6 @@ public class TradeShop extends JavaPlugin {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-
         }
 
         if (config.getString("no-ts-destroy") == null) {
@@ -142,7 +125,6 @@ public class TradeShop extends JavaPlugin {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-
         }
 
         if (config.getString("successful-setup") == null) {
@@ -153,7 +135,6 @@ public class TradeShop extends JavaPlugin {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-
         }
 
         if (config.getString("no-ts-open") == null) {
@@ -164,7 +145,6 @@ public class TradeShop extends JavaPlugin {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-
         }
 
         if (config.getString("empty-ts-on-setup") == null) {
@@ -175,7 +155,6 @@ public class TradeShop extends JavaPlugin {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-
         }
 
         if (config.getString("on-trade") == null) {
@@ -186,7 +165,6 @@ public class TradeShop extends JavaPlugin {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-
         }
 
         if (config.getString("insufficient-items") == null) {
@@ -197,7 +175,6 @@ public class TradeShop extends JavaPlugin {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-
         }
 
         if (config.getString("shop-full-amount") == null) {
@@ -208,7 +185,6 @@ public class TradeShop extends JavaPlugin {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-
         }
 
         if (config.getString("full-amount") == null) {
@@ -219,7 +195,6 @@ public class TradeShop extends JavaPlugin {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-
         }
 
         if (config.getString("shop-empty") == null) {
@@ -230,7 +205,6 @@ public class TradeShop extends JavaPlugin {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-
         }
 
         if (config.getString("shop-full") == null) {
@@ -241,7 +215,6 @@ public class TradeShop extends JavaPlugin {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-
         }
 
         if (config.getString("confirm-trade") == null) {
@@ -252,16 +225,9 @@ public class TradeShop extends JavaPlugin {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-
         }
-
     }
 
     @Override
-    public void onDisable() {
-
-        plugin = null;
-
-    }
-
+    public void onDisable() {}
 }
