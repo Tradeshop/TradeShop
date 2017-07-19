@@ -116,7 +116,7 @@ public class Trade extends Utils implements Listener {
 				}
 			}
 			
-			if (!canFit(chestInventory, item2, amount2)) {
+			if (!canFit(chestInventory, item1, amount1)) {
 				buyer.sendMessage(ChatColor.translateAlternateColorCodes('&', getPrefix() + plugin.config.getString("shop-full")
 						.replace("{ITEM}", item_name1.toLowerCase()).replace("{AMOUNT}", String.valueOf(amount1))));
 				return;
