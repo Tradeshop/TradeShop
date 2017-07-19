@@ -75,6 +75,14 @@ public class CreateSign extends Utils implements Listener {
         	signIsValid = false;
         }
         
+		
+		if (line1.split(":").length > 1) {
+			info1[1] = info1[1].split(":")[0];
+		}
+		if (line2.split(":").length > 1) {
+			info2[1] = info2[1].split(":")[0];
+		}
+        
         int amount1 = 0;
         int amount2 = 0;
         String item_name1 = null;

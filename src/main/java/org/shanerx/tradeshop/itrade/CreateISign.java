@@ -67,6 +67,18 @@ boolean signIsValid = true; // If this is true, the information on the sign is v
         String[] info2 = line2.split(" ");
         
         if ( info1.length != 2 || info2.length != 2 ) {
+        	signIsValid = false;
+        }
+        
+		
+		if (line1.split(":").length > 1) {
+			info1[1] = info1[1].split(":")[0];
+		}
+		if (line2.split(":").length > 1) {
+			info2[1] = info2[1].split(":")[0];
+		}
+        
+        if ( info1.length != 2 || info2.length != 2 ) {
             signIsValid = false;
         }
         
