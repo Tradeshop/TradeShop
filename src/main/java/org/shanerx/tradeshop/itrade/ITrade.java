@@ -64,7 +64,18 @@ public class ITrade extends Utils implements Listener {
             String[] info2 = line2.split(" ");
             
             int amount1 = Integer.parseInt(info1[0]);
-            int amount2 = Integer.parseInt(info2[0]);
+			int amount2 = Integer.parseInt(info2[0]);
+			
+			int durability1 = 0;
+			int durability2 = 0;
+			if (line1.split(":").length > 1) {
+				durability1 = Integer.parseInt(info1[1].split(":")[1]);
+				info1[1] = info1[1].split(":")[0];
+			}
+			if (line2.split(":").length > 1) {
+				durability2 = Integer.parseInt(info2[1].split(":")[1]);
+				info2[1] = info2[1].split(":")[0];
+			}
             
             String item_name1, item_name2;
             
@@ -93,10 +104,10 @@ public class ITrade extends Utils implements Listener {
                     {
                         if(i.getType() == item2.getType())
                         {
-                            if(i.getAmount() >= amount2)
+                            if(i.getAmount() >= amount2  && i.getDurability() == durability2)
                             {
                                 item2.setData(i.getData());
-                                item2.setDurability(i.getDurability());
+                                item2.setDurability((short)durability2);
                                 item2.setItemMeta(i.getItemMeta());
                                 item2check = true;
                                 break;
@@ -111,12 +122,12 @@ public class ITrade extends Utils implements Listener {
                 {
                     if(i != null)
                     {
-                        if(i.getType() == item1.getType())
+                        if(i.getType() == item1.getType()  && i.getDurability() == durability1)
                         {
                             if(i.getAmount() >= amount1)
                             {
                                 item1.setData(i.getData());
-                                item1.setDurability(i.getDurability());
+                                item1.setDurability((short)durability1);
                                 item1.setItemMeta(i.getItemMeta());
                                 item1check = true;
                                 break;
@@ -176,35 +187,5 @@ public class ITrade extends Utils implements Listener {
 
         }
         
-    }
-    
-    public static boolean containsAtLeast(Inventory inv, Material mat, int amt)
-    {
-        int count = 0;
-        for(ItemStack itm : inv.getContents())
-        {
-            if(itm != null)
-                if(itm.getType() == mat)
-                {
-                    count += itm.getAmount();
-                }
-                
-            if(count >= amt)
-                return true;
-        }
-        
-        return false;
-    }
-
-    //checks to see if a string is an integer, IDK if i use this in this plugin but its here
-    public static boolean isInt(String str)
-    {
-        try{
-            Integer.parseInt(str);
-        }catch(Exception e){
-            return false;
-        }
-        
-        return true;
     }
 }

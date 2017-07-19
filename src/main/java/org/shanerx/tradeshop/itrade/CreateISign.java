@@ -67,6 +67,18 @@ boolean signIsValid = true; // If this is true, the information on the sign is v
         String[] info2 = line2.split(" ");
         
         if ( info1.length != 2 || info2.length != 2 ) {
+        	signIsValid = false;
+        }
+        
+		
+		if (line1.split(":").length > 1) {
+			info1[1] = info1[1].split(":")[0];
+		}
+		if (line2.split(":").length > 1) {
+			info2[1] = info2[1].split(":")[0];
+		}
+        
+        if ( info1.length != 2 || info2.length != 2 ) {
             signIsValid = false;
         }
         
@@ -115,18 +127,6 @@ boolean signIsValid = true; // If this is true, the information on the sign is v
         event.setLine(3, player_name);
         event.setLine(0, ChatColor.DARK_GREEN + "[iTrade]");
         event.getPlayer().sendMessage(ChatColor.translateAlternateColorCodes('&', getPrefix() + plugin.config.getString("successful-setup")));
-    }
-
-    //checks to see if a string is an integer, IDK if i use this in this plugin but its here
-    public static boolean isInt(String str)
-    {
-        try{
-            Integer.parseInt(str);
-        }catch(Exception e){
-            return false;
-        }
-        
-        return true;
     }
 }
 
