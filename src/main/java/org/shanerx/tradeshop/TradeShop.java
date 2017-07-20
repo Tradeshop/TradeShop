@@ -154,6 +154,10 @@ public class TradeShop extends JavaPlugin {
             config.set("shop-full", "&cThis TradeShop is full, please contact the owner to get it emptied!");
         }
         
+        if (config.getString("player-full") == null) {
+            config.set("player-full", "&cYour inventory is full, please make room before trading items!");
+        }
+	    
         if (config.getString("confirm-trade") == null) {
             config.set("confirm-trade", "&eTrade &6 {AMOUNT1} {ITEM1} &e for &6 {AMOUNT2} {ITEM2} &e?");
         }
