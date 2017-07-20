@@ -155,7 +155,7 @@ public class TradeEventListener extends Utils implements Listener {
             }
 			
 			if (!canFit(playerInventory, item2, amount2)) {
-                buyer.sendMessage(ChatColor.translateAlternateColorCodes('&', getPrefix() + plugin.config.getString("player-full")
+                buyer.sendMessage(ChatColor.translateAlternateColorCodes('&', getPrefix() + plugin.getConfig().getString("player-full")
                         .replace("{ITEM}", item_name2.toLowerCase()).replace("{AMOUNT}", String.valueOf(amount2))));
                 return;
             }

@@ -50,7 +50,7 @@ public class Executor extends Utils implements CommandExecutor {
 				}
 				
 				String line1 = "\n";
-				String line2 = "&2" + getPluginName() + " " + getVersion() + " by " + getAuthor() + "\n";
+				String line2 = "&2" + getPluginName() + " " + getVersion() + " by " + pdf.getAuthors().get(0) + "\n";
 				String line3 = "\n";
 				String line4 = "\n";
 				String line5 = "&6/tradeshop help &c - Display help message\n";

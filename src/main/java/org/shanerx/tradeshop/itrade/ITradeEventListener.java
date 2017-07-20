@@ -149,6 +149,12 @@ public class ITradeEventListener extends Utils implements Listener {
                     }
                 }
             }
+			
+			if (!canFit(playerInventory, item2, amount2)) {
+				buyer.sendMessage(ChatColor.translateAlternateColorCodes('&', getPrefix() + plugin.getConfig().getString("player-full")
+						.replace("{ITEM}", item_name2.toLowerCase()).replace("{AMOUNT}", String.valueOf(amount2))));
+				return;
+			}
             
             if(item2check)
             {
@@ -158,16 +164,14 @@ public class ITradeEventListener extends Utils implements Listener {
                 playerInventory.removeItem(item2);
                 chestInventory.addItem(item2);
                 playerInventory.addItem(item1);
-            }
-            else if(!item2check)
-            {
+                
+            } else if(!item2check) {
                 buyer.sendMessage(ChatColor.translateAlternateColorCodes('&', getPrefix() + plugin.getConfig().getString("full-amount")
                 .replace("{ITEM}", item_name2.toLowerCase()).replace("{AMOUNT}", String.valueOf(amount2)))); 
                 return;
             }
             
             String message = plugin.getConfig().getString("on-trade").replace("{AMOUNT1}", String.valueOf(amount1)).replace("{AMOUNT2}", String.valueOf(amount2)).replace("{ITEM1}", item_name1.toLowerCase()).replace("{ITEM2}", item_name2.toLowerCase()).replace("{SELLER}", s.getLine(3));
-            
             buyer.sendMessage(ChatColor.translateAlternateColorCodes('&', getPrefix() + message));
             return;
         }
