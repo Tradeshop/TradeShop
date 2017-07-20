@@ -153,6 +153,12 @@ public class TradeEventListener extends Utils implements Listener {
                         .replace("{ITEM}", item_name1.toLowerCase()).replace("{AMOUNT}", String.valueOf(amount1))));
                 return;
             }
+			
+			if (!canFit(playerInventory, item2, amount2)) {
+                buyer.sendMessage(ChatColor.translateAlternateColorCodes('&', getPrefix() + plugin.config.getString("player-full")
+                        .replace("{ITEM}", item_name2.toLowerCase()).replace("{AMOUNT}", String.valueOf(amount2))));
+                return;
+            }
             
 			if (item1check && item2check) {
 				playerInventory.removeItem(item2);
