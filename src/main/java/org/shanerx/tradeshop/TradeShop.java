@@ -30,7 +30,6 @@ import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.shanerx.tradeshop.commands.Executor;
 import org.shanerx.tradeshop.itrade.IShopCreateEventListener;
-import org.shanerx.tradeshop.itrade.IShopCreateEventListener;
 import org.shanerx.tradeshop.itrade.ITradeEventListener;
 import org.shanerx.tradeshop.trade.AdminEventListener;
 import org.shanerx.tradeshop.trade.ShopCreateEventListener;
@@ -99,7 +98,8 @@ public class TradeShop extends JavaPlugin {
                     + "\n \nStep 1: &ePlace down a chest."
                     + "\n&2Step 2: &ePlace a sign on top of the chest."
                     + "\n&2Step 3: &eWrite the following on the sign"
-                    + "\n&6[Trade]\n<amount> <item_you_sell>\n<amount> <item_you_buy>\n&6&oEmpty line\n");
+                    + "\n&6[Trade]\n<amount> <item_you_sell>\n<amount> <item_you_buy>\n&6&oEmpty line"
+                    + "\n&2Step 4: &eIf you are unsure what the item is, use &6/tradeshop item");
         }
 
         if (config.getString("no-ts-create-permission") == null) {
@@ -160,6 +160,14 @@ public class TradeShop extends JavaPlugin {
 	    
         if (config.getString("confirm-trade") == null) {
             config.set("confirm-trade", "&eTrade &6 {AMOUNT1} {ITEM1} &e for &6 {AMOUNT2} {ITEM2} &e?");
+        }
+        
+        if (config.getString("held-item") == null) {
+            config.set("held-item", "\n&6You are curently holding: \n&2Material: &e{MATERIAL}\n&2ID Number: &e{ID}\n&2Durability: &e{DURABILITY}\n&2Amount: &e{AMOUNT}\n&6Put this on your TradeShop sign: \n&e{AMOUNT} {MATERIAL}:{DURABILITY} \n&e{AMOUNT} {ID}:{DURABILITY}");
+        }
+
+        if (config.getString("held-empty") == null) {
+            config.set("held-empty", "&eYou are currently holding nothing.");
         }
         save();
     }
