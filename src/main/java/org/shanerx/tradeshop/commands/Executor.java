@@ -25,6 +25,8 @@ import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 import org.shanerx.tradeshop.TradeShop;
 import org.shanerx.tradeshop.Utils;
 
@@ -36,7 +38,8 @@ public class Executor extends Utils implements CommandExecutor {
 		plugin = instance;
 	}
 	
-	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
+	@SuppressWarnings("deprecation")
+    public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
 		if (args.length == 0) {
 			sender.sendMessage(ChatColor.translateAlternateColorCodes('&', getPrefix() + plugin.getConfig().getString("invalid-arguments")));
 			return true;
@@ -55,10 +58,11 @@ public class Executor extends Utils implements CommandExecutor {
 				String line4 = "\n";
 				String line5 = "&6/tradeshop help &c - Display help message\n";
 				String line7 = "&6/tradeshop setup &c - Display TradeShop setup tutorial\n";
-				String line8 = "&6/tradeshop bugs &c - Report bugs\n \n";
+                String line8 = "&6/tradeshop item &c - Shows helpful iformation on item held by player\n";
+				String line9 = "&6/tradeshop bugs &c - Report bugs\n \n";
 				
 				if (sender.hasPermission("tradeshop.admin")) {
-					String helpMsg = line1 + line2 + line3 + line4 + line5 + line7 + line8;
+					String helpMsg = line1 + line2 + line3 + line4 + line5 + line7 + line8+ line9;
 					sender.sendMessage(ChatColor.translateAlternateColorCodes('&', helpMsg));
 					return true;
 					
@@ -82,11 +86,33 @@ public class Executor extends Utils implements CommandExecutor {
 					sender.sendMessage(ChatColor.translateAlternateColorCodes('&', getPrefix() + plugin.getConfig().getString("no-command-permission")));
 					return true;
 					
-				}
+				} 
 				plugin.reloadConfig();
 				sender.sendMessage(ChatColor.translateAlternateColorCodes('&', getPrefix() + "&6The configuration files have been reloaded!"));
 				return true;
-			}
+			} else if (args[0].equalsIgnoreCase("item") && sender instanceof Player) {
+			    if (!sender.hasPermission("tradeshop.create")) {
+                    sender.sendMessage(ChatColor.translateAlternateColorCodes('&', getPrefix() + plugin.getConfig().getString("no-command-permission")));
+                    return true;
+                 }
+			    
+			    Player pl = (Player) sender;
+			    ItemStack itm = pl.getInventory().getItemInMainHand();
+			    if(itm.getType() != null)
+			    {
+			        String msg = ChatColor.translateAlternateColorCodes('&', getPrefix() + plugin.getConfig().getString("held-item"))
+			                .replace("{MATERIAL}", itm.getType().name())
+			                .replace("{DURABILITY}", itm.getDurability() + "")
+			                .replace("{ID}", itm.getTypeId() + "")
+                            .replace("{AMOUNT}", itm.getAmount() + "");
+                    
+			        sender.sendMessage(msg);
+			    }
+			    else
+                    sender.sendMessage(ChatColor.translateAlternateColorCodes('&', getPrefix() + plugin.getConfig().getString("held-empty")));
+                return true;
+                
+            } 
 		}
 		sender.sendMessage(ChatColor.translateAlternateColorCodes('&', getPrefix() + plugin.getConfig().getString("invalid-arguments")));
 		return true;
