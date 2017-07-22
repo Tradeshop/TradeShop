@@ -39,13 +39,12 @@ public class Executor extends Utils implements CommandExecutor {
 	}
 	
 	@SuppressWarnings("deprecation")
-    public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
+	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
 		if (args.length == 0) {
 			sender.sendMessage(ChatColor.translateAlternateColorCodes('&', getPrefix() + plugin.getConfig().getString("invalid-arguments")));
 			return true;
-		
-		}
-		else if (args.length == 1) {
+			
+		} else if (args.length == 1) {
 			if (args[0].equalsIgnoreCase("help")) {
 				if (!sender.hasPermission("tradeshop.help")) {
 					sender.sendMessage(ChatColor.translateAlternateColorCodes('&', getPrefix() + plugin.getConfig().getString("no-command-permission")));
@@ -58,11 +57,11 @@ public class Executor extends Utils implements CommandExecutor {
 				String line4 = "\n";
 				String line5 = "&6/tradeshop help &c - Display help message\n";
 				String line7 = "&6/tradeshop setup &c - Display TradeShop setup tutorial\n";
-                String line8 = "&6/tradeshop item &c - Shows helpful iformation on item held by player\n";
+				String line8 = "&6/tradeshop item &c - Shows helpful iformation on item held by player\n";
 				String line9 = "&6/tradeshop bugs &c - Report bugs\n \n";
 				
 				if (sender.hasPermission("tradeshop.admin")) {
-					String helpMsg = line1 + line2 + line3 + line4 + line5 + line7 + line8+ line9;
+					String helpMsg = line1 + line2 + line3 + line4 + line5 + line7 + line8 + line9;
 					sender.sendMessage(ChatColor.translateAlternateColorCodes('&', helpMsg));
 					return true;
 					
@@ -86,33 +85,36 @@ public class Executor extends Utils implements CommandExecutor {
 					sender.sendMessage(ChatColor.translateAlternateColorCodes('&', getPrefix() + plugin.getConfig().getString("no-command-permission")));
 					return true;
 					
-				} 
+				}
 				plugin.reloadConfig();
 				sender.sendMessage(ChatColor.translateAlternateColorCodes('&', getPrefix() + "&6The configuration files have been reloaded!"));
 				return true;
-			} else if (args[0].equalsIgnoreCase("item") && sender instanceof Player) {
-			    if (!sender.hasPermission("tradeshop.create")) {
-                    sender.sendMessage(ChatColor.translateAlternateColorCodes('&', getPrefix() + plugin.getConfig().getString("no-command-permission")));
-                    return true;
-                 }
-			    
-			    Player pl = (Player) sender;
-			    ItemStack itm = pl.getInventory().getItemInMainHand();
-			    if(itm.getType() != null)
-			    {
-			        String msg = ChatColor.translateAlternateColorCodes('&', getPrefix() + plugin.getConfig().getString("held-item"))
-			                .replace("{MATERIAL}", itm.getType().name())
-			                .replace("{DURABILITY}", itm.getDurability() + "")
-			                .replace("{ID}", itm.getTypeId() + "")
-                            .replace("{AMOUNT}", itm.getAmount() + "");
-                    
-			        sender.sendMessage(msg);
-			    }
-			    else
-                    sender.sendMessage(ChatColor.translateAlternateColorCodes('&', getPrefix() + plugin.getConfig().getString("held-empty")));
-                return true;
-                
-            } 
+				
+			} else if (args[0].equalsIgnoreCase("item")) {
+				if (!(sender instanceof Player)) {
+					sender.sendMessage(plugin.getConfig().getString("player-only-command"));
+					return true;
+					
+				} if (!sender.hasPermission("tradeshop.create")) {
+					sender.sendMessage(ChatColor.translateAlternateColorCodes('&', getPrefix() + plugin.getConfig().getString("no-command-permission")));
+					return true;
+				}
+				
+				Player pl = (Player) sender;
+				ItemStack itm = pl.getInventory().getItemInMainHand();
+				if (itm.getType() != null) {
+					String msg = ChatColor.translateAlternateColorCodes('&', getPrefix() + plugin.getConfig().getString("held-item"))
+							.replace("{MATERIAL}", itm.getType().name())
+							.replace("{DURABILITY}", itm.getDurability() + "")
+							.replace("{ID}", itm.getTypeId() + "")
+							.replace("{AMOUNT}", itm.getAmount() + "");
+					sender.sendMessage(msg);
+					return true;
+					
+				} else
+					sender.sendMessage(ChatColor.translateAlternateColorCodes('&', getPrefix() + plugin.getConfig().getString("held-empty")));
+					return true;
+			}
 		}
 		sender.sendMessage(ChatColor.translateAlternateColorCodes('&', getPrefix() + plugin.getConfig().getString("invalid-arguments")));
 		return true;

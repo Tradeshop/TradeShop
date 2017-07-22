@@ -169,6 +169,11 @@ public class TradeShop extends JavaPlugin {
         if (config.getString("held-empty") == null) {
             config.set("held-empty", "&eYou are currently holding nothing.");
         }
+        
+        if (config.getString("player-only-command") == null) {
+        	config.set("player-only-command", "&eThis command is only available to players.");
+		}
+		
         save();
     }
     
