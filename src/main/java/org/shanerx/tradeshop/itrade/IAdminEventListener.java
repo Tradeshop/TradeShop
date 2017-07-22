@@ -82,7 +82,7 @@ public class IAdminEventListener extends Utils implements Listener {
             	return;
             }
         	event.setCancelled(true);
-			player.sendMessage(ChatColor.translateAlternateColorCodes('&', getPrefix() + plugin.getConfig().getString("no-ts-destroy")));
+			player.sendMessage(ChatColor.translateAlternateColorCodes('&', getPrefix() + plugin.getMessages().getString("no-ts-destroy")));
 			return;
 		}
 		
@@ -124,7 +124,7 @@ public class IAdminEventListener extends Utils implements Listener {
 	        if (s.getLine(3).equalsIgnoreCase(player.getName())) {
 	        	return;
 	        }
-			player.sendMessage(ChatColor.translateAlternateColorCodes('&', getPrefix() + plugin.getConfig().getString("no-ts-destroy")));
+			player.sendMessage(ChatColor.translateAlternateColorCodes('&', getPrefix() + plugin.getMessages().getString("no-ts-destroy")));
         	event.setCancelled(true);
 		}
 		
@@ -182,7 +182,7 @@ public class IAdminEventListener extends Utils implements Listener {
         	return;
         }
 
-		e.getPlayer().sendMessage(ChatColor.translateAlternateColorCodes('&', getPrefix() + plugin.getConfig().getString("no-ts-open")));
+		e.getPlayer().sendMessage(ChatColor.translateAlternateColorCodes('&', getPrefix() + plugin.getMessages().getString("no-ts-open")));
     	e.setCancelled(true);
 	}
 }

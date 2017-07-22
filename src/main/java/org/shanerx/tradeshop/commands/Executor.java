@@ -41,13 +41,13 @@ public class Executor extends Utils implements CommandExecutor {
 	@SuppressWarnings("deprecation")
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
 		if (args.length == 0) {
-			sender.sendMessage(ChatColor.translateAlternateColorCodes('&', getPrefix() + plugin.getConfig().getString("invalid-arguments")));
+			sender.sendMessage(ChatColor.translateAlternateColorCodes('&', getPrefix() + plugin.getMessages().getString("invalid-arguments")));
 			return true;
 			
 		} else if (args.length == 1) {
 			if (args[0].equalsIgnoreCase("help")) {
 				if (!sender.hasPermission("tradeshop.help")) {
-					sender.sendMessage(ChatColor.translateAlternateColorCodes('&', getPrefix() + plugin.getConfig().getString("no-command-permission")));
+					sender.sendMessage(ChatColor.translateAlternateColorCodes('&', getPrefix() + plugin.getMessages().getString("no-command-permission")));
 					return true;
 				}
 				
@@ -77,12 +77,12 @@ public class Executor extends Utils implements CommandExecutor {
 				return true;
 				
 			} else if (args[0].equalsIgnoreCase("setup")) {
-				sender.sendMessage(ChatColor.translateAlternateColorCodes('&', getPrefix() + plugin.getConfig().getString("setup-help")));
+				sender.sendMessage(ChatColor.translateAlternateColorCodes('&', getPrefix() + plugin.getMessages().getString("setup-help")));
 				return true;
 				
 			} else if (args[0].equalsIgnoreCase("reload")) {
 				if (!sender.hasPermission("tradeshop.admin")) {
-					sender.sendMessage(ChatColor.translateAlternateColorCodes('&', getPrefix() + plugin.getConfig().getString("no-command-permission")));
+					sender.sendMessage(ChatColor.translateAlternateColorCodes('&', getPrefix() + plugin.getMessages().getString("no-command-permission")));
 					return true;
 					
 				}
@@ -92,18 +92,18 @@ public class Executor extends Utils implements CommandExecutor {
 				
 			} else if (args[0].equalsIgnoreCase("item")) {
 				if (!(sender instanceof Player)) {
-					sender.sendMessage(plugin.getConfig().getString("player-only-command"));
+					sender.sendMessage(plugin.getMessages().getString("player-only-command"));
 					return true;
 					
 				} if (!sender.hasPermission("tradeshop.create")) {
-					sender.sendMessage(ChatColor.translateAlternateColorCodes('&', getPrefix() + plugin.getConfig().getString("no-command-permission")));
+					sender.sendMessage(ChatColor.translateAlternateColorCodes('&', getPrefix() + plugin.getMessages().getString("no-command-permission")));
 					return true;
 				}
 				
 				Player pl = (Player) sender;
 				ItemStack itm = pl.getInventory().getItemInMainHand();
 				if (itm.getType() != null) {
-					String msg = ChatColor.translateAlternateColorCodes('&', getPrefix() + plugin.getConfig().getString("held-item"))
+					String msg = ChatColor.translateAlternateColorCodes('&', getPrefix() + plugin.getMessages().getString("held-item"))
 							.replace("{MATERIAL}", itm.getType().name())
 							.replace("{DURABILITY}", itm.getDurability() + "")
 							.replace("{ID}", itm.getTypeId() + "")
@@ -112,11 +112,11 @@ public class Executor extends Utils implements CommandExecutor {
 					return true;
 					
 				} else
-					sender.sendMessage(ChatColor.translateAlternateColorCodes('&', getPrefix() + plugin.getConfig().getString("held-empty")));
+					sender.sendMessage(ChatColor.translateAlternateColorCodes('&', getPrefix() + plugin.getMessages().getString("held-empty")));
 					return true;
 			}
 		}
-		sender.sendMessage(ChatColor.translateAlternateColorCodes('&', getPrefix() + plugin.getConfig().getString("invalid-arguments")));
+		sender.sendMessage(ChatColor.translateAlternateColorCodes('&', getPrefix() + plugin.getMessages().getString("invalid-arguments")));
 		return true;
 	}
 }

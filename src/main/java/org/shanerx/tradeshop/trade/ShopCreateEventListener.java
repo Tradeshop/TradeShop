@@ -69,7 +69,7 @@ public class ShopCreateEventListener extends Utils implements Listener {
         	s.update();
         	s.setLine(3, "");
         	s.update();
-        	player.sendMessage(ChatColor.translateAlternateColorCodes('&', getPrefix() + plugin.getConfig().getString("no-ts-create-permission")));
+        	player.sendMessage(ChatColor.translateAlternateColorCodes('&', getPrefix() + plugin.getMessages().getString("no-ts-create-permission")));
         	return;
         }
         if ( CHEST_ID != 54 ) {
@@ -77,7 +77,7 @@ public class ShopCreateEventListener extends Utils implements Listener {
         	event.setLine(1, "");
         	event.setLine(2, "");
         	event.setLine(3, "");
-        	player.sendMessage(ChatColor.translateAlternateColorCodes('&', getPrefix() + plugin.getConfig().getString("no-chest")));
+        	player.sendMessage(ChatColor.translateAlternateColorCodes('&', getPrefix() + plugin.getMessages().getString("no-chest")));
         	return;
         }
         boolean signIsValid = true; // If this is true, the information on the sign is valid!
@@ -141,7 +141,7 @@ public class ShopCreateEventListener extends Utils implements Listener {
         }
         
         if ( signIsValid == false ) {
-        	event.getPlayer().sendMessage(ChatColor.translateAlternateColorCodes('&', getPrefix() + plugin.getConfig().getString("invalid-sign")));
+        	event.getPlayer().sendMessage(ChatColor.translateAlternateColorCodes('&', getPrefix() + plugin.getMessages().getString("invalid-sign")));
         	event.setLine(0, ChatColor.DARK_RED + "[Trade]");
 	    	event.setLine(1, "");
 	    	event.setLine(2, "");
@@ -161,10 +161,10 @@ public class ShopCreateEventListener extends Utils implements Listener {
 		if (chestInventory.containsAtLeast(item1, amount1)) {
 			
 			event.setLine(0, ChatColor.DARK_GREEN + "[Trade]");
-	    	event.getPlayer().sendMessage(ChatColor.translateAlternateColorCodes('&', getPrefix() + plugin.getConfig().getString("successful-setup")));
+	    	event.getPlayer().sendMessage(ChatColor.translateAlternateColorCodes('&', getPrefix() + plugin.getMessages().getString("successful-setup")));
 	    	return;
 		}
 
-    	event.getPlayer().sendMessage(ChatColor.translateAlternateColorCodes('&', getPrefix() + plugin.getConfig().getString("empty-ts-on-setup")));
+    	event.getPlayer().sendMessage(ChatColor.translateAlternateColorCodes('&', getPrefix() + plugin.getMessages().getString("empty-ts-on-setup")));
 	}
 }
