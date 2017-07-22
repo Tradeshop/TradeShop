@@ -37,14 +37,14 @@ import org.shanerx.tradeshop.trade.ShopCreateEventListener;
 import org.shanerx.tradeshop.trade.TradeEventListener;
 
 public class TradeShop extends JavaPlugin {
-
-    private File messagesFile = new File(this.getDataFolder(), "messages.yml");
-    private FileConfiguration messages;
+	
+	private File messagesFile = new File(this.getDataFolder(), "messages.yml");
+	private FileConfiguration messages;
 	private File settingsFile = new File(this.getDataFolder(), "config.yml");
 	private FileConfiguration settings;
-
-    public File getMessagesFile() {
-    	return messagesFile;
+	
+	public File getMessagesFile() {
+		return messagesFile;
 	}
 	
 	public FileConfiguration getMessages() {
@@ -56,135 +56,135 @@ public class TradeShop extends JavaPlugin {
 	}
 	
 	public FileConfiguration getSettings() {
-    	return settings;
+		return settings;
 	}
 	
 	@Deprecated
 	@Override
 	public FileConfiguration getConfig() {
-    	return settings;
+		return settings;
 	}
 	
 	@Override
 	public void reloadConfig() {
-    	messages = YamlConfiguration.loadConfiguration(messagesFile);
-    	addMessageDefaults();
-    	settings = YamlConfiguration.loadConfiguration(settingsFile);
+		messages = YamlConfiguration.loadConfiguration(messagesFile);
+		addMessageDefaults();
+		settings = YamlConfiguration.loadConfiguration(settingsFile);
 	}
 	
-    @Override
-    public void onEnable() {
-        createConfigs();
-        reloadConfig();
-
-        TradeEventListener shop = new TradeEventListener(this);
+	@Override
+	public void onEnable() {
+		createConfigs();
+		reloadConfig();
+		
+		TradeEventListener shop = new TradeEventListener(this);
 		ShopCreateEventListener inst = new ShopCreateEventListener(this);
-        AdminEventListener admn = new AdminEventListener(this);
-    
-        PluginManager pm = getServer().getPluginManager();
-        pm.registerEvents(shop, this);
-        pm.registerEvents(inst, this);
-        pm.registerEvents(admn, this);
-        pm.registerEvents(new ITradeEventListener(this), this);
-        pm.registerEvents(new IShopCreateEventListener(this), this);
-
-        getCommand("tradeshop").setExecutor(new Executor(this));
-    }
-
-    private void addMessageDefaults() {
-        if (messages.getString("invalid-arguments") == null) {
+		AdminEventListener admn = new AdminEventListener(this);
+		
+		PluginManager pm = getServer().getPluginManager();
+		pm.registerEvents(shop, this);
+		pm.registerEvents(inst, this);
+		pm.registerEvents(admn, this);
+		pm.registerEvents(new ITradeEventListener(this), this);
+		pm.registerEvents(new IShopCreateEventListener(this), this);
+		
+		getCommand("tradeshop").setExecutor(new Executor(this));
+	}
+	
+	private void addMessageDefaults() {
+		if (messages.getString("invalid-arguments") == null) {
 			messages.set("invalid-arguments", "&eTry &6/tradeshop help &eto display help!");
-        }
-
-        if (messages.getString("no-command-permission") == null) {
+		}
+		
+		if (messages.getString("no-command-permission") == null) {
 			messages.set("no-command-permission", "&aYou do not have permission to execute this command");
-        }
-
-        if (messages.getString("setup-help") == null) {
+		}
+		
+		if (messages.getString("setup-help") == null) {
 			messages.set("setup-help", "\n&2Setting up a TradeShop is easy! Just make sure to follow these steps:"
-                    + "\n \nStep 1: &ePlace down a chest."
-                    + "\n&2Step 2: &ePlace a sign on top of the chest."
-                    + "\n&2Step 3: &eWrite the following on the sign"
-                    + "\n&6[Trade]\n<amount> <item_you_sell>\n<amount> <item_you_buy>\n&6&oEmpty line"
-                    + "\n&2Step 4: &eIf you are unsure what the item is, use &6/tradeshop item");
-        }
-
-        if (messages.getString("no-ts-create-permission") == null) {
+					+ "\n \nStep 1: &ePlace down a chest."
+					+ "\n&2Step 2: &ePlace a sign on top of the chest."
+					+ "\n&2Step 3: &eWrite the following on the sign"
+					+ "\n&6[Trade]\n<amount> <item_you_sell>\n<amount> <item_you_buy>\n&6&oEmpty line"
+					+ "\n&2Step 4: &eIf you are unsure what the item is, use &6/tradeshop item");
+		}
+		
+		if (messages.getString("no-ts-create-permission") == null) {
 			messages.set("no-ts-create-permission", "&cYou don't have permission to create TradeShops!");
-        }
-
-        if (messages.getString("no-chest") == null) {
+		}
+		
+		if (messages.getString("no-chest") == null) {
 			messages.set("no-chest", "&cYou need to put a chest under the sign!");
-        }
-
-        if (messages.getString("invalid-sign") == null) {
+		}
+		
+		if (messages.getString("invalid-sign") == null) {
 			messages.set("invalid-sign", "&cInvalid sign format!");
-        }
-
-        if (messages.getString("no-ts-destroy") == null) {
+		}
+		
+		if (messages.getString("no-ts-destroy") == null) {
 			messages.set("no-ts-destroy", "&cYou may not destroy that TradeShop");
-        }
-
-        if (messages.getString("successful-setup") == null) {
+		}
+		
+		if (messages.getString("successful-setup") == null) {
 			messages.set("successful-setup", "&aYou have sucessfully setup a TradeShop!");
-        }
-
-        if (messages.getString("no-ts-open") == null) {
+		}
+		
+		if (messages.getString("no-ts-open") == null) {
 			messages.set("no-ts-open", "&cThat TradeShop does not belong to you");
-        }
-
-        if (messages.getString("empty-ts-on-setup") == null) {
+		}
+		
+		if (messages.getString("empty-ts-on-setup") == null) {
 			messages.set("empty-ts-on-setup", "&cTradeShop empty, please remember to fill it!");
-        }
-
-        if (messages.getString("on-trade") == null) {
+		}
+		
+		if (messages.getString("on-trade") == null) {
 			messages.set("on-trade", "&aYou have traded your&e {AMOUNT2} {ITEM2} &a for &e {AMOUNT1} {ITEM1} &awith {SELLER}");
-        }
-
-        if (messages.getString("insufficient-items") == null) {
+		}
+		
+		if (messages.getString("insufficient-items") == null) {
 			messages.set("insufficient-items", "&cYou do not have &e {AMOUNT} {ITEM}&c!");
-        }
-
-        if (messages.getString("shop-full-amount") == null) {
+		}
+		
+		if (messages.getString("shop-full-amount") == null) {
 			messages.set("shop-full-amount", "&cThe shop does not have &e{AMOUNT} &cof a single type of &e{ITEM}&c!");
-        }
-
-        if (messages.getString("full-amount") == null) {
+		}
+		
+		if (messages.getString("full-amount") == null) {
 			messages.set("full-amount", "&cYou must have &e{AMOUNT} &cof a single type of &e{ITEM}&c!");
-        }
-
-        if (messages.getString("shop-empty") == null) {
+		}
+		
+		if (messages.getString("shop-empty") == null) {
 			messages.set("shop-empty", "&cThis TradeShop does not have &e {AMOUNT} {ITEM}&c!");
-        }
-
-        if (messages.getString("shop-full") == null) {
+		}
+		
+		if (messages.getString("shop-full") == null) {
 			messages.set("shop-full", "&cThis TradeShop is full, please contact the owner to get it emptied!");
-        }
-        
-        if (messages.getString("player-full") == null) {
+		}
+		
+		if (messages.getString("player-full") == null) {
 			messages.set("player-full", "&cYour inventory is full, please make room before trading items!");
-        }
-	    
-        if (messages.getString("confirm-trade") == null) {
+		}
+		
+		if (messages.getString("confirm-trade") == null) {
 			messages.set("confirm-trade", "&eTrade &6 {AMOUNT1} {ITEM1} &e for &6 {AMOUNT2} {ITEM2} &e?");
-        }
-        
-        if (messages.getString("held-item") == null) {
+		}
+		
+		if (messages.getString("held-item") == null) {
 			messages.set("held-item", "\n&6You are curently holding: \n&2Material: &e{MATERIAL}\n&2ID Number: &e{ID}\n&2Durability: &e{DURABILITY}\n&2Amount: &e{AMOUNT}\n&6Put this on your TradeShop sign: \n&e{AMOUNT} {MATERIAL}:{DURABILITY} \n&e{AMOUNT} {ID}:{DURABILITY}");
-        }
-
-        if (messages.getString("held-empty") == null) {
+		}
+		
+		if (messages.getString("held-empty") == null) {
 			messages.set("held-empty", "&eYou are currently holding nothing.");
-        }
-        
-        if (messages.getString("player-only-command") == null) {
+		}
+		
+		if (messages.getString("player-only-command") == null) {
 			messages.set("player-only-command", "&eThis command is only available to players.");
 		}
 		
-        save();
-    }
-    
-    private void save() {
+		save();
+	}
+	
+	private void save() {
 		try {
 			messages.save(messagesFile);
 		} catch (IOException e) {
@@ -193,7 +193,7 @@ public class TradeShop extends JavaPlugin {
 	}
 	
 	private void createConfigs() {
-    	try {
+		try {
 			if (!getDataFolder().isDirectory()) {
 				getDataFolder().mkdirs();
 			}
@@ -204,11 +204,12 @@ public class TradeShop extends JavaPlugin {
 				settingsFile.createNewFile();
 			}
 		} catch (IOException e) {
-    		getLogger().log(Level.SEVERE, "Could not create config files! Disabling plugin!", e);
-    		getServer().getPluginManager().disablePlugin(this);
+			getLogger().log(Level.SEVERE, "Could not create config files! Disabling plugin!", e);
+			getServer().getPluginManager().disablePlugin(this);
 		}
 	}
-
-    @Override
-    public void onDisable() {}
+	
+	@Override
+	public void onDisable() {
+	}
 }

@@ -51,136 +51,136 @@ public class AdminEventListener extends Utils implements Listener {
 	public void onBlockBreak(BlockBreakEvent event) {
 		Player player = event.getPlayer();
 		BlockState state = event.getBlock().getState();
-
-		if ( event.getBlock().getType() == Material.SIGN_POST || event.getBlock().getType() == Material.WALL_SIGN ) {	
+		
+		if (event.getBlock().getType() == Material.SIGN_POST || event.getBlock().getType() == Material.WALL_SIGN) {
 			Sign s = (Sign) event.getBlock().getState();
 			
-			if (! "[Trade]".equalsIgnoreCase(ChatColor.stripColor(s.getLine(0)))) {
+			if (!"[Trade]".equalsIgnoreCase(ChatColor.stripColor(s.getLine(0)))) {
 				return;
 			}
-
-			if ( player.hasPermission("tradeshop.admin") ) {
+			
+			if (player.hasPermission("tradeshop.admin")) {
 				return;
 			}
-
-	        try {
-		        String[] signInfo1 = s.getLine(1).split(" ");
-		        String[] signInfo2 = s.getLine(2).split(" ");
-	        	int amount1 = Integer.parseInt(signInfo1[0]);
-	        	int amount2 = Integer.parseInt(signInfo2[0]);
-	        	String item_name1 = signInfo1[1].toUpperCase();
-	        	ItemStack item1 = new ItemStack(Enum.valueOf(Material.class, item_name1), amount1);
-	        	String item_name2 = signInfo2[1].toUpperCase();
-	        	ItemStack item2 = new ItemStack(Enum.valueOf(Material.class, item_name2), amount2);
-	        	
-	        } catch (Exception e) {
-	        	return;
-	        }
-	        
-            String[] lines = s.getLines();
-            if (! lines[3].equalsIgnoreCase(player.getName()) ) {
-            	event.setCancelled(true);
-            }
+			
+			try {
+				String[] signInfo1 = s.getLine(1).split(" ");
+				String[] signInfo2 = s.getLine(2).split(" ");
+				int amount1 = Integer.parseInt(signInfo1[0]);
+				int amount2 = Integer.parseInt(signInfo2[0]);
+				String item_name1 = signInfo1[1].toUpperCase();
+				ItemStack item1 = new ItemStack(Enum.valueOf(Material.class, item_name1), amount1);
+				String item_name2 = signInfo2[1].toUpperCase();
+				ItemStack item2 = new ItemStack(Enum.valueOf(Material.class, item_name2), amount2);
+				
+			} catch (Exception e) {
+				return;
+			}
+			
+			String[] lines = s.getLines();
+			if (!lines[3].equalsIgnoreCase(player.getName())) {
+				event.setCancelled(true);
+			}
 			player.sendMessage(ChatColor.translateAlternateColorCodes('&', getPrefix() + plugin.getMessages().getString("no-ts-destroy")));
 			return;
 		}
 		
-		if ( state instanceof Chest ) {	
-			if ( player.hasPermission("tradeshop.admin") ) {
+		if (state instanceof Chest) {
+			if (player.hasPermission("tradeshop.admin")) {
 				return;
 			}
-            int x = event.getBlock().getLocation().getBlockX();
-            int y = event.getBlock().getLocation().getBlockY();
-            int z = event.getBlock().getLocation().getBlockZ();
-            String world = event.getBlock().getLocation().getWorld().getName();
-
-            Sign s;
-            try {
-            	s = (Sign) plugin.getServer().getWorld(world).getBlockAt(x, y + 1, z).getState();
-          
-            } catch (Exception ex) {
-            	return;
-            }
+			int x = event.getBlock().getLocation().getBlockX();
+			int y = event.getBlock().getLocation().getBlockY();
+			int z = event.getBlock().getLocation().getBlockZ();
+			String world = event.getBlock().getLocation().getWorld().getName();
+			
+			Sign s;
+			try {
+				s = (Sign) plugin.getServer().getWorld(world).getBlockAt(x, y + 1, z).getState();
+				
+			} catch (Exception ex) {
+				return;
+			}
 			
 			
-	        try {
-		        String[] signInfo1 = s.getLine(1).split(" ");
-		        String[] signInfo2 = s.getLine(2).split(" ");
-	        	int amount1 = Integer.parseInt(signInfo1[0]);
-	        	int amount2 = Integer.parseInt(signInfo2[0]);
-	        	String item_name1 = signInfo1[1].toUpperCase();
-	        	ItemStack item1 = new ItemStack(Enum.valueOf(Material.class, item_name1), amount1);
-	        	String item_name2 = signInfo2[1].toUpperCase();
-	        	ItemStack item2 = new ItemStack(Enum.valueOf(Material.class, item_name2), amount2);
-	        	
-	        } catch (Exception e) {
-	        	return;
-	        }
+			try {
+				String[] signInfo1 = s.getLine(1).split(" ");
+				String[] signInfo2 = s.getLine(2).split(" ");
+				int amount1 = Integer.parseInt(signInfo1[0]);
+				int amount2 = Integer.parseInt(signInfo2[0]);
+				String item_name1 = signInfo1[1].toUpperCase();
+				ItemStack item1 = new ItemStack(Enum.valueOf(Material.class, item_name1), amount1);
+				String item_name2 = signInfo2[1].toUpperCase();
+				ItemStack item2 = new ItemStack(Enum.valueOf(Material.class, item_name2), amount2);
+				
+			} catch (Exception e) {
+				return;
+			}
 			
-	        if (s.getLine(3) == null || s.getLine(3).equals(""))
-	        	return;
-	        if (s.getLine(3).equalsIgnoreCase(player.getName())) {
-	        	return;
-	        }
+			if (s.getLine(3) == null || s.getLine(3).equals(""))
+				return;
+			if (s.getLine(3).equalsIgnoreCase(player.getName())) {
+				return;
+			}
 			player.sendMessage(ChatColor.translateAlternateColorCodes('&', getPrefix() + plugin.getMessages().getString("no-ts-destroy")));
-        	event.setCancelled(true);
+			event.setCancelled(true);
 		}
 		
 	}
 	
 	
-	@SuppressWarnings("unused" )
+	@SuppressWarnings("unused")
 	@EventHandler
 	public void onChestOpen(PlayerInteractEvent e) {
-		if ( e.getAction() != Action.RIGHT_CLICK_BLOCK ) {
+		if (e.getAction() != Action.RIGHT_CLICK_BLOCK) {
 			return;
 		}
 		
 		BlockState blockState = e.getClickedBlock().getState();
 		
-		if (! (blockState instanceof Chest) ) {
+		if (!(blockState instanceof Chest)) {
 			return;
 		}
 		
-		if ( e.getPlayer().hasPermission("tradeshop.admin") ) {
+		if (e.getPlayer().hasPermission("tradeshop.admin")) {
 			return;
 		}
 		
-        int x = e.getClickedBlock().getLocation().getBlockX();
-        int y = e.getClickedBlock().getLocation().getBlockY();
-        int z = e.getClickedBlock().getLocation().getBlockZ();
-        String world = e.getClickedBlock().getLocation().getWorld().getName();
-
-        Sign s;
-        try {
-        	s = (Sign) plugin.getServer().getWorld(world).getBlockAt(x, y + 1, z).getState();
-      
-        } catch (Exception ex) {
-        	return;
-        }
+		int x = e.getClickedBlock().getLocation().getBlockX();
+		int y = e.getClickedBlock().getLocation().getBlockY();
+		int z = e.getClickedBlock().getLocation().getBlockZ();
+		String world = e.getClickedBlock().getLocation().getWorld().getName();
+		
+		Sign s;
+		try {
+			s = (Sign) plugin.getServer().getWorld(world).getBlockAt(x, y + 1, z).getState();
+			
+		} catch (Exception ex) {
+			return;
+		}
 		
 		
-        try {
-	        String[] signInfo1 = s.getLine(1).split(" ");
-	        String[] signInfo2 = s.getLine(2).split(" ");
-        	int amount1 = Integer.parseInt(signInfo1[0]);
-        	int amount2 = Integer.parseInt(signInfo2[0]);
-        	String item_name1 = signInfo1[1].toUpperCase();
-        	ItemStack item1 = new ItemStack(Enum.valueOf(Material.class, item_name1), amount1);
-        	String item_name2 = signInfo2[1].toUpperCase();
-        	ItemStack item2 = new ItemStack(Enum.valueOf(Material.class, item_name2), amount2);
-        	
-        } catch (Exception ex) {
-        	return;
-        }
+		try {
+			String[] signInfo1 = s.getLine(1).split(" ");
+			String[] signInfo2 = s.getLine(2).split(" ");
+			int amount1 = Integer.parseInt(signInfo1[0]);
+			int amount2 = Integer.parseInt(signInfo2[0]);
+			String item_name1 = signInfo1[1].toUpperCase();
+			ItemStack item1 = new ItemStack(Enum.valueOf(Material.class, item_name1), amount1);
+			String item_name2 = signInfo2[1].toUpperCase();
+			ItemStack item2 = new ItemStack(Enum.valueOf(Material.class, item_name2), amount2);
+			
+		} catch (Exception ex) {
+			return;
+		}
 		
-        if (s.getLine(3) == null || s.getLine(3).equals(""))
-        	return;
-        if (s.getLine(3).equalsIgnoreCase(e.getPlayer().getName())) {
-        	return;
-        }
-
+		if (s.getLine(3) == null || s.getLine(3).equals(""))
+			return;
+		if (s.getLine(3).equalsIgnoreCase(e.getPlayer().getName())) {
+			return;
+		}
+		
 		e.getPlayer().sendMessage(ChatColor.translateAlternateColorCodes('&', getPrefix() + plugin.getMessages().getString("no-ts-open")));
-    	e.setCancelled(true);
+		e.setCancelled(true);
 	}
 }

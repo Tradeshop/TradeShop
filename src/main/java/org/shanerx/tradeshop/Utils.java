@@ -33,7 +33,7 @@ import org.bukkit.plugin.PluginDescriptionFile;
 import java.util.List;
 
 public class Utils {
-
+	
 	protected final String VERSION = Bukkit.getPluginManager().getPlugin("TradeShop").getDescription().getVersion();
 	protected final PluginDescriptionFile pdf = Bukkit.getPluginManager().getPlugin("TradeShop").getDescription();
 	protected final String PREFIX = "&a[&eTradeShop&a] ";

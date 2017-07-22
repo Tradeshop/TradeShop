@@ -95,7 +95,8 @@ public class Executor extends Utils implements CommandExecutor {
 					sender.sendMessage(plugin.getMessages().getString("player-only-command"));
 					return true;
 					
-				} if (!sender.hasPermission("tradeshop.create")) {
+				}
+				if (!sender.hasPermission("tradeshop.create")) {
 					sender.sendMessage(ChatColor.translateAlternateColorCodes('&', getPrefix() + plugin.getMessages().getString("no-command-permission")));
 					return true;
 				}
@@ -113,7 +114,7 @@ public class Executor extends Utils implements CommandExecutor {
 					
 				} else
 					sender.sendMessage(ChatColor.translateAlternateColorCodes('&', getPrefix() + plugin.getMessages().getString("held-empty")));
-					return true;
+				return true;
 			}
 		}
 		sender.sendMessage(ChatColor.translateAlternateColorCodes('&', getPrefix() + plugin.getMessages().getString("invalid-arguments")));

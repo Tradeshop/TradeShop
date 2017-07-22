@@ -118,7 +118,7 @@ public class TradeEventListener extends Utils implements Listener {
 						if (i.getType() == item2.getType() && i.getDurability() == durability2) {
 							if (i.getAmount() >= amount2) {
 								item2.setData(i.getData());
-								item2.setDurability((short)durability2);
+								item2.setDurability((short) durability2);
 								item2.setItemMeta(i.getItemMeta());
 								item2check = true;
 								break;
@@ -138,7 +138,7 @@ public class TradeEventListener extends Utils implements Listener {
 						if (i.getType() == item1.getType() && i.getDurability() == durability1) {
 							if (i.getAmount() >= amount1) {
 								item1.setData(i.getData());
-								item1.setDurability((short)durability1);
+								item1.setDurability((short) durability1);
 								item1.setItemMeta(i.getItemMeta());
 								item1check = true;
 								break;
@@ -149,17 +149,17 @@ public class TradeEventListener extends Utils implements Listener {
 			}
 			
 			if (!canFit(chestInventory, item1, amount1)) {
-                buyer.sendMessage(ChatColor.translateAlternateColorCodes('&', getPrefix() + plugin.getMessages().getString("shop-full")
-                        .replace("{ITEM}", item_name1.toLowerCase()).replace("{AMOUNT}", String.valueOf(amount1))));
-                return;
-            }
+				buyer.sendMessage(ChatColor.translateAlternateColorCodes('&', getPrefix() + plugin.getMessages().getString("shop-full")
+						.replace("{ITEM}", item_name1.toLowerCase()).replace("{AMOUNT}", String.valueOf(amount1))));
+				return;
+			}
 			
 			if (!canFit(playerInventory, item2, amount2)) {
-                buyer.sendMessage(ChatColor.translateAlternateColorCodes('&', getPrefix() + plugin.getMessages().getString("player-full")
-                        .replace("{ITEM}", item_name2.toLowerCase()).replace("{AMOUNT}", String.valueOf(amount2))));
-                return;
-            }
-            
+				buyer.sendMessage(ChatColor.translateAlternateColorCodes('&', getPrefix() + plugin.getMessages().getString("player-full")
+						.replace("{ITEM}", item_name2.toLowerCase()).replace("{AMOUNT}", String.valueOf(amount2))));
+				return;
+			}
+			
 			if (item1check && item2check) {
 				playerInventory.removeItem(item2);
 				chestInventory.removeItem(item1);
