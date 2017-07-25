@@ -58,10 +58,6 @@ public class AdminEventListener extends Utils implements Listener {
 				return;
 			}
 			
-			if (!player.hasPermission(getAdminPerm())) {
-				return;
-			}
-			
 			try {
 				String[] signInfo1 = s.getLine(1).split(" ");
 				String[] signInfo2 = s.getLine(2).split(" ");
