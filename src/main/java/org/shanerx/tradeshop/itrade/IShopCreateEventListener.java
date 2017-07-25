@@ -23,6 +23,7 @@ package org.shanerx.tradeshop.itrade;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
+import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -49,13 +50,10 @@ public class IShopCreateEventListener extends Utils implements Listener {
 		if (!(event.getLine(0).equalsIgnoreCase("[iTrade]"))) {
 			return;
 		}
-		int x = event.getBlock().getLocation().getBlockX();
-		int y = event.getBlock().getLocation().getBlockY();
-		int z = event.getBlock().getLocation().getBlockZ();
-		String world = event.getBlock().getLocation().getWorld().getName();
-		
-		final int CHEST_ID = plugin.getServer().getWorld(world).getBlockTypeIdAt(x, y - 1, z);
-		if (!player.hasPermission("tradeshop.create.infinite")) {
+
+        final Block STORAGE_TYPE = event.getBlock().getRelative(0, -1, 0);
+        
+        if (!player.hasPermission(getCreateIPerm())) {
 			s.setLine(0, "");
 			s.update();
 			s.setLine(1, "");
@@ -67,7 +65,7 @@ public class IShopCreateEventListener extends Utils implements Listener {
 			player.sendMessage(ChatColor.translateAlternateColorCodes('&', getPrefix() + plugin.getMessages().getString("no-ts-create-permission")));
 			return;
 		}
-		if (CHEST_ID != 54) {
+		if (!plugin.getAllowedInventories().contains(STORAGE_TYPE)) {
 			event.setLine(0, ChatColor.DARK_RED + "[iTrade]");
 			event.setLine(1, "");
 			event.setLine(2, "");
