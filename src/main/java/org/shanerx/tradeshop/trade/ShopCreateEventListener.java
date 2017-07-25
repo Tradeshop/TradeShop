@@ -21,18 +21,17 @@
 
 package org.shanerx.tradeshop.trade;
 
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
-import org.bukkit.block.Chest;
 import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.SignChangeEvent;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.shanerx.tradeshop.TradeShop;
 import org.shanerx.tradeshop.Utils;
@@ -54,13 +53,10 @@ public class ShopCreateEventListener extends Utils implements Listener {
 		if (!(event.getLine(0).equalsIgnoreCase("[Trade]"))) {
 			return;
 		}
-		int x = event.getBlock().getLocation().getBlockX();
-		int y = event.getBlock().getLocation().getBlockY();
-		int z = event.getBlock().getLocation().getBlockZ();
-		String world = event.getBlock().getLocation().getWorld().getName();
 		
-		final int CHEST_ID = plugin.getServer().getWorld(world).getBlockTypeIdAt(x, y - 1, z);
-		if (!player.hasPermission("tradeshop.create")) {
+		final Block STORAGE_TYPE = event.getBlock().getRelative(0, -1, 0);
+		
+		if (!player.hasPermission(getCreatePerm())) {
 			s.setLine(0, "");
 			s.update();
 			s.setLine(1, "");
@@ -72,11 +68,12 @@ public class ShopCreateEventListener extends Utils implements Listener {
 			player.sendMessage(ChatColor.translateAlternateColorCodes('&', getPrefix() + plugin.getMessages().getString("no-ts-create-permission")));
 			return;
 		}
-		if (CHEST_ID != 54) {
+		if (!plugin.getAllowedInventories().contains(STORAGE_TYPE)) {
 			event.setLine(0, ChatColor.DARK_RED + "[Trade]");
 			event.setLine(1, "");
 			event.setLine(2, "");
 			event.setLine(3, "");
+			
 			player.sendMessage(ChatColor.translateAlternateColorCodes('&', getPrefix() + plugin.getMessages().getString("no-chest")));
 			return;
 		}
@@ -151,9 +148,8 @@ public class ShopCreateEventListener extends Utils implements Listener {
 		String player_name = event.getPlayer().getName();
 		event.setLine(3, player_name);
 		
-		BlockState chestState = Bukkit.getServer().getWorld(world).getBlockAt(new Location(event.getBlock().getWorld(), x, y - 1, z)).getState();
-		Chest chest = (Chest) chestState;
-		Inventory chestInventory = chest.getInventory();
+		BlockState chestState = event.getBlock().getRelative(0, -1, 0).getState();
+		Inventory chestInventory = ((InventoryHolder) chestState).getInventory();
 		item1 = new ItemStack(Material.getMaterial(item_name1), amount1);
 		item1.setDurability((short) durability1);
 		event.setLine(0, ChatColor.DARK_GREEN + "[Trade]");
