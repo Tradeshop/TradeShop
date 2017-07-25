@@ -66,12 +66,14 @@ public class Executor extends Utils implements CommandExecutor {
 				
 				help[7] = "&6/tradeshop bugs &c - Report bugs\n \n";
 				
-                String msg = "";
+                String msg;
+		StringBuilder sb = new StringBuilder();		
                 for(String str : help)
                 {
                     if(str != null)
-                        msg = msg + str;
+                        sb.append(str);
                 }
+				msg = sb.toString();
 				
 				sender.sendMessage(ChatColor.translateAlternateColorCodes('&', msg));
 	            return true;
