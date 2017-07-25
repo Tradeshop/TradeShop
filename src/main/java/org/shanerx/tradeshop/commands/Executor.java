@@ -46,29 +46,34 @@ public class Executor extends Utils implements CommandExecutor {
 			
 		} else if (args.length == 1) {
 			if (args[0].equalsIgnoreCase("help")) {
-				if (!sender.hasPermission("tradeshop.help")) {
+				if (!sender.hasPermission(getHelpPerm())) {
 					sender.sendMessage(ChatColor.translateAlternateColorCodes('&', getPrefix() + plugin.getMessages().getString("no-command-permission")));
 					return true;
 				}
 				
-				String line1 = "\n";
-				String line2 = "&2" + getPluginName() + " " + getVersion() + " by " + pdf.getAuthors().get(0) + "\n";
-				String line3 = "\n";
-				String line4 = "\n";
-				String line5 = "&6/tradeshop help &c - Display help message\n";
-				String line7 = "&6/tradeshop setup &c - Display TradeShop setup tutorial\n";
-				String line8 = "&6/tradeshop item &c - Shows helpful iformation on item held by player\n";
-				String line9 = "&6/tradeshop bugs &c - Report bugs\n \n";
+				String[] help = new String[9];
+
+                help[0] = "\n";
+				help[1] = "&2" + getPluginName() + " " + getVersion() + " by " + pdf.getAuthors().get(0) + "\n";
+				help[2] = "\n";
+				help[3] = "\n";
+				help[4] = "&6/tradeshop help &c - Display help message\n";
 				
-				if (sender.hasPermission("tradeshop.admin")) {
-					String helpMsg = line1 + line2 + line3 + line4 + line5 + line7 + line8 + line9;
-					sender.sendMessage(ChatColor.translateAlternateColorCodes('&', helpMsg));
-					return true;
-					
-				} else {
-					String helpMsg = line1 + line2 + line3 + line4 + line5 + line7;
-					sender.sendMessage(ChatColor.translateAlternateColorCodes('&', helpMsg));
-					return true;
+				if(sender.hasPermission(getCreatePerm())){
+				    help[5] = "&6/tradeshop setup &c - Display TradeShop setup tutorial\n";
+				    help[6] = "&6/tradeshop item &c - Shows helpful iformation on item held by player\n";
+				}
+				
+				help[7] = "&6/tradeshop bugs &c - Report bugs\n \n";
+				
+                String msg = "";
+                for(String str : help)
+                {
+                    msg = msg + str;
+                }
+				
+				sender.sendMessage(ChatColor.translateAlternateColorCodes('&', msg));
+	            return true;
 					
 				}
 			} else if (args[0].equalsIgnoreCase("bugs")) {
@@ -77,11 +82,15 @@ public class Executor extends Utils implements CommandExecutor {
 				return true;
 				
 			} else if (args[0].equalsIgnoreCase("setup")) {
+                if (!sender.hasPermission(getCreatePerm())) {
+                    sender.sendMessage(ChatColor.translateAlternateColorCodes('&', getPrefix() + plugin.getMessages().getString("no-command-permission")));
+                    return true;
+                }
 				sender.sendMessage(ChatColor.translateAlternateColorCodes('&', getPrefix() + plugin.getMessages().getString("setup-help")));
 				return true;
 				
 			} else if (args[0].equalsIgnoreCase("reload")) {
-				if (!sender.hasPermission("tradeshop.admin")) {
+				if (!sender.hasPermission(getAdminPerm())) {
 					sender.sendMessage(ChatColor.translateAlternateColorCodes('&', getPrefix() + plugin.getMessages().getString("no-command-permission")));
 					return true;
 					
@@ -96,7 +105,7 @@ public class Executor extends Utils implements CommandExecutor {
 					return true;
 					
 				}
-				if (!sender.hasPermission("tradeshop.create")) {
+				if (!sender.hasPermission(getCreatePerm())) {
 					sender.sendMessage(ChatColor.translateAlternateColorCodes('&', getPrefix() + plugin.getMessages().getString("no-command-permission")));
 					return true;
 				}
@@ -112,12 +121,13 @@ public class Executor extends Utils implements CommandExecutor {
 					sender.sendMessage(msg);
 					return true;
 					
-				} else
+				} else {
 					sender.sendMessage(ChatColor.translateAlternateColorCodes('&', getPrefix() + plugin.getMessages().getString("held-empty")));
-				return true;
+					return true;
+				}
 			}
+
+        sender.sendMessage(ChatColor.translateAlternateColorCodes('&', getPrefix() + plugin.getMessages().getString("invalid-arguments")));
+        return true;
 		}
-		sender.sendMessage(ChatColor.translateAlternateColorCodes('&', getPrefix() + plugin.getMessages().getString("invalid-arguments")));
-		return true;
 	}
-}
