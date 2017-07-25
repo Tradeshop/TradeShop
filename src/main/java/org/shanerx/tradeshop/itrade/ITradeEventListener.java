@@ -21,12 +21,9 @@
 
 package org.shanerx.tradeshop.itrade;
 
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.BlockState;
-import org.bukkit.block.Chest;
 import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -34,6 +31,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.shanerx.tradeshop.TradeShop;
 import org.shanerx.tradeshop.Utils;
@@ -59,16 +57,16 @@ public class ITradeEventListener extends Utils implements Listener {
 				return;
 			}
 			Sign s = (Sign) e.getClickedBlock().getState();
-			
-			int x = e.getClickedBlock().getLocation().getBlockX();
-			int y = e.getClickedBlock().getLocation().getBlockY();
-			int z = e.getClickedBlock().getLocation().getBlockZ();
-			String world = e.getClickedBlock().getLocation().getWorld().getName();
-			
-			BlockState chestState = Bukkit.getServer().getWorld(world).getBlockAt(new Location(e.getClickedBlock().getWorld(), x, y - 1, z)).getState();
-			Chest chest = (Chest) chestState;
-			
-			Inventory chestInventory = chest.getInventory();
+			BlockState chestState;
+            
+            try{
+            chestState = e.getClickedBlock().getRelative(0, -1, 0).getState();
+            } catch(NullPointerException npe) {
+                buyer.sendMessage(ChatColor.translateAlternateColorCodes('&', getPrefix() + plugin.getMessages().getString("missing-shop")));
+                return;
+            }
+            
+            Inventory chestInventory = ((InventoryHolder) chestState).getInventory();
 			Inventory playerInventory = buyer.getInventory();
 			
 			String line1 = s.getLine(1);
