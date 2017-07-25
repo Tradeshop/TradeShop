@@ -75,14 +75,8 @@ public class Executor extends Utils implements CommandExecutor {
         }
 				msg = sb.toString();
 				
-				sender.sendMessage(ChatColor.translateAlternateColorCodes('&', msg));
+				sender.sendMessage(colorize(msg));
 	            return true;
-			} else if (args[0].equalsIgnoreCase("bugs")) {
-				sender.sendMessage(ChatColor.translateAlternateColorCodes('&', "\n &2To report any bugs to the author, either send a PM on"
-						+ " &cSpigot &2- &egoo.gl/s6Jk23 &2or open an issue on &cGitHub &2-&e goo.gl/X4qqyg\n"));
-				return true;
-				
-			}
 		} else if (args[0].equalsIgnoreCase("bugs")) {
 			sender.sendMessage(colorize("\n &2To report any bugs to the author, either send a PM on"
 					+ " &cSpigot &2- &egoo.gl/s6Jk23 &2or open an issue on &cGitHub &2-&e goo.gl/X4qqyg\n"));
