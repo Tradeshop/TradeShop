@@ -54,7 +54,7 @@ public class AdminEventListener extends Utils implements Listener {
         if (event.getBlock().getType() == Material.SIGN_POST || event.getBlock().getType() == Material.WALL_SIGN) {
             Sign s = (Sign) event.getBlock().getState();
 
-            if (!(("[iTrade]".equalsIgnoreCase(ChatColor.stripColor(s.getLine(0))) || "[Trade]".equalsIgnoreCase(ChatColor.stripColor(s.getLine(0)))) && player.hasPermission(getAdminPerm()))) {
+            if (!("[iTrade]".equalsIgnoreCase(ChatColor.stripColor(s.getLine(0))) || "[Trade]".equalsIgnoreCase(ChatColor.stripColor(s.getLine(0)))) && !player.hasPermission(getAdminPerm())) {
                 return;
             }
 
@@ -125,7 +125,7 @@ public class AdminEventListener extends Utils implements Listener {
 
         Block block = e.getClickedBlock();
 
-        if (!(plugin.getAllowedInventories().contains(block.getType()) && e.getPlayer().hasPermission(getAdminPerm()))) {
+        if (plugin.getAllowedInventories().contains(block.getType()) && e.getPlayer().hasPermission(getAdminPerm())) {
             return;
         }
 
