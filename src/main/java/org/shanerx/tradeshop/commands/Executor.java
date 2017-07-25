@@ -69,13 +69,12 @@ public class Executor extends Utils implements CommandExecutor {
                 String msg = "";
                 for(String str : help)
                 {
-                    msg = msg + str;
+                    if(str != null)
+                        msg = msg + str;
                 }
 				
 				sender.sendMessage(ChatColor.translateAlternateColorCodes('&', msg));
 	            return true;
-					
-				}
 			} else if (args[0].equalsIgnoreCase("bugs")) {
 				sender.sendMessage(ChatColor.translateAlternateColorCodes('&', "\n &2To report any bugs to the author, either send a PM on"
 						+ " &cSpigot &2- &egoo.gl/s6Jk23 &2or open an issue on &cGitHub &2-&e goo.gl/X4qqyg\n"));
@@ -126,8 +125,8 @@ public class Executor extends Utils implements CommandExecutor {
 					return true;
 				}
 			}
-
+		}
         sender.sendMessage(ChatColor.translateAlternateColorCodes('&', getPrefix() + plugin.getMessages().getString("invalid-arguments")));
         return true;
-		}
 	}
+}
