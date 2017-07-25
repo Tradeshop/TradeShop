@@ -37,6 +37,11 @@ public class Utils {
 	protected final String VERSION = Bukkit.getPluginManager().getPlugin("TradeShop").getDescription().getVersion();
 	protected final PluginDescriptionFile pdf = Bukkit.getPluginManager().getPlugin("TradeShop").getDescription();
 	protected final String PREFIX = "&a[&eTradeShop&a] ";
+    
+	protected final Permission PHELP = new Permission("tradeshop.help");
+    	protected final Permission PCREATE = new Permission("tradeshop.create");
+	protected final Permission PADMIN = new Permission("tradeshop.admin");
+    	protected final Permission PCREATEI = new Permission("tradeshop.create.infinite");
 	
 	public String getPluginName() {
 		return pdf.getName();
@@ -57,6 +62,22 @@ public class Utils {
 	public String getPrefix() {
 		return PREFIX;
 	}
+	
+	public Permission getHelpPerm(){
+	    return PHELP;
+	}
+	
+    	public Permission getCreatePerm(){
+        	return PCREATE;
+    	}
+    
+    	public Permission getAdminPerm(){
+        	return PADMIN;
+    	}
+    
+    	public Permission getCreateIPerm(){
+        	return PCREATEI;
+    	}
 	
 	public boolean isTradeShopSign(Block b) {
 		if (b.getType() != Material.SIGN_POST && b.getType() != Material.WALL_SIGN) {
@@ -123,4 +144,10 @@ public class Utils {
 		}
 		return count >= amt;
 	}
+	
+	public String colorize(String msg)
+	{
+		msg = ChatColor.translateAlternateColorCodes('&', msg);
+		return msg;
+	}	
 }
