@@ -65,7 +65,7 @@ public class IShopCreateEventListener extends Utils implements Listener {
 			player.sendMessage(ChatColor.translateAlternateColorCodes('&', getPrefix() + plugin.getMessages().getString("no-ts-create-permission")));
 			return;
 		}
-		if (!plugin.getAllowedInventories().contains(STORAGE_TYPE)) {
+		if (!plugin.getAllowedInventories().contains(STORAGE_TYPE.getType())) {
 			event.setLine(0, ChatColor.DARK_RED + "[iTrade]");
 			event.setLine(1, "");
 			event.setLine(2, "");
