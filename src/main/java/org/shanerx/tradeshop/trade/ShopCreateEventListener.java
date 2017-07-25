@@ -19,25 +19,28 @@
  * caused by their contribution(s) to the project. See the full License for more information
  */
 
-package org.shanerx.tradeshop.itrade;
+package org.shanerx.tradeshop.trade;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockState;
 import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.SignChangeEvent;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.shanerx.tradeshop.TradeShop;
 import org.shanerx.tradeshop.Utils;
 
-public class IShopCreateEventListener extends Utils implements Listener {
+public class ShopCreateEventListener extends Utils implements Listener {
 	
 	private TradeShop plugin;
 	
-	public IShopCreateEventListener(TradeShop instance) {
+	public ShopCreateEventListener(TradeShop instance) {
 		plugin = instance;
 	}
 	
@@ -47,13 +50,13 @@ public class IShopCreateEventListener extends Utils implements Listener {
 		//	BlockState state = event.getBlock().getState();
 		Player player = event.getPlayer();
 		Sign s = (Sign) event.getBlock().getState();
-		if (!(event.getLine(0).equalsIgnoreCase("[iTrade]"))) {
+		if (!(event.getLine(0).equalsIgnoreCase("[Trade]"))) {
 			return;
 		}
-
-        final Block STORAGE_TYPE = event.getBlock().getRelative(0, -1, 0);
-        
-        if (!player.hasPermission(getCreateIPerm())) {
+		
+		final Block STORAGE_TYPE = event.getBlock().getRelative(0, -1, 0);
+		
+		if (!player.hasPermission(getCreatePerm())) {
 			s.setLine(0, "");
 			s.update();
 			s.setLine(1, "");
@@ -66,10 +69,11 @@ public class IShopCreateEventListener extends Utils implements Listener {
 			return;
 		}
 		if (!plugin.getAllowedInventories().contains(STORAGE_TYPE.getType())) {
-			event.setLine(0, ChatColor.DARK_RED + "[iTrade]");
+			event.setLine(0, ChatColor.DARK_RED + "[Trade]");
 			event.setLine(1, "");
 			event.setLine(2, "");
 			event.setLine(3, "");
+			
 			player.sendMessage(ChatColor.translateAlternateColorCodes('&', getPrefix() + plugin.getMessages().getString("no-chest")));
 			return;
 		}
@@ -90,22 +94,22 @@ public class IShopCreateEventListener extends Utils implements Listener {
 		}
 		
 		
+		int durability1 = 0;
+		@SuppressWarnings("unused")
+		int durability2 = 0;
 		if (line1.split(":").length > 1) {
+			durability1 = Integer.parseInt(info1[1].split(":")[1]);
 			info1[1] = info1[1].split(":")[0];
 		}
 		if (line2.split(":").length > 1) {
+			durability2 = Integer.parseInt(info2[1].split(":")[1]);
 			info2[1] = info2[1].split(":")[0];
-		}
-		
-		if (info1.length != 2 || info2.length != 2) {
-			signIsValid = false;
 		}
 		
 		int amount1 = 0;
 		int amount2 = 0;
 		String item_name1 = null;
 		String item_name2 = null;
-		@SuppressWarnings("unused")
 		ItemStack item1;
 		@SuppressWarnings("unused")
 		ItemStack item2;
@@ -134,7 +138,7 @@ public class IShopCreateEventListener extends Utils implements Listener {
 		
 		if (signIsValid == false) {
 			event.getPlayer().sendMessage(ChatColor.translateAlternateColorCodes('&', getPrefix() + plugin.getMessages().getString("invalid-sign")));
-			event.setLine(0, ChatColor.DARK_RED + "[iTrade]");
+			event.setLine(0, ChatColor.DARK_RED + "[Trade]");
 			event.setLine(1, "");
 			event.setLine(2, "");
 			event.setLine(3, "");
@@ -143,7 +147,19 @@ public class IShopCreateEventListener extends Utils implements Listener {
 		
 		String player_name = event.getPlayer().getName();
 		event.setLine(3, player_name);
-		event.setLine(0, ChatColor.DARK_GREEN + "[iTrade]");
-		event.getPlayer().sendMessage(ChatColor.translateAlternateColorCodes('&', getPrefix() + plugin.getMessages().getString("successful-setup")));
+		
+		BlockState chestState = event.getBlock().getRelative(0, -1, 0).getState();
+		Inventory chestInventory = ((InventoryHolder) chestState).getInventory();
+		item1 = new ItemStack(Material.getMaterial(item_name1), amount1);
+		item1.setDurability((short) durability1);
+		event.setLine(0, ChatColor.DARK_GREEN + "[Trade]");
+		if (chestInventory.containsAtLeast(item1, amount1)) {
+			
+			event.setLine(0, ChatColor.DARK_GREEN + "[Trade]");
+			event.getPlayer().sendMessage(ChatColor.translateAlternateColorCodes('&', getPrefix() + plugin.getMessages().getString("successful-setup")));
+			return;
+		}
+		
+		event.getPlayer().sendMessage(ChatColor.translateAlternateColorCodes('&', getPrefix() + plugin.getMessages().getString("empty-ts-on-setup")));
 	}
 }
