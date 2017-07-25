@@ -103,7 +103,7 @@ public class TradeShop extends JavaPlugin {
 	
 	private void addMaterials()
 	{
-	   ArrayList<Material> AllowedOld = Arrays.asList(Material.CHEST, Material.TRAPPED_CHEST, Material.DROPPER, Material.HOPPER, Material.DISPENSER);
+	   ArrayList<Material> allowedOld = Arrays.asList(Material.CHEST, Material.TRAPPED_CHEST, Material.DROPPER, Material.HOPPER, Material.DISPENSER);
 	    
 	   for(String str : getConfig().getStringList("allowed-shops"))
 	    {
@@ -132,7 +132,7 @@ public class TradeShop extends JavaPlugin {
 	       }
 	       else
 	       {
-	           if(Material.valueOf(str) != null && AllowedOld.contains(Material.valueOf(str)))
+	           if(Material.valueOf(str) != null && allowedOld.contains(Material.valueOf(str)))
 	               inventories.add(Material.valueOf(str));
 	               
 	       }
