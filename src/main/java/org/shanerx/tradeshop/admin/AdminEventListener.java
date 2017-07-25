@@ -19,12 +19,11 @@
  * caused by their contribution(s) to the project. See the full License for more information
  */
 
-package org.shanerx.tradeshop.trade;
+package org.shanerx.tradeshop.admin;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
-import org.bukkit.block.BlockState;
-import org.bukkit.block.Chest;
+import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -50,16 +49,12 @@ public class AdminEventListener extends Utils implements Listener {
 	@EventHandler
 	public void onBlockBreak(BlockBreakEvent event) {
 		Player player = event.getPlayer();
-		BlockState state = event.getBlock().getState();
+		Block block = event.getBlock();
 		
 		if (event.getBlock().getType() == Material.SIGN_POST || event.getBlock().getType() == Material.WALL_SIGN) {
 			Sign s = (Sign) event.getBlock().getState();
 			
-			if (!"[Trade]".equalsIgnoreCase(ChatColor.stripColor(s.getLine(0)))) {
-				return;
-			}
-			
-			if (player.hasPermission("tradeshop.admin")) {
+			if (!("[iTrade]".equalsIgnoreCase(ChatColor.stripColor(s.getLine(0))) && "[Trade]".equalsIgnoreCase(ChatColor.stripColor(s.getLine(0))) && player.hasPermission(getAdminPerm()))) {
 				return;
 			}
 			
@@ -85,23 +80,17 @@ public class AdminEventListener extends Utils implements Listener {
 			return;
 		}
 		
-		if (state instanceof Chest) {
-			if (player.hasPermission("tradeshop.admin")) {
+		if (plugin.getAllowedInventories().contains(block.getType())) {
+			if (player.hasPermission(getAdminPerm())) {
 				return;
 			}
-			int x = event.getBlock().getLocation().getBlockX();
-			int y = event.getBlock().getLocation().getBlockY();
-			int z = event.getBlock().getLocation().getBlockZ();
-			String world = event.getBlock().getLocation().getWorld().getName();
 			
 			Sign s;
 			try {
-				s = (Sign) plugin.getServer().getWorld(world).getBlockAt(x, y + 1, z).getState();
-				
+				s = (Sign) event.getBlock().getRelative(0, +1, 0).getState();
 			} catch (Exception ex) {
 				return;
 			}
-			
 			
 			try {
 				String[] signInfo1 = s.getLine(1).split(" ");
@@ -125,9 +114,7 @@ public class AdminEventListener extends Utils implements Listener {
 			player.sendMessage(ChatColor.translateAlternateColorCodes('&', getPrefix() + plugin.getMessages().getString("no-ts-destroy")));
 			event.setCancelled(true);
 		}
-		
 	}
-	
 	
 	@SuppressWarnings("unused")
 	@EventHandler
@@ -136,24 +123,15 @@ public class AdminEventListener extends Utils implements Listener {
 			return;
 		}
 		
-		BlockState blockState = e.getClickedBlock().getState();
+		Block block = e.getClickedBlock();
 		
-		if (!(blockState instanceof Chest)) {
+		if (!(plugin.getAllowedInventories().contains(block.getType()) && e.getPlayer().hasPermission(getAdminPerm()))) {
 			return;
 		}
-		
-		if (e.getPlayer().hasPermission("tradeshop.admin")) {
-			return;
-		}
-		
-		int x = e.getClickedBlock().getLocation().getBlockX();
-		int y = e.getClickedBlock().getLocation().getBlockY();
-		int z = e.getClickedBlock().getLocation().getBlockZ();
-		String world = e.getClickedBlock().getLocation().getWorld().getName();
 		
 		Sign s;
 		try {
-			s = (Sign) plugin.getServer().getWorld(world).getBlockAt(x, y + 1, z).getState();
+			s = (Sign) block.getRelative(0, +1, 0).getState();
 			
 		} catch (Exception ex) {
 			return;
