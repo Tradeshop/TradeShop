@@ -81,28 +81,40 @@ public class Utils {
     	}
 	
 	public boolean isTradeShopSign(Block b) {
-		if (b.getType() != Material.SIGN_POST && b.getType() != Material.WALL_SIGN) {
-			return false;
-		}
-		Sign sign = (Sign) b.getState();
-		if (!ChatColor.stripColor(sign.getLine(0)).equals("[Trade]")) {
-			return false;
-		} else {
-			return true;
-		}
-	}
-	
-	public boolean isInfiniteTradeShopSign(Block b) {
-		if (b.getType() != Material.SIGN_POST && b.getType() != Material.WALL_SIGN) {
-			return false;
-		}
-		Sign sign = (Sign) b.getState();
-		if (!ChatColor.stripColor(sign.getLine(0)).equals("[iTrade]")) {
-			return false;
-		} else {
-			return true;
-		}
-	}
+        if (!isSign(b)) {
+            return false;
+        }
+        Sign sign = (Sign) b.getState();
+        if (!ChatColor.stripColor(sign.getLine(0)).equals("[Trade]")) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    public boolean isInfiniteTradeShopSign(Block b) {
+        if (!isSign(b)) {
+            return false;
+        }
+        Sign sign = (Sign) b.getState();
+        if (!ChatColor.stripColor(sign.getLine(0)).equals("[iTrade]")) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    public boolean isShopSign(Block b)
+    {
+        return isTradeShopSign(b) && isInfiniteTradeShopSign(b);
+    }
+
+    public boolean isSign(Block b)
+    {
+        if(b == null)
+            return false;
+        return b.getType() == Material.SIGN_POST || b.getType() == Material.WALL_SIGN;
+    }
 	
 	public boolean isInt(String str) {
 		try {
