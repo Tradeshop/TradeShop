@@ -197,7 +197,8 @@ public class Utils {
 
     public Sign findShopSign(Block chest)
     {
-        ArrayList<BlockFace> faces = (ArrayList<BlockFace>) Arrays.asList(BlockFace.UP, BlockFace.NORTH, BlockFace.EAST, BlockFace.SOUTH, BlockFace.WEST, BlockFace.DOWN);
+        ArrayList<BlockFace> faces = new ArrayList<>();
+        faces.addAll(Arrays.asList(BlockFace.UP, BlockFace.NORTH, BlockFace.EAST, BlockFace.SOUTH, BlockFace.WEST, BlockFace.DOWN));
 
         for(BlockFace face : faces)
         {
@@ -214,7 +215,8 @@ public class Utils {
 
     public BlockState findShopChest(Block sign, ArrayList<Material> invs)
     {
-        ArrayList<BlockFace> faces = (ArrayList<BlockFace>) Arrays.asList(BlockFace.DOWN, BlockFace.WEST, BlockFace.SOUTH, BlockFace.EAST, BlockFace.NORTH, BlockFace.UP);
+        ArrayList<BlockFace> faces = new ArrayList<>();
+        faces.addAll(Arrays.asList(BlockFace.DOWN, BlockFace.WEST, BlockFace.SOUTH, BlockFace.EAST, BlockFace.NORTH, BlockFace.UP));
 
         for(BlockFace face : faces)
         {
@@ -224,5 +226,5 @@ public class Utils {
                     return sign.getRelative(face).getState();
         }
         return null;
-    }	
+    }
 }
