@@ -28,6 +28,7 @@ import java.util.Arrays;
 import java.util.logging.Level;
 
 import org.bukkit.Material;
+import org.bukkit.block.BlockFace;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.PluginManager;
@@ -47,6 +48,7 @@ public class TradeShop extends JavaPlugin {
 	private FileConfiguration settings;
 	
 	private ArrayList<Material> inventories = new ArrayList<>();
+	private ArrayList<Material> directions = new ArrayList<>();
 	
 	public File getMessagesFile() {
 		return messagesFile;
@@ -72,13 +74,21 @@ public class TradeShop extends JavaPlugin {
 	
 	@Override
 	public void reloadConfig() {
-		messages = YamlConfiguration.loadConfiguration(messagesFile);
-		addMessageDefaults();
-		settings = YamlConfiguration.loadConfiguration(settingsFile);
-	}
+        messages = YamlConfiguration.loadConfiguration(messagesFile);
+        addMessageDefaults();
+        settings = YamlConfiguration.loadConfiguration(settingsFile);
+        addSettingsDefaults();
+
+        addMaterials();
+	addDirections();
+    }
 	
 	public ArrayList<Material> getAllowedInventories() {
 		return inventories;
+	}
+	
+	public ArrayList<Material> getAllowedDirections() {
+		return directions;
 	}
 	
 	@Override
@@ -94,47 +104,58 @@ public class TradeShop extends JavaPlugin {
 		pm.registerEvents(new IShopCreateEventListener(this), this);
 		
 		getCommand("tradeshop").setExecutor(new Executor(this));
-		addMaterials();
 	}
 	
-	private void addMaterials() {
-		Material[] allowed = {
-				Material.CHEST,
-				Material.TRAPPED_CHEST,
-				Material.DROPPER,
-				Material.HOPPER,
-				Material.DISPENSER
-		};
-		ArrayList<Material> allowedOld = new ArrayList<>(Arrays.asList(allowed));
-		
-		for (String str : getConfig().getStringList("allowed-shops")) {
-			if (str.equalsIgnoreCase("shulker")) {
-				try {
-					inventories.addAll(Arrays.asList(Material.BLACK_SHULKER_BOX,
-							Material.BLUE_SHULKER_BOX,
-							Material.BROWN_SHULKER_BOX,
-							Material.CYAN_SHULKER_BOX,
-							Material.GRAY_SHULKER_BOX,
-							Material.GREEN_SHULKER_BOX,
-							Material.LIGHT_BLUE_SHULKER_BOX,
-							Material.LIME_SHULKER_BOX,
-							Material.MAGENTA_SHULKER_BOX,
-							Material.ORANGE_SHULKER_BOX,
-							Material.PINK_SHULKER_BOX,
-							Material.RED_SHULKER_BOX,
-							Material.SILVER_SHULKER_BOX,
-							Material.WHITE_SHULKER_BOX,
-							Material.YELLOW_SHULKER_BOX,
-							Material.PURPLE_SHULKER_BOX));
-				} catch (Throwable t) {
-					getLogger().info("You are on a version before 1.9, Shulker boxes are disabled!");
-				}
-			} else {
-				if (Material.valueOf(str) != null && allowedOld.contains(Material.valueOf(str)))
-					inventories.add(Material.valueOf(str));
-			}
-		}
-	}
+	private void addMaterials()
+    {
+        ArrayList<Material> allowedOld = new ArrayList<>();
+        allowedOld.addAll(Arrays.asList(new Material[] {Material.CHEST, Material.TRAPPED_CHEST, Material.DROPPER, Material.HOPPER, Material.DISPENSER}));
+
+        for(String str : getConfig().getStringList("allowed-shops"))
+        {
+            if(str.equalsIgnoreCase("shulker"))
+            {
+                try{
+                    inventories.addAll(Arrays.asList(new Material[] {Material.BLACK_SHULKER_BOX, 
+                            Material.BLUE_SHULKER_BOX, 
+                            Material.BROWN_SHULKER_BOX, 
+                            Material.CYAN_SHULKER_BOX, 
+                            Material.GRAY_SHULKER_BOX, 
+                            Material.GREEN_SHULKER_BOX, 
+                            Material.LIGHT_BLUE_SHULKER_BOX, 
+                            Material.LIME_SHULKER_BOX, 
+                            Material.MAGENTA_SHULKER_BOX, 
+                            Material.ORANGE_SHULKER_BOX, 
+                            Material.PINK_SHULKER_BOX, 
+                            Material.RED_SHULKER_BOX, 
+                            Material.SILVER_SHULKER_BOX, 
+                            Material.WHITE_SHULKER_BOX, 
+                            Material.YELLOW_SHULKER_BOX, 
+                            Material.PURPLE_SHULKER_BOX}));
+                } catch(Throwable t){
+                    getLogger().info(getName() + "You are on a version before 1.9, Shulkers are disabled!");
+                }
+            }
+            else
+            {
+                if(Material.valueOf(str) != null && allowedOld.contains(Material.valueOf(str)))
+                    inventories.add(Material.valueOf(str));
+
+            }
+        }
+    }
+	
+	private void addDirections()
+    	{
+        ArrayList<BlockFace> allowed = new ArrayList<>();
+        allowed.addAll(Arrays.asList(new BlockFace[] {BlockFace.DOWN, BlockFace.WEST, BlockFace.SOUTH, BlockFace.EAST, BlockFace.NORTH, BlockFace.UP}));
+
+	for(String str : getConfig().getStringList("allowed-directions"))
+        {
+            if(Material.valueOf(str) != null && allowed.contains(Material.valueOf(str)))
+                    directions.add(Material.valueOf(str));
+        }
+    }
 	
 	private boolean addMessage(String node, String message) {
 		if (messages.getString(node) == null) {
@@ -186,6 +207,7 @@ public class TradeShop extends JavaPlugin {
 	
 	private void addSettingsDefaults() {
 		addSetting("allowed-shops", new String[]{"CHEST", "TRAPPED_CHEST", "SHULKER"});
+		addSetting("allowed-directions", new String[]{"DOWN", "WEST", "SOUTH", "EAST", "NORTH", "UP"});
 		
 		save();
 	}
