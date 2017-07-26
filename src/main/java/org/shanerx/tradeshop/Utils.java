@@ -193,5 +193,36 @@ public class Utils {
 	{
 		msg = ChatColor.translateAlternateColorCodes('&', msg);
 		return msg;
-	}	
+	}
+
+    public Sign findShopSign(Block chest)
+    {
+        ArrayList<BlockFace> faces = (ArrayList<BlockFace>) Arrays.asList(BlockFace.UP, BlockFace.NORTH, BlockFace.EAST, BlockFace.SOUTH, BlockFace.WEST, BlockFace.DOWN);
+
+        for(BlockFace face : faces)
+        {
+            Block relative = chest.getRelative(face);
+            if(isSign(relative))
+                if(isShopSign(relative))
+                    return (Sign) chest.getRelative(face);
+        }
+
+
+        return null;
+
+    }
+
+    public BlockState findShopChest(Block sign, ArrayList<Material> invs)
+    {
+        ArrayList<BlockFace> faces = (ArrayList<BlockFace>) Arrays.asList(BlockFace.DOWN, BlockFace.WEST, BlockFace.SOUTH, BlockFace.EAST, BlockFace.NORTH, BlockFace.UP);
+
+        for(BlockFace face : faces)
+        {
+            Block relative = sign.getRelative(face);
+            if(relative != null)
+                if(invs.contains(relative.getType()))
+                    return sign.getRelative(face).getState();
+        }
+        return null;
+    }	
 }
