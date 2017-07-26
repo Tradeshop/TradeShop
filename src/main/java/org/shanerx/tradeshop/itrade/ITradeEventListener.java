@@ -113,11 +113,11 @@ public class ITradeEventListener extends Utils implements Listener {
                 under = true;
             }
 
-            if (!canFit(chestInventory, item1, amount1)) {
+            if (!canExchange(chestInventory, item1, amount1, item2, amount2)) {
                 over = true;
             }
 
-            if (!canFit(playerInventory, item2, amount2)) {
+            if (!canExchange(playerInventory, item2, amount2, item1, amount1)) {
                 buyer.sendMessage(colorize(getPrefix() + plugin.getMessages().getString("player-full")
                         .replace("{ITEM}", item_name2.toLowerCase()).replace("{AMOUNT}", String.valueOf(amount2))));
                 return;
