@@ -82,25 +82,20 @@ public class TradeShop extends JavaPlugin {
 	    return inventories;
 	}
 	
-	@Override
-	public void onEnable() {
-		createConfigs();
-		reloadConfig();
-		
-		TradeEventListener shop = new TradeEventListener(this);
-		ShopCreateEventListener inst = new ShopCreateEventListener(this);
-		AdminEventListener admn = new AdminEventListener(this);
-		
-		PluginManager pm = getServer().getPluginManager();
-		pm.registerEvents(shop, this);
-		pm.registerEvents(inst, this);
-		pm.registerEvents(admn, this);
-		pm.registerEvents(new ITradeEventListener(this), this);
-		pm.registerEvents(new IShopCreateEventListener(this), this);
-		
-		getCommand("tradeshop").setExecutor(new Executor(this));
-	}
-	
+    @Override
+    public void onEnable() {
+        createConfigs();
+        reloadConfig();
+
+        PluginManager pm = getServer().getPluginManager();
+        pm.registerEvents(new TradeEventListener(this), this);
+        pm.registerEvents(new ShopCreateEventListener(this), this);
+        pm.registerEvents(new AdminEventListener(this), this);
+        pm.registerEvents(new ITradeEventListener(this), this);
+        pm.registerEvents(new IShopCreateEventListener(this), this);
+
+        getCommand("tradeshop").setExecutor(new Executor(this));
+    }	
 	private void addMaterials()
 	{
 	   ArrayList<Material> allowedOld = Arrays.asList(Material.CHEST, Material.TRAPPED_CHEST, Material.DROPPER, Material.HOPPER, Material.DISPENSER);
