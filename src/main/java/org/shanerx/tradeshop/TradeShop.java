@@ -87,7 +87,7 @@ public class TradeShop extends JavaPlugin {
 	}
 	
 	public ArrayList<Material> getAllowedDirections() {
-		return inventories;
+		return directions;
 	}
 	
 	@Override
@@ -147,7 +147,7 @@ public class TradeShop extends JavaPlugin {
 	private void addDirections()
     	{
         ArrayList<Material> allowed = new ArrayList<>();
-        AllowedOld.addAll(Arrays.asList(new Material[] {BlockFace.DOWN, BlockFace.WEST, BlockFace.SOUTH, BlockFace.EAST, BlockFace.NORTH, BlockFace.UP}));
+        allowed.addAll(Arrays.asList(new Material[] {BlockFace.DOWN, BlockFace.WEST, BlockFace.SOUTH, BlockFace.EAST, BlockFace.NORTH, BlockFace.UP}));
 
 	for(String str : getConfig().getStringList("allowed-directions"))
         {
