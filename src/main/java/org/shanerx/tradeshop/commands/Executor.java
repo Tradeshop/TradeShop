@@ -66,65 +66,65 @@ public class Executor extends Utils implements CommandExecutor {
 				
 				help[7] = "&6/tradeshop bugs &c - Report bugs\n \n";
 				
-        String msg;
-		    StringBuilder sb = new StringBuilder();		
-        for(String str : help)
-         {
-               if(str != null)
-                    sb.append(str);
-        }
+				String msg;
+				StringBuilder sb = new StringBuilder();
+				for (String str : help) {
+					if (str != null)
+						sb.append(str);
+				}
 				msg = sb.toString();
 				
 				sender.sendMessage(colorize(msg));
-	            return true;
-		} else if (args[0].equalsIgnoreCase("bugs")) {
-			sender.sendMessage(colorize("\n &2To report any bugs to the author, either send a PM on"
-					+ " &cSpigot &2- &egoo.gl/s6Jk23 &2or open an issue on &cGitHub &2-&e goo.gl/X4qqyg\n"));
-			return true;
-			
-		} else if (args[0].equalsIgnoreCase("setup")) {
-			if (!sender.hasPermission(getCreatePerm())) {
-				sender.sendMessage(colorize(getPrefix() + plugin.getMessages().getString("no-command-permission")));
 				return true;
-			}
-			sender.sendMessage(colorize(getPrefix() + plugin.getMessages().getString("setup-help")));
-			return true;
-			
-		} else if (args[0].equalsIgnoreCase("reload")) {
-			if (!sender.hasPermission(getAdminPerm())) {
-				sender.sendMessage(colorize(getPrefix() + plugin.getMessages().getString("no-command-permission")));
+			} else if (args[0].equalsIgnoreCase("bugs")) {
+				sender.sendMessage(colorize("\n &2To report any bugs to the author, either send a PM on"
+						+ " &cSpigot &2- &egoo.gl/s6Jk23 &2or open an issue on &cGitHub &2-&e goo.gl/X4qqyg\n"));
 				return true;
 				
-			}
-			plugin.reloadConfig();
-			sender.sendMessage(colorize(getPrefix() + "&6The configuration files have been reloaded!"));
-			return true;
-			
-		} else if (args[0].equalsIgnoreCase("item")) {
-			if (!(sender instanceof Player)) {
-				sender.sendMessage(plugin.getMessages().getString("player-only-command"));
+			} else if (args[0].equalsIgnoreCase("setup")) {
+				if (!sender.hasPermission(getCreatePerm())) {
+					sender.sendMessage(colorize(getPrefix() + plugin.getMessages().getString("no-command-permission")));
+					return true;
+				}
+				sender.sendMessage(colorize(getPrefix() + plugin.getMessages().getString("setup-help")));
 				return true;
 				
-			}
-			if (!sender.hasPermission(getCreatePerm())) {
-				sender.sendMessage(colorize(getPrefix() + plugin.getMessages().getString("no-command-permission")));
-				return true;
-			}
-			
-			Player pl = (Player) sender;
-			ItemStack itm = pl.getInventory().getItemInMainHand();
-			if (itm.getType() != null) {
-				String msg = colorize(getPrefix() + plugin.getMessages().getString("held-item"))
-						.replace("{MATERIAL}", itm.getType().name())
-						.replace("{DURABILITY}", itm.getDurability() + "")
-						.replace("{ID}", itm.getTypeId() + "")
-						.replace("{AMOUNT}", itm.getAmount() + "");
-				sender.sendMessage(msg);
+			} else if (args[0].equalsIgnoreCase("reload")) {
+				if (!sender.hasPermission(getAdminPerm())) {
+					sender.sendMessage(colorize(getPrefix() + plugin.getMessages().getString("no-command-permission")));
+					return true;
+					
+				}
+				plugin.reloadConfig();
+				sender.sendMessage(colorize(getPrefix() + "&6The configuration files have been reloaded!"));
 				return true;
 				
-			} else {
-				sender.sendMessage(colorize(getPrefix() + plugin.getMessages().getString("held-empty")));
-				return true;
+			} else if (args[0].equalsIgnoreCase("item")) {
+				if (!(sender instanceof Player)) {
+					sender.sendMessage(plugin.getMessages().getString("player-only-command"));
+					return true;
+					
+				}
+				if (!sender.hasPermission(getCreatePerm())) {
+					sender.sendMessage(colorize(getPrefix() + plugin.getMessages().getString("no-command-permission")));
+					return true;
+				}
+				
+				Player pl = (Player) sender;
+				ItemStack itm = pl.getInventory().getItemInMainHand();
+				if (itm.getType() != null) {
+					String msg = colorize(getPrefix() + plugin.getMessages().getString("held-item"))
+							.replace("{MATERIAL}", itm.getType().name())
+							.replace("{DURABILITY}", itm.getDurability() + "")
+							.replace("{ID}", itm.getTypeId() + "")
+							.replace("{AMOUNT}", itm.getAmount() + "");
+					sender.sendMessage(msg);
+					return true;
+					
+				} else {
+					sender.sendMessage(colorize(getPrefix() + plugin.getMessages().getString("held-empty")));
+					return true;
+				}
 			}
 		}
     sender.sendMessage(colorize(getPrefix() + plugin.getMessages().getString("invalid-arguments")));
