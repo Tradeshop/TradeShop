@@ -102,13 +102,13 @@ public class TradeEventListener extends Utils implements Listener {
             ItemStack item1 = new ItemStack(Material.getMaterial(item_name1), amount1); // What the player gets
             ItemStack item2 = new ItemStack(Material.getMaterial(item_name2), amount2); // What the player pays
 
-            if (!containsAtLeast(playerInventory, item2.getType(), (short)durability2,amount2)) {
+            if (!containsAtLeast(playerInventory, item2.getType(), (short)durability2, amount2)) {
                 buyer.sendMessage(colorize(getPrefix() + plugin.getMessages().getString("insufficient-items")
                         .replace("{ITEM}", item_name2.toLowerCase()).replace("{AMOUNT}", String.valueOf(amount2))));
                 return;
             }
 
-            if (!containsAtLeast(chestInventory, item1.getType(), (short)durability1,amount1)) {
+            if (!containsAtLeast(chestInventory, item1.getType(), (short)durability1, amount1)) {
                 buyer.sendMessage(colorize(getPrefix() + plugin.getMessages().getString("shop-empty")
                         .replace("{ITEM}", item_name1.toLowerCase()).replace("{AMOUNT}", String.valueOf(amount1))));
                 return;

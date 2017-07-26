@@ -42,11 +42,11 @@ public class Utils {
 	protected final String VERSION = Bukkit.getPluginManager().getPlugin("TradeShop").getDescription().getVersion();
 	protected final PluginDescriptionFile pdf = Bukkit.getPluginManager().getPlugin("TradeShop").getDescription();
 	protected final String PREFIX = "&a[&eTradeShop&a] ";
-    
+	
 	protected final Permission PHELP = new Permission("tradeshop.help");
-    	protected final Permission PCREATE = new Permission("tradeshop.create");
+	protected final Permission PCREATE = new Permission("tradeshop.create");
 	protected final Permission PADMIN = new Permission("tradeshop.admin");
-    	protected final Permission PCREATEI = new Permission("tradeshop.create.infinite");
+	protected final Permission PCREATEI = new Permission("tradeshop.create.infinite");
 	
 	public String getPluginName() {
 		return pdf.getName();
@@ -68,57 +68,55 @@ public class Utils {
 		return PREFIX;
 	}
 	
-	public Permission getHelpPerm(){
-	    return PHELP;
+	public Permission getHelpPerm() {
+		return PHELP;
 	}
 	
-    	public Permission getCreatePerm(){
-        	return PCREATE;
-    	}
-    
-    	public Permission getAdminPerm(){
-        	return PADMIN;
-    	}
-    
-    	public Permission getCreateIPerm(){
-        	return PCREATEI;
-    	}
+	public Permission getCreatePerm() {
+		return PCREATE;
+	}
+	
+	public Permission getAdminPerm() {
+		return PADMIN;
+	}
+	
+	public Permission getCreateIPerm() {
+		return PCREATEI;
+	}
 	
 	public boolean isTradeShopSign(Block b) {
-        if (!isSign(b)) {
-            return false;
-        }
-        Sign sign = (Sign) b.getState();
-        if (!ChatColor.stripColor(sign.getLine(0)).equals("[Trade]")) {
-            return false;
-        } else {
-            return true;
-        }
-    }
-
-    public boolean isInfiniteTradeShopSign(Block b) {
-        if (!isSign(b)) {
-            return false;
-        }
-        Sign sign = (Sign) b.getState();
-        if (!ChatColor.stripColor(sign.getLine(0)).equals("[iTrade]")) {
-            return false;
-        } else {
-            return true;
-        }
-    }
-
-    public boolean isShopSign(Block b)
-    {
-        return isTradeShopSign(b) && isInfiniteTradeShopSign(b);
-    }
-
-    public boolean isSign(Block b)
-    {
-        if(b == null)
-            return false;
-        return b.getType() == Material.SIGN_POST || b.getType() == Material.WALL_SIGN;
-    }
+		if (!isSign(b)) {
+			return false;
+		}
+		Sign sign = (Sign) b.getState();
+		if (!ChatColor.stripColor(sign.getLine(0)).equals("[Trade]")) {
+			return false;
+		} else {
+			return true;
+		}
+	}
+	
+	public boolean isInfiniteTradeShopSign(Block b) {
+		if (!isSign(b)) {
+			return false;
+		}
+		Sign sign = (Sign) b.getState();
+		if (!ChatColor.stripColor(sign.getLine(0)).equals("[iTrade]")) {
+			return false;
+		} else {
+			return true;
+		}
+	}
+	
+	public boolean isShopSign(Block b) {
+		return isTradeShopSign(b) && isInfiniteTradeShopSign(b);
+	}
+	
+	public boolean isSign(Block b) {
+		if (b == null)
+			return false;
+		return b.getType() == Material.SIGN_POST || b.getType() == Material.WALL_SIGN;
+	}
 	
 	public boolean isInt(String str) {
 		try {
@@ -130,58 +128,49 @@ public class Utils {
 	}
 	
 	public boolean canFit(Inventory inv, ItemStack itm, int amt) {
-        int count = 0, empty = 0;
-        for (ItemStack i : inv.getContents()) {
-            if (i != null) {
-                if (i.getType() == itm.getType() && i.getData() == itm.getData() && i.getDurability() == itm.getDurability() && i.getItemMeta() == itm.getItemMeta()) {
-                    count += i.getAmount();
-                }
-            }
-            else
-                empty += itm.getMaxStackSize(); 
-        }
-        
-        return empty + (count % itm.getMaxStackSize()) >= amt;
-    }
-    
-    public boolean canExchange(Inventory inv, ItemStack itmOut, int amtOut, ItemStack itmIn, int amtIn) {
-        
-        int count = 0, slots = 0, empty = 0, removed = 0;
-        
-        for (ItemStack i : inv.getContents()) {
-            if (i != null) {
-                if (i.getType() == itmIn.getType() && i.getDurability() == itmIn.getDurability()) {
-                    count += i.getAmount();
-                    slots++;
-                }
-                else if(i.getType() == itmOut.getType() && i.getDurability() == itmOut.getDurability() && amtOut != removed)
-                {
-                    
-                    if(i.getAmount() > amtOut - removed)
-                    {
-                        removed = amtOut;
-                    }
-                    else if(i.getAmount() == amtOut - removed)
-                    {
-                        removed = amtOut;
-                        empty += itmIn.getMaxStackSize(); 
-                    }
-                    else if(i.getAmount() < amtOut - removed)
-                    {
-                        removed += i.getAmount();
-                        empty += itmIn.getMaxStackSize(); 
-                    }
-                }
-            }
-            else
-                empty += itmIn.getMaxStackSize(); 
-        }
-        
-        return empty + ((slots * itmIn.getMaxStackSize()) - count) >= amtIn;
-        
-    }
+		int count = 0, empty = 0;
+		for (ItemStack i : inv.getContents()) {
+			if (i != null) {
+				if (i.getType() == itm.getType() && i.getData() == itm.getData() && i.getDurability() == itm.getDurability() && i.getItemMeta() == itm.getItemMeta()) {
+					count += i.getAmount();
+				}
+			} else
+				empty += itm.getMaxStackSize();
+		}
+		
+		return empty + (count % itm.getMaxStackSize()) >= amt;
+	}
 	
-	public boolean containsAtLeast(Inventory inv, Material mat, int amt) {
+	public boolean canExchange(Inventory inv, ItemStack itmOut, int amtOut, ItemStack itmIn, int amtIn) {
+		
+		int count = 0, slots = 0, empty = 0, removed = 0;
+		
+		for (ItemStack i : inv.getContents()) {
+			if (i != null) {
+				if (i.getType() == itmIn.getType() && i.getDurability() == itmIn.getDurability()) {
+					count += i.getAmount();
+					slots++;
+				} else if (i.getType() == itmOut.getType() && i.getDurability() == itmOut.getDurability() && amtOut != removed) {
+					
+					if (i.getAmount() > amtOut - removed) {
+						removed = amtOut;
+					} else if (i.getAmount() == amtOut - removed) {
+						removed = amtOut;
+						empty += itmIn.getMaxStackSize();
+					} else if (i.getAmount() < amtOut - removed) {
+						removed += i.getAmount();
+						empty += itmIn.getMaxStackSize();
+					}
+				}
+			} else
+				empty += itmIn.getMaxStackSize();
+		}
+		
+		return empty + ((slots * itmIn.getMaxStackSize()) - count) >= amtIn;
+		
+	}
+	
+	public boolean containsAtLeast(Inventory inv, Material mat, short durability, int amt) {
 		int count = 0;
 		for (ItemStack itm : inv.getContents()) {
 			if (itm != null) {
@@ -193,42 +182,37 @@ public class Utils {
 		return count >= amt;
 	}
 	
-	public String colorize(String msg)
-	{
+	public String colorize(String msg) {
 		msg = ChatColor.translateAlternateColorCodes('&', msg);
 		return msg;
 	}
-
-    public Sign findShopSign(Block chest)
-    {
-        ArrayList<BlockFace> faces = new ArrayList<>();
-        faces.addAll(Arrays.asList(BlockFace.UP, BlockFace.NORTH, BlockFace.EAST, BlockFace.SOUTH, BlockFace.WEST, BlockFace.DOWN));
-
-        for(BlockFace face : faces)
-        {
-            Block relative = chest.getRelative(face);
-            if(isSign(relative))
-                if(isShopSign(relative))
-                    return (Sign) chest.getRelative(face);
-        }
-
-
-        return null;
-
-    }
-
-    public BlockState findShopChest(Block sign, ArrayList<Material> invs)
-    {
-        ArrayList<BlockFace> faces = new ArrayList<>();
-        faces.addAll(Arrays.asList(BlockFace.DOWN, BlockFace.WEST, BlockFace.SOUTH, BlockFace.EAST, BlockFace.NORTH, BlockFace.UP));
-
-        for(BlockFace face : faces)
-        {
-            Block relative = sign.getRelative(face);
-            if(relative != null)
-                if(invs.contains(relative.getType()))
-                    return sign.getRelative(face).getState();
-        }
-        return null;
-    }
+	
+	public Sign findShopSign(Block chest) {
+		ArrayList<BlockFace> faces = new ArrayList<>();
+		faces.addAll(Arrays.asList(BlockFace.UP, BlockFace.NORTH, BlockFace.EAST, BlockFace.SOUTH, BlockFace.WEST, BlockFace.DOWN));
+		
+		for (BlockFace face : faces) {
+			Block relative = chest.getRelative(face);
+			if (isSign(relative))
+				if (isShopSign(relative))
+					return (Sign) chest.getRelative(face);
+		}
+		
+		
+		return null;
+		
+	}
+	
+	public BlockState findShopChest(Block sign, ArrayList<Material> invs) {
+		ArrayList<BlockFace> faces = new ArrayList<>();
+		faces.addAll(Arrays.asList(BlockFace.DOWN, BlockFace.WEST, BlockFace.SOUTH, BlockFace.EAST, BlockFace.NORTH, BlockFace.UP));
+		
+		for (BlockFace face : faces) {
+			Block relative = sign.getRelative(face);
+			if (relative != null)
+				if (invs.contains(relative.getType()))
+					return sign.getRelative(face).getState();
+		}
+		return null;
+	}
 }

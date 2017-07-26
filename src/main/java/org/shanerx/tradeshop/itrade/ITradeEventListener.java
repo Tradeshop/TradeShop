@@ -103,13 +103,13 @@ public class ITradeEventListener extends Utils implements Listener {
             ItemStack item2 = new ItemStack(Material.getMaterial(item_name2), amount2); // What the player pays
             boolean over = false, under = false;
 
-            if (!containsAtLeast(playerInventory, item2.getType(), (short)durability2,amount2)) {
+            if (!containsAtLeast(playerInventory, item2.getType(), (short)durability2, amount2)) {
                 buyer.sendMessage(colorize(getPrefix() + plugin.getMessages().getString("insufficient-items")
                         .replace("{ITEM}", item_name2.toLowerCase()).replace("{AMOUNT}", String.valueOf(amount2))));
                 return;
             }
 
-            if (!containsAtLeast(chestInventory, item1.getType(), (short)durability1,amount1)) {
+            if (!containsAtLeast(chestInventory, item1.getType(), (short)durability1, amount1)) {
                 under = true;
             }
 

@@ -25,6 +25,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.logging.Level;
 
 import org.bukkit.Material;
@@ -98,7 +99,8 @@ public class TradeShop extends JavaPlugin {
     }	
 	private void addMaterials()
 	{
-	   ArrayList<Material> allowedOld = Arrays.asList(Material.CHEST, Material.TRAPPED_CHEST, Material.DROPPER, Material.HOPPER, Material.DISPENSER);
+		Material[] allowed = {Material.CHEST, Material.TRAPPED_CHEST, Material.DROPPER, Material.HOPPER, Material.DISPENSER};
+		ArrayList<Material> allowedOld = new ArrayList<>(Arrays.asList(allowed));
 	    
 	   for(String str : getConfig().getStringList("allowed-shops"))
 	    {
