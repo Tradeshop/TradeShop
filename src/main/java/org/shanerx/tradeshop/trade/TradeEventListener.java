@@ -114,13 +114,13 @@ public class TradeEventListener extends Utils implements Listener {
                 return;
             }
 
-            if (!canFit(chestInventory, item1, amount1)) {
+            if (!canExchange(chestInventory, item1, amount1, item2, amount2)) {
                 buyer.sendMessage(colorize(getPrefix() + plugin.getMessages().getString("shop-full")
                         .replace("{ITEM}", item_name1.toLowerCase()).replace("{AMOUNT}", String.valueOf(amount1))));
                 return;
             }
 
-            if (!canFit(playerInventory, item2, amount2)) {
+            if (!canExchange(playerInventory, item2, amount2, item1, amount1)) {
                 buyer.sendMessage(colorize(getPrefix() + plugin.getMessages().getString("player-full")
                         .replace("{ITEM}", item_name2.toLowerCase()).replace("{AMOUNT}", String.valueOf(amount2))));
                 return;
