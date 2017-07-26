@@ -47,6 +47,7 @@ public class TradeShop extends JavaPlugin {
 	private FileConfiguration settings;
 	
 	private ArrayList<Material> inventories = new ArrayList<>();
+	private ArrayList<Material> directions = new ArrayList<>();
 	
 	public File getMessagesFile() {
 		return messagesFile;
@@ -78,9 +79,14 @@ public class TradeShop extends JavaPlugin {
         addSettingsDefaults();
 
         addMaterials();
+	addDirections();
     }
 	
 	public ArrayList<Material> getAllowedInventories() {
+		return inventories;
+	}
+	
+	public ArrayList<Material> getAllowedDirections() {
 		return inventories;
 	}
 	
@@ -138,6 +144,18 @@ public class TradeShop extends JavaPlugin {
         }
     }
 	
+	private void addDirections()
+    	{
+        ArrayList<Material> Allowed = new ArrayList<>();
+        AllowedOld.addAll(Arrays.asList(new Material[] {BlockFace.DOWN, BlockFace.WEST, BlockFace.SOUTH, BlockFace.EAST, BlockFace.NORTH, BlockFace.UP}));
+
+	for(String str : getConfig().getStringList("allowed-directions"))
+        {
+            if(Material.valueOf(str) != null && Allowed.contains(Material.valueOf(str)))
+                    directions.add(Material.valueOf(str));
+        }
+    }
+	
 	private boolean addMessage(String node, String message) {
 		if (messages.getString(node) == null) {
 			messages.set(node, message);
@@ -188,6 +206,7 @@ public class TradeShop extends JavaPlugin {
 	
 	private void addSettingsDefaults() {
 		addSetting("allowed-shops", new String[]{"CHEST", "TRAPPED_CHEST", "SHULKER"});
+		addSetting("allowed-directions", new String[]{"DOWN", "WEST", "SOUTH", "EAST", "NORTH", "UP"});
 		
 		save();
 	}
