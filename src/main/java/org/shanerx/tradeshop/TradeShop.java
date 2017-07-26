@@ -107,8 +107,8 @@ public class TradeShop extends JavaPlugin {
 	
 	private void addMaterials()
     {
-        ArrayList<Material> AllowedOld = new ArrayList<>();
-        AllowedOld.addAll(Arrays.asList(new Material[] {Material.CHEST, Material.TRAPPED_CHEST, Material.DROPPER, Material.HOPPER, Material.DISPENSER}));
+        ArrayList<Material> allowedOld = new ArrayList<>();
+        allowedOld.addAll(Arrays.asList(new Material[] {Material.CHEST, Material.TRAPPED_CHEST, Material.DROPPER, Material.HOPPER, Material.DISPENSER}));
 
         for(String str : getConfig().getStringList("allowed-shops"))
         {
@@ -137,7 +137,7 @@ public class TradeShop extends JavaPlugin {
             }
             else
             {
-                if(Material.valueOf(str) != null && AllowedOld.contains(Material.valueOf(str)))
+                if(Material.valueOf(str) != null && allowedOld.contains(Material.valueOf(str)))
                     inventories.add(Material.valueOf(str));
 
             }
@@ -146,12 +146,12 @@ public class TradeShop extends JavaPlugin {
 	
 	private void addDirections()
     	{
-        ArrayList<Material> Allowed = new ArrayList<>();
+        ArrayList<Material> allowed = new ArrayList<>();
         AllowedOld.addAll(Arrays.asList(new Material[] {BlockFace.DOWN, BlockFace.WEST, BlockFace.SOUTH, BlockFace.EAST, BlockFace.NORTH, BlockFace.UP}));
 
 	for(String str : getConfig().getStringList("allowed-directions"))
         {
-            if(Material.valueOf(str) != null && Allowed.contains(Material.valueOf(str)))
+            if(Material.valueOf(str) != null && allowed.contains(Material.valueOf(str)))
                     directions.add(Material.valueOf(str));
         }
     }
