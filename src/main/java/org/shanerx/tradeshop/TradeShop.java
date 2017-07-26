@@ -28,6 +28,7 @@ import java.util.Arrays;
 import java.util.logging.Level;
 
 import org.bukkit.Material;
+import org.bukkit.block.BlockFace;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.PluginManager;
@@ -146,8 +147,8 @@ public class TradeShop extends JavaPlugin {
 	
 	private void addDirections()
     	{
-        ArrayList<Material> allowed = new ArrayList<>();
-        allowed.addAll(Arrays.asList(new Material[] {BlockFace.DOWN, BlockFace.WEST, BlockFace.SOUTH, BlockFace.EAST, BlockFace.NORTH, BlockFace.UP}));
+        ArrayList<BlockFace> allowed = new ArrayList<>();
+        allowed.addAll(Arrays.asList(new BlockFace[] {BlockFace.DOWN, BlockFace.WEST, BlockFace.SOUTH, BlockFace.EAST, BlockFace.NORTH, BlockFace.UP}));
 
 	for(String str : getConfig().getStringList("allowed-directions"))
         {
