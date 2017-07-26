@@ -50,10 +50,10 @@ public class IShopCreateEventListener extends Utils implements Listener {
 		if (!(event.getLine(0).equalsIgnoreCase("[iTrade]"))) {
 			return;
 		}
-
-        final Block STORAGE_TYPE = event.getBlock().getRelative(0, -1, 0);
-        
-        if (!player.hasPermission(getCreateIPerm())) {
+		
+		final Block STORAGE_TYPE = event.getBlock().getRelative(0, -1, 0);
+		
+		if (!player.hasPermission(getCreateIPerm())) {
 			s.setLine(0, "");
 			s.update();
 			s.setLine(1, "");

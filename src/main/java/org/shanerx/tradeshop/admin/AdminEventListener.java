@@ -34,96 +34,96 @@ import org.shanerx.tradeshop.TradeShop;
 import org.shanerx.tradeshop.Utils;
 
 public class AdminEventListener extends Utils implements Listener {
-
-    private TradeShop plugin;
-
-    public AdminEventListener(TradeShop instance) {
-        plugin = instance;
-    }
-
-    @EventHandler
-    public void onBlockBreak(BlockBreakEvent event) {
-        Player player = event.getPlayer();
-        Block block = event.getBlock();
-
-        if (event.getBlock().getType() == Material.SIGN_POST || event.getBlock().getType() == Material.WALL_SIGN) {
-            Sign s = (Sign) event.getBlock().getState();
-
-            if(!isInfiniteTradeShopSign(s.getBlock()) && !isTradeShopSign(s.getBlock()))
-                return;
-            
-            if(player.hasPermission(getAdminPerm()))
-                return;
-
-            if (s.getLine(3) == null || s.getLine(3).equals(""))
-                return;
-            
-            if (s.getLine(3).equalsIgnoreCase(player.getName())) 
-                return;
-            
-            event.setCancelled(true);
-            player.sendMessage(colorize(getPrefix() + plugin.getMessages().getString("no-ts-destroy")));
-            return;
-        }
-
-        if (plugin.getAllowedInventories().contains(block.getType())) {
-            if (player.hasPermission(getAdminPerm()))
-                return;
-
-            Sign s;
-            try {
-                s = (Sign) event.getBlock().getRelative(0, +1, 0).getState();
-            } catch (Exception ex) {
-                return;
-            }
-
-            if(!isInfiniteTradeShopSign(s.getBlock()) && !isTradeShopSign(s.getBlock()))
-                return;
-
-            if (s.getLine(3) == null || s.getLine(3).equals(""))
-                return;
-            
-            if (s.getLine(3).equalsIgnoreCase(player.getName())) 
-                return;
-            
-            player.sendMessage(colorize(getPrefix() + plugin.getMessages().getString("no-ts-destroy")));
-            event.setCancelled(true);
-        }
-    }
-
-    @EventHandler
-    public void onChestOpen(PlayerInteractEvent e) {
-        
-        if (e.getAction() != Action.RIGHT_CLICK_BLOCK) 
-            return;
-        
-        Block block = e.getClickedBlock();
-        
-        if (!plugin.getAllowedInventories().contains(block.getType()))
-            return;
-        
-        Sign s;
-        try {
-            s = (Sign) block.getRelative(0, +1, 0).getState();
-
-        } catch (Exception ex) {
-            return;
-        }
-
-
-        if (e.getPlayer().hasPermission(getAdminPerm())) 
-            return;
-
-        if(!isInfiniteTradeShopSign(s.getBlock()) && !isTradeShopSign(s.getBlock()))
-            return;
-
-        if (s.getLine(3) == null || s.getLine(3).equals(""))
-            return;
-        if (s.getLine(3).equalsIgnoreCase(e.getPlayer().getName())) {
-            return;
-        }
-        
-        e.getPlayer().sendMessage(colorize(getPrefix() + plugin.getMessages().getString("no-ts-open")));
-        e.setCancelled(true);
-    }
+	
+	private TradeShop plugin;
+	
+	public AdminEventListener(TradeShop instance) {
+		plugin = instance;
+	}
+	
+	@EventHandler
+	public void onBlockBreak(BlockBreakEvent event) {
+		Player player = event.getPlayer();
+		Block block = event.getBlock();
+		
+		if (event.getBlock().getType() == Material.SIGN_POST || event.getBlock().getType() == Material.WALL_SIGN) {
+			Sign s = (Sign) event.getBlock().getState();
+			
+			if (!isInfiniteTradeShopSign(s.getBlock()) && !isTradeShopSign(s.getBlock()))
+				return;
+			
+			if (player.hasPermission(getAdminPerm()))
+				return;
+			
+			if (s.getLine(3) == null || s.getLine(3).equals(""))
+				return;
+			
+			if (s.getLine(3).equalsIgnoreCase(player.getName()))
+				return;
+			
+			event.setCancelled(true);
+			player.sendMessage(colorize(getPrefix() + plugin.getMessages().getString("no-ts-destroy")));
+			return;
+		}
+		
+		if (plugin.getAllowedInventories().contains(block.getType())) {
+			if (player.hasPermission(getAdminPerm()))
+				return;
+			
+			Sign s;
+			try {
+				s = (Sign) event.getBlock().getRelative(0, +1, 0).getState();
+			} catch (Exception ex) {
+				return;
+			}
+			
+			if (!isInfiniteTradeShopSign(s.getBlock()) && !isTradeShopSign(s.getBlock()))
+				return;
+			
+			if (s.getLine(3) == null || s.getLine(3).equals(""))
+				return;
+			
+			if (s.getLine(3).equalsIgnoreCase(player.getName()))
+				return;
+			
+			player.sendMessage(colorize(getPrefix() + plugin.getMessages().getString("no-ts-destroy")));
+			event.setCancelled(true);
+		}
+	}
+	
+	@EventHandler
+	public void onChestOpen(PlayerInteractEvent e) {
+		
+		if (e.getAction() != Action.RIGHT_CLICK_BLOCK)
+			return;
+		
+		Block block = e.getClickedBlock();
+		
+		if (!plugin.getAllowedInventories().contains(block.getType()))
+			return;
+		
+		Sign s;
+		try {
+			s = (Sign) block.getRelative(0, +1, 0).getState();
+			
+		} catch (Exception ex) {
+			return;
+		}
+		
+		
+		if (e.getPlayer().hasPermission(getAdminPerm()))
+			return;
+		
+		if (!isInfiniteTradeShopSign(s.getBlock()) && !isTradeShopSign(s.getBlock()))
+			return;
+		
+		if (s.getLine(3) == null || s.getLine(3).equals(""))
+			return;
+		if (s.getLine(3).equalsIgnoreCase(e.getPlayer().getName())) {
+			return;
+		}
+		
+		e.getPlayer().sendMessage(colorize(getPrefix() + plugin.getMessages().getString("no-ts-open")));
+		e.setCancelled(true);
+	}
 }

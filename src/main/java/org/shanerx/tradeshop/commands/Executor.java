@@ -127,7 +127,7 @@ public class Executor extends Utils implements CommandExecutor {
 				}
 			}
 		}
-    sender.sendMessage(colorize(getPrefix() + plugin.getMessages().getString("invalid-arguments")));
+		sender.sendMessage(colorize(getPrefix() + plugin.getMessages().getString("invalid-arguments")));
 		return true;
 	}
 }
