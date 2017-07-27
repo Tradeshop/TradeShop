@@ -27,6 +27,7 @@ import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.SignChangeEvent;
 import org.bukkit.inventory.Inventory;
@@ -44,16 +45,15 @@ public class BiShopCreateEventListener extends Utils implements Listener {
 	}
 	
 	@SuppressWarnings("deprecation")
-	@EventHandler
+	@EventHandler(priority = EventPriority.HIGH)
 	public void onSignChange(SignChangeEvent event) throws InterruptedException {
-		//	BlockState state = event.getBlock().getState();
 		Player player = event.getPlayer();
 		Sign s = (Sign) event.getBlock().getState();
-		if (!(event.getLine(0).equalsIgnoreCase("[BiTrade]"))) {
-			return;
-		}
 		
-		if (!player.hasPermission(getCreatePerm())) {
+		if (!event.getLine(0).equalsIgnoreCase("[BiTrade]")) {
+			return;
+			
+		} else if (!player.hasPermission(getCreatePerm())) {
             s.setLine(0, "");
             s.update();
             s.setLine(1, "");
@@ -88,7 +88,7 @@ public class BiShopCreateEventListener extends Utils implements Listener {
             return;
         }
         
-		boolean signIsValid = true; // If this is true, the information on the sign is valid!
+		boolean signIsValid = true;
 		
 		String line1 = event.getLine(1);
 		String line2 = event.getLine(2);
@@ -154,22 +154,19 @@ public class BiShopCreateEventListener extends Utils implements Listener {
 			event.setLine(2, "");
 			event.setLine(3, "");
 			return;
+			
 		}
-		
-		String player_name = event.getPlayer().getName();
-		event.setLine(3, player_name);
-		
 		Inventory chestInventory = ((InventoryHolder) chest.getState()).getInventory();
 		item1 = new ItemStack(Material.getMaterial(item_name1), amount1);
 		item1.setDurability((short) durability1);
 		event.setLine(0, ChatColor.DARK_GREEN + "[BiTrade]");
+		setName((InventoryHolder) chest.getState(), "o:" + player.getName());
+		
 		if (chestInventory.containsAtLeast(item1, amount1)) {
-			
 			event.setLine(0, ChatColor.DARK_GREEN + "[BiTrade]");
 			event.getPlayer().sendMessage(colorize(getPrefix() + plugin.getMessages().getString("successful-setup")));
 			return;
 		}
-		
 		event.getPlayer().sendMessage(colorize(getPrefix() + plugin.getMessages().getString("empty-ts-on-setup")));
 	}
 }
