@@ -264,6 +264,13 @@ public class Utils {
 				owners.add(Bukkit.getOfflinePlayer(m.substring(2)));
 			}
 		}
+		Sign s = findShopSign(b);
+		if (s.getLine(3) == null || s.getLine(3).equals("")) {
+			return owners;
+		}
+		else if (!owners.contains(Bukkit.getOfflinePlayer(s.getLine(3)))) {
+			owners.add(Bukkit.getOfflinePlayer(s.getLine(3)));
+		}
 		return owners;
 	}
 	
