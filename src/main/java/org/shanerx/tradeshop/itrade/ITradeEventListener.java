@@ -190,7 +190,7 @@ public class ITradeEventListener extends Utils implements Listener {
 			}
 			
 			
-			buyer.sendMessage(colorize(getPrefix() + plugin.getMessages().getString("on-trade").replace("{AMOUNT1}", String.valueOf(amount1)).replace("{AMOUNT2}", String.valueOf(amount2)).replace("{ITEM1}", item_name1.toLowerCase()).replace("{ITEM2}", item_name2.toLowerCase()).replace("{SELLER}", s.getLine(3))));
+			buyer.sendMessage(colorize(getPrefix() + plugin.getMessages().getString("on-trade").replace("{AMOUNT1}", String.valueOf(amount1)).replace("{AMOUNT2}", String.valueOf(amount2)).replace("{ITEM1}", item_name1.toLowerCase()).replace("{ITEM2}", item_name2.toLowerCase()).replace("{SELLER}", getShopOwners(s).get(0).getName())));
 			return;
 		} else if (e.getAction() == Action.LEFT_CLICK_BLOCK) {
 			if (!isInfiniteTradeShopSign(e.getClickedBlock())) {

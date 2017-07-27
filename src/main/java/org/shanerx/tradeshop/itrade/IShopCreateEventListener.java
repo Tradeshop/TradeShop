@@ -29,6 +29,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.SignChangeEvent;
+import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.shanerx.tradeshop.TradeShop;
 import org.shanerx.tradeshop.Utils;
@@ -44,7 +45,6 @@ public class IShopCreateEventListener extends Utils implements Listener {
 	@SuppressWarnings("deprecation")
 	@EventHandler
 	public void onSignChange(SignChangeEvent event) throws InterruptedException {
-		//	BlockState state = event.getBlock().getState();
 		Player player = event.getPlayer();
 		Sign s = (Sign) event.getBlock().getState();
 		if (!(event.getLine(0).equalsIgnoreCase("[iTrade]"))) {
@@ -141,8 +141,8 @@ public class IShopCreateEventListener extends Utils implements Listener {
 			return;
 		}
 		
-		String player_name = event.getPlayer().getName();
-		event.setLine(3, player_name);
+		String playerName = event.getPlayer().getName();
+		setName((InventoryHolder) chest.getState(), "o:" + playerName);
 		event.setLine(0, ChatColor.DARK_GREEN + "[iTrade]");
 		event.getPlayer().sendMessage(colorize(getPrefix() + plugin.getMessages().getString("successful-setup")));
 	}
