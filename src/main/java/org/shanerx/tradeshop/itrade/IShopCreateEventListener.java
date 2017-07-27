@@ -51,7 +51,7 @@ public class IShopCreateEventListener extends Utils implements Listener {
 			return;
 		}
 		
-		final Block STORAGE_TYPE = event.getBlock().getRelative(0, -1, 0);
+		Block chest = findShopChest(s.getBlock());
 		
 		if (!player.hasPermission(getCreateIPerm())) {
 			s.setLine(0, "");
@@ -65,7 +65,7 @@ public class IShopCreateEventListener extends Utils implements Listener {
 			player.sendMessage(colorize(getPrefix() + plugin.getMessages().getString("no-ts-create-permission")));
 			return;
 		}
-		if (!plugin.getAllowedInventories().contains(STORAGE_TYPE.getType())) {
+		if (!plugin.getAllowedInventories().contains(chest.getType())) {
 			event.setLine(0, ChatColor.DARK_RED + "[iTrade]");
 			event.setLine(1, "");
 			event.setLine(2, "");
