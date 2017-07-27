@@ -59,7 +59,7 @@ public class ITradeEventListener extends Utils implements Listener {
 			BlockState chestState;
 			
 			try {
-				chestState = e.getClickedBlock().getRelative(0, -1, 0).getState();
+				chestState = findShopChest(s.getBlock()).getState();
 			} catch (NullPointerException npe) {
 				buyer.sendMessage(colorize(getPrefix() + plugin.getMessages().getString("missing-shop")));
 				return;
@@ -75,16 +75,16 @@ public class ITradeEventListener extends Utils implements Listener {
 			
 			int amount1 = Integer.parseInt(info1[0]);
 			int amount2 = Integer.parseInt(info2[0]);
-			e.setCancelled(true);
-			
-			if(buyer.isSneaking()){
-			    if(!buyer.isOnGround() && plugin.getSettings().getBoolean("allow-quad-trade")){
+            e.setCancelled(true);
+            
+            if(buyer.isSneaking()){
+                if(!buyer.isOnGround() && plugin.getSettings().getBoolean("allow-quad-trade")){
                     amount1 = amount1 * 4;
                     amount2 = amount2 * 4;
-			    } else if(plugin.getSettings().getBoolean("allow-double-trade")){
-	                amount1 += amount1;
-	                amount2 += amount2;
-	            }
+                } else if(plugin.getSettings().getBoolean("allow-double-trade")){
+                    amount1 += amount1;
+                    amount2 += amount2;
+                }
             }
 			
 			int durability1 = 0;
@@ -190,8 +190,7 @@ public class ITradeEventListener extends Utils implements Listener {
 			}
 			
 			
-			String message = plugin.getMessages().getString("on-trade").replace("{AMOUNT1}", String.valueOf(amount1)).replace("{AMOUNT2}", String.valueOf(amount2)).replace("{ITEM1}", item_name1.toLowerCase()).replace("{ITEM2}", item_name2.toLowerCase()).replace("{SELLER}", s.getLine(3));
-			buyer.sendMessage(colorize(getPrefix() + message));
+			buyer.sendMessage(colorize(getPrefix() + plugin.getMessages().getString("on-trade").replace("{AMOUNT1}", String.valueOf(amount1)).replace("{AMOUNT2}", String.valueOf(amount2)).replace("{ITEM1}", item_name1.toLowerCase()).replace("{ITEM2}", item_name2.toLowerCase()).replace("{SELLER}", s.getLine(3))));
 			return;
 		} else if (e.getAction() == Action.LEFT_CLICK_BLOCK) {
 			if (!isInfiniteTradeShopSign(e.getClickedBlock())) {
