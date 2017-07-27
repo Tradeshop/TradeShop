@@ -58,7 +58,7 @@ public class BiTradeEventListener extends Utils implements Listener {
 			BlockState chestState;
 			
 			try {
-				chestState = e.getClickedBlock().getRelative(0, -1, 0).getState();
+				chestState = findShopChest(s.getBlock()).getState();
 			} catch (NullPointerException npe) {
 				buyer.sendMessage(colorize(getPrefix() + plugin.getMessages().getString("missing-shop")));
 				return;
@@ -188,11 +188,12 @@ public class BiTradeEventListener extends Utils implements Listener {
 		    if (!isBiTradeShopSign(e.getClickedBlock())) {
                 return;
             }
-            Sign s = (Sign) e.getClickedBlock().getState();
+            
+		    Sign s = (Sign) e.getClickedBlock().getState();
             BlockState chestState;
             
             try {
-                chestState = e.getClickedBlock().getRelative(0, -1, 0).getState();
+                chestState = findShopChest(s.getBlock()).getState();
             } catch (NullPointerException npe) {
                 buyer.sendMessage(colorize(getPrefix() + plugin.getMessages().getString("missing-shop")));
                 return;
@@ -223,13 +224,13 @@ public class BiTradeEventListener extends Utils implements Listener {
             
             int durability2 = 0;
             int durability1 = 0;
-            if (line2.split(":").length > 2) {
-                durability2 = Integer.parseInt(info2[2].split(":")[2]);
-                info2[2] = info2[2].split(":")[0];
+            if (line2.split(":").length > 1) {
+                durability2 = Integer.parseInt(info2[1].split(":")[1]);
+                info2[1] = info2[1].split(":")[0];
             }
-            if (line1.split(":").length > 2) {
-                durability1 = Integer.parseInt(info1[2].split(":")[2]);
-                info1[2] = info1[2].split(":")[0];
+            if (line1.split(":").length > 1) {
+                durability1 = Integer.parseInt(info1[1].split(":")[1]);
+                info1[1] = info1[1].split(":")[0];
             }
             
             String item_name2, item_name1;
@@ -313,7 +314,6 @@ public class BiTradeEventListener extends Utils implements Listener {
                 
                 count -= removed;
             }
-            
             String message = plugin.getMessages().getString("on-trade").replace("{AMOUNT2}", String.valueOf(amount1)).replace("{AMOUNT1}", String.valueOf(amount2)).replace("{ITEM2}", item_name1.toLowerCase()).replace("{ITEM1}", item_name2.toLowerCase()).replace("{SELLER}", s.getLine(3));
             buyer.sendMessage(colorize(getPrefix() + message));
 		}
