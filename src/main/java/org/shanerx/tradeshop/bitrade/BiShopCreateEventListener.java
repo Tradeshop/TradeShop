@@ -53,7 +53,7 @@ public class BiShopCreateEventListener extends Utils implements Listener {
 		if (!event.getLine(0).equalsIgnoreCase("[BiTrade]")) {
 			return;
 			
-		} else if (!player.hasPermission(getCreatePerm())) {
+		} else if (!player.hasPermission(getCreateBiPerm())) {
 			s.setLine(0, "");
 			s.update();
 			s.setLine(1, "");
