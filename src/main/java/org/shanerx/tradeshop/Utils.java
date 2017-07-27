@@ -40,6 +40,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+/**
+ * This class contains a bunch of utility methods that
+ * are used in almost every class of the plugin. It was
+ * designed with the DRY concept in mind.
+ */
 public class Utils {
 	
 	protected final String VERSION = Bukkit.getPluginManager().getPlugin("TradeShop").getDescription().getVersion();
@@ -54,46 +59,90 @@ public class Utils {
 	
 	protected final TradeShop plugin = (TradeShop) Bukkit.getPluginManager().getPlugin("TradeShop");
 	
+	/**
+	 * Returns the plugin name.
+	 * @return the name.
+	 */
 	public String getPluginName() {
 		return pdf.getName();
 	}
 	
+	/**
+	 * Returns the plugin's version.
+	 * @return the version
+	 */
 	public String getVersion() {
 		return pdf.getVersion();
 	}
 	
+	/**
+	 * Returns a list of authors.
+	 * @return the authors
+	 */
 	public List<String> getAuthors() {
 		return pdf.getAuthors();
 	}
 	
+	/**
+	 * Returns the website of the plugin.
+	 * @return the website
+	 */
 	public String getWebsite() {
 		return pdf.getWebsite();
 	}
 	
+	/**
+	 * Returns the prefix of the plugin.
+	 * @return the prefix
+	 */
 	public String getPrefix() {
 		return PREFIX;
 	}
 	
+	/**
+	 * Returns the Help permission.
+	 * @return help
+	 */
 	public Permission getHelpPerm() {
 		return PHELP;
 	}
 	
+	/**
+	 * Returns the normal {@code [Trade]} sign create permission.
+	 * @return the Trade create permission
+	 */
 	public Permission getCreatePerm() {
 		return PCREATE;
 	}
 	
-	public Permission getCreateBiPerm() {
-		return PCREATEBI;
-	}
-	
-	public Permission getAdminPerm() {
-		return PADMIN;
-	}
-	
+	/**
+	 * Returns the {@code [iTrade]} sign create permission.
+	 * @return the iTrade create permission
+	 */
 	public Permission getCreateIPerm() {
 		return PCREATEI;
 	}
 	
+	/**
+	 * Returns the {@code [BiTrade]} sign create permission.
+	 * @return the BiTrade create permission
+	 */
+	public Permission getCreateBiPerm() {
+		return PCREATEBI;
+	}
+	
+	/**
+	 * Returns the TradeShop admin destroy permission.
+	 * @return the Trade create permission
+	 */
+	public Permission getAdminPerm() {
+		return PADMIN;
+	}
+	
+	/**
+	 * Checks whether or not the block entered is a {@code Trade} sign.
+	 * @return true if it is
+	 */
 	public boolean isTradeShopSign(Block b) {
 		if (!isSign(b)) {
 			return false;
@@ -106,18 +155,10 @@ public class Utils {
 		}
 	}
 	
-	public boolean isBiTradeShopSign(Block b) {
-		if (!isSign(b)) {
-			return false;
-		}
-		Sign sign = (Sign) b.getState();
-		if (!ChatColor.stripColor(sign.getLine(0)).equals("[BiTrade]")) {
-			return false;
-		} else {
-			return true;
-		}
-	}
-	
+	/**
+	 * Checks whether or not the block entered is a {@code iTrade} sign.
+	 * @return true if it is
+	 */
 	public boolean isInfiniteTradeShopSign(Block b) {
 		if (!isSign(b)) {
 			return false;
@@ -130,16 +171,47 @@ public class Utils {
 		}
 	}
 	
+	/**
+	 * Checks whether or not the block entered is a {@code BiTrade} sign.
+	 * @return true if it is
+	 */
+	public boolean isBiTradeShopSign(Block b) {
+		if (!isSign(b)) {
+			return false;
+		}
+		Sign sign = (Sign) b.getState();
+		if (!ChatColor.stripColor(sign.getLine(0)).equals("[BiTrade]")) {
+			return false;
+		} else {
+			return true;
+		}
+	}
+	
+	/**
+	 * Returns true if it is a TradeShop (Regardless of its type).
+	 * @param b the sign block
+	 * @return true if it is a TradeShop.
+	 */
 	public boolean isShopSign(Block b) {
 		return isTradeShopSign(b) || isInfiniteTradeShopSign(b) || isBiTradeShopSign(b);
 	}
 	
+	/**
+	 * Returns true if it is a sign (not necessarily a TradeSign).
+	 * @param b the sign block
+	 * @return true if it is a sign.
+	 */
 	public boolean isSign(Block b) {
 		if (b == null)
 			return false;
 		return b.getType() == Material.SIGN_POST || b.getType() == Material.WALL_SIGN;
 	}
 	
+	/**
+	 * Returns true if the number is an {@code int}.
+	 * @param str the string that should be parsed
+	 * @return true if it is an {@code int}.
+	 */
 	public boolean isInt(String str) {
 		try {
 			Integer.parseInt(str);
@@ -149,6 +221,13 @@ public class Utils {
 		}
 	}
 	
+	/**
+	 * Checks whether or not a certain ItemStack can fit inside an inventory.
+	 * @param inv the Inventory the item should be placed into
+	 * @param itm the ItemStack
+	 * @param amt the amount
+	 * @return true if the Inventory has enough space for the ItemStack.
+	 */
 	public boolean canFit(Inventory inv, ItemStack itm, int amt) {
 		int count = 0, empty = 0;
 		for (ItemStack i : inv.getContents()) {
@@ -159,12 +238,19 @@ public class Utils {
 			} else
 				empty += itm.getMaxStackSize();
 		}
-		
 		return empty + (count % itm.getMaxStackSize()) >= amt;
 	}
 	
+	/**
+	 * Checks whether a trade can take place.
+	 * @param inv the Inventory object representing the inventory that is subject to the transaction.
+	 * @param itmOut the ItemStack that is being given away
+	 * @param amtOut the amount of that ItemStack
+	 * @param itmIn the ItemStack that is being received
+	 * @param amtIn the amount of that ItemStack
+	 * @return true if the exchange may take place.
+	 */
 	public boolean canExchange(Inventory inv, ItemStack itmOut, int amtOut, ItemStack itmIn, int amtIn) {
-		
 		int count = 0, slots = 0, empty = 0, removed = 0;
 		
 		for (ItemStack i : inv.getContents()) {
@@ -187,11 +273,16 @@ public class Utils {
 			} else
 				empty += itmIn.getMaxStackSize();
 		}
-		
 		return empty + ((slots * itmIn.getMaxStackSize()) - count) >= amtIn;
-		
 	}
 	
+	/**
+	 * Checks whether the an inventory contains at least a certain amount of a certain material inside a specified inventory.
+	 * @param inv the Inventory object
+	 * @param mat the Material constant
+	 * @param amt the amount
+	 * @return true if the condition is met.
+	 */
 	public boolean containsAtLeast(Inventory inv, Material mat, int amt) {
 		int count = 0;
 		for (ItemStack itm : inv.getContents()) {
