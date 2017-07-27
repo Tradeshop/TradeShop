@@ -1,8 +1,9 @@
 name: TradeShop
 version: 1.5.0
-author: Lori00
 main: org.shanerx.tradeshop.TradeShop
 
+author: Lori00
+authors: [KillerOfPie]
 description: A new powerful trading plugin.
 
 commands:
