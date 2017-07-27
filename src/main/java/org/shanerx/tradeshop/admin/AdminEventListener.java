@@ -120,8 +120,7 @@ public class AdminEventListener extends Utils implements Listener {
 		} else if (s.getLine(3) == null || s.getLine(3).equals("")) {
 			return;
 			
-		} else if (getShopOwners(block).contains(Bukkit.getOfflinePlayer(e.getPlayer().getUniqueId()))
-				|| getShopMembers(block).contains(Bukkit.getOfflinePlayer(e.getPlayer().getUniqueId()))) {
+		} else if (getShopMembers(block).contains(Bukkit.getOfflinePlayer(e.getPlayer().getUniqueId()))) {
 			return;
 		}
 		e.getPlayer().sendMessage(colorize(getPrefix() + plugin.getMessages().getString("no-ts-open")));
