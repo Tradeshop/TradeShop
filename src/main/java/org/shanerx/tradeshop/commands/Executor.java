@@ -46,7 +46,7 @@ public class Executor extends Utils implements CommandExecutor {
 	@SuppressWarnings("deprecation")
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
 		if (args.length == 0) {
-		    sender.sendMessage(colorize(getPrefix() + plugin.getMessages().getString("invalid-arguments")));
+			sender.sendMessage(colorize(getPrefix() + plugin.getMessages().getString("invalid-arguments")));
 			return true;
 		} else if (args.length == 1) {
 			if (args[0].equalsIgnoreCase("help")) {
@@ -128,61 +128,60 @@ public class Executor extends Utils implements CommandExecutor {
 					return true;
 				}
 			} else if (args[0].equalsIgnoreCase("break")) {
-			    if (!(sender instanceof Player)) {
-			        sender.sendMessage(plugin.getMessages().getString("player-only-command"));
-			        return true;
-			    }
-
-			    if(!sender.hasPermission(getCreatePerm())) {
-			        sender.sendMessage(plugin.getMessages().getString("no-command-permission"));
-			        return true;
-			    }
-
-			    boolean noShop = false;
-			    Player p = (Player) sender;
-			    while(!noShop)
-			    {
-			        Block  b;
-			        if(p.getTargetBlock((Set<Material>) null, plugin.getSettings().getInt("max-break-distance")) == null) 
-			            noShop = true;
-
-			        b = p.getTargetBlock((HashSet<Byte>) null, plugin.getSettings().getInt("max-break-distance"));
-
-			        if(isSign(b)) {
-			            if(!isShopSign(b)) 
-			                noShop = true;
-
-			            if(((Sign) b.getState()).getLine(3).equalsIgnoreCase(p.getName()) || p.hasPermission(getAdminPerm())){
-			                b.breakNaturally();
-			                return true;
-			            } else {
-			                plugin.getMessages().getString("no-ts-destroy");
-			                return true;
-			            }
-			        } else if(plugin.getAllowedInventories().contains(b.getType())) {
-			            if(findShopSign(b) == null)
-			                noShop = true;
-
-			            b = (Block) findShopSign(b).getBlock();
-
-			            if(!isShopSign(b)) 
-			                noShop = true;
-
-			            if(((Sign) b.getState()).getLine(3).equalsIgnoreCase(p.getName()) || p.hasPermission(getAdminPerm())){
-			                b.breakNaturally();
-			                return true;
-			            } else {
-			                plugin.getMessages().getString("no-ts-destroy");
-			                return true;
-			            }
-			        } else 
-			            noShop = true;
-			    }
-			    plugin.getMessages().getString("no-sighted-shop");
-			    return true;
+				if (!(sender instanceof Player)) {
+					sender.sendMessage(plugin.getMessages().getString("player-only-command"));
+					return true;
+				}
+				
+				if (!sender.hasPermission(getCreatePerm())) {
+					sender.sendMessage(plugin.getMessages().getString("no-command-permission"));
+					return true;
+				}
+				
+				boolean noShop = false;
+				Player p = (Player) sender;
+				while (!noShop) {
+					Block b;
+					if (p.getTargetBlock((Set<Material>) null, plugin.getSettings().getInt("max-break-distance")) == null)
+						noShop = true;
+					
+					b = p.getTargetBlock((HashSet<Byte>) null, plugin.getSettings().getInt("max-break-distance"));
+					
+					if (isSign(b)) {
+						if (!isShopSign(b))
+							noShop = true;
+						
+						if (((Sign) b.getState()).getLine(3).equalsIgnoreCase(p.getName()) || p.hasPermission(getAdminPerm())) {
+							b.breakNaturally();
+							return true;
+						} else {
+							plugin.getMessages().getString("no-ts-destroy");
+							return true;
+						}
+					} else if (plugin.getAllowedInventories().contains(b.getType())) {
+						if (findShopSign(b) == null)
+							noShop = true;
+						
+						b = (Block) findShopSign(b).getBlock();
+						
+						if (!isShopSign(b))
+							noShop = true;
+						
+						if (((Sign) b.getState()).getLine(3).equalsIgnoreCase(p.getName()) || p.hasPermission(getAdminPerm())) {
+							b.breakNaturally();
+							return true;
+						} else {
+							plugin.getMessages().getString("no-ts-destroy");
+							return true;
+						}
+					} else
+						noShop = true;
+				}
+				plugin.getMessages().getString("no-sighted-shop");
+				return true;
 			}
 		}
-        sender.sendMessage(colorize(getPrefix() + plugin.getMessages().getString("invalid-arguments")));
-        return true;
+		sender.sendMessage(colorize(getPrefix() + plugin.getMessages().getString("invalid-arguments")));
+		return true;
 	}
 }

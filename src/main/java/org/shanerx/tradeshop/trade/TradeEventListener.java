@@ -50,7 +50,7 @@ public class TradeEventListener extends Utils implements Listener {
 		Player buyer = e.getPlayer();
 		
 		if (e.getAction() == Action.RIGHT_CLICK_BLOCK) {
-		    
+			
 			if (!isTradeShopSign(e.getClickedBlock())) {
 				return;
 			}
@@ -77,15 +77,15 @@ public class TradeEventListener extends Utils implements Listener {
 			int amount2 = Integer.parseInt(info2[0]);
 			e.setCancelled(true);
 			
-			if(buyer.isSneaking()){
-			    if(!buyer.isOnGround() && plugin.getSettings().getBoolean("allow-quad-trade")){
-                    amount1 = amount1 * 4;
-                    amount2 = amount2 * 4;
-			    } else if(plugin.getSettings().getBoolean("allow-double-trade")){
-	                amount1 += amount1;
-	                amount2 += amount2;
-	            }
-            }
+			if (buyer.isSneaking()) {
+				if (!buyer.isOnGround() && plugin.getSettings().getBoolean("allow-quad-trade")) {
+					amount1 = amount1 * 4;
+					amount2 = amount2 * 4;
+				} else if (plugin.getSettings().getBoolean("allow-double-trade")) {
+					amount1 += amount1;
+					amount2 += amount2;
+				}
+			}
 			
 			int durability1 = 0;
 			int durability2 = 0;

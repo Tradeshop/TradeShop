@@ -37,7 +37,8 @@ public enum ShopType {
 		header = s;
 	}
 	
-	ShopType(){}
+	ShopType() {
+	}
 	
 	public String header() {
 		return header;

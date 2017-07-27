@@ -94,7 +94,7 @@ public class ShopCreateEventListener extends Utils implements Listener {
 		
 		int durability1 = 0;
 		@SuppressWarnings("unused")
-        int durability2 = 0;
+		int durability2 = 0;
 		if (line1.split(":").length > 1) {
 			durability1 = Integer.parseInt(info1[1].split(":")[1]);
 			info1[1] = info1[1].split(":")[0];
@@ -150,8 +150,8 @@ public class ShopCreateEventListener extends Utils implements Listener {
 		item1 = new ItemStack(Material.getMaterial(item_name1), amount1);
 		item1.setDurability((short) durability1);
 		event.setLine(0, ChatColor.DARK_GREEN + "[Trade]");
+		
 		if (chestInventory.containsAtLeast(item1, amount1)) {
-			
 			event.setLine(0, ChatColor.DARK_GREEN + "[Trade]");
 			event.getPlayer().sendMessage(colorize(getPrefix() + plugin.getMessages().getString("successful-setup")));
 			return;

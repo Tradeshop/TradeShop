@@ -54,40 +54,40 @@ public class BiShopCreateEventListener extends Utils implements Listener {
 			return;
 			
 		} else if (!player.hasPermission(getCreatePerm())) {
-            s.setLine(0, "");
-            s.update();
-            s.setLine(1, "");
-            s.update();
-            s.setLine(2, "");
-            s.update();
-            s.setLine(3, "");
-            s.update();
-            player.sendMessage(colorize(getPrefix() + plugin.getMessages().getString("no-ts-create-permission")));
-            return;
-        }
+			s.setLine(0, "");
+			s.update();
+			s.setLine(1, "");
+			s.update();
+			s.setLine(2, "");
+			s.update();
+			s.setLine(3, "");
+			s.update();
+			player.sendMessage(colorize(getPrefix() + plugin.getMessages().getString("no-ts-create-permission")));
+			return;
+		}
 		Block chest;
 		
 		try {
-		    chest = findShopChest(s.getBlock());
-		} catch(Exception e) {
-		    event.setLine(0, ChatColor.DARK_RED + "[BiTrade]");
-            event.setLine(1, "");
-            event.setLine(2, "");
-            event.setLine(3, "");
-            player.sendMessage(colorize(getPrefix() + plugin.getMessages().getString("no-chest")));
-            return;
+			chest = findShopChest(s.getBlock());
+		} catch (Exception e) {
+			event.setLine(0, ChatColor.DARK_RED + "[BiTrade]");
+			event.setLine(1, "");
+			event.setLine(2, "");
+			event.setLine(3, "");
+			player.sendMessage(colorize(getPrefix() + plugin.getMessages().getString("no-chest")));
+			return;
 		}
 		
-
-        if (!plugin.getAllowedInventories().contains(chest.getType())) {
-            event.setLine(0, ChatColor.DARK_RED + "[BiTrade]");
-            event.setLine(1, "");
-            event.setLine(2, "");
-            event.setLine(3, "");
-            player.sendMessage(colorize(getPrefix() + plugin.getMessages().getString("no-chest")));
-            return;
-        }
-        
+		
+		if (!plugin.getAllowedInventories().contains(chest.getType())) {
+			event.setLine(0, ChatColor.DARK_RED + "[BiTrade]");
+			event.setLine(1, "");
+			event.setLine(2, "");
+			event.setLine(3, "");
+			player.sendMessage(colorize(getPrefix() + plugin.getMessages().getString("no-chest")));
+			return;
+		}
+		
 		boolean signIsValid = true;
 		
 		String line1 = event.getLine(1);

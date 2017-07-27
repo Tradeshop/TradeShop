@@ -88,7 +88,7 @@ public class AdminEventListener extends Utils implements Listener {
 				return;
 				
 			}
-            event.setCancelled(true);
+			event.setCancelled(true);
 			player.sendMessage(colorize(getPrefix() + plugin.getMessages().getString("no-ts-destroy")));
 		}
 	}
