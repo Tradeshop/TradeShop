@@ -21,7 +21,6 @@
 
 package org.shanerx.tradeshop.admin;
 
-import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
@@ -46,10 +45,10 @@ public class AdminEventListener extends Utils implements Listener {
 		Player player = event.getPlayer();
 		Block block = event.getBlock();
 		
-		if (event.getBlock().getType() == Material.SIGN_POST || event.getBlock().getType() == Material.WALL_SIGN) {
-			Sign s = (Sign) event.getBlock().getState();
+		if (isSign(block)) {
+			Sign s = (Sign) block.getState();
 			
-			if (!isInfiniteTradeShopSign(s.getBlock()) && !isTradeShopSign(s.getBlock()))
+			if (!isShopSign(s.getBlock()))
 				return;
 			
 			if (player.hasPermission(getAdminPerm()))
@@ -72,12 +71,12 @@ public class AdminEventListener extends Utils implements Listener {
 			
 			Sign s;
 			try {
-				s = (Sign) event.getBlock().getRelative(0, +1, 0).getState();
+				s = findShopSign(block);
 			} catch (Exception ex) {
 				return;
 			}
 			
-			if (!isInfiniteTradeShopSign(s.getBlock()) && !isTradeShopSign(s.getBlock()))
+			if (!isShopSign(s.getBlock()))
 				return;
 			
 			if (s.getLine(3) == null || s.getLine(3).equals(""))
@@ -85,9 +84,10 @@ public class AdminEventListener extends Utils implements Listener {
 			
 			if (s.getLine(3).equalsIgnoreCase(player.getName()))
 				return;
-			
+
+            event.setCancelled(true);
 			player.sendMessage(colorize(getPrefix() + plugin.getMessages().getString("no-ts-destroy")));
-			event.setCancelled(true);
+            return;
 		}
 	}
 	
@@ -104,8 +104,7 @@ public class AdminEventListener extends Utils implements Listener {
 		
 		Sign s;
 		try {
-			s = (Sign) block.getRelative(0, +1, 0).getState();
-			
+			s = (Sign) findShopSign(block);
 		} catch (Exception ex) {
 			return;
 		}
@@ -114,7 +113,7 @@ public class AdminEventListener extends Utils implements Listener {
 		if (e.getPlayer().hasPermission(getAdminPerm()))
 			return;
 		
-		if (!isInfiniteTradeShopSign(s.getBlock()) && !isTradeShopSign(s.getBlock()))
+		if (!isShopSign(block))
 			return;
 		
 		if (s.getLine(3) == null || s.getLine(3).equals(""))
