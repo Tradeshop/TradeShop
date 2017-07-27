@@ -143,8 +143,8 @@ public class ShopCreateEventListener extends Utils implements Listener {
 			return;
 		}
 		
-		String player_name = event.getPlayer().getName();
-		event.setLine(3, player_name);
+		String playerName = event.getPlayer().getName();
+		setName((InventoryHolder) chest.getState(), "o:" + playerName);
 		
 		Inventory chestInventory = ((InventoryHolder) chest.getState()).getInventory();
 		item1 = new ItemStack(Material.getMaterial(item_name1), amount1);
