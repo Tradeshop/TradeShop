@@ -26,7 +26,6 @@ import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
-import org.bukkit.block.BlockState;
 import org.bukkit.block.Sign;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -34,7 +33,7 @@ import org.bukkit.permissions.Permission;
 import org.bukkit.plugin.PluginDescriptionFile;
 
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 public class Utils {
@@ -47,7 +46,9 @@ public class Utils {
 	protected final Permission PCREATE = new Permission("tradeshop.create");
 	protected final Permission PADMIN = new Permission("tradeshop.admin");
 	protected final Permission PCREATEI = new Permission("tradeshop.create.infinite");
-    	protected final Permission PCREATEBI = new Permission("tradeshop.create.bi");
+    protected final Permission PCREATEBI = new Permission("tradeshop.create.bi");
+    
+    protected final TradeShop plugin = (TradeShop) Bukkit.getPluginManager().getPlugin("TradeShop");
 	
 	public String getPluginName() {
 		return pdf.getName();
@@ -77,9 +78,9 @@ public class Utils {
 		return PCREATE;
 	}
 
-    	public Permission getCreateBiPerm() { 
-        	return PCREATEBI;
-    	}
+    public Permission getCreateBiPerm() {
+        return PCREATEBI;
+    }
 	
 	public Permission getAdminPerm() {
 		return PADMIN;
@@ -99,7 +100,7 @@ public class Utils {
         } else {
             return true;
         }
-    } 
+    }   
 	
     public boolean isBiTradeShopSign(Block b) { 
         if (!isSign(b)) {
@@ -230,15 +231,15 @@ public class Utils {
 
     public Sign findShopSign(Block chest)
     {
-        ArrayList<BlockFace> faces = new ArrayList<>();
-        faces.addAll(Arrays.asList(BlockFace.UP, BlockFace.NORTH, BlockFace.EAST, BlockFace.SOUTH, BlockFace.WEST, BlockFace.DOWN));
-
+        ArrayList<BlockFace> faces = plugin.getAllowedDirections();
+        Collections.reverse(faces);
+        
         for(BlockFace face : faces)
         {
             Block relative = chest.getRelative(face);
             if(isSign(relative))
                 if(isShopSign(relative))
-                    return (Sign) chest.getRelative(face);
+                    return (Sign) chest.getRelative(face).getState();
         }
 
 
@@ -246,17 +247,17 @@ public class Utils {
 
     }
 
-    public BlockState findShopChest(Block sign, ArrayList<Material> invs)
+    public Block findShopChest(Block sign) //copy
     {
-        ArrayList<BlockFace> faces = new ArrayList<>();
-        faces.addAll(Arrays.asList(BlockFace.DOWN, BlockFace.WEST, BlockFace.SOUTH, BlockFace.EAST, BlockFace.NORTH, BlockFace.UP));
+        ArrayList<Material> invs = plugin.getAllowedInventories();
+        ArrayList<BlockFace> faces = plugin.getAllowedDirections();
 
         for(BlockFace face : faces)
         {
             Block relative = sign.getRelative(face);
             if(relative != null)
                 if(invs.contains(relative.getType()))
-                    return sign.getRelative(face).getState();
+                    return sign.getRelative(face);
         }
         return null;
     }
