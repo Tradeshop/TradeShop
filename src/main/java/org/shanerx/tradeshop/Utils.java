@@ -21,10 +21,7 @@
 
 package org.shanerx.tradeshop;
 
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.Material;
-import org.bukkit.OfflinePlayer;
+import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.Chest;
@@ -297,5 +294,11 @@ public class Utils {
 			return null;
 		}
 		return getShopMembers(c.getBlock());
+	}
+	
+	public void setName(InventoryHolder ih, String title) {
+		if (ih instanceof Nameable) {
+			((Nameable) ih).setCustomName(title);
+		}
 	}
 }
