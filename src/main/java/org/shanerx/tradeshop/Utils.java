@@ -277,9 +277,7 @@ public class Utils {
 		Inventory inv = ((InventoryHolder) b.getState()).getInventory();
 		String names = inv.getName();
 		for (String m : names.split(";")) {
-			if (m.startsWith("m:")) {
-				members.add(Bukkit.getOfflinePlayer(m.substring(2)));
-			}
+			members.add(Bukkit.getOfflinePlayer(m.substring(2)));
 		}
 		return members;
 	}
