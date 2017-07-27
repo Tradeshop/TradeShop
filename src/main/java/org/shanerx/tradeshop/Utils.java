@@ -47,6 +47,7 @@ public class Utils {
 	protected final Permission PCREATE = new Permission("tradeshop.create");
 	protected final Permission PADMIN = new Permission("tradeshop.admin");
 	protected final Permission PCREATEI = new Permission("tradeshop.create.infinite");
+    	protected final Permission PCREATEBI = new Permission("tradeshop.create.bi");
 	
 	public String getPluginName() {
 		return pdf.getName();
@@ -75,6 +76,10 @@ public class Utils {
 	public Permission getCreatePerm() {
 		return PCREATE;
 	}
+
+    	public Permission getCreateBiPerm() { 
+        	return PCREATEBI;
+    	}
 	
 	public Permission getAdminPerm() {
 		return PADMIN;
@@ -90,6 +95,18 @@ public class Utils {
         }
         Sign sign = (Sign) b.getState();
         if (!ChatColor.stripColor(sign.getLine(0)).equals("[Trade]")) {
+            return false;
+        } else {
+            return true;
+        }
+    } 
+	
+    public boolean isBiTradeShopSign(Block b) { 
+        if (!isSign(b)) {
+            return false;
+        }
+        Sign sign = (Sign) b.getState();
+        if (!ChatColor.stripColor(sign.getLine(0)).equals("[BiTrade]")) {
             return false;
         } else {
             return true;
@@ -110,7 +127,7 @@ public class Utils {
 
     public boolean isShopSign(Block b)
     {
-        return isTradeShopSign(b) && isInfiniteTradeShopSign(b);
+        return isTradeShopSign(b) || isInfiniteTradeShopSign(b) || isBiTradeShopSign(b);
     }
 
     public boolean isSign(Block b)
