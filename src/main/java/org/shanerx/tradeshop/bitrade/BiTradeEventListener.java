@@ -180,7 +180,7 @@ public class BiTradeEventListener extends Utils implements Listener {
 				count -= removed;
 			}
 			
-			String message = plugin.getMessages().getString("on-trade").replace("{AMOUNT1}", String.valueOf(amount1)).replace("{AMOUNT2}", String.valueOf(amount2)).replace("{ITEM1}", item_name1.toLowerCase()).replace("{ITEM2}", item_name2.toLowerCase()).replace("{SELLER}", s.getLine(3));
+			String message = plugin.getMessages().getString("on-trade").replace("{AMOUNT1}", String.valueOf(amount1)).replace("{AMOUNT2}", String.valueOf(amount2)).replace("{ITEM1}", item_name1.toLowerCase()).replace("{ITEM2}", item_name2.toLowerCase()).replace("{SELLER}", getShopOwners(s).get(0).getName());
 			buyer.sendMessage(colorize(getPrefix() + message));
 			
 		} else if (e.getAction() == Action.LEFT_CLICK_BLOCK) {
