@@ -30,6 +30,7 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.block.Chest;
 import org.bukkit.block.Sign;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.permissions.Permission;
 import org.bukkit.plugin.PluginDescriptionFile;
@@ -248,9 +249,14 @@ public class Utils {
 		return null;
 	}
 	
-	public List<OfflinePlayer> getShopOwners(Chest c) {
+	public List<OfflinePlayer> getShopOwners(Block b) {
+		TradeShop ts = (TradeShop) Bukkit.getPluginManager().getPlugin("TradeShop");
+		if (!ts.getAllowedInventories().contains(b.getType())) {
+			return null;
+		}
+		
 		List<OfflinePlayer> owners = new ArrayList<>();
-		Inventory inv = c.getInventory();
+		Inventory inv = ((InventoryHolder) b.getState()).getInventory();
 		String names = inv.getName();
 		for (String m : names.split(";")) {
 			if (m.startsWith("o:")) {
@@ -260,9 +266,14 @@ public class Utils {
 		return owners;
 	}
 	
-	public List<OfflinePlayer> getShopMembers(Chest c) {
+	public List<OfflinePlayer> getShopMembers(Block b) {
+		TradeShop ts = (TradeShop) Bukkit.getPluginManager().getPlugin("TradeShop");
+		if (!ts.getAllowedInventories().contains(b.getType())) {
+			return null;
+		}
+		
 		List<OfflinePlayer> members = new ArrayList<>();
-		Inventory inv = c.getInventory();
+		Inventory inv = ((InventoryHolder) b.getState()).getInventory();
 		String names = inv.getName();
 		for (String m : names.split(";")) {
 			if (m.startsWith("m:")) {
@@ -277,7 +288,7 @@ public class Utils {
 		if (c == null) {
 			return null;
 		}
-		return getShopOwners(c);
+		return getShopOwners(c.getBlock());
 	}
 	
 	public List<OfflinePlayer> getShopMembers(Sign s) {
@@ -285,6 +296,6 @@ public class Utils {
 		if (c == null) {
 			return null;
 		}
-		return getShopMembers(c);
+		return getShopMembers(c.getBlock());
 	}
 }
