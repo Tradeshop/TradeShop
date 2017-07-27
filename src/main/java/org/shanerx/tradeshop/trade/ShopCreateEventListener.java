@@ -24,7 +24,6 @@ package org.shanerx.tradeshop.trade;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
-import org.bukkit.block.BlockState;
 import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -54,7 +53,7 @@ public class ShopCreateEventListener extends Utils implements Listener {
 			return;
 		}
 		
-		final Block STORAGE_TYPE = event.getBlock().getRelative(0, -1, 0);
+		Block chest = findShopChest(s.getBlock());
 		
 		if (!player.hasPermission(getCreatePerm())) {
 			s.setLine(0, "");
@@ -68,7 +67,7 @@ public class ShopCreateEventListener extends Utils implements Listener {
 			player.sendMessage(colorize(getPrefix() + plugin.getMessages().getString("no-ts-create-permission")));
 			return;
 		}
-		if (!plugin.getAllowedInventories().contains(STORAGE_TYPE.getType())) {
+		if (!plugin.getAllowedInventories().contains(chest.getType())) {
 			event.setLine(0, ChatColor.DARK_RED + "[Trade]");
 			event.setLine(1, "");
 			event.setLine(2, "");
@@ -95,7 +94,7 @@ public class ShopCreateEventListener extends Utils implements Listener {
 		
 		int durability1 = 0;
 		@SuppressWarnings("unused")
-		int durability2 = 0;
+        int durability2 = 0;
 		if (line1.split(":").length > 1) {
 			durability1 = Integer.parseInt(info1[1].split(":")[1]);
 			info1[1] = info1[1].split(":")[0];
@@ -147,8 +146,7 @@ public class ShopCreateEventListener extends Utils implements Listener {
 		String player_name = event.getPlayer().getName();
 		event.setLine(3, player_name);
 		
-		BlockState chestState = event.getBlock().getRelative(0, -1, 0).getState();
-		Inventory chestInventory = ((InventoryHolder) chestState).getInventory();
+		Inventory chestInventory = ((InventoryHolder) chest.getState()).getInventory();
 		item1 = new ItemStack(Material.getMaterial(item_name1), amount1);
 		item1.setDurability((short) durability1);
 		event.setLine(0, ChatColor.DARK_GREEN + "[Trade]");
