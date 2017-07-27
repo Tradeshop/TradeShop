@@ -127,7 +127,7 @@ public class Executor extends Utils implements CommandExecutor {
 					sender.sendMessage(colorize(getPrefix() + plugin.getMessages().getString("held-empty")));
 					return true;
 				}
-			} else if (args[0].equalsIgnoreCase("break")) { //copy
+			} else if (args[0].equalsIgnoreCase("break")) {
 			    if (!(sender instanceof Player)) {
 			        sender.sendMessage(plugin.getMessages().getString("player-only-command"));
 			        return true;
