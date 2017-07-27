@@ -44,6 +44,7 @@ public class Executor extends Utils implements CommandExecutor {
 		plugin = instance;
 	}
 	
+	@Override
 	@SuppressWarnings("deprecation")
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
 		if (args.length == 0) {
