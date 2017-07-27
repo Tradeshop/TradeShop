@@ -147,7 +147,7 @@ public class BiShopCreateEventListener extends Utils implements Listener {
 			signIsValid = false;
 		}
 		
-		if (signIsValid == false) {
+		if (!signIsValid) {
 			event.getPlayer().sendMessage(colorize(getPrefix() + plugin.getMessages().getString("invalid-sign")));
 			event.setLine(0, ChatColor.DARK_RED + "[BiTrade]");
 			event.setLine(1, "");

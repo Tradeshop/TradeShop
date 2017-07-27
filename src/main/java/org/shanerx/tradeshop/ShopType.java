@@ -23,9 +23,28 @@ package org.shanerx.tradeshop;
 
 public enum ShopType {
 	
-	TRADE,
+	TRADE("[Trade]"),
 	
-	ITRADE,
+	ITRADE("[iTrade]"),
 	
-	BITRADE;
+	BITRADE("[BiTrade]"),
+	
+	UNKNOWN;
+	
+	private String header;
+	
+	ShopType(String s) {
+		header = s;
+	}
+	
+	ShopType(){}
+	
+	public String header() {
+		return header;
+	}
+	
+	@Override
+	public String toString() {
+		return header;
+	}
 }

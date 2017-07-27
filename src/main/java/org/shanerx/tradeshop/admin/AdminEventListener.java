@@ -87,7 +87,6 @@ public class AdminEventListener extends Utils implements Listener {
 
             event.setCancelled(true);
 			player.sendMessage(colorize(getPrefix() + plugin.getMessages().getString("no-ts-destroy")));
-            return;
 		}
 	}
 	
@@ -104,7 +103,7 @@ public class AdminEventListener extends Utils implements Listener {
 		
 		Sign s;
 		try {
-			s = (Sign) findShopSign(block);
+			s = findShopSign(block);
 		} catch (Exception ex) {
 			return;
 		}
