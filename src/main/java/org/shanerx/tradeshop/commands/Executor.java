@@ -24,6 +24,7 @@ package org.shanerx.tradeshop.commands;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
@@ -131,9 +132,8 @@ public class Executor extends Utils implements CommandExecutor {
 				if (!(sender instanceof Player)) {
 					sender.sendMessage(plugin.getMessages().getString("player-only-command"));
 					return true;
-				}
-				
-				if (!sender.hasPermission(getCreatePerm())) {
+					
+				} else if (!sender.hasPermission(getCreatePerm())) {
 					sender.sendMessage(plugin.getMessages().getString("no-command-permission"));
 					return true;
 				}
@@ -151,7 +151,7 @@ public class Executor extends Utils implements CommandExecutor {
 						if (!isShopSign(b))
 							noShop = true;
 						
-						if (((Sign) b.getState()).getLine(3).equalsIgnoreCase(p.getName()) || p.hasPermission(getAdminPerm())) {
+						if (getShopOwners((Sign) b.getState()).contains(Bukkit.getOfflinePlayer(p.getUniqueId())) || p.hasPermission(getAdminPerm())) {
 							b.breakNaturally();
 							return true;
 						} else {
@@ -167,9 +167,10 @@ public class Executor extends Utils implements CommandExecutor {
 						if (!isShopSign(b))
 							noShop = true;
 						
-						if (((Sign) b.getState()).getLine(3).equalsIgnoreCase(p.getName()) || p.hasPermission(getAdminPerm())) {
+						if (getShopOwners(b).contains(Bukkit.getOfflinePlayer(p.getUniqueId())) || p.hasPermission(getAdminPerm())) {
 							b.breakNaturally();
 							return true;
+							
 						} else {
 							plugin.getMessages().getString("no-ts-destroy");
 							return true;
