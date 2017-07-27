@@ -34,6 +34,8 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.shanerx.tradeshop.admin.AdminEventListener;
+import org.shanerx.tradeshop.bitrade.BiShopCreateEventListener;
+import org.shanerx.tradeshop.bitrade.BiTradeEventListener;
 import org.shanerx.tradeshop.commands.Executor;
 import org.shanerx.tradeshop.itrade.IShopCreateEventListener;
 import org.shanerx.tradeshop.itrade.ITradeEventListener;
@@ -99,8 +101,8 @@ public class TradeShop extends JavaPlugin {
 		PluginManager pm = getServer().getPluginManager();
 		pm.registerEvents(new TradeEventListener(this), this);
 		pm.registerEvents(new ShopCreateEventListener(this), this);
-        	pm.registerEvents(new BiTradeEventListener(this), this);
-        	pm.registerEvents(new BiShopCreateEventListener(this), this);
+        pm.registerEvents(new BiTradeEventListener(this), this);
+        pm.registerEvents(new BiShopCreateEventListener(this), this);
 		pm.registerEvents(new AdminEventListener(this), this);
 		pm.registerEvents(new ITradeEventListener(this), this);
 		pm.registerEvents(new IShopCreateEventListener(this), this);
@@ -203,6 +205,7 @@ public class TradeShop extends JavaPlugin {
 		addMessage("held-empty", "&eYou are currently holding nothing.");
 		addMessage("player-only-command", "&eThis command is only available to players.");
 		addMessage("missing-shop", "&cThere is not currently a shop here, please tell the owner or come back later!");
+        addMessage("no-sighted-shop", "&cYou are not looking at a shop to break!"); //copy
 		
 		save();
 	}
@@ -210,8 +213,9 @@ public class TradeShop extends JavaPlugin {
 	private void addSettingsDefaults() {
 		addSetting("allowed-shops", new String[]{"CHEST", "TRAPPED_CHEST", "SHULKER"});
 		addSetting("allowed-directions", new String[]{"DOWN", "WEST", "SOUTH", "EAST", "NORTH", "UP"});
-        	addSetting("allow-double-trade", true);
-        	addSetting("allow-quad-trade", true);
+        addSetting("allow-double-trade", true);
+        addSetting("allow-quad-trade", true);
+        addSetting("max-break-distance", 4); //copy
 		
 		save();
 	}
