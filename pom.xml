@@ -6,7 +6,7 @@
 
     <groupId>org.shanerx</groupId>
     <artifactId>tradeshop</artifactId>
-    <version>1.4.1-BETA</version>
+    <version>1.5.0-BETA</version>
     <name>TradeShop</name>
     <url>http://maven.apache.org</url>
 
