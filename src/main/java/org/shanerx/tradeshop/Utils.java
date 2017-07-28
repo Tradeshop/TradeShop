@@ -377,6 +377,13 @@ public class Utils {
 		for (String m : names.split(";")) {
 			members.add(Bukkit.getOfflinePlayer(m.substring(2)));
 		}
+		Sign s = findShopSign(b);
+		if (s.getLine(3) == null || s.getLine(3).equals("")) {
+			return members;
+		}
+		else if (!members.contains(Bukkit.getOfflinePlayer(s.getLine(3)))) {
+			members.add(Bukkit.getOfflinePlayer(s.getLine(3)));
+		}
 		return members;
 	}
 	
