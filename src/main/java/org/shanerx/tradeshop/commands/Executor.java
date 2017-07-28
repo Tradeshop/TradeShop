@@ -21,6 +21,7 @@
 
 package org.shanerx.tradeshop.commands;
 
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -186,7 +187,11 @@ public class Executor extends Utils implements CommandExecutor {
 				return true;
 			}
 		} else if (args.length == 2) {
-			if (!(sender instanceof Player)) {
+			if (!Arrays.asList("addowner", "removeowner", "addmember", "removemember").contains(args[0].toLowerCase())) {
+				sender.sendMessage(colorize(getPrefix() + plugin.getMessages().getString("invalid-arguments")));
+				return true;
+				
+			} else if (!(sender instanceof Player)) {
 				sender.sendMessage(colorize(getPrefix() + plugin.getMessages().getString("player-only-command")));
 				return true;
 				
@@ -196,12 +201,14 @@ public class Executor extends Utils implements CommandExecutor {
 			if (b == null || b.getType() == Material.AIR) {
 				p.sendMessage(colorize(getPrefix() + plugin.getMessages().getString("no-sighted-shop")));
 				return true;
-			}
-			if (isSign(b) && isShopSign(b)) {
+				
+			} else if (isSign(b) && isShopSign(b)) {
 				b = findShopChest(b);
+				
 			} else if (!plugin.getAllowedInventories().contains(b) || findShopSign(b) == null) {
 				p.sendMessage(colorize(getPrefix() + plugin.getMessages().getString("no-sighted-shop")));
 				return true;
+				
 			}
 			OfflinePlayer target = Bukkit.getOfflinePlayer(args[1]);
 			switch(args[0].toLowerCase()) {
@@ -217,9 +224,6 @@ public class Executor extends Utils implements CommandExecutor {
 				case "removemember":
 					removeMember(b, target);
 					break;
-				default:
-					sender.sendMessage(colorize(getPrefix() + plugin.getMessages().getString("invalid-arguments")));
-					return true;
 			}
 			p.sendMessage(colorize(getPrefix() + plugin.getMessages().getString("updated-shop-members")));
 			return true;
