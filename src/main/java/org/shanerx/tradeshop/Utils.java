@@ -427,6 +427,30 @@ public class Utils {
 		removeMember(findShopChest(s.getBlock()), p);
 	}
 	
+	public void addOwner(Block b, OfflinePlayer p) {
+		List<OfflinePlayer> owners = getShopOwners(b);
+		owners.add(p);
+		StringBuilder sb = new StringBuilder();
+		owners.forEach(o -> sb.append("o:").append(o.getName()).append(';'));
+		setName((InventoryHolder) b.getState(), sb.toString().substring(0, sb.toString().length()));
+	}
+	
+	public void addOwner(Sign s, OfflinePlayer p) {
+		addOwner(findShopChest(s.getBlock()), p);
+	}
+	
+	public void removeOwner(Block b, OfflinePlayer p) {
+		List<OfflinePlayer> owners = getShopOwners(b);
+		owners.remove(p);
+		StringBuilder sb = new StringBuilder();
+		owners.forEach(o -> sb.append("o:").append(o.getName()).append(';'));
+		setName((InventoryHolder) b.getState(), sb.toString().substring(0, sb.toString().length()));
+	}
+	
+	public void removeOwner(Sign s, OfflinePlayer p) {
+		removeOwner(findShopChest(s.getBlock()), p);
+	}
+	
 	public void setName(InventoryHolder ih, String title) {
 		if (ih instanceof Nameable) {
 			((Nameable) ih).setCustomName(title);
