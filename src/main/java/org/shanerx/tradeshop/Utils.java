@@ -388,7 +388,7 @@ public class Utils {
 	}
 	
 	public List<OfflinePlayer> getShopOwners(Sign s) {
-		Chest c = (Chest) findShopChest(s.getBlock());
+		Chest c = (Chest) findShopChest(s.getBlock()).getState();
 		if (c == null) {
 			return null;
 		}
@@ -396,7 +396,7 @@ public class Utils {
 	}
 	
 	public List<OfflinePlayer> getShopMembers(Sign s) {
-		Chest c = (Chest) findShopChest(s.getBlock());
+		Chest c = (Chest) findShopChest(s.getBlock()).getState();
 		if (c == null) {
 			return null;
 		}
