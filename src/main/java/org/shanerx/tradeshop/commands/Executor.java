@@ -58,7 +58,7 @@ public class Executor extends Utils implements CommandExecutor {
 					return true;
 				}
 				
-				String[] help = new String[9];
+				String[] help = new String[10];
 				
 				help[0] = "\n";
 				help[1] = "&2" + getPluginName() + " " + getVersion() + " by " + pdf.getAuthors().get(0) + "\n";
@@ -72,6 +72,8 @@ public class Executor extends Utils implements CommandExecutor {
 				}
 				
 				help[7] = "&6/tradeshop bugs &c - Report bugs\n \n";
+				help[8] = "&6/tradeshop addowner|removeowner [target] - Add another owner to your shop\n";
+				help[9] = "&6/tradeshop addmember|removemember [target] - Add a collaborator to your shop\n";
 				
 				String msg;
 				StringBuilder sb = new StringBuilder();
