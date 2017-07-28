@@ -295,6 +295,15 @@ public class Utils {
 		return count >= amt;
 	}
 	
+	/**
+	 * Checks whether the an inventory contains at least a certain amount of a certain material inside a specified inventory.
+	 * <br>
+	 * This works with the ItemStack's durability, which represents how much a tool is broken or, in case of a block, the block data.
+	 * @param inv the Inventory object
+	 * @param mat the Material constant
+	 * @param amt the amount
+	 * @return true if the condition is met.
+	 */
 	public boolean containsAtLeast(Inventory inv, Material mat, short durability, int amt) {
 		int count = 0;
 		for (ItemStack itm : inv.getContents()) {
@@ -307,11 +316,23 @@ public class Utils {
 		return count >= amt;
 	}
 	
+	/**
+	 * This function wraps up Bukkit's method {@code ChatColor.translateAlternateColorCodes('&', msg)}.
+	 * <br>
+	 * Used for shortening purposes and follows the DRY concept.
+	 * @param msg
+	 * @return the colorized string returned by the above method.
+	 */
 	public String colorize(String msg) {
 		msg = ChatColor.translateAlternateColorCodes('&', msg);
 		return msg;
 	}
 	
+	/**
+	 * Finds the TradeShop sign linked to a chest.
+	 * @param chest the block holding the shop's inventory. Can be a chest, a trapped chest, a dropper, a dispenser, a hopper and a shulker box (1.9+).
+	 * @return the sign.
+	 */
 	public Sign findShopSign(Block chest) {
 		ArrayList<BlockFace> faces = plugin.getAllowedDirections();
 		Collections.reverse(faces);
@@ -322,12 +343,14 @@ public class Utils {
 				if (isShopSign(relative))
 					return (Sign) chest.getRelative(face).getState();
 		}
-		
-		
 		return null;
-		
 	}
 	
+	/**
+	 * Finds the TradeShop chest, dropper, dispenser, hopper or shulker box (1.9+) linked to a sign.
+	 * @param sign the TradeShop sign
+	 * @return the shop's inventory holder block.
+	 */
 	public Block findShopChest(Block sign) {
 		ArrayList<Material> invs = plugin.getAllowedInventories();
 		ArrayList<BlockFace> faces = plugin.getAllowedDirections();
@@ -341,6 +364,11 @@ public class Utils {
 		return null;
 	}
 	
+	/**
+	 * Returns all the owners of a TradeShop, including the one on the last line of the sign.
+	 * @param b the inventory holder block
+	 * @return all the owners.
+	 */
 	public List<OfflinePlayer> getShopOwners(Block b) {
 		TradeShop ts = (TradeShop) Bukkit.getPluginManager().getPlugin("TradeShop");
 		if (!ts.getAllowedInventories().contains(b.getType())) {
@@ -365,6 +393,11 @@ public class Utils {
 		return owners;
 	}
 	
+	/**
+	 * Returns all the members <b><em>(including the owners)</em></b> of a TradeShop, including the one on the last line of the sign.
+	 * @param b the inventory holder block
+	 * @return all the members.
+	 */
 	public List<OfflinePlayer> getShopMembers(Block b) {
 		TradeShop ts = (TradeShop) Bukkit.getPluginManager().getPlugin("TradeShop");
 		if (!ts.getAllowedInventories().contains(b.getType())) {
@@ -387,6 +420,11 @@ public class Utils {
 		return members;
 	}
 	
+	/**
+	 * Returns all the owners of a TradeShop, including the one on the last line of the sign.
+	 * @param s the TradeShop sign
+	 * @return all the owners.
+	 */
 	public List<OfflinePlayer> getShopOwners(Sign s) {
 		Chest c = (Chest) findShopChest(s.getBlock()).getState();
 		if (c == null) {
@@ -395,6 +433,11 @@ public class Utils {
 		return getShopOwners(c.getBlock());
 	}
 	
+	/**
+	 * Returns all the members <b><em>(including the owners)</em></b> of a TradeShop, including the one on the last line of the sign.
+	 * @param s the TradeShop sign
+	 * @return all the members.
+	 */
 	public List<OfflinePlayer> getShopMembers(Sign s) {
 		Chest c = (Chest) findShopChest(s.getBlock()).getState();
 		if (c == null) {
@@ -403,6 +446,13 @@ public class Utils {
 		return getShopMembers(c.getBlock());
 	}
 	
+	/**
+	 * Adds a player to the members list of a TradeShop.
+	 * <br>
+	 * The target player is not required to be online at the time of the operation.
+	 * @param b the inventory holder block
+	 * @param p the OfflinePlayer object.
+	 */
 	public void addMember(Block b, OfflinePlayer p) {
 		List<OfflinePlayer> members = getShopMembers(b);
 		members.add(p);
@@ -411,10 +461,24 @@ public class Utils {
 		setName((InventoryHolder) b.getState(), sb.toString().substring(0, sb.toString().length()));
 	}
 	
+	/**
+	 * Adds a player to the members list of a TradeShop.
+	 * <br>
+	 * The target player is not required to be online at the time of the operation.
+	 * @param s the TradeShop sign
+	 * @param p the OfflinePlayer object.
+	 */
 	public void addMember(Sign s, OfflinePlayer p) {
 		addMember(findShopChest(s.getBlock()), p);
 	}
 	
+	/**
+	 * Removes a player from the members list of a TradeShop.
+	 * <br>
+	 * The target player is not required to be online at the time of the operation.
+	 * @param b the inventory holder block
+	 * @param p the OfflinePlayer object.
+	 */
 	public void removeMember(Block b, OfflinePlayer p) {
 		List<OfflinePlayer> members = getShopMembers(b);
 		members.remove(p);
@@ -423,10 +487,24 @@ public class Utils {
 		setName((InventoryHolder) b.getState(), sb.toString().substring(0, sb.toString().length()));
 	}
 	
+	/**
+	 * Removes a player from the members list of a TradeShop.
+	 * <br>
+	 * The target player is not required to be online at the time of the operation.
+	 * @param s the TradeShop sign
+	 * @param p the OfflinePlayer object.
+	 */
 	public void removeMember(Sign s, OfflinePlayer p) {
 		removeMember(findShopChest(s.getBlock()), p);
 	}
 	
+	/**
+	 * Adds a player to the owners list of a TradeShop.
+	 * <br>
+	 * The target player is not required to be online at the time of the operation.
+	 * @param b the inventory holder block
+	 * @param p the OfflinePlayer object.
+	 */
 	public void addOwner(Block b, OfflinePlayer p) {
 		List<OfflinePlayer> owners = getShopOwners(b);
 		owners.add(p);
@@ -435,10 +513,24 @@ public class Utils {
 		setName((InventoryHolder) b.getState(), sb.toString().substring(0, sb.toString().length()));
 	}
 	
+	/**
+	 * Adds a player to the owners list of a TradeShop.
+	 * <br>
+	 * The target player is not required to be online at the time of the operation.
+	 * @param s the TradeShop sign
+	 * @param p the OfflinePlayer object.
+	 */
 	public void addOwner(Sign s, OfflinePlayer p) {
 		addOwner(findShopChest(s.getBlock()), p);
 	}
 	
+	/**
+	 * Removes a player from the owners list of a TradeShop.
+	 * <br>
+	 * The target player is not required to be online at the time of the operation.
+	 * @param b the inventory holder block
+	 * @param p the OfflinePlayer object.
+	 */
 	public void removeOwner(Block b, OfflinePlayer p) {
 		List<OfflinePlayer> owners = getShopOwners(b);
 		owners.remove(p);
@@ -447,10 +539,25 @@ public class Utils {
 		setName((InventoryHolder) b.getState(), sb.toString().substring(0, sb.toString().length()));
 	}
 	
+	/**
+	 * Removes a player from the owners list of a TradeShop.
+	 * <br>
+	 * The target player is not required to be online at the time of the operation.
+	 * @param s the TradeShop sign
+	 * @param p the OfflinePlayer object.
+	 */
 	public void removeOwner(Sign s, OfflinePlayer p) {
 		removeOwner(findShopChest(s.getBlock()), p);
 	}
 	
+	/**
+	 * Sets the name (title) of an inventory.
+	 * <br>
+	 * Represents a wrapper method for {@code Nameable#setCustomTitle(title)}
+	 * and was written with the DRY concept in mind.
+	 * @param ih the InventoryHolder object
+	 * @param title the new title.
+	 */
 	public void setName(InventoryHolder ih, String title) {
 		if (ih instanceof Nameable) {
 			((Nameable) ih).setCustomName(title);
