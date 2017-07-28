@@ -198,7 +198,8 @@ public class TradeShop extends JavaPlugin {
 		addMessage("held-empty", "&eYou are currently holding nothing.");
 		addMessage("player-only-command", "&eThis command is only available to players.");
 		addMessage("missing-shop", "&cThere is not currently a shop here, please tell the owner or come back later!");
-		addMessage("no-sighted-shop", "&cYou are not looking at a shop to break!"); //copy
+		addMessage("no-sighted-shop", "&cYou are not looking at a shop to break!");
+		addMessage("updated-shop-members", "&aShop owners and members have been updated!");
 		
 		save();
 	}
@@ -208,8 +209,8 @@ public class TradeShop extends JavaPlugin {
 		addSetting("allowed-directions", new String[]{"DOWN", "WEST", "SOUTH", "EAST", "NORTH", "UP"});
 		addSetting("allow-double-trade", true);
 		addSetting("allow-quad-trade", true);
-		addSetting("max-break-distance", 4); //copy
-		
+		addSetting("max-break-distance", 4);
+		addSetting("max-ts-edit-distance", 4);
 		save();
 	}
 	

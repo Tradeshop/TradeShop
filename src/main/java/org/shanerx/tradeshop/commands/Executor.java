@@ -26,6 +26,7 @@ import java.util.Set;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
 import org.bukkit.command.Command;
@@ -179,9 +180,47 @@ public class Executor extends Utils implements CommandExecutor {
 					} else
 						noShop = true;
 				}
-				plugin.getMessages().getString("no-sighted-shop");
+				p.sendMessage(getPrefix() + plugin.getMessages().getString("no-sighted-shop"));
 				return true;
 			}
+		} else if (args.length == 2) {
+			if (!(sender instanceof Player)) {
+				sender.sendMessage(colorize(getPrefix() + plugin.getMessages().getString("player-only-command")));
+				return true;
+				
+			}
+			Player p = (Player) sender;
+			Block b = p.getTargetBlock((HashSet<Byte>) null, plugin.getSettings().getInt("max-ts-edit-distance"));
+			if (b == null || b.getType() == Material.AIR) {
+				p.sendMessage(colorize(getPrefix() + plugin.getMessages().getString("no-sighted-shop")));
+				return true;
+			}
+			if (isSign(b) && isShopSign(b)) {
+				b = findShopChest(b);
+			} else if (!plugin.getAllowedInventories().contains(b) || findShopSign(b) == null) {
+				p.sendMessage(colorize(getPrefix() + plugin.getMessages().getString("no-sighted-shop")));
+				return true;
+			}
+			OfflinePlayer target = Bukkit.getOfflinePlayer(args[1]);
+			switch(args[0].toLowerCase()) {
+				case "addowner":
+					addOwner(b, target);
+					break;
+				case "removeowner":
+					removeOwner(b, target);
+					break;
+				case "addmember":
+					addMember(b, target);
+					break;
+				case "removemember":
+					removeMember(b, target);
+					break;
+				default:
+					sender.sendMessage(colorize(getPrefix() + plugin.getMessages().getString("invalid-arguments")));
+					return true;
+			}
+			p.sendMessage(colorize(getPrefix() + plugin.getMessages().getString("updated-shop-members")));
+			return true;
 		}
 		sender.sendMessage(colorize(getPrefix() + plugin.getMessages().getString("invalid-arguments")));
 		return true;
