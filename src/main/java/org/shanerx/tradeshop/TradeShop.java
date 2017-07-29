@@ -21,12 +21,6 @@
 
 package org.shanerx.tradeshop;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.logging.Level;
-
 import org.bukkit.Material;
 import org.bukkit.block.BlockFace;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -41,6 +35,12 @@ import org.shanerx.tradeshop.itrade.IShopCreateEventListener;
 import org.shanerx.tradeshop.itrade.ITradeEventListener;
 import org.shanerx.tradeshop.trade.ShopCreateEventListener;
 import org.shanerx.tradeshop.trade.TradeEventListener;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.logging.Level;
 
 public class TradeShop extends JavaPlugin {
 	
@@ -209,8 +209,7 @@ public class TradeShop extends JavaPlugin {
 		addSetting("allowed-directions", new String[]{"DOWN", "WEST", "SOUTH", "EAST", "NORTH", "UP"});
 		addSetting("allow-double-trade", true);
 		addSetting("allow-quad-trade", true);
-		addSetting("max-break-distance", 4);
-		addSetting("max-ts-edit-distance", 4);
+		addSetting("max-edit-distance", 4);
 		save();
 	}
 	

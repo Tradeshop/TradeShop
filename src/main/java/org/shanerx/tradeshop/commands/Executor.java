@@ -21,10 +21,6 @@
 
 package org.shanerx.tradeshop.commands;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
-
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
@@ -37,6 +33,10 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.shanerx.tradeshop.TradeShop;
 import org.shanerx.tradeshop.Utils;
+
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
 public class Executor extends Utils implements CommandExecutor {
 	
@@ -147,10 +147,10 @@ public class Executor extends Utils implements CommandExecutor {
 				Player p = (Player) sender;
 				while (!noShop) {
 					Block b;
-					if (p.getTargetBlock((Set<Material>) null, plugin.getSettings().getInt("max-break-distance")) == null)
+					if (p.getTargetBlock((Set<Material>) null, plugin.getSettings().getInt("max-edit-distance")) == null)
 						noShop = true;
-					
-					b = p.getTargetBlock((HashSet<Byte>) null, plugin.getSettings().getInt("max-break-distance"));
+
+					b = p.getTargetBlock((HashSet<Byte>) null, plugin.getSettings().getInt("max-edit-distance"));
 					
 					if (isSign(b)) {
 						if (!isShopSign(b))
@@ -166,8 +166,8 @@ public class Executor extends Utils implements CommandExecutor {
 					} else if (plugin.getAllowedInventories().contains(b.getType())) {
 						if (findShopSign(b) == null)
 							noShop = true;
-						
-						b = (Block) findShopSign(b).getBlock();
+
+						b = findShopSign(b).getBlock();
 						
 						if (!isShopSign(b))
 							noShop = true;
@@ -197,15 +197,15 @@ public class Executor extends Utils implements CommandExecutor {
 				
 			}
 			Player p = (Player) sender;
-			Block b = p.getTargetBlock((HashSet<Byte>) null, plugin.getSettings().getInt("max-ts-edit-distance"));
+			Block b = p.getTargetBlock((HashSet<Byte>) null, plugin.getSettings().getInt("max-edit-distance"));
 			if (b == null || b.getType() == Material.AIR) {
 				p.sendMessage(colorize(getPrefix() + plugin.getMessages().getString("no-sighted-shop")));
 				return true;
-				
-			} else if (isSign(b) && isShopSign(b)) {
+
+			} else if (isShopSign(b)) {
 				b = findShopChest(b);
-				
-			} else if (!plugin.getAllowedInventories().contains(b) || findShopSign(b) == null) {
+
+			} else if (!plugin.getAllowedInventories().contains(b.getType()) || findShopSign(b) == null) {
 				p.sendMessage(colorize(getPrefix() + plugin.getMessages().getString("no-sighted-shop")));
 				return true;
 				

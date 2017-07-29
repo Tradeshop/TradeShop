@@ -21,11 +21,7 @@
 
 package org.shanerx.tradeshop;
 
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.Nameable;
-import org.bukkit.Material;
-import org.bukkit.OfflinePlayer;
+import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.Chest;
@@ -370,11 +366,10 @@ public class Utils {
 	 * @return all the owners.
 	 */
 	public List<OfflinePlayer> getShopOwners(Block b) {
-		TradeShop ts = (TradeShop) Bukkit.getPluginManager().getPlugin("TradeShop");
-		if (!ts.getAllowedInventories().contains(b.getType())) {
-			return null;
-		}
-		
+        if (!plugin.getAllowedInventories().contains(b.getType())) {
+            return null;
+        }
+
 		List<OfflinePlayer> owners = new ArrayList<>();
 		Inventory inv = ((InventoryHolder) b.getState()).getInventory();
 		String names = inv.getName();
@@ -385,42 +380,86 @@ public class Utils {
 		}
 		Sign s = findShopSign(b);
 		if (s.getLine(3) == null || s.getLine(3).equals("")) {
-			return owners;
-		}
-		else if (!owners.contains(Bukkit.getOfflinePlayer(s.getLine(3)))) {
+            if (owners.size() > 0) {
+                s.setLine(3, owners.get(0).getName());
+                s.update();
+            }
+            return owners;
+        } else if (!owners.contains(Bukkit.getOfflinePlayer(s.getLine(3)))) {
 			owners.add(Bukkit.getOfflinePlayer(s.getLine(3)));
-		}
-		return owners;
-	}
-	
-	/**
-	 * Returns all the members <b><em>(including the owners)</em></b> of a TradeShop, including the one on the last line of the sign.
-	 * @param b the inventory holder block
-	 * @return all the members.
-	 */
-	public List<OfflinePlayer> getShopMembers(Block b) {
-		TradeShop ts = (TradeShop) Bukkit.getPluginManager().getPlugin("TradeShop");
-		if (!ts.getAllowedInventories().contains(b.getType())) {
-			return null;
-		}
-		
-		List<OfflinePlayer> members = new ArrayList<>();
-		Inventory inv = ((InventoryHolder) b.getState()).getInventory();
-		String names = inv.getName();
-		for (String m : names.split(";")) {
-			members.add(Bukkit.getOfflinePlayer(m.substring(2)));
-		}
-		Sign s = findShopSign(b);
-		if (s.getLine(3) == null || s.getLine(3).equals("")) {
-			return members;
-		}
-		else if (!members.contains(Bukkit.getOfflinePlayer(s.getLine(3)))) {
-			members.add(Bukkit.getOfflinePlayer(s.getLine(3)));
-		}
-		return members;
-	}
-	
-	/**
+            addOwner(s, Bukkit.getOfflinePlayer(s.getLine(3)));
+        }
+        return owners;
+    }
+
+    /**
+     * Returns all the owners of a TradeShop, including the one on the last line of the sign.
+     *
+     * @param b the inventory holder block
+     * @return all the owners.
+     */
+    public List<OfflinePlayer> getShopMembers(Block b) {
+        if (!plugin.getAllowedInventories().contains(b.getType())) {
+            return null;
+        }
+
+        List<OfflinePlayer> members = new ArrayList<>();
+        Inventory inv = ((InventoryHolder) b.getState()).getInventory();
+        String names = inv.getName();
+        for (String m : names.split(";")) {
+            if (m.startsWith("m:")) {
+                members.add(Bukkit.getOfflinePlayer(m.substring(2)));
+            }
+        }
+        Sign s = findShopSign(b);
+        if (s.getLine(3) == null || s.getLine(3).equals("")) {
+            if (members.size() > 0) {
+                s.setLine(3, members.get(0).getName());
+                s.update();
+            }
+            return members;
+        } else if (!members.contains(Bukkit.getOfflinePlayer(s.getLine(3)))) {
+            members.add(Bukkit.getOfflinePlayer(s.getLine(3)));
+            if (getShopOwners(s).size() == 0) {
+                addOwner(s, Bukkit.getOfflinePlayer(s.getLine(3)));
+            }
+        }
+        return members;
+    }
+
+    /**
+     * Returns all the members <b><em>(including the owners)</em></b> of a TradeShop, including the one on the last line of the sign.
+     *
+     * @param b the inventory holder block
+     * @return all the members.
+     */
+    public List<OfflinePlayer> getShopUsers(Block b) {
+        if (!plugin.getAllowedInventories().contains(b.getType())) {
+            return null;
+        }
+
+        List<OfflinePlayer> users = new ArrayList<>();
+        Inventory inv = ((InventoryHolder) b.getState()).getInventory();
+        String names = inv.getName();
+        for (String m : names.split(";")) {
+            users.add(Bukkit.getOfflinePlayer(m.substring(2)));
+        }
+
+        Sign s = findShopSign(b);
+        if (s.getLine(3) == null || s.getLine(3).equals("")) {
+            if (users.size() > 0) {
+                s.setLine(3, users.get(0).getName());
+                s.update();
+            }
+            return users;
+        } else if (!users.contains(Bukkit.getOfflinePlayer(s.getLine(3)))) {
+            users.add(Bukkit.getOfflinePlayer(s.getLine(3)));
+            addOwner(s, Bukkit.getOfflinePlayer(s.getLine(3)));
+        }
+        return users;
+    }
+
+    /**
 	 * Returns all the owners of a TradeShop, including the one on the last line of the sign.
 	 * @param s the TradeShop sign
 	 * @return all the owners.
@@ -431,35 +470,52 @@ public class Utils {
 			return null;
 		}
 		return getShopOwners(c.getBlock());
-	}
-	
-	/**
-	 * Returns all the members <b><em>(including the owners)</em></b> of a TradeShop, including the one on the last line of the sign.
-	 * @param s the TradeShop sign
-	 * @return all the members.
-	 */
-	public List<OfflinePlayer> getShopMembers(Sign s) {
-		Chest c = (Chest) findShopChest(s.getBlock()).getState();
-		if (c == null) {
-			return null;
-		}
-		return getShopMembers(c.getBlock());
-	}
-	
-	/**
-	 * Adds a player to the members list of a TradeShop.
-	 * <br>
+    }
+
+    /**
+     * Returns all the members of a TradeShop.
+     *
+     * @param s the TradeShop sign
+     * @return all the members.
+     */
+    public List<OfflinePlayer> getShopMembers(Sign s) {
+        Chest c = (Chest) findShopChest(s.getBlock()).getState();
+        if (c == null) {
+            return null;
+        }
+        return getShopMembers(c.getBlock());
+    }
+
+    /**
+     * Returns all the users <b><em>(including the owners)</em></b> of a TradeShop, including the one on the last line of the sign.
+     *
+     * @param s the TradeShop sign
+     * @return all the members.
+     */
+    public List<OfflinePlayer> getShopUsers(Sign s) {
+        Chest c = (Chest) findShopChest(s.getBlock()).getState();
+        if (c == null) {
+            return null;
+        }
+        return getShopUsers(c.getBlock());
+    }
+
+    /**
+     * Adds a player to the members list of a TradeShop.
+     * <br>
 	 * The target player is not required to be online at the time of the operation.
 	 * @param b the inventory holder block
 	 * @param p the OfflinePlayer object.
 	 */
 	public void addMember(Block b, OfflinePlayer p) {
 		List<OfflinePlayer> members = getShopMembers(b);
-		members.add(p);
-		StringBuilder sb = new StringBuilder();
-		members.forEach(m -> sb.append("m:").append(m.getName()).append(';'));
-		setName((InventoryHolder) b.getState(), sb.toString().substring(0, sb.toString().length()));
-	}
+        List<OfflinePlayer> owners = getShopOwners(b);
+        members.add(p);
+        StringBuilder sb = new StringBuilder();
+        owners.forEach(m -> sb.append("o:").append(m.getName()).append(';'));
+        members.forEach(m -> sb.append("m:").append(m.getName()).append(';'));
+        setName((InventoryHolder) b.getState(), sb.toString().substring(0, sb.toString().length()));
+    }
 	
 	/**
 	 * Adds a player to the members list of a TradeShop.
@@ -481,11 +537,13 @@ public class Utils {
 	 */
 	public void removeMember(Block b, OfflinePlayer p) {
 		List<OfflinePlayer> members = getShopMembers(b);
-		members.remove(p);
-		StringBuilder sb = new StringBuilder();
-		members.forEach(m -> sb.append("m:").append(m.getName()).append(';'));
-		setName((InventoryHolder) b.getState(), sb.toString().substring(0, sb.toString().length()));
-	}
+        List<OfflinePlayer> owners = getShopOwners(b);
+        members.remove(p);
+        StringBuilder sb = new StringBuilder();
+        owners.forEach(m -> sb.append("o:").append(m.getName()).append(';'));
+        members.forEach(m -> sb.append("m:").append(m.getName()).append(';'));
+        setName((InventoryHolder) b.getState(), sb.toString().substring(0, sb.toString().length()));
+    }
 	
 	/**
 	 * Removes a player from the members list of a TradeShop.
@@ -504,17 +562,19 @@ public class Utils {
 	 * The target player is not required to be online at the time of the operation.
 	 * @param b the inventory holder block
 	 * @param p the OfflinePlayer object.
-	 */
-	public void addOwner(Block b, OfflinePlayer p) {
-		List<OfflinePlayer> owners = getShopOwners(b);
-		owners.add(p);
-		StringBuilder sb = new StringBuilder();
-		owners.forEach(o -> sb.append("o:").append(o.getName()).append(';'));
-		setName((InventoryHolder) b.getState(), sb.toString().substring(0, sb.toString().length()));
-	}
-	
-	/**
-	 * Adds a player to the owners list of a TradeShop.
+     */
+    public void addOwner(Block b, OfflinePlayer p) {
+        List<OfflinePlayer> members = getShopMembers(b);
+        List<OfflinePlayer> owners = getShopOwners(b);
+        owners.add(p);
+        StringBuilder sb = new StringBuilder();
+        owners.forEach(m -> sb.append("o:").append(m.getName()).append(';'));
+        members.forEach(m -> sb.append("m:").append(m.getName()).append(';'));
+        setName((InventoryHolder) b.getState(), sb.toString().substring(0, sb.toString().length()));
+    }
+
+    /**
+     * Adds a player to the owners list of a TradeShop.
 	 * <br>
 	 * The target player is not required to be online at the time of the operation.
 	 * @param s the TradeShop sign
@@ -530,17 +590,19 @@ public class Utils {
 	 * The target player is not required to be online at the time of the operation.
 	 * @param b the inventory holder block
 	 * @param p the OfflinePlayer object.
-	 */
-	public void removeOwner(Block b, OfflinePlayer p) {
-		List<OfflinePlayer> owners = getShopOwners(b);
-		owners.remove(p);
-		StringBuilder sb = new StringBuilder();
-		owners.forEach(o -> sb.append("o:").append(o.getName()).append(';'));
-		setName((InventoryHolder) b.getState(), sb.toString().substring(0, sb.toString().length()));
-	}
-	
-	/**
-	 * Removes a player from the owners list of a TradeShop.
+     */
+    public void removeOwner(Block b, OfflinePlayer p) {
+        List<OfflinePlayer> members = getShopMembers(b);
+        List<OfflinePlayer> owners = getShopOwners(b);
+        owners.remove(p);
+        StringBuilder sb = new StringBuilder();
+        owners.forEach(m -> sb.append("o:").append(m.getName()).append(';'));
+        members.forEach(m -> sb.append("m:").append(m.getName()).append(';'));
+        setName((InventoryHolder) b.getState(), sb.toString().substring(0, sb.toString().length()));
+    }
+
+    /**
+     * Removes a player from the owners list of a TradeShop.
 	 * <br>
 	 * The target player is not required to be online at the time of the operation.
 	 * @param s the TradeShop sign
