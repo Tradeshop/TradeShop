@@ -160,6 +160,7 @@ public class BiShopCreateEventListener extends Utils implements Listener {
 		item1 = new ItemStack(Material.getMaterial(item_name1), amount1);
 		item1.setDurability((short) durability1);
 		event.setLine(0, ChatColor.DARK_GREEN + "[BiTrade]");
+		event.setLine(3, player.getName());
 		setName((InventoryHolder) chest.getState(), "o:" + player.getName());
 		
 		if (chestInventory.containsAtLeast(item1, amount1)) {
