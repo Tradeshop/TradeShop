@@ -37,6 +37,7 @@ import org.bukkit.permissions.Permission;
 import org.bukkit.plugin.PluginDescriptionFile;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -457,7 +458,8 @@ public class Utils {
 		List<OfflinePlayer> members = getShopMembers(b);
 		members.add(p);
 		StringBuilder sb = new StringBuilder();
-		members.forEach(m -> sb.append("m:").append(m.getName()).append(';'));
+		List<String> all = Arrays.asList(((InventoryHolder) b.getState()).getInventory().getName().split(";"));
+		members.forEach(m -> sb.append(all.contains("o:" + m.getName()) ? "o:" : "m:").append(m.getName()).append(';'));
 		setName((InventoryHolder) b.getState(), sb.toString().substring(0, sb.toString().length()));
 	}
 	
@@ -483,7 +485,8 @@ public class Utils {
 		List<OfflinePlayer> members = getShopMembers(b);
 		members.remove(p);
 		StringBuilder sb = new StringBuilder();
-		members.forEach(m -> sb.append("m:").append(m.getName()).append(';'));
+		List<String> all = Arrays.asList(((InventoryHolder) b.getState()).getInventory().getName().split(";"));
+		members.forEach(m -> sb.append(all.contains("o:" + m.getName()) ? "o:" : "m:").append(m.getName()).append(';'));
 		setName((InventoryHolder) b.getState(), sb.toString().substring(0, sb.toString().length()));
 	}
 	
@@ -506,10 +509,11 @@ public class Utils {
 	 * @param p the OfflinePlayer object.
 	 */
 	public void addOwner(Block b, OfflinePlayer p) {
-		List<OfflinePlayer> owners = getShopOwners(b);
-		owners.add(p);
+		List<OfflinePlayer> members = getShopMembers(b);
+		members.add(p);
 		StringBuilder sb = new StringBuilder();
-		owners.forEach(o -> sb.append("o:").append(o.getName()).append(';'));
+		List<String> all = Arrays.asList(((InventoryHolder) b.getState()).getInventory().getName().split(";"));
+		members.forEach(m -> sb.append(all.contains("m:" + m.getName()) ? "m:" : "o:").append(m.getName()).append(';'));
 		setName((InventoryHolder) b.getState(), sb.toString().substring(0, sb.toString().length()));
 	}
 	
@@ -532,10 +536,11 @@ public class Utils {
 	 * @param p the OfflinePlayer object.
 	 */
 	public void removeOwner(Block b, OfflinePlayer p) {
-		List<OfflinePlayer> owners = getShopOwners(b);
-		owners.remove(p);
+		List<OfflinePlayer> members = getShopMembers(b);
+		members.remove(p);
 		StringBuilder sb = new StringBuilder();
-		owners.forEach(o -> sb.append("o:").append(o.getName()).append(';'));
+		List<String> all = Arrays.asList(((InventoryHolder) b.getState()).getInventory().getName().split(";"));
+		members.forEach(m -> sb.append(all.contains("m:" + m.getName()) ? "m:" : "o:").append(m.getName()).append(';'));
 		setName((InventoryHolder) b.getState(), sb.toString().substring(0, sb.toString().length()));
 	}
 	
