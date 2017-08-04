@@ -142,8 +142,8 @@ public class TradeShop extends JavaPlugin {
                             Material.YELLOW_SHULKER_BOX, 
                             Material.PURPLE_SHULKER_BOX}));
                 } catch(Throwable t){
-					getLogger().info("&a[&eTradeShop&a] You are on a version before 1.9, Shulkers are disabled!");
-				}
+                    getLogger().info("[TradeShop] You are on a version before 1.9, Shulkers are disabled!");
+                }
             }
             else
             {
