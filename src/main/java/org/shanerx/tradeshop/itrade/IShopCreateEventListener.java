@@ -23,7 +23,6 @@ package org.shanerx.tradeshop.itrade;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
-import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -50,9 +49,7 @@ public class IShopCreateEventListener extends Utils implements Listener {
 		if (!(event.getLine(0).equalsIgnoreCase("[iTrade]"))) {
 			return;
 		}
-		
-		Block chest = findShopChest(s.getBlock());
-		
+
 		if (!player.hasPermission(getCreateIPerm())) {
 			s.setLine(0, "");
 			s.update();
@@ -65,14 +62,7 @@ public class IShopCreateEventListener extends Utils implements Listener {
 			player.sendMessage(colorize(getPrefix() + plugin.getMessages().getString("no-ts-create-permission")));
 			return;
 		}
-		if (!plugin.getAllowedInventories().contains(chest.getType())) {
-			event.setLine(0, ChatColor.DARK_RED + "[iTrade]");
-			event.setLine(1, "");
-			event.setLine(2, "");
-			event.setLine(3, "");
-			player.sendMessage(colorize(getPrefix() + plugin.getMessages().getString("no-chest")));
-			return;
-		}
+
 		boolean signIsValid = true; // If this is true, the information on the sign is valid!
 		
 		String line1 = event.getLine(1);
@@ -88,7 +78,6 @@ public class IShopCreateEventListener extends Utils implements Listener {
 		if (info1.length != 2 || info2.length != 2) {
 			signIsValid = false;
 		}
-		
 		
 		if (line1.split(":").length > 1) {
 			info1[1] = info1[1].split(":")[0];
@@ -142,7 +131,7 @@ public class IShopCreateEventListener extends Utils implements Listener {
 		}
 		
 		String player_name = event.getPlayer().getName();
-		event.setLine(3, player_name);
+		event.setLine(3, plugin.getSettings().getString("itrade-shop-name"));
 		event.setLine(0, ChatColor.DARK_GREEN + "[iTrade]");
 		event.getPlayer().sendMessage(colorize(getPrefix() + plugin.getMessages().getString("successful-setup")));
 	}

@@ -21,9 +21,6 @@
 
 package org.shanerx.tradeshop.commands;
 
-import java.util.HashSet;
-import java.util.Set;
-
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
@@ -34,6 +31,9 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.shanerx.tradeshop.TradeShop;
 import org.shanerx.tradeshop.Utils;
+
+import java.util.HashSet;
+import java.util.Set;
 
 public class Executor extends Utils implements CommandExecutor {
 	
@@ -114,7 +114,11 @@ public class Executor extends Utils implements CommandExecutor {
 				}
 				
 				Player pl = (Player) sender;
-				ItemStack itm = pl.getInventory().getItemInMainHand();
+				ItemStack itm = null;
+				if (plugin.getAboveMC18())
+					pl.getInventory().getItemInMainHand();
+				else
+					pl.getInventory().getItemInHand();
 				if (itm.getType() != null) {
 					String msg = colorize(getPrefix() + plugin.getMessages().getString("held-item"))
 							.replace("{MATERIAL}", itm.getType().name())

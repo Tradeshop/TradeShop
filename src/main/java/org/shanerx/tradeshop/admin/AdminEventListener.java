@@ -75,7 +75,10 @@ public class AdminEventListener extends Utils implements Listener {
 			} catch (Exception ex) {
 				return;
 			}
-			
+
+            if (s == null)
+                return;
+
 			if (!isShopSign(s.getBlock()))
 				return;
 			

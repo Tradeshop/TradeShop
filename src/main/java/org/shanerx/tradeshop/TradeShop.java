@@ -21,12 +21,6 @@
 
 package org.shanerx.tradeshop;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.logging.Level;
-
 import org.bukkit.Material;
 import org.bukkit.block.BlockFace;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -42,14 +36,21 @@ import org.shanerx.tradeshop.itrade.ITradeEventListener;
 import org.shanerx.tradeshop.trade.ShopCreateEventListener;
 import org.shanerx.tradeshop.trade.TradeEventListener;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.logging.Level;
+
 public class TradeShop extends JavaPlugin {
 	
 	private File messagesFile = new File(this.getDataFolder(), "messages.yml");
 	private FileConfiguration messages;
 	private File settingsFile = new File(this.getDataFolder(), "config.yml");
 	private FileConfiguration settings;
-	
-	private ArrayList<Material> inventories = new ArrayList<>();
+    private boolean mc18 = this.getServer().getBukkitVersion().contains("1.8");
+
+    private ArrayList<Material> inventories = new ArrayList<>();
 	private ArrayList<BlockFace> directions = new ArrayList<>();
 	
 	public File getMessagesFile() {
@@ -67,8 +68,12 @@ public class TradeShop extends JavaPlugin {
 	public FileConfiguration getSettings() {
 		return settings;
 	}
-	
-	@Deprecated
+
+    public Boolean getAboveMC18() {
+        return mc18;
+    }
+
+    @Deprecated
 	@Override
 	public FileConfiguration getConfig() {
 		return settings;
@@ -213,11 +218,12 @@ public class TradeShop extends JavaPlugin {
 	private void addSettingsDefaults() {
 		addSetting("allowed-shops", new String[]{"CHEST", "TRAPPED_CHEST", "SHULKER"});
 		addSetting("allowed-directions", new String[]{"DOWN", "WEST", "SOUTH", "EAST", "NORTH", "UP"});
+        addSetting("itrade-shop-name", "Server Shop");
         addSetting("allow-double-trade", true);
         addSetting("allow-quad-trade", true);
-        addSetting("max-break-distance", 4); //copy
-		
-		save();
+        addSetting("max-break-distance", 4);
+
+        save();
 	}
 	
 	private void save() {
