@@ -195,8 +195,8 @@ public class TradeShop extends JavaPlugin {
 		addMessage("no-chest", "&cYou need to put a chest under the sign!");
 		addMessage("invalid-sign", "&cInvalid sign format!");
 		addMessage("no-ts-destroy", "&cYou may not destroy that TradeShop");
-		addMessage("successful-setup", "&aYou have sucessfully setup a TradeShop!");
-		addMessage("no-ts-open", "&cThat TradeShop does not belong to you");
+        addMessage("successful-setup", "&aYou have successfully setup a TradeShop!");
+        addMessage("no-ts-open", "&cThat TradeShop does not belong to you");
 		addMessage("empty-ts-on-setup", "&cTradeShop empty, please remember to fill it!");
 		addMessage("on-trade", "&aYou have traded your&e {AMOUNT2} {ITEM2} &a for &e {AMOUNT1} {ITEM1} &awith {SELLER}");
 		addMessage("insufficient-items", "&cYou do not have &e {AMOUNT} {ITEM}&c!");
@@ -206,8 +206,16 @@ public class TradeShop extends JavaPlugin {
 		addMessage("shop-full", "&cThis TradeShop is full, please contact the owner to get it emptied!");
 		addMessage("player-full", "&cYour inventory is full, please make room before trading items!");
 		addMessage("confirm-trade", "&eTrade &6 {AMOUNT1} {ITEM1} &e for &6 {AMOUNT2} {ITEM2} &e?");
-		addMessage("held-item", "\n&6You are curently holding: \n&2Material: &e{MATERIAL}\n&2ID Number: &e{ID}\n&2Durability: &e{DURABILITY}\n&2Amount: &e{AMOUNT}\n&6Put this on your TradeShop sign: \n&e{AMOUNT} {MATERIAL}:{DURABILITY} \n&e{AMOUNT} {ID}:{DURABILITY}");
-		addMessage("held-empty", "&eYou are currently holding nothing.");
+        addMessage("held-item", "\n&6You are currently holding: " +
+                "\n&2Material: &e{MATERIAL}" +
+                "\n&2ID Number: &e{ID}" +
+                "\n&2Durability: &e{DURABILITY}" +
+                "\n&2Amount: &e{AMOUNT}" +
+                "\n&6You do not need to use the durability if it is 0" +
+                "\n&6Put this on your TradeShop sign: " +
+                "\n&e{AMOUNT} {MATERIAL}:{DURABILITY} " +
+                "\n&e{AMOUNT} {ID}:{DURABILITY}");
+        addMessage("held-empty", "&eYou are currently holding nothing.");
 		addMessage("player-only-command", "&eThis command is only available to players.");
 		addMessage("missing-shop", "&cThere is not currently a shop here, please tell the owner or come back later!");
         addMessage("no-sighted-shop", "&cYou are not looking at a shop to break!"); //copy
