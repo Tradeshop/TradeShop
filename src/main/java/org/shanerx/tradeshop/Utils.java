@@ -21,7 +21,6 @@
 
 package org.shanerx.tradeshop;
 
-import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.Chest;
