@@ -35,6 +35,7 @@ import org.bukkit.plugin.PluginDescriptionFile;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 
 public class Utils {
 	
@@ -49,12 +50,19 @@ public class Utils {
     protected final Permission PCREATEBI = new Permission("tradeshop.create.bi");
     
     protected final TradeShop plugin = (TradeShop) Bukkit.getPluginManager().getPlugin("TradeShop");
-	
+
+    protected final UUID KOPUUID = UUID.fromString("daf79be7-bc1d-47d3-9896-f97b8d4cea7d");
+    protected final UUID LORIUUID = UUID.fromString("e296bc43-2972-4111-9843-48fc32302fd4");
+
 	public String getPluginName() {
 		return pdf.getName();
 	}
-	
-	public String getVersion() {
+
+    public UUID[] getMakers() {
+        return new UUID[]{KOPUUID, LORIUUID};
+    }
+
+    public String getVersion() {
 		return pdf.getVersion();
 	}
 	

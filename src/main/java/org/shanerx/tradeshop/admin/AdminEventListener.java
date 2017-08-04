@@ -107,17 +107,18 @@ public class AdminEventListener extends Utils implements Listener {
 		
 		Sign s;
 		try {
-			s = (Sign) findShopSign(block);
-		} catch (Exception ex) {
-			return;
+            s = findShopSign(block);
+            if (s == null)
+                throw new NullPointerException();
+        } catch (NullPointerException ex) {
+            return;
 		}
-		
 		
 		if (e.getPlayer().hasPermission(getAdminPerm()))
 			return;
-		
-		if (!isShopSign(block))
-			return;
+
+        if (!isShopSign(s.getBlock()))
+            return;
 		
 		if (s.getLine(3) == null || s.getLine(3).equals(""))
 			return;

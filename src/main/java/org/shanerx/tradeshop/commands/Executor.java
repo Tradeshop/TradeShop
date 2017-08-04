@@ -115,10 +115,12 @@ public class Executor extends Utils implements CommandExecutor {
 				
 				Player pl = (Player) sender;
 				ItemStack itm = null;
+
 				if (plugin.getAboveMC18())
-					pl.getInventory().getItemInMainHand();
+					itm = pl.getInventory().getItemInMainHand();
 				else
-					pl.getInventory().getItemInHand();
+					itm = pl.getInventory().getItemInHand();
+
 				if (itm.getType() != null) {
 					String msg = colorize(getPrefix() + plugin.getMessages().getString("held-item"))
 							.replace("{MATERIAL}", itm.getType().name())

@@ -48,7 +48,7 @@ public class TradeShop extends JavaPlugin {
 	private FileConfiguration messages;
 	private File settingsFile = new File(this.getDataFolder(), "config.yml");
 	private FileConfiguration settings;
-    private boolean mc18 = this.getServer().getBukkitVersion().contains("1.8");
+	private boolean mc18 = this.getServer().getVersion().contains("1.8");
 
     private ArrayList<Material> inventories = new ArrayList<>();
 	private ArrayList<BlockFace> directions = new ArrayList<>();
@@ -70,8 +70,8 @@ public class TradeShop extends JavaPlugin {
 	}
 
     public Boolean getAboveMC18() {
-        return mc18;
-    }
+		return !mc18;
+	}
 
     @Deprecated
 	@Override
@@ -87,8 +87,8 @@ public class TradeShop extends JavaPlugin {
         addSettingsDefaults();
 
         addMaterials();
-	addDirections();
-    }
+		addDirections();
+	}
 	
 	public ArrayList<Material> getAllowedInventories() {
 		return inventories;
@@ -142,8 +142,8 @@ public class TradeShop extends JavaPlugin {
                             Material.YELLOW_SHULKER_BOX, 
                             Material.PURPLE_SHULKER_BOX}));
                 } catch(Throwable t){
-                    getLogger().info(getName() + "You are on a version before 1.9, Shulkers are disabled!");
-                }
+					getLogger().info("&a[&eTradeShop&a] You are on a version before 1.9, Shulkers are disabled!");
+				}
             }
             else
             {
