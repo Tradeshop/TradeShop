@@ -43,213 +43,227 @@ import java.util.Arrays;
 import java.util.logging.Level;
 
 public class TradeShop extends JavaPlugin {
-	
-	private File messagesFile = new File(this.getDataFolder(), "messages.yml");
-	private FileConfiguration messages;
-	private File settingsFile = new File(this.getDataFolder(), "config.yml");
-	private FileConfiguration settings;
-	
-	private ArrayList<Material> inventories = new ArrayList<>();
-	private ArrayList<BlockFace> directions = new ArrayList<>();
-	
-	public File getMessagesFile() {
-		return messagesFile;
-	}
-	
-	public FileConfiguration getMessages() {
-		return messages;
-	}
-	
-	public File getSettingsFile() {
-		return settingsFile;
-	}
-	
-	public FileConfiguration getSettings() {
-		return settings;
-	}
-	
-	@Deprecated
-	@Override
-	public FileConfiguration getConfig() {
-		return settings;
-	}
-	
-	@Override
-	public void reloadConfig() {
-		messages = YamlConfiguration.loadConfiguration(messagesFile);
-		addMessageDefaults();
-		settings = YamlConfiguration.loadConfiguration(settingsFile);
-		addSettingsDefaults();
-		
-		addMaterials();
-		addDirections();
-	}
-	
-	public ArrayList<Material> getAllowedInventories() {
-		return inventories;
-	}
-	
-	public ArrayList<BlockFace> getAllowedDirections() {
-		return directions;
-	}
-	
-	@Override
-	public void onEnable() {
-		createConfigs();
-		reloadConfig();
-		
-		PluginManager pm = getServer().getPluginManager();
-		pm.registerEvents(new TradeEventListener(this), this);
-		pm.registerEvents(new ShopCreateEventListener(this), this);
-		pm.registerEvents(new BiTradeEventListener(this), this);
-		pm.registerEvents(new BiShopCreateEventListener(this), this);
-		pm.registerEvents(new AdminEventListener(this), this);
-		pm.registerEvents(new ITradeEventListener(this), this);
-		pm.registerEvents(new IShopCreateEventListener(this), this);
-		
-		getCommand("tradeshop").setExecutor(new Executor(this));
-	}
-	
-	private void addMaterials() {
-		ArrayList<Material> allowedOld = new ArrayList<>();
-		allowedOld.addAll(Arrays.asList(new Material[]{Material.CHEST, Material.TRAPPED_CHEST, Material.DROPPER, Material.HOPPER, Material.DISPENSER}));
-		
-		for (String str : getConfig().getStringList("allowed-shops")) {
-			if (str.equalsIgnoreCase("shulker")) {
-				try {
-					inventories.addAll(Arrays.asList(new Material[]{Material.BLACK_SHULKER_BOX,
-							Material.BLUE_SHULKER_BOX,
-							Material.BROWN_SHULKER_BOX,
-							Material.CYAN_SHULKER_BOX,
-							Material.GRAY_SHULKER_BOX,
-							Material.GREEN_SHULKER_BOX,
-							Material.LIGHT_BLUE_SHULKER_BOX,
-							Material.LIME_SHULKER_BOX,
-							Material.MAGENTA_SHULKER_BOX,
-							Material.ORANGE_SHULKER_BOX,
-							Material.PINK_SHULKER_BOX,
-							Material.RED_SHULKER_BOX,
-							Material.SILVER_SHULKER_BOX,
-							Material.WHITE_SHULKER_BOX,
-							Material.YELLOW_SHULKER_BOX,
-							Material.PURPLE_SHULKER_BOX}));
-				} catch (Throwable t) {
-					getLogger().info(getName() + "You are on a version before 1.9, Shulkers are disabled!");
-				}
-			} else {
-				if (Material.valueOf(str) != null && allowedOld.contains(Material.valueOf(str)))
-					inventories.add(Material.valueOf(str));
-				
-			}
-		}
-	}
-	
-	private void addDirections() {
-		ArrayList<BlockFace> allowed = new ArrayList<>();
-		allowed.addAll(Arrays.asList(new BlockFace[]{BlockFace.DOWN, BlockFace.WEST, BlockFace.SOUTH, BlockFace.EAST, BlockFace.NORTH, BlockFace.UP}));
-		
-		for (String str : getConfig().getStringList("allowed-directions")) {
-			if (BlockFace.valueOf(str) != null && allowed.contains(BlockFace.valueOf(str)))
-				directions.add(BlockFace.valueOf(str));
-		}
-	}
-	
-	private boolean addMessage(String node, String message) {
-		if (messages.getString(node) == null) {
-			messages.set(node, message);
-			return true;
-		}
-		return false;
-	}
-	
-	private boolean addSetting(String node, Object value) {
-		if (settings.getString(node) == null) {
-			settings.set(node, value);
-			return true;
-		}
-		return false;
-	}
-	
-	private void addMessageDefaults() {
-		addMessage("invalid-arguments", "&eTry &6/tradeshop help &eto display help!");
-		addMessage("no-command-permission", "&aYou do not have permission to execute this command");
-		addMessage("setup-help", "\n&2Setting up a TradeShop is easy! Just make sure to follow these steps:"
-				+ "\n \nStep 1: &ePlace down a chest."
-				+ "\n&2Step 2: &ePlace a sign on top of the chest."
-				+ "\n&2Step 3: &eWrite the following on the sign"
-				+ "\n&6[Trade]\n<amount> <item_you_sell>\n<amount> <item_you_buy>\n&6&oEmpty line"
-				+ "\n&2Step 4: &eIf you are unsure what the item is, use &6/tradeshop item");
-		addMessage("no-ts-create-permission", "&cYou don't have permission to create TradeShops!");
-		addMessage("no-chest", "&cYou need to put a chest under the sign!");
-		addMessage("invalid-sign", "&cInvalid sign format!");
-		addMessage("no-ts-destroy", "&cYou may not destroy that TradeShop");
-		addMessage("successful-setup", "&aYou have sucessfully setup a TradeShop!");
-		addMessage("no-ts-open", "&cThat TradeShop does not belong to you");
-		addMessage("empty-ts-on-setup", "&cTradeShop empty, please remember to fill it!");
-		addMessage("on-trade", "&aYou have traded your&e {AMOUNT2} {ITEM2} &a for &e {AMOUNT1} {ITEM1} &awith {SELLER}");
-		addMessage("insufficient-items", "&cYou do not have &e {AMOUNT} {ITEM}&c!");
-		addMessage("shop-full-amount", "&cThe shop does not have &e{AMOUNT} &cof a single type of &e{ITEM}&c!");
-		addMessage("full-amount", "&cYou must have &e{AMOUNT} &cof a single type of &e{ITEM}&c!");
-		addMessage("shop-empty", "&cThis TradeShop does not have &e {AMOUNT} {ITEM}&c!");
-		addMessage("shop-full", "&cThis TradeShop is full, please contact the owner to get it emptied!");
-		addMessage("player-full", "&cYour inventory is full, please make room before trading items!");
-		addMessage("confirm-trade", "&eTrade &6 {AMOUNT1} {ITEM1} &e for &6 {AMOUNT2} {ITEM2} &e?");
-		addMessage("held-item", "\n&6You are curently holding: \n&2Material: &e{MATERIAL}\n&2ID Number: &e{ID}\n&2Durability: &e{DURABILITY}\n&2Amount: &e{AMOUNT}\n&6Put this on your TradeShop sign: \n&e{AMOUNT} {MATERIAL}:{DURABILITY} \n&e{AMOUNT} {ID}:{DURABILITY}");
-		addMessage("held-empty", "&eYou are currently holding nothing.");
-		addMessage("player-only-command", "&eThis command is only available to players.");
-		addMessage("missing-shop", "&cThere is not currently a shop here, please tell the owner or come back later!");
-		addMessage("no-sighted-shop", "&cYou are not looking at a shop to break!");
-		addMessage("updated-shop-members", "&aShop owners and members have been updated!");
-		addMessage("unsuccessfull-shop-members", "&aThat player is either already on the shop, or you have reached the maximum number of users!");
-		addMessage("who-message", "&6Shop users are:\n&2Owners: &e{OWNERS}\n&2Members: &e{MEMBERS}");
-		
-		save();
-	}
-	
-	private void addSettingsDefaults() {
-		addSetting("allowed-shops", new String[]{"CHEST", "TRAPPED_CHEST", "SHULKER"});
-		addSetting("allowed-directions", new String[]{"DOWN", "WEST", "SOUTH", "EAST", "NORTH", "UP"});
-		addSetting("allow-double-trade", true);
-		addSetting("allow-quad-trade", true);
-		addSetting("max-edit-distance", 4);
-		addSetting("max-shop-users", 5);
-		save();
-	}
-	
-	private void save() {
-		if (messages != null)
-			try {
-				messages.save(messagesFile);
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		
-		if (settings != null)
-			try {
-				settings.save(settingsFile);
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-	}
-	
-	private void createConfigs() {
-		try {
-			if (!getDataFolder().isDirectory()) {
-				getDataFolder().mkdirs();
-			}
-			if (!messagesFile.exists()) {
-				messagesFile.createNewFile();
-			}
-			if (!settingsFile.exists()) {
-				settingsFile.createNewFile();
-			}
-		} catch (IOException e) {
-			getLogger().log(Level.SEVERE, "Could not create config files! Disabling plugin!", e);
-			getServer().getPluginManager().disablePlugin(this);
-		}
-	}
-	
-	@Override
-	public void onDisable() {
-	}
+    private File messagesFile = new File(this.getDataFolder(), "messages.yml");
+    private FileConfiguration messages;
+    private File settingsFile = new File(this.getDataFolder(), "config.yml");
+    private FileConfiguration settings;
+    private boolean mc18 = this.getServer().getVersion().contains("1.8");
+
+    private ArrayList<Material> inventories = new ArrayList<>();
+    private ArrayList<BlockFace> directions = new ArrayList<>();
+
+    public File getMessagesFile() {
+        return messagesFile;
+    }
+
+    public FileConfiguration getMessages() {
+        return messages;
+    }
+
+    public File getSettingsFile() {
+        return settingsFile;
+    }
+
+    public FileConfiguration getSettings() {
+        return settings;
+    }
+
+    public Boolean getAboveMC18() {
+        return !mc18;
+    }
+
+    @Deprecated
+    @Override
+    public FileConfiguration getConfig() {
+        return settings;
+    }
+
+    @Override
+    public void reloadConfig() {
+        messages = YamlConfiguration.loadConfiguration(messagesFile);
+        addMessageDefaults();
+        settings = YamlConfiguration.loadConfiguration(settingsFile);
+        addSettingsDefaults();
+
+        addMaterials();
+        addDirections();
+    }
+
+    public ArrayList<Material> getAllowedInventories() {
+        return inventories;
+    }
+
+    public ArrayList<BlockFace> getAllowedDirections() {
+        return directions;
+    }
+
+    @Override
+    public void onEnable() {
+        createConfigs();
+        reloadConfig();
+
+        PluginManager pm = getServer().getPluginManager();
+        pm.registerEvents(new TradeEventListener(this), this);
+        pm.registerEvents(new ShopCreateEventListener(this), this);
+        pm.registerEvents(new BiTradeEventListener(this), this);
+        pm.registerEvents(new BiShopCreateEventListener(this), this);
+        pm.registerEvents(new AdminEventListener(this), this);
+        pm.registerEvents(new ITradeEventListener(this), this);
+        pm.registerEvents(new IShopCreateEventListener(this), this);
+
+        getCommand("tradeshop").setExecutor(new Executor(this));
+    }
+
+    private void addMaterials() {
+        ArrayList<Material> allowedOld = new ArrayList<>();
+        allowedOld.addAll(Arrays.asList(new Material[]{Material.CHEST, Material.TRAPPED_CHEST, Material.DROPPER, Material.HOPPER, Material.DISPENSER}));
+
+        for (String str : getConfig().getStringList("allowed-shops")) {
+            if (str.equalsIgnoreCase("shulker")) {
+                try {
+                    inventories.addAll(Arrays.asList(new Material[]{Material.BLACK_SHULKER_BOX,
+                            Material.BLUE_SHULKER_BOX,
+                            Material.BROWN_SHULKER_BOX,
+                            Material.CYAN_SHULKER_BOX,
+                            Material.GRAY_SHULKER_BOX,
+                            Material.GREEN_SHULKER_BOX,
+                            Material.LIGHT_BLUE_SHULKER_BOX,
+                            Material.LIME_SHULKER_BOX,
+                            Material.MAGENTA_SHULKER_BOX,
+                            Material.ORANGE_SHULKER_BOX,
+                            Material.PINK_SHULKER_BOX,
+                            Material.RED_SHULKER_BOX,
+                            Material.SILVER_SHULKER_BOX,
+                            Material.WHITE_SHULKER_BOX,
+                            Material.YELLOW_SHULKER_BOX,
+                            Material.PURPLE_SHULKER_BOX}));
+                } catch (Throwable t) {
+                    getLogger().info("[TradeShop] You are on a version before 1.9, Shulkers are disabled!");
+                }
+            } else {
+                if (Material.valueOf(str) != null && allowedOld.contains(Material.valueOf(str)))
+                    inventories.add(Material.valueOf(str));
+
+            }
+        }
+    }
+
+    private void addDirections() {
+        ArrayList<BlockFace> allowed = new ArrayList<>();
+        allowed.addAll(Arrays.asList(new BlockFace[]{BlockFace.DOWN, BlockFace.WEST, BlockFace.SOUTH, BlockFace.EAST, BlockFace.NORTH, BlockFace.UP}));
+
+        for (String str : getConfig().getStringList("allowed-directions")) {
+            if (BlockFace.valueOf(str) != null && allowed.contains(BlockFace.valueOf(str)))
+                directions.add(BlockFace.valueOf(str));
+        }
+    }
+
+    private boolean addMessage(String node, String message) {
+        if (messages.getString(node) == null) {
+            messages.set(node, message);
+            return true;
+        }
+        return false;
+    }
+
+    private boolean addSetting(String node, Object value) {
+        if (settings.getString(node) == null) {
+            settings.set(node, value);
+            return true;
+        }
+        return false;
+    }
+
+    private void addMessageDefaults() {
+        addMessage("invalid-arguments", "&eTry &6/tradeshop help &eto display help!");
+        addMessage("no-command-permission", "&aYou do not have permission to execute this command");
+        addMessage("setup-help", "\n&2Setting up a TradeShop is easy! Just make sure to follow these steps:"
+                + "\n \nStep 1: &ePlace down a chest."
+                + "\n&2Step 2: &ePlace a sign on top of the chest."
+                + "\n&2Step 3: &eWrite the following on the sign"
+                + "\n&6[Trade]\n<amount> <item_you_sell>\n<amount> <item_you_buy>\n&6&oEmpty line"
+                + "\n&2Step 4: &eIf you are unsure what the item is, use &6/tradeshop item");
+        addMessage("no-ts-create-permission", "&cYou don't have permission to create TradeShops!");
+        addMessage("no-chest", "&cYou need to put a chest under the sign!");
+        addMessage("invalid-sign", "&cInvalid sign format!");
+        addMessage("no-ts-destroy", "&cYou may not destroy that TradeShop");
+        addMessage("successful-setup", "&aYou have successfully setup a TradeShop!");
+        addMessage("no-ts-open", "&cThat TradeShop does not belong to you");
+        addMessage("empty-ts-on-setup", "&cTradeShop empty, please remember to fill it!");
+        addMessage("on-trade", "&aYou have traded your&e {AMOUNT2} {ITEM2} &a for &e {AMOUNT1} {ITEM1} &awith {SELLER}");
+        addMessage("insufficient-items", "&cYou do not have &e {AMOUNT} {ITEM}&c!");
+        addMessage("shop-full-amount", "&cThe shop does not have &e{AMOUNT} &cof a single type of &e{ITEM}&c!");
+        addMessage("full-amount", "&cYou must have &e{AMOUNT} &cof a single type of &e{ITEM}&c!");
+        addMessage("shop-empty", "&cThis TradeShop does not have &e {AMOUNT} {ITEM}&c!");
+        addMessage("shop-full", "&cThis TradeShop is full, please contact the owner to get it emptied!");
+        addMessage("player-full", "&cYour inventory is full, please make room before trading items!");
+        addMessage("confirm-trade", "&eTrade &6 {AMOUNT1} {ITEM1} &e for &6 {AMOUNT2} {ITEM2} &e?");
+        addMessage("held-item", "\n&6You are currently holding: " +
+                "\n&2Material: &e{MATERIAL}" +
+                "\n&2ID Number: &e{ID}" +
+                "\n&2Durability: &e{DURABILITY}" +
+                "\n&2Amount: &e{AMOUNT}" +
+                "\n&6You do not need to use the durability if it is 0" +
+                "\n&6Put this on your TradeShop sign: " +
+                "\n&e{AMOUNT} {MATERIAL}:{DURABILITY} " +
+                "\n&e{AMOUNT} {ID}:{DURABILITY}");
+        addMessage("held-empty", "&eYou are currently holding nothing.");
+        addMessage("player-only-command", "&eThis command is only available to players.");
+        addMessage("missing-shop", "&cThere is not currently a shop here, please tell the owner or come back later!");
+        addMessage("no-sighted-shop", "&cYou are not looking at a shop to break!");
+        addMessage("updated-shop-members", "&aShop owners and members have been updated!");
+        addMessage("unsuccessfull-shop-members", "&aThat player is either already on the shop, or you have reached the maximum number of users!");
+        addMessage("who-message", "&6Shop users are:\n&2Owners: &e{OWNERS}\n&2Members: &e{MEMBERS}");
+
+        save();
+    }
+
+    private void addSettingsDefaults() {
+        addSetting("allowed-shops", new String[]{"CHEST", "TRAPPED_CHEST", "SHULKER"});
+        addSetting("allowed-directions", new String[]{"DOWN", "WEST", "SOUTH", "EAST", "NORTH", "UP"});
+        addSetting("itrade-shop-name", "Server Shop");
+        addSetting("allow-double-trade", true);
+        addSetting("allow-quad-trade", true);
+        addSetting("max-break-distance", 4);
+		    addSetting("max-shop-users", 5);
+
+        save();
+    }
+
+    private void save() {
+        if (messages != null)
+            try {
+                messages.save(messagesFile);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+        if (settings != null)
+            try {
+                settings.save(settingsFile);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+    }
+
+    private void createConfigs() {
+        try {
+            if (!getDataFolder().isDirectory()) {
+                getDataFolder().mkdirs();
+            }
+            if (!messagesFile.exists()) {
+                messagesFile.createNewFile();
+            }
+            if (!settingsFile.exists()) {
+                settingsFile.createNewFile();
+            }
+        } catch (IOException e) {
+            getLogger().log(Level.SEVERE, "Could not create config files! Disabling plugin!", e);
+            getServer().getPluginManager().disablePlugin(this);
+        }
+    }
+
+    @Override
+    public void onDisable() {
+    }
 }

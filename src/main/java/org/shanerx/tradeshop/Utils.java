@@ -21,7 +21,9 @@
 
 package org.shanerx.tradeshop;
 
-import org.bukkit.*;
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
+import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.Chest;
@@ -36,6 +38,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * This class contains a bunch of utility methods that
@@ -47,15 +50,22 @@ public class Utils {
     protected final String VERSION = Bukkit.getPluginManager().getPlugin("TradeShop").getDescription().getVersion();
     protected final PluginDescriptionFile pdf = Bukkit.getPluginManager().getPlugin("TradeShop").getDescription();
     protected final String PREFIX = "&a[&eTradeShop&a] ";
-
-    protected final Permission PHELP = new Permission("tradeshop.help");
-    protected final Permission PCREATE = new Permission("tradeshop.create");
-    protected final Permission PADMIN = new Permission("tradeshop.admin");
-    protected final Permission PCREATEI = new Permission("tradeshop.create.infinite");
-    protected final Permission PCREATEBI = new Permission("tradeshop.create.bi");
-    protected final Permission PWHO = new Permission("tradeshop.who");
-
+  
     protected final TradeShop plugin = (TradeShop) Bukkit.getPluginManager().getPlugin("TradeShop");
+  
+    private final Permission PHELP = new Permission("tradeshop.help");
+    private final Permission PCREATE = new Permission("tradeshop.create");
+    private final Permission PADMIN = new Permission("tradeshop.admin");
+    private final Permission PCREATEI = new Permission("tradeshop.create.infinite");
+    private final Permission PCREATEBI = new Permission("tradeshop.create.bi");
+    private final Permission PWHO = new Permission("tradeshop.who");
+  
+    private final UUID KOPUUID = UUID.fromString("daf79be7-bc1d-47d3-9896-f97b8d4cea7d");
+    private final UUID LORIUUID = UUID.fromString("e296bc43-2972-4111-9843-48fc32302fd4");
+    
+    public UUID[] getMakers() {
+        return new UUID[]{KOPUUID, LORIUUID};
+    }
 
     /**
      * Returns the plugin name.
@@ -166,28 +176,21 @@ public class Utils {
             return false;
         }
         Sign sign = (Sign) b.getState();
-        if (!ChatColor.stripColor(sign.getLine(0)).equals("[Trade]")) {
-            return false;
-        } else {
-            return true;
-        }
+        return ChatColor.stripColor(sign.getLine(0)).equals("[Trade]");
     }
+
 
     /**
      * Checks whether or not the block entered is a {@code iTrade} sign.
      *
      * @return true if it is
      */
-    public boolean isInfiniteTradeShopSign(Block b) {
+    public boolean isBiTradeShopSign(Block b) {
         if (!isSign(b)) {
             return false;
         }
         Sign sign = (Sign) b.getState();
-        if (!ChatColor.stripColor(sign.getLine(0)).equals("[iTrade]")) {
-            return false;
-        } else {
-            return true;
-        }
+        return ChatColor.stripColor(sign.getLine(0)).equals("[BiTrade]");
     }
 
     /**
@@ -200,11 +203,7 @@ public class Utils {
             return false;
         }
         Sign sign = (Sign) b.getState();
-        if (!ChatColor.stripColor(sign.getLine(0)).equals("[BiTrade]")) {
-            return false;
-        } else {
-            return true;
-        }
+        return ChatColor.stripColor(sign.getLine(0)).equals("[iTrade]");
     }
 
     /**
@@ -217,16 +216,14 @@ public class Utils {
         return isTradeShopSign(b) || isInfiniteTradeShopSign(b) || isBiTradeShopSign(b);
     }
 
-    /**
+/**
      * Returns true if it is a sign (not necessarily a TradeSign).
      *
      * @param b the sign block
      * @return true if it is a sign.
      */
     public boolean isSign(Block b) {
-        if (b == null)
-            return false;
-        return b.getType() == Material.SIGN_POST || b.getType() == Material.WALL_SIGN;
+        return b != null && (b.getType() == Material.SIGN_POST || b.getType() == Material.WALL_SIGN);
     }
 
     /**
@@ -343,7 +340,7 @@ public class Utils {
         return count >= amt;
     }
 
-    /**
+/**
      * This function wraps up Bukkit's method {@code ChatColor.translateAlternateColorCodes('&', msg)}.
      * <br>
      * Used for shortening purposes and follows the DRY concept.
@@ -356,7 +353,7 @@ public class Utils {
         return msg;
     }
 
-    /**
+ /**
      * Finds the TradeShop sign linked to a chest.
      *
      * @param chest the block holding the shop's inventory. Can be a chest, a trapped chest, a dropper, a dispenser, a hopper and a shulker box (1.9+).
@@ -375,7 +372,7 @@ public class Utils {
         return null;
     }
 
-    /**
+ /**
      * Finds the TradeShop chest, dropper, dispenser, hopper or shulker box (1.9+) linked to a sign.
      *
      * @param sign the TradeShop sign

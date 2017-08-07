@@ -100,6 +100,7 @@ public class AdminEventListener extends Utils implements Listener {
             return;
         }
 
+
         Sign s;
         try {
             s = findShopSign(block);
@@ -122,3 +123,4 @@ public class AdminEventListener extends Utils implements Listener {
         }
     }
 }
+
