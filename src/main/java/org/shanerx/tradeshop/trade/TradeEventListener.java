@@ -210,6 +210,7 @@ public class TradeEventListener extends Utils implements Listener {
                         .replace("{ITEM1}", item_name1.toLowerCase())
                         .replace("{ITEM2}", item_name2.toLowerCase())));
             } catch (Exception ex) {
+                //Do nothing
             }
         }
     }

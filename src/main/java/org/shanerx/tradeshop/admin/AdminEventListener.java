@@ -35,26 +35,26 @@ import org.shanerx.tradeshop.TradeShop;
 import org.shanerx.tradeshop.Utils;
 
 public class AdminEventListener extends Utils implements Listener {
-	
-	private TradeShop plugin;
-	
-	public AdminEventListener(TradeShop instance) {
-		plugin = instance;
-	}
 
-	@EventHandler(priority = EventPriority.HIGH)
-	public void onBlockBreak(BlockBreakEvent event) {
-		Player player = event.getPlayer();
-		Block block = event.getBlock();
+    private TradeShop plugin;
 
-		if (isSign(block)) {
-			Sign s = (Sign) block.getState();
+    public AdminEventListener(TradeShop instance) {
+        plugin = instance;
+    }
 
-			if (!isShopSign(s.getBlock())) {
-				return;
+    @EventHandler(priority = EventPriority.HIGH)
+    public void onBlockBreak(BlockBreakEvent event) {
+        Player player = event.getPlayer();
+        Block block = event.getBlock();
 
-			} else if (player.hasPermission(getAdminPerm())) {
-				return;
+        if (isSign(block)) {
+            Sign s = (Sign) block.getState();
+
+            if (!isShopSign(s.getBlock())) {
+                return;
+
+            } else if (player.hasPermission(getAdminPerm())) {
+                return;
 
             } else if (getShopOwners(s).contains(Bukkit.getOfflinePlayer(event.getPlayer().getUniqueId()))) {
                 return;
@@ -66,7 +66,7 @@ public class AdminEventListener extends Utils implements Listener {
         } else if (plugin.getAllowedInventories().contains(block.getType())) {
             if (player.hasPermission(getAdminPerm())) {
                 return;
-			}
+            }
 
             Sign s;
             try {
@@ -86,8 +86,8 @@ public class AdminEventListener extends Utils implements Listener {
             }
             event.setCancelled(true);
             player.sendMessage(colorize(getPrefix() + plugin.getMessages().getString("no-ts-destroy")));
-		}
-	}
+        }
+    }
 
     @EventHandler(priority = EventPriority.HIGH)
     public void onChestOpen(PlayerInteractEvent e) {
@@ -111,14 +111,14 @@ public class AdminEventListener extends Utils implements Listener {
         }
 
         if (e.getPlayer().hasPermission(getAdminPerm())) {
-            return;
+            //Do nothing
 
         } else if (isShopSign(s.getBlock())) {
             if (!getShopUsers(block).contains(Bukkit.getOfflinePlayer(e.getPlayer().getUniqueId()))) {
                 e.getPlayer().sendMessage(colorize(getPrefix() + plugin.getMessages().getString("no-ts-open")));
                 e.setCancelled(true);
             } else {
-                return;
+                //Do nothing
             }
         }
     }

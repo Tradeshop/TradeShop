@@ -22,7 +22,6 @@
 package org.shanerx.tradeshop.itrade;
 
 import org.bukkit.Material;
-import org.bukkit.block.BlockState;
 import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -185,7 +184,7 @@ public class ITradeEventListener extends Utils implements Listener {
                         .replace("{ITEM1}", item_name1.toLowerCase())
                         .replace("{ITEM2}", item_name2.toLowerCase())));
             } catch (Exception ex) {
-                return;
+                //Do nothing
             }
         }
     }

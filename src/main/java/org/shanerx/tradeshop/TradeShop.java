@@ -116,12 +116,12 @@ public class TradeShop extends JavaPlugin {
 
     private void addMaterials() {
         ArrayList<Material> allowedOld = new ArrayList<>();
-        allowedOld.addAll(Arrays.asList(new Material[]{Material.CHEST, Material.TRAPPED_CHEST, Material.DROPPER, Material.HOPPER, Material.DISPENSER}));
+        allowedOld.addAll(Arrays.asList(Material.CHEST, Material.TRAPPED_CHEST, Material.DROPPER, Material.HOPPER, Material.DISPENSER));
 
         for (String str : getConfig().getStringList("allowed-shops")) {
             if (str.equalsIgnoreCase("shulker")) {
                 try {
-                    inventories.addAll(Arrays.asList(new Material[]{Material.BLACK_SHULKER_BOX,
+                    inventories.addAll(Arrays.asList(Material.BLACK_SHULKER_BOX,
                             Material.BLUE_SHULKER_BOX,
                             Material.BROWN_SHULKER_BOX,
                             Material.CYAN_SHULKER_BOX,
@@ -136,12 +136,12 @@ public class TradeShop extends JavaPlugin {
                             Material.SILVER_SHULKER_BOX,
                             Material.WHITE_SHULKER_BOX,
                             Material.YELLOW_SHULKER_BOX,
-                            Material.PURPLE_SHULKER_BOX}));
+                            Material.PURPLE_SHULKER_BOX));
                 } catch (Throwable t) {
                     getLogger().info("[TradeShop] You are on a version before 1.9, Shulkers are disabled!");
                 }
             } else {
-                if (Material.valueOf(str) != null && allowedOld.contains(Material.valueOf(str)))
+                if (allowedOld.contains(Material.valueOf(str)))
                     inventories.add(Material.valueOf(str));
 
             }
@@ -150,28 +150,24 @@ public class TradeShop extends JavaPlugin {
 
     private void addDirections() {
         ArrayList<BlockFace> allowed = new ArrayList<>();
-        allowed.addAll(Arrays.asList(new BlockFace[]{BlockFace.DOWN, BlockFace.WEST, BlockFace.SOUTH, BlockFace.EAST, BlockFace.NORTH, BlockFace.UP}));
+        allowed.addAll(Arrays.asList(BlockFace.DOWN, BlockFace.WEST, BlockFace.SOUTH, BlockFace.EAST, BlockFace.NORTH, BlockFace.UP));
 
         for (String str : getConfig().getStringList("allowed-directions")) {
-            if (BlockFace.valueOf(str) != null && allowed.contains(BlockFace.valueOf(str)))
+            if (allowed.contains(BlockFace.valueOf(str)))
                 directions.add(BlockFace.valueOf(str));
         }
     }
 
-    private boolean addMessage(String node, String message) {
+    private void addMessage(String node, String message) {
         if (messages.getString(node) == null) {
             messages.set(node, message);
-            return true;
         }
-        return false;
     }
 
-    private boolean addSetting(String node, Object value) {
+    private void addSetting(String node, Object value) {
         if (settings.getString(node) == null) {
             settings.set(node, value);
-            return true;
         }
-        return false;
     }
 
     private void addMessageDefaults() {
@@ -212,7 +208,7 @@ public class TradeShop extends JavaPlugin {
         addMessage("missing-shop", "&cThere is not currently a shop here, please tell the owner or come back later!");
         addMessage("no-sighted-shop", "&cYou are not looking at a shop to break!");
         addMessage("updated-shop-members", "&aShop owners and members have been updated!");
-        addMessage("unsuccessfull-shop-members", "&aThat player is either already on the shop, or you have reached the maximum number of users!");
+        addMessage("unsuccessful-shop-members", "&aThat player is either already on the shop, or you have reached the maximum number of users!");
         addMessage("who-message", "&6Shop users are:\n&2Owners: &e{OWNERS}\n&2Members: &e{MEMBERS}");
 
         save();
@@ -225,7 +221,7 @@ public class TradeShop extends JavaPlugin {
         addSetting("allow-double-trade", true);
         addSetting("allow-quad-trade", true);
         addSetting("max-break-distance", 4);
-		    addSetting("max-shop-users", 5);
+        addSetting("max-shop-users", 5);
 
         save();
     }
