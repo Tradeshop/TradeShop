@@ -21,7 +21,6 @@
 
 package org.shanerx.tradeshop.admin;
 
-import net.minecraft.server.v1_12_R1.ExceptionInvalidBlockState;
 import org.bukkit.Bukkit;
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
@@ -73,7 +72,7 @@ public class AdminEventListener extends Utils implements Listener {
             try {
                 s = findShopSign(block);
                 if (s == null)
-                    throw new ExceptionInvalidBlockState();
+                    throw new Exception();
             } catch (Exception e) {
                 return;
             }
@@ -105,7 +104,7 @@ public class AdminEventListener extends Utils implements Listener {
         try {
             s = findShopSign(block);
             if (s == null)
-                throw new ExceptionInvalidBlockState();
+                throw new Exception();
         } catch (Exception ex) {
             return;
         }

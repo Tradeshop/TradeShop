@@ -137,12 +137,12 @@ public class Executor extends Utils implements CommandExecutor {
 				if (!(sender instanceof Player)) {
 					sender.sendMessage(plugin.getMessages().getString("player-only-command"));
 					return true;
-					
+
 				} else if (!sender.hasPermission(getCreatePerm())) {
 					sender.sendMessage(plugin.getMessages().getString("no-command-permission"));
 					return true;
 				}
-				
+
 				boolean noShop = false;
 				Player p = (Player) sender;
 				while (!noShop) {
@@ -151,11 +151,11 @@ public class Executor extends Utils implements CommandExecutor {
 						noShop = true;
 
 					b = p.getTargetBlock((HashSet<Byte>) null, plugin.getSettings().getInt("max-edit-distance"));
-					
+
 					if (isSign(b)) {
 						if (!isShopSign(b))
 							noShop = true;
-						
+
 						if (getShopOwners((Sign) b.getState()).contains(Bukkit.getOfflinePlayer(p.getUniqueId())) || p.hasPermission(getAdminPerm())) {
 							b.breakNaturally();
 							return true;
@@ -168,20 +168,92 @@ public class Executor extends Utils implements CommandExecutor {
 							noShop = true;
 
 						b = findShopSign(b).getBlock();
-						
+
 						if (!isShopSign(b))
 							noShop = true;
-						
+
 						if (getShopOwners(b).contains(Bukkit.getOfflinePlayer(p.getUniqueId())) || p.hasPermission(getAdminPerm())) {
 							b.breakNaturally();
 							return true;
-							
+
 						} else {
 							plugin.getMessages().getString("no-ts-destroy");
 							return true;
 						}
 					} else
 						noShop = true;
+				}
+				p.sendMessage(getPrefix() + plugin.getMessages().getString("no-sighted-shop"));
+				return true;
+			} else if (args[0].equalsIgnoreCase("who")) {
+				if (!(sender instanceof Player)) {
+					sender.sendMessage(plugin.getMessages().getString("player-only-command"));
+					return true;
+
+				} else if (!sender.hasPermission(getWhoPerm())) {
+					sender.sendMessage(plugin.getMessages().getString("no-command-permission"));
+					return true;
+				}
+
+				boolean noShop = false;
+				Player p = (Player) sender;
+				String owners = "", members = "";
+				while (!noShop) {
+					Block b;
+					Sign s = null;
+					if (p.getTargetBlock((Set<Material>) null, plugin.getSettings().getInt("max-edit-distance")) == null)
+						noShop = true;
+
+					b = p.getTargetBlock((HashSet<Byte>) null, plugin.getSettings().getInt("max-edit-distance"));
+
+					if (isSign(b)) {
+
+						if (!isShopSign(b))
+							noShop = true;
+
+						s = (Sign) b;
+
+					} else if (plugin.getAllowedInventories().contains(b.getType())) {
+						if (findShopSign(b) == null)
+							noShop = true;
+
+						b = findShopSign(b).getBlock();
+
+						if (!isShopSign(b))
+							noShop = true;
+
+						s = (Sign) b;
+					} else
+						noShop = true;
+
+					if (getShopOwners(s).size() > 0) {
+						for (OfflinePlayer pl : getShopOwners(s)) {
+							if (owners == "")
+								owners = pl.getName();
+							else
+								owners += ", " + pl.getName();
+						}
+					}
+
+					if (getShopMembers(s).size() > 0) {
+						for (OfflinePlayer pl : getShopMembers(s)) {
+							if (members == "")
+								members = pl.getName();
+							else
+								members += ", " + pl.getName();
+						}
+					}
+
+					if (owners == "") {
+						owners = "None";
+					}
+					if (members == "") {
+						members = "None";
+					}
+					p.sendMessage(getPrefix() + plugin.getMessages().getString("who-message")
+							.replace("{OWNERS}", owners)
+							.replace("{MEMBERS}", members));
+					return true;
 				}
 				p.sendMessage(getPrefix() + plugin.getMessages().getString("no-sighted-shop"));
 				return true;
@@ -213,13 +285,15 @@ public class Executor extends Utils implements CommandExecutor {
 			OfflinePlayer target = Bukkit.getOfflinePlayer(args[1]);
 			switch(args[0].toLowerCase()) {
 				case "addowner":
-					addOwner(b, target);
+					if (!addOwner(b, target))
+						p.sendMessage(colorize(getPrefix() + plugin.getMessages().getString("unsuccessfull-shop-members")));
 					break;
 				case "removeowner":
 					removeOwner(b, target);
 					break;
 				case "addmember":
-					addMember(b, target);
+					if (!addMember(b, target))
+						p.sendMessage(colorize(getPrefix() + plugin.getMessages().getString("unsuccessfull-shop-members")));
 					break;
 				case "removemember":
 					removeMember(b, target);

@@ -21,6 +21,7 @@
 
 package org.shanerx.tradeshop;
 
+import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.Chest;
@@ -52,6 +53,7 @@ public class Utils {
 	protected final Permission PADMIN = new Permission("tradeshop.admin");
 	protected final Permission PCREATEI = new Permission("tradeshop.create.infinite");
 	protected final Permission PCREATEBI = new Permission("tradeshop.create.bi");
+	protected final Permission PWHO = new Permission("tradeshop.who");
 	
 	protected final TradeShop plugin = (TradeShop) Bukkit.getPluginManager().getPlugin("TradeShop");
 	
@@ -102,7 +104,16 @@ public class Utils {
 	public Permission getHelpPerm() {
 		return PHELP;
 	}
-	
+
+	/**
+	 * Returns the Who permission.
+	 *
+	 * @return who
+	 */
+	public Permission getWhoPerm() {
+		return PWHO;
+	}
+
 	/**
 	 * Returns the normal {@code [Trade]} sign create permission.
 	 * @return the Trade create permission
@@ -396,8 +407,8 @@ public class Utils {
      * Returns all the owners of a TradeShop, including the one on the last line of the sign.
      *
      * @param b the inventory holder block
-     * @return all the owners.
-     */
+	 * @return all the members.
+	 */
     public List<OfflinePlayer> getShopMembers(Block b) {
         if (!plugin.getAllowedInventories().contains(b.getType())) {
             return null;
@@ -506,14 +517,27 @@ public class Utils {
 	 * The target player is not required to be online at the time of the operation.
 	 * @param b the inventory holder block
 	 * @param p the OfflinePlayer object.
+	 * @return true if succesfull
 	 */
-	public void addMember(Block b, OfflinePlayer p) {
+	public boolean addMember(Block b, OfflinePlayer p) {
+		if (getShopUsers(b).size() >= plugin.getSettings().getInt("max-shop-users")) {
+			return false;
+		}
+
 		List<OfflinePlayer> members = getShopMembers(b);
-		members.add(p);
+		if (!members.contains(p)) {
+			members.add(p);
+			if (getShopOwners(b).contains(p)) {
+				removeOwner(b, p);
+			}
+		} else {
+			return false;
+		}
 		StringBuilder sb = new StringBuilder();
 		List<String> all = Arrays.asList(((InventoryHolder) b.getState()).getInventory().getName().split(";"));
 		members.forEach(m -> sb.append(all.contains("o:" + m.getName()) ? "o:" : "m:").append(m.getName()).append(';'));
 		setName((InventoryHolder) b.getState(), sb.toString().substring(0, sb.toString().length()));
+		return true;
 	}
 	
 	/**
@@ -522,9 +546,10 @@ public class Utils {
 	 * The target player is not required to be online at the time of the operation.
 	 * @param s the TradeShop sign
 	 * @param p the OfflinePlayer object.
+	 * @return true if succesfull
 	 */
-	public void addMember(Sign s, OfflinePlayer p) {
-		addMember(findShopChest(s.getBlock()), p);
+	public boolean addMember(Sign s, OfflinePlayer p) {
+		return addMember(findShopChest(s.getBlock()), p);
 	}
 	
 	/**
@@ -560,15 +585,29 @@ public class Utils {
 	 * The target player is not required to be online at the time of the operation.
 	 * @param b the inventory holder block
 	 * @param p the OfflinePlayer object.
-<<<<<<< HEAD
+	 * @return true if succesfull
 	 */
-	public void addOwner(Block b, OfflinePlayer p) {
-		List<OfflinePlayer> members = getShopMembers(b);
-		members.add(p);
+	public boolean addOwner(Block b, OfflinePlayer p) {
+		if (getShopUsers(b).size() >= plugin.getSettings().getInt("max-shop-users")) {
+			return false;
+		}
+
+		List<OfflinePlayer> owners = getShopMembers(b);
+		if (!owners.contains(p)) {
+			owners.add(p);
+			if (getShopMembers(b).contains(p)) {
+				removeMember(b, p);
+			}
+		} else {
+			return false;
+		}
+
+		owners.add(p);
 		StringBuilder sb = new StringBuilder();
 		List<String> all = Arrays.asList(((InventoryHolder) b.getState()).getInventory().getName().split(";"));
-		members.forEach(m -> sb.append(all.contains("m:" + m.getName()) ? "m:" : "o:").append(m.getName()).append(';'));
+		owners.forEach(m -> sb.append(all.contains("m:" + m.getName()) ? "m:" : "o:").append(m.getName()).append(';'));
 		setName((InventoryHolder) b.getState(), sb.toString().substring(0, sb.toString().length()));
+		return true;
 	}
 	
 	/**
@@ -577,9 +616,10 @@ public class Utils {
 	 * The target player is not required to be online at the time of the operation.
 	 * @param s the TradeShop sign
 	 * @param p the OfflinePlayer object.
+	 * @return true if succesfull
 	 */
-	public void addOwner(Sign s, OfflinePlayer p) {
-		addOwner(findShopChest(s.getBlock()), p);
+	public boolean addOwner(Sign s, OfflinePlayer p) {
+		return addOwner(findShopChest(s.getBlock()), p);
 	}
 	
 	/**

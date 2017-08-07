@@ -200,6 +200,8 @@ public class TradeShop extends JavaPlugin {
 		addMessage("missing-shop", "&cThere is not currently a shop here, please tell the owner or come back later!");
 		addMessage("no-sighted-shop", "&cYou are not looking at a shop to break!");
 		addMessage("updated-shop-members", "&aShop owners and members have been updated!");
+		addMessage("unsuccessfull-shop-members", "&aThat player is either already on the shop, or you have reached the maximum number of users!");
+		addMessage("who-message", "&6Shop users are:\n&2Owners: &e{OWNERS}\n&2Members: &e{MEMBERS}");
 		
 		save();
 	}
@@ -210,6 +212,7 @@ public class TradeShop extends JavaPlugin {
 		addSetting("allow-double-trade", true);
 		addSetting("allow-quad-trade", true);
 		addSetting("max-edit-distance", 4);
+		addSetting("max-shop-users", 5);
 		save();
 	}
 	
