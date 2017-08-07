@@ -35,83 +35,80 @@ import org.bukkit.plugin.PluginDescriptionFile;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 
 public class Utils {
-	
-	protected final String VERSION = Bukkit.getPluginManager().getPlugin("TradeShop").getDescription().getVersion();
-	protected final PluginDescriptionFile pdf = Bukkit.getPluginManager().getPlugin("TradeShop").getDescription();
-	protected final String PREFIX = "&a[&eTradeShop&a] ";
-	
-	protected final Permission PHELP = new Permission("tradeshop.help");
-	protected final Permission PCREATE = new Permission("tradeshop.create");
-	protected final Permission PADMIN = new Permission("tradeshop.admin");
-	protected final Permission PCREATEI = new Permission("tradeshop.create.infinite");
-    protected final Permission PCREATEBI = new Permission("tradeshop.create.bi");
-    
+
+    protected final String VERSION = Bukkit.getPluginManager().getPlugin("TradeShop").getDescription().getVersion();
+    protected final PluginDescriptionFile pdf = Bukkit.getPluginManager().getPlugin("TradeShop").getDescription();
+    protected final String PREFIX = "&a[&eTradeShop&a] ";
     protected final TradeShop plugin = (TradeShop) Bukkit.getPluginManager().getPlugin("TradeShop");
-	
-	public String getPluginName() {
-		return pdf.getName();
-	}
-	
-	public String getVersion() {
-		return pdf.getVersion();
-	}
-	
-	public List<String> getAuthors() {
-		return pdf.getAuthors();
-	}
-	
-	public String getWebsite() {
-		return pdf.getWebsite();
-	}
-	
-	public String getPrefix() {
-		return PREFIX;
-	}
-	
-	public Permission getHelpPerm() {
-		return PHELP;
-	}
-	
-	public Permission getCreatePerm() {
-		return PCREATE;
-	}
+    private final Permission PHELP = new Permission("tradeshop.help");
+    private final Permission PCREATE = new Permission("tradeshop.create");
+    private final Permission PADMIN = new Permission("tradeshop.admin");
+    private final Permission PCREATEI = new Permission("tradeshop.create.infinite");
+    private final Permission PCREATEBI = new Permission("tradeshop.create.bi");
+    private final UUID KOPUUID = UUID.fromString("daf79be7-bc1d-47d3-9896-f97b8d4cea7d");
+    private final UUID LORIUUID = UUID.fromString("e296bc43-2972-4111-9843-48fc32302fd4");
+
+    public String getPluginName() {
+        return pdf.getName();
+    }
+
+    public UUID[] getMakers() {
+        return new UUID[]{KOPUUID, LORIUUID};
+    }
+
+    public String getVersion() {
+        return pdf.getVersion();
+    }
+
+    public List<String> getAuthors() {
+        return pdf.getAuthors();
+    }
+
+    public String getWebsite() {
+        return pdf.getWebsite();
+    }
+
+    public String getPrefix() {
+        return PREFIX;
+    }
+
+    public Permission getHelpPerm() {
+        return PHELP;
+    }
+
+    public Permission getCreatePerm() {
+        return PCREATE;
+    }
 
     public Permission getCreateBiPerm() {
         return PCREATEBI;
     }
-	
-	public Permission getAdminPerm() {
-		return PADMIN;
-	}
-	
-	public Permission getCreateIPerm() {
-		return PCREATEI;
-	}
-	
-	public boolean isTradeShopSign(Block b) {
+
+    public Permission getAdminPerm() {
+        return PADMIN;
+    }
+
+    public Permission getCreateIPerm() {
+        return PCREATEI;
+    }
+
+    public boolean isTradeShopSign(Block b) {
         if (!isSign(b)) {
             return false;
         }
         Sign sign = (Sign) b.getState();
-        if (!ChatColor.stripColor(sign.getLine(0)).equals("[Trade]")) {
-            return false;
-        } else {
-            return true;
-        }
-    }   
-	
-    public boolean isBiTradeShopSign(Block b) { 
+        return ChatColor.stripColor(sign.getLine(0)).equals("[Trade]");
+    }
+
+    public boolean isBiTradeShopSign(Block b) {
         if (!isSign(b)) {
             return false;
         }
         Sign sign = (Sign) b.getState();
-        if (!ChatColor.stripColor(sign.getLine(0)).equals("[BiTrade]")) {
-            return false;
-        } else {
-            return true;
-        }
+        return ChatColor.stripColor(sign.getLine(0)).equals("[BiTrade]");
     }
 
     public boolean isInfiniteTradeShopSign(Block b) {
@@ -119,23 +116,15 @@ public class Utils {
             return false;
         }
         Sign sign = (Sign) b.getState();
-        if (!ChatColor.stripColor(sign.getLine(0)).equals("[iTrade]")) {
-            return false;
-        } else {
-            return true;
-        }
+        return ChatColor.stripColor(sign.getLine(0)).equals("[iTrade]");
     }
 
-    public boolean isShopSign(Block b)
-    {
+    public boolean isShopSign(Block b) {
         return isTradeShopSign(b) || isInfiniteTradeShopSign(b) || isBiTradeShopSign(b);
     }
 
-    public boolean isSign(Block b)
-    {
-        if(b == null)
-            return false;
-        return b.getType() == Material.SIGN_POST || b.getType() == Material.WALL_SIGN;
+    public boolean isSign(Block b) {
+        return b != null && (b.getType() == Material.SIGN_POST || b.getType() == Material.WALL_SIGN);
     }
 
     public boolean isInt(String str) {
@@ -154,9 +143,8 @@ public class Utils {
                 if (i.getType() == itm.getType() && i.getData() == itm.getData() && i.getDurability() == itm.getDurability() && i.getItemMeta() == itm.getItemMeta()) {
                     count += i.getAmount();
                 }
-            }
-            else
-                empty += itm.getMaxStackSize(); 
+            } else
+                empty += itm.getMaxStackSize();
         }
 
         return empty + (count % itm.getMaxStackSize()) >= amt;
@@ -171,28 +159,20 @@ public class Utils {
                 if (i.getType() == itmIn.getType() && i.getDurability() == itmIn.getDurability()) {
                     count += i.getAmount();
                     slots++;
-                }
-                else if(i.getType() == itmOut.getType() && i.getDurability() == itmOut.getDurability() && amtOut != removed)
-                {
+                } else if (i.getType() == itmOut.getType() && i.getDurability() == itmOut.getDurability() && amtOut != removed) {
 
-                    if(i.getAmount() > amtOut - removed)
-                    {
+                    if (i.getAmount() > amtOut - removed) {
                         removed = amtOut;
-                    }
-                    else if(i.getAmount() == amtOut - removed)
-                    {
+                    } else if (i.getAmount() == amtOut - removed) {
                         removed = amtOut;
-                        empty += itmIn.getMaxStackSize(); 
-                    }
-                    else if(i.getAmount() < amtOut - removed)
-                    {
+                        empty += itmIn.getMaxStackSize();
+                    } else if (i.getAmount() < amtOut - removed) {
                         removed += i.getAmount();
-                        empty += itmIn.getMaxStackSize(); 
+                        empty += itmIn.getMaxStackSize();
                     }
                 }
-            }
-            else
-                empty += itmIn.getMaxStackSize(); 
+            } else
+                empty += itmIn.getMaxStackSize();
         }
 
         return empty + ((slots * itmIn.getMaxStackSize()) - count) >= amtIn;
@@ -223,22 +203,19 @@ public class Utils {
         return count >= amt;
     }
 
-    public String colorize(String msg)
-    {
+    public String colorize(String msg) {
         msg = ChatColor.translateAlternateColorCodes('&', msg);
         return msg;
     }
 
-    public Sign findShopSign(Block chest)
-    {
+    public Sign findShopSign(Block chest) {
         ArrayList<BlockFace> faces = plugin.getAllowedDirections();
         Collections.reverse(faces);
-        
-        for(BlockFace face : faces)
-        {
+
+        for (BlockFace face : faces) {
             Block relative = chest.getRelative(face);
-            if(isSign(relative))
-                if(isShopSign(relative))
+            if (isSign(relative))
+                if (isShopSign(relative))
                     return (Sign) chest.getRelative(face).getState();
         }
 
@@ -247,16 +224,14 @@ public class Utils {
 
     }
 
-    public Block findShopChest(Block sign) //copy
-    {
+    public Block findShopChest(Block sign) {
         ArrayList<Material> invs = plugin.getAllowedInventories();
         ArrayList<BlockFace> faces = plugin.getAllowedDirections();
 
-        for(BlockFace face : faces)
-        {
+        for (BlockFace face : faces) {
             Block relative = sign.getRelative(face);
-            if(relative != null)
-                if(invs.contains(relative.getType()))
+            if (relative != null)
+                if (invs.contains(relative.getType()))
                     return sign.getRelative(face);
         }
         return null;
