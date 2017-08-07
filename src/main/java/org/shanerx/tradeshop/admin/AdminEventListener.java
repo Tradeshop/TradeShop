@@ -33,100 +33,100 @@ import org.shanerx.tradeshop.TradeShop;
 import org.shanerx.tradeshop.Utils;
 
 public class AdminEventListener extends Utils implements Listener {
-	
-	private TradeShop plugin;
-	
-	public AdminEventListener(TradeShop instance) {
-		plugin = instance;
-	}
-	
-	@EventHandler
-	public void onBlockBreak(BlockBreakEvent event) {
-		Player player = event.getPlayer();
-		Block block = event.getBlock();
-		
-		if (isSign(block)) {
-			Sign s = (Sign) block.getState();
-			
-			if (!isShopSign(s.getBlock()))
-				return;
-			
-			if (player.hasPermission(getAdminPerm()))
-				return;
-			
-			if (s.getLine(3) == null || s.getLine(3).equals(""))
-				return;
-			
-			if (s.getLine(3).equalsIgnoreCase(player.getName()))
-				return;
-			
-			event.setCancelled(true);
-			player.sendMessage(colorize(getPrefix() + plugin.getMessages().getString("no-ts-destroy")));
-			return;
-		}
-		
-		if (plugin.getAllowedInventories().contains(block.getType())) {
-			if (player.hasPermission(getAdminPerm()))
-				return;
-			
-			Sign s;
-			try {
-				s = findShopSign(block);
-			} catch (Exception ex) {
-				return;
-			}
+
+    private TradeShop plugin;
+
+    public AdminEventListener(TradeShop instance) {
+        plugin = instance;
+    }
+
+    @EventHandler
+    public void onBlockBreak(BlockBreakEvent event) {
+        Player player = event.getPlayer();
+        Block block = event.getBlock();
+
+        if (isSign(block)) {
+            Sign s = (Sign) block.getState();
+
+            if (!isShopSign(s.getBlock()))
+                return;
+
+            if (player.hasPermission(getAdminPerm()))
+                return;
+
+            if (s.getLine(3) == null || s.getLine(3).equals(""))
+                return;
+
+            if (s.getLine(3).equalsIgnoreCase(player.getName()))
+                return;
+
+            event.setCancelled(true);
+            player.sendMessage(colorize(getPrefix() + plugin.getMessages().getString("no-ts-destroy")));
+            return;
+        }
+
+        if (plugin.getAllowedInventories().contains(block.getType())) {
+            if (player.hasPermission(getAdminPerm()))
+                return;
+
+            Sign s;
+            try {
+                s = findShopSign(block);
+            } catch (Exception ex) {
+                return;
+            }
 
             if (s == null)
                 return;
 
-			if (!isShopSign(s.getBlock()))
-				return;
-			
-			if (s.getLine(3) == null || s.getLine(3).equals(""))
-				return;
-			
-			if (s.getLine(3).equalsIgnoreCase(player.getName()))
-				return;
+            if (!isShopSign(s.getBlock()))
+                return;
+
+            if (s.getLine(3) == null || s.getLine(3).equals(""))
+                return;
+
+            if (s.getLine(3).equalsIgnoreCase(player.getName()))
+                return;
 
             event.setCancelled(true);
-			player.sendMessage(colorize(getPrefix() + plugin.getMessages().getString("no-ts-destroy")));
+            player.sendMessage(colorize(getPrefix() + plugin.getMessages().getString("no-ts-destroy")));
             return;
-		}
-	}
-	
-	@EventHandler
-	public void onChestOpen(PlayerInteractEvent e) {
-		
-		if (e.getAction() != Action.RIGHT_CLICK_BLOCK)
-			return;
-		
-		Block block = e.getClickedBlock();
-		
-		if (!plugin.getAllowedInventories().contains(block.getType()))
-			return;
-		
-		Sign s;
-		try {
+        }
+    }
+
+    @EventHandler
+    public void onChestOpen(PlayerInteractEvent e) {
+
+        if (e.getAction() != Action.RIGHT_CLICK_BLOCK)
+            return;
+
+        Block block = e.getClickedBlock();
+
+        if (!plugin.getAllowedInventories().contains(block.getType()))
+            return;
+
+        Sign s;
+        try {
             s = findShopSign(block);
             if (s == null)
                 throw new NullPointerException();
         } catch (NullPointerException ex) {
             return;
-		}
-		
-		if (e.getPlayer().hasPermission(getAdminPerm()))
-			return;
+        }
+
+        if (e.getPlayer().hasPermission(getAdminPerm()))
+            return;
 
         if (!isShopSign(s.getBlock()))
             return;
-		
-		if (s.getLine(3) == null || s.getLine(3).equals(""))
-			return;
-		if (s.getLine(3).equalsIgnoreCase(e.getPlayer().getName())) {
-			return;
-		}
-		
-		e.getPlayer().sendMessage(colorize(getPrefix() + plugin.getMessages().getString("no-ts-open")));
-		e.setCancelled(true);
-	}
+
+        if (s.getLine(3) == null || s.getLine(3).equals(""))
+            return;
+        if (s.getLine(3).equalsIgnoreCase(e.getPlayer().getName())) {
+            return;
+        }
+
+        e.getPlayer().sendMessage(colorize(getPrefix() + plugin.getMessages().getString("no-ts-open")));
+        e.setCancelled(true);
+    }
 }
