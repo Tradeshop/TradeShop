@@ -121,16 +121,15 @@ public class Executor extends Utils implements CommandExecutor {
                 else
                     itm = pl.getInventory().getItemInHand();
 
-                if (itm.getType() != null) {
-                    String msg = colorize(getPrefix() + plugin.getMessages().getString("held-item"))
+                if (itm.getType() == null || itm.getType() == Material.AIR) {
+                    sender.sendMessage(colorize(getPrefix() + plugin.getMessages().getString("held-empty")));
+                    return true;
+                } else {
+                    sender.sendMessage(colorize(getPrefix() + plugin.getMessages().getString("held-item"))
                             .replace("{MATERIAL}", itm.getType().name())
                             .replace("{DURABILITY}", itm.getDurability() + "")
                             .replace("{ID}", itm.getTypeId() + "")
-                            .replace("{AMOUNT}", itm.getAmount() + "");
-                    sender.sendMessage(msg);
-                    return true;
-                } else {
-                    sender.sendMessage(colorize(getPrefix() + plugin.getMessages().getString("held-empty")));
+                            .replace("{AMOUNT}", itm.getAmount() + ""));
                     return true;
                 }
             } else if (args[0].equalsIgnoreCase("break")) {

@@ -22,7 +22,6 @@
 package org.shanerx.tradeshop.itrade;
 
 import org.bukkit.Material;
-import org.bukkit.block.BlockState;
 import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -57,19 +56,13 @@ public class ITradeEventListener extends Utils implements Listener {
             }
 
             Sign s = (Sign) e.getClickedBlock().getState();
-            BlockState chestState = null;
-            boolean hasStorage = true;
+            Inventory chestInventory;
 
             try {
-                chestState = findShopChest(s.getBlock()).getState();
+                chestInventory = ((InventoryHolder) findShopChest(s.getBlock()).getState()).getInventory();
             } catch (NullPointerException npe) {
-                hasStorage = false;
+                chestInventory = null;
             }
-
-            Inventory chestInventory = null;
-
-            if (hasStorage)
-                chestInventory = ((InventoryHolder) chestState).getInventory();
 
             Inventory playerInventory = buyer.getInventory();
 

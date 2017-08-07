@@ -100,7 +100,7 @@ public class Utils {
             return false;
         }
         Sign sign = (Sign) b.getState();
-        return !ChatColor.stripColor(sign.getLine(0)).equals("[Trade]");
+        return ChatColor.stripColor(sign.getLine(0)).equals("[Trade]");
     }
 
     public boolean isBiTradeShopSign(Block b) {
@@ -108,7 +108,7 @@ public class Utils {
             return false;
         }
         Sign sign = (Sign) b.getState();
-        return !ChatColor.stripColor(sign.getLine(0)).equals("[BiTrade]");
+        return ChatColor.stripColor(sign.getLine(0)).equals("[BiTrade]");
     }
 
     public boolean isInfiniteTradeShopSign(Block b) {
@@ -116,7 +116,7 @@ public class Utils {
             return false;
         }
         Sign sign = (Sign) b.getState();
-        return !ChatColor.stripColor(sign.getLine(0)).equals("[iTrade]");
+        return ChatColor.stripColor(sign.getLine(0)).equals("[iTrade]");
     }
 
     public boolean isShopSign(Block b) {
