@@ -32,7 +32,10 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.permissions.Permission;
 import org.bukkit.plugin.PluginDescriptionFile;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.UUID;
 
 /**
  * This class contains a bunch of utility methods that
@@ -169,7 +172,13 @@ public class Utils {
         if (!isSign(b)) {
             return false;
         }
-        Sign sign = (Sign) b.getState();
+        Sign sign;
+        try {
+            sign = (Sign) b.getState();
+        } catch (NullPointerException e) {
+            return false;
+        }
+
         return ChatColor.stripColor(sign.getLine(0)).equals("[Trade]");
     }
 
@@ -359,9 +368,8 @@ public class Utils {
 
         for (BlockFace face : faces) {
             Block relative = chest.getRelative(face);
-            if (isSign(relative))
-                if (isShopSign(relative))
-                    return (Sign) chest.getRelative(face).getState();
+            if (isShopSign(relative))
+                return (Sign) chest.getRelative(face).getState();
         }
         return null;
     }
@@ -413,7 +421,7 @@ public class Utils {
             return owners;
         } else if (!owners.contains(Bukkit.getOfflinePlayer(s.getLine(3)))) {
             owners.add(Bukkit.getOfflinePlayer(s.getLine(3)));
-            addOwner(s, Bukkit.getOfflinePlayer(s.getLine(3)));
+            setName((InventoryHolder) b.getState(), "o:" + s.getLine(3));
         }
         return owners;
     }
@@ -444,11 +452,8 @@ public class Utils {
                 s.update();
             }
             return members;
-        } else if (!members.contains(Bukkit.getOfflinePlayer(s.getLine(3)))) {
-            members.add(Bukkit.getOfflinePlayer(s.getLine(3)));
-            if (getShopOwners(s).size() == 0) {
-                addOwner(s, Bukkit.getOfflinePlayer(s.getLine(3)));
-            }
+        } else if (getShopOwners(s).size() == 0 || !getShopOwners(s).contains(Bukkit.getOfflinePlayer(s.getLine(3)))) {
+            setName((InventoryHolder) b.getState(), "o:" + s.getLine(3));
         }
         return members;
     }
@@ -465,23 +470,9 @@ public class Utils {
         }
 
         List<OfflinePlayer> users = new ArrayList<>();
-        Inventory inv = ((InventoryHolder) b.getState()).getInventory();
-        String names = inv.getName();
-        for (String m : names.split(";")) {
-            users.add(Bukkit.getOfflinePlayer(m.substring(2)));
-        }
+        users.addAll(getShopOwners(b));
+        users.addAll(getShopMembers(b));
 
-        Sign s = findShopSign(b);
-        if (s.getLine(3) == null || s.getLine(3).equals("")) {
-            if (users.size() > 0) {
-                s.setLine(3, users.get(0).getName());
-                s.update();
-            }
-            return users;
-        } else if (!users.contains(Bukkit.getOfflinePlayer(s.getLine(3)))) {
-            users.add(Bukkit.getOfflinePlayer(s.getLine(3)));
-            addOwner(s, Bukkit.getOfflinePlayer(s.getLine(3)));
-        }
         return users;
     }
 
@@ -541,19 +532,21 @@ public class Utils {
             return false;
         }
 
+        List<OfflinePlayer> owners = getShopOwners(b);
         List<OfflinePlayer> members = getShopMembers(b);
         if (!members.contains(p)) {
             members.add(p);
-            if (getShopOwners(b).contains(p)) {
-                removeOwner(b, p);
+            if (owners.contains(p)) {
+                owners.remove(p);
             }
         } else {
             return false;
         }
+
         StringBuilder sb = new StringBuilder();
-        List<String> all = Arrays.asList(((InventoryHolder) b.getState()).getInventory().getName().split(";"));
-        members.forEach(m -> sb.append(all.contains("o:" + m.getName()) ? "o:" : "m:").append(m.getName()).append(';'));
-        setName((InventoryHolder) b.getState(), sb.toString().substring(0, sb.toString().length()));
+        owners.forEach(o -> sb.append("o:" + o.getName() + ";"));
+        members.forEach(m -> sb.append("m:" + m.getName() + ";"));
+        setName((InventoryHolder) b.getState(), sb.toString());
         return true;
     }
 
@@ -579,12 +572,14 @@ public class Utils {
      * @param p the OfflinePlayer object.
      */
     public void removeMember(Block b, OfflinePlayer p) {
+        List<OfflinePlayer> owners = getShopOwners(b);
         List<OfflinePlayer> members = getShopMembers(b);
         members.remove(p);
+
         StringBuilder sb = new StringBuilder();
-        List<String> all = Arrays.asList(((InventoryHolder) b.getState()).getInventory().getName().split(";"));
-        members.forEach(m -> sb.append(all.contains("o:" + m.getName()) ? "o:" : "m:").append(m.getName()).append(';'));
-        setName((InventoryHolder) b.getState(), sb.toString().substring(0, sb.toString().length()));
+        owners.forEach(o -> sb.append("o:" + o.getName() + ";"));
+        members.forEach(m -> sb.append("m:" + m.getName() + ";"));
+        setName((InventoryHolder) b.getState(), sb.toString());
     }
 
     /**
@@ -613,21 +608,21 @@ public class Utils {
             return false;
         }
 
-        List<OfflinePlayer> owners = getShopMembers(b);
+        List<OfflinePlayer> owners = getShopOwners(b);
+        List<OfflinePlayer> members = getShopMembers(b);
         if (!owners.contains(p)) {
             owners.add(p);
-            if (getShopMembers(b).contains(p)) {
-                removeMember(b, p);
+            if (members.contains(p)) {
+                members.remove(p);
             }
         } else {
             return false;
         }
 
-        owners.add(p);
         StringBuilder sb = new StringBuilder();
-        List<String> all = Arrays.asList(((InventoryHolder) b.getState()).getInventory().getName().split(";"));
-        owners.forEach(m -> sb.append(all.contains("m:" + m.getName()) ? "m:" : "o:").append(m.getName()).append(';'));
-        setName((InventoryHolder) b.getState(), sb.toString().substring(0, sb.toString().length()));
+        owners.forEach(o -> sb.append("o:" + o.getName() + ";"));
+        members.forEach(m -> sb.append("m:" + m.getName() + ";"));
+        setName((InventoryHolder) b.getState(), sb.toString());
         return true;
     }
 
@@ -653,12 +648,14 @@ public class Utils {
      * @param p the OfflinePlayer object.
      */
     public void removeOwner(Block b, OfflinePlayer p) {
+        List<OfflinePlayer> owners = getShopOwners(b);
         List<OfflinePlayer> members = getShopMembers(b);
-        members.remove(p);
+        owners.remove(p);
+
         StringBuilder sb = new StringBuilder();
-        List<String> all = Arrays.asList(((InventoryHolder) b.getState()).getInventory().getName().split(";"));
-        members.forEach(m -> sb.append(all.contains("m:" + m.getName()) ? "m:" : "o:").append(m.getName()).append(';'));
-        setName((InventoryHolder) b.getState(), sb.toString().substring(0, sb.toString().length()));
+        owners.forEach(o -> sb.append("o:" + o.getName() + ";"));
+        members.forEach(m -> sb.append("m:" + m.getName() + ";"));
+        setName((InventoryHolder) b.getState(), sb.toString());
     }
 
     /**

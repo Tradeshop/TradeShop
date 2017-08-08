@@ -21,6 +21,7 @@
 
 package org.shanerx.tradeshop.trade;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Sign;
@@ -61,6 +62,11 @@ public class TradeEventListener extends Utils implements Listener {
                 chestState = findShopChest(s.getBlock()).getState();
             } catch (NullPointerException npe) {
                 buyer.sendMessage(colorize(getPrefix() + plugin.getMessages().getString("missing-shop")));
+                return;
+            }
+
+            if (getShopUsers(chestState.getBlock()).contains(Bukkit.getOfflinePlayer(buyer.getName()))) {
+                buyer.sendMessage(colorize(getPrefix() + plugin.getMessages().getString("self-owned")));
                 return;
             }
 

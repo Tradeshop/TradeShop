@@ -65,14 +65,7 @@ public class IShopCreateEventListener extends Utils implements Listener {
             player.sendMessage(colorize(getPrefix() + plugin.getMessages().getString("no-ts-create-permission")));
             return;
         }
-        if (!plugin.getAllowedInventories().contains(chest.getType())) {
-            event.setLine(0, ChatColor.DARK_RED + "[iTrade]");
-            event.setLine(1, "");
-            event.setLine(2, "");
-            event.setLine(3, "");
-            player.sendMessage(colorize(getPrefix() + plugin.getMessages().getString("no-chest")));
-            return;
-        }
+
         boolean signIsValid = true; // If this is true, the information on the sign is valid!
 
         String line1 = event.getLine(1);
@@ -141,9 +134,11 @@ public class IShopCreateEventListener extends Utils implements Listener {
             return;
         }
 
-        String playerName = event.getPlayer().getName();
-        setName((InventoryHolder) chest.getState(), "o:" + playerName);
+        if (chest != null) {
+            setName((InventoryHolder) chest.getState(), "o:" + plugin.getSettings().getString("itrade-shop-name"));
+        }
         event.setLine(0, ChatColor.DARK_GREEN + "[iTrade]");
+        event.setLine(3, plugin.getSettings().getString("itrade-shop-name"));
         event.getPlayer().sendMessage(colorize(getPrefix() + plugin.getMessages().getString("successful-setup")));
     }
 }

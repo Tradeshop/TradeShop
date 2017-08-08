@@ -21,6 +21,7 @@
 
 package org.shanerx.tradeshop.bitrade;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Sign;
@@ -63,6 +64,12 @@ public class BiTradeEventListener extends Utils implements Listener {
                 return;
             }
 
+            if (getShopUsers(chestState.getBlock()).contains(Bukkit.getOfflinePlayer(buyer.getName()))) {
+                buyer.sendMessage(colorize(getPrefix() + plugin.getMessages().getString("self-owned")));
+                return;
+            }
+            e.setCancelled(true);
+
             Inventory chestInventory = ((InventoryHolder) chestState).getInventory();
             Inventory playerInventory = buyer.getInventory();
 
@@ -74,7 +81,6 @@ public class BiTradeEventListener extends Utils implements Listener {
 
             int amount1 = Integer.parseInt(info1[0]);
             int amount2 = Integer.parseInt(info2[0]);
-            e.setCancelled(true);
 
             if (buyer.isSneaking()) {
                 if (!buyer.isOnGround() && plugin.getSettings().getBoolean("allow-quad-trade")) {
@@ -203,6 +209,12 @@ public class BiTradeEventListener extends Utils implements Listener {
                 return;
             }
 
+            if (getShopUsers(chestState.getBlock()).contains(Bukkit.getOfflinePlayer(buyer.getName()))) {
+                buyer.sendMessage(colorize(getPrefix() + plugin.getMessages().getString("self-owned")));
+                return;
+            }
+            e.setCancelled(true);
+
             Inventory chestInventory = ((InventoryHolder) chestState).getInventory();
             Inventory playerInventory = buyer.getInventory();
 
@@ -214,7 +226,6 @@ public class BiTradeEventListener extends Utils implements Listener {
 
             int amount2 = Integer.parseInt(info2[0]);
             int amount1 = Integer.parseInt(info1[0]);
-            e.setCancelled(true);
 
             if (buyer.isSneaking()) {
                 if (!buyer.isOnGround() && plugin.getSettings().getBoolean("allow-quad-trade")) {
