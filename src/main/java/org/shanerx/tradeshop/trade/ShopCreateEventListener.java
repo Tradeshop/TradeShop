@@ -45,7 +45,7 @@ public class ShopCreateEventListener extends Utils implements Listener {
 
     @SuppressWarnings("deprecation")
     @EventHandler
-    public void onSignChange(SignChangeEvent event) throws InterruptedException {
+    public void onSignChange(SignChangeEvent event) {
         //	BlockState state = event.getBlock().getState();
         Player player = event.getPlayer();
         Sign s = (Sign) event.getBlock().getState();
@@ -143,16 +143,14 @@ public class ShopCreateEventListener extends Utils implements Listener {
             return;
         }
 
-        String player_name = event.getPlayer().getName();
-        event.setLine(3, player_name);
-
         Inventory chestInventory = ((InventoryHolder) chest.getState()).getInventory();
         item1 = new ItemStack(Material.getMaterial(item_name1), amount1);
         item1.setDurability((short) durability1);
         event.setLine(0, ChatColor.DARK_GREEN + "[Trade]");
-        if (chestInventory.containsAtLeast(item1, amount1)) {
+        event.setLine(3, player.getName());
+        setName((InventoryHolder) chest.getState(), "o:" + player.getName());
 
-            event.setLine(0, ChatColor.DARK_GREEN + "[Trade]");
+        if (chestInventory.containsAtLeast(item1, amount1)) {
             event.getPlayer().sendMessage(colorize(getPrefix() + plugin.getMessages().getString("successful-setup")));
             return;
         }

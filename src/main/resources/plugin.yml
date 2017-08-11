@@ -1,8 +1,10 @@
 name: TradeShop
-version: 1.5.2
+version: 1.6.0-BETA
 author: Lori00
 main: org.shanerx.tradeshop.TradeShop
 
+author: Lori00
+authors: [KillerOfPie]
 description: A new powerful trading plugin.
 
 commands:

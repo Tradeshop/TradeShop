@@ -21,10 +21,12 @@
 
 package org.shanerx.tradeshop.admin;
 
+import org.bukkit.Bukkit;
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
@@ -40,7 +42,7 @@ public class AdminEventListener extends Utils implements Listener {
         plugin = instance;
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.HIGH)
     public void onBlockBreak(BlockBreakEvent event) {
         Player player = event.getPlayer();
         Block block = event.getBlock();
@@ -48,85 +50,77 @@ public class AdminEventListener extends Utils implements Listener {
         if (isSign(block)) {
             Sign s = (Sign) block.getState();
 
-            if (!isShopSign(s.getBlock()))
+            if (!isShopSign(s.getBlock())) {
                 return;
 
-            if (player.hasPermission(getAdminPerm()))
+            } else if (player.hasPermission(getAdminPerm())) {
                 return;
 
-            if (s.getLine(3) == null || s.getLine(3).equals(""))
+            } else if (getShopOwners(s).contains(Bukkit.getOfflinePlayer(event.getPlayer().getUniqueId()))) {
                 return;
 
-            if (s.getLine(3).equalsIgnoreCase(player.getName()))
-                return;
-
+            }
             event.setCancelled(true);
             player.sendMessage(colorize(getPrefix() + plugin.getMessages().getString("no-ts-destroy")));
-            return;
-        }
 
-        if (plugin.getAllowedInventories().contains(block.getType())) {
-            if (player.hasPermission(getAdminPerm()))
+        } else if (plugin.getAllowedInventories().contains(block.getType())) {
+            if (player.hasPermission(getAdminPerm())) {
                 return;
+            }
 
             Sign s;
             try {
                 s = findShopSign(block);
-            } catch (Exception ex) {
+                if (s == null)
+                    throw new Exception();
+            } catch (Exception e) {
                 return;
             }
 
-            if (s == null)
+            if (!isShopSign(s.getBlock())) {
                 return;
 
-            if (!isShopSign(s.getBlock()))
+            } else if (getShopOwners(s).contains(Bukkit.getOfflinePlayer(event.getPlayer().getUniqueId()))) {
                 return;
 
-            if (s.getLine(3) == null || s.getLine(3).equals(""))
-                return;
-
-            if (s.getLine(3).equalsIgnoreCase(player.getName()))
-                return;
-
+            }
             event.setCancelled(true);
             player.sendMessage(colorize(getPrefix() + plugin.getMessages().getString("no-ts-destroy")));
-            return;
         }
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.HIGH)
     public void onChestOpen(PlayerInteractEvent e) {
-
-        if (e.getAction() != Action.RIGHT_CLICK_BLOCK)
-            return;
-
         Block block = e.getClickedBlock();
 
-        if (!plugin.getAllowedInventories().contains(block.getType()))
+        if (e.getAction() != Action.RIGHT_CLICK_BLOCK) {
             return;
+
+        } else if (!plugin.getAllowedInventories().contains(block.getType())) {
+            return;
+        }
+
 
         Sign s;
         try {
             s = findShopSign(block);
             if (s == null)
-                throw new NullPointerException();
-        } catch (NullPointerException ex) {
+                throw new Exception();
+        } catch (Exception ex) {
             return;
         }
 
-        if (e.getPlayer().hasPermission(getAdminPerm()))
-            return;
+        if (e.getPlayer().hasPermission(getAdminPerm())) {
+            //Do nothing
 
-        if (!isShopSign(s.getBlock()))
-            return;
-
-        if (s.getLine(3) == null || s.getLine(3).equals(""))
-            return;
-        if (s.getLine(3).equalsIgnoreCase(e.getPlayer().getName())) {
-            return;
+        } else if (isShopSign(s.getBlock())) {
+            if (!getShopUsers(block).contains(Bukkit.getOfflinePlayer(e.getPlayer().getUniqueId()))) {
+                e.getPlayer().sendMessage(colorize(getPrefix() + plugin.getMessages().getString("no-ts-open")));
+                e.setCancelled(true);
+            } else {
+                //Do nothing
+            }
         }
-
-        e.getPlayer().sendMessage(colorize(getPrefix() + plugin.getMessages().getString("no-ts-open")));
-        e.setCancelled(true);
     }
 }
+

@@ -23,11 +23,13 @@ package org.shanerx.tradeshop.itrade;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
+import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.SignChangeEvent;
+import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.shanerx.tradeshop.TradeShop;
 import org.shanerx.tradeshop.Utils;
@@ -42,13 +44,14 @@ public class IShopCreateEventListener extends Utils implements Listener {
 
     @SuppressWarnings("deprecation")
     @EventHandler
-    public void onSignChange(SignChangeEvent event) throws InterruptedException {
-        //	BlockState state = event.getBlock().getState();
+    public void onSignChange(SignChangeEvent event) {
         Player player = event.getPlayer();
         Sign s = (Sign) event.getBlock().getState();
         if (!(event.getLine(0).equalsIgnoreCase("[iTrade]"))) {
             return;
         }
+
+        Block chest = findShopChest(s.getBlock());
 
         if (!player.hasPermission(getCreateIPerm())) {
             s.setLine(0, "");
@@ -78,6 +81,7 @@ public class IShopCreateEventListener extends Utils implements Listener {
         if (info1.length != 2 || info2.length != 2) {
             signIsValid = false;
         }
+
 
         if (line1.split(":").length > 1) {
             info1[1] = info1[1].split(":")[0];
@@ -130,8 +134,11 @@ public class IShopCreateEventListener extends Utils implements Listener {
             return;
         }
 
-        event.setLine(3, plugin.getSettings().getString("itrade-shop-name"));
+        if (chest != null) {
+            setName((InventoryHolder) chest.getState(), "o:" + plugin.getSettings().getString("itrade-shop-name"));
+        }
         event.setLine(0, ChatColor.DARK_GREEN + "[iTrade]");
+        event.setLine(3, plugin.getSettings().getString("itrade-shop-name"));
         event.getPlayer().sendMessage(colorize(getPrefix() + plugin.getMessages().getString("successful-setup")));
     }
 }
