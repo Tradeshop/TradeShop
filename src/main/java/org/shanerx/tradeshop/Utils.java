@@ -32,10 +32,8 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.permissions.Permission;
 import org.bukkit.plugin.PluginDescriptionFile;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
+
 
 /**
  * This class contains a bunch of utility methods that
@@ -365,12 +363,32 @@ public class Utils {
     public Sign findShopSign(Block chest) {
         ArrayList<BlockFace> faces = plugin.getAllowedDirections();
         Collections.reverse(faces);
+        ArrayList<BlockFace> flatFaces = new ArrayList<BlockFace>(Arrays.asList(BlockFace.NORTH, BlockFace.EAST, BlockFace.SOUTH, BlockFace.WEST));
+        boolean isDouble = false;
+        BlockFace doubleSide = null;
 
         for (BlockFace face : faces) {
             Block relative = chest.getRelative(face);
-            if (isShopSign(relative))
+            if (isShopSign(relative)) {
                 return (Sign) chest.getRelative(face).getState();
+            } else if (flatFaces.contains(face) && (chest.getType().equals(Material.CHEST) || chest.getType().equals(Material.TRAPPED_CHEST))) {
+                if (relative.getType().equals(chest.getType())) {
+                    isDouble = true;
+                    doubleSide = face;
+                }
+            }
         }
+
+        if (isDouble) {
+            chest = chest.getRelative(doubleSide);
+            for (BlockFace face : faces) {
+                Block relative = chest.getRelative(face);
+                if (isShopSign(relative)) {
+                    return (Sign) chest.getRelative(face).getState();
+                }
+            }
+        }
+
         return null;
     }
 

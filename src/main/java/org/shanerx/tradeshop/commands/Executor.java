@@ -36,7 +36,6 @@ import org.shanerx.tradeshop.Utils;
 
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.Set;
 
 public class Executor extends Utils implements CommandExecutor {
 
@@ -149,10 +148,10 @@ public class Executor extends Utils implements CommandExecutor {
                 Sign s;
 
                 try {
-                    if (p.getTargetBlock((Set<Material>) null, plugin.getSettings().getInt("max-edit-distance")) == null)
-                        throw new NoSuchFieldException();
-
                     b = p.getTargetBlock((HashSet<Byte>) null, plugin.getSettings().getInt("max-edit-distance"));
+
+                    if (b == null || b.getType() == Material.AIR)
+                        throw new NoSuchFieldException();
 
                     if (isSign(b)) {
 
@@ -240,6 +239,7 @@ public class Executor extends Utils implements CommandExecutor {
 
             }
             OfflinePlayer target = Bukkit.getOfflinePlayer(args[1]);
+            b = findShopChest(findShopSign(b).getBlock());
 
             switch (args[0].toLowerCase()) {
                 case "addowner":
