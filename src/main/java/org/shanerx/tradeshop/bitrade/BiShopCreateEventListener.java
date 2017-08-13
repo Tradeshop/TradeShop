@@ -21,6 +21,7 @@
 
 package org.shanerx.tradeshop.bitrade;
 
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -86,6 +87,17 @@ public class BiShopCreateEventListener extends Utils implements Listener {
             event.setLine(3, "");
             player.sendMessage(colorize(getPrefix() + plugin.getMessages().getString("no-chest")));
             return;
+        }
+
+        if (findShopChest(s.getBlock()) != null && getShopUsers(findShopChest(s.getBlock())).size() > 0) {
+            if (!getShopOwners(s).contains(Bukkit.getOfflinePlayer(player.getUniqueId()))) {
+                event.setLine(0, "");
+                event.setLine(1, "");
+                event.setLine(2, "");
+                event.setLine(3, "");
+                player.sendMessage(colorize(getPrefix() + plugin.getMessages().getString("not-owner")));
+                return;
+            }
         }
 
         boolean signIsValid = true;
