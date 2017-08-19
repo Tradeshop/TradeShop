@@ -102,6 +102,7 @@ public class TradeShop extends JavaPlugin {
         if (!isAboveMC18()) {
             getLogger().info("[TradeShop] Minecraft versions before 1.9 are not supported beyond TradeShop version 1.5.2!");
             getServer().getPluginManager().disablePlugin(this);
+            return;
         }
 
         createConfigs();
@@ -118,7 +119,10 @@ public class TradeShop extends JavaPlugin {
 
         getCommand("tradeshop").setExecutor(new Executor(this));
         
-        new Thread(() -> new Updater(getDescription()).checkCurrentVersion()).start();
+        boolean checkUpdates = getSettings().getBoolean("check-updates");
+        if(checkUpdates) {
+            new Thread(() -> new Updater(getDescription()).checkCurrentVersion()).start();
+        }
     }
 
     private void addMaterials() {
@@ -220,6 +224,7 @@ public class TradeShop extends JavaPlugin {
     }
 
     private void addSettingsDefaults() {
+        addSetting("check-updates", true);
         addSetting("allowed-shops", new String[]{"CHEST", "TRAPPED_CHEST", "SHULKER"});
         addSetting("allowed-directions", new String[]{"DOWN", "WEST", "SOUTH", "EAST", "NORTH", "UP"});
         addSetting("itrade-shop-name", "Server Shop");
