@@ -117,6 +117,8 @@ public class TradeShop extends JavaPlugin {
         pm.registerEvents(new IShopCreateEventListener(this), this);
 
         getCommand("tradeshop").setExecutor(new Executor(this));
+        
+        new Thread(() -> new Updater().checkCurrentVersion()).start();
     }
 
     private void addMaterials() {
