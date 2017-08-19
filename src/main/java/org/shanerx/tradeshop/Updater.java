@@ -63,7 +63,7 @@ public class Updater {
 	private PluginDescriptionFile pdf;
 	private BuildType build;
   
-  private final URL url = "https://api.spigotmc.org/legacy/update.php?resource=32762"; // Edit API URL.
+        private final URL url = "https://api.spigotmc.org/legacy/update.php?resource=32762"; // Edit API URL.
 
 	public Updater(PluginDescriptionFile pdf) {
 		this.pdf = pdf;
