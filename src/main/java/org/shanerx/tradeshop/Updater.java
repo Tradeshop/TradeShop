@@ -65,17 +65,16 @@ public class Updater {
   
   private final URL url = "https://api.spigotmc.org/legacy/update.php?resource=32762"; // Edit API URL.
 
-	public Updater(PluginDescriptionFile pdf, BuildType build) {
+	public Updater(PluginDescriptionFile pdf) {
 		this.pdf = pdf;
-		this.build = build;
 	}
 
 	public String getVersion() {
-		return pdf.getVersion() + "-" + build;
-	}
-
-	public String getNakedVersion() {
 		return pdf.getVersion();
+	}
+	
+	public String getNakedVersion() {
+		return getVersion();
 	}
 
 	public String getVersionComponent(SemVer semver) {
@@ -86,9 +85,9 @@ public class Updater {
 		case MINOR:
 			return ver[1];
 		case PATCH:
-			return ver[2];
+			return ver[2].split("-")[0];
 		default:
-			return build.toString();
+			return ver[2].split("-").length > 1 ? ver[2].split("-")[0] : BuildType.STABLE.toString();
 		}
 	}
 
