@@ -118,7 +118,7 @@ public class TradeShop extends JavaPlugin {
 
         getCommand("tradeshop").setExecutor(new Executor(this));
         
-        new Thread(() -> new Updater().checkCurrentVersion()).start();
+        new Thread(() -> new Updater(getDescription()).checkCurrentVersion()).start();
     }
 
     private void addMaterials() {
