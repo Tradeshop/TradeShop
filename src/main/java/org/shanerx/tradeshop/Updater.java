@@ -105,7 +105,7 @@ public class Updater {
 			String inputLine;
 			while ((inputLine = in.readLine()) != null) {
 				String[] ver = inputLine.split("\\.");
-				RelationalStatus rs = compareVersions(ver[0], ver[1], ver[2]);
+				RelationalStatus rs = compareVersions(ver[0], ver[1], ver[2].split("-")[0]);
 				if (rs == RelationalStatus.BEHIND) {
 					log.log(Level.WARNING, "[Updater] +------------------------------------------------+");
 					log.log(Level.WARNING, "[Updater] You are running an outdated version of the plugin!");
