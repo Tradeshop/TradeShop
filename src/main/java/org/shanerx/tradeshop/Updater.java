@@ -15,13 +15,15 @@
  */
 package org.shanerx.tradeshop;
 
+import org.bukkit.Bukkit;
+import org.bukkit.plugin.PluginDescriptionFile;
+
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import org.bukkit.plugin.PluginDescriptionFile;
 
 public class Updater {
 
@@ -62,11 +64,19 @@ public class Updater {
 	
 	private PluginDescriptionFile pdf;
 	private BuildType build;
-  
-        private final URL url = "https://api.spigotmc.org/legacy/update.php?resource=32762"; // Edit API URL.
+
+	private URL url = null;
 
 	public Updater(PluginDescriptionFile pdf) {
 		this.pdf = pdf;
+
+		log = Bukkit.getLogger();
+
+		try {
+			url = new URL("https://api.spigotmc.org/legacy/update.php?resource=32762"); // Edit API URL.
+		} catch (MalformedURLException ex) {
+			log.log(Level.WARNING, "Error: Bad URL while checking {0} !", pdf.getName());
+		}
 	}
 
 	public String getVersion() {
