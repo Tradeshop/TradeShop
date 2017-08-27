@@ -215,55 +215,74 @@ public class Executor extends Utils implements CommandExecutor {
                 }
             }
         } else if (args.length == 2) {
-            if (!Arrays.asList("addowner", "removeowner", "addmember", "removemember").contains(args[0].toLowerCase())) {
-                sender.sendMessage(colorize(getPrefix() + plugin.getMessages().getString("invalid-arguments")));
-                return true;
+            if (Arrays.asList("addowner", "removeowner", "addmember", "removemember").contains(args[0].toLowerCase())) {
+                if (!(sender instanceof Player)) {
+                    sender.sendMessage(colorize(getPrefix() + plugin.getMessages().getString("player-only-command")));
+                    return true;
 
-            } else if (!(sender instanceof Player)) {
-                sender.sendMessage(colorize(getPrefix() + plugin.getMessages().getString("player-only-command")));
-                return true;
+                }
 
+                Player p = (Player) sender;
+                Block b = p.getTargetBlock((HashSet<Byte>) null, plugin.getSettings().getInt("max-edit-distance"));
+                if (b == null || b.getType() == Material.AIR) {
+                    p.sendMessage(colorize(getPrefix() + plugin.getMessages().getString("no-sighted-shop")));
+                    return true;
+
+                } else if (isShopSign(b)) {
+                    b = findShopChest(b);
+
+                } else if (!plugin.getAllowedInventories().contains(b.getType()) || findShopSign(b) == null) {
+                    p.sendMessage(colorize(getPrefix() + plugin.getMessages().getString("no-sighted-shop")));
+                    return true;
+
+                }
+                OfflinePlayer target = Bukkit.getOfflinePlayer(args[1]);
+                b = findShopChest(findShopSign(b).getBlock());
+
+                switch (args[0].toLowerCase()) {
+                    case "addowner":
+                        if (!addOwner(b, target)) {
+                            p.sendMessage(colorize(getPrefix() + plugin.getMessages().getString("unsuccessful-shop-members")));
+                            return true;
+                        }
+                        break;
+                    case "removeowner":
+                        removeOwner(b, target);
+                        break;
+                    case "addmember":
+                        if (!addMember(b, target)) {
+                            p.sendMessage(colorize(getPrefix() + plugin.getMessages().getString("unsuccessful-shop-members")));
+                            return true;
+                        }
+                        break;
+                    case "removemember":
+                        removeMember(b, target);
+                        break;
+                }
+                p.sendMessage(colorize(getPrefix() + plugin.getMessages().getString("updated-shop-members")));
+                return true;
+            } else if (args[0].equalsIgnoreCase("addItem")) {
+                if (!(sender instanceof Player)) {
+                    sender.sendMessage(colorize(getPrefix() + plugin.getMessages().getString("player-only-command")));
+                    return true;
+                }
+
+                if (!sender.hasPermission(getAdminPerm())) {
+                    sender.sendMessage(colorize(getPrefix() + plugin.getMessages().getString("no-command-permission")));
+                    return true;
+                }
+
+                Player p = (Player) sender;
+                String name = args[1];
+
+                ItemStack itm = p.getInventory().getItemInMainHand();
+                plugin.addCustomItem(name, itm);
+
+                p.sendMessage(colorize("&a" + name + " has been added to the custom items."));
+                return true;
             }
-            Player p = (Player) sender;
-            Block b = p.getTargetBlock((HashSet<Byte>) null, plugin.getSettings().getInt("max-edit-distance"));
-            if (b == null || b.getType() == Material.AIR) {
-                p.sendMessage(colorize(getPrefix() + plugin.getMessages().getString("no-sighted-shop")));
-                return true;
-
-            } else if (isShopSign(b)) {
-                b = findShopChest(b);
-
-            } else if (!plugin.getAllowedInventories().contains(b.getType()) || findShopSign(b) == null) {
-                p.sendMessage(colorize(getPrefix() + plugin.getMessages().getString("no-sighted-shop")));
-                return true;
-
-            }
-            OfflinePlayer target = Bukkit.getOfflinePlayer(args[1]);
-            b = findShopChest(findShopSign(b).getBlock());
-
-            switch (args[0].toLowerCase()) {
-                case "addowner":
-                    if (!addOwner(b, target)) {
-                        p.sendMessage(colorize(getPrefix() + plugin.getMessages().getString("unsuccessful-shop-members")));
-                        return true;
-                    }
-                    break;
-                case "removeowner":
-                    removeOwner(b, target);
-                    break;
-                case "addmember":
-                    if (!addMember(b, target)) {
-                        p.sendMessage(colorize(getPrefix() + plugin.getMessages().getString("unsuccessful-shop-members")));
-                        return true;
-                    }
-                    break;
-                case "removemember":
-                    removeMember(b, target);
-                    break;
-            }
-            p.sendMessage(colorize(getPrefix() + plugin.getMessages().getString("updated-shop-members")));
-            return true;
         }
+
         sender.sendMessage(colorize(getPrefix() + plugin.getMessages().getString("invalid-arguments")));
         return true;
     }

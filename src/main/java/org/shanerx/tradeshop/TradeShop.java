@@ -21,10 +21,13 @@
 
 package org.shanerx.tradeshop;
 
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.block.BlockFace;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.shanerx.tradeshop.admin.AdminEventListener;
@@ -47,6 +50,8 @@ public class TradeShop extends JavaPlugin {
     private FileConfiguration messages;
     private File settingsFile = new File(this.getDataFolder(), "config.yml");
     private FileConfiguration settings;
+    private File CustomItemsFile = new File(this.getDataFolder(), "customitems.yml");
+    private FileConfiguration CustomItems;
     private boolean mc18 = this.getServer().getVersion().contains("1.8");
 
     private ArrayList<Material> inventories = new ArrayList<>();
@@ -68,6 +73,14 @@ public class TradeShop extends JavaPlugin {
         return settings;
     }
 
+    public File getCustomItemFile() {
+        return CustomItemsFile;
+    }
+
+    public FileConfiguration getCustomItems() {
+        return CustomItems;
+    }
+
     public Boolean isAboveMC18() {
         return !mc18;
     }
@@ -84,6 +97,8 @@ public class TradeShop extends JavaPlugin {
         addMessageDefaults();
         settings = YamlConfiguration.loadConfiguration(settingsFile);
         addSettingsDefaults();
+        CustomItems = YamlConfiguration.loadConfiguration(CustomItemsFile);
+        addCustomItemsDefaults();
 
         addMaterials();
         addDirections();
@@ -236,6 +251,48 @@ public class TradeShop extends JavaPlugin {
         save();
     }
 
+    public void addCustomItem(String name, ItemStack itm) {
+        if (!CustomItems.getValues(false).containsKey(name)) {
+            CustomItems.createSection(name);
+
+            CustomItems.set(name, itm.serialize());
+
+            save();
+        }
+    }
+
+    private void addCustomItemsDefaults() {
+        ItemStack dataHolder = new ItemStack(Material.TRIPWIRE_HOOK);
+        ItemMeta meta = dataHolder.getItemMeta();
+
+        meta.setDisplayName("Key");
+        meta.setLore(Arrays.asList("&aThe key to your dreams."));
+        dataHolder.setItemMeta(meta);
+
+        addCustomItem("Key", dataHolder);
+    }
+
+    public ItemStack getCustomItem(String name) {
+        ItemStack itm = null;
+
+        if (!(getCustomItems().get(name) == null)) {
+            itm = ItemStack.deserialize(getCustomItems().getConfigurationSection(name).getValues(false));
+            ItemMeta meta = itm.getItemMeta();
+            ArrayList<String> str2 = new ArrayList<>();
+
+            for (String s : meta.getLore()) {
+                str2.add(ChatColor.translateAlternateColorCodes('&', s));
+            }
+
+            meta.setLore(str2);
+            meta.setDisplayName(ChatColor.translateAlternateColorCodes('&', meta.getDisplayName()));
+
+            itm.setItemMeta(meta);
+        }
+
+        return itm;
+    }
+
     private void save() {
         if (messages != null)
             try {
@@ -247,6 +304,13 @@ public class TradeShop extends JavaPlugin {
         if (settings != null)
             try {
                 settings.save(settingsFile);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+        if (CustomItems != null)
+            try {
+                CustomItems.save(CustomItemsFile);
             } catch (IOException e) {
                 e.printStackTrace();
             }
