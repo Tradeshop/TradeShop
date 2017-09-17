@@ -178,14 +178,8 @@ public class Utils {
         if (!isSign(b)) {
             return false;
         }
-        Sign sign;
-        try {
-            sign = (Sign) b.getState();
-        } catch (NullPointerException e) {
-            return false;
-        }
-
-        return ChatColor.stripColor(sign.getLine(0)).equals("[Trade]");
+        Sign sign = (Sign) b.getState();
+        return ChatColor.stripColor(sign.getLine(0)).equalsIgnoreCase("[Trade]");
     }
 
 
@@ -199,7 +193,7 @@ public class Utils {
             return false;
         }
         Sign sign = (Sign) b.getState();
-        return ChatColor.stripColor(sign.getLine(0)).equals("[BiTrade]");
+        return ChatColor.stripColor(sign.getLine(0)).equalsIgnoreCase("[BiTrade]");
     }
 
     /**
@@ -212,7 +206,7 @@ public class Utils {
             return false;
         }
         Sign sign = (Sign) b.getState();
-        return ChatColor.stripColor(sign.getLine(0)).equals("[iTrade]");
+        return ChatColor.stripColor(sign.getLine(0)).equalsIgnoreCase("[iTrade]");
     }
 
     /**
@@ -328,6 +322,29 @@ public class Utils {
     }
 
     /**
+     * Checks whether or not it is a valid material or custom item.
+     *
+     * @param mat String to check
+     * @return -1 if invalid, 0 if valid material, 1 if valid custom item
+     */
+    public int isValidType(String mat) {
+        if (isInt(mat) && Material.getMaterial(Integer.parseInt(mat)) != null) {
+            return 0;
+        }
+
+        if (Material.getMaterial(mat) != null) {
+            return 0;
+        }
+
+        if (plugin.getCustomItemSet().contains(mat)) {
+            return 1;
+        }
+
+        return -1;
+
+    }
+
+    /**
      * Checks whether the an inventory contains at least a certain amount of a certain material inside a specified inventory.
      * <br>
      * This works with the ItemStack's durability, which represents how much a tool is broken or, in case of a block, the block data.
@@ -378,7 +395,7 @@ public class Utils {
         for (BlockFace face : faces) {
             Block relative = chest.getRelative(face);
             if (isShopSign(relative)) {
-                return (Sign) chest.getRelative(face).getState();
+                return (Sign) relative.getState();
             } else if (flatFaces.contains(face) && (chest.getType().equals(Material.CHEST) || chest.getType().equals(Material.TRAPPED_CHEST))) {
                 if (relative.getType().equals(chest.getType())) {
                     isDouble = true;
@@ -392,7 +409,7 @@ public class Utils {
             for (BlockFace face : faces) {
                 Block relative = chest.getRelative(face);
                 if (isShopSign(relative)) {
-                    return (Sign) chest.getRelative(face).getState();
+                    return (Sign) relative.getState();
                 }
             }
         }
@@ -439,12 +456,14 @@ public class Utils {
             }
         }
         Sign s = findShopSign(b);
-        if (s.getLine(3) == null || s.getLine(3).equals("")) {
+        if (s.getLines().length != 4 || s.getLine(3).equals("")) {
             if (owners.size() > 0) {
                 s.setLine(3, owners.get(0).getName());
                 s.update();
+                return owners;
+            } else {
+                return null;
             }
-            return owners;
         } else if (!owners.contains(Bukkit.getOfflinePlayer(s.getLine(3)))) {
             owners.add(Bukkit.getOfflinePlayer(s.getLine(3)));
             setName((InventoryHolder) b.getState(), "o:" + s.getLine(3));
@@ -472,10 +491,12 @@ public class Utils {
             }
         }
         Sign s = findShopSign(b);
-        if (s.getLine(3) == null || s.getLine(3).equals("")) {
+        if (s.getLines().length != 4 || s.getLine(3).equals("")) {
             if (members.size() > 0) {
                 s.setLine(3, members.get(0).getName());
                 s.update();
+            } else {
+                return null;
             }
             return members;
         } else if (getShopOwners(s).size() == 0 || !getShopOwners(s).contains(Bukkit.getOfflinePlayer(s.getLine(3)))) {
@@ -496,8 +517,13 @@ public class Utils {
         }
 
         List<OfflinePlayer> users = new ArrayList<>();
-        users.addAll(getShopOwners(b));
-        users.addAll(getShopMembers(b));
+        if (getShopOwners(b) != null)
+            users.addAll(getShopOwners(b));
+        if (getShopMembers(b) != null)
+            users.addAll(getShopMembers(b));
+
+        if (users.size() == 0)
+            return null;
 
         return users;
     }

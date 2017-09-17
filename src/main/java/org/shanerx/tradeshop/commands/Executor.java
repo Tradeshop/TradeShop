@@ -36,6 +36,7 @@ import org.shanerx.tradeshop.Utils;
 
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Set;
 
 public class Executor extends Utils implements CommandExecutor {
 
@@ -213,6 +214,17 @@ public class Executor extends Utils implements CommandExecutor {
                     p.sendMessage(colorize(getPrefix() + plugin.getMessages().getString("no-sighted-shop")));
                     return true;
                 }
+            } else if (args[0].equalsIgnoreCase("getCustomItems")) {
+                Set<String> items = plugin.getCustomItemSet();
+                StringBuilder sb = new StringBuilder();
+                sender.sendMessage(colorize("&aCurrent custom items:"));
+                for (String s : items) {
+                    sb.append("-" + s + "  ");
+                }
+
+                sender.sendMessage(sb.toString());
+                return true;
+
             }
         } else if (args.length == 2) {
             if (Arrays.asList("addowner", "removeowner", "addmember", "removemember").contains(args[0].toLowerCase())) {
@@ -276,9 +288,28 @@ public class Executor extends Utils implements CommandExecutor {
                 String name = args[1];
 
                 ItemStack itm = p.getInventory().getItemInMainHand();
+
+                if (itm.getType().equals(Material.AIR) || itm.getType() == null) {
+                    p.sendMessage(colorize("&cYou must ne holding an item to create a custom item."));
+                    return true;
+                }
+
                 plugin.addCustomItem(name, itm);
 
                 p.sendMessage(colorize("&a" + name + " has been added to the custom items."));
+                return true;
+            } else if (args[0].equalsIgnoreCase("removeItem")) {
+                if (!sender.hasPermission(getAdminPerm())) {
+                    sender.sendMessage(colorize(getPrefix() + plugin.getMessages().getString("no-command-permission")));
+                    return true;
+                }
+
+                String name = args[1];
+
+
+                plugin.removeCustomItem(name);
+
+                sender.sendMessage(colorize("&a" + name + " has been removed from the custom items."));
                 return true;
             }
         }

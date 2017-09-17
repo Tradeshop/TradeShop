@@ -94,32 +94,52 @@ public class IShopCreateEventListener extends Utils implements Listener {
             signIsValid = false;
         }
 
-        int amount1 = 0;
-        int amount2 = 0;
-        String item_name1 = null;
-        String item_name2 = null;
-        @SuppressWarnings("unused")
-        ItemStack item1;
-        @SuppressWarnings("unused")
-        ItemStack item2;
+        int amount1 = 0, amount2 = 0;
+        String item_name1 = null, item_name2 = null;
+        ItemStack item1 = null, item2 = null;
 
         try {
             amount1 = Integer.parseInt(info1[0]);
             amount2 = Integer.parseInt(info2[0]);
 
-            if (isInt(info1[1]))
-                item_name1 = Material.getMaterial(Integer.parseInt(info1[1])).name();
-            else
-                item_name1 = info1[1].toUpperCase();
+            switch (isValidType(info1[1])) {
+                case -1:
+                    return;
+                case 0:
+                    if (isInt(info1[1])) {
+                        item_name1 = Material.getMaterial(Integer.parseInt(info1[1])).name();
+                    } else {
+                        item_name1 = Material.getMaterial(info1[1]).name();
+                    }
+                    break;
+                case 1:
+                    item1 = plugin.getCustomItem(info1[1]);
+                    item1.setAmount(amount1);
+                    break;
 
-            item1 = new ItemStack(Material.getMaterial(item_name1), amount1);
+            }
 
-            if (isInt(info2[1]))
-                item_name2 = Material.getMaterial(Integer.parseInt(info2[1])).name();
-            else
-                item_name2 = info2[1].toUpperCase();
+            switch (isValidType(info2[1])) {
+                case -1:
+                    return;
+                case 0:
+                    if (isInt(info2[1])) {
+                        item_name2 = Material.getMaterial(Integer.parseInt(info2[1])).name();
+                    } else {
+                        item_name2 = Material.getMaterial(info2[1]).name();
+                    }
+                    break;
+                case 1:
+                    item2 = plugin.getCustomItem(info2[1]);
+                    item2.setAmount(amount2);
+                    break;
 
-            item2 = new ItemStack(Material.getMaterial(item_name2), amount2);
+            }
+
+            if (item1 == null)
+                item1 = new ItemStack(Material.getMaterial(item_name1), amount1); // What the player gets
+            if (item2 == null)
+                item2 = new ItemStack(Material.getMaterial(item_name2), amount2); // What the player pays
 
         } catch (Exception e) {
             signIsValid = false;

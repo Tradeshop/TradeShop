@@ -43,6 +43,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Set;
 import java.util.logging.Level;
 
 public class TradeShop extends JavaPlugin {
@@ -50,7 +51,7 @@ public class TradeShop extends JavaPlugin {
     private FileConfiguration messages;
     private File settingsFile = new File(this.getDataFolder(), "config.yml");
     private FileConfiguration settings;
-    private File CustomItemsFile = new File(this.getDataFolder(), "customitems.yml");
+    private File customItemsFile = new File(this.getDataFolder(), "customitems.yml");
     private FileConfiguration CustomItems;
     private boolean mc18 = this.getServer().getVersion().contains("1.8");
 
@@ -74,7 +75,7 @@ public class TradeShop extends JavaPlugin {
     }
 
     public File getCustomItemFile() {
-        return CustomItemsFile;
+        return customItemsFile;
     }
 
     public FileConfiguration getCustomItems() {
@@ -97,7 +98,7 @@ public class TradeShop extends JavaPlugin {
         addMessageDefaults();
         settings = YamlConfiguration.loadConfiguration(settingsFile);
         addSettingsDefaults();
-        CustomItems = YamlConfiguration.loadConfiguration(CustomItemsFile);
+        CustomItems = YamlConfiguration.loadConfiguration(customItemsFile);
         addCustomItemsDefaults();
 
         addMaterials();
@@ -261,6 +262,18 @@ public class TradeShop extends JavaPlugin {
         }
     }
 
+    public void removeCustomItem(String name) {
+        if (CustomItems.getValues(false).containsKey(name)) {
+            CustomItems.set(name, null);
+
+            save();
+        }
+    }
+
+    public Set<String> getCustomItemSet() {
+        return CustomItems.getValues(false).keySet();
+    }
+
     private void addCustomItemsDefaults() {
         ItemStack dataHolder = new ItemStack(Material.TRIPWIRE_HOOK);
         ItemMeta meta = dataHolder.getItemMeta();
@@ -278,14 +291,17 @@ public class TradeShop extends JavaPlugin {
         if (!(getCustomItems().get(name) == null)) {
             itm = ItemStack.deserialize(getCustomItems().getConfigurationSection(name).getValues(false));
             ItemMeta meta = itm.getItemMeta();
-            ArrayList<String> str2 = new ArrayList<>();
 
-            for (String s : meta.getLore()) {
-                str2.add(ChatColor.translateAlternateColorCodes('&', s));
+            if (meta.hasLore()) {
+                ArrayList<String> str2 = new ArrayList<>();
+                for (String s : meta.getLore()) {
+                    str2.add(ChatColor.translateAlternateColorCodes('&', s));
+                }
+                meta.setLore(str2);
             }
 
-            meta.setLore(str2);
-            meta.setDisplayName(ChatColor.translateAlternateColorCodes('&', meta.getDisplayName()));
+            if (meta.hasDisplayName())
+                meta.setDisplayName(ChatColor.translateAlternateColorCodes('&', meta.getDisplayName()));
 
             itm.setItemMeta(meta);
         }
@@ -310,7 +326,7 @@ public class TradeShop extends JavaPlugin {
 
         if (CustomItems != null)
             try {
-                CustomItems.save(CustomItemsFile);
+                CustomItems.save(customItemsFile);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -326,6 +342,9 @@ public class TradeShop extends JavaPlugin {
             }
             if (!settingsFile.exists()) {
                 settingsFile.createNewFile();
+            }
+            if (!customItemsFile.exists()) {
+                customItemsFile.createNewFile();
             }
         } catch (IOException e) {
             getLogger().log(Level.SEVERE, "Could not create config files! Disabling plugin!", e);
