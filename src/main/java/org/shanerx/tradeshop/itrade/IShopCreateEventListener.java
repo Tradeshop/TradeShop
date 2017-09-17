@@ -67,14 +67,16 @@ public class IShopCreateEventListener extends Utils implements Listener {
         }
         
         if (findShopChest(s.getBlock()) != null && getShopUsers(findShopChest(s.getBlock())).size() > 0) {
-            if (!getShopOwners(s).contains(Bukkit.getOfflinePlayer(player.getUniqueId()))) {
-                event.setLine(0, "");
-                event.setLine(1, "");
-                event.setLine(2, "");
-                event.setLine(3, "");
-                player.sendMessage(colorize(getPrefix() + plugin.getMessages().getString("not-owner")));
-                return;
-            }
+            getShopOwners(s).stream().foreach(op -> {
+                if (!op.getName().equalsIgnoreCase(plugin.getSettings().getString("itrade-shop-name")) {
+                    event.setLine(0, "");
+                    event.setLine(1, "");
+                    event.setLine(2, "");
+                    event.setLine(3, "");
+                    player.sendMessage(colorize(getPrefix() + plugin.getMessages().getString("not-owner")));
+                    return;
+                }
+            });
         }
 
         boolean signIsValid = true; // If this is true, the information on the sign is valid!
