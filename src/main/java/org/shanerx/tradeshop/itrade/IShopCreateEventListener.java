@@ -67,8 +67,8 @@ public class IShopCreateEventListener extends Utils implements Listener {
         }
         
         if (findShopChest(s.getBlock()) != null && getShopUsers(findShopChest(s.getBlock())).size() > 0) {
-            getShopOwners(s).stream().foreach(op -> {
-                if (!op.getName().equalsIgnoreCase(plugin.getSettings().getString("itrade-shop-name")) {
+            getShopOwners(s).stream().forEach(op -> {
+                if (!op.getName().equalsIgnoreCase(plugin.getSettings().getString("itrade-shop-name"))) {
                     event.setLine(0, "");
                     event.setLine(1, "");
                     event.setLine(2, "");
