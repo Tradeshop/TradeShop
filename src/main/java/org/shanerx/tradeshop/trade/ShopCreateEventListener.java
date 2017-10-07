@@ -21,6 +21,7 @@
 
 package org.shanerx.tradeshop.trade;
 
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -45,7 +46,7 @@ public class ShopCreateEventListener extends Utils implements Listener {
 
     @SuppressWarnings("deprecation")
     @EventHandler
-    public void onSignChange(SignChangeEvent event) throws InterruptedException {
+    public void onSignChange(SignChangeEvent event) {
         //	BlockState state = event.getBlock().getState();
         Player player = event.getPlayer();
         Sign s = (Sign) event.getBlock().getState();
@@ -67,6 +68,7 @@ public class ShopCreateEventListener extends Utils implements Listener {
             player.sendMessage(colorize(getPrefix() + plugin.getMessages().getString("no-ts-create-permission")));
             return;
         }
+
         if (!plugin.getAllowedInventories().contains(chest.getType())) {
             event.setLine(0, ChatColor.DARK_RED + "[Trade]");
             event.setLine(1, "");
@@ -75,6 +77,18 @@ public class ShopCreateEventListener extends Utils implements Listener {
             player.sendMessage(colorize(getPrefix() + plugin.getMessages().getString("no-chest")));
             return;
         }
+
+        if (findShopChest(s.getBlock()) != null && getShopUsers(findShopChest(s.getBlock())).size() > 0) {
+            if (!getShopOwners(s).contains(Bukkit.getOfflinePlayer(player.getUniqueId()))) {
+                event.setLine(0, "");
+                event.setLine(1, "");
+                event.setLine(2, "");
+                event.setLine(3, "");
+                player.sendMessage(colorize(getPrefix() + plugin.getMessages().getString("not-owner")));
+                return;
+            }
+        }
+
         boolean signIsValid = true; // If this is true, the information on the sign is valid!
 
         String line1 = event.getLine(1);
@@ -143,16 +157,14 @@ public class ShopCreateEventListener extends Utils implements Listener {
             return;
         }
 
-        String player_name = event.getPlayer().getName();
-        event.setLine(3, player_name);
-
         Inventory chestInventory = ((InventoryHolder) chest.getState()).getInventory();
         item1 = new ItemStack(Material.getMaterial(item_name1), amount1);
         item1.setDurability((short) durability1);
         event.setLine(0, ChatColor.DARK_GREEN + "[Trade]");
-        if (chestInventory.containsAtLeast(item1, amount1)) {
+        event.setLine(3, player.getName());
+        setName((InventoryHolder) chest.getState(), "o:" + player.getName());
 
-            event.setLine(0, ChatColor.DARK_GREEN + "[Trade]");
+        if (chestInventory.containsAtLeast(item1, amount1)) {
             event.getPlayer().sendMessage(colorize(getPrefix() + plugin.getMessages().getString("successful-setup")));
             return;
         }

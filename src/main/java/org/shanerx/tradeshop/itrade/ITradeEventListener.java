@@ -35,7 +35,6 @@ import org.shanerx.tradeshop.TradeShop;
 import org.shanerx.tradeshop.Utils;
 
 public class ITradeEventListener extends Utils implements Listener {
-
     private TradeShop plugin;
 
     public ITradeEventListener(TradeShop instance) {
@@ -185,7 +184,7 @@ public class ITradeEventListener extends Utils implements Listener {
                         .replace("{ITEM1}", item_name1.toLowerCase())
                         .replace("{ITEM2}", item_name2.toLowerCase())));
             } catch (Exception ex) {
-                return;
+                //Do nothing
             }
         }
     }

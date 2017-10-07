@@ -43,7 +43,6 @@ import java.util.Arrays;
 import java.util.logging.Level;
 
 public class TradeShop extends JavaPlugin {
-
     private File messagesFile = new File(this.getDataFolder(), "messages.yml");
     private FileConfiguration messages;
     private File settingsFile = new File(this.getDataFolder(), "config.yml");
@@ -69,7 +68,7 @@ public class TradeShop extends JavaPlugin {
         return settings;
     }
 
-    public Boolean getAboveMC18() {
+    public Boolean isAboveMC18() {
         return !mc18;
     }
 
@@ -100,6 +99,12 @@ public class TradeShop extends JavaPlugin {
 
     @Override
     public void onEnable() {
+        if (!isAboveMC18()) {
+            getLogger().info("[TradeShop] Minecraft versions before 1.9 are not supported beyond TradeShop version 1.5.2!");
+            getServer().getPluginManager().disablePlugin(this);
+            return;
+        }
+
         createConfigs();
         reloadConfig();
 
@@ -113,36 +118,37 @@ public class TradeShop extends JavaPlugin {
         pm.registerEvents(new IShopCreateEventListener(this), this);
 
         getCommand("tradeshop").setExecutor(new Executor(this));
+        
+        boolean checkUpdates = getSettings().getBoolean("check-updates");
+        if(checkUpdates) {
+            new Thread(() -> new Updater(getDescription()).checkCurrentVersion()).start();
+        }
     }
 
     private void addMaterials() {
         ArrayList<Material> allowedOld = new ArrayList<>();
-        allowedOld.addAll(Arrays.asList(new Material[]{Material.CHEST, Material.TRAPPED_CHEST, Material.DROPPER, Material.HOPPER, Material.DISPENSER}));
+        allowedOld.addAll(Arrays.asList(Material.CHEST, Material.TRAPPED_CHEST, Material.DROPPER, Material.HOPPER, Material.DISPENSER));
 
         for (String str : getConfig().getStringList("allowed-shops")) {
             if (str.equalsIgnoreCase("shulker")) {
-                try {
-                    inventories.addAll(Arrays.asList(new Material[]{Material.BLACK_SHULKER_BOX,
-                            Material.BLUE_SHULKER_BOX,
-                            Material.BROWN_SHULKER_BOX,
-                            Material.CYAN_SHULKER_BOX,
-                            Material.GRAY_SHULKER_BOX,
-                            Material.GREEN_SHULKER_BOX,
-                            Material.LIGHT_BLUE_SHULKER_BOX,
-                            Material.LIME_SHULKER_BOX,
-                            Material.MAGENTA_SHULKER_BOX,
-                            Material.ORANGE_SHULKER_BOX,
-                            Material.PINK_SHULKER_BOX,
-                            Material.RED_SHULKER_BOX,
-                            Material.SILVER_SHULKER_BOX,
-                            Material.WHITE_SHULKER_BOX,
-                            Material.YELLOW_SHULKER_BOX,
-                            Material.PURPLE_SHULKER_BOX}));
-                } catch (Throwable t) {
-                    getLogger().info("[TradeShop] You are on a version before 1.9, Shulkers are disabled!");
-                }
+                inventories.addAll(Arrays.asList(Material.BLACK_SHULKER_BOX,
+                        Material.BLUE_SHULKER_BOX,
+                        Material.BROWN_SHULKER_BOX,
+                        Material.CYAN_SHULKER_BOX,
+                        Material.GRAY_SHULKER_BOX,
+                        Material.GREEN_SHULKER_BOX,
+                        Material.LIGHT_BLUE_SHULKER_BOX,
+                        Material.LIME_SHULKER_BOX,
+                        Material.MAGENTA_SHULKER_BOX,
+                        Material.ORANGE_SHULKER_BOX,
+                        Material.PINK_SHULKER_BOX,
+                        Material.RED_SHULKER_BOX,
+                        Material.SILVER_SHULKER_BOX,
+                        Material.WHITE_SHULKER_BOX,
+                        Material.YELLOW_SHULKER_BOX,
+                        Material.PURPLE_SHULKER_BOX));
             } else {
-                if (Material.valueOf(str) != null && allowedOld.contains(Material.valueOf(str)))
+                if (allowedOld.contains(Material.valueOf(str)))
                     inventories.add(Material.valueOf(str));
 
             }
@@ -151,28 +157,24 @@ public class TradeShop extends JavaPlugin {
 
     private void addDirections() {
         ArrayList<BlockFace> allowed = new ArrayList<>();
-        allowed.addAll(Arrays.asList(new BlockFace[]{BlockFace.DOWN, BlockFace.WEST, BlockFace.SOUTH, BlockFace.EAST, BlockFace.NORTH, BlockFace.UP}));
+        allowed.addAll(Arrays.asList(BlockFace.DOWN, BlockFace.WEST, BlockFace.SOUTH, BlockFace.EAST, BlockFace.NORTH, BlockFace.UP));
 
         for (String str : getConfig().getStringList("allowed-directions")) {
-            if (BlockFace.valueOf(str) != null && allowed.contains(BlockFace.valueOf(str)))
+            if (allowed.contains(BlockFace.valueOf(str)))
                 directions.add(BlockFace.valueOf(str));
         }
     }
 
-    private boolean addMessage(String node, String message) {
+    private void addMessage(String node, String message) {
         if (messages.getString(node) == null) {
             messages.set(node, message);
-            return true;
         }
-        return false;
     }
 
-    private boolean addSetting(String node, Object value) {
+    private void addSetting(String node, Object value) {
         if (settings.getString(node) == null) {
             settings.set(node, value);
-            return true;
         }
-        return false;
     }
 
     private void addMessageDefaults() {
@@ -211,18 +213,25 @@ public class TradeShop extends JavaPlugin {
         addMessage("held-empty", "&eYou are currently holding nothing.");
         addMessage("player-only-command", "&eThis command is only available to players.");
         addMessage("missing-shop", "&cThere is not currently a shop here, please tell the owner or come back later!");
-        addMessage("no-sighted-shop", "&cYou are not looking at a shop to break!");
+        addMessage("no-sighted-shop", "&cNo shop in range!");
+        addMessage("updated-shop-members", "&aShop owners and members have been updated!");
+        addMessage("unsuccessful-shop-members", "&aThat player is either already on the shop, or you have reached the maximum number of users!");
+        addMessage("who-message", "&6Shop users are:\n&2Owners: &e{OWNERS}\n&2Members: &e{MEMBERS}");
+        addMessage("self-owned", "&cYou cannot buy from a shop in which you are a user.");
+        addMessage("not-owner", "&cYou cannot create a sign for a shop that you do not own.");
 
         save();
     }
 
     private void addSettingsDefaults() {
+        addSetting("check-updates", true);
         addSetting("allowed-shops", new String[]{"CHEST", "TRAPPED_CHEST", "SHULKER"});
         addSetting("allowed-directions", new String[]{"DOWN", "WEST", "SOUTH", "EAST", "NORTH", "UP"});
         addSetting("itrade-shop-name", "Server Shop");
         addSetting("allow-double-trade", true);
         addSetting("allow-quad-trade", true);
-        addSetting("max-break-distance", 4);
+        addSetting("max-edit-distance", 4);
+        addSetting("max-shop-users", 5);
 
         save();
     }
