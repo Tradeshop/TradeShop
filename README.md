@@ -5,8 +5,9 @@ This plugin manages how players trade one item for another. The concept behind i
 
 #### Author: Lori00 / ShanerX
 #### Name: TradeShop
-#### Version: v1.5.1
+#### Version: v1.6.0-BETA
 #### Tested MC versions: MC-1.8.X, 1.9.X, 1.10.X, 1.11.x, 1.12.x
+*Please see [the wiki](https://github.com/SparklingComet/TradeShop/wiki) for more information regarding supported versions.*
 
 
 ## Downloads
@@ -20,4 +21,4 @@ Please post reviews on the SpigotMC resource page. Suggestions and bug reports m
 # Commands & Permissions
 A full list of commands can be found [here](https://github.com/ShanerX/TradeShop/wiki/Commands), while you will find the permission's list [here](https://github.com/ShanerX/TradeShop/wiki/Permissions).
 
-#### ~The current version is marked as BETA as significant changes/fixes were introduced. This means that it is very likely that there will be bugs.~
+#### The current version is marked as BETA as significant changes/fixes were introduced. This means that it is very likely that there will be bugs.
