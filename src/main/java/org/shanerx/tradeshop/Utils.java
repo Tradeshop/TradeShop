@@ -327,27 +327,51 @@ public class Utils {
      * Checks whether or not it is a valid material or custom item.
      *
      * @param mat String to check
-     * @return -1 if invalid, 0 if valid material, 1 if valid custom item
+     * @return returns item or null if invalid
      */
-    public int isValidType(String mat) {
+    public ItemStack isValidType(String mat) {
         if (isInt(mat) && Material.getMaterial(Integer.parseInt(mat)) != null) {
-            return 0;
+            return new ItemStack(Material.getMaterial(Integer.parseInt(mat)), 1);
         }
 
         if (Material.matchMaterial(mat) != null) {
-            return 0;
+            return new ItemStack(Material.matchMaterial(mat), 1);
         }
 
         if (plugin.getCustomItemSet().size() > 0) {
             for (String str : plugin.getCustomItemSet()) {
                 if (str.equalsIgnoreCase(mat)) {
-                    return 1;
+                    return plugin.getCustomItem(mat);
                 }
             }
         }
 
-        return -1;
+        if (Potions.isType(mat)) {
+            return Potions.valueOf(mat.toUpperCase()).getItem();
+        }
 
+        return null;
+
+    }
+
+    /**
+     * Checks whether or not it is a valid material or custom item.
+     *
+     * @param mat        String to check
+     * @param durability durability to set
+     * @param amount     amount to set
+     * @return returns item or null if invalid
+     */
+    public ItemStack isValidType(String mat, int durability, int amount) {
+        ItemStack itm = isValidType(mat);
+
+        if (itm == null) {
+            return null;
+        }
+
+        itm.setDurability((short) durability);
+        itm.setAmount(amount);
+        return itm;
     }
 
     /**

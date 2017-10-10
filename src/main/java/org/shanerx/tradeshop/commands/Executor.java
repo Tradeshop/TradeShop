@@ -31,6 +31,7 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.shanerx.tradeshop.Potions;
 import org.shanerx.tradeshop.TradeShop;
 import org.shanerx.tradeshop.Utils;
 
@@ -59,29 +60,48 @@ public class Executor extends Utils implements CommandExecutor {
                     return true;
                 }
 
-                String[] help = new String[10];
+                StringBuilder sb = new StringBuilder();
+                String msg;
 
-                help[0] = "\n";
-                help[1] = "&2" + getPluginName() + " " + getVersion() + " by " + pdf.getAuthors().get(0) + "\n";
-                help[2] = "\n";
-                help[3] = "\n";
-                help[4] = "&6/tradeshop help &c - Display help message\n";
+                sb.append("\n");
+                sb.append("&2" + getPluginName() + " " + getVersion() + " by " + pdf.getAuthors().get(0) + "\n");
+                sb.append("\n");
+                sb.append("\n");
+                sb.append("&6/tradeshop help &c - Display help message");
+                sb.append("\n");
 
                 if (sender.hasPermission(getCreatePerm())) {
-                    help[5] = "&6/tradeshop setup &c - Display TradeShop setup tutorial\n";
-                    help[6] = "&6/tradeshop item &c - Shows helpful information on item held by player\n";
+                    sb.append("&6/tradeshop setup &c - Display TradeShop setup tutorial");
+                    sb.append("\n");
+                    sb.append("&6/tradeshop item &c - Shows helpful information on item held by player");
+                    sb.append("\n");
                 }
 
-                help[7] = "&6/tradeshop bugs &c - Report bugs\n \n";
-                help[8] = "&6/tradeshop addowner|removeowner [target] - Add another owner to your shop\n";
-                help[9] = "&6/tradeshop addmember|removemember [target] - Add a collaborator to your shop\n";
+                sb.append("&6/tradeshop bugs &c - Report bugs");
+                sb.append("\n");
+                sb.append("\n");
+                sb.append("&6/tradeshop addowner|removeowner [target] - Add another owner to your shop");
+                sb.append("\n");
+                sb.append("&6/tradeshop addmember|removemember [target] - Add a collaborator to your shop");
+                sb.append("\n");
 
-                String msg;
-                StringBuilder sb = new StringBuilder();
-                for (String str : help) {
-                    if (str != null)
-                        sb.append(str);
+                if (sender.hasPermission(getWhoPerm())) {
+                    sb.append("&6/tradeshop who - Shows members shop being looked at");
+                    sb.append("\n");
                 }
+
+                if (sender.hasPermission(getAdminPerm())) {
+                    sb.append("\n");
+                    sb.append("&6/tradeshop addItem [item name] &c - Adds custom items to config");
+                    sb.append("\n");
+                    sb.append("&6/tradeshop removeItem [item name] &c - Removes custom items to config");
+                    sb.append("\n");
+                    sb.append("&6/tradeshop getCustomItems &c - shows all custom items");
+                    sb.append("\n");
+                    sb.append("&6/tradeshop reload &c - Reloads plugin configuration files");
+                    sb.append("\n");
+                }
+
                 msg = sb.toString();
 
                 sender.sendMessage(colorize(msg));
@@ -125,11 +145,26 @@ public class Executor extends Utils implements CommandExecutor {
                     sender.sendMessage(colorize(getPrefix() + plugin.getMessages().getString("held-empty")));
                     return true;
                 } else {
+                    String name = "",
+                            durability = "",
+                            id = "",
+                            amount = "";
+                    if (Potions.isPotion(itm)) {
+                        name = Potions.findPotion(itm);
+                        durability = "0";
+                        id = "None";
+                        amount = itm.getAmount() + "";
+                    } else {
+                        name = itm.getType().name();
+                        durability = itm.getDurability() + "";
+                        id = itm.getTypeId() + "";
+                        amount = itm.getAmount() + "";
+                    }
                     sender.sendMessage(colorize(getPrefix() + plugin.getMessages().getString("held-item"))
-                            .replace("{MATERIAL}", itm.getType().name())
-                            .replace("{DURABILITY}", itm.getDurability() + "")
-                            .replace("{ID}", itm.getTypeId() + "")
-                            .replace("{AMOUNT}", itm.getAmount() + ""));
+                            .replace("{MATERIAL}", name)
+                            .replace("{DURABILITY}", durability)
+                            .replace("{ID}", id)
+                            .replace("{AMOUNT}", amount));
                     return true;
                 }
             } else if (args[0].equalsIgnoreCase("who")) {
@@ -215,6 +250,10 @@ public class Executor extends Utils implements CommandExecutor {
                     return true;
                 }
             } else if (args[0].equalsIgnoreCase("getCustomItems")) {
+                if (!sender.hasPermission(getAdminPerm())) {
+                    sender.sendMessage(colorize(plugin.getMessages().getString("no-command-permission")));
+                    return true;
+                }
                 Set<String> items = plugin.getCustomItemSet();
                 StringBuilder sb = new StringBuilder();
                 sender.sendMessage(colorize("&aCurrent custom items:"));

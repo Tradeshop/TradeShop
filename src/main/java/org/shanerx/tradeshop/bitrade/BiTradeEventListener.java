@@ -22,7 +22,6 @@
 package org.shanerx.tradeshop.bitrade;
 
 import org.bukkit.Bukkit;
-import org.bukkit.Material;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
@@ -103,70 +102,26 @@ public class BiTradeEventListener extends Utils implements Listener {
                 info2[1] = info2[1].split(":")[0];
             }
 
-            String item_name1 = "", item_name2 = "";
-            ItemStack item1 = null, item2 = null;
+            String item_name1, item_name2;
+            ItemStack item1, item2;
 
-            switch (isValidType(info1[1])) {
-                case -1:
-                    return;
-                case 0:
-                    if (isInt(info1[1])) {
-                        item_name1 = Material.getMaterial(Integer.parseInt(info1[1])).name();
-                    } else {
-                        item_name1 = Material.matchMaterial(info1[1]).name();
-                    }
-                    break;
-                case 1:
-                    if (plugin.getCustomItemSet().contains(info1[1])) {
-                        item1 = plugin.getCustomItem(info1[1]);
-                        if (item1.hasItemMeta() && item1.getItemMeta().hasDisplayName()) {
-                            item_name1 = item1.getItemMeta().getDisplayName();
-                        } else {
-                            item_name1 = info1[1];
-                        }
-                        item1.setAmount(amount1);
-                    } else {
-                        return;
-                    }
-                    break;
+            item1 = isValidType(info1[1], durability1, amount1);
+            item2 = isValidType(info2[1], durability2, amount2);
 
+            if (item1 == null || item2 == null) {
+                return;
             }
 
-            switch (isValidType(info2[1])) {
-                case -1:
-                    return;
-                case 0:
-                    if (isInt(info2[1])) {
-                        item_name2 = Material.getMaterial(Integer.parseInt(info2[1])).name();
-                    } else {
-                        item_name2 = Material.matchMaterial(info2[1]).name();
-                    }
-                    break;
-                case 1:
-                    if (plugin.getCustomItemSet().contains(info2[1])) {
-                        item2 = plugin.getCustomItem(info2[1]);
-                        if (item2.hasItemMeta() && item2.getItemMeta().hasDisplayName()) {
-                            item_name2 = item2.getItemMeta().getDisplayName();
-                        } else {
-                            item_name2 = info2[1];
-                        }
-                        item2.setAmount(amount2);
-                    } else {
-                        return;
-                    }
-                    break;
-
+            if (item1.hasItemMeta() && item1.getItemMeta().hasDisplayName()) {
+                item_name1 = item1.getItemMeta().getDisplayName();
+            } else {
+                item_name1 = info1[1];
             }
 
-            if (item1 == null) {
-                item1 = new ItemStack(Material.getMaterial(item_name1), amount1); // What the player gets
-                item1.setDurability((short) durability1);
-                item1.setAmount(amount1);
-            }
-            if (item2 == null) {
-                item2 = new ItemStack(Material.getMaterial(item_name2), amount2); // What the player pays
-                item2.setDurability((short) durability2);
-                item2.setAmount(amount2);
+            if (item2.hasItemMeta() && item2.getItemMeta().hasDisplayName()) {
+                item_name2 = item2.getItemMeta().getDisplayName();
+            } else {
+                item_name2 = info2[1];
             }
 
             if (!containsAtLeast(playerInventory, item2)) {
@@ -256,7 +211,13 @@ public class BiTradeEventListener extends Utils implements Listener {
             }
 
             if (getShopUsers(chestState.getBlock()).contains(Bukkit.getOfflinePlayer(buyer.getName()))) {
+
+                if (getShopOwners(chestState.getBlock()).contains(Bukkit.getOfflinePlayer(buyer.getName()))) {
+                    return;
+                }
+
                 buyer.sendMessage(colorize(getPrefix() + plugin.getMessages().getString("self-owned")));
+                e.setCancelled(true);
                 return;
             }
             e.setCancelled(true);
@@ -294,70 +255,26 @@ public class BiTradeEventListener extends Utils implements Listener {
                 info1[1] = info1[1].split(":")[0];
             }
 
-            String item_name1 = "", item_name2 = "";
-            ItemStack item1 = null, item2 = null;
+            String item_name1, item_name2;
+            ItemStack item1, item2;
 
-            switch (isValidType(info1[1])) {
-                case -1:
-                    return;
-                case 0:
-                    if (isInt(info1[1])) {
-                        item_name1 = Material.getMaterial(Integer.parseInt(info1[1])).name();
-                    } else {
-                        item_name1 = Material.matchMaterial(info1[1]).name();
-                    }
-                    break;
-                case 1:
-                    if (plugin.getCustomItemSet().contains(info1[1])) {
-                        item1 = plugin.getCustomItem(info1[1]);
-                        if (item1.hasItemMeta() && item1.getItemMeta().hasDisplayName()) {
-                            item_name1 = item1.getItemMeta().getDisplayName();
-                        } else {
-                            item_name1 = info1[1];
-                        }
-                        item1.setAmount(amount1);
-                    } else {
-                        return;
-                    }
-                    break;
+            item1 = isValidType(info1[1], durability1, amount1);
+            item2 = isValidType(info2[1], durability2, amount2);
 
+            if (item1 == null || item2 == null) {
+                return;
             }
 
-            switch (isValidType(info2[1])) {
-                case -1:
-                    return;
-                case 0:
-                    if (isInt(info2[1])) {
-                        item_name2 = Material.getMaterial(Integer.parseInt(info2[1])).name();
-                    } else {
-                        item_name2 = Material.matchMaterial(info2[1]).name();
-                    }
-                    break;
-                case 1:
-                    if (plugin.getCustomItemSet().contains(info2[1])) {
-                        item2 = plugin.getCustomItem(info2[1]);
-                        if (item2.hasItemMeta() && item2.getItemMeta().hasDisplayName()) {
-                            item_name2 = item2.getItemMeta().getDisplayName();
-                        } else {
-                            item_name2 = info2[1];
-                        }
-                        item2.setAmount(amount2);
-                    } else {
-                        return;
-                    }
-                    break;
-
+            if (item1.hasItemMeta() && item1.getItemMeta().hasDisplayName()) {
+                item_name1 = item1.getItemMeta().getDisplayName();
+            } else {
+                item_name1 = info1[1];
             }
 
-            if (item1 == null) {
-                item1 = new ItemStack(Material.getMaterial(item_name1), amount1); // What the player gets
-                item1.setDurability((short) durability1);
-                item1.setAmount(amount1);
-            }
-            if (item2 == null) {
-                item2 = new ItemStack(Material.getMaterial(item_name2), amount2); // What the player pays
-                item2.setDurability((short) durability2);
-                item2.setAmount(amount2);
+            if (item2.hasItemMeta() && item2.getItemMeta().hasDisplayName()) {
+                item_name2 = item2.getItemMeta().getDisplayName();
+            } else {
+                item_name2 = info2[1];
             }
 
             if (!containsAtLeast(playerInventory, item1)) {
