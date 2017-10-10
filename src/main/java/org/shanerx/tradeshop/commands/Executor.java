@@ -295,7 +295,8 @@ public class Executor extends Utils implements CommandExecutor {
                 }
 
                 plugin.addCustomItem(name, itm);
-
+                plugin.save();
+                plugin.reloadConfig();
                 p.sendMessage(colorize("&a" + name + " has been added to the custom items."));
                 return true;
             } else if (args[0].equalsIgnoreCase("removeItem")) {
@@ -308,7 +309,8 @@ public class Executor extends Utils implements CommandExecutor {
 
 
                 plugin.removeCustomItem(name);
-
+                plugin.save();
+                plugin.reloadConfig();
                 sender.sendMessage(colorize("&a" + name + " has been removed from the custom items."));
                 return true;
             }

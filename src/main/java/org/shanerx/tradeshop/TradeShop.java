@@ -134,9 +134,9 @@ public class TradeShop extends JavaPlugin {
         pm.registerEvents(new IShopCreateEventListener(this), this);
 
         getCommand("tradeshop").setExecutor(new Executor(this));
-        
+
         boolean checkUpdates = getSettings().getBoolean("check-updates");
-        if(checkUpdates) {
+        if (checkUpdates) {
             new Thread(() -> new Updater(getDescription()).checkCurrentVersion()).start();
         }
     }
@@ -289,7 +289,7 @@ public class TradeShop extends JavaPlugin {
         ItemStack itm = null;
 
         if (!(getCustomItems().get(name) == null)) {
-            itm = ItemStack.deserialize(getCustomItems().getConfigurationSection(name).getValues(false));
+            itm = ItemStack.deserialize(getCustomItems().getConfigurationSection(name).getValues(true));
             ItemMeta meta = itm.getItemMeta();
 
             if (meta.hasLore()) {
@@ -309,7 +309,7 @@ public class TradeShop extends JavaPlugin {
         return itm;
     }
 
-    private void save() {
+    public void save() {
         if (messages != null)
             try {
                 messages.save(messagesFile);

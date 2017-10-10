@@ -54,31 +54,18 @@ public class BiShopCreateEventListener extends Utils implements Listener {
         if (!event.getLine(0).equalsIgnoreCase("[BiTrade]")) {
             return;
 
-        } else if (!player.hasPermission(getCreateBiPerm())) {
-            s.setLine(0, "");
-            s.update();
-            s.setLine(1, "");
-            s.update();
-            s.setLine(2, "");
-            s.update();
-            s.setLine(3, "");
-            s.update();
-            player.sendMessage(colorize(getPrefix() + plugin.getMessages().getString("no-ts-create-permission")));
-            return;
         }
-        Block chest;
 
-        try {
-            chest = findShopChest(s.getBlock());
-        } catch (Exception e) {
-            event.setLine(0, ChatColor.DARK_RED + "[BiTrade]");
+        Block chest = findShopChest(s.getBlock());
+
+        if (!player.hasPermission(getCreateBiPerm())) {
+            event.setLine(0, "");
             event.setLine(1, "");
             event.setLine(2, "");
             event.setLine(3, "");
-            player.sendMessage(colorize(getPrefix() + plugin.getMessages().getString("no-chest")));
+            player.sendMessage(colorize(getPrefix() + plugin.getMessages().getString("no-ts-create-permission")));
             return;
         }
-
 
         if (!plugin.getAllowedInventories().contains(chest.getType())) {
             event.setLine(0, ChatColor.DARK_RED + "[BiTrade]");
@@ -89,7 +76,7 @@ public class BiShopCreateEventListener extends Utils implements Listener {
             return;
         }
 
-        if (findShopChest(s.getBlock()) != null && getShopUsers(s) != null) {
+        if (getShopUsers(s) != null) {
             if (!getShopOwners(s).contains(Bukkit.getOfflinePlayer(player.getUniqueId()))) {
                 event.setLine(0, "");
                 event.setLine(1, "");
@@ -118,7 +105,6 @@ public class BiShopCreateEventListener extends Utils implements Listener {
 
 
         int durability1 = 0;
-        @SuppressWarnings("unused")
         int durability2 = 0;
         if (line1.split(":").length > 1) {
             durability1 = Integer.parseInt(info1[1].split(":")[1]);
@@ -139,45 +125,71 @@ public class BiShopCreateEventListener extends Utils implements Listener {
 
             switch (isValidType(info1[1])) {
                 case -1:
+                    event.getPlayer().sendMessage(colorize(getPrefix() + plugin.getMessages().getString("invalid-sign")));
+                    event.setLine(0, ChatColor.DARK_RED + "[Trade]");
+                    event.setLine(1, "");
+                    event.setLine(2, "");
+                    event.setLine(3, "");
                     return;
                 case 0:
                     if (isInt(info1[1])) {
                         item_name1 = Material.getMaterial(Integer.parseInt(info1[1])).name();
                     } else {
-                        item_name1 = Material.getMaterial(info1[1]).name();
+                        item_name1 = Material.matchMaterial(info1[1]).name();
                     }
                     break;
                 case 1:
-                    item1 = plugin.getCustomItem(info1[1]);
-                    item1.setAmount(amount1);
+                    if (plugin.getCustomItemSet().contains(info1[1])) {
+                        item_name1 = plugin.getCustomItem(info1[1]).getType().name();
+                        item1 = plugin.getCustomItem(info1[1]);
+                        item1.setAmount(amount1);
+                    } else {
+                        signIsValid = false;
+                    }
                     break;
 
             }
 
             switch (isValidType(info2[1])) {
                 case -1:
+                    event.getPlayer().sendMessage(colorize(getPrefix() + plugin.getMessages().getString("invalid-sign")));
+                    event.setLine(0, ChatColor.DARK_RED + "[Trade]");
+                    event.setLine(1, "");
+                    event.setLine(2, "");
+                    event.setLine(3, "");
                     return;
                 case 0:
                     if (isInt(info2[1])) {
                         item_name2 = Material.getMaterial(Integer.parseInt(info2[1])).name();
                     } else {
-                        item_name2 = Material.getMaterial(info2[1]).name();
+                        item_name2 = Material.matchMaterial(info2[1]).name();
                     }
                     break;
                 case 1:
-                    item2 = plugin.getCustomItem(info2[1]);
-                    item2.setAmount(amount2);
+                    if (plugin.getCustomItemSet().contains(info2[1])) {
+                        item_name2 = plugin.getCustomItem(info2[1]).getType().name();
+                        item2 = plugin.getCustomItem(info2[1]);
+                        item2.setAmount(amount2);
+                    } else {
+                        signIsValid = false;
+                    }
                     break;
 
             }
 
-            if (item1 == null)
+            if (item1 == null) {
                 item1 = new ItemStack(Material.getMaterial(item_name1), amount1); // What the player gets
-            if (item2 == null)
+                item1.setDurability((short) durability1);
+            }
+
+            if (item2 == null) {
                 item2 = new ItemStack(Material.getMaterial(item_name2), amount2); // What the player pays
+                item2.setDurability((short) durability2);
+            }
 
         } catch (Exception e) {
             signIsValid = false;
+            e.printStackTrace();
         }
 
         if (!signIsValid) {
@@ -190,17 +202,16 @@ public class BiShopCreateEventListener extends Utils implements Listener {
 
         }
         Inventory chestInventory = ((InventoryHolder) chest.getState()).getInventory();
-        item1 = new ItemStack(Material.getMaterial(item_name1), amount1);
-        item1.setDurability((short) durability1);
         event.setLine(0, ChatColor.DARK_GREEN + "[BiTrade]");
         event.setLine(3, player.getName());
         setName((InventoryHolder) chest.getState(), "o:" + player.getName());
 
         if (chestInventory.containsAtLeast(item1, amount1)) {
-            event.setLine(0, ChatColor.DARK_GREEN + "[BiTrade]");
             event.getPlayer().sendMessage(colorize(getPrefix() + plugin.getMessages().getString("successful-setup")));
             return;
+        } else {
+            event.getPlayer().sendMessage(colorize(getPrefix() + plugin.getMessages().getString("empty-ts-on-setup")));
+            return;
         }
-        event.getPlayer().sendMessage(colorize(getPrefix() + plugin.getMessages().getString("empty-ts-on-setup")));
     }
 }

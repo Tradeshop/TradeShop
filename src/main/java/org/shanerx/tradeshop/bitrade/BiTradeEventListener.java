@@ -113,12 +113,21 @@ public class BiTradeEventListener extends Utils implements Listener {
                     if (isInt(info1[1])) {
                         item_name1 = Material.getMaterial(Integer.parseInt(info1[1])).name();
                     } else {
-                        item_name1 = Material.getMaterial(info1[1]).name();
+                        item_name1 = Material.matchMaterial(info1[1]).name();
                     }
                     break;
                 case 1:
-                    item1 = plugin.getCustomItem(info1[1]);
-                    item1.setAmount(amount1);
+                    if (plugin.getCustomItemSet().contains(info1[1])) {
+                        item1 = plugin.getCustomItem(info1[1]);
+                        if (item1.hasItemMeta() && item1.getItemMeta().hasDisplayName()) {
+                            item_name1 = item1.getItemMeta().getDisplayName();
+                        } else {
+                            item_name1 = info1[1];
+                        }
+                        item1.setAmount(amount1);
+                    } else {
+                        return;
+                    }
                     break;
 
             }
@@ -130,60 +139,74 @@ public class BiTradeEventListener extends Utils implements Listener {
                     if (isInt(info2[1])) {
                         item_name2 = Material.getMaterial(Integer.parseInt(info2[1])).name();
                     } else {
-                        item_name2 = Material.getMaterial(info2[1]).name();
+                        item_name2 = Material.matchMaterial(info2[1]).name();
                     }
                     break;
                 case 1:
-                    item2 = plugin.getCustomItem(info2[1]);
-                    item2.setAmount(amount2);
+                    if (plugin.getCustomItemSet().contains(info2[1])) {
+                        item2 = plugin.getCustomItem(info2[1]);
+                        if (item2.hasItemMeta() && item2.getItemMeta().hasDisplayName()) {
+                            item_name2 = item2.getItemMeta().getDisplayName();
+                        } else {
+                            item_name2 = info2[1];
+                        }
+                        item2.setAmount(amount2);
+                    } else {
+                        return;
+                    }
                     break;
 
             }
 
-            if (item1 == null)
+            if (item1 == null) {
                 item1 = new ItemStack(Material.getMaterial(item_name1), amount1); // What the player gets
-            if (item2 == null)
+                item1.setDurability((short) durability1);
+                item1.setAmount(amount1);
+            }
+            if (item2 == null) {
                 item2 = new ItemStack(Material.getMaterial(item_name2), amount2); // What the player pays
+                item2.setDurability((short) durability2);
+                item2.setAmount(amount2);
+            }
 
-            if (!containsAtLeast(playerInventory, item2.getType(), (short) durability2, amount2)) {
+            if (!containsAtLeast(playerInventory, item2)) {
                 buyer.sendMessage(colorize(getPrefix() + plugin.getMessages().getString("insufficient-items")
                         .replace("{ITEM}", item_name2.toLowerCase()).replace("{AMOUNT}", String.valueOf(amount2))));
                 return;
             }
 
-            if (!containsAtLeast(chestInventory, item1.getType(), (short) durability1, amount1)) {
+            if (!containsAtLeast(chestInventory, item1)) {
                 buyer.sendMessage(colorize(getPrefix() + plugin.getMessages().getString("shop-empty")
                         .replace("{ITEM}", item_name1.toLowerCase()).replace("{AMOUNT}", String.valueOf(amount1))));
                 return;
             }
 
-            if (!canExchange(chestInventory, item1, amount1, item2, amount2)) {
+            if (!canExchange(chestInventory, item1, item2)) {
                 buyer.sendMessage(colorize(getPrefix() + plugin.getMessages().getString("shop-full")
                         .replace("{ITEM}", item_name1.toLowerCase()).replace("{AMOUNT}", String.valueOf(amount1))));
                 return;
             }
 
-            if (!canExchange(playerInventory, item2, amount2, item1, amount1)) {
+            if (!canExchange(playerInventory, item2, item1)) {
                 buyer.sendMessage(colorize(getPrefix() + plugin.getMessages().getString("player-full")
                         .replace("{ITEM}", item_name2.toLowerCase()).replace("{AMOUNT}", String.valueOf(amount2))));
                 return;
             }
 
-            int count = amount1, removed = 0;
+            int count = amount1, removed;
             while (count > 0) {
                 ItemStack temp = chestInventory.getItem(chestInventory.first(item1.getType()));
-                if (count > item1.getMaxStackSize())
+                if (count > item1.getMaxStackSize()) {
                     removed = item1.getMaxStackSize();
-                else
+                } else {
                     removed = count;
+                }
 
-                if (removed > temp.getAmount())
+                if (removed > temp.getAmount()) {
                     removed = temp.getAmount();
+                }
 
                 item1.setAmount(removed);
-                item1.setData(temp.getData());
-                item1.setItemMeta(temp.getItemMeta());
-                item1.setDurability((short) durability1);
                 chestInventory.removeItem(item1);
                 playerInventory.addItem(item1);
 
@@ -191,7 +214,6 @@ public class BiTradeEventListener extends Utils implements Listener {
             }
 
             count = amount2;
-            removed = 0;
             while (count > 0) {
                 ItemStack temp = playerInventory.getItem(playerInventory.first(item2.getType()));
                 if (count > item2.getMaxStackSize())
@@ -203,9 +225,6 @@ public class BiTradeEventListener extends Utils implements Listener {
                     removed = temp.getAmount();
 
                 item2.setAmount(removed);
-                item2.setData(temp.getData());
-                item2.setItemMeta(temp.getItemMeta());
-                item2.setDurability((short) durability2);
                 playerInventory.removeItem(item2);
                 chestInventory.addItem(item2);
 
@@ -285,12 +304,21 @@ public class BiTradeEventListener extends Utils implements Listener {
                     if (isInt(info1[1])) {
                         item_name1 = Material.getMaterial(Integer.parseInt(info1[1])).name();
                     } else {
-                        item_name1 = Material.getMaterial(info1[1]).name();
+                        item_name1 = Material.matchMaterial(info1[1]).name();
                     }
                     break;
                 case 1:
-                    item1 = plugin.getCustomItem(info1[1]);
-                    item1.setAmount(amount1);
+                    if (plugin.getCustomItemSet().contains(info1[1])) {
+                        item1 = plugin.getCustomItem(info1[1]);
+                        if (item1.hasItemMeta() && item1.getItemMeta().hasDisplayName()) {
+                            item_name1 = item1.getItemMeta().getDisplayName();
+                        } else {
+                            item_name1 = info1[1];
+                        }
+                        item1.setAmount(amount1);
+                    } else {
+                        return;
+                    }
                     break;
 
             }
@@ -302,48 +330,83 @@ public class BiTradeEventListener extends Utils implements Listener {
                     if (isInt(info2[1])) {
                         item_name2 = Material.getMaterial(Integer.parseInt(info2[1])).name();
                     } else {
-                        item_name2 = Material.getMaterial(info2[1]).name();
+                        item_name2 = Material.matchMaterial(info2[1]).name();
                     }
                     break;
                 case 1:
-                    item2 = plugin.getCustomItem(info2[1]);
-                    item2.setAmount(amount2);
+                    if (plugin.getCustomItemSet().contains(info2[1])) {
+                        item2 = plugin.getCustomItem(info2[1]);
+                        if (item2.hasItemMeta() && item2.getItemMeta().hasDisplayName()) {
+                            item_name2 = item2.getItemMeta().getDisplayName();
+                        } else {
+                            item_name2 = info2[1];
+                        }
+                        item2.setAmount(amount2);
+                    } else {
+                        return;
+                    }
                     break;
 
             }
 
-            if (item1 == null)
+            if (item1 == null) {
                 item1 = new ItemStack(Material.getMaterial(item_name1), amount1); // What the player gets
-            if (item2 == null)
+                item1.setDurability((short) durability1);
+                item1.setAmount(amount1);
+            }
+            if (item2 == null) {
                 item2 = new ItemStack(Material.getMaterial(item_name2), amount2); // What the player pays
+                item2.setDurability((short) durability2);
+                item2.setAmount(amount2);
+            }
 
-            if (!containsAtLeast(playerInventory, item1.getType(), (short) durability1, amount1)) {
+            if (!containsAtLeast(playerInventory, item1)) {
                 buyer.sendMessage(colorize(getPrefix() + plugin.getMessages().getString("insufficient-items")
                         .replace("{ITEM}", item_name1.toLowerCase()).replace("{AMOUNT}", String.valueOf(amount1))));
                 return;
             }
 
-            if (!containsAtLeast(chestInventory, item2.getType(), (short) durability2, amount2)) {
+            if (!containsAtLeast(chestInventory, item2)) {
                 buyer.sendMessage(colorize(getPrefix() + plugin.getMessages().getString("shop-empty")
                         .replace("{ITEM}", item_name2.toLowerCase()).replace("{AMOUNT}", String.valueOf(amount2))));
                 return;
             }
 
-            if (!canExchange(chestInventory, item2, amount2, item1, amount1)) {
+            if (!canExchange(chestInventory, item2, item1)) {
                 buyer.sendMessage(colorize(getPrefix() + plugin.getMessages().getString("shop-full")
                         .replace("{ITEM}", item_name2.toLowerCase()).replace("{AMOUNT}", String.valueOf(amount2))));
                 return;
             }
 
-            if (!canExchange(playerInventory, item1, amount1, item2, amount2)) {
+            if (!canExchange(playerInventory, item1, item2)) {
                 buyer.sendMessage(colorize(getPrefix() + plugin.getMessages().getString("player-full")
                         .replace("{ITEM}", item_name1.toLowerCase()).replace("{AMOUNT}", String.valueOf(amount1))));
                 return;
             }
 
-            int count = amount2, removed = 0;
+            int count = amount1, removed;
             while (count > 0) {
-                ItemStack temp = chestInventory.getItem(chestInventory.first(item2.getType()));
+                ItemStack temp = chestInventory.getItem(chestInventory.first(item1.getType()));
+                if (count > item1.getMaxStackSize()) {
+                    removed = item1.getMaxStackSize();
+                } else {
+                    removed = count;
+                }
+
+                if (removed > temp.getAmount()) {
+                    removed = temp.getAmount();
+                }
+
+                item1.setAmount(removed);
+                playerInventory.removeItem(item1);
+                chestInventory.addItem(item1);
+
+                count -= removed;
+            }
+
+            count = amount2;
+            while (count > 0) {
+                ItemStack temp = playerInventory.getItem(playerInventory.first(item2.getType()));
                 if (count > item2.getMaxStackSize())
                     removed = item2.getMaxStackSize();
                 else
@@ -353,33 +416,8 @@ public class BiTradeEventListener extends Utils implements Listener {
                     removed = temp.getAmount();
 
                 item2.setAmount(removed);
-                item2.setData(temp.getData());
-                item2.setItemMeta(temp.getItemMeta());
-                item2.setDurability((short) durability2);
                 chestInventory.removeItem(item2);
                 playerInventory.addItem(item2);
-
-                count -= removed;
-            }
-
-            count = amount1;
-            removed = 0;
-            while (count > 0) {
-                ItemStack temp = playerInventory.getItem(playerInventory.first(item1.getType()));
-                if (count > item1.getMaxStackSize())
-                    removed = item1.getMaxStackSize();
-                else
-                    removed = count;
-
-                if (removed > temp.getAmount())
-                    removed = temp.getAmount();
-
-                item1.setAmount(removed);
-                item1.setData(temp.getData());
-                item1.setItemMeta(temp.getItemMeta());
-                item1.setDurability((short) durability1);
-                playerInventory.removeItem(item1);
-                chestInventory.addItem(item1);
 
                 count -= removed;
             }
