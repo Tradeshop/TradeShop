@@ -115,7 +115,7 @@ public class BiShopCreateEventListener extends Utils implements Listener {
         }
 
         int amount1 = 0, amount2 = 0;
-        ItemStack item1, item2;
+        ItemStack item1 = null, item2 = null;
 
         try {
             amount1 = Integer.parseInt(info1[0]);
@@ -123,11 +123,13 @@ public class BiShopCreateEventListener extends Utils implements Listener {
 
         } catch (Exception e) {
             signIsValid = false;
-            e.printStackTrace();
         }
 
-        item1 = isValidType(info1[1], durability1, amount1);
-        item2 = isValidType(info2[1], durability2, amount2);
+        try {
+            item1 = isValidType(info1[1], durability1, amount1);
+            item2 = isValidType(info2[1], durability2, amount2);
+        } catch (ArrayIndexOutOfBoundsException e) {
+        }
 
         if (item1 == null || item2 == null) {
             signIsValid = false;

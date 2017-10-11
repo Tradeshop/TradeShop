@@ -104,10 +104,13 @@ public class TradeEventListener extends Utils implements Listener {
             }
 
             String item_name1, item_name2;
-            ItemStack item1, item2;
+            ItemStack item1 = null, item2 = null;
 
-            item1 = isValidType(info1[1], durability1, amount1);
-            item2 = isValidType(info2[1], durability2, amount2);
+            try {
+                item1 = isValidType(info1[1], durability1, amount1);
+                item2 = isValidType(info2[1], durability2, amount2);
+            } catch (ArrayIndexOutOfBoundsException er) {
+            }
 
             if (item1 == null || item2 == null) {
                 return;
@@ -151,7 +154,9 @@ public class TradeEventListener extends Utils implements Listener {
 
             int count = amount1, removed;
             while (count > 0) {
-                ItemStack temp = chestInventory.getItem(chestInventory.first(item1.getType()));
+                boolean resetItem = false;
+                ItemStack temp = chestInventory.getItem(chestInventory.first(item1.getType())),
+                        dupitm1 = item1.clone();
                 if (count > item1.getMaxStackSize()) {
                     removed = item1.getMaxStackSize();
                 } else {
@@ -163,15 +168,27 @@ public class TradeEventListener extends Utils implements Listener {
                 }
 
                 item1.setAmount(removed);
+                if (!item1.hasItemMeta() && temp.hasItemMeta()) {
+                    item1.setItemMeta(temp.getItemMeta());
+                    item1.setData(temp.getData());
+                    resetItem = true;
+                }
+
                 chestInventory.removeItem(item1);
                 playerInventory.addItem(item1);
+
+                if (resetItem) {
+                    item1 = dupitm1;
+                }
 
                 count -= removed;
             }
 
             count = amount2;
             while (count > 0) {
-                ItemStack temp = playerInventory.getItem(playerInventory.first(item2.getType()));
+                boolean resetItem = false;
+                ItemStack temp = chestInventory.getItem(chestInventory.first(item1.getType())),
+                        dupitm1 = item1.clone();
                 if (count > item2.getMaxStackSize())
                     removed = item2.getMaxStackSize();
                 else
@@ -181,8 +198,18 @@ public class TradeEventListener extends Utils implements Listener {
                     removed = temp.getAmount();
 
                 item2.setAmount(removed);
+                if (!item1.hasItemMeta() && temp.hasItemMeta()) {
+                    item1.setItemMeta(temp.getItemMeta());
+                    item1.setData(temp.getData());
+                    resetItem = true;
+                }
+
                 playerInventory.removeItem(item2);
                 chestInventory.addItem(item2);
+
+                if (resetItem) {
+                    item1 = dupitm1;
+                }
 
                 count -= removed;
             }
