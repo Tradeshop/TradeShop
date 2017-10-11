@@ -52,7 +52,7 @@ public class TradeShop extends JavaPlugin {
     private File settingsFile = new File(this.getDataFolder(), "config.yml");
     private FileConfiguration settings;
     private File customItemsFile = new File(this.getDataFolder(), "customitems.yml");
-    private FileConfiguration CustomItems;
+    private FileConfiguration customItems;
     private boolean mc18 = this.getServer().getVersion().contains("1.8");
 
     private ArrayList<Material> inventories = new ArrayList<>();
@@ -79,7 +79,7 @@ public class TradeShop extends JavaPlugin {
     }
 
     public FileConfiguration getCustomItems() {
-        return CustomItems;
+        return customItems;
     }
 
     public Boolean isAboveMC18() {
@@ -98,7 +98,7 @@ public class TradeShop extends JavaPlugin {
         addMessageDefaults();
         settings = YamlConfiguration.loadConfiguration(settingsFile);
         addSettingsDefaults();
-        CustomItems = YamlConfiguration.loadConfiguration(customItemsFile);
+        customItems = YamlConfiguration.loadConfiguration(customItemsFile);
         addCustomItemsDefaults();
 
         addMaterials();
@@ -253,25 +253,25 @@ public class TradeShop extends JavaPlugin {
     }
 
     public void addCustomItem(String name, ItemStack itm) {
-        if (!CustomItems.getValues(false).containsKey(name)) {
-            CustomItems.createSection(name);
+        if (!customItems.getValues(false).containsKey(name)) {
+            customItems.createSection(name);
 
-            CustomItems.set(name, itm.serialize());
+            customItems.set(name, itm.serialize());
 
             save();
         }
     }
 
     public void removeCustomItem(String name) {
-        if (CustomItems.getValues(false).containsKey(name)) {
-            CustomItems.set(name, null);
+        if (customItems.getValues(false).containsKey(name)) {
+            customItems.set(name, null);
 
             save();
         }
     }
 
     public Set<String> getCustomItemSet() {
-        return CustomItems.getValues(false).keySet();
+        return customItems.getValues(false).keySet();
     }
 
     private void addCustomItemsDefaults() {
@@ -324,9 +324,9 @@ public class TradeShop extends JavaPlugin {
                 e.printStackTrace();
             }
 
-        if (CustomItems != null)
+        if (customItems != null)
             try {
-                CustomItems.save(customItemsFile);
+                customItems.save(customItemsFile);
             } catch (IOException e) {
                 e.printStackTrace();
             }
