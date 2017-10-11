@@ -178,14 +178,8 @@ public class Utils {
         if (!isSign(b)) {
             return false;
         }
-        Sign sign;
-        try {
-            sign = (Sign) b.getState();
-        } catch (NullPointerException e) {
-            return false;
-        }
-
-        return ChatColor.stripColor(sign.getLine(0)).equals("[Trade]");
+        Sign sign = (Sign) b.getState();
+        return ChatColor.stripColor(sign.getLine(0)).equalsIgnoreCase("[Trade]");
     }
 
 
@@ -199,7 +193,7 @@ public class Utils {
             return false;
         }
         Sign sign = (Sign) b.getState();
-        return ChatColor.stripColor(sign.getLine(0)).equals("[BiTrade]");
+        return ChatColor.stripColor(sign.getLine(0)).equalsIgnoreCase("[BiTrade]");
     }
 
     /**
@@ -212,7 +206,7 @@ public class Utils {
             return false;
         }
         Sign sign = (Sign) b.getState();
-        return ChatColor.stripColor(sign.getLine(0)).equals("[iTrade]");
+        return ChatColor.stripColor(sign.getLine(0)).equalsIgnoreCase("[iTrade]");
     }
 
     /**
@@ -251,24 +245,43 @@ public class Utils {
     }
 
     /**
+     * Returns true itemStacks are equal excluding amount.
+     *
+     * @param itm1 the first item
+     * @param itm2 the ssecond item
+     * @return true if it args are equal.
+     */
+    public boolean itemCheck(ItemStack itm1, ItemStack itm2) {
+        int i1 = itm1.getAmount(), i2 = itm2.getAmount();
+        boolean ret = false;
+        itm1.setAmount(1);
+        itm2.setAmount(1);
+
+        ret = itm1.equals(itm2);
+
+        itm1.setAmount(i1);
+        itm2.setAmount(i2);
+        return ret;
+    }
+
+    /**
      * Checks whether or not a certain ItemStack can fit inside an inventory.
      *
      * @param inv the Inventory the item should be placed into
      * @param itm the ItemStack
-     * @param amt the amount
      * @return true if the Inventory has enough space for the ItemStack.
      */
-    public boolean canFit(Inventory inv, ItemStack itm, int amt) {
+    public boolean canFit(Inventory inv, ItemStack itm) {
         int count = 0, empty = 0;
         for (ItemStack i : inv.getContents()) {
             if (i != null) {
-                if (i.getType() == itm.getType() && i.getData() == itm.getData() && i.getDurability() == itm.getDurability() && i.getItemMeta() == itm.getItemMeta()) {
+                if (itemCheck(itm, i)) {
                     count += i.getAmount();
                 }
             } else
                 empty += itm.getMaxStackSize();
         }
-        return empty + (count % itm.getMaxStackSize()) >= amt;
+        return empty + (count % itm.getMaxStackSize()) >= itm.getAmount();
     }
 
     /**
@@ -276,20 +289,23 @@ public class Utils {
      *
      * @param inv    the Inventory object representing the inventory that is subject to the transaction.
      * @param itmOut the ItemStack that is being given away
-     * @param amtOut the amount of that ItemStack
      * @param itmIn  the ItemStack that is being received
-     * @param amtIn  the amount of that ItemStack
      * @return true if the exchange may take place.
      */
-    public boolean canExchange(Inventory inv, ItemStack itmOut, int amtOut, ItemStack itmIn, int amtIn) {
-        int count = 0, slots = 0, empty = 0, removed = 0;
+    public boolean canExchange(Inventory inv, ItemStack itmOut, ItemStack itmIn) {
+        int count = 0,
+                slots = 0,
+                empty = 0,
+                removed = 0,
+                amtIn = itmIn.getAmount(),
+                amtOut = itmOut.getAmount();
 
         for (ItemStack i : inv.getContents()) {
             if (i != null) {
-                if (i.getType() == itmIn.getType() && i.getDurability() == itmIn.getDurability()) {
+                if (itemCheck(itmIn, i)) {
                     count += i.getAmount();
                     slots++;
-                } else if (i.getType() == itmOut.getType() && i.getDurability() == itmOut.getDurability() && amtOut != removed) {
+                } else if (itemCheck(itmOut, i) && amtOut != removed) {
 
                     if (i.getAmount() > amtOut - removed) {
                         removed = amtOut;
@@ -308,23 +324,54 @@ public class Utils {
     }
 
     /**
-     * Checks whether the an inventory contains at least a certain amount of a certain material inside a specified inventory.
+     * Checks whether or not it is a valid material or custom item.
      *
-     * @param inv the Inventory object
-     * @param mat the Material constant
-     * @param amt the amount
-     * @return true if the condition is met.
+     * @param mat String to check
+     * @return returns item or null if invalid
      */
-    public boolean containsAtLeast(Inventory inv, Material mat, int amt) {
-        int count = 0;
-        for (ItemStack itm : inv.getContents()) {
-            if (itm != null) {
-                if (itm.getType() == mat) {
-                    count += itm.getAmount();
+    public ItemStack isValidType(String mat) {
+        if (isInt(mat) && Material.getMaterial(Integer.parseInt(mat)) != null) {
+            return new ItemStack(Material.getMaterial(Integer.parseInt(mat)), 1);
+        }
+
+        if (Material.matchMaterial(mat) != null) {
+            return new ItemStack(Material.matchMaterial(mat), 1);
+        }
+
+        if (plugin.getCustomItemSet().size() > 0) {
+            for (String str : plugin.getCustomItemSet()) {
+                if (str.equalsIgnoreCase(mat)) {
+                    return plugin.getCustomItem(mat);
                 }
             }
         }
-        return count >= amt;
+
+        if (Potions.isType(mat)) {
+            return Potions.valueOf(mat.toUpperCase()).getItem();
+        }
+
+        return null;
+
+    }
+
+    /**
+     * Checks whether or not it is a valid material or custom item.
+     *
+     * @param mat        String to check
+     * @param durability durability to set
+     * @param amount     amount to set
+     * @return returns item or null if invalid
+     */
+    public ItemStack isValidType(String mat, int durability, int amount) {
+        ItemStack itm = isValidType(mat);
+
+        if (itm == null) {
+            return null;
+        }
+
+        itm.setDurability((short) durability);
+        itm.setAmount(amount);
+        return itm;
     }
 
     /**
@@ -332,21 +379,20 @@ public class Utils {
      * <br>
      * This works with the ItemStack's durability, which represents how much a tool is broken or, in case of a block, the block data.
      *
-     * @param inv the Inventory object
-     * @param mat the Material constant
-     * @param amt the amount
+     * @param inv  the Inventory object
+     * @param item the item to be checked
      * @return true if the condition is met.
      */
-    public boolean containsAtLeast(Inventory inv, Material mat, short durability, int amt) {
+    public boolean containsAtLeast(Inventory inv, ItemStack item) {
         int count = 0;
         for (ItemStack itm : inv.getContents()) {
             if (itm != null) {
-                if (itm.getType() == mat && itm.getDurability() == durability) {
+                if (itemCheck(item, itm)) {
                     count += itm.getAmount();
                 }
             }
         }
-        return count >= amt;
+        return count >= item.getAmount();
     }
 
     /**
@@ -378,7 +424,7 @@ public class Utils {
         for (BlockFace face : faces) {
             Block relative = chest.getRelative(face);
             if (isShopSign(relative)) {
-                return (Sign) chest.getRelative(face).getState();
+                return (Sign) relative.getState();
             } else if (flatFaces.contains(face) && (chest.getType().equals(Material.CHEST) || chest.getType().equals(Material.TRAPPED_CHEST))) {
                 if (relative.getType().equals(chest.getType())) {
                     isDouble = true;
@@ -392,7 +438,7 @@ public class Utils {
             for (BlockFace face : faces) {
                 Block relative = chest.getRelative(face);
                 if (isShopSign(relative)) {
-                    return (Sign) chest.getRelative(face).getState();
+                    return (Sign) relative.getState();
                 }
             }
         }
@@ -414,8 +460,9 @@ public class Utils {
             Block relative = sign.getRelative(face);
             if (relative != null)
                 if (invs.contains(relative.getType()))
-                    return sign.getRelative(face);
+                    return relative;
         }
+
         return null;
     }
 
@@ -439,12 +486,14 @@ public class Utils {
             }
         }
         Sign s = findShopSign(b);
-        if (s.getLine(3) == null || s.getLine(3).equals("")) {
+        if (s != null && s.getLine(3).equals("")) {
             if (owners.size() > 0) {
                 s.setLine(3, owners.get(0).getName());
                 s.update();
+                return owners;
+            } else {
+                return null;
             }
-            return owners;
         } else if (!owners.contains(Bukkit.getOfflinePlayer(s.getLine(3)))) {
             owners.add(Bukkit.getOfflinePlayer(s.getLine(3)));
             setName((InventoryHolder) b.getState(), "o:" + s.getLine(3));
@@ -472,10 +521,12 @@ public class Utils {
             }
         }
         Sign s = findShopSign(b);
-        if (s.getLine(3) == null || s.getLine(3).equals("")) {
+        if (s.getLines().length != 4 || s.getLine(3).equals("")) {
             if (members.size() > 0) {
                 s.setLine(3, members.get(0).getName());
                 s.update();
+            } else {
+                return null;
             }
             return members;
         } else if (getShopOwners(s).size() == 0 || !getShopOwners(s).contains(Bukkit.getOfflinePlayer(s.getLine(3)))) {
@@ -496,8 +547,13 @@ public class Utils {
         }
 
         List<OfflinePlayer> users = new ArrayList<>();
-        users.addAll(getShopOwners(b));
-        users.addAll(getShopMembers(b));
+        if (getShopOwners(b) != null)
+            users.addAll(getShopOwners(b));
+        if (getShopMembers(b) != null)
+            users.addAll(getShopMembers(b));
+
+        if (users.size() == 0)
+            return null;
 
         return users;
     }

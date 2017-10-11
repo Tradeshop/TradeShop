@@ -21,7 +21,6 @@
 
 package org.shanerx.tradeshop.itrade;
 
-import org.bukkit.Material;
 import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -96,60 +95,67 @@ public class ITradeEventListener extends Utils implements Listener {
             }
 
             String item_name1, item_name2;
+            ItemStack item1, item2;
 
-            if (isInt(info1[1]))
-                item_name1 = Material.getMaterial(Integer.parseInt(info1[1])).name();
-            else
-                item_name1 = info1[1].toUpperCase();
+            item1 = isValidType(info1[1], durability1, amount1);
+            item2 = isValidType(info2[1], durability2, amount2);
 
-            if (isInt(info2[1]))
-                item_name2 = Material.getMaterial(Integer.parseInt(info2[1])).name();
-            else
-                item_name2 = info2[1].toUpperCase();
-
-            ItemStack item1 = new ItemStack(Material.getMaterial(item_name1), amount1); // What the player gets
-            ItemStack item2 = new ItemStack(Material.getMaterial(item_name2), amount2); // What the player pays
-
-            if (!canExchange(playerInventory, item2, amount2, item1, amount1)) {
-                buyer.sendMessage(colorize(getPrefix() + plugin.getMessages().getString("player-full")
-                        .replace("{ITEM}", item_name2.toLowerCase())
-                        .replace("{AMOUNT}", String.valueOf(amount2))));
+            if (item1 == null || item2 == null) {
                 return;
             }
 
-            if (!containsAtLeast(playerInventory, item2.getType(), (short) durability2, amount2)) {
+            if (item1.hasItemMeta() && item1.getItemMeta().hasDisplayName()) {
+                item_name1 = item1.getItemMeta().getDisplayName();
+            } else {
+                item_name1 = info1[1];
+            }
+
+            if (item2.hasItemMeta() && item2.getItemMeta().hasDisplayName()) {
+                item_name2 = item2.getItemMeta().getDisplayName();
+            } else {
+                item_name2 = info2[1];
+            }
+
+            if (!containsAtLeast(playerInventory, item2)) {
                 buyer.sendMessage(colorize(getPrefix() + plugin.getMessages().getString("insufficient-items")
                         .replace("{ITEM}", item_name2.toLowerCase())
                         .replace("{AMOUNT}", String.valueOf(amount2))));
                 return;
             }
 
-            ItemStack temp;
-            if (chestInventory != null && chestInventory.first(item1.getType()) >= 0)
-                temp = chestInventory.getItem(chestInventory.first(item1.getType()));
-            else
-                temp = item1;
+            if (!canExchange(playerInventory, item2, item1)) {
+                buyer.sendMessage(colorize(getPrefix() + plugin.getMessages().getString("player-full")
+                        .replace("{ITEM}", item_name2.toLowerCase())
+                        .replace("{AMOUNT}", String.valueOf(amount2))));
+                return;
+            }
 
-            item1.setAmount(amount1);
-            item1.setData(temp.getData());
-            item1.setItemMeta(temp.getItemMeta());
-            item1.setDurability((short) durability1);
-            playerInventory.addItem(item1);
-
-            int count = amount2, removed = 0;
+            int count = amount1, removed = 0;
             while (count > 0) {
-                ItemStack temp1 = playerInventory.getItem(playerInventory.first(item2.getType()));
+                if (count > item1.getMaxStackSize()) {
+                    removed = item1.getMaxStackSize();
+                } else {
+                    removed = count;
+                }
+
+                item1.setAmount(removed);
+                playerInventory.addItem(item1);
+
+                count -= removed;
+            }
+
+            count = amount2;
+            while (count > 0) {
+                ItemStack temp = playerInventory.getItem(playerInventory.first(item2.getType()));
                 if (count > item2.getMaxStackSize())
                     removed = item2.getMaxStackSize();
                 else
                     removed = count;
-                if (removed > temp1.getAmount())
-                    removed = temp1.getAmount();
+
+                if (removed > temp.getAmount())
+                    removed = temp.getAmount();
 
                 item2.setAmount(removed);
-                item2.setData(temp1.getData());
-                item2.setItemMeta(temp1.getItemMeta());
-                item2.setDurability((short) durability2);
                 playerInventory.removeItem(item2);
 
                 count -= removed;

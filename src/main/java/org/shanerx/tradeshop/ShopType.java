@@ -21,6 +21,7 @@
 
 package org.shanerx.tradeshop;
 
+@SuppressWarnings("unused")
 public enum ShopType {
 
     TRADE("[Trade]"),

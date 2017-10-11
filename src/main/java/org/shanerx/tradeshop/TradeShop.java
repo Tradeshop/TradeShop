@@ -21,10 +21,13 @@
 
 package org.shanerx.tradeshop;
 
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.block.BlockFace;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.shanerx.tradeshop.admin.AdminEventListener;
@@ -40,6 +43,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Set;
 import java.util.logging.Level;
 
 public class TradeShop extends JavaPlugin {
@@ -47,6 +51,8 @@ public class TradeShop extends JavaPlugin {
     private FileConfiguration messages;
     private File settingsFile = new File(this.getDataFolder(), "config.yml");
     private FileConfiguration settings;
+    private File customItemsFile = new File(this.getDataFolder(), "customitems.yml");
+    private FileConfiguration customItems;
     private boolean mc18 = this.getServer().getVersion().contains("1.8");
 
     private ArrayList<Material> inventories = new ArrayList<>();
@@ -68,6 +74,14 @@ public class TradeShop extends JavaPlugin {
         return settings;
     }
 
+    public File getCustomItemFile() {
+        return customItemsFile;
+    }
+
+    public FileConfiguration getCustomItems() {
+        return customItems;
+    }
+
     public Boolean isAboveMC18() {
         return !mc18;
     }
@@ -84,6 +98,8 @@ public class TradeShop extends JavaPlugin {
         addMessageDefaults();
         settings = YamlConfiguration.loadConfiguration(settingsFile);
         addSettingsDefaults();
+        customItems = YamlConfiguration.loadConfiguration(customItemsFile);
+        addCustomItemsDefaults();
 
         addMaterials();
         addDirections();
@@ -118,9 +134,9 @@ public class TradeShop extends JavaPlugin {
         pm.registerEvents(new IShopCreateEventListener(this), this);
 
         getCommand("tradeshop").setExecutor(new Executor(this));
-        
+
         boolean checkUpdates = getSettings().getBoolean("check-updates");
-        if(checkUpdates) {
+        if (checkUpdates) {
             new Thread(() -> new Updater(getDescription()).checkCurrentVersion()).start();
         }
     }
@@ -236,7 +252,64 @@ public class TradeShop extends JavaPlugin {
         save();
     }
 
-    private void save() {
+    public void addCustomItem(String name, ItemStack itm) {
+        if (!customItems.getValues(false).containsKey(name)) {
+            customItems.createSection(name);
+
+            customItems.set(name, itm.serialize());
+
+            save();
+        }
+    }
+
+    public void removeCustomItem(String name) {
+        if (customItems.getValues(false).containsKey(name)) {
+            customItems.set(name, null);
+
+            save();
+        }
+    }
+
+    public Set<String> getCustomItemSet() {
+        return customItems.getValues(false).keySet();
+    }
+
+    private void addCustomItemsDefaults() {
+        ItemStack dataHolder = new ItemStack(Material.TRIPWIRE_HOOK);
+        ItemMeta meta = dataHolder.getItemMeta();
+
+        meta.setDisplayName("Key");
+        meta.setLore(Arrays.asList("&aThe key to your dreams."));
+        dataHolder.setItemMeta(meta);
+
+        addCustomItem("Key", dataHolder);
+    }
+
+    public ItemStack getCustomItem(String name) {
+        ItemStack itm = null;
+
+        if (!(getCustomItems().get(name) == null)) {
+            itm = ItemStack.deserialize(getCustomItems().getConfigurationSection(name).getValues(true));
+            ItemMeta meta = itm.getItemMeta();
+
+            if (meta.hasLore()) {
+                ArrayList<String> str2 = new ArrayList<>();
+                for (String s : meta.getLore()) {
+                    str2.add(ChatColor.translateAlternateColorCodes('&', s));
+                }
+                meta.setLore(str2);
+            }
+
+            if (meta.hasDisplayName())
+                meta.setDisplayName(ChatColor.translateAlternateColorCodes('&', meta.getDisplayName()));
+
+            itm.setItemMeta(meta);
+        }
+
+        return itm;
+    }
+
+    public void save() {
         if (messages != null)
             try {
                 messages.save(messagesFile);
@@ -247,6 +320,13 @@ public class TradeShop extends JavaPlugin {
         if (settings != null)
             try {
                 settings.save(settingsFile);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+        if (customItems != null)
+            try {
+                customItems.save(customItemsFile);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -262,6 +342,9 @@ public class TradeShop extends JavaPlugin {
             }
             if (!settingsFile.exists()) {
                 settingsFile.createNewFile();
+            }
+            if (!customItemsFile.exists()) {
+                customItemsFile.createNewFile();
             }
         } catch (IOException e) {
             getLogger().log(Level.SEVERE, "Could not create config files! Disabling plugin!", e);

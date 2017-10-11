@@ -23,7 +23,6 @@ package org.shanerx.tradeshop.trade;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
@@ -57,19 +56,15 @@ public class ShopCreateEventListener extends Utils implements Listener {
         Block chest = findShopChest(s.getBlock());
 
         if (!player.hasPermission(getCreatePerm())) {
-            s.setLine(0, "");
-            s.update();
-            s.setLine(1, "");
-            s.update();
-            s.setLine(2, "");
-            s.update();
-            s.setLine(3, "");
-            s.update();
+            event.setLine(0, "");
+            event.setLine(1, "");
+            event.setLine(2, "");
+            event.setLine(3, "");
             player.sendMessage(colorize(getPrefix() + plugin.getMessages().getString("no-ts-create-permission")));
             return;
         }
 
-        if (!plugin.getAllowedInventories().contains(chest.getType())) {
+        if (chest == null || !plugin.getAllowedInventories().contains(chest.getType())) {
             event.setLine(0, ChatColor.DARK_RED + "[Trade]");
             event.setLine(1, "");
             event.setLine(2, "");
@@ -78,7 +73,7 @@ public class ShopCreateEventListener extends Utils implements Listener {
             return;
         }
 
-        if (findShopChest(s.getBlock()) != null && getShopUsers(findShopChest(s.getBlock())).size() > 0) {
+        if (getShopUsers(s) != null) {
             if (!getShopOwners(s).contains(Bukkit.getOfflinePlayer(player.getUniqueId()))) {
                 event.setLine(0, "");
                 event.setLine(1, "");
@@ -107,7 +102,6 @@ public class ShopCreateEventListener extends Utils implements Listener {
 
 
         int durability1 = 0;
-        @SuppressWarnings("unused")
         int durability2 = 0;
         if (line1.split(":").length > 1) {
             durability1 = Integer.parseInt(info1[1].split(":")[1]);
@@ -118,33 +112,22 @@ public class ShopCreateEventListener extends Utils implements Listener {
             info2[1] = info2[1].split(":")[0];
         }
 
-        int amount1 = 0;
-        int amount2 = 0;
-        String item_name1 = null;
-        String item_name2 = null;
-        ItemStack item1;
-        @SuppressWarnings("unused")
-        ItemStack item2;
+        int amount1 = 0, amount2 = 0;
+        ItemStack item1, item2;
 
         try {
             amount1 = Integer.parseInt(info1[0]);
             amount2 = Integer.parseInt(info2[0]);
 
-            if (isInt(info1[1]))
-                item_name1 = Material.getMaterial(Integer.parseInt(info1[1])).name();
-            else
-                item_name1 = info1[1].toUpperCase();
-
-            item1 = new ItemStack(Material.getMaterial(item_name1), amount1);
-
-            if (isInt(info2[1]))
-                item_name2 = Material.getMaterial(Integer.parseInt(info2[1])).name();
-            else
-                item_name2 = info2[1].toUpperCase();
-
-            item2 = new ItemStack(Material.getMaterial(item_name2), amount2);
-
         } catch (Exception e) {
+            signIsValid = false;
+            e.printStackTrace();
+        }
+
+        item1 = isValidType(info1[1], durability1, amount1);
+        item2 = isValidType(info2[1], durability2, amount2);
+
+        if (item1 == null || item2 == null) {
             signIsValid = false;
         }
 
@@ -158,8 +141,6 @@ public class ShopCreateEventListener extends Utils implements Listener {
         }
 
         Inventory chestInventory = ((InventoryHolder) chest.getState()).getInventory();
-        item1 = new ItemStack(Material.getMaterial(item_name1), amount1);
-        item1.setDurability((short) durability1);
         event.setLine(0, ChatColor.DARK_GREEN + "[Trade]");
         event.setLine(3, player.getName());
         setName((InventoryHolder) chest.getState(), "o:" + player.getName());
@@ -167,8 +148,10 @@ public class ShopCreateEventListener extends Utils implements Listener {
         if (chestInventory.containsAtLeast(item1, amount1)) {
             event.getPlayer().sendMessage(colorize(getPrefix() + plugin.getMessages().getString("successful-setup")));
             return;
+        } else {
+            event.getPlayer().sendMessage(colorize(getPrefix() + plugin.getMessages().getString("empty-ts-on-setup")));
+            return;
         }
 
-        event.getPlayer().sendMessage(colorize(getPrefix() + plugin.getMessages().getString("empty-ts-on-setup")));
     }
 }

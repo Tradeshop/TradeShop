@@ -22,7 +22,6 @@
 package org.shanerx.tradeshop.itrade;
 
 import org.bukkit.ChatColor;
-import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
@@ -54,14 +53,10 @@ public class IShopCreateEventListener extends Utils implements Listener {
         Block chest = findShopChest(s.getBlock());
 
         if (!player.hasPermission(getCreateIPerm())) {
-            s.setLine(0, "");
-            s.update();
-            s.setLine(1, "");
-            s.update();
-            s.setLine(2, "");
-            s.update();
-            s.setLine(3, "");
-            s.update();
+            event.setLine(0, "");
+            event.setLine(1, "");
+            event.setLine(2, "");
+            event.setLine(3, "");
             player.sendMessage(colorize(getPrefix() + plugin.getMessages().getString("no-ts-create-permission")));
             return;
         }
@@ -84,6 +79,10 @@ public class IShopCreateEventListener extends Utils implements Listener {
         String line1 = event.getLine(1);
         String line2 = event.getLine(2);
 
+        if (line1.length() == 0 || line2.length() == 0) {
+            signIsValid = false;
+        }
+
         if (!line1.contains(" ") || !line2.contains(" ")) {
             signIsValid = false;
         }
@@ -95,46 +94,33 @@ public class IShopCreateEventListener extends Utils implements Listener {
             signIsValid = false;
         }
 
-
+        int durability1 = 0;
+        int durability2 = 0;
         if (line1.split(":").length > 1) {
+            durability1 = Integer.parseInt(info1[1].split(":")[1]);
             info1[1] = info1[1].split(":")[0];
         }
         if (line2.split(":").length > 1) {
+            durability2 = Integer.parseInt(info2[1].split(":")[1]);
             info2[1] = info2[1].split(":")[0];
         }
 
-        if (info1.length != 2 || info2.length != 2) {
-            signIsValid = false;
-        }
-
-        int amount1 = 0;
-        int amount2 = 0;
-        String item_name1 = null;
-        String item_name2 = null;
-        @SuppressWarnings("unused")
-        ItemStack item1;
-        @SuppressWarnings("unused")
-        ItemStack item2;
+        int amount1 = 0, amount2 = 0;
+        ItemStack item1, item2;
 
         try {
             amount1 = Integer.parseInt(info1[0]);
             amount2 = Integer.parseInt(info2[0]);
 
-            if (isInt(info1[1]))
-                item_name1 = Material.getMaterial(Integer.parseInt(info1[1])).name();
-            else
-                item_name1 = info1[1].toUpperCase();
-
-            item1 = new ItemStack(Material.getMaterial(item_name1), amount1);
-
-            if (isInt(info2[1]))
-                item_name2 = Material.getMaterial(Integer.parseInt(info2[1])).name();
-            else
-                item_name2 = info2[1].toUpperCase();
-
-            item2 = new ItemStack(Material.getMaterial(item_name2), amount2);
-
         } catch (Exception e) {
+            signIsValid = false;
+            e.printStackTrace();
+        }
+
+        item1 = isValidType(info1[1], durability1, amount1);
+        item2 = isValidType(info2[1], durability2, amount2);
+
+        if (item1 == null || item2 == null) {
             signIsValid = false;
         }
 
