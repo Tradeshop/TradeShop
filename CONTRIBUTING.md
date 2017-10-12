@@ -10,23 +10,31 @@
   This will avoid wasting your time on something that will not get merged.
 * Finally, although the following rules may seem strict and discouraging, we welcome *every single* contribution we get, from large pull-request to small README fixes.
 
-1. Adding a new Method or Class
-    - If you add something to the [Utils class](https://github.com/SparklingComet/TradeShop/blob/master/src/main/java/org/shanerx/tradeshop/Utils.java) you have to write documentation.
-    - Keep your code consistent and follow the [Code Conventions for Java](http://www.oracle.com/technetwork/java/codeconvtoc-136057.html
-    ).
-    - Compare your code style to the one used in other classes and ensure you do not break the consistency.
-    - **NOTE**: Your pull-request will not be rejected because of your coding style. If you find yourself breaking major rules, we will fix that before merging.
-      
-2. Making a Commit
-    - While it may be tempting to create one big commit once all the changes have been tested, doing so may make reviewing your code more difficult. Furthermore, if we are forced to revert some of your changes but not all, several smaller commits ensure more efficiency.
-    - When you commit your changes write a proper commit caption which explains what you have done.
-      
-3. Updating your Fork
-    - Before you start committing make sure your fork is updated. (See [Syncing a Fork](https://help.github.com/articles/syncing-a-fork/) for more tips.)
-    - We also expect that you have done some basic testing.
+<ol>
+  <li>Adding a new Method or Class
+    <ul>
+      <li>If you add something to the [Utils class](https://github.com/SparklingComet/TradeShop/blob/master/src/main/java/org/shanerx/tradeshop/Utils.java) you have to write documentation.</li>
+      <li>Keep your code consistent and follow the [Code Conventions for Java](http://www.oracle.com/technetwork/java/codeconvtoc-136057.html
+        ).</li>
+      <li>Compare your code style to the one used in other classes and ensure you do not break the consistency.</li>
+      <li>**NOTE**: Your pull-request will not be rejected because of your coding style. If you find yourself breaking major rules, we will fix that before merging.</li>
+    </ul>
+  </li>
+  <li>Making a Commit
+    <ul>
+      <li>While it may be tempting to create one big commit once all the changes have been tested, doing so may make reviewing your code more difficult. Furthermore, if we are forced to revert some of your changes but not all, several smaller commits ensure more efficiency.</li>
+      <li>When you commit your changes write a proper commit caption which explains what you have done.</li>
+    </ul>
+  </li>
+  <li>Updating your Fork
+    <ul>
+      <li>Before you start committing make sure your fork is updated. (See [Syncing a Fork](https://help.github.com/articles/syncing-a-fork/) for more tips.)</li>
+      <li>We also expect that you have done some basic testing.</li>
+    </ul>
+  </li>
+</ol>
 
-
-### Disclaimer
+## Credits & Disclaimer
 
 This file contains parts that were taken from [the JDA project](https://github.com/DV8FromTheWorld/JDA).
 We do **not** wish to take credit for those parts.
