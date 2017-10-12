@@ -12,18 +12,17 @@
 
 1. Adding a new Method or Class
     - If you add something to the [Utils class](https://github.com/SparklingComet/TradeShop/blob/master/src/main/java/org/shanerx/tradeshop/Utils.java) you have to write documentation.
-    - For that please follow the [JavaDoc template](https://github.com/DV8FromTheWorld/JDA/wiki/6%29-JDA-Structure-Guide#javadoc)
-    - Keep your code consistent! [example](https://github.com/DV8FromTheWorld/JDA/wiki/5%29-contributing#examples)
-    - Follow the guides provided at [JDA Structure Guide](https://github.com/DV8FromTheWorld/JDA/wiki/6%29-JDA-Structure-Guide)
-    - Compare your code style to the one used all over JDA and ensure you
-      do not break the consistency (if you find issues in the JDA style you can include and update it)
+    - Keep your code consistent and follow the [Code Conventions for Java](http://www.oracle.com/technetwork/java/codeconvtoc-136057.html
+    ).
+    - Compare your code style to the one used in other classes and ensure you
+      do not break the consistency.
+    - **NOTE**: Your pull-request will not be rejected because of your coding style. If you find yourself breaking major rules, we will fix that before merging.
       
 2. Making a Commit
     - While it may be tempting to create one big commit once all the changes have been tested,
       doing so may make reviewing your code more difficult. Furthermore, if we are forced to revert some of your changes but not all,
       several smaller commits ensure more efficiency.
     - When you commit your changes write a proper commit caption which explains what you have done.
-      For more information please consult the [Contributing](https://github.com/DV8FromTheWorld/JDA/wiki/5%29-Contributing) section of our wiki.
       
 3. Updating your Fork
     - Before you start committing make sure your fork is updated.
