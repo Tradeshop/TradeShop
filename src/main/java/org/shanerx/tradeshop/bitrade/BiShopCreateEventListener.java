@@ -48,10 +48,11 @@ public class BiShopCreateEventListener extends Utils implements Listener {
     @SuppressWarnings("deprecation")
     @EventHandler(priority = EventPriority.HIGH)
     public void onSignChange(SignChangeEvent event) {
+        String header = ShopType.BITRADE.header();
         Player player = event.getPlayer();
         Sign s = (Sign) event.getBlock().getState();
 
-        if (!event.getLine(0).equalsIgnoreCase("[BiTrade]")) {
+        if (!(event.getLine(0).equalsIgnoreCase(header))) {
             return;
         }
 
@@ -129,7 +130,7 @@ public class BiShopCreateEventListener extends Utils implements Listener {
         }
 
         Inventory chestInventory = ((InventoryHolder) chest.getState()).getInventory();
-        event.setLine(0, ChatColor.DARK_GREEN + "[BiTrade]");
+        event.setLine(0, ChatColor.DARK_GREEN + header);
         event.setLine(3, player.getName());
         setName((InventoryHolder) chest.getState(), "o:" + player.getName());
 

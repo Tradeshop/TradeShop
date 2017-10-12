@@ -57,27 +57,16 @@ public class TradeShop extends JavaPlugin {
 
     private ArrayList<Material> inventories = new ArrayList<>();
     private ArrayList<BlockFace> directions = new ArrayList<>();
-
-    public File getMessagesFile() {
-        return messagesFile;
-    }
+    private ArrayList<String> blacklist = new ArrayList<>();
 
     public FileConfiguration getMessages() {
         return messages;
-    }
-
-    public File getSettingsFile() {
-        return settingsFile;
     }
 
     @Deprecated
     @Override
     public FileConfiguration getConfig() {
         return settings;
-    }
-
-    public File getCustomItemFile() {
-        return customItemsFile;
     }
 
     public FileConfiguration getCustomItems() {
@@ -95,14 +84,16 @@ public class TradeShop extends JavaPlugin {
     @Override
     public void reloadConfig() {
         messages = YamlConfiguration.loadConfiguration(messagesFile);
-        addMessageDefaults();
         settings = YamlConfiguration.loadConfiguration(settingsFile);
-        addSettingsDefaults();
         customItems = YamlConfiguration.loadConfiguration(customItemsFile);
+
+        addMessageDefaults();
+        addSettingsDefaults();
         addCustomItemsDefaults();
 
         addMaterials();
         addDirections();
+        addIllegalItems();
     }
 
     public ArrayList<Material> getAllowedInventories() {
@@ -114,12 +105,7 @@ public class TradeShop extends JavaPlugin {
     }
 
     public ArrayList<String> getIllegalItems() {
-        ArrayList<String> temp = new ArrayList<>();
-        temp.add("air");
-        for (String s : getSettings().getStringList("illegal-items")) {
-            temp.add(s.toLowerCase());
-        }
-        return temp;
+        return blacklist;
     }
 
     @Override
@@ -151,6 +137,7 @@ public class TradeShop extends JavaPlugin {
     }
 
     private void addMaterials() {
+        inventories.clear();
         ArrayList<Material> allowedOld = new ArrayList<>();
         allowedOld.addAll(Arrays.asList(Material.CHEST, Material.TRAPPED_CHEST, Material.DROPPER, Material.HOPPER, Material.DISPENSER));
 
@@ -181,12 +168,21 @@ public class TradeShop extends JavaPlugin {
     }
 
     private void addDirections() {
+        directions.clear();
         ArrayList<BlockFace> allowed = new ArrayList<>();
         allowed.addAll(Arrays.asList(BlockFace.DOWN, BlockFace.WEST, BlockFace.SOUTH, BlockFace.EAST, BlockFace.NORTH, BlockFace.UP));
 
         for (String str : getSettings().getStringList("allowed-directions")) {
             if (allowed.contains(BlockFace.valueOf(str)))
                 directions.add(BlockFace.valueOf(str));
+        }
+    }
+
+    private void addIllegalItems() {
+        blacklist.clear();
+        blacklist.add("air");
+        for (String s : getSettings().getStringList("illegal-items")) {
+            blacklist.add(s.toLowerCase());
         }
     }
 
@@ -264,6 +260,9 @@ public class TradeShop extends JavaPlugin {
         addSetting("max-shop-users", 5);
         addSetting("illegal-items", new String[]{"Bedrock", "Command_Block"});
         addSetting("allow-custom-illegal-items", true);
+        addSetting("tradeshop-name", "Trade");
+        addSetting("itradeshop-name", "iTrade");
+        addSetting("bitradeshop-name", "BiTrade");
 
         save();
     }

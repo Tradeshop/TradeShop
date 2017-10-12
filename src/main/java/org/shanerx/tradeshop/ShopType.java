@@ -21,24 +21,45 @@
 
 package org.shanerx.tradeshop;
 
+import org.bukkit.Bukkit;
+
 @SuppressWarnings("unused")
 public enum ShopType {
 
-    TRADE("[Trade]"),
+    TRADE("[" + getTrade() + "]"),
 
-    ITRADE("[iTrade]"),
+    ITRADE("[" + getiTrade() + "]"),
 
-    BITRADE("[BiTrade]"),
-
-    UNKNOWN;
+    BITRADE("[" + getbiTrade() + "]");
 
     private String header;
+    private static TradeShop plugin = null;
+
+    private static void setPlugin() {
+        if (plugin == null) {
+            plugin = (TradeShop) Bukkit.getPluginManager().getPlugin("TradeShop");
+        }
+    }
+
+    private static TradeShop getPlugin() {
+        setPlugin();
+        return plugin;
+    }
+
+    private static String getTrade() {
+        return getPlugin().getSettings().getString("tradeshop-name");
+    }
+
+    private static String getiTrade() {
+        return getPlugin().getSettings().getString("itradeshop-name");
+    }
+
+    private static String getbiTrade() {
+        return getPlugin().getSettings().getString("bitradeshop-name");
+    }
 
     ShopType(String s) {
         header = s;
-    }
-
-    ShopType() {
     }
 
     public String header() {
