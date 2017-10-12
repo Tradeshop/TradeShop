@@ -134,6 +134,8 @@ public class TradeShop extends JavaPlugin {
         if (checkUpdates) {
             new Thread(() -> new Updater(getDescription()).checkCurrentVersion()).start();
         }
+        
+        new Metrics(this);
     }
 
     private void addMaterials() {
