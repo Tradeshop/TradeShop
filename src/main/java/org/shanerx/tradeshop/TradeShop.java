@@ -70,7 +70,9 @@ public class TradeShop extends JavaPlugin {
         return settingsFile;
     }
 
-    public FileConfiguration getSettings() {
+    @Deprecated
+    @Override
+    public FileConfiguration getConfig() {
         return settings;
     }
 
@@ -86,9 +88,7 @@ public class TradeShop extends JavaPlugin {
         return !mc18;
     }
 
-    @Deprecated
-    @Override
-    public FileConfiguration getConfig() {
+    public FileConfiguration getSettings() {
         return settings;
     }
 
@@ -111,6 +111,15 @@ public class TradeShop extends JavaPlugin {
 
     public ArrayList<BlockFace> getAllowedDirections() {
         return directions;
+    }
+
+    public ArrayList<String> getIllegalItems() {
+        ArrayList<String> temp = new ArrayList<>();
+        temp.add("air");
+        for (String s : getSettings().getStringList("illegal-items")) {
+            temp.add(s.toLowerCase());
+        }
+        return temp;
     }
 
     @Override
@@ -145,7 +154,7 @@ public class TradeShop extends JavaPlugin {
         ArrayList<Material> allowedOld = new ArrayList<>();
         allowedOld.addAll(Arrays.asList(Material.CHEST, Material.TRAPPED_CHEST, Material.DROPPER, Material.HOPPER, Material.DISPENSER));
 
-        for (String str : getConfig().getStringList("allowed-shops")) {
+        for (String str : getSettings().getStringList("allowed-shops")) {
             if (str.equalsIgnoreCase("shulker")) {
                 inventories.addAll(Arrays.asList(Material.BLACK_SHULKER_BOX,
                         Material.BLUE_SHULKER_BOX,
@@ -175,20 +184,20 @@ public class TradeShop extends JavaPlugin {
         ArrayList<BlockFace> allowed = new ArrayList<>();
         allowed.addAll(Arrays.asList(BlockFace.DOWN, BlockFace.WEST, BlockFace.SOUTH, BlockFace.EAST, BlockFace.NORTH, BlockFace.UP));
 
-        for (String str : getConfig().getStringList("allowed-directions")) {
+        for (String str : getSettings().getStringList("allowed-directions")) {
             if (allowed.contains(BlockFace.valueOf(str)))
                 directions.add(BlockFace.valueOf(str));
         }
     }
 
     private void addMessage(String node, String message) {
-        if (messages.getString(node) == null) {
+        if (messages.get(node) == null) {
             messages.set(node, message);
         }
     }
 
     private void addSetting(String node, Object value) {
-        if (settings.getString(node) == null) {
+        if (settings.get(node) == null) {
             settings.set(node, value);
         }
     }
@@ -235,6 +244,11 @@ public class TradeShop extends JavaPlugin {
         addMessage("who-message", "&6Shop users are:\n&2Owners: &e{OWNERS}\n&2Members: &e{MEMBERS}");
         addMessage("self-owned", "&cYou cannot buy from a shop in which you are a user.");
         addMessage("not-owner", "&cYou cannot create a sign for a shop that you do not own.");
+        addMessage("illegal-item", "&cYou cannot use one or more of those items in shops.");
+        addMessage("missing-item", "&cYour sign is missing an item for trade.");
+        addMessage("missing-info", "&cYour sign is missing necessary information.");
+        addMessage("amount-not-num", "&cYou should have an amount before each item.");
+        addMessage("buy-failed-sign", "&cThis shop sign does not seem to be formatted correctly, please notify the owner.");
 
         save();
     }
@@ -248,6 +262,8 @@ public class TradeShop extends JavaPlugin {
         addSetting("allow-quad-trade", true);
         addSetting("max-edit-distance", 4);
         addSetting("max-shop-users", 5);
+        addSetting("illegal-items", new String[]{"Bedrock", "Command_Block"});
+        addSetting("allow-custom-illegal-items", true);
 
         save();
     }
@@ -275,14 +291,16 @@ public class TradeShop extends JavaPlugin {
     }
 
     private void addCustomItemsDefaults() {
-        ItemStack dataHolder = new ItemStack(Material.TRIPWIRE_HOOK);
-        ItemMeta meta = dataHolder.getItemMeta();
+        if (getCustomItems().getValues(false).isEmpty()) {
+            ItemStack dataHolder = new ItemStack(Material.TRIPWIRE_HOOK);
+            ItemMeta meta = dataHolder.getItemMeta();
 
-        meta.setDisplayName("Key");
-        meta.setLore(Arrays.asList("&aThe key to your dreams."));
-        dataHolder.setItemMeta(meta);
+            meta.setDisplayName("Key");
+            meta.setLore(Arrays.asList("&aThe key to your dreams."));
+            dataHolder.setItemMeta(meta);
 
-        addCustomItem("Key", dataHolder);
+            addCustomItem("Key", dataHolder);
+        }
     }
 
     public ItemStack getCustomItem(String name) {

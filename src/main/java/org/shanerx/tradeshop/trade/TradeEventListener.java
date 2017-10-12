@@ -113,6 +113,10 @@ public class TradeEventListener extends Utils implements Listener {
             }
 
             if (item1 == null || item2 == null) {
+                failedTrade(e, "buy-failed-sign");
+                return;
+            } else if (isBlacklistItem(item1) || isBlacklistItem(item2)) {
+                failedTrade(e, "illegal-item");
                 return;
             }
 
