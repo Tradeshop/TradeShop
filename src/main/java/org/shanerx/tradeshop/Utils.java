@@ -30,6 +30,8 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.Chest;
 import org.bukkit.block.Sign;
+import org.bukkit.event.block.SignChangeEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
@@ -42,6 +44,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 
@@ -334,30 +337,117 @@ public class Utils {
     }
 
     /**
+     * Serves as reference for blacklist item
+     *
+     * @return returns item for blacklist fail
+     */
+    public ItemStack getBlackListItem() {
+        ItemStack blacklist = new ItemStack(Material.BEDROCK);
+        ItemMeta bm = blacklist.getItemMeta();
+        bm.setDisplayName("blacklisted&4&0&4");
+        blacklist.setItemMeta(bm);
+        return blacklist;
+    }
+
+    /**
+     * Sets the event sign to a failed creation sign
+     *
+     * @param e    Event to reset the sign for
+     * @param shop Shoptype enum to get header
+     */
+    public void failedSignReset(SignChangeEvent e, ShopType shop) {
+        e.setLine(0, ChatColor.DARK_RED + shop.header());
+        e.setLine(1, "");
+        e.setLine(2, "");
+        e.setLine(3, "");
+    }
+
+    /**
+     * Sets the event sign to a failed creation sign
+     *
+     * @param e           event where shop creation failed
+     * @param shop        Shoptype enum to get header
+     * @param messagePath Name of message in messages.yml
+     */
+    public void failedSign(SignChangeEvent e, ShopType shop, String messagePath) {
+        failedSignReset(e, shop);
+        e.getPlayer().sendMessage(colorize(getPrefix() + plugin.getMessages().getString(messagePath)));
+    }
+
+    /**
+     * Sets the event sign to a failed creation sign
+     *
+     * @param e           Event to reset the sign for
+     * @param messagePath Name of message in messages.yml
+     */
+    public void failedTrade(PlayerInteractEvent e, String messagePath) {
+        e.getPlayer().sendMessage(colorize(getPrefix() + plugin.getMessages().getString(messagePath)));
+    }
+
+    /**
      * Checks whether or not it is a valid material or custom item.
      *
      * @param mat String to check
      * @return returns item or null if invalid
      */
     public ItemStack isValidType(String mat) {
+        ArrayList<String> illegalItems = plugin.getIllegalItems();
+        Set<String> customItemSet = plugin.getCustomItemSet();
+        String matLower = mat.toLowerCase();
+        ItemStack blacklist = getBlackListItem();
+
         if (isInt(mat) && Material.getMaterial(Integer.parseInt(mat)) != null) {
-            return new ItemStack(Material.getMaterial(Integer.parseInt(mat)), 1);
+            Material temp = Material.getMaterial(Integer.parseInt(mat));
+            if (illegalItems.contains(temp.name().toLowerCase())) {
+                return blacklist;
+            }
+
+            return new ItemStack(temp, 1);
         }
 
         if (Material.matchMaterial(mat) != null) {
-            return new ItemStack(Material.matchMaterial(mat), 1);
+            Material temp = Material.matchMaterial(mat);
+            if (illegalItems.contains(temp.name().toLowerCase())) {
+                return blacklist;
+            }
+
+            return new ItemStack(temp, 1);
         }
 
-        if (plugin.getCustomItemSet().size() > 0) {
-            for (String str : plugin.getCustomItemSet()) {
+        if (customItemSet.size() > 0) {
+            for (String str : customItemSet) {
                 if (str.equalsIgnoreCase(mat)) {
-                    return plugin.getCustomItem(mat);
+                    ItemStack temp = plugin.getCustomItem(mat);
+                    if (!plugin.getSettings().getBoolean("allow-custom-illegal-items")) {
+                        if (illegalItems.contains(temp.getType().name().toLowerCase())) {
+                            return blacklist;
+                        }
+                    }
+
+                    return temp;
                 }
             }
         }
 
         if (Potions.isType(mat)) {
-            return Potions.valueOf(mat.toUpperCase()).getItem();
+            ItemStack temp = Potions.valueOf(mat.toUpperCase()).getItem();
+            if (illegalItems.contains(matLower)) {
+                return null;
+            } else if (matLower.contains("p_")) {
+                if (illegalItems.contains("potion")) {
+                    return blacklist;
+                }
+            } else if (matLower.contains("s_")) {
+                if (illegalItems.contains("splash_potion")) {
+                    return blacklist;
+                }
+            } else if (matLower.contains("l_")) {
+                if (illegalItems.contains("lingering_potion")) {
+                    return blacklist;
+                }
+            }
+
+            return temp;
         }
 
         return null;
@@ -382,6 +472,22 @@ public class Utils {
         itm.setDurability((short) durability);
         itm.setAmount(amount);
         return itm;
+    }
+
+    /**
+     * Checks whether or not it is a valid material or custom item.
+     *
+     * @param itm Item to check
+     * @return true if item is blacklist item
+     */
+    public boolean isBlacklistItem(ItemStack itm) {
+        ItemStack blacklist = getBlackListItem();
+
+        if (!itm.hasItemMeta()) {
+            return false;
+        } else if (!itm.getItemMeta().hasDisplayName()) {
+            return false;
+        } else return itm.getItemMeta().getDisplayName().equalsIgnoreCase(blacklist.getItemMeta().getDisplayName());
     }
 
     /**

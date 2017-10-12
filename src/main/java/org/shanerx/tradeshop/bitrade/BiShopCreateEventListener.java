@@ -33,6 +33,7 @@ import org.bukkit.event.block.SignChangeEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
+import org.shanerx.tradeshop.ShopType;
 import org.shanerx.tradeshop.TradeShop;
 import org.shanerx.tradeshop.Utils;
 
@@ -52,54 +53,41 @@ public class BiShopCreateEventListener extends Utils implements Listener {
 
         if (!event.getLine(0).equalsIgnoreCase("[BiTrade]")) {
             return;
-
         }
 
         Block chest = findShopChest(s.getBlock());
 
         if (!player.hasPermission(getCreateBiPerm())) {
-            event.setLine(0, "");
-            event.setLine(1, "");
-            event.setLine(2, "");
-            event.setLine(3, "");
-            player.sendMessage(colorize(getPrefix() + plugin.getMessages().getString("no-ts-create-permission")));
+            failedSign(event, ShopType.BITRADE, "no-ts-create-permission");
             return;
         }
 
         if (chest == null || !plugin.getAllowedInventories().contains(chest.getType())) {
-            event.setLine(0, ChatColor.DARK_RED + "[BiTrade]");
-            event.setLine(1, "");
-            event.setLine(2, "");
-            event.setLine(3, "");
-            player.sendMessage(colorize(getPrefix() + plugin.getMessages().getString("no-chest")));
+            failedSign(event, ShopType.BITRADE, "no-chest");
             return;
         }
 
         if (getShopUsers(s) != null) {
             if (!getShopOwners(s).contains(Bukkit.getOfflinePlayer(player.getUniqueId()))) {
-                event.setLine(0, "");
-                event.setLine(1, "");
-                event.setLine(2, "");
-                event.setLine(3, "");
-                player.sendMessage(colorize(getPrefix() + plugin.getMessages().getString("not-owner")));
+                failedSign(event, ShopType.BITRADE, "not-owner");
                 return;
             }
         }
-
-        boolean signIsValid = true;
 
         String line1 = event.getLine(1);
         String line2 = event.getLine(2);
 
         if (!line1.contains(" ") || !line2.contains(" ")) {
-            signIsValid = false;
+            failedSign(event, ShopType.BITRADE, "missing-item");
+            return;
         }
 
         String[] info1 = line1.split(" ");
         String[] info2 = line2.split(" ");
 
         if (info1.length != 2 || info2.length != 2) {
-            signIsValid = false;
+            failedSign(event, ShopType.BITRADE, "missing-info");
+            return;
         }
 
 
@@ -122,7 +110,8 @@ public class BiShopCreateEventListener extends Utils implements Listener {
             amount2 = Integer.parseInt(info2[0]);
 
         } catch (Exception e) {
-            signIsValid = false;
+            failedSign(event, ShopType.BITRADE, "amount-not-num");
+            return;
         }
 
         try {
@@ -132,18 +121,13 @@ public class BiShopCreateEventListener extends Utils implements Listener {
         }
 
         if (item1 == null || item2 == null) {
-            signIsValid = false;
-        }
-
-        if (!signIsValid) {
-            event.getPlayer().sendMessage(colorize(getPrefix() + plugin.getMessages().getString("invalid-sign")));
-            event.setLine(0, ChatColor.DARK_RED + "[BiTrade]");
-            event.setLine(1, "");
-            event.setLine(2, "");
-            event.setLine(3, "");
+            failedSign(event, ShopType.BITRADE, "missing-item");
             return;
-
+        } else if (isBlacklistItem(item1) || isBlacklistItem(item2)) {
+            failedSign(event, ShopType.BITRADE, "illegal-item");
+            return;
         }
+
         Inventory chestInventory = ((InventoryHolder) chest.getState()).getInventory();
         event.setLine(0, ChatColor.DARK_GREEN + "[BiTrade]");
         event.setLine(3, player.getName());

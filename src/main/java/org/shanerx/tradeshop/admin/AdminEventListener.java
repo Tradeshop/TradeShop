@@ -56,7 +56,7 @@ public class AdminEventListener extends Utils implements Listener {
             } else if (player.hasPermission(getAdminPerm())) {
                 return;
 
-            } else if (getShopOwners(s).contains(Bukkit.getOfflinePlayer(event.getPlayer().getUniqueId()))) {
+            } else if (findShopChest(block) != null && getShopOwners(s).contains(Bukkit.getOfflinePlayer(event.getPlayer().getUniqueId()))) {
                 return;
 
             }
