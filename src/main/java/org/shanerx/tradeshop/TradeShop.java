@@ -266,7 +266,7 @@ public class TradeShop extends JavaPlugin {
         addSetting("allow-custom-illegal-items", true);
         addSetting("tradeshop-name", "Trade");
         addSetting("itradeshop-name", "iTrade");
-        addSetting("bitradeshop-name", "biTrade");
+        addSetting("bitradeshop-name", "BiTrade");
 
         save();
     }

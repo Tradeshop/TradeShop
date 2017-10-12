@@ -49,7 +49,7 @@ public class IShopCreateEventListener extends Utils implements Listener {
         Player player = event.getPlayer();
         Sign s = (Sign) event.getBlock().getState();
 
-        if (!(s.getLine(0).equalsIgnoreCase(header))) {
+        if (!(event.getLine(0).equalsIgnoreCase(header))) {
             return;
         }
 
