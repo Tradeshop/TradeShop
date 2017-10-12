@@ -59,18 +59,6 @@ public class TradeShop extends JavaPlugin {
     private ArrayList<BlockFace> directions = new ArrayList<>();
     private ArrayList<String> blacklist = new ArrayList<>();
 
-    public File getMessagesFile() {
-        return messagesFile;
-    }
-
-    public File getSettingsFile() {
-        return settingsFile;
-    }
-
-    public File getCustomItemFile() {
-        return customItemsFile;
-    }
-
     public FileConfiguration getMessages() {
         return messages;
     }
