@@ -55,7 +55,6 @@ import java.util.UUID;
  */
 public class Utils {
 
-    protected final String VERSION = Bukkit.getPluginManager().getPlugin("TradeShop").getDescription().getVersion();
     protected final PluginDescriptionFile pdf = Bukkit.getPluginManager().getPlugin("TradeShop").getDescription();
     protected final String PREFIX = "&a[&eTradeShop&a] ";
 
@@ -184,7 +183,7 @@ public class Utils {
             return false;
         }
         Sign sign = (Sign) b.getState();
-        return ChatColor.stripColor(sign.getLine(0)).equalsIgnoreCase("[Trade]");
+        return ChatColor.stripColor(sign.getLine(0)).equalsIgnoreCase(ShopType.TRADE.header());
     }
 
 
@@ -198,7 +197,7 @@ public class Utils {
             return false;
         }
         Sign sign = (Sign) b.getState();
-        return ChatColor.stripColor(sign.getLine(0)).equalsIgnoreCase("[BiTrade]");
+        return ChatColor.stripColor(sign.getLine(0)).equalsIgnoreCase(ShopType.BITRADE.header());
     }
 
     /**
@@ -211,7 +210,7 @@ public class Utils {
             return false;
         }
         Sign sign = (Sign) b.getState();
-        return ChatColor.stripColor(sign.getLine(0)).equalsIgnoreCase("[iTrade]");
+        return ChatColor.stripColor(sign.getLine(0)).equalsIgnoreCase(ShopType.ITRADE.header());
     }
 
     /**

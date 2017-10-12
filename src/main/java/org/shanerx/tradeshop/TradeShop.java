@@ -264,6 +264,9 @@ public class TradeShop extends JavaPlugin {
         addSetting("max-shop-users", 5);
         addSetting("illegal-items", new String[]{"Bedrock", "Command_Block"});
         addSetting("allow-custom-illegal-items", true);
+        addSetting("tradeshop-name", "Trade");
+        addSetting("itradeshop-name", "iTrade");
+        addSetting("bitradeshop-name", "biTrade");
 
         save();
     }

@@ -47,9 +47,11 @@ public class ShopCreateEventListener extends Utils implements Listener {
     @SuppressWarnings("deprecation")
     @EventHandler
     public void onSignChange(SignChangeEvent event) {
+        String header = ShopType.TRADE.header();
         Player player = event.getPlayer();
         Sign s = (Sign) event.getBlock().getState();
-        if (!(event.getLine(0).equalsIgnoreCase("[Trade]"))) {
+
+        if (!(s.getLine(0).equalsIgnoreCase(header))) {
             return;
         }
 
@@ -128,7 +130,7 @@ public class ShopCreateEventListener extends Utils implements Listener {
         }
 
         Inventory chestInventory = ((InventoryHolder) chest.getState()).getInventory();
-        event.setLine(0, ChatColor.DARK_GREEN + "[Trade]");
+        event.setLine(0, ChatColor.DARK_GREEN + header);
         event.setLine(3, player.getName());
         setName((InventoryHolder) chest.getState(), "o:" + player.getName());
 

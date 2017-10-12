@@ -45,9 +45,11 @@ public class IShopCreateEventListener extends Utils implements Listener {
     @SuppressWarnings("deprecation")
     @EventHandler
     public void onSignChange(SignChangeEvent event) {
+        String header = ShopType.ITRADE.header();
         Player player = event.getPlayer();
         Sign s = (Sign) event.getBlock().getState();
-        if (!(event.getLine(0).equalsIgnoreCase("[iTrade]"))) {
+
+        if (!(s.getLine(0).equalsIgnoreCase(header))) {
             return;
         }
 
@@ -57,7 +59,7 @@ public class IShopCreateEventListener extends Utils implements Listener {
             failedSign(event, ShopType.ITRADE, "no-ts-create-permission");
             return;
         }
-        
+
         if (findShopChest(s.getBlock()) != null && getShopUsers(findShopChest(s.getBlock())).size() > 0) {
             getShopOwners(s).stream().forEach(op -> {
                 if (!op.getName().equalsIgnoreCase(plugin.getSettings().getString("itrade-shop-name"))) {
@@ -94,7 +96,7 @@ public class IShopCreateEventListener extends Utils implements Listener {
             info2[1] = info2[1].split(":")[0];
         }
 
-        int amount1 = 0, amount2 = 0;
+        int amount1, amount2;
         ItemStack item1 = null, item2 = null;
 
         try {
@@ -123,7 +125,8 @@ public class IShopCreateEventListener extends Utils implements Listener {
         if (chest != null) {
             setName((InventoryHolder) chest.getState(), "o:" + plugin.getSettings().getString("itrade-shop-name"));
         }
-        event.setLine(0, ChatColor.DARK_GREEN + "[iTrade]");
+
+        event.setLine(0, ChatColor.DARK_GREEN + header);
         event.setLine(3, plugin.getSettings().getString("itrade-shop-name"));
         event.getPlayer().sendMessage(colorize(getPrefix() + plugin.getMessages().getString("successful-setup")));
     }
