@@ -35,7 +35,7 @@ public class Updater {
     public Updater(PluginDescriptionFile pdf) {
         this.pdf = pdf;
 
-        log = Bukkit.getLogger();
+        log = Bukkit.getPluginManager().getPlugin("TradeShop").getLogger();
 
         try {
             url = new URL("https://api.spigotmc.org/legacy/update.php?resource=32762"); // Edit API URL.
