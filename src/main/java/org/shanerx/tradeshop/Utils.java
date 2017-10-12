@@ -33,6 +33,8 @@ import org.bukkit.block.Sign;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.material.MaterialData;
 import org.bukkit.permissions.Permission;
 import org.bukkit.plugin.PluginDescriptionFile;
 
@@ -253,12 +255,20 @@ public class Utils {
      */
     public boolean itemCheck(ItemStack itm1, ItemStack itm2) {
         int i1 = itm1.getAmount(), i2 = itm2.getAmount();
+        ItemMeta temp1 = itm1.getItemMeta();
+        MaterialData temp11 = itm1.getData();
         boolean ret = false;
         itm1.setAmount(1);
         itm2.setAmount(1);
 
+        if (!itm1.hasItemMeta() && itm2.hasItemMeta()) {
+            itm1.setItemMeta(itm2.getItemMeta());
+            itm1.setData(itm2.getData());
+        }
         ret = itm1.equals(itm2);
 
+        itm1.setItemMeta(temp1);
+        itm1.setData(temp11);
         itm1.setAmount(i1);
         itm2.setAmount(i2);
         return ret;
@@ -486,17 +496,20 @@ public class Utils {
             }
         }
         Sign s = findShopSign(b);
-        if (s != null && s.getLine(3).equals("")) {
-            if (owners.size() > 0) {
-                s.setLine(3, owners.get(0).getName());
-                s.update();
-                return owners;
-            } else {
-                return null;
+        try {
+            if (s != null && s.getLine(3).equals("")) {
+                if (owners.size() > 0) {
+                    s.setLine(3, owners.get(0).getName());
+                    s.update();
+                    return owners;
+                } else {
+                    return null;
+                }
+            } else if (!owners.contains(Bukkit.getOfflinePlayer(s.getLine(3)))) {
+                owners.add(Bukkit.getOfflinePlayer(s.getLine(3)));
+                setName((InventoryHolder) b.getState(), "o:" + s.getLine(3));
             }
-        } else if (!owners.contains(Bukkit.getOfflinePlayer(s.getLine(3)))) {
-            owners.add(Bukkit.getOfflinePlayer(s.getLine(3)));
-            setName((InventoryHolder) b.getState(), "o:" + s.getLine(3));
+        } catch (NullPointerException npe) {
         }
         return owners;
     }
@@ -521,16 +534,19 @@ public class Utils {
             }
         }
         Sign s = findShopSign(b);
-        if (s.getLines().length != 4 || s.getLine(3).equals("")) {
-            if (members.size() > 0) {
-                s.setLine(3, members.get(0).getName());
-                s.update();
-            } else {
-                return null;
+        try {
+            if (s.getLines().length != 4 || s.getLine(3).equals("")) {
+                if (members.size() > 0) {
+                    s.setLine(3, members.get(0).getName());
+                    s.update();
+                } else {
+                    return null;
+                }
+                return members;
+            } else if (getShopOwners(s).size() == 0 || !getShopOwners(s).contains(Bukkit.getOfflinePlayer(s.getLine(3)))) {
+                setName((InventoryHolder) b.getState(), "o:" + s.getLine(3));
             }
-            return members;
-        } else if (getShopOwners(s).size() == 0 || !getShopOwners(s).contains(Bukkit.getOfflinePlayer(s.getLine(3)))) {
-            setName((InventoryHolder) b.getState(), "o:" + s.getLine(3));
+        } catch (NullPointerException npe) {
         }
         return members;
     }

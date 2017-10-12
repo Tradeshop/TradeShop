@@ -95,10 +95,13 @@ public class ITradeEventListener extends Utils implements Listener {
             }
 
             String item_name1, item_name2;
-            ItemStack item1, item2;
+            ItemStack item1 = null, item2 = null;
 
-            item1 = isValidType(info1[1], durability1, amount1);
-            item2 = isValidType(info2[1], durability2, amount2);
+            try {
+                item1 = isValidType(info1[1], durability1, amount1);
+                item2 = isValidType(info2[1], durability2, amount2);
+            } catch (ArrayIndexOutOfBoundsException er) {
+            }
 
             if (item1 == null || item2 == null) {
                 return;
