@@ -135,7 +135,12 @@ public class TradeShop extends JavaPlugin {
             new Thread(() -> new Updater(getDescription()).checkCurrentVersion()).start();
         }
         
-        new Metrics(this);
+        if (getSettings().getBoolean("allow-metrics")) {
+            new Metrics(this);
+            
+        } else {
+            getLogger().warn("Metrics are disabled! Please consider enabling them to support the authors!");
+        }
     }
 
     private void addMaterials() {
@@ -265,6 +270,7 @@ public class TradeShop extends JavaPlugin {
         addSetting("tradeshop-name", "Trade");
         addSetting("itradeshop-name", "iTrade");
         addSetting("bitradeshop-name", "BiTrade");
+        addSetting("allow-metrics", true);
 
         save();
     }
