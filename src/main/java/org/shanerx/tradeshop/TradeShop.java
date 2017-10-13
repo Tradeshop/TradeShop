@@ -21,6 +21,7 @@
 
 package org.shanerx.tradeshop;
 
+import org.bstats.bukkit.Metrics;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.block.BlockFace;
@@ -58,6 +59,8 @@ public class TradeShop extends JavaPlugin {
     private ArrayList<Material> inventories = new ArrayList<>();
     private ArrayList<BlockFace> directions = new ArrayList<>();
     private ArrayList<String> blacklist = new ArrayList<>();
+    
+    private Metrics metrics;
 
     public FileConfiguration getMessages() {
         return messages;
@@ -133,6 +136,14 @@ public class TradeShop extends JavaPlugin {
         boolean checkUpdates = getSettings().getBoolean("check-updates");
         if (checkUpdates) {
             new Thread(() -> new Updater(getDescription()).checkCurrentVersion()).start();
+        }
+        
+        if (getSettings().getBoolean("allow-metrics")) {
+            metrics = new Metrics(this);
+            getLogger().info("Metrics successfully initialized!");
+            
+        } else {
+            getLogger().warning("Metrics are disabled! Please consider enabling them to support the authors!");
         }
     }
 
@@ -263,6 +274,7 @@ public class TradeShop extends JavaPlugin {
         addSetting("tradeshop-name", "Trade");
         addSetting("itradeshop-name", "iTrade");
         addSetting("bitradeshop-name", "BiTrade");
+        addSetting("allow-metrics", true);
 
         save();
     }
