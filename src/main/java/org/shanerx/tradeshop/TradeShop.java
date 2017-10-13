@@ -58,6 +58,8 @@ public class TradeShop extends JavaPlugin {
     private ArrayList<Material> inventories = new ArrayList<>();
     private ArrayList<BlockFace> directions = new ArrayList<>();
     private ArrayList<String> blacklist = new ArrayList<>();
+    
+    private Metrics metrics;
 
     public FileConfiguration getMessages() {
         return messages;
@@ -136,7 +138,7 @@ public class TradeShop extends JavaPlugin {
         }
         
         if (getSettings().getBoolean("allow-metrics")) {
-            new Metrics(this);
+            metrics = new Metrics(this);
             
         } else {
             getLogger().warn("Metrics are disabled! Please consider enabling them to support the authors!");
