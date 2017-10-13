@@ -21,6 +21,7 @@
 
 package org.shanerx.tradeshop;
 
+import org.bstats.bukkit.Metrics;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.block.BlockFace;
@@ -139,9 +140,10 @@ public class TradeShop extends JavaPlugin {
         
         if (getSettings().getBoolean("allow-metrics")) {
             metrics = new Metrics(this);
+            getLogger().info("Metrics successfully initialized!");
             
         } else {
-            getLogger().warn("Metrics are disabled! Please consider enabling them to support the authors!");
+            getLogger().warning("Metrics are disabled! Please consider enabling them to support the authors!");
         }
     }
 
