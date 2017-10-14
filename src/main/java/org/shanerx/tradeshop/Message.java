@@ -4,7 +4,7 @@ import org.bukkit.ChatColor;
 
 public enum Message {
     
-        AMOUNT_NOT_NUM,
+    AMOUNT_NOT_NUM,
     BUY_FAILED_SIGN,
     CONFIRM_TRADE,
     EMPTY_TS_ON_SETUP,
