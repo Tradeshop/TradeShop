@@ -32,6 +32,7 @@ import org.bukkit.event.block.SignChangeEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
+import org.shanerx.tradeshop.Message;
 import org.shanerx.tradeshop.ShopType;
 import org.shanerx.tradeshop.TradeShop;
 import org.shanerx.tradeshop.Utils;
@@ -58,18 +59,18 @@ public class ShopCreateEventListener extends Utils implements Listener {
         Block chest = findShopChest(s.getBlock());
 
         if (!player.hasPermission(getCreatePerm())) {
-            failedSign(event, ShopType.TRADE, "no-ts-create-permission");
+            failedSign(event, ShopType.TRADE, Message.NO_TS_CREATE_PERMISSION);
             return;
         }
 
         if (chest == null || !plugin.getAllowedInventories().contains(chest.getType())) {
-            failedSign(event, ShopType.TRADE, "no-chest");
+            failedSign(event, ShopType.TRADE, Message.NO_CHEST);
             return;
         }
 
         if (getShopUsers(s) != null) {
             if (!getShopOwners(s).contains(Bukkit.getOfflinePlayer(player.getUniqueId()))) {
-                failedSign(event, ShopType.TRADE, "not-owner");
+                failedSign(event, ShopType.TRADE, Message.NOT_OWNER);
                 return;
             }
         }
@@ -79,7 +80,7 @@ public class ShopCreateEventListener extends Utils implements Listener {
         String line2 = event.getLine(2);
 
         if (!line1.contains(" ") || !line2.contains(" ")) {
-            failedSign(event, ShopType.TRADE, "missing-item");
+            failedSign(event, ShopType.TRADE, Message.MISSING_ITEM);
             return;
         }
 
@@ -87,7 +88,7 @@ public class ShopCreateEventListener extends Utils implements Listener {
         String[] info2 = line2.split(" ");
 
         if (info1.length != 2 || info2.length != 2) {
-            failedSign(event, ShopType.TRADE, "missing-info");
+            failedSign(event, ShopType.TRADE, Message.MISSING_INFO);
             return;
         }
 
@@ -111,7 +112,7 @@ public class ShopCreateEventListener extends Utils implements Listener {
             amount2 = Integer.parseInt(info2[0]);
 
         } catch (Exception e) {
-            failedSign(event, ShopType.TRADE, "amount-not-num");
+            failedSign(event, ShopType.TRADE, Message.AMOUNT_NOT_NUM);
             return;
         }
 
@@ -122,10 +123,10 @@ public class ShopCreateEventListener extends Utils implements Listener {
         }
 
         if (item1 == null || item2 == null) {
-            failedSign(event, ShopType.TRADE, "missing-item");
+            failedSign(event, ShopType.TRADE, Message.MISSING_ITEM);
             return;
         } else if (isBlacklistItem(item1) || isBlacklistItem(item2)) {
-            failedSign(event, ShopType.TRADE, "illegal-item");
+            failedSign(event, ShopType.TRADE, Message.ILLEGAL_ITEM);
             return;
         }
 
@@ -135,10 +136,10 @@ public class ShopCreateEventListener extends Utils implements Listener {
         setName((InventoryHolder) chest.getState(), "o:" + player.getName());
 
         if (chestInventory.containsAtLeast(item1, amount1)) {
-            event.getPlayer().sendMessage(colorize(getPrefix() + plugin.getMessages().getString("successful-setup")));
+            event.getPlayer().sendMessage(colorize(getPrefix() + Message.SUCCESSFUL_SETUP));
             return;
         } else {
-            event.getPlayer().sendMessage(colorize(getPrefix() + plugin.getMessages().getString("empty-ts-on-setup")));
+            event.getPlayer().sendMessage(colorize(getPrefix() + Message.EMPTY_TS_ON_SETUP));
             return;
         }
 

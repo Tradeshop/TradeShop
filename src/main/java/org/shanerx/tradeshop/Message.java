@@ -1,5 +1,6 @@
 package org.shanerx.tradeshop;
 
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 
 public enum Message {
@@ -35,13 +36,13 @@ public enum Message {
     SHOP_FULL_AMOUNT,
     SUCCESSFUL_SETUP,
     UNSUCCESSFUL_SHOP_MEMBERS,
-    UPDATE_SHOP_MEMBERS,
+    UPDATED_SHOP_MEMBERS,
     WHO_MESSAGE;
     
     @Override
     public String toString() {
         return colour(
-            plugin.getMessages().get(
+            plugin.getMessages().getString(
                 name().toLowerCase().replace("_", "-")
             )
         );

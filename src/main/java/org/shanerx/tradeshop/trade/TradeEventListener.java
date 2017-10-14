@@ -32,6 +32,7 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
+import org.shanerx.tradeshop.Message;
 import org.shanerx.tradeshop.TradeShop;
 import org.shanerx.tradeshop.Utils;
 
@@ -60,12 +61,12 @@ public class TradeEventListener extends Utils implements Listener {
             try {
                 chestState = findShopChest(s.getBlock()).getState();
             } catch (NullPointerException npe) {
-                buyer.sendMessage(colorize(getPrefix() + plugin.getMessages().getString("missing-shop")));
+                buyer.sendMessage(colorize(getPrefix() + Message.MISSING_SHOP));
                 return;
             }
 
             if (getShopUsers(chestState.getBlock()).contains(Bukkit.getOfflinePlayer(buyer.getName()))) {
-                buyer.sendMessage(colorize(getPrefix() + plugin.getMessages().getString("self-owned")));
+                buyer.sendMessage(colorize(getPrefix() + Message.SELF_OWNED));
                 return;
             }
 
@@ -113,10 +114,10 @@ public class TradeEventListener extends Utils implements Listener {
             }
 
             if (item1 == null || item2 == null) {
-                failedTrade(e, "buy-failed-sign");
+                failedTrade(e, Message.BUY_FAILED_SIGN);
                 return;
             } else if (isBlacklistItem(item1) || isBlacklistItem(item2)) {
-                failedTrade(e, "illegal-item");
+                failedTrade(e, Message.ILLEGAL_ITEM);
                 return;
             }
 
@@ -133,25 +134,25 @@ public class TradeEventListener extends Utils implements Listener {
             }
 
             if (!containsAtLeast(playerInventory, item2)) {
-                buyer.sendMessage(colorize(getPrefix() + plugin.getMessages().getString("insufficient-items")
+                buyer.sendMessage(colorize(getPrefix() + Message.INSUFFICIENT_ITEMS.toString()
                         .replace("{ITEM}", item_name2.toLowerCase()).replace("{AMOUNT}", String.valueOf(amount2))));
                 return;
             }
 
             if (!containsAtLeast(chestInventory, item1)) {
-                buyer.sendMessage(colorize(getPrefix() + plugin.getMessages().getString("shop-empty")
+                buyer.sendMessage(colorize(getPrefix() + Message.SHOP_EMPTY.toString()
                         .replace("{ITEM}", item_name1.toLowerCase()).replace("{AMOUNT}", String.valueOf(amount1))));
                 return;
             }
 
             if (!canExchange(chestInventory, item1, item2)) {
-                buyer.sendMessage(colorize(getPrefix() + plugin.getMessages().getString("shop-full")
+                buyer.sendMessage(colorize(getPrefix() + Message.SHOP_FULL.toString()
                         .replace("{ITEM}", item_name1.toLowerCase()).replace("{AMOUNT}", String.valueOf(amount1))));
                 return;
             }
 
             if (!canExchange(playerInventory, item2, item1)) {
-                buyer.sendMessage(colorize(getPrefix() + plugin.getMessages().getString("player-full")
+                buyer.sendMessage(colorize(getPrefix() + Message.PLAYER_FULL.toString()
                         .replace("{ITEM}", item_name2.toLowerCase()).replace("{AMOUNT}", String.valueOf(amount2))));
                 return;
             }
@@ -218,7 +219,7 @@ public class TradeEventListener extends Utils implements Listener {
                 count -= removed;
             }
 
-            buyer.sendMessage(colorize(getPrefix() + plugin.getMessages().getString("on-trade")
+            buyer.sendMessage(colorize(getPrefix() + Message.ON_TRADE.toString()
                     .replace("{AMOUNT1}", String.valueOf(amount1))
                     .replace("{AMOUNT2}", String.valueOf(amount2))
                     .replace("{ITEM1}", item_name1.toLowerCase())
@@ -242,7 +243,7 @@ public class TradeEventListener extends Utils implements Listener {
                 String item_name1 = info1[1].toUpperCase();
                 String item_name2 = info2[1].toUpperCase();
 
-                buyer.sendMessage(colorize(getPrefix() + plugin.getMessages().getString("confirm-trade")
+                buyer.sendMessage(colorize(getPrefix() + Message.CONFIRM_TRADE.toString()
                         .replace("{AMOUNT1}", String.valueOf(amount1))
                         .replace("{AMOUNT2}", String.valueOf(amount2))
                         .replace("{ITEM1}", item_name1.toLowerCase())

@@ -366,21 +366,21 @@ public class Utils {
      *
      * @param e           event where shop creation failed
      * @param shop        Shoptype enum to get header
-     * @param messagePath Name of message in messages.yml
+     * @param msg The enum constant representing the error message
      */
-    public void failedSign(SignChangeEvent e, ShopType shop, String messagePath) {
+    public void failedSign(SignChangeEvent e, ShopType shop, Message msg) {
         failedSignReset(e, shop);
-        e.getPlayer().sendMessage(colorize(getPrefix() + plugin.getMessages().getString(messagePath)));
+        e.getPlayer().sendMessage(colorize(getPrefix() + msg));
     }
 
     /**
      * Sets the event sign to a failed creation sign
      *
      * @param e           Event to reset the sign for
-     * @param messagePath Name of message in messages.yml
+     * @param msg The enum constant representing the error message
      */
-    public void failedTrade(PlayerInteractEvent e, String messagePath) {
-        e.getPlayer().sendMessage(colorize(getPrefix() + plugin.getMessages().getString(messagePath)));
+    public void failedTrade(PlayerInteractEvent e, Message msg) {
+        e.getPlayer().sendMessage(colorize(getPrefix() + msg));
     }
 
     /**
