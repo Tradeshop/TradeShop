@@ -8,7 +8,11 @@ public enum Message {
     
     @Override
     public String toString() {
-        return colour(plugin.getMessages().get(name().toLowerCase()));
+        return colour(
+            plugin.getMessages().get(
+                name().toLowerCase().replace("_", "-")
+            )
+        );
     }
     
     private static TradeShop plugin = (TradeShop) Bukkit.getPluginManager().getPlugin("TradeShop");
