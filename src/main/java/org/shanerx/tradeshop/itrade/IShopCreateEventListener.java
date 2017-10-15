@@ -30,6 +30,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.SignChangeEvent;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
+import org.shanerx.tradeshop.Message;
 import org.shanerx.tradeshop.ShopType;
 import org.shanerx.tradeshop.TradeShop;
 import org.shanerx.tradeshop.Utils;
@@ -56,14 +57,14 @@ public class IShopCreateEventListener extends Utils implements Listener {
         Block chest = findShopChest(s.getBlock());
 
         if (!player.hasPermission(getCreateIPerm())) {
-            failedSign(event, ShopType.ITRADE, "no-ts-create-permission");
+            failedSign(event, ShopType.ITRADE, Message.NO_TS_CREATE_PERMISSION);
             return;
         }
 
         if (findShopChest(s.getBlock()) != null && getShopUsers(findShopChest(s.getBlock())).size() > 0) {
             getShopOwners(s).stream().forEach(op -> {
                 if (!op.getName().equalsIgnoreCase(plugin.getSettings().getString("itrade-shop-name"))) {
-                    failedSign(event, ShopType.ITRADE, "not-owner");
+                    failedSign(event, ShopType.ITRADE, Message.NOT_OWNER);
                     return;
                 }
             });
@@ -73,7 +74,7 @@ public class IShopCreateEventListener extends Utils implements Listener {
         String line2 = event.getLine(2);
 
         if (!line1.contains(" ") || !line2.contains(" ")) {
-            failedSign(event, ShopType.ITRADE, "missing-item");
+            failedSign(event, ShopType.ITRADE, Message.MISSING_ITEM);
             return;
         }
 
@@ -81,7 +82,7 @@ public class IShopCreateEventListener extends Utils implements Listener {
         String[] info2 = line2.split(" ");
 
         if (info1.length != 2 || info2.length != 2) {
-            failedSign(event, ShopType.ITRADE, "missing-info");
+            failedSign(event, ShopType.ITRADE, Message.MISSING_INFO);
             return;
         }
 
@@ -104,7 +105,7 @@ public class IShopCreateEventListener extends Utils implements Listener {
             amount2 = Integer.parseInt(info2[0]);
 
         } catch (Exception e) {
-            failedSign(event, ShopType.ITRADE, "amount-not-num");
+            failedSign(event, ShopType.ITRADE, Message.AMOUNT_NOT_NUM);
             return;
         }
 
@@ -115,10 +116,10 @@ public class IShopCreateEventListener extends Utils implements Listener {
         }
 
         if (item1 == null || item2 == null) {
-            failedSign(event, ShopType.ITRADE, "missing-item");
+            failedSign(event, ShopType.ITRADE, Message.MISSING_ITEM);
             return;
         } else if (isBlacklistItem(item1) || isBlacklistItem(item2)) {
-            failedSign(event, ShopType.ITRADE, "illegal-item");
+            failedSign(event, ShopType.ITRADE, Message.ILLEGAL_ITEM);
             return;
         }
 
@@ -128,6 +129,6 @@ public class IShopCreateEventListener extends Utils implements Listener {
 
         event.setLine(0, ChatColor.DARK_GREEN + header);
         event.setLine(3, plugin.getSettings().getString("itrade-shop-name"));
-        event.getPlayer().sendMessage(colorize(getPrefix() + plugin.getMessages().getString("successful-setup")));
+        event.getPlayer().sendMessage(colorize(getPrefix() + Message.SUCCESSFUL_SETUP));
     }
 }
