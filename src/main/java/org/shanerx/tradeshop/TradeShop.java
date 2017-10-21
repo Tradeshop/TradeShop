@@ -262,6 +262,7 @@ public class TradeShop extends JavaPlugin {
 
     private void addSettingsDefaults() {
         addSetting("check-updates", true);
+        addSetting("allow-metrics", true);
         addSetting("allowed-shops", new String[]{"CHEST", "TRAPPED_CHEST", "SHULKER"});
         addSetting("allowed-directions", new String[]{"DOWN", "WEST", "SOUTH", "EAST", "NORTH", "UP"});
         addSetting("itrade-shop-name", "Server Shop");
@@ -274,7 +275,9 @@ public class TradeShop extends JavaPlugin {
         addSetting("tradeshop-name", "Trade");
         addSetting("itradeshop-name", "iTrade");
         addSetting("bitradeshop-name", "BiTrade");
-        addSetting("allow-metrics", true);
+        addSetting("explode.trade", false);
+        addSetting("explode.itrade", false);
+        addSetting("explode.bitrade", false);
 
         save();
     }
