@@ -31,11 +31,14 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.shanerx.tradeshop.Message;
+import org.shanerx.tradeshop.Potions;
 import org.shanerx.tradeshop.TradeShop;
 import org.shanerx.tradeshop.Utils;
 
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Set;
 
 public class Executor extends Utils implements CommandExecutor {
 
@@ -49,38 +52,57 @@ public class Executor extends Utils implements CommandExecutor {
     @SuppressWarnings("deprecation")
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
         if (args.length == 0) {
-            sender.sendMessage(colorize(getPrefix() + plugin.getMessages().getString("invalid-arguments")));
+            sender.sendMessage(colorize(getPrefix() + Message.INVALID_ARGUMENTS));
             return true;
         } else if (args.length == 1) {
             if (args[0].equalsIgnoreCase("help")) {
                 if (!sender.hasPermission(getHelpPerm())) {
-                    sender.sendMessage(colorize(getPrefix() + plugin.getMessages().getString("no-command-permission")));
+                    sender.sendMessage(colorize(getPrefix() + Message.NO_COMMAND_PERMISSION));
                     return true;
                 }
 
-                String[] help = new String[10];
+                StringBuilder sb = new StringBuilder();
+                String msg;
 
-                help[0] = "\n";
-                help[1] = "&2" + getPluginName() + " " + getVersion() + " by " + pdf.getAuthors().get(0) + "\n";
-                help[2] = "\n";
-                help[3] = "\n";
-                help[4] = "&6/tradeshop help &c - Display help message\n";
+                sb.append("\n");
+                sb.append("&2" + getPluginName() + " " + getVersion() + " by " + pdf.getAuthors().get(0) + "\n");
+                sb.append("\n");
+                sb.append("\n");
+                sb.append("&6/tradeshop help &c - Display help message");
+                sb.append("\n");
 
                 if (sender.hasPermission(getCreatePerm())) {
-                    help[5] = "&6/tradeshop setup &c - Display TradeShop setup tutorial\n";
-                    help[6] = "&6/tradeshop item &c - Shows helpful information on item held by player\n";
+                    sb.append("&6/tradeshop setup &c - Display TradeShop setup tutorial");
+                    sb.append("\n");
+                    sb.append("&6/tradeshop item &c - Shows helpful information on item held by player");
+                    sb.append("\n");
                 }
 
-                help[7] = "&6/tradeshop bugs &c - Report bugs\n \n";
-                help[8] = "&6/tradeshop addowner|removeowner [target] - Add another owner to your shop\n";
-                help[9] = "&6/tradeshop addmember|removemember [target] - Add a collaborator to your shop\n";
+                sb.append("&6/tradeshop bugs &c - Report bugs");
+                sb.append("\n");
+                sb.append("\n");
+                sb.append("&6/tradeshop addowner|removeowner [target] - Add another owner to your shop");
+                sb.append("\n");
+                sb.append("&6/tradeshop addmember|removemember [target] - Add a collaborator to your shop");
+                sb.append("\n");
 
-                String msg;
-                StringBuilder sb = new StringBuilder();
-                for (String str : help) {
-                    if (str != null)
-                        sb.append(str);
+                if (sender.hasPermission(getWhoPerm())) {
+                    sb.append("&6/tradeshop who - Shows members shop being looked at");
+                    sb.append("\n");
                 }
+
+                if (sender.hasPermission(getAdminPerm())) {
+                    sb.append("\n");
+                    sb.append("&6/tradeshop addItem [item name] &c - Adds custom items to config");
+                    sb.append("\n");
+                    sb.append("&6/tradeshop removeItem [item name] &c - Removes custom items to config");
+                    sb.append("\n");
+                    sb.append("&6/tradeshop getCustomItems &c - shows all custom items");
+                    sb.append("\n");
+                    sb.append("&6/tradeshop reload &c - Reloads plugin configuration files");
+                    sb.append("\n");
+                }
+
                 msg = sb.toString();
 
                 sender.sendMessage(colorize(msg));
@@ -92,15 +114,15 @@ public class Executor extends Utils implements CommandExecutor {
 
             } else if (args[0].equalsIgnoreCase("setup")) {
                 if (!sender.hasPermission(getCreatePerm())) {
-                    sender.sendMessage(colorize(getPrefix() + plugin.getMessages().getString("no-command-permission")));
+                    sender.sendMessage(colorize(getPrefix() + Message.NO_COMMAND_PERMISSION));
                     return true;
                 }
-                sender.sendMessage(colorize(getPrefix() + plugin.getMessages().getString("setup-help")));
+                sender.sendMessage(colorize(getPrefix() + Message.SETUP_HELP));
                 return true;
 
             } else if (args[0].equalsIgnoreCase("reload")) {
                 if (!sender.hasPermission(getAdminPerm())) {
-                    sender.sendMessage(colorize(getPrefix() + plugin.getMessages().getString("no-command-permission")));
+                    sender.sendMessage(colorize(getPrefix() + Message.NO_COMMAND_PERMISSION));
                     return true;
 
                 }
@@ -110,34 +132,49 @@ public class Executor extends Utils implements CommandExecutor {
 
             } else if (args[0].equalsIgnoreCase("item")) {
                 if (!(sender instanceof Player)) {
-                    sender.sendMessage(plugin.getMessages().getString("player-only-command"));
+                    sender.sendMessage(Message.PLAYER_ONLY_COMMAND.toString());
                     return true;
                 }
                 if (!sender.hasPermission(getCreatePerm())) {
-                    sender.sendMessage(colorize(getPrefix() + plugin.getMessages().getString("no-command-permission")));
+                    sender.sendMessage(colorize(getPrefix() + Message.NO_COMMAND_PERMISSION));
                     return true;
                 }
 
                 Player pl = (Player) sender;
                 ItemStack itm = pl.getInventory().getItemInMainHand();
                 if (itm.getType() == null || itm.getType() == Material.AIR) {
-                    sender.sendMessage(colorize(getPrefix() + plugin.getMessages().getString("held-empty")));
+                    sender.sendMessage(colorize(getPrefix() + Message.HELD_EMPTY));
                     return true;
                 } else {
-                    sender.sendMessage(colorize(getPrefix() + plugin.getMessages().getString("held-item"))
-                            .replace("{MATERIAL}", itm.getType().name())
-                            .replace("{DURABILITY}", itm.getDurability() + "")
-                            .replace("{ID}", itm.getTypeId() + "")
-                            .replace("{AMOUNT}", itm.getAmount() + ""));
+                    String name = "",
+                            durability = "",
+                            id = "",
+                            amount = "";
+                    if (Potions.isPotion(itm)) {
+                        name = Potions.findPotion(itm);
+                        durability = "0";
+                        id = "None";
+                        amount = itm.getAmount() + "";
+                    } else {
+                        name = itm.getType().name();
+                        durability = itm.getDurability() + "";
+                        id = itm.getTypeId() + "";
+                        amount = itm.getAmount() + "";
+                    }
+                    sender.sendMessage(colorize(getPrefix() + Message.HELD_ITEM.toString()
+                            .replace("{MATERIAL}", name)
+                            .replace("{DURABILITY}", durability)
+                            .replace("{ID}", id)
+                            .replace("{AMOUNT}", amount)));
                     return true;
                 }
             } else if (args[0].equalsIgnoreCase("who")) {
                 if (!(sender instanceof Player)) {
-                    sender.sendMessage(colorize(plugin.getMessages().getString("player-only-command")));
+                    sender.sendMessage(Message.PLAYER_ONLY_COMMAND.toString());
                     return true;
 
                 } else if (!sender.hasPermission(getWhoPerm())) {
-                    sender.sendMessage(colorize(plugin.getMessages().getString("no-command-permission")));
+                    sender.sendMessage(Message.NO_COMMAND_PERMISSION.toString());
                     return true;
                 }
 
@@ -161,7 +198,7 @@ public class Executor extends Utils implements CommandExecutor {
                         s = (Sign) b.getState();
 
                         if (isInfiniteTradeShopSign(s.getBlock())) {
-                            p.sendMessage(colorize(getPrefix() + plugin.getMessages().getString("who-message")
+                            p.sendMessage(colorize(getPrefix() + Message.WHO_MESSAGE.toString()
                                     .replace("{OWNERS}", plugin.getSettings().getString("itrade-shop-name"))
                                     .replace("{MEMBERS}", "None")));
                             return true;
@@ -175,7 +212,7 @@ public class Executor extends Utils implements CommandExecutor {
                         s = findShopSign(b);
 
                         if (isInfiniteTradeShopSign(s.getBlock())) {
-                            p.sendMessage(colorize(getPrefix() + plugin.getMessages().getString("who-message")
+                            p.sendMessage(colorize(getPrefix() + Message.WHO_MESSAGE.toString()
                                     .replace("{OWNERS}", plugin.getSettings().getString("itrade-shop-name"))
                                     .replace("{MEMBERS}", "None")));
                             return true;
@@ -205,66 +242,141 @@ public class Executor extends Utils implements CommandExecutor {
                     if (members.equals("")) {
                         members = "None";
                     }
-                    p.sendMessage(colorize(getPrefix() + plugin.getMessages().getString("who-message")
+                    p.sendMessage(colorize(getPrefix() + Message.WHO_MESSAGE.toString()
                             .replace("{OWNERS}", owners)
                             .replace("{MEMBERS}", members)));
                     return true;
                 } catch (NoSuchFieldException e) {
-                    p.sendMessage(colorize(getPrefix() + plugin.getMessages().getString("no-sighted-shop")));
+                    p.sendMessage(colorize(getPrefix() + Message.NO_SIGHTED_SHOP));
                     return true;
                 }
+            } else if (args[0].equalsIgnoreCase("getCustomItems")) {
+                if (!sender.hasPermission(getAdminPerm())) {
+                    sender.sendMessage(Message.NO_COMMAND_PERMISSION.toString());
+                    return true;
+                }
+                Set<String> items = plugin.getCustomItemSet();
+                StringBuilder sb = new StringBuilder();
+                sender.sendMessage(colorize("&aCurrent custom items:"));
+                for (String s : items) {
+                    sb.append("-" + s + "  ");
+                }
+
+                sender.sendMessage(sb.toString());
+                return true;
+
             }
         } else if (args.length == 2) {
-            if (!Arrays.asList("addowner", "removeowner", "addmember", "removemember").contains(args[0].toLowerCase())) {
-                sender.sendMessage(colorize(getPrefix() + plugin.getMessages().getString("invalid-arguments")));
-                return true;
+            if (Arrays.asList("addowner", "removeowner", "addmember", "removemember").contains(args[0].toLowerCase())) {
+                if (!(sender instanceof Player)) {
+                    sender.sendMessage(colorize(getPrefix() + Message.PLAYER_ONLY_COMMAND));
+                    return true;
 
-            } else if (!(sender instanceof Player)) {
-                sender.sendMessage(colorize(getPrefix() + plugin.getMessages().getString("player-only-command")));
-                return true;
+                }
 
+                Player p = (Player) sender;
+                Block b = p.getTargetBlock((HashSet<Byte>) null, plugin.getSettings().getInt("max-edit-distance"));
+                if (b == null || b.getType() == Material.AIR) {
+                    p.sendMessage(colorize(getPrefix() + Message.NO_SIGHTED_SHOP));
+                    return true;
+
+                } else if (isShopSign(b)) {
+                    b = findShopChest(b);
+
+                } else if (!plugin.getAllowedInventories().contains(b.getType()) || findShopSign(b) == null) {
+                    p.sendMessage(colorize(getPrefix() + Message.NO_SIGHTED_SHOP));
+                    return true;
+
+                }
+                OfflinePlayer target = Bukkit.getOfflinePlayer(args[1]);
+                b = findShopChest(findShopSign(b).getBlock());
+
+                switch (args[0].toLowerCase()) {
+                    case "addowner":
+                        if (!addOwner(b, target)) {
+                            p.sendMessage(colorize(getPrefix() + Message.UNSUCCESSFUL_SHOP_MEMBERS));
+                            return true;
+                        }
+                        break;
+                    case "removeowner":
+                        removeOwner(b, target);
+                        break;
+                    case "addmember":
+                        if (!addMember(b, target)) {
+                            p.sendMessage(colorize(getPrefix() + Message.UNSUCCESSFUL_SHOP_MEMBERS));
+                            return true;
+                        }
+                        break;
+                    case "removemember":
+                        removeMember(b, target);
+                        break;
+                }
+                p.sendMessage(colorize(getPrefix() + Message.UPDATED_SHOP_MEMBERS));
+                return true;
+            } else if (args[0].equalsIgnoreCase("addItem")) {
+                if (!(sender instanceof Player)) {
+                    sender.sendMessage(colorize(getPrefix() + Message.PLAYER_ONLY_COMMAND));
+                    return true;
+                }
+
+                if (!sender.hasPermission(getAdminPerm())) {
+                    sender.sendMessage(colorize(getPrefix() + Message.NO_COMMAND_PERMISSION));
+                    return true;
+                }
+
+                Player p = (Player) sender;
+                String name = args[1];
+
+                ItemStack itm = p.getInventory().getItemInMainHand();
+
+                if (itm.getType().equals(Material.AIR) || itm.getType() == null) {
+                    p.sendMessage(colorize("&cYou must ne holding an item to create a custom item."));
+                    return true;
+                }
+
+                plugin.addCustomItem(name, itm);
+                plugin.save();
+                plugin.reloadConfig();
+                p.sendMessage(colorize("&a" + name + " has been added to the custom items."));
+                return true;
+            } else if (args[0].equalsIgnoreCase("removeItem")) {
+                if (!sender.hasPermission(getAdminPerm())) {
+                    sender.sendMessage(colorize(getPrefix() + Message.NO_COMMAND_PERMISSION));
+                    return true;
+                }
+
+                String name = args[1];
+
+                plugin.removeCustomItem(name);
+                plugin.save();
+                plugin.reloadConfig();
+                sender.sendMessage(colorize("&a" + name + " has been removed from the custom items."));
+                return true;
+            } else if (args[0].equalsIgnoreCase("getCI")) {
+                if (!(sender instanceof Player)) {
+                    sender.sendMessage(colorize(getPrefix() + Message.PLAYER_ONLY_COMMAND));
+                    return true;
+                }
+
+                if (!sender.hasPermission(getAdminPerm())) {
+                    sender.sendMessage(colorize(getPrefix() + Message.NO_COMMAND_PERMISSION));
+                    return true;
+                }
+
+                String name = args[1];
+
+                ItemStack itm = plugin.getCustomItem(name);
+                if (itm == null) {
+                    sender.sendMessage(colorize("&c" + name + " could not be found."));
+                } else {
+                    ((Player) sender).getInventory().addItem(itm);
+                    sender.sendMessage(colorize("&a" + name + " has been given to you."));
+                }
+                return true;
             }
-            Player p = (Player) sender;
-            Block b = p.getTargetBlock((HashSet<Byte>) null, plugin.getSettings().getInt("max-edit-distance"));
-            if (b == null || b.getType() == Material.AIR) {
-                p.sendMessage(colorize(getPrefix() + plugin.getMessages().getString("no-sighted-shop")));
-                return true;
-
-            } else if (isShopSign(b)) {
-                b = findShopChest(b);
-
-            } else if (!plugin.getAllowedInventories().contains(b.getType()) || findShopSign(b) == null) {
-                p.sendMessage(colorize(getPrefix() + plugin.getMessages().getString("no-sighted-shop")));
-                return true;
-
-            }
-            OfflinePlayer target = Bukkit.getOfflinePlayer(args[1]);
-            b = findShopChest(findShopSign(b).getBlock());
-
-            switch (args[0].toLowerCase()) {
-                case "addowner":
-                    if (!addOwner(b, target)) {
-                        p.sendMessage(colorize(getPrefix() + plugin.getMessages().getString("unsuccessful-shop-members")));
-                        return true;
-                    }
-                    break;
-                case "removeowner":
-                    removeOwner(b, target);
-                    break;
-                case "addmember":
-                    if (!addMember(b, target)) {
-                        p.sendMessage(colorize(getPrefix() + plugin.getMessages().getString("unsuccessful-shop-members")));
-                        return true;
-                    }
-                    break;
-                case "removemember":
-                    removeMember(b, target);
-                    break;
-            }
-            p.sendMessage(colorize(getPrefix() + plugin.getMessages().getString("updated-shop-members")));
-            return true;
         }
-        sender.sendMessage(colorize(getPrefix() + plugin.getMessages().getString("invalid-arguments")));
+
+        sender.sendMessage(colorize(getPrefix() + Message.INVALID_ARGUMENTS));
         return true;
     }
 }

@@ -31,6 +31,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.shanerx.tradeshop.Message;
 import org.shanerx.tradeshop.TradeShop;
 import org.shanerx.tradeshop.Utils;
 
@@ -56,12 +57,12 @@ public class AdminEventListener extends Utils implements Listener {
             } else if (player.hasPermission(getAdminPerm())) {
                 return;
 
-            } else if (getShopOwners(s).contains(Bukkit.getOfflinePlayer(event.getPlayer().getUniqueId()))) {
+            } else if (findShopChest(block) != null && getShopOwners(s).contains(Bukkit.getOfflinePlayer(event.getPlayer().getUniqueId()))) {
                 return;
 
             }
             event.setCancelled(true);
-            player.sendMessage(colorize(getPrefix() + plugin.getMessages().getString("no-ts-destroy")));
+            player.sendMessage(colorize(getPrefix() + Message.NO_TS_DESTROY));
 
         } else if (plugin.getAllowedInventories().contains(block.getType())) {
             if (player.hasPermission(getAdminPerm())) {
@@ -85,7 +86,7 @@ public class AdminEventListener extends Utils implements Listener {
 
             }
             event.setCancelled(true);
-            player.sendMessage(colorize(getPrefix() + plugin.getMessages().getString("no-ts-destroy")));
+            player.sendMessage(colorize(getPrefix() + Message.NO_TS_DESTROY));
         }
     }
 
@@ -115,10 +116,8 @@ public class AdminEventListener extends Utils implements Listener {
 
         } else if (isShopSign(s.getBlock())) {
             if (!getShopUsers(block).contains(Bukkit.getOfflinePlayer(e.getPlayer().getUniqueId()))) {
-                e.getPlayer().sendMessage(colorize(getPrefix() + plugin.getMessages().getString("no-ts-open")));
+                e.getPlayer().sendMessage(colorize(getPrefix() + Message.NO_TS_OPEN));
                 e.setCancelled(true);
-            } else {
-                //Do nothing
             }
         }
     }

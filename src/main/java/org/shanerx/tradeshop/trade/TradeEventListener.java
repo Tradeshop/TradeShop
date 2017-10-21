@@ -22,7 +22,6 @@
 package org.shanerx.tradeshop.trade;
 
 import org.bukkit.Bukkit;
-import org.bukkit.Material;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
@@ -33,6 +32,7 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
+import org.shanerx.tradeshop.Message;
 import org.shanerx.tradeshop.TradeShop;
 import org.shanerx.tradeshop.Utils;
 
@@ -61,12 +61,12 @@ public class TradeEventListener extends Utils implements Listener {
             try {
                 chestState = findShopChest(s.getBlock()).getState();
             } catch (NullPointerException npe) {
-                buyer.sendMessage(colorize(getPrefix() + plugin.getMessages().getString("missing-shop")));
+                buyer.sendMessage(colorize(getPrefix() + Message.MISSING_SHOP));
                 return;
             }
 
             if (getShopUsers(chestState.getBlock()).contains(Bukkit.getOfflinePlayer(buyer.getName()))) {
-                buyer.sendMessage(colorize(getPrefix() + plugin.getMessages().getString("self-owned")));
+                buyer.sendMessage(colorize(getPrefix() + Message.SELF_OWNED));
                 return;
             }
 
@@ -105,69 +105,95 @@ public class TradeEventListener extends Utils implements Listener {
             }
 
             String item_name1, item_name2;
+            ItemStack item1 = null, item2 = null;
 
-            if (isInt(info1[1]))
-                item_name1 = Material.getMaterial(Integer.parseInt(info1[1])).name();
-            else
-                item_name1 = info1[1].toUpperCase();
+            try {
+                item1 = isValidType(info1[1], durability1, amount1);
+                item2 = isValidType(info2[1], durability2, amount2);
+            } catch (ArrayIndexOutOfBoundsException er) {
+            }
 
-            if (isInt(info2[1]))
-                item_name2 = Material.getMaterial(Integer.parseInt(info2[1])).name();
-            else
-                item_name2 = info2[1].toUpperCase();
+            if (item1 == null || item2 == null) {
+                failedTrade(e, Message.BUY_FAILED_SIGN);
+                return;
+            } else if (isBlacklistItem(item1) || isBlacklistItem(item2)) {
+                failedTrade(e, Message.ILLEGAL_ITEM);
+                return;
+            }
 
-            ItemStack item1 = new ItemStack(Material.getMaterial(item_name1), amount1); // What the player gets
-            ItemStack item2 = new ItemStack(Material.getMaterial(item_name2), amount2); // What the player pays
+            if (item1.hasItemMeta() && item1.getItemMeta().hasDisplayName()) {
+                item_name1 = item1.getItemMeta().getDisplayName();
+            } else {
+                item_name1 = info1[1];
+            }
 
-            if (!containsAtLeast(playerInventory, item2.getType(), (short) durability2, amount2)) {
-                buyer.sendMessage(colorize(getPrefix() + plugin.getMessages().getString("insufficient-items")
+            if (item2.hasItemMeta() && item2.getItemMeta().hasDisplayName()) {
+                item_name2 = item2.getItemMeta().getDisplayName();
+            } else {
+                item_name2 = info2[1];
+            }
+
+            if (!containsAtLeast(playerInventory, item2)) {
+                buyer.sendMessage(colorize(getPrefix() + Message.INSUFFICIENT_ITEMS.toString()
                         .replace("{ITEM}", item_name2.toLowerCase()).replace("{AMOUNT}", String.valueOf(amount2))));
                 return;
             }
 
-            if (!containsAtLeast(chestInventory, item1.getType(), (short) durability1, amount1)) {
-                buyer.sendMessage(colorize(getPrefix() + plugin.getMessages().getString("shop-empty")
+            if (!containsAtLeast(chestInventory, item1)) {
+                buyer.sendMessage(colorize(getPrefix() + Message.SHOP_EMPTY.toString()
                         .replace("{ITEM}", item_name1.toLowerCase()).replace("{AMOUNT}", String.valueOf(amount1))));
                 return;
             }
 
-            if (!canExchange(chestInventory, item1, amount1, item2, amount2)) {
-                buyer.sendMessage(colorize(getPrefix() + plugin.getMessages().getString("shop-full")
+            if (!canExchange(chestInventory, item1, item2)) {
+                buyer.sendMessage(colorize(getPrefix() + Message.SHOP_FULL.toString()
                         .replace("{ITEM}", item_name1.toLowerCase()).replace("{AMOUNT}", String.valueOf(amount1))));
                 return;
             }
 
-            if (!canExchange(playerInventory, item2, amount2, item1, amount1)) {
-                buyer.sendMessage(colorize(getPrefix() + plugin.getMessages().getString("player-full")
+            if (!canExchange(playerInventory, item2, item1)) {
+                buyer.sendMessage(colorize(getPrefix() + Message.PLAYER_FULL.toString()
                         .replace("{ITEM}", item_name2.toLowerCase()).replace("{AMOUNT}", String.valueOf(amount2))));
                 return;
             }
 
-            int count = amount1, removed = 0;
+            int count = amount1, removed;
             while (count > 0) {
-                ItemStack temp = chestInventory.getItem(chestInventory.first(item1.getType()));
-                if (count > item1.getMaxStackSize())
+                boolean resetItem = false;
+                ItemStack temp = chestInventory.getItem(chestInventory.first(item1.getType())),
+                        dupitm1 = item1.clone();
+                if (count > item1.getMaxStackSize()) {
                     removed = item1.getMaxStackSize();
-                else
+                } else {
                     removed = count;
+                }
 
-                if (removed > temp.getAmount())
+                if (removed > temp.getAmount()) {
                     removed = temp.getAmount();
+                }
 
                 item1.setAmount(removed);
-                item1.setData(temp.getData());
-                item1.setItemMeta(temp.getItemMeta());
-                item1.setDurability((short) durability1);
+                if (!item1.hasItemMeta() && temp.hasItemMeta()) {
+                    item1.setItemMeta(temp.getItemMeta());
+                    item1.setData(temp.getData());
+                    resetItem = true;
+                }
+
                 chestInventory.removeItem(item1);
                 playerInventory.addItem(item1);
+
+                if (resetItem) {
+                    item1 = dupitm1;
+                }
 
                 count -= removed;
             }
 
             count = amount2;
-            removed = 0;
             while (count > 0) {
-                ItemStack temp = playerInventory.getItem(playerInventory.first(item2.getType()));
+                boolean resetItem = false;
+                ItemStack temp = chestInventory.getItem(chestInventory.first(item1.getType())),
+                        dupitm1 = item1.clone();
                 if (count > item2.getMaxStackSize())
                     removed = item2.getMaxStackSize();
                 else
@@ -177,16 +203,23 @@ public class TradeEventListener extends Utils implements Listener {
                     removed = temp.getAmount();
 
                 item2.setAmount(removed);
-                item2.setData(temp.getData());
-                item2.setItemMeta(temp.getItemMeta());
-                item2.setDurability((short) durability2);
+                if (!item1.hasItemMeta() && temp.hasItemMeta()) {
+                    item1.setItemMeta(temp.getItemMeta());
+                    item1.setData(temp.getData());
+                    resetItem = true;
+                }
+
                 playerInventory.removeItem(item2);
                 chestInventory.addItem(item2);
+
+                if (resetItem) {
+                    item1 = dupitm1;
+                }
 
                 count -= removed;
             }
 
-            buyer.sendMessage(colorize(getPrefix() + plugin.getMessages().getString("on-trade")
+            buyer.sendMessage(colorize(getPrefix() + Message.ON_TRADE.toString()
                     .replace("{AMOUNT1}", String.valueOf(amount1))
                     .replace("{AMOUNT2}", String.valueOf(amount2))
                     .replace("{ITEM1}", item_name1.toLowerCase())
@@ -210,7 +243,7 @@ public class TradeEventListener extends Utils implements Listener {
                 String item_name1 = info1[1].toUpperCase();
                 String item_name2 = info2[1].toUpperCase();
 
-                buyer.sendMessage(colorize(getPrefix() + plugin.getMessages().getString("confirm-trade")
+                buyer.sendMessage(colorize(getPrefix() + Message.CONFIRM_TRADE.toString()
                         .replace("{AMOUNT1}", String.valueOf(amount1))
                         .replace("{AMOUNT2}", String.valueOf(amount2))
                         .replace("{ITEM1}", item_name1.toLowerCase())
