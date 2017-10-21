@@ -347,11 +347,31 @@ public class Executor extends Utils implements CommandExecutor {
 
                 String name = args[1];
 
-
                 plugin.removeCustomItem(name);
                 plugin.save();
                 plugin.reloadConfig();
                 sender.sendMessage(colorize("&a" + name + " has been removed from the custom items."));
+                return true;
+            } else if (args[0].equalsIgnoreCase("getCI")) {
+                if (!(sender instanceof Player)) {
+                    sender.sendMessage(colorize(getPrefix() + Message.PLAYER_ONLY_COMMAND));
+                    return true;
+                }
+
+                if (!sender.hasPermission(getAdminPerm())) {
+                    sender.sendMessage(colorize(getPrefix() + Message.NO_COMMAND_PERMISSION));
+                    return true;
+                }
+
+                String name = args[1];
+
+                ItemStack itm = plugin.getCustomItem(name);
+                if (itm == null) {
+                    sender.sendMessage(colorize("&c" + name + " could not be found."));
+                } else {
+                    ((Player) sender).getInventory().addItem(itm);
+                    sender.sendMessage(colorize("&a" + name + " has been given to you."));
+                }
                 return true;
             }
         }
