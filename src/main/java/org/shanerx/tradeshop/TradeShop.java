@@ -319,8 +319,19 @@ public class TradeShop extends JavaPlugin {
 
     public ItemStack getCustomItem(String name) {
         ItemStack itm = null;
+        String cName = "";
 
-        if (!(getCustomItems().get(name) == null)) {
+        for (String s : getCustomItems().getKeys(false)) {
+            if (s.equalsIgnoreCase(name)) {
+                cName = s;
+            }
+        }
+
+        if (cName.length() == 0) {
+            cName = name;
+        }
+
+        if (!(getCustomItems().get(cName) == null)) {
             itm = ItemStack.deserialize(getCustomItems().getConfigurationSection(name).getValues(true));
             ItemMeta meta = itm.getItemMeta();
 
