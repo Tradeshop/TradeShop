@@ -65,7 +65,7 @@ public class Executor extends Utils implements CommandExecutor {
                 String msg;
 
                 sb.append("\n");
-                sb.append("&2" + getPluginName() + " " + getVersion() + " by " + pdf.getAuthors().get(0) + "\n");
+                sb.append("&2" + getPluginName() + " " + getVersion() + " by " + pdf.getAuthors().get(0) + " & " + pdf.getAuthors().get(1) + "\n");
                 sb.append("\n");
                 sb.append("\n");
                 sb.append("&6/tradeshop help &c - Display help message");
