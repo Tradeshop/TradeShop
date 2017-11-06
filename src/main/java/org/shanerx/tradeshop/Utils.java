@@ -28,7 +28,7 @@ import org.bukkit.Nameable;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
-import org.bukkit.block.Chest;
+import org.bukkit.block.BlockState;
 import org.bukkit.block.Sign;
 import org.bukkit.event.block.SignChangeEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
@@ -622,23 +622,25 @@ public class Utils {
     /**
      * Returns all the owners of a TradeShop, including the one on the last line of the sign.
      *
-     * @param b the inventory holder block
+     * @param block the inventory holder block
      * @return all the members.
      */
-    public List<OfflinePlayer> getShopMembers(Block b) {
+    public List<OfflinePlayer> getShopMembers(Block block) {
+        BlockState b = block.getState();
+
         if (!plugin.getAllowedInventories().contains(b.getType())) {
             return null;
         }
 
         List<OfflinePlayer> members = new ArrayList<>();
-        Inventory inv = ((InventoryHolder) b.getState()).getInventory();
+        Inventory inv = ((InventoryHolder) b).getInventory();
         String names = inv.getName();
         for (String m : names.split(";")) {
             if (m.startsWith("m:")) {
                 members.add(Bukkit.getOfflinePlayer(m.substring(2)));
             }
         }
-        Sign s = findShopSign(b);
+        Sign s = findShopSign(b.getBlock());
         try {
             if (s.getLines().length != 4 || s.getLine(3).equals("")) {
                 if (members.size() > 0) {
@@ -649,7 +651,7 @@ public class Utils {
                 }
                 return members;
             } else if (getShopOwners(s).size() == 0 || !getShopOwners(s).contains(Bukkit.getOfflinePlayer(s.getLine(3)))) {
-                setName((InventoryHolder) b.getState(), "o:" + s.getLine(3));
+                setName((InventoryHolder) b, "o:" + s.getLine(3));
             }
         } catch (NullPointerException npe) {
         }
@@ -686,7 +688,7 @@ public class Utils {
      * @return all the owners.
      */
     public List<OfflinePlayer> getShopOwners(Sign s) {
-        Chest c = (Chest) findShopChest(s.getBlock()).getState();
+        BlockState c = findShopChest(s.getBlock()).getState();
         if (c == null) {
             return null;
         }
@@ -700,7 +702,7 @@ public class Utils {
      * @return all the members.
      */
     public List<OfflinePlayer> getShopMembers(Sign s) {
-        Chest c = (Chest) findShopChest(s.getBlock()).getState();
+        BlockState c = findShopChest(s.getBlock()).getState();
         if (c == null) {
             return null;
         }
@@ -714,7 +716,7 @@ public class Utils {
      * @return all the members.
      */
     public List<OfflinePlayer> getShopUsers(Sign s) {
-        Chest c = (Chest) findShopChest(s.getBlock()).getState();
+        BlockState c = findShopChest(s.getBlock()).getState();
         if (c == null) {
             return null;
         }
