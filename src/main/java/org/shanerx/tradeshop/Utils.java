@@ -724,6 +724,67 @@ public class Utils {
     }
 
     /**
+     * Sets the name of the inventory
+     *
+     * @param state   blockState to change the name of
+     * @param name    original name of inventory, null to use generic name
+     * @param owners  List of inventory owners
+     * @param members List of inventory members
+     * @return void
+     */
+    public void changeInvName(BlockState state, String name, List<OfflinePlayer> owners, List<OfflinePlayer> members) {
+        StringBuilder sb = new StringBuilder();
+        if (name.equalsIgnoreCase("") || name == null) {
+            name = state.getType().name().toString();
+        }
+        sb.append(name + " <");
+        owners.forEach(o -> sb.append("o:" + o.getName() + ";"));
+        members.forEach(m -> sb.append("m:" + m.getName() + ";"));
+        sb.append(">");
+        setName((InventoryHolder) state, sb.toString());
+    }
+
+    /**
+     * Reads the name of the inventory
+     *
+     * @param state blockState to change the name of
+     * @return Name of inventory
+     */
+    public String readInvName(BlockState state) {
+        if (!plugin.getAllowedInventories().contains(state.getType())) {
+            return null;
+        }
+
+        Inventory inv = ((InventoryHolder) state).getInventory();
+        String[] names = inv.getName().split(" <");
+
+        if (names[0].equalsIgnoreCase("") || names[0] == null) {
+            return state.getType().name().toString();
+        } else {
+            return names[0];
+        }
+
+    }
+
+    /**
+     * Resets the name of the inventory
+     *
+     * @param state blockState to change the name of
+     * @return void
+     */
+    public void resetInvName(BlockState state) {
+        Inventory inv = ((InventoryHolder) state).getInventory();
+        String[] names = inv.getName().split(" <");
+
+        if (names[0].equalsIgnoreCase("") || names[0] == null) {
+            setName(((InventoryHolder) state), state.getType().name().toString());
+        } else {
+            setName(((InventoryHolder) state), names[0]);
+        }
+
+    }
+
+    /**
      * Adds a player to the members list of a TradeShop.
      * <br>
      * The target player is not required to be online at the time of the operation.
@@ -748,10 +809,7 @@ public class Utils {
             return false;
         }
 
-        StringBuilder sb = new StringBuilder();
-        owners.forEach(o -> sb.append("o:" + o.getName() + ";"));
-        members.forEach(m -> sb.append("m:" + m.getName() + ";"));
-        setName((InventoryHolder) b.getState(), sb.toString());
+        changeInvName(b.getState(), readInvName(b.getState()), owners, members);
         return true;
     }
 
@@ -781,10 +839,7 @@ public class Utils {
         List<OfflinePlayer> members = getShopMembers(b);
         members.remove(p);
 
-        StringBuilder sb = new StringBuilder();
-        owners.forEach(o -> sb.append("o:" + o.getName() + ";"));
-        members.forEach(m -> sb.append("m:" + m.getName() + ";"));
-        setName((InventoryHolder) b.getState(), sb.toString());
+        changeInvName(b.getState(), readInvName(b.getState()), owners, members);
     }
 
     /**
@@ -824,10 +879,7 @@ public class Utils {
             return false;
         }
 
-        StringBuilder sb = new StringBuilder();
-        owners.forEach(o -> sb.append("o:" + o.getName() + ";"));
-        members.forEach(m -> sb.append("m:" + m.getName() + ";"));
-        setName((InventoryHolder) b.getState(), sb.toString());
+        changeInvName(b.getState(), readInvName(b.getState()), owners, members);
         return true;
     }
 
@@ -857,10 +909,7 @@ public class Utils {
         List<OfflinePlayer> members = getShopMembers(b);
         owners.remove(p);
 
-        StringBuilder sb = new StringBuilder();
-        owners.forEach(o -> sb.append("o:" + o.getName() + ";"));
-        members.forEach(m -> sb.append("m:" + m.getName() + ";"));
-        setName((InventoryHolder) b.getState(), sb.toString());
+        changeInvName(b.getState(), readInvName(b.getState()), owners, members);
     }
 
     /**

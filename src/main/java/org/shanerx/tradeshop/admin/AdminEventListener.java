@@ -66,6 +66,7 @@ public class AdminEventListener extends Utils implements Listener {
 
         } else if (plugin.getAllowedInventories().contains(block.getType())) {
             if (player.hasPermission(getAdminPerm())) {
+                resetInvName(block.getState());
                 return;
             }
 
@@ -75,13 +76,16 @@ public class AdminEventListener extends Utils implements Listener {
                 if (s == null)
                     throw new Exception();
             } catch (Exception e) {
+                resetInvName(block.getState());
                 return;
             }
 
             if (!isShopSign(s.getBlock())) {
+                resetInvName(block.getState());
                 return;
 
             } else if (getShopOwners(s).contains(Bukkit.getOfflinePlayer(event.getPlayer().getUniqueId()))) {
+                resetInvName(block.getState());
                 return;
 
             }
