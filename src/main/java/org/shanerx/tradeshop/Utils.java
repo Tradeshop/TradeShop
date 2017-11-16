@@ -612,7 +612,7 @@ public class Utils {
                 }
             } else if (!owners.contains(Bukkit.getOfflinePlayer(s.getLine(3)))) {
                 owners.add(Bukkit.getOfflinePlayer(s.getLine(3)));
-                setName((InventoryHolder) b.getState(), "o:" + s.getLine(3));
+                changeInvName(b.getState(), readInvName(b.getState()), Collections.singletonList(plugin.getServer().getOfflinePlayer(s.getLine(3))), Collections.emptyList());
             }
         } catch (NullPointerException npe) {
         }
@@ -651,7 +651,7 @@ public class Utils {
                 }
                 return members;
             } else if (getShopOwners(s).size() == 0 || !getShopOwners(s).contains(Bukkit.getOfflinePlayer(s.getLine(3)))) {
-                setName((InventoryHolder) b, "o:" + s.getLine(3));
+                changeInvName(b, readInvName(b), Collections.singletonList(plugin.getServer().getOfflinePlayer(s.getLine(3))), members);
             }
         } catch (NullPointerException npe) {
         }
@@ -735,13 +735,13 @@ public class Utils {
     public void changeInvName(BlockState state, String name, List<OfflinePlayer> owners, List<OfflinePlayer> members) {
         StringBuilder sb = new StringBuilder();
         if (name.equalsIgnoreCase("") || name == null) {
-            name = state.getType().name().toString();
+            name = "";
         }
         sb.append(name + " <");
         owners.forEach(o -> sb.append("o:" + o.getName() + ";"));
         members.forEach(m -> sb.append("m:" + m.getName() + ";"));
         sb.append(">");
-        setName((InventoryHolder) state, sb.toString());
+        setName((InventoryHolder) state, sb.toString().replace("_", " "));
     }
 
     /**
@@ -756,10 +756,15 @@ public class Utils {
         }
 
         Inventory inv = ((InventoryHolder) state).getInventory();
+
+        if (((Nameable) state).getCustomName() == null) {
+            return "";
+        }
+
         String[] names = inv.getName().split(" <");
 
         if (names[0].equalsIgnoreCase("") || names[0] == null) {
-            return state.getType().name().toString();
+            return "";
         } else {
             return names[0];
         }
@@ -774,13 +779,20 @@ public class Utils {
      */
     public void resetInvName(BlockState state) {
         Inventory inv = ((InventoryHolder) state).getInventory();
-        String[] names = inv.getName().split(" <");
+        String name = inv.getName();
+        String[] temp = name.split(";");
 
-        if (names[0].equalsIgnoreCase("") || names[0] == null) {
-            setName(((InventoryHolder) state), state.getType().name().toString());
-        } else {
-            setName(((InventoryHolder) state), names[0]);
+        if (name.startsWith("o:")) {
+            name = "";
         }
+
+        String[] names = name.split(" <");
+
+        while (names[0].endsWith(" ")) {
+            names[0] = names[0].substring(0, name.length() - 2);
+        }
+
+        setName(((InventoryHolder) state), names[0]);
 
     }
 
