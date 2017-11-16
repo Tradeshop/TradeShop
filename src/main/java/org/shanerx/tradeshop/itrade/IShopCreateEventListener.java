@@ -35,6 +35,8 @@ import org.shanerx.tradeshop.ShopType;
 import org.shanerx.tradeshop.TradeShop;
 import org.shanerx.tradeshop.Utils;
 
+import java.util.Collections;
+
 public class IShopCreateEventListener extends Utils implements Listener {
 
     private TradeShop plugin;
@@ -65,7 +67,6 @@ public class IShopCreateEventListener extends Utils implements Listener {
             getShopOwners(s).stream().forEach(op -> {
                 if (!op.getName().equalsIgnoreCase(plugin.getSettings().getString("itrade-shop-name"))) {
                     failedSign(event, ShopType.ITRADE, Message.NOT_OWNER);
-                    return;
                 }
             });
         }
@@ -124,7 +125,8 @@ public class IShopCreateEventListener extends Utils implements Listener {
         }
 
         if (chest != null) {
-            setName((InventoryHolder) chest.getState(), "o:" + plugin.getSettings().getString("itrade-shop-name"));
+            changeInvName(chest.getState(), ((InventoryHolder) chest.getState()).getInventory().getName().toString(),
+                    Collections.singletonList(plugin.getServer().getOfflinePlayer(plugin.getSettings().getString("itrade-shop-name"))), Collections.emptyList());
         }
 
         event.setLine(0, ChatColor.DARK_GREEN + header);
