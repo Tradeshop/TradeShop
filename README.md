@@ -5,7 +5,7 @@ This plugin manages how players trade one item for another. The concept behind i
 
 #### Author: Lori00 / ShanerX
 #### Name: TradeShop
-#### Version: v1.6.0-BETA
+#### Version: v1.7.2-BETA
 #### Tested MC versions: MC-1.8.X, 1.9.X, 1.10.X, 1.11.x, 1.12.x
 *Please see [the wiki](https://github.com/SparklingComet/TradeShop/wiki) for more information regarding supported versions.*
 
