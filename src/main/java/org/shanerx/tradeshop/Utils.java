@@ -79,7 +79,7 @@ public class Utils {
      *
      * @return the name.
      */
-    public String getPluginName() {
+    protected String getPluginName() {
         return pdf.getName();
     }
 
@@ -734,14 +734,14 @@ public class Utils {
      */
     public void changeInvName(BlockState state, String name, List<OfflinePlayer> owners, List<OfflinePlayer> members) {
         StringBuilder sb = new StringBuilder();
-        if (name.equalsIgnoreCase("") || name == null) {
+        if (name == null || name.equalsIgnoreCase("")) {
             name = "";
         }
         sb.append(name + " <");
         owners.forEach(o -> sb.append("o:" + o.getName() + ";"));
         members.forEach(m -> sb.append("m:" + m.getName() + ";"));
         sb.append(">");
-        setName((InventoryHolder) state, sb.toString().replace("_", " "));
+        setName((InventoryHolder) state, sb.toString());
     }
 
     /**
@@ -763,7 +763,7 @@ public class Utils {
 
         String[] names = inv.getName().split(" <");
 
-        if (names[0].equalsIgnoreCase("") || names[0] == null) {
+        if (names[0] == null || names[0].equalsIgnoreCase("")) {
             return "";
         } else {
             return names[0];
