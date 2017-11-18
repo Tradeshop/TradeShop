@@ -42,9 +42,12 @@ public enum Message {
     @Override
     public String toString() {
         return colour(
-            plugin.getMessages().getString(
-                name().toLowerCase().replace("_", "-")
-            )
+                plugin.getMessages().getString(
+                        name()
+                                .toLowerCase()
+                                .replace("_", "-")
+                ).replace("%header%",
+                                plugin.getSettings().getString("tradeshop-name"))
         );
     }
     

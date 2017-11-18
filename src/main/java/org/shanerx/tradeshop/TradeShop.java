@@ -216,7 +216,7 @@ public class TradeShop extends JavaPlugin {
                 + "\n \nStep 1: &ePlace down a chest."
                 + "\n&2Step 2: &ePlace a sign on top of the chest."
                 + "\n&2Step 3: &eWrite the following on the sign"
-                + "\n&6[Trade]\n<amount> <item_you_sell>\n<amount> <item_you_buy>\n&6&oEmpty line"
+                + "\n&6[%header%]\n<amount> <item_you_sell>\n<amount> <item_you_buy>\n&6&oEmpty line"
                 + "\n&2Step 4: &eIf you are unsure what the item is, use &6/tradeshop item");
         addMessage("no-ts-create-permission", "&cYou don't have permission to create TradeShops!");
         addMessage("no-chest", "&cYou need to put a chest under the sign!");
