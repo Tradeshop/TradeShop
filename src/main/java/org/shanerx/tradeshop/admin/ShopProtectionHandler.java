@@ -30,6 +30,7 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockExplodeEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.shanerx.tradeshop.Message;
 import org.shanerx.tradeshop.TradeShop;
@@ -122,6 +123,15 @@ public class ShopProtectionHandler extends Utils implements Listener {
             if (!getShopUsers(block).contains(Bukkit.getOfflinePlayer(e.getPlayer().getUniqueId()))) {
                 e.getPlayer().sendMessage(colorize(getPrefix() + Message.NO_TS_OPEN));
                 e.setCancelled(true);
+            }
+        }
+    }
+    
+    @EventHandler(priority = EventPriority.HIGH)
+    public void onBlockExplode(BlockExplodeEvent e) {
+        for (Block b : e.blockList()) {
+            (plugin.getAllowedInverories().contains(b.getType()) {
+                e.blockList().remove(b);
             }
         }
     }
