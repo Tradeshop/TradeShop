@@ -35,11 +35,11 @@ import org.shanerx.tradeshop.Message;
 import org.shanerx.tradeshop.TradeShop;
 import org.shanerx.tradeshop.Utils;
 
-public class AdminEventListener extends Utils implements Listener {
+public class ShopProtectionHandler extends Utils implements Listener {
 
     private TradeShop plugin;
 
-    public AdminEventListener(TradeShop instance) {
+    public ShopProtectionHandler(TradeShop instance) {
         plugin = instance;
     }
 
