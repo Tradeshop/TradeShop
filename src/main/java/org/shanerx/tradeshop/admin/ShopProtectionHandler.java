@@ -32,6 +32,7 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockExplodeEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.Material;
 import org.shanerx.tradeshop.Message;
 import org.shanerx.tradeshop.TradeShop;
 import org.shanerx.tradeshop.Utils;
@@ -130,8 +131,11 @@ public class ShopProtectionHandler extends Utils implements Listener {
     @EventHandler(priority = EventPriority.HIGH)
     public void onBlockExplode(BlockExplodeEvent e) {
         for (Block b : e.blockList()) {
-            (plugin.getAllowedInverories().contains(b.getType()) {
+            if (plugin.getAllowedInverories().contains(b.getType()) {
                 e.blockList().remove(b);
+            // check whether it is a tradechest
+            } else if (b.getType() == Material.SIGN && findShopChest(b) != null) {
+              // check sign header
             }
         }
     }
