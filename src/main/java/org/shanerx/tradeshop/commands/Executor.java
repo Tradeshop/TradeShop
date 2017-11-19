@@ -296,6 +296,7 @@ public class Executor extends Utils implements CommandExecutor {
 				b = findShopChest(findShopSign(b).getBlock());
 				
 				switch (args[0].toLowerCase()) {
+
 					case "addowner":
 						if (!addOwner(b, target)) {
 							p.sendMessage(colorize(getPrefix() + Message.UNSUCCESSFUL_SHOP_MEMBERS));
