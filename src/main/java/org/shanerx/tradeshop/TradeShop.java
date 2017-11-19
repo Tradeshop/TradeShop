@@ -127,7 +127,7 @@ public class TradeShop extends JavaPlugin {
         pm.registerEvents(new ShopCreateEventListener(this), this);
         pm.registerEvents(new BiTradeEventListener(this), this);
         pm.registerEvents(new BiShopCreateEventListener(this), this);
-        pm.registerEvents(new AdminEventListener(this), this);
+        pm.registerEvents(new ShopProtectionHandler(this), this);
         pm.registerEvents(new ITradeEventListener(this), this);
         pm.registerEvents(new IShopCreateEventListener(this), this);
 
