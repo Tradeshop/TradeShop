@@ -36,7 +36,9 @@ import org.shanerx.tradeshop.Message;
 import org.shanerx.tradeshop.TradeShop;
 import org.shanerx.tradeshop.Utils;
 
+@SuppressWarnings("unused")
 public class BiTradeEventListener extends Utils implements Listener {
+
     private TradeShop plugin;
 
     public BiTradeEventListener(TradeShop instance) {

@@ -48,6 +48,7 @@ import java.util.Set;
 import java.util.logging.Level;
 
 public class TradeShop extends JavaPlugin {
+
     private File messagesFile = new File(this.getDataFolder(), "messages.yml");
     private FileConfiguration messages;
     private File settingsFile = new File(this.getDataFolder(), "config.yml");

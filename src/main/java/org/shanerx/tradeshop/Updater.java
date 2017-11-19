@@ -40,7 +40,7 @@ public class Updater {
         try {
             url = new URL("https://api.spigotmc.org/legacy/update.php?resource=32762"); // Edit API URL.
         } catch (MalformedURLException ex) {
-            log.log(Level.WARNING, "Error: Bad URL while checking {0} !", pdf.getName());
+            log.log(Level.WARNING, "Error: Bad URL while checking updates for {0}!", pdf.getName());
         }
     }
 

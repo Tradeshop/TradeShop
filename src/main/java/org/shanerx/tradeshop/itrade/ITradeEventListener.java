@@ -34,7 +34,9 @@ import org.shanerx.tradeshop.Message;
 import org.shanerx.tradeshop.TradeShop;
 import org.shanerx.tradeshop.Utils;
 
+@SuppressWarnings("unused")
 public class ITradeEventListener extends Utils implements Listener {
+
     private TradeShop plugin;
 
     public ITradeEventListener(TradeShop instance) {

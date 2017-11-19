@@ -36,6 +36,7 @@ import org.shanerx.tradeshop.Utils;
 
 import java.util.Collections;
 
+@SuppressWarnings("unused")
 public class IShopCreateEventListener extends Utils implements Listener {
 
     private TradeShop plugin;
@@ -63,7 +64,7 @@ public class IShopCreateEventListener extends Utils implements Listener {
         }
 
         if (findShopChest(s.getBlock()) != null && getShopUsers(findShopChest(s.getBlock())).size() > 0) {
-            getShopOwners(s).stream().forEach(op -> {
+            getShopOwners(s).forEach(op -> {
                 if (!op.getName().equalsIgnoreCase(plugin.getSettings().getString("itrade-shop-name"))) {
                     failedSign(event, ShopType.ITRADE, Message.NOT_OWNER);
                 }

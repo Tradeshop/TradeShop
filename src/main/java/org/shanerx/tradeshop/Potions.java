@@ -29,6 +29,7 @@ import org.bukkit.potion.PotionType;
 
 @SuppressWarnings("unused")
 public enum Potions {
+
     P_EMPTY("uncraftable", "potion", false, false),
     P_WATER("water", "potion", false, false),
     P_MUNDANE("mundane", "potion", false, false),

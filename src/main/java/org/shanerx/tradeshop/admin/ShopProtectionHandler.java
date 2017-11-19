@@ -37,6 +37,7 @@ import org.shanerx.tradeshop.Message;
 import org.shanerx.tradeshop.TradeShop;
 import org.shanerx.tradeshop.Utils;
 
+@SuppressWarnings("unused")
 public class ShopProtectionHandler extends Utils implements Listener {
 
     private TradeShop plugin;
@@ -118,7 +119,7 @@ public class ShopProtectionHandler extends Utils implements Listener {
         }
 
         if (e.getPlayer().hasPermission(getAdminPerm())) {
-            //Do nothing
+            // Do nothing
 
         } else if (isShopSign(s.getBlock())) {
             if (!getShopUsers(block).contains(Bukkit.getOfflinePlayer(e.getPlayer().getUniqueId()))) {
@@ -131,11 +132,13 @@ public class ShopProtectionHandler extends Utils implements Listener {
     @EventHandler(priority = EventPriority.HIGH)
     public void onBlockExplode(BlockExplodeEvent e) {
         for (Block b : e.blockList()) {
-            if (plugin.getAllowedInverories().contains(b.getType()) {
-                e.blockList().remove(b);
-            // check whether it is a tradechest
+            if (plugin.getAllowedInventories().contains(b.getType())) {
+                if (findShopSign(b) != null) {
+                    e.blockList().remove(b);
+                }
+
             } else if (b.getType() == Material.SIGN && findShopChest(b) != null) {
-              // check sign header
+                e.blockList().remove(b);
             }
         }
     }
