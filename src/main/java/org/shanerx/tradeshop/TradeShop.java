@@ -31,7 +31,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.shanerx.tradeshop.admin.AdminEventListener;
+import org.shanerx.tradeshop.admin.ShopProtectionHandler;
 import org.shanerx.tradeshop.bitrade.BiShopCreateEventListener;
 import org.shanerx.tradeshop.bitrade.BiTradeEventListener;
 import org.shanerx.tradeshop.commands.Executor;
@@ -275,6 +275,9 @@ public class TradeShop extends JavaPlugin {
         addSetting("itradeshop-name", "iTrade");
         addSetting("bitradeshop-name", "BiTrade");
         addSetting("allow-metrics", true);
+        addSetting("explode.trade", false);
+        addSetting("explode.itrade", false);
+        addSetting("explode.bitrade", false);
 
         save();
     }
