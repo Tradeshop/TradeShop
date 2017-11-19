@@ -28,7 +28,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.SignChangeEvent;
-import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.shanerx.tradeshop.Message;
 import org.shanerx.tradeshop.ShopType;
@@ -125,7 +124,7 @@ public class IShopCreateEventListener extends Utils implements Listener {
         }
 
         if (chest != null) {
-            changeInvName(chest.getState(), ((InventoryHolder) chest.getState()).getInventory().getName().toString(),
+            changeInvName(chest.getState(), readInvName(chest.getState()),
                     Collections.singletonList(plugin.getServer().getOfflinePlayer(plugin.getSettings().getString("itrade-shop-name"))), Collections.emptyList());
         }
 

@@ -135,7 +135,7 @@ public class ShopCreateEventListener extends Utils implements Listener {
         Inventory chestInventory = ((InventoryHolder) chest.getState()).getInventory();
         event.setLine(0, ChatColor.DARK_GREEN + header);
         event.setLine(3, player.getName());
-        changeInvName(chest.getState(), ((InventoryHolder) chest.getState()).getInventory().getName().toString(),
+        changeInvName(chest.getState(), readInvName(chest.getState()),
                 Collections.singletonList(plugin.getServer().getOfflinePlayer(player.getUniqueId())), Collections.emptyList());
 
         if (chestInventory.containsAtLeast(item1, amount1)) {
