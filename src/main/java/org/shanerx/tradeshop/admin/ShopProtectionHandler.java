@@ -34,6 +34,7 @@ import org.bukkit.event.block.BlockExplodeEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.Material;
 import org.shanerx.tradeshop.Message;
+import org.shanerx.tradeshop.ShopType;
 import org.shanerx.tradeshop.TradeShop;
 import org.shanerx.tradeshop.Utils;
 
@@ -48,6 +49,7 @@ public class ShopProtectionHandler extends Utils implements Listener {
 
     @EventHandler(priority = EventPriority.HIGH)
     public void onBlockBreak(BlockBreakEvent event) {
+
         Player player = event.getPlayer();
         Block block = event.getBlock();
 
@@ -99,6 +101,7 @@ public class ShopProtectionHandler extends Utils implements Listener {
 
     @EventHandler(priority = EventPriority.HIGH)
     public void onChestOpen(PlayerInteractEvent e) {
+
         Block block = e.getClickedBlock();
 
         if (e.getAction() != Action.RIGHT_CLICK_BLOCK) {
@@ -131,13 +134,15 @@ public class ShopProtectionHandler extends Utils implements Listener {
     
     @EventHandler(priority = EventPriority.HIGH)
     public void onBlockExplode(BlockExplodeEvent e) {
+
         for (Block b : e.blockList()) {
             if (plugin.getAllowedInventories().contains(b.getType())) {
-                if (findShopSign(b) != null) {
+                Sign s = findShopSign(b);
+                if (s != null && ShopType.getType(s).isProtectedFromExplosions()) {
                     e.blockList().remove(b);
                 }
 
-            } else if (b.getType() == Material.SIGN && findShopChest(b) != null) {
+            } else if (b.getState() instanceof Sign && findShopChest(b) != null) {
                 e.blockList().remove(b);
             }
         }
