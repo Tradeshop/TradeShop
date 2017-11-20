@@ -33,10 +33,11 @@ import org.bukkit.event.block.SignChangeEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
-import org.shanerx.tradeshop.Message;
-import org.shanerx.tradeshop.ShopType;
 import org.shanerx.tradeshop.TradeShop;
-import org.shanerx.tradeshop.Utils;
+import org.shanerx.tradeshop.Util.Utils;
+import org.shanerx.tradeshop.enums.Message;
+import org.shanerx.tradeshop.enums.Permissions;
+import org.shanerx.tradeshop.enums.ShopType;
 
 import java.util.Collections;
 
@@ -51,7 +52,7 @@ public class BiShopCreateEventListener extends Utils implements Listener {
     @SuppressWarnings("deprecation")
     @EventHandler(priority = EventPriority.HIGH)
     public void onSignChange(SignChangeEvent event) {
-        String header = ShopType.BITRADE.header();
+        String header = ShopType.BITRADE.toString();
         Player player = event.getPlayer();
         Sign s = (Sign) event.getBlock().getState();
 
@@ -61,7 +62,7 @@ public class BiShopCreateEventListener extends Utils implements Listener {
 
         Block chest = findShopChest(s.getBlock());
 
-        if (!player.hasPermission(getCreateBiPerm())) {
+        if (!player.hasPermission(Permissions.CREATEBI.getPerm())) {
             failedSign(event, ShopType.BITRADE, Message.NO_TS_CREATE_PERMISSION);
             return;
         }

@@ -19,7 +19,7 @@
  * caused by their contribution(s) to the project. See the full License for more information
  */
 
-package org.shanerx.tradeshop;
+package org.shanerx.tradeshop.util;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -37,8 +37,11 @@ import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.material.MaterialData;
-import org.bukkit.permissions.Permission;
 import org.bukkit.plugin.PluginDescriptionFile;
+import org.shanerx.tradeshop.TradeShop;
+import org.shanerx.tradeshop.enums.Message;
+import org.shanerx.tradeshop.enums.Potions;
+import org.shanerx.tradeshop.enums.ShopType;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -59,13 +62,6 @@ public class Utils {
     protected final String PREFIX = "&a[&eTradeShop&a] ";
 
     protected final TradeShop plugin = (TradeShop) Bukkit.getPluginManager().getPlugin("TradeShop");
-
-    private final Permission PHELP = new Permission("tradeshop.help");
-    private final Permission PCREATE = new Permission("tradeshop.create");
-    private final Permission PADMIN = new Permission("tradeshop.admin");
-    private final Permission PCREATEI = new Permission("tradeshop.create.infinite");
-    private final Permission PCREATEBI = new Permission("tradeshop.create.bi");
-    private final Permission PWHO = new Permission("tradeshop.who");
 
     private final UUID KOPUUID = UUID.fromString("daf79be7-bc1d-47d3-9896-f97b8d4cea7d");
     private final UUID LORIUUID = UUID.fromString("e296bc43-2972-4111-9843-48fc32302fd4");
@@ -120,60 +116,6 @@ public class Utils {
     }
 
     /**
-     * Returns the Help permission.
-     *
-     * @return help
-     */
-    public Permission getHelpPerm() {
-        return PHELP;
-    }
-
-    /**
-     * Returns the Who permission.
-     *
-     * @return who
-     */
-    public Permission getWhoPerm() {
-        return PWHO;
-    }
-
-    /**
-     * Returns the normal {@code [Trade]} sign create permission.
-     *
-     * @return the Trade create permission
-     */
-    public Permission getCreatePerm() {
-        return PCREATE;
-    }
-
-    /**
-     * Returns the {@code [iTrade]} sign create permission.
-     *
-     * @return the iTrade create permission
-     */
-    public Permission getCreateIPerm() {
-        return PCREATEI;
-    }
-
-    /**
-     * Returns the {@code [BiTrade]} sign create permission.
-     *
-     * @return the BiTrade create permission
-     */
-    public Permission getCreateBiPerm() {
-        return PCREATEBI;
-    }
-
-    /**
-     * Returns the TradeShop admin destroy permission.
-     *
-     * @return the Trade create permission
-     */
-    public Permission getAdminPerm() {
-        return PADMIN;
-    }
-
-    /**
      * Checks whether or not the block entered is a {@code Trade} sign.
      *
      * @return true if it is
@@ -183,7 +125,7 @@ public class Utils {
             return false;
         }
         Sign sign = (Sign) b.getState();
-        return ChatColor.stripColor(sign.getLine(0)).equalsIgnoreCase(ShopType.TRADE.header());
+        return ChatColor.stripColor(sign.getLine(0)).equalsIgnoreCase(ShopType.TRADE.toString());
     }
 
 
@@ -197,7 +139,7 @@ public class Utils {
             return false;
         }
         Sign sign = (Sign) b.getState();
-        return ChatColor.stripColor(sign.getLine(0)).equalsIgnoreCase(ShopType.BITRADE.header());
+        return ChatColor.stripColor(sign.getLine(0)).equalsIgnoreCase(ShopType.BITRADE.toString());
     }
 
     /**
@@ -210,7 +152,7 @@ public class Utils {
             return false;
         }
         Sign sign = (Sign) b.getState();
-        return ChatColor.stripColor(sign.getLine(0)).equalsIgnoreCase(ShopType.ITRADE.header());
+        return ChatColor.stripColor(sign.getLine(0)).equalsIgnoreCase(ShopType.ITRADE.toString());
     }
 
     /**
@@ -355,7 +297,7 @@ public class Utils {
      * @param shop Shoptype enum to get header
      */
     public void failedSignReset(SignChangeEvent e, ShopType shop) {
-        e.setLine(0, ChatColor.DARK_RED + shop.header());
+        e.setLine(0, ChatColor.DARK_RED + shop.toString());
         e.setLine(1, "");
         e.setLine(2, "");
         e.setLine(3, "");

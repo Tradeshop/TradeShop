@@ -31,9 +31,10 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
-import org.shanerx.tradeshop.Message;
 import org.shanerx.tradeshop.TradeShop;
-import org.shanerx.tradeshop.Utils;
+import org.shanerx.tradeshop.Util.Utils;
+import org.shanerx.tradeshop.enums.Message;
+import org.shanerx.tradeshop.enums.Permissions;
 
 public class AdminEventListener extends Utils implements Listener {
 
@@ -54,7 +55,7 @@ public class AdminEventListener extends Utils implements Listener {
             if (!isShopSign(s.getBlock())) {
                 return;
 
-            } else if (player.hasPermission(getAdminPerm())) {
+            } else if (player.hasPermission(Permissions.ADMIN.getPerm())) {
                 return;
 
             } else if (findShopChest(block) != null && getShopOwners(s).contains(Bukkit.getOfflinePlayer(event.getPlayer().getUniqueId()))) {
@@ -65,7 +66,7 @@ public class AdminEventListener extends Utils implements Listener {
             player.sendMessage(colorize(getPrefix() + Message.NO_TS_DESTROY));
 
         } else if (plugin.getAllowedInventories().contains(block.getType())) {
-            if (player.hasPermission(getAdminPerm())) {
+            if (player.hasPermission(Permissions.ADMIN.getPerm())) {
                 resetInvName(block.getState());
                 return;
             }
@@ -115,7 +116,7 @@ public class AdminEventListener extends Utils implements Listener {
             return;
         }
 
-        if (e.getPlayer().hasPermission(getAdminPerm())) {
+        if (e.getPlayer().hasPermission(Permissions.ADMIN.getPerm())) {
             //Do nothing
 
         } else if (isShopSign(s.getBlock())) {

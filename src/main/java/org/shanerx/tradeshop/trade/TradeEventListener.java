@@ -32,9 +32,9 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
-import org.shanerx.tradeshop.Message;
 import org.shanerx.tradeshop.TradeShop;
-import org.shanerx.tradeshop.Utils;
+import org.shanerx.tradeshop.Util.Utils;
+import org.shanerx.tradeshop.enums.Message;
 
 public class TradeEventListener extends Utils implements Listener {
 

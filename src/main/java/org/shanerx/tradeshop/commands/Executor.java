@@ -31,10 +31,11 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.shanerx.tradeshop.Message;
-import org.shanerx.tradeshop.Potions;
 import org.shanerx.tradeshop.TradeShop;
-import org.shanerx.tradeshop.Utils;
+import org.shanerx.tradeshop.Util.Utils;
+import org.shanerx.tradeshop.enums.Message;
+import org.shanerx.tradeshop.enums.Permissions;
+import org.shanerx.tradeshop.enums.Potions;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -57,7 +58,7 @@ public class Executor extends Utils implements CommandExecutor {
 			
 		} else if (args.length == 1) {
 			if (args[0].equalsIgnoreCase("help")) {
-				if (!sender.hasPermission(getHelpPerm())) {
+				if (!sender.hasPermission(Permissions.HELP.getPerm())) {
 					sender.sendMessage(colorize(getPrefix() + Message.NO_COMMAND_PERMISSION));
 					return true;
 				}
@@ -71,8 +72,8 @@ public class Executor extends Utils implements CommandExecutor {
 				sb.append("\n");
 				sb.append("&6/tradeshop help &c - Display help message");
 				sb.append("\n");
-				
-				if (sender.hasPermission(getCreatePerm())) {
+
+				if (sender.hasPermission(Permissions.CREATE.getPerm())) {
 					sb.append("&6/tradeshop setup &c - Display TradeShop setup tutorial");
 					sb.append("\n");
 					sb.append("&6/tradeshop item &c - Shows helpful information on item held by player");
@@ -86,13 +87,13 @@ public class Executor extends Utils implements CommandExecutor {
 				sb.append("\n");
 				sb.append("&6/tradeshop addmember|removemember [target] - Add a collaborator to your shop");
 				sb.append("\n");
-				
-				if (sender.hasPermission(getWhoPerm())) {
+
+				if (sender.hasPermission(Permissions.WHO.getPerm())) {
 					sb.append("&6/tradeshop who - Shows members shop being looked at");
 					sb.append("\n");
 				}
-				
-				if (sender.hasPermission(getAdminPerm())) {
+
+				if (sender.hasPermission(Permissions.ADMIN.getPerm())) {
 					sb.append("\n");
 					sb.append("&6/tradeshop addItem [item name] &c - Adds custom items to config");
 					sb.append("\n");
@@ -115,7 +116,7 @@ public class Executor extends Utils implements CommandExecutor {
 				return true;
 				
 			} else if (args[0].equalsIgnoreCase("setup")) {
-				if (!sender.hasPermission(getCreatePerm())) {
+				if (!sender.hasPermission(Permissions.CREATE.getPerm())) {
 					sender.sendMessage(colorize(getPrefix() + Message.NO_COMMAND_PERMISSION));
 					return true;
 				}
@@ -123,7 +124,7 @@ public class Executor extends Utils implements CommandExecutor {
 				return true;
 				
 			} else if (args[0].equalsIgnoreCase("reload")) {
-				if (!sender.hasPermission(getAdminPerm())) {
+				if (!sender.hasPermission(Permissions.ADMIN.getPerm())) {
 					sender.sendMessage(colorize(getPrefix() + Message.NO_COMMAND_PERMISSION));
 					return true;
 					
@@ -137,7 +138,7 @@ public class Executor extends Utils implements CommandExecutor {
 					sender.sendMessage(Message.PLAYER_ONLY_COMMAND.toString());
 					return true;
 				}
-				if (!sender.hasPermission(getCreatePerm())) {
+				if (!sender.hasPermission(Permissions.CREATE.getPerm())) {
 					sender.sendMessage(colorize(getPrefix() + Message.NO_COMMAND_PERMISSION));
 					return true;
 				}
@@ -175,8 +176,8 @@ public class Executor extends Utils implements CommandExecutor {
 				if (!(sender instanceof Player)) {
 					sender.sendMessage(Message.PLAYER_ONLY_COMMAND.toString());
 					return true;
-					
-				} else if (!sender.hasPermission(getWhoPerm())) {
+
+				} else if (!sender.hasPermission(Permissions.WHO.getPerm())) {
 					sender.sendMessage(Message.NO_COMMAND_PERMISSION.toString());
 					return true;
 				}
@@ -254,7 +255,7 @@ public class Executor extends Utils implements CommandExecutor {
 				}
 				
 			} else if (args[0].equalsIgnoreCase("getCustomItems")) {
-				if (!sender.hasPermission(getAdminPerm())) {
+				if (!sender.hasPermission(Permissions.ADMIN.getPerm())) {
 					sender.sendMessage(Message.NO_COMMAND_PERMISSION.toString());
 					return true;
 				}
@@ -323,8 +324,8 @@ public class Executor extends Utils implements CommandExecutor {
 					sender.sendMessage(colorize(getPrefix() + Message.PLAYER_ONLY_COMMAND));
 					return true;
 				}
-				
-				if (!sender.hasPermission(getAdminPerm())) {
+
+				if (!sender.hasPermission(Permissions.ADMIN.getPerm())) {
 					sender.sendMessage(colorize(getPrefix() + Message.NO_COMMAND_PERMISSION));
 					return true;
 				}
@@ -346,7 +347,7 @@ public class Executor extends Utils implements CommandExecutor {
 				return true;
 				
 			} else if (args[0].equalsIgnoreCase("removeItem")) {
-				if (!sender.hasPermission(getAdminPerm())) {
+				if (!sender.hasPermission(Permissions.ADMIN.getPerm())) {
 					sender.sendMessage(colorize(getPrefix() + Message.NO_COMMAND_PERMISSION));
 					return true;
 				}
@@ -364,8 +365,8 @@ public class Executor extends Utils implements CommandExecutor {
 					sender.sendMessage(colorize(getPrefix() + Message.PLAYER_ONLY_COMMAND));
 					return true;
 				}
-				
-				if (!sender.hasPermission(getAdminPerm())) {
+
+				if (!sender.hasPermission(Permissions.ADMIN.getPerm())) {
 					sender.sendMessage(colorize(getPrefix() + Message.NO_COMMAND_PERMISSION));
 					return true;
 				}
