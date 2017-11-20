@@ -63,7 +63,7 @@ public class IShopCreateEventListener extends Utils implements Listener {
         Block chest = findShopChest(s.getBlock());
         
         if (chest != null && getShopOwners(chest).size() > 0) {
-            getShopOwners(chest).stream().forEach(op -> {
+            getShopOwners(chest).forEach(op -> {
                 if (!op.getName().equalsIgnoreCase(plugin.getSettings().getString("itrade-shop-name"))) {
                     failedSign(event, ShopType.ITRADE, Message.NOT_OWNER);
                 }
