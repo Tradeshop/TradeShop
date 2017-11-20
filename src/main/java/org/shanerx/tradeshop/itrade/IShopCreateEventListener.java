@@ -54,16 +54,16 @@ public class IShopCreateEventListener extends Utils implements Listener {
         if (!(event.getLine(0).equalsIgnoreCase(header))) {
             return;
         }
-
-        Block chest = findShopChest(s.getBlock());
-
+        
         if (!player.hasPermission(getCreateIPerm())) {
             failedSign(event, ShopType.ITRADE, Message.NO_TS_CREATE_PERMISSION);
             return;
         }
 
-        if (findShopChest(s.getBlock()) != null && getShopUsers(findShopChest(s.getBlock())).size() > 0) {
-            getShopOwners(s).stream().forEach(op -> {
+        Block chest = findShopChest(s.getBlock());
+        
+        if (chest != null && getShopOwners(chest).size() > 0) {
+            getShopOwners(chest).stream().forEach(op -> {
                 if (!op.getName().equalsIgnoreCase(plugin.getSettings().getString("itrade-shop-name"))) {
                     failedSign(event, ShopType.ITRADE, Message.NOT_OWNER);
                 }
