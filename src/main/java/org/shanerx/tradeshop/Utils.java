@@ -263,6 +263,12 @@ public class Utils {
         itm1.setAmount(1);
         itm2.setAmount(1);
 
+        if(itm1.equals(itm2)){
+            itm1.setAmount(i1);
+            itm2.setAmount(i2);
+            return true;   
+        }
+        
         if (!itm1.hasItemMeta() && itm2.hasItemMeta()) {
             itm1.setItemMeta(itm2.getItemMeta());
             itm1.setData(itm2.getData());
