@@ -34,10 +34,10 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.shanerx.tradeshop.TradeShop;
-import org.shanerx.tradeshop.Util.Utils;
 import org.shanerx.tradeshop.enums.Message;
 import org.shanerx.tradeshop.enums.Permissions;
 import org.shanerx.tradeshop.enums.ShopType;
+import org.shanerx.tradeshop.util.Utils;
 
 import java.util.Collections;
 

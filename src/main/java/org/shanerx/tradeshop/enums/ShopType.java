@@ -43,16 +43,16 @@ public enum ShopType {
     }
 
     public String stripped() {
-        return plugin.getSettings().getString(key + "shop-name");
+        return Setting.findSetting(key + "shop-name").getString();
     }
 
     @Override
     public String toString() {
-        return "[" + plugin.getSettings().getString(key + "shop-name") + "]";
+        return "[" + Setting.findSetting(key + "shop-name").getString() + "]";
     }
 
     public boolean isProtectedFromExplosions() {
-        return !plugin.getSettings().getBoolean("explode." + key);
+        return !Setting.findSetting("explode." + key).getBoolean();
     }
 
     public static ShopType getType(Sign s) {

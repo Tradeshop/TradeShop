@@ -22,82 +22,47 @@
 package org.shanerx.tradeshop;
 
 import org.bstats.bukkit.Metrics;
-import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.block.BlockFace;
-import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.shanerx.tradeshop.admin.AdminEventListener;
 import org.shanerx.tradeshop.bitrade.BiShopCreateEventListener;
 import org.shanerx.tradeshop.bitrade.BiTradeEventListener;
 import org.shanerx.tradeshop.commands.Executor;
+import org.shanerx.tradeshop.enums.Message;
+import org.shanerx.tradeshop.enums.Setting;
 import org.shanerx.tradeshop.itrade.IShopCreateEventListener;
 import org.shanerx.tradeshop.itrade.ITradeEventListener;
 import org.shanerx.tradeshop.trade.ShopCreateEventListener;
 import org.shanerx.tradeshop.trade.TradeEventListener;
+import org.shanerx.tradeshop.util.CustomItem;
 import org.shanerx.tradeshop.util.Updater;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Set;
-import java.util.logging.Level;
 
 public class TradeShop extends JavaPlugin {
-    private File messagesFile = new File(this.getDataFolder(), "messages.yml");
-    private FileConfiguration messages;
-    private File settingsFile = new File(this.getDataFolder(), "config.yml");
-    private FileConfiguration settings;
-    private File customItemsFile = new File(this.getDataFolder(), "customitems.yml");
-    private FileConfiguration customItems;
     private boolean mc18 = this.getServer().getVersion().contains("1.8");
 
     private ArrayList<Material> inventories = new ArrayList<>();
     private ArrayList<BlockFace> directions = new ArrayList<>();
-    private ArrayList<String> blacklist = new ArrayList<>();
     
     private Metrics metrics;
 
-    public FileConfiguration getMessages() {
-        return messages;
-    }
-
-    @Deprecated
-    @Override
-    public FileConfiguration getConfig() {
-        return settings;
-    }
-
-    public FileConfiguration getCustomItems() {
-        return customItems;
-    }
 
     public Boolean isAboveMC18() {
         return !mc18;
     }
 
-    public FileConfiguration getSettings() {
-        return settings;
-    }
-
     @Override
     public void reloadConfig() {
-        messages = YamlConfiguration.loadConfiguration(messagesFile);
-        settings = YamlConfiguration.loadConfiguration(settingsFile);
-        customItems = YamlConfiguration.loadConfiguration(customItemsFile);
-
-        addMessageDefaults();
-        addSettingsDefaults();
-        addCustomItemsDefaults();
+        Message.reload();
+        Setting.reload();
+        CustomItem.reload();
 
         addMaterials();
         addDirections();
-        addIllegalItems();
     }
 
     public ArrayList<Material> getAllowedInventories() {
@@ -108,10 +73,6 @@ public class TradeShop extends JavaPlugin {
         return directions;
     }
 
-    public ArrayList<String> getIllegalItems() {
-        return blacklist;
-    }
-
     @Override
     public void onEnable() {
         if (!isAboveMC18()) {
@@ -120,7 +81,6 @@ public class TradeShop extends JavaPlugin {
             return;
         }
 
-        createConfigs();
         reloadConfig();
 
         PluginManager pm = getServer().getPluginManager();
@@ -134,12 +94,12 @@ public class TradeShop extends JavaPlugin {
 
         getCommand("tradeshop").setExecutor(new Executor(this));
 
-        boolean checkUpdates = getSettings().getBoolean("check-updates");
+        boolean checkUpdates = Setting.CHECK_UPDATES.getBoolean();
         if (checkUpdates) {
             new Thread(() -> new Updater(getDescription()).checkCurrentVersion()).start();
         }
-        
-        if (getSettings().getBoolean("allow-metrics")) {
+
+        if (Setting.ALLOW_METRICS.getBoolean()) {
             metrics = new Metrics(this);
             getLogger().info("Metrics successfully initialized!");
             
@@ -153,7 +113,7 @@ public class TradeShop extends JavaPlugin {
         ArrayList<Material> allowedOld = new ArrayList<>();
         allowedOld.addAll(Arrays.asList(Material.CHEST, Material.TRAPPED_CHEST, Material.DROPPER, Material.HOPPER, Material.DISPENSER));
 
-        for (String str : getSettings().getStringList("allowed-shops")) {
+        for (String str : Setting.ALLOWED_SHOPS.getStringList()) {
             if (str.equalsIgnoreCase("shulker")) {
                 inventories.addAll(Arrays.asList(Material.BLACK_SHULKER_BOX,
                         Material.BLUE_SHULKER_BOX,
@@ -184,205 +144,9 @@ public class TradeShop extends JavaPlugin {
         ArrayList<BlockFace> allowed = new ArrayList<>();
         allowed.addAll(Arrays.asList(BlockFace.DOWN, BlockFace.WEST, BlockFace.SOUTH, BlockFace.EAST, BlockFace.NORTH, BlockFace.UP));
 
-        for (String str : getSettings().getStringList("allowed-directions")) {
+        for (String str : Setting.ALLOWED_DIRECTIONS.getStringList()) {
             if (allowed.contains(BlockFace.valueOf(str)))
                 directions.add(BlockFace.valueOf(str));
         }
-    }
-
-    private void addIllegalItems() {
-        blacklist.clear();
-        blacklist.add("air");
-        for (String s : getSettings().getStringList("illegal-items")) {
-            blacklist.add(s.toLowerCase());
-        }
-    }
-
-    private void addMessage(String node, String message) {
-        if (messages.get(node) == null) {
-            messages.set(node, message);
-        }
-    }
-
-    private void addSetting(String node, Object value) {
-        if (settings.get(node) == null) {
-            settings.set(node, value);
-        }
-    }
-
-    private void addMessageDefaults() {
-        addMessage("invalid-arguments", "&eTry &6/tradeshop help &eto display help!");
-        addMessage("no-command-permission", "&aYou do not have permission to execute this command");
-        addMessage("setup-help", "\n&2Setting up a TradeShop is easy! Just make sure to follow these steps:"
-                + "\n \nStep 1: &ePlace down a chest."
-                + "\n&2Step 2: &ePlace a sign on top of the chest."
-                + "\n&2Step 3: &eWrite the following on the sign"
-                + "\n&6[%header%]\n<amount> <item_you_sell>\n<amount> <item_you_buy>\n&6&oEmpty line"
-                + "\n&2Step 4: &eIf you are unsure what the item is, use &6/tradeshop item");
-        addMessage("no-ts-create-permission", "&cYou don't have permission to create TradeShops!");
-        addMessage("no-chest", "&cYou need to put a chest under the sign!");
-        addMessage("invalid-sign", "&cInvalid sign format!");
-        addMessage("no-ts-destroy", "&cYou may not destroy that TradeShop");
-        addMessage("successful-setup", "&aYou have successfully setup a TradeShop!");
-        addMessage("no-ts-open", "&cThat TradeShop does not belong to you");
-        addMessage("empty-ts-on-setup", "&cTradeShop empty, please remember to fill it!");
-        addMessage("on-trade", "&aYou have traded your&e {AMOUNT2} {ITEM2} &a for &e {AMOUNT1} {ITEM1} &awith {SELLER}");
-        addMessage("insufficient-items", "&cYou do not have &e {AMOUNT} {ITEM}&c!");
-        addMessage("shop-full-amount", "&cThe shop does not have &e{AMOUNT} &cof a single type of &e{ITEM}&c!");
-        addMessage("full-amount", "&cYou must have &e{AMOUNT} &cof a single type of &e{ITEM}&c!");
-        addMessage("shop-empty", "&cThis TradeShop does not have &e {AMOUNT} {ITEM}&c!");
-        addMessage("shop-full", "&cThis TradeShop is full, please contact the owner to get it emptied!");
-        addMessage("player-full", "&cYour inventory is full, please make room before trading items!");
-        addMessage("confirm-trade", "&eTrade &6 {AMOUNT1} {ITEM1} &e for &6 {AMOUNT2} {ITEM2} &e?");
-        addMessage("held-item", "\n&6You are currently holding: " +
-                "\n&2Material: &e{MATERIAL}" +
-                "\n&2ID Number: &e{ID}" +
-                "\n&2Durability: &e{DURABILITY}" +
-                "\n&2Amount: &e{AMOUNT}" +
-                "\n&6You do not need to use the durability if it is 0" +
-                "\n&6Put this on your TradeShop sign: " +
-                "\n&e{AMOUNT} {MATERIAL}:{DURABILITY} " +
-                "\n&e{AMOUNT} {ID}:{DURABILITY}");
-        addMessage("held-empty", "&eYou are currently holding nothing.");
-        addMessage("player-only-command", "&eThis command is only available to players.");
-        addMessage("missing-shop", "&cThere is not currently a shop here, please tell the owner or come back later!");
-        addMessage("no-sighted-shop", "&cNo shop in range!");
-        addMessage("updated-shop-members", "&aShop owners and members have been updated!");
-        addMessage("unsuccessful-shop-members", "&aThat player is either already on the shop, or you have reached the maximum number of users!");
-        addMessage("who-message", "&6Shop users are:\n&2Owners: &e{OWNERS}\n&2Members: &e{MEMBERS}");
-        addMessage("self-owned", "&cYou cannot buy from a shop in which you are a user.");
-        addMessage("not-owner", "&cYou cannot create a sign for a shop that you do not own.");
-        addMessage("illegal-item", "&cYou cannot use one or more of those items in shops.");
-        addMessage("missing-item", "&cYour sign is missing an item for trade.");
-        addMessage("missing-info", "&cYour sign is missing necessary information.");
-        addMessage("amount-not-num", "&cYou should have an amount before each item.");
-        addMessage("buy-failed-sign", "&cThis shop sign does not seem to be formatted correctly, please notify the owner.");
-
-        save();
-    }
-
-    private void addSettingsDefaults() {
-        addSetting("check-updates", true);
-        addSetting("allowed-shops", new String[]{"CHEST", "TRAPPED_CHEST", "SHULKER"});
-        addSetting("allowed-directions", new String[]{"DOWN", "WEST", "SOUTH", "EAST", "NORTH", "UP"});
-        addSetting("itrade-shop-name", "Server Shop");
-        addSetting("allow-double-trade", true);
-        addSetting("allow-quad-trade", true);
-        addSetting("max-edit-distance", 4);
-        addSetting("max-shop-users", 5);
-        addSetting("illegal-items", new String[]{"Bedrock", "Command_Block"});
-        addSetting("allow-custom-illegal-items", true);
-        addSetting("tradeshop-name", "Trade");
-        addSetting("itradeshop-name", "iTrade");
-        addSetting("bitradeshop-name", "BiTrade");
-        addSetting("allow-metrics", true);
-
-        save();
-    }
-
-    public void addCustomItem(String name, ItemStack itm) {
-        if (!customItems.getValues(false).containsKey(name)) {
-            customItems.createSection(name);
-
-            customItems.set(name, itm.serialize());
-
-            save();
-        }
-    }
-
-    public void removeCustomItem(String name) {
-        if (customItems.getValues(false).containsKey(name)) {
-            customItems.set(name, null);
-
-            save();
-        }
-    }
-
-    public Set<String> getCustomItemSet() {
-        return customItems.getValues(false).keySet();
-    }
-
-    private void addCustomItemsDefaults() {
-        if (getCustomItems().getValues(false).isEmpty()) {
-            ItemStack dataHolder = new ItemStack(Material.TRIPWIRE_HOOK);
-            ItemMeta meta = dataHolder.getItemMeta();
-
-            meta.setDisplayName("Key");
-            meta.setLore(Arrays.asList("&aThe key to your dreams."));
-            dataHolder.setItemMeta(meta);
-
-            addCustomItem("Key", dataHolder);
-        }
-    }
-
-    public ItemStack getCustomItem(String name) {
-        ItemStack itm = null;
-
-        if (!(getCustomItems().get(name) == null)) {
-            itm = ItemStack.deserialize(getCustomItems().getConfigurationSection(name).getValues(true));
-            ItemMeta meta = itm.getItemMeta();
-
-            if (meta.hasLore()) {
-                ArrayList<String> str2 = new ArrayList<>();
-                for (String s : meta.getLore()) {
-                    str2.add(ChatColor.translateAlternateColorCodes('&', s));
-                }
-                meta.setLore(str2);
-            }
-
-            if (meta.hasDisplayName())
-                meta.setDisplayName(ChatColor.translateAlternateColorCodes('&', meta.getDisplayName()));
-
-            itm.setItemMeta(meta);
-        }
-
-        return itm;
-    }
-
-    public void save() {
-        if (messages != null)
-            try {
-                messages.save(messagesFile);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
-        if (settings != null)
-            try {
-                settings.save(settingsFile);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
-        if (customItems != null)
-            try {
-                customItems.save(customItemsFile);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-    }
-
-    private void createConfigs() {
-        try {
-            if (!getDataFolder().isDirectory()) {
-                getDataFolder().mkdirs();
-            }
-            if (!messagesFile.exists()) {
-                messagesFile.createNewFile();
-            }
-            if (!settingsFile.exists()) {
-                settingsFile.createNewFile();
-            }
-            if (!customItemsFile.exists()) {
-                customItemsFile.createNewFile();
-            }
-        } catch (IOException e) {
-            getLogger().log(Level.SEVERE, "Could not create config files! Disabling plugin!", e);
-            getServer().getPluginManager().disablePlugin(this);
-        }
-    }
-
-    @Override
-    public void onDisable() {
     }
 }

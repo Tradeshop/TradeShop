@@ -32,9 +32,9 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.shanerx.tradeshop.TradeShop;
-import org.shanerx.tradeshop.Util.Utils;
 import org.shanerx.tradeshop.enums.Message;
 import org.shanerx.tradeshop.enums.Permissions;
+import org.shanerx.tradeshop.util.Utils;
 
 public class AdminEventListener extends Utils implements Listener {
 

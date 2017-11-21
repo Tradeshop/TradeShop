@@ -41,6 +41,7 @@ import org.bukkit.plugin.PluginDescriptionFile;
 import org.shanerx.tradeshop.TradeShop;
 import org.shanerx.tradeshop.enums.Message;
 import org.shanerx.tradeshop.enums.Potions;
+import org.shanerx.tradeshop.enums.Setting;
 import org.shanerx.tradeshop.enums.ShopType;
 
 import java.util.ArrayList;
@@ -332,8 +333,8 @@ public class Utils {
      * @return returns item or null if invalid
      */
     public ItemStack isValidType(String mat) {
-        ArrayList<String> illegalItems = plugin.getIllegalItems();
-        Set<String> customItemSet = plugin.getCustomItemSet();
+        ArrayList<String> illegalItems = Setting.getIllegalItems();
+        Set<String> customItemSet = CustomItem.getItemSet();
         String matLower = mat.toLowerCase();
         ItemStack blacklist = getBlackListItem();
 
@@ -358,8 +359,8 @@ public class Utils {
         if (customItemSet.size() > 0) {
             for (String str : customItemSet) {
                 if (str.equalsIgnoreCase(mat)) {
-                    ItemStack temp = plugin.getCustomItem(mat);
-                    if (!plugin.getSettings().getBoolean("allow-custom-illegal-items")) {
+                    ItemStack temp = CustomItem.getItem(mat);
+                    if (!Setting.ALLOW_CUSTOM_ILLEGAL_ITEMS.getBoolean()) {
                         if (illegalItems.contains(temp.getType().name().toLowerCase())) {
                             return blacklist;
                         }
@@ -474,7 +475,7 @@ public class Utils {
     public Sign findShopSign(Block chest) {
         ArrayList<BlockFace> faces = plugin.getAllowedDirections();
         Collections.reverse(faces);
-        ArrayList<BlockFace> flatFaces = new ArrayList<BlockFace>(Arrays.asList(BlockFace.NORTH, BlockFace.EAST, BlockFace.SOUTH, BlockFace.WEST));
+        ArrayList<BlockFace> flatFaces = new ArrayList<>(Arrays.asList(BlockFace.NORTH, BlockFace.EAST, BlockFace.SOUTH, BlockFace.WEST));
         boolean isDouble = false;
         BlockFace doubleSide = null;
 
@@ -748,7 +749,7 @@ public class Utils {
      * @return true if successful
      */
     public boolean addMember(Block b, OfflinePlayer p) {
-        if (getShopUsers(b).size() >= plugin.getSettings().getInt("max-shop-users")) {
+        if (getShopUsers(b).size() >= Setting.MAX_SHOP_USERS.getInt()) {
             return false;
         }
 
@@ -818,7 +819,7 @@ public class Utils {
      * @return true if successful
      */
     public boolean addOwner(Block b, OfflinePlayer p) {
-        if (getShopUsers(b).size() >= plugin.getSettings().getInt("max-shop-users")) {
+        if (getShopUsers(b).size() >= Setting.MAX_SHOP_USERS.getInt()) {
             return false;
         }
 

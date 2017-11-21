@@ -33,8 +33,9 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.shanerx.tradeshop.TradeShop;
-import org.shanerx.tradeshop.Util.Utils;
 import org.shanerx.tradeshop.enums.Message;
+import org.shanerx.tradeshop.enums.Setting;
+import org.shanerx.tradeshop.util.Utils;
 
 public class TradeEventListener extends Utils implements Listener {
 
@@ -84,10 +85,10 @@ public class TradeEventListener extends Utils implements Listener {
             e.setCancelled(true);
 
             if (buyer.isSneaking()) {
-                if (!buyer.isOnGround() && plugin.getSettings().getBoolean("allow-quad-trade")) {
+                if (!buyer.isOnGround() && Setting.ALLOW_QUAD_TRADE.getBoolean()) {
                     amount1 = amount1 * 4;
                     amount2 = amount2 * 4;
-                } else if (plugin.getSettings().getBoolean("allow-double-trade")) {
+                } else if (Setting.ALLOW_DOUBLE_TRADE.getBoolean()) {
                     amount1 += amount1;
                     amount2 += amount2;
                 }

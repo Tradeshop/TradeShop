@@ -32,10 +32,12 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.shanerx.tradeshop.TradeShop;
-import org.shanerx.tradeshop.Util.Utils;
 import org.shanerx.tradeshop.enums.Message;
 import org.shanerx.tradeshop.enums.Permissions;
 import org.shanerx.tradeshop.enums.Potions;
+import org.shanerx.tradeshop.enums.Setting;
+import org.shanerx.tradeshop.util.CustomItem;
+import org.shanerx.tradeshop.util.Utils;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -189,7 +191,7 @@ public class Executor extends Utils implements CommandExecutor {
 				Sign s;
 				
 				try {
-					b = p.getTargetBlock((HashSet<Byte>) null, plugin.getSettings().getInt("max-edit-distance"));
+					b = p.getTargetBlock((HashSet<Byte>) null, Setting.MAX_EDIT_DISTANCE.getInt());
 					
 					if (b == null || b.getType() == Material.AIR)
 						throw new NoSuchFieldException();
@@ -203,7 +205,7 @@ public class Executor extends Utils implements CommandExecutor {
 						
 						if (isInfiniteTradeShopSign(s.getBlock())) {
 							p.sendMessage(colorize(getPrefix() + Message.WHO_MESSAGE.toString()
-									.replace("{OWNERS}", plugin.getSettings().getString("itrade-shop-name"))
+									.replace("{OWNERS}", Setting.ITRADE_SHOP_NAME.getString())
 									.replace("{MEMBERS}", "None")));
 							return true;
 						}
@@ -216,7 +218,7 @@ public class Executor extends Utils implements CommandExecutor {
 						
 						if (isInfiniteTradeShopSign(s.getBlock())) {
 							p.sendMessage(colorize(getPrefix() + Message.WHO_MESSAGE.toString()
-									.replace("{OWNERS}", plugin.getSettings().getString("itrade-shop-name"))
+									.replace("{OWNERS}", Setting.ITRADE_SHOP_NAME.getString())
 									.replace("{MEMBERS}", "None")));
 							return true;
 						}
@@ -259,7 +261,7 @@ public class Executor extends Utils implements CommandExecutor {
 					sender.sendMessage(Message.NO_COMMAND_PERMISSION.toString());
 					return true;
 				}
-				Set<String> items = plugin.getCustomItemSet();
+				Set<String> items = CustomItem.getItemSet();
 				StringBuilder sb = new StringBuilder();
 				sender.sendMessage(colorize("&aCurrent custom items:"));
 				for (String s : items) {
@@ -280,7 +282,7 @@ public class Executor extends Utils implements CommandExecutor {
 				}
 				
 				Player p = (Player) sender;
-				Block b = p.getTargetBlock((HashSet<Byte>) null, plugin.getSettings().getInt("max-edit-distance"));
+				Block b = p.getTargetBlock((HashSet<Byte>) null, Setting.MAX_EDIT_DISTANCE.getInt());
 				if (b == null || b.getType() == Material.AIR) {
 					p.sendMessage(colorize(getPrefix() + Message.NO_SIGHTED_SHOP));
 					return true;
@@ -339,10 +341,8 @@ public class Executor extends Utils implements CommandExecutor {
 					p.sendMessage(colorize("&cYou must ne holding an item to create a custom item."));
 					return true;
 				}
-				
-				plugin.addCustomItem(name, itm);
-				plugin.save();
-				plugin.reloadConfig();
+
+				CustomItem.addItem(name, itm);
 				p.sendMessage(colorize("&a" + name + " has been added to the custom items."));
 				return true;
 				
@@ -353,10 +353,8 @@ public class Executor extends Utils implements CommandExecutor {
 				}
 				
 				String name = args[1];
-				
-				plugin.removeCustomItem(name);
-				plugin.save();
-				plugin.reloadConfig();
+
+				CustomItem.removeItem(name);
 				sender.sendMessage(colorize("&a" + name + " has been removed from the custom items."));
 				return true;
 				
@@ -372,8 +370,8 @@ public class Executor extends Utils implements CommandExecutor {
 				}
 				
 				String name = args[1];
-				
-				ItemStack itm = plugin.getCustomItem(name);
+
+				ItemStack itm = CustomItem.getItem(name);
 				if (itm == null) {
 					sender.sendMessage(colorize("&c" + name + " could not be found."));
 				} else {

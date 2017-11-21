@@ -33,8 +33,9 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.shanerx.tradeshop.TradeShop;
-import org.shanerx.tradeshop.Util.Utils;
 import org.shanerx.tradeshop.enums.Message;
+import org.shanerx.tradeshop.enums.Setting;
+import org.shanerx.tradeshop.util.Utils;
 
 public class BiTradeEventListener extends Utils implements Listener {
     private TradeShop plugin;
@@ -60,12 +61,12 @@ public class BiTradeEventListener extends Utils implements Listener {
             try {
                 chestState = findShopChest(s.getBlock()).getState();
             } catch (NullPointerException npe) {
-                buyer.sendMessage(colorize(getPrefix() + plugin.getMessages().getString("missing-shop")));
+                buyer.sendMessage(colorize(getPrefix() + Message.MISSING_SHOP.toString()));
                 return;
             }
 
             if (getShopUsers(chestState.getBlock()).contains(Bukkit.getOfflinePlayer(buyer.getName()))) {
-                buyer.sendMessage(colorize(getPrefix() + plugin.getMessages().getString("self-owned")));
+                buyer.sendMessage(colorize(getPrefix() + Message.SELF_OWNED.toString()));
                 return;
             }
             e.setCancelled(true);
@@ -83,10 +84,10 @@ public class BiTradeEventListener extends Utils implements Listener {
             int amount2 = Integer.parseInt(info2[0]);
 
             if (buyer.isSneaking()) {
-                if (!buyer.isOnGround() && plugin.getSettings().getBoolean("allow-quad-trade")) {
+                if (!buyer.isOnGround() && Setting.ALLOW_QUAD_TRADE.getBoolean()) {
                     amount1 = amount1 * 4;
                     amount2 = amount2 * 4;
-                } else if (plugin.getSettings().getBoolean("allow-double-trade")) {
+                } else if (Setting.ALLOW_DOUBLE_TRADE.getBoolean()) {
                     amount1 += amount1;
                     amount2 += amount2;
                 }
@@ -133,25 +134,25 @@ public class BiTradeEventListener extends Utils implements Listener {
             }
 
             if (!containsAtLeast(playerInventory, item2)) {
-                buyer.sendMessage(colorize(getPrefix() + plugin.getMessages().getString("insufficient-items")
+                buyer.sendMessage(colorize(getPrefix() + Message.INSUFFICIENT_ITEMS.toString()
                         .replace("{ITEM}", item_name2.toLowerCase()).replace("{AMOUNT}", String.valueOf(amount2))));
                 return;
             }
 
             if (!containsAtLeast(chestInventory, item1)) {
-                buyer.sendMessage(colorize(getPrefix() + plugin.getMessages().getString("shop-empty")
+                buyer.sendMessage(colorize(getPrefix() + Message.SHOP_EMPTY.toString()
                         .replace("{ITEM}", item_name1.toLowerCase()).replace("{AMOUNT}", String.valueOf(amount1))));
                 return;
             }
 
             if (!canExchange(chestInventory, item1, item2)) {
-                buyer.sendMessage(colorize(getPrefix() + plugin.getMessages().getString("shop-full")
+                buyer.sendMessage(colorize(getPrefix() + Message.SHOP_FULL.toString()
                         .replace("{ITEM}", item_name1.toLowerCase()).replace("{AMOUNT}", String.valueOf(amount1))));
                 return;
             }
 
             if (!canExchange(playerInventory, item2, item1)) {
-                buyer.sendMessage(colorize(getPrefix() + plugin.getMessages().getString("player-full")
+                buyer.sendMessage(colorize(getPrefix() + Message.PLAYER_FULL.toString()
                         .replace("{ITEM}", item_name2.toLowerCase()).replace("{AMOUNT}", String.valueOf(amount2))));
                 return;
             }
@@ -267,10 +268,10 @@ public class BiTradeEventListener extends Utils implements Listener {
             int amount1 = Integer.parseInt(info1[0]);
 
             if (buyer.isSneaking()) {
-                if (!buyer.isOnGround() && plugin.getSettings().getBoolean("allow-quad-trade")) {
+                if (!buyer.isOnGround() && Setting.ALLOW_QUAD_TRADE.getBoolean()) {
                     amount2 = amount2 * 4;
                     amount1 = amount1 * 4;
-                } else if (plugin.getSettings().getBoolean("allow-double-trade")) {
+                } else if (Setting.ALLOW_DOUBLE_TRADE.getBoolean()) {
                     amount2 += amount2;
                     amount1 += amount1;
                 }
