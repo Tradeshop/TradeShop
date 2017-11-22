@@ -21,37 +21,30 @@
 
 package org.shanerx.tradeshop.enums;
 
-import org.bukkit.Bukkit;
-import org.bukkit.permissions.Permission;
-import org.shanerx.tradeshop.TradeShop;
+import org.bukkit.ChatColor;
 
-public enum Permissions {
+public enum ShopStatus {
+    OPEN("&2"),
 
-    HELP("help"),
-
-    CREATE("create"),
-
-    CREATEI("create.infinite"),
-
-    CREATEBI("create.bi"),
-
-    ADMIN("admin"),
-
-    WHO("who");
+    CLOSED("&4");
 
     private String key;
-    private final static TradeShop plugin = (TradeShop) Bukkit.getPluginManager().getPlugin("TradeShop");
-
-    Permissions(String key) {
-        this.key = key;
-    }
+    private static final char COLOUR_CHAR = '&';
 
     @Override
     public String toString() {
-        return "tradeshop." + key;
+        return colour(Setting.findSetting("shop-" + name().toLowerCase() + "-status").getString());
     }
 
-    public Permission getPerm() {
-        return new Permission(toString());
+    public String getLine() {
+        return colour(key + "<" + Setting.findSetting("shop-" + name().toLowerCase() + "-status").getString() + key + ">");
+    }
+
+    ShopStatus(String key) {
+        this.key = key;
+    }
+
+    public static String colour(String x) {
+        return ChatColor.translateAlternateColorCodes(COLOUR_CHAR, x);
     }
 }

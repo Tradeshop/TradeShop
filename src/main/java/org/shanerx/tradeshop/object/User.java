@@ -19,39 +19,27 @@
  * caused by their contribution(s) to the project. See the full License for more information
  */
 
-package org.shanerx.tradeshop.enums;
+package org.shanerx.tradeshop.object;
 
-import org.bukkit.Bukkit;
-import org.bukkit.permissions.Permission;
-import org.shanerx.tradeshop.TradeShop;
+import org.bukkit.entity.Player;
+import org.shanerx.tradeshop.enums.ShopRole;
 
-public enum Permissions {
+public class User {
 
-    HELP("help"),
+    private Player player;
+    private ShopRole role;
 
-    CREATE("create"),
-
-    CREATEI("create.infinite"),
-
-    CREATEBI("create.bi"),
-
-    ADMIN("admin"),
-
-    WHO("who");
-
-    private String key;
-    private final static TradeShop plugin = (TradeShop) Bukkit.getPluginManager().getPlugin("TradeShop");
-
-    Permissions(String key) {
-        this.key = key;
+    public User(Player player, ShopRole role) {
+        this.player = player;
+        this.role = role;
     }
 
-    @Override
-    public String toString() {
-        return "tradeshop." + key;
+    public Player getPlayer() {
+        return player;
     }
 
-    public Permission getPerm() {
-        return new Permission(toString());
+    public ShopRole getRole() {
+        return role;
     }
+
 }

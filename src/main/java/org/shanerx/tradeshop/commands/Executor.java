@@ -36,7 +36,6 @@ import org.shanerx.tradeshop.enums.Message;
 import org.shanerx.tradeshop.enums.Permissions;
 import org.shanerx.tradeshop.enums.Potions;
 import org.shanerx.tradeshop.enums.Setting;
-import org.shanerx.tradeshop.util.CustomItem;
 import org.shanerx.tradeshop.util.Utils;
 
 import java.util.Arrays;
@@ -209,8 +208,8 @@ public class Executor extends Utils implements CommandExecutor {
 									.replace("{MEMBERS}", "None")));
 							return true;
 						}
-						
-					} else if (plugin.getAllowedInventories().contains(b.getType())) {
+
+					} else if (plugin.getListManager().isInventory(b.getType())) {
 						if (findShopSign(b) == null)
 							throw new NoSuchFieldException();
 						
@@ -261,7 +260,7 @@ public class Executor extends Utils implements CommandExecutor {
 					sender.sendMessage(Message.NO_COMMAND_PERMISSION.toString());
 					return true;
 				}
-				Set<String> items = CustomItem.getItemSet();
+				Set<String> items = plugin.getCustomItemManager().getItems();
 				StringBuilder sb = new StringBuilder();
 				sender.sendMessage(colorize("&aCurrent custom items:"));
 				for (String s : items) {
@@ -289,8 +288,8 @@ public class Executor extends Utils implements CommandExecutor {
 					
 				} else if (isShopSign(b)) {
 					b = findShopChest(b);
-					
-				} else if (!plugin.getAllowedInventories().contains(b.getType()) || findShopSign(b) == null) {
+
+				} else if (!plugin.getListManager().isInventory(b.getType()) || findShopSign(b) == null) {
 					p.sendMessage(colorize(getPrefix() + Message.NO_SIGHTED_SHOP));
 					return true;
 					
@@ -342,7 +341,7 @@ public class Executor extends Utils implements CommandExecutor {
 					return true;
 				}
 
-				CustomItem.addItem(name, itm);
+				plugin.getCustomItemManager().addItem(name, itm);
 				p.sendMessage(colorize("&a" + name + " has been added to the custom items."));
 				return true;
 				
@@ -354,7 +353,7 @@ public class Executor extends Utils implements CommandExecutor {
 				
 				String name = args[1];
 
-				CustomItem.removeItem(name);
+				plugin.getCustomItemManager().removeItem(name);
 				sender.sendMessage(colorize("&a" + name + " has been removed from the custom items."));
 				return true;
 				
@@ -371,7 +370,7 @@ public class Executor extends Utils implements CommandExecutor {
 				
 				String name = args[1];
 
-				ItemStack itm = CustomItem.getItem(name);
+				ItemStack itm = plugin.getCustomItemManager().getItem(name);
 				if (itm == null) {
 					sender.sendMessage(colorize("&c" + name + " could not be found."));
 				} else {

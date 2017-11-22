@@ -22,8 +22,6 @@
 package org.shanerx.tradeshop;
 
 import org.bstats.bukkit.Metrics;
-import org.bukkit.Material;
-import org.bukkit.block.BlockFace;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.shanerx.tradeshop.admin.AdminEventListener;
@@ -34,24 +32,27 @@ import org.shanerx.tradeshop.enums.Message;
 import org.shanerx.tradeshop.enums.Setting;
 import org.shanerx.tradeshop.itrade.IShopCreateEventListener;
 import org.shanerx.tradeshop.itrade.ITradeEventListener;
+import org.shanerx.tradeshop.object.CustomItemManager;
+import org.shanerx.tradeshop.object.ListManager;
 import org.shanerx.tradeshop.trade.ShopCreateEventListener;
 import org.shanerx.tradeshop.trade.TradeEventListener;
-import org.shanerx.tradeshop.util.CustomItem;
 import org.shanerx.tradeshop.util.Updater;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-
 public class TradeShop extends JavaPlugin {
-    private boolean mc18 = this.getServer().getVersion().contains("1.8");
-
-    private ArrayList<Material> inventories = new ArrayList<>();
-    private ArrayList<BlockFace> directions = new ArrayList<>();
-    
+    private final boolean mc18 = this.getServer().getVersion().contains("1.8");
     private Metrics metrics;
+    private ListManager listManager;
+    private CustomItemManager customItemManager;
 
+    public ListManager getListManager() {
+        return listManager;
+    }
 
-    public Boolean isAboveMC18() {
+    public CustomItemManager getCustomItemManager() {
+        return customItemManager;
+    }
+
+    private Boolean isAboveMC18() {
         return !mc18;
     }
 
@@ -59,18 +60,6 @@ public class TradeShop extends JavaPlugin {
     public void reloadConfig() {
         Message.reload();
         Setting.reload();
-        CustomItem.reload();
-
-        addMaterials();
-        addDirections();
-    }
-
-    public ArrayList<Material> getAllowedInventories() {
-        return inventories;
-    }
-
-    public ArrayList<BlockFace> getAllowedDirections() {
-        return directions;
     }
 
     @Override
@@ -82,6 +71,8 @@ public class TradeShop extends JavaPlugin {
         }
 
         reloadConfig();
+        listManager = new ListManager();
+        customItemManager = new CustomItemManager();
 
         PluginManager pm = getServer().getPluginManager();
         pm.registerEvents(new TradeEventListener(this), this);
@@ -105,48 +96,6 @@ public class TradeShop extends JavaPlugin {
             
         } else {
             getLogger().warning("Metrics are disabled! Please consider enabling them to support the authors!");
-        }
-    }
-
-    private void addMaterials() {
-        inventories.clear();
-        ArrayList<Material> allowedOld = new ArrayList<>();
-        allowedOld.addAll(Arrays.asList(Material.CHEST, Material.TRAPPED_CHEST, Material.DROPPER, Material.HOPPER, Material.DISPENSER));
-
-        for (String str : Setting.ALLOWED_SHOPS.getStringList()) {
-            if (str.equalsIgnoreCase("shulker")) {
-                inventories.addAll(Arrays.asList(Material.BLACK_SHULKER_BOX,
-                        Material.BLUE_SHULKER_BOX,
-                        Material.BROWN_SHULKER_BOX,
-                        Material.CYAN_SHULKER_BOX,
-                        Material.GRAY_SHULKER_BOX,
-                        Material.GREEN_SHULKER_BOX,
-                        Material.LIGHT_BLUE_SHULKER_BOX,
-                        Material.LIME_SHULKER_BOX,
-                        Material.MAGENTA_SHULKER_BOX,
-                        Material.ORANGE_SHULKER_BOX,
-                        Material.PINK_SHULKER_BOX,
-                        Material.RED_SHULKER_BOX,
-                        Material.SILVER_SHULKER_BOX,
-                        Material.WHITE_SHULKER_BOX,
-                        Material.YELLOW_SHULKER_BOX,
-                        Material.PURPLE_SHULKER_BOX));
-            } else {
-                if (allowedOld.contains(Material.valueOf(str)))
-                    inventories.add(Material.valueOf(str));
-
-            }
-        }
-    }
-
-    private void addDirections() {
-        directions.clear();
-        ArrayList<BlockFace> allowed = new ArrayList<>();
-        allowed.addAll(Arrays.asList(BlockFace.DOWN, BlockFace.WEST, BlockFace.SOUTH, BlockFace.EAST, BlockFace.NORTH, BlockFace.UP));
-
-        for (String str : Setting.ALLOWED_DIRECTIONS.getStringList()) {
-            if (allowed.contains(BlockFace.valueOf(str)))
-                directions.add(BlockFace.valueOf(str));
         }
     }
 }

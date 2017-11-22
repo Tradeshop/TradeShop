@@ -67,7 +67,7 @@ public class BiShopCreateEventListener extends Utils implements Listener {
             return;
         }
 
-        if (chest == null || !plugin.getAllowedInventories().contains(chest.getType())) {
+        if (chest == null || !plugin.getListManager().isInventory(chest.getType())) {
             failedSign(event, ShopType.BITRADE, Message.NO_CHEST);
             return;
         }
@@ -141,10 +141,8 @@ public class BiShopCreateEventListener extends Utils implements Listener {
 
         if (chestInventory.containsAtLeast(item1, amount1)) {
             event.getPlayer().sendMessage(colorize(getPrefix() + Message.SUCCESSFUL_SETUP));
-            return;
         } else {
             event.getPlayer().sendMessage(colorize(getPrefix() + Message.EMPTY_TS_ON_SETUP));
-            return;
         }
     }
 }

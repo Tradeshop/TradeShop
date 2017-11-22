@@ -19,12 +19,13 @@
  * caused by their contribution(s) to the project. See the full License for more information
  */
 
-package org.shanerx.tradeshop.util;
+package org.shanerx.tradeshop.object;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
+import org.shanerx.tradeshop.util.Utils;
 
 import java.io.File;
 import java.io.FileReader;
@@ -79,14 +80,14 @@ public class JsonConfiguration
         return var;
     }
 
-    public String convertLocation(Location loc) {
+    public String serializeLocation(Location loc) {
         String world = loc.getWorld().getName();
         int x = loc.getBlockX(), y = loc.getBlockY(), z = loc.getBlockZ();
 
         return world + div + x + div + y + div + z;
     }
 
-    public Location convertLocation(String loc) {
+    public Location deserializeLocation(String loc) {
         String locA[] = loc.split(div);
         String world = locA[0];
         int x = Integer.parseInt(locA[1]), y = Integer.parseInt(locA[2]), z = Integer.parseInt(locA[3]);

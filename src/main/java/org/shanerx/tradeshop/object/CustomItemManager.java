@@ -19,7 +19,7 @@
  * caused by their contribution(s) to the project. See the full License for more information
  */
 
-package org.shanerx.tradeshop.util;
+package org.shanerx.tradeshop.object;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -33,77 +33,99 @@ import org.shanerx.tradeshop.TradeShop;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
+import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 
-public class CustomItem {
+public class CustomItemManager {
 
-    private static TradeShop plugin = (TradeShop) Bukkit.getPluginManager().getPlugin("TradeShop");
+    private Map<String, ItemStack> customItems;
+    private static final TradeShop plugin = (TradeShop) Bukkit.getPluginManager().getPlugin("TradeShop");
     private static File file = new File(plugin.getDataFolder(), "customitems.yml");
     private static FileConfiguration config = YamlConfiguration.loadConfiguration(file);
     private static final char COLOUR_CHAR = '&';
 
-    public static void addItem(String name, ItemStack itm) {
-        if (!config.getValues(false).containsKey(name)) {
-            config.createSection(name);
+    public CustomItemManager() {
+        loadItems();
+    }
 
-            config.set(name, itm.serialize());
+    private void loadItems() {
+        for (String key : config.getKeys(false)) {
+            if (config.get(key) != null) {
+                customItems.put(key, loadItem(key));
+            }
+        }
 
-            save();
+        if (customItems.isEmpty()) {
+            addDefault();
         }
     }
 
-    public static void removeItem(String name) {
-        if (config.getValues(false).containsKey(name)) {
-            config.set(name, null);
+    private ItemStack loadItem(String name) {
+        ItemStack itm = ItemStack.deserialize(config.getConfigurationSection(name).getValues(true));
+        ItemMeta meta = itm.getItemMeta();
 
-            save();
+        if (meta.hasLore()) {
+            ArrayList<String> str2 = new ArrayList<>();
+            for (String s : meta.getLore()) {
+                str2.add(ChatColor.translateAlternateColorCodes('&', s));
+            }
+            meta.setLore(str2);
         }
+
+        if (meta.hasDisplayName())
+            meta.setDisplayName(ChatColor.translateAlternateColorCodes('&', meta.getDisplayName()));
+
+        itm.setItemMeta(meta);
+
+        return itm;
     }
 
-    public static Set<String> getItemSet() {
-        return config.getValues(false).keySet();
-    }
-
-    private static void setDefaults() {
-        if (config.getValues(false).isEmpty()) {
+    private void addDefault() {
+        if (customItems.isEmpty()) {
             ItemStack dataHolder = new ItemStack(Material.TRIPWIRE_HOOK);
             ItemMeta meta = dataHolder.getItemMeta();
 
             meta.setDisplayName("Key");
-            meta.setLore(Arrays.asList("&aThe key to your dreams."));
+            meta.setLore(Collections.singletonList("&aThe key to your dreams."));
             dataHolder.setItemMeta(meta);
 
             addItem("Key", dataHolder);
         }
     }
 
-    public static ItemStack getItem(String name) {
-        ItemStack itm = null;
-
-        if (!(config.get(name) == null)) {
-            itm = ItemStack.deserialize(config.getConfigurationSection(name).getValues(true));
-            ItemMeta meta = itm.getItemMeta();
-
-            if (meta.hasLore()) {
-                ArrayList<String> str2 = new ArrayList<>();
-                for (String s : meta.getLore()) {
-                    str2.add(ChatColor.translateAlternateColorCodes('&', s));
-                }
-                meta.setLore(str2);
-            }
-
-            if (meta.hasDisplayName())
-                meta.setDisplayName(ChatColor.translateAlternateColorCodes('&', meta.getDisplayName()));
-
-            itm.setItemMeta(meta);
+    public ItemStack getItem(String key) {
+        if (customItems.containsKey(key)) {
+            return customItems.get(key);
         }
 
-        return itm;
+        return null;
     }
 
-    public static void reload() {
+    public void addItem(String key, ItemStack itm) {
+        if (customItems.containsKey(key)) {
+            customItems.replace(key, itm);
+        } else {
+            customItems.put(key, itm);
+        }
+    }
+
+    public void removeItem(String key) {
+        if (customItems.containsKey(key)) {
+            customItems.remove(key);
+        }
+
+        if (config.contains(key)) {
+            config.set(key, null);
+        }
+    }
+
+    public Set<String> getItems() {
+        return customItems.keySet();
+    }
+
+    public void reload() {
         try {
             if (!plugin.getDataFolder().isDirectory()) {
                 plugin.getDataFolder().mkdirs();
@@ -117,10 +139,20 @@ public class CustomItem {
         }
 
         config = YamlConfiguration.loadConfiguration(file);
-        setDefaults();
+        customItems.clear();
+        loadItems();
     }
 
-    private static void save() {
+    private void save() {
+        for (String str : customItems.keySet()) {
+            if (config.contains(str)) {
+                config.set(str, customItems.get(str).serialize());
+            } else {
+                config.createSection(str);
+                config.set(str, customItems.get(str).serialize());
+            }
+        }
+
         if (config != null) {
             try {
                 config.save(file);
@@ -130,13 +162,16 @@ public class CustomItem {
         }
 
         config = YamlConfiguration.loadConfiguration(file);
+        customItems.clear();
+        loadItems();
     }
 
-    public static FileConfiguration getConfig() {
+    public FileConfiguration getConfig() {
         return config;
     }
 
-    public static String colour(String x) {
+    public String colour(String x) {
         return ChatColor.translateAlternateColorCodes(COLOUR_CHAR, x);
     }
+
 }

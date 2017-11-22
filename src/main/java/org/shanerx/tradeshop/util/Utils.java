@@ -333,14 +333,14 @@ public class Utils {
      * @return returns item or null if invalid
      */
     public ItemStack isValidType(String mat) {
-        ArrayList<String> illegalItems = Setting.getIllegalItems();
-        Set<String> customItemSet = CustomItem.getItemSet();
+        ArrayList<String> illegalItems = plugin.getListManager().getBlacklist();
+        Set<String> customItemSet = plugin.getCustomItemManager().getItems();
         String matLower = mat.toLowerCase();
         ItemStack blacklist = getBlackListItem();
 
         if (isInt(mat) && Material.getMaterial(Integer.parseInt(mat)) != null) {
             Material temp = Material.getMaterial(Integer.parseInt(mat));
-            if (illegalItems.contains(temp.name().toLowerCase())) {
+            if (illegalItems.contains(Material.matchMaterial(mat))) {
                 return blacklist;
             }
 
@@ -359,7 +359,7 @@ public class Utils {
         if (customItemSet.size() > 0) {
             for (String str : customItemSet) {
                 if (str.equalsIgnoreCase(mat)) {
-                    ItemStack temp = CustomItem.getItem(mat);
+                    ItemStack temp = plugin.getCustomItemManager().getItem(mat);
                     if (!Setting.ALLOW_CUSTOM_ILLEGAL_ITEMS.getBoolean()) {
                         if (illegalItems.contains(temp.getType().name().toLowerCase())) {
                             return blacklist;
@@ -473,7 +473,7 @@ public class Utils {
      * @return the sign.
      */
     public Sign findShopSign(Block chest) {
-        ArrayList<BlockFace> faces = plugin.getAllowedDirections();
+        ArrayList<BlockFace> faces = plugin.getListManager().getDirections();
         Collections.reverse(faces);
         ArrayList<BlockFace> flatFaces = new ArrayList<>(Arrays.asList(BlockFace.NORTH, BlockFace.EAST, BlockFace.SOUTH, BlockFace.WEST));
         boolean isDouble = false;
@@ -511,8 +511,8 @@ public class Utils {
      * @return the shop's inventory holder block.
      */
     public Block findShopChest(Block sign) {
-        ArrayList<Material> invs = plugin.getAllowedInventories();
-        ArrayList<BlockFace> faces = plugin.getAllowedDirections();
+        ArrayList<Material> invs = plugin.getListManager().getInventories();
+        ArrayList<BlockFace> faces = plugin.getListManager().getDirections();
 
         for (BlockFace face : faces) {
             Block relative = sign.getRelative(face);
@@ -531,7 +531,7 @@ public class Utils {
      * @return all the owners.
      */
     public List<OfflinePlayer> getShopOwners(Block b) {
-        if (!plugin.getAllowedInventories().contains(b.getType())) {
+        if (!plugin.getListManager().isInventory(b.getType())) {
             return null;
         }
 
@@ -571,7 +571,7 @@ public class Utils {
     public List<OfflinePlayer> getShopMembers(Block block) {
         BlockState b = block.getState();
 
-        if (!plugin.getAllowedInventories().contains(b.getType())) {
+        if (!plugin.getListManager().isInventory(b.getType())) {
             return null;
         }
 
@@ -608,7 +608,7 @@ public class Utils {
      * @return all the members.
      */
     public List<OfflinePlayer> getShopUsers(Block b) {
-        if (!plugin.getAllowedInventories().contains(b.getType())) {
+        if (!plugin.getListManager().isInventory(b.getType())) {
             return null;
         }
 
@@ -673,7 +673,6 @@ public class Utils {
      * @param name    original name of inventory, null to use generic name
      * @param owners  List of inventory owners
      * @param members List of inventory members
-     * @return void
      */
     public void changeInvName(BlockState state, String name, List<OfflinePlayer> owners, List<OfflinePlayer> members) {
         StringBuilder sb = new StringBuilder();
@@ -694,7 +693,7 @@ public class Utils {
      * @return Name of inventory
      */
     public String readInvName(BlockState state) {
-        if (!plugin.getAllowedInventories().contains(state.getType())) {
+        if (!plugin.getListManager().isInventory(state.getType())) {
             return null;
         }
 
@@ -718,7 +717,6 @@ public class Utils {
      * Resets the name of the inventory
      *
      * @param state blockState to change the name of
-     * @return void
      */
     public void resetInvName(BlockState state) {
         Inventory inv = ((InventoryHolder) state).getInventory();

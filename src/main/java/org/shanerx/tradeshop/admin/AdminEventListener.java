@@ -65,7 +65,7 @@ public class AdminEventListener extends Utils implements Listener {
             event.setCancelled(true);
             player.sendMessage(colorize(getPrefix() + Message.NO_TS_DESTROY));
 
-        } else if (plugin.getAllowedInventories().contains(block.getType())) {
+        } else if (plugin.getListManager().isInventory(block.getType())) {
             if (player.hasPermission(Permissions.ADMIN.getPerm())) {
                 resetInvName(block.getState());
                 return;
@@ -102,7 +102,7 @@ public class AdminEventListener extends Utils implements Listener {
         if (e.getAction() != Action.RIGHT_CLICK_BLOCK) {
             return;
 
-        } else if (!plugin.getAllowedInventories().contains(block.getType())) {
+        } else if (!plugin.getListManager().isInventory(block.getType())) {
             return;
         }
 

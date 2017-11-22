@@ -47,6 +47,8 @@ public enum Setting {
     TRADESHOP_NAME,
     ITRADESHOP_NAME,
     BITRADESHOP_NAME,
+    SHOP_OPEN_STATUS,
+    SHOP_CLOSED_STATUS,
     ALLOW_METRICS;
 
     @Override
@@ -55,30 +57,30 @@ public enum Setting {
     }
 
     public Object getSetting() {
-        return config.get(name().toLowerCase().replace("_", "-"));
+        return config.get(toString());
     }
 
     public String getString() {
-        return config.getString(name().toLowerCase().replace("_", "-"));
+        return config.getString(toString());
     }
 
     public List<String> getStringList() {
-        return config.getStringList(name().toLowerCase().replace("_", "-"));
+        return config.getStringList(toString());
     }
 
     public int getInt() {
-        return config.getInt(name().toLowerCase().replace("_", "-"));
+        return config.getInt(toString());
     }
 
     public double getDouble() {
-        return config.getDouble(name().toLowerCase().replace("_", "-"));
+        return config.getDouble(toString());
     }
 
     public boolean getBoolean() {
-        return config.getBoolean(name().toLowerCase().replace("_", "-"));
+        return config.getBoolean(toString());
     }
 
-    public static ArrayList<String> getIllegalItems() {
+    public static ArrayList<String> getItemBlackList() {
         ArrayList<String> blacklist = new ArrayList<>();
         blacklist.add("air");
         blacklist.addAll(Setting.ILLEGAL_ITEMS.getStringList());
@@ -110,6 +112,8 @@ public enum Setting {
         addSetting("tradeshop-name", "Trade");
         addSetting("itradeshop-name", "iTrade");
         addSetting("bitradeshop-name", "BiTrade");
+        addSetting("shop-open-status", "Open");
+        addSetting("shop-closed-status", "Closed");
         addSetting("allow-metrics", true);
 
         save();
