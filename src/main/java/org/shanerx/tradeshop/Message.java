@@ -3,6 +3,7 @@ package org.shanerx.tradeshop;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 
+@SuppressWarnings("unused")
 public enum Message {
     
     AMOUNT_NOT_NUM,
@@ -42,9 +43,12 @@ public enum Message {
     @Override
     public String toString() {
         return colour(
-            plugin.getMessages().getString(
-                name().toLowerCase().replace("_", "-")
-            )
+                plugin.getMessages().getString(
+                        name()
+                                .toLowerCase()
+                                .replace("_", "-")
+                ).replace("%header%",
+                                plugin.getSettings().getString("tradeshop-name"))
         );
     }
     

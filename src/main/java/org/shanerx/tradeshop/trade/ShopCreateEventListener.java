@@ -37,6 +37,9 @@ import org.shanerx.tradeshop.ShopType;
 import org.shanerx.tradeshop.TradeShop;
 import org.shanerx.tradeshop.Utils;
 
+import java.util.Collections;
+
+@SuppressWarnings("unused")
 public class ShopCreateEventListener extends Utils implements Listener {
 
     private TradeShop plugin;
@@ -133,7 +136,8 @@ public class ShopCreateEventListener extends Utils implements Listener {
         Inventory chestInventory = ((InventoryHolder) chest.getState()).getInventory();
         event.setLine(0, ChatColor.DARK_GREEN + header);
         event.setLine(3, player.getName());
-        setName((InventoryHolder) chest.getState(), "o:" + player.getName());
+        changeInvName(chest.getState(), readInvName(chest.getState()),
+                Collections.singletonList(plugin.getServer().getOfflinePlayer(player.getUniqueId())), Collections.emptyList());
 
         if (chestInventory.containsAtLeast(item1, amount1)) {
             event.getPlayer().sendMessage(colorize(getPrefix() + Message.SUCCESSFUL_SETUP));

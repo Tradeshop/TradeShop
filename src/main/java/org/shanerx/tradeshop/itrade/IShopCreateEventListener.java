@@ -28,13 +28,15 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.SignChangeEvent;
-import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.shanerx.tradeshop.Message;
 import org.shanerx.tradeshop.ShopType;
 import org.shanerx.tradeshop.TradeShop;
 import org.shanerx.tradeshop.Utils;
 
+import java.util.Collections;
+
+@SuppressWarnings("unused")
 public class IShopCreateEventListener extends Utils implements Listener {
 
     private TradeShop plugin;
@@ -62,10 +64,9 @@ public class IShopCreateEventListener extends Utils implements Listener {
         }
 
         if (findShopChest(s.getBlock()) != null && getShopUsers(findShopChest(s.getBlock())).size() > 0) {
-            getShopOwners(s).stream().forEach(op -> {
+            getShopOwners(s).forEach(op -> {
                 if (!op.getName().equalsIgnoreCase(plugin.getSettings().getString("itrade-shop-name"))) {
                     failedSign(event, ShopType.ITRADE, Message.NOT_OWNER);
-                    return;
                 }
             });
         }
@@ -124,7 +125,8 @@ public class IShopCreateEventListener extends Utils implements Listener {
         }
 
         if (chest != null) {
-            setName((InventoryHolder) chest.getState(), "o:" + plugin.getSettings().getString("itrade-shop-name"));
+            changeInvName(chest.getState(), readInvName(chest.getState()),
+                    Collections.singletonList(plugin.getServer().getOfflinePlayer(plugin.getSettings().getString("itrade-shop-name"))), Collections.emptyList());
         }
 
         event.setLine(0, ChatColor.DARK_GREEN + header);

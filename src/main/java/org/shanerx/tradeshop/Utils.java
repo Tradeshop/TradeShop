@@ -28,7 +28,7 @@ import org.bukkit.Nameable;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
-import org.bukkit.block.Chest;
+import org.bukkit.block.BlockState;
 import org.bukkit.block.Sign;
 import org.bukkit.event.block.SignChangeEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
@@ -79,7 +79,7 @@ public class Utils {
      *
      * @return the name.
      */
-    public String getPluginName() {
+    protected String getPluginName() {
         return pdf.getName();
     }
 
@@ -612,7 +612,7 @@ public class Utils {
                 }
             } else if (!owners.contains(Bukkit.getOfflinePlayer(s.getLine(3)))) {
                 owners.add(Bukkit.getOfflinePlayer(s.getLine(3)));
-                setName((InventoryHolder) b.getState(), "o:" + s.getLine(3));
+                changeInvName(b.getState(), readInvName(b.getState()), Collections.singletonList(plugin.getServer().getOfflinePlayer(s.getLine(3))), Collections.emptyList());
             }
         } catch (NullPointerException npe) {
         }
@@ -622,23 +622,25 @@ public class Utils {
     /**
      * Returns all the owners of a TradeShop, including the one on the last line of the sign.
      *
-     * @param b the inventory holder block
+     * @param block the inventory holder block
      * @return all the members.
      */
-    public List<OfflinePlayer> getShopMembers(Block b) {
+    public List<OfflinePlayer> getShopMembers(Block block) {
+        BlockState b = block.getState();
+
         if (!plugin.getAllowedInventories().contains(b.getType())) {
             return null;
         }
 
         List<OfflinePlayer> members = new ArrayList<>();
-        Inventory inv = ((InventoryHolder) b.getState()).getInventory();
+        Inventory inv = ((InventoryHolder) b).getInventory();
         String names = inv.getName();
         for (String m : names.split(";")) {
             if (m.startsWith("m:")) {
                 members.add(Bukkit.getOfflinePlayer(m.substring(2)));
             }
         }
-        Sign s = findShopSign(b);
+        Sign s = findShopSign(b.getBlock());
         try {
             if (s.getLines().length != 4 || s.getLine(3).equals("")) {
                 if (members.size() > 0) {
@@ -649,7 +651,7 @@ public class Utils {
                 }
                 return members;
             } else if (getShopOwners(s).size() == 0 || !getShopOwners(s).contains(Bukkit.getOfflinePlayer(s.getLine(3)))) {
-                setName((InventoryHolder) b.getState(), "o:" + s.getLine(3));
+                changeInvName(b, readInvName(b), Collections.singletonList(plugin.getServer().getOfflinePlayer(s.getLine(3))), members);
             }
         } catch (NullPointerException npe) {
         }
@@ -686,7 +688,7 @@ public class Utils {
      * @return all the owners.
      */
     public List<OfflinePlayer> getShopOwners(Sign s) {
-        Chest c = (Chest) findShopChest(s.getBlock()).getState();
+        BlockState c = findShopChest(s.getBlock()).getState();
         if (c == null) {
             return null;
         }
@@ -700,7 +702,7 @@ public class Utils {
      * @return all the members.
      */
     public List<OfflinePlayer> getShopMembers(Sign s) {
-        Chest c = (Chest) findShopChest(s.getBlock()).getState();
+        BlockState c = findShopChest(s.getBlock()).getState();
         if (c == null) {
             return null;
         }
@@ -714,11 +716,84 @@ public class Utils {
      * @return all the members.
      */
     public List<OfflinePlayer> getShopUsers(Sign s) {
-        Chest c = (Chest) findShopChest(s.getBlock()).getState();
+        BlockState c = findShopChest(s.getBlock()).getState();
         if (c == null) {
             return null;
         }
         return getShopUsers(c.getBlock());
+    }
+
+    /**
+     * Sets the name of the inventory
+     *
+     * @param state   blockState to change the name of
+     * @param name    original name of inventory, null to use generic name
+     * @param owners  List of inventory owners
+     * @param members List of inventory members
+     * @return void
+     */
+    public void changeInvName(BlockState state, String name, List<OfflinePlayer> owners, List<OfflinePlayer> members) {
+        StringBuilder sb = new StringBuilder();
+        if (name == null || name.equalsIgnoreCase("")) {
+            name = "";
+        }
+        sb.append(name + " <");
+        owners.forEach(o -> sb.append("o:" + o.getName() + ";"));
+        members.forEach(m -> sb.append("m:" + m.getName() + ";"));
+        sb.append(">");
+        setName((InventoryHolder) state, sb.toString());
+    }
+
+    /**
+     * Reads the name of the inventory
+     *
+     * @param state blockState to change the name of
+     * @return Name of inventory
+     */
+    public String readInvName(BlockState state) {
+        if (!plugin.getAllowedInventories().contains(state.getType())) {
+            return null;
+        }
+
+        Inventory inv = ((InventoryHolder) state).getInventory();
+
+        if (((Nameable) state).getCustomName() == null) {
+            return "";
+        }
+
+        String[] names = inv.getName().split(" <");
+
+        if (names[0] == null || names[0].equalsIgnoreCase("")) {
+            return "";
+        } else {
+            return names[0];
+        }
+
+    }
+
+    /**
+     * Resets the name of the inventory
+     *
+     * @param state blockState to change the name of
+     * @return void
+     */
+    public void resetInvName(BlockState state) {
+        Inventory inv = ((InventoryHolder) state).getInventory();
+        String name = inv.getName();
+        String[] temp = name.split(";");
+
+        if (name.startsWith("o:")) {
+            name = "";
+        }
+
+        String[] names = name.split(" <");
+
+        while (names[0].endsWith(" ")) {
+            names[0] = names[0].substring(0, name.length() - 2);
+        }
+
+        setName(((InventoryHolder) state), names[0]);
+
     }
 
     /**
@@ -746,10 +821,7 @@ public class Utils {
             return false;
         }
 
-        StringBuilder sb = new StringBuilder();
-        owners.forEach(o -> sb.append("o:" + o.getName() + ";"));
-        members.forEach(m -> sb.append("m:" + m.getName() + ";"));
-        setName((InventoryHolder) b.getState(), sb.toString());
+        changeInvName(b.getState(), readInvName(b.getState()), owners, members);
         return true;
     }
 
@@ -779,10 +851,7 @@ public class Utils {
         List<OfflinePlayer> members = getShopMembers(b);
         members.remove(p);
 
-        StringBuilder sb = new StringBuilder();
-        owners.forEach(o -> sb.append("o:" + o.getName() + ";"));
-        members.forEach(m -> sb.append("m:" + m.getName() + ";"));
-        setName((InventoryHolder) b.getState(), sb.toString());
+        changeInvName(b.getState(), readInvName(b.getState()), owners, members);
     }
 
     /**
@@ -822,10 +891,7 @@ public class Utils {
             return false;
         }
 
-        StringBuilder sb = new StringBuilder();
-        owners.forEach(o -> sb.append("o:" + o.getName() + ";"));
-        members.forEach(m -> sb.append("m:" + m.getName() + ";"));
-        setName((InventoryHolder) b.getState(), sb.toString());
+        changeInvName(b.getState(), readInvName(b.getState()), owners, members);
         return true;
     }
 
@@ -855,10 +921,7 @@ public class Utils {
         List<OfflinePlayer> members = getShopMembers(b);
         owners.remove(p);
 
-        StringBuilder sb = new StringBuilder();
-        owners.forEach(o -> sb.append("o:" + o.getName() + ";"));
-        members.forEach(m -> sb.append("m:" + m.getName() + ";"));
-        setName((InventoryHolder) b.getState(), sb.toString());
+        changeInvName(b.getState(), readInvName(b.getState()), owners, members);
     }
 
     /**
