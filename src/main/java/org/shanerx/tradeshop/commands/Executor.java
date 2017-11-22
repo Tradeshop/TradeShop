@@ -54,13 +54,13 @@ public class Executor extends Utils implements CommandExecutor {
 	@SuppressWarnings("deprecation")
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
 		if (args.length == 0) {
-			sender.sendMessage(colorize(getPrefix() + Message.INVALID_ARGUMENTS));
+			sender.sendMessage(Message.INVALID_ARGUMENTS.getPrefixed());
 			return true;
 			
 		} else if (args.length == 1) {
 			if (args[0].equalsIgnoreCase("help")) {
 				if (!sender.hasPermission(Permissions.HELP.getPerm())) {
-					sender.sendMessage(colorize(getPrefix() + Message.NO_COMMAND_PERMISSION));
+					sender.sendMessage(Message.NO_COMMAND_PERMISSION.getPrefixed());
 					return true;
 				}
 				
@@ -118,15 +118,15 @@ public class Executor extends Utils implements CommandExecutor {
 				
 			} else if (args[0].equalsIgnoreCase("setup")) {
 				if (!sender.hasPermission(Permissions.CREATE.getPerm())) {
-					sender.sendMessage(colorize(getPrefix() + Message.NO_COMMAND_PERMISSION));
+					sender.sendMessage(Message.NO_COMMAND_PERMISSION.getPrefixed());
 					return true;
 				}
-				sender.sendMessage(colorize(getPrefix() + Message.SETUP_HELP));
+				sender.sendMessage(Message.SETUP_HELP.getPrefixed());
 				return true;
 				
 			} else if (args[0].equalsIgnoreCase("reload")) {
 				if (!sender.hasPermission(Permissions.ADMIN.getPerm())) {
-					sender.sendMessage(colorize(getPrefix() + Message.NO_COMMAND_PERMISSION));
+					sender.sendMessage(Message.NO_COMMAND_PERMISSION.getPrefixed());
 					return true;
 					
 				}
@@ -136,18 +136,18 @@ public class Executor extends Utils implements CommandExecutor {
 				
 			} else if (args[0].equalsIgnoreCase("item")) {
 				if (!(sender instanceof Player)) {
-					sender.sendMessage(Message.PLAYER_ONLY_COMMAND.toString());
+					sender.sendMessage(Message.PLAYER_ONLY_COMMAND.getPrefixed());
 					return true;
 				}
 				if (!sender.hasPermission(Permissions.CREATE.getPerm())) {
-					sender.sendMessage(colorize(getPrefix() + Message.NO_COMMAND_PERMISSION));
+					sender.sendMessage(Message.NO_COMMAND_PERMISSION.getPrefixed());
 					return true;
 				}
 				
 				Player pl = (Player) sender;
 				ItemStack itm = pl.getInventory().getItemInMainHand();
 				if (itm.getType() == null || itm.getType() == Material.AIR) {
-					sender.sendMessage(colorize(getPrefix() + Message.HELD_EMPTY));
+					sender.sendMessage(Message.HELD_EMPTY.getPrefixed());
 					return true;
 				} else {
 					String name = "",
@@ -165,21 +165,21 @@ public class Executor extends Utils implements CommandExecutor {
 						id = itm.getTypeId() + "";
 						amount = itm.getAmount() + "";
 					}
-					sender.sendMessage(colorize(getPrefix() + Message.HELD_ITEM.toString()
+					sender.sendMessage(Message.HELD_ITEM.getPrefixed()
 							.replace("{MATERIAL}", name)
 							.replace("{DURABILITY}", durability)
 							.replace("{ID}", id)
-							.replace("{AMOUNT}", amount)));
+							.replace("{AMOUNT}", amount));
 					return true;
 				}
 				
 			} else if (args[0].equalsIgnoreCase("who")) {
 				if (!(sender instanceof Player)) {
-					sender.sendMessage(Message.PLAYER_ONLY_COMMAND.toString());
+					sender.sendMessage(Message.PLAYER_ONLY_COMMAND.getPrefixed());
 					return true;
 
 				} else if (!sender.hasPermission(Permissions.WHO.getPerm())) {
-					sender.sendMessage(Message.NO_COMMAND_PERMISSION.toString());
+					sender.sendMessage(Message.NO_COMMAND_PERMISSION.getPrefixed());
 					return true;
 				}
 				
@@ -203,9 +203,9 @@ public class Executor extends Utils implements CommandExecutor {
 						s = (Sign) b.getState();
 						
 						if (isInfiniteTradeShopSign(s.getBlock())) {
-							p.sendMessage(colorize(getPrefix() + Message.WHO_MESSAGE.toString()
+							p.sendMessage(Message.WHO_MESSAGE.getPrefixed()
 									.replace("{OWNERS}", Setting.ITRADE_SHOP_NAME.getString())
-									.replace("{MEMBERS}", "None")));
+									.replace("{MEMBERS}", "None"));
 							return true;
 						}
 
@@ -216,9 +216,9 @@ public class Executor extends Utils implements CommandExecutor {
 						s = findShopSign(b);
 						
 						if (isInfiniteTradeShopSign(s.getBlock())) {
-							p.sendMessage(colorize(getPrefix() + Message.WHO_MESSAGE.toString()
+							p.sendMessage(Message.WHO_MESSAGE.getPrefixed()
 									.replace("{OWNERS}", Setting.ITRADE_SHOP_NAME.getString())
-									.replace("{MEMBERS}", "None")));
+									.replace("{MEMBERS}", "None"));
 							return true;
 						}
 					} else
@@ -246,18 +246,18 @@ public class Executor extends Utils implements CommandExecutor {
 					if (members.equals("")) {
 						members = "None";
 					}
-					p.sendMessage(colorize(getPrefix() + Message.WHO_MESSAGE.toString()
+					p.sendMessage(Message.WHO_MESSAGE.getPrefixed()
 							.replace("{OWNERS}", owners)
-							.replace("{MEMBERS}", members)));
+							.replace("{MEMBERS}", members));
 					return true;
 				} catch (NoSuchFieldException e) {
-					p.sendMessage(colorize(getPrefix() + Message.NO_SIGHTED_SHOP));
+					p.sendMessage(Message.NO_SIGHTED_SHOP.getPrefixed());
 					return true;
 				}
 				
 			} else if (args[0].equalsIgnoreCase("getCustomItems")) {
 				if (!sender.hasPermission(Permissions.ADMIN.getPerm())) {
-					sender.sendMessage(Message.NO_COMMAND_PERMISSION.toString());
+					sender.sendMessage(Message.NO_COMMAND_PERMISSION.getPrefixed());
 					return true;
 				}
 				Set<String> items = plugin.getCustomItemManager().getItems();
@@ -275,7 +275,7 @@ public class Executor extends Utils implements CommandExecutor {
 		} else if (args.length == 2) {
 			if (Arrays.asList("addowner", "removeowner", "addmember", "removemember").contains(args[0].toLowerCase())) {
 				if (!(sender instanceof Player)) {
-					sender.sendMessage(colorize(getPrefix() + Message.PLAYER_ONLY_COMMAND));
+					sender.sendMessage(Message.PLAYER_ONLY_COMMAND.getPrefixed());
 					return true;
 					
 				}
@@ -283,14 +283,14 @@ public class Executor extends Utils implements CommandExecutor {
 				Player p = (Player) sender;
 				Block b = p.getTargetBlock((HashSet<Byte>) null, Setting.MAX_EDIT_DISTANCE.getInt());
 				if (b == null || b.getType() == Material.AIR) {
-					p.sendMessage(colorize(getPrefix() + Message.NO_SIGHTED_SHOP));
+					p.sendMessage(Message.NO_SIGHTED_SHOP.getPrefixed());
 					return true;
 					
 				} else if (isShopSign(b)) {
 					b = findShopChest(b);
 
 				} else if (!plugin.getListManager().isInventory(b.getType()) || findShopSign(b) == null) {
-					p.sendMessage(colorize(getPrefix() + Message.NO_SIGHTED_SHOP));
+					p.sendMessage(Message.NO_SIGHTED_SHOP.getPrefixed());
 					return true;
 					
 				}
@@ -300,7 +300,7 @@ public class Executor extends Utils implements CommandExecutor {
 				switch (args[0].toLowerCase()) {
 					case "addowner":
 						if (!addOwner(b, target)) {
-							p.sendMessage(colorize(getPrefix() + Message.UNSUCCESSFUL_SHOP_MEMBERS));
+							p.sendMessage(Message.UNSUCCESSFUL_SHOP_MEMBERS.getPrefixed());
 							return true;
 						}
 						break;
@@ -309,7 +309,7 @@ public class Executor extends Utils implements CommandExecutor {
 						break;
 					case "addmember":
 						if (!addMember(b, target)) {
-							p.sendMessage(colorize(getPrefix() + Message.UNSUCCESSFUL_SHOP_MEMBERS));
+							p.sendMessage(Message.UNSUCCESSFUL_SHOP_MEMBERS.getPrefixed());
 							return true;
 						}
 						break;
@@ -317,17 +317,17 @@ public class Executor extends Utils implements CommandExecutor {
 						removeMember(b, target);
 						break;
 				}
-				p.sendMessage(colorize(getPrefix() + Message.UPDATED_SHOP_MEMBERS));
+				p.sendMessage(Message.UPDATED_SHOP_MEMBERS.getPrefixed());
 				return true;
 				
 			} else if (args[0].equalsIgnoreCase("addItem")) {
 				if (!(sender instanceof Player)) {
-					sender.sendMessage(colorize(getPrefix() + Message.PLAYER_ONLY_COMMAND));
+					sender.sendMessage(Message.PLAYER_ONLY_COMMAND.getPrefixed());
 					return true;
 				}
 
 				if (!sender.hasPermission(Permissions.ADMIN.getPerm())) {
-					sender.sendMessage(colorize(getPrefix() + Message.NO_COMMAND_PERMISSION));
+					sender.sendMessage(Message.NO_COMMAND_PERMISSION.getPrefixed());
 					return true;
 				}
 				
@@ -347,7 +347,7 @@ public class Executor extends Utils implements CommandExecutor {
 				
 			} else if (args[0].equalsIgnoreCase("removeItem")) {
 				if (!sender.hasPermission(Permissions.ADMIN.getPerm())) {
-					sender.sendMessage(colorize(getPrefix() + Message.NO_COMMAND_PERMISSION));
+					sender.sendMessage(Message.NO_COMMAND_PERMISSION.getPrefixed());
 					return true;
 				}
 				
@@ -359,12 +359,12 @@ public class Executor extends Utils implements CommandExecutor {
 				
 			} else if (args[0].equalsIgnoreCase("getCI")) {
 				if (!(sender instanceof Player)) {
-					sender.sendMessage(colorize(getPrefix() + Message.PLAYER_ONLY_COMMAND));
+					sender.sendMessage(Message.PLAYER_ONLY_COMMAND.getPrefixed());
 					return true;
 				}
 
 				if (!sender.hasPermission(Permissions.ADMIN.getPerm())) {
-					sender.sendMessage(colorize(getPrefix() + Message.NO_COMMAND_PERMISSION));
+					sender.sendMessage(Message.NO_COMMAND_PERMISSION.getPrefixed());
 					return true;
 				}
 				
@@ -380,8 +380,8 @@ public class Executor extends Utils implements CommandExecutor {
 				return true;
 			}
 		}
-		
-		sender.sendMessage(colorize(getPrefix() + Message.INVALID_ARGUMENTS));
+
+		sender.sendMessage(Message.INVALID_ARGUMENTS.getPrefixed());
 		return true;
 	}
 }

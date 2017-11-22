@@ -66,17 +66,22 @@ public enum Message {
     UNSUCCESSFUL_SHOP_MEMBERS,
     UPDATED_SHOP_MEMBERS,
     WHO_MESSAGE;
-    
+
     @Override
     public String toString() {
         return colour(config.getString(name().toLowerCase().replace("_", "-"))
                 .replace("%header%", (String) Setting.TRADESHOP_NAME.getSetting()));
+    }
+
+    public String getPrefixed() {
+        return colour(PREFIX + toString());
     }
     
     private static TradeShop plugin = (TradeShop) Bukkit.getPluginManager().getPlugin("TradeShop");
     private static File file = new File(plugin.getDataFolder(), "messages.yml");
     private static FileConfiguration config = YamlConfiguration.loadConfiguration(file);
     private static final char COLOUR_CHAR = '&';
+    protected final String PREFIX = "&a[&eTradeShop&a] ";
 
     public static void setDefaults() {
         addMessage("invalid-arguments", "&eTry &6/tradeshop help &eto display help!");

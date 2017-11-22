@@ -62,12 +62,12 @@ public class TradeEventListener extends Utils implements Listener {
             try {
                 chestState = findShopChest(s.getBlock()).getState();
             } catch (NullPointerException npe) {
-                buyer.sendMessage(colorize(getPrefix() + Message.MISSING_SHOP));
+                buyer.sendMessage(Message.MISSING_SHOP.getPrefixed());
                 return;
             }
 
             if (getShopUsers(chestState.getBlock()).contains(Bukkit.getOfflinePlayer(buyer.getName()))) {
-                buyer.sendMessage(colorize(getPrefix() + Message.SELF_OWNED));
+                buyer.sendMessage(Message.SELF_OWNED.getPrefixed());
                 return;
             }
 
@@ -135,26 +135,26 @@ public class TradeEventListener extends Utils implements Listener {
             }
 
             if (!containsAtLeast(playerInventory, item2)) {
-                buyer.sendMessage(colorize(getPrefix() + Message.INSUFFICIENT_ITEMS.toString()
-                        .replace("{ITEM}", item_name2.toLowerCase()).replace("{AMOUNT}", String.valueOf(amount2))));
+                buyer.sendMessage(Message.INSUFFICIENT_ITEMS.getPrefixed()
+                        .replace("{ITEM}", item_name2.toLowerCase()).replace("{AMOUNT}", String.valueOf(amount2)));
                 return;
             }
 
             if (!containsAtLeast(chestInventory, item1)) {
-                buyer.sendMessage(colorize(getPrefix() + Message.SHOP_EMPTY.toString()
-                        .replace("{ITEM}", item_name1.toLowerCase()).replace("{AMOUNT}", String.valueOf(amount1))));
+                buyer.sendMessage(Message.SHOP_EMPTY.getPrefixed()
+                        .replace("{ITEM}", item_name1.toLowerCase()).replace("{AMOUNT}", String.valueOf(amount1)));
                 return;
             }
 
             if (!canExchange(chestInventory, item1, item2)) {
-                buyer.sendMessage(colorize(getPrefix() + Message.SHOP_FULL.toString()
-                        .replace("{ITEM}", item_name1.toLowerCase()).replace("{AMOUNT}", String.valueOf(amount1))));
+                buyer.sendMessage(Message.SHOP_FULL.getPrefixed()
+                        .replace("{ITEM}", item_name1.toLowerCase()).replace("{AMOUNT}", String.valueOf(amount1)));
                 return;
             }
 
             if (!canExchange(playerInventory, item2, item1)) {
-                buyer.sendMessage(colorize(getPrefix() + Message.PLAYER_FULL.toString()
-                        .replace("{ITEM}", item_name2.toLowerCase()).replace("{AMOUNT}", String.valueOf(amount2))));
+                buyer.sendMessage(Message.PLAYER_FULL.getPrefixed()
+                        .replace("{ITEM}", item_name2.toLowerCase()).replace("{AMOUNT}", String.valueOf(amount2)));
                 return;
             }
 
@@ -220,12 +220,12 @@ public class TradeEventListener extends Utils implements Listener {
                 count -= removed;
             }
 
-            buyer.sendMessage(colorize(getPrefix() + Message.ON_TRADE.toString()
+            buyer.sendMessage(Message.ON_TRADE.getPrefixed()
                     .replace("{AMOUNT1}", String.valueOf(amount1))
                     .replace("{AMOUNT2}", String.valueOf(amount2))
                     .replace("{ITEM1}", item_name1.toLowerCase())
                     .replace("{ITEM2}", item_name2.toLowerCase())
-                    .replace("{SELLER}", s.getLine(3))));
+                    .replace("{SELLER}", s.getLine(3)));
 
         } else if (e.getAction() == Action.LEFT_CLICK_BLOCK) {
 
@@ -244,11 +244,11 @@ public class TradeEventListener extends Utils implements Listener {
                 String item_name1 = info1[1].toUpperCase();
                 String item_name2 = info2[1].toUpperCase();
 
-                buyer.sendMessage(colorize(getPrefix() + Message.CONFIRM_TRADE.toString()
+                buyer.sendMessage(Message.CONFIRM_TRADE.getPrefixed()
                         .replace("{AMOUNT1}", String.valueOf(amount1))
                         .replace("{AMOUNT2}", String.valueOf(amount2))
                         .replace("{ITEM1}", item_name1.toLowerCase())
-                        .replace("{ITEM2}", item_name2.toLowerCase())));
+                        .replace("{ITEM2}", item_name2.toLowerCase()));
             } catch (Exception ex) {
                 //Do nothing
             }

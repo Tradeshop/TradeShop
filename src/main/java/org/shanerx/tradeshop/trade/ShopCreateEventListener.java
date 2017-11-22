@@ -140,9 +140,9 @@ public class ShopCreateEventListener extends Utils implements Listener {
                 Collections.singletonList(plugin.getServer().getOfflinePlayer(player.getUniqueId())), Collections.emptyList());
 
         if (chestInventory.containsAtLeast(item1, amount1)) {
-            event.getPlayer().sendMessage(colorize(getPrefix() + Message.SUCCESSFUL_SETUP));
+            event.getPlayer().sendMessage(Message.SUCCESSFUL_SETUP.getPrefixed());
         } else {
-            event.getPlayer().sendMessage(colorize(getPrefix() + Message.EMPTY_TS_ON_SETUP));
+            event.getPlayer().sendMessage(Message.EMPTY_TS_ON_SETUP.getPrefixed());
         }
 
     }

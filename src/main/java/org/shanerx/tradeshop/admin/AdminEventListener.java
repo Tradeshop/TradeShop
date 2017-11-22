@@ -63,7 +63,7 @@ public class AdminEventListener extends Utils implements Listener {
 
             }
             event.setCancelled(true);
-            player.sendMessage(colorize(getPrefix() + Message.NO_TS_DESTROY));
+            player.sendMessage(Message.NO_TS_DESTROY.getPrefixed());
 
         } else if (plugin.getListManager().isInventory(block.getType())) {
             if (player.hasPermission(Permissions.ADMIN.getPerm())) {
@@ -91,7 +91,7 @@ public class AdminEventListener extends Utils implements Listener {
 
             }
             event.setCancelled(true);
-            player.sendMessage(colorize(getPrefix() + Message.NO_TS_DESTROY));
+            player.sendMessage(Message.NO_TS_DESTROY.getPrefixed());
         }
     }
 
@@ -121,7 +121,7 @@ public class AdminEventListener extends Utils implements Listener {
 
         } else if (isShopSign(s.getBlock())) {
             if (!getShopUsers(block).contains(Bukkit.getOfflinePlayer(e.getPlayer().getUniqueId()))) {
-                e.getPlayer().sendMessage(colorize(getPrefix() + Message.NO_TS_OPEN));
+                e.getPlayer().sendMessage(Message.NO_TS_OPEN.getPrefixed());
                 e.setCancelled(true);
             }
         }
