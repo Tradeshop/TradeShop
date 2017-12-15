@@ -24,6 +24,8 @@ package org.shanerx.tradeshop.object;
 import org.bukkit.entity.Player;
 import org.shanerx.tradeshop.enums.ShopRole;
 
+import java.util.UUID;
+
 public class User {
 
     private Player player;
@@ -36,6 +38,10 @@ public class User {
 
     public Player getPlayer() {
         return player;
+    }
+
+    public UUID getUUID() {
+        return player.getUniqueId();
     }
 
     public ShopRole getRole() {

@@ -34,13 +34,14 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 
 public class CustomItemManager {
 
-    private Map<String, ItemStack> customItems;
+    private Map<String, ItemStack> customItems = new HashMap<>();
     private static final TradeShop plugin = (TradeShop) Bukkit.getPluginManager().getPlugin("TradeShop");
     private static File file = new File(plugin.getDataFolder(), "customitems.yml");
     private static FileConfiguration config = YamlConfiguration.loadConfiguration(file);
@@ -60,6 +61,11 @@ public class CustomItemManager {
         if (customItems.isEmpty()) {
             addDefault();
         }
+    }
+
+    public void clearManager() {
+        save();
+        customItems.clear();
     }
 
     private ItemStack loadItem(String name) {

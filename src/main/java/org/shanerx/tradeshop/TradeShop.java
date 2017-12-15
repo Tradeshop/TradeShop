@@ -39,7 +39,7 @@ import org.shanerx.tradeshop.trade.TradeEventListener;
 import org.shanerx.tradeshop.util.Updater;
 
 public class TradeShop extends JavaPlugin {
-    private final boolean mc18 = this.getServer().getVersion().contains("1.8");
+    private final String version = this.getServer().getVersion();
     private Metrics metrics;
     private ListManager listManager;
     private CustomItemManager customItemManager;
@@ -52,8 +52,18 @@ public class TradeShop extends JavaPlugin {
         return customItemManager;
     }
 
-    private Boolean isAboveMC18() {
-        return !mc18;
+    private Boolean isBelow19() {
+        if (version.contains("1.9")) {
+            return false;
+        } else if (version.contains("1.10")) {
+            return false;
+        } else if (version.contains("1.11")) {
+            return false;
+        } else if (version.contains("1.12")) {
+            return false;
+        }
+
+        return true;
     }
 
     @Override
@@ -64,7 +74,7 @@ public class TradeShop extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        if (!isAboveMC18()) {
+        if (isBelow19()) {
             getLogger().info("[TradeShop] Minecraft versions before 1.9 are not supported beyond TradeShop version 1.5.2!");
             getServer().getPluginManager().disablePlugin(this);
             return;
@@ -97,5 +107,11 @@ public class TradeShop extends JavaPlugin {
         } else {
             getLogger().warning("Metrics are disabled! Please consider enabling them to support the authors!");
         }
+    }
+
+    @Override
+    public void onDisable() {
+        customItemManager.clearManager();
+        listManager.clearLists();
     }
 }

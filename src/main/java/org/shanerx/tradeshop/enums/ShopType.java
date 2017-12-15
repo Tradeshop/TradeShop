@@ -48,7 +48,7 @@ public enum ShopType {
 
     @Override
     public String toString() {
-        return "[" + Setting.findSetting(key + "shop-name").getString() + "]";
+        return "[" + stripped() + "]";
     }
 
     public boolean isProtectedFromExplosions() {

@@ -22,7 +22,9 @@
 package org.shanerx.tradeshop.object;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Chunk;
 import org.bukkit.Location;
+import org.bukkit.World;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.shanerx.tradeshop.util.Utils;
@@ -34,16 +36,16 @@ import java.io.FileWriter;
 public class JsonConfiguration
         extends Utils {
     String pluginFolder;
-    Location loc;
     File file;
     File filePath;
+    Chunk chunk;
     String div = "_";
 
-    public JsonConfiguration(Location l) {
-        this.loc = l;
+    public JsonConfiguration(Chunk c) {
+        this.chunk = chunk;
         this.pluginFolder = this.plugin.getDataFolder().getAbsolutePath();
-        this.file = new File(this.pluginFolder + File.separator + "Data" + loc + ".json");
-        this.filePath = new File(this.pluginFolder + File.separator + "Data");
+        this.file = new File(this.pluginFolder + File.separator + "Data" + File.separator + chunk.getWorld() + File.separator + serializeChunk(chunk) + ".json");
+        this.filePath = new File(this.pluginFolder + File.separator + "Data" + File.separator + chunk.getWorld());
         this.filePath.mkdirs();
         if (!this.file.exists()) {
             try {
@@ -54,7 +56,7 @@ public class JsonConfiguration
         }
     }
 
-    public void writeJSON(String path, String value) {
+    private void writeJSON(String path, String value) {
         JSONObject jObj = new JSONObject();
         jObj.put(path, value);
         try {
@@ -67,7 +69,7 @@ public class JsonConfiguration
         }
     }
 
-    public String readJSON(String path) {
+    private String readJSON(String path) {
         String var = null;
         try {
             JSONParser parser = new JSONParser();
@@ -80,18 +82,41 @@ public class JsonConfiguration
         return var;
     }
 
+    public String serializeChunk(Chunk chunk) {
+        String world = chunk.getWorld().getName();
+        int x = chunk.getX(), z = chunk.getZ();
+
+        return "c" + div + world + div + x + div + z;
+    }
+
+    public Chunk deserializeChunk(String loc) {
+        if (loc.startsWith("c")) {
+            String locA[] = loc.split(div);
+            World world = Bukkit.getWorld(locA[1]);
+            int x = Integer.parseInt(locA[2]), z = Integer.parseInt(locA[3]);
+
+            return world.getChunkAt(x, z);
+        }
+
+        return null;
+    }
+
     public String serializeLocation(Location loc) {
         String world = loc.getWorld().getName();
         int x = loc.getBlockX(), y = loc.getBlockY(), z = loc.getBlockZ();
 
-        return world + div + x + div + y + div + z;
+        return "l" + div + world + div + x + div + y + div + z;
     }
 
     public Location deserializeLocation(String loc) {
-        String locA[] = loc.split(div);
-        String world = locA[0];
-        int x = Integer.parseInt(locA[1]), y = Integer.parseInt(locA[2]), z = Integer.parseInt(locA[3]);
+        if (loc.startsWith("l")) {
+            String locA[] = loc.split(div);
+            World world = Bukkit.getWorld(locA[1]);
+            int x = Integer.parseInt(locA[2]), y = Integer.parseInt(locA[3]), z = Integer.parseInt(locA[4]);
 
-        return new Location(Bukkit.getWorld(world), x, y, z);
+            return new Location(world, x, y, z);
+        }
+
+        return null;
     }
 }

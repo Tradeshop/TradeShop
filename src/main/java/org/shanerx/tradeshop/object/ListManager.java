@@ -70,6 +70,11 @@ public class ListManager {
         updateMaterials();
     }
 
+    public void clearLists() {
+        inventories.clear();
+        blacklist.clear();
+        directions.clear();
+    }
 
     private void updateBlacklist() {
         blacklist.clear();
