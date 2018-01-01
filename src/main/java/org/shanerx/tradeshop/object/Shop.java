@@ -21,175 +21,159 @@
 
 package org.shanerx.tradeshop.object;
 
+import com.google.gson.Gson;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.World;
 import org.bukkit.inventory.ItemStack;
 import org.shanerx.tradeshop.enums.ShopRole;
+import org.shanerx.tradeshop.util.Tuple;
 
+import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
-public class Shop {
+@SuppressWarnings("unused")
+public class Shop implements Serializable {
 
-    User owner;
-    ArrayList<User> managers = new ArrayList<>();
-    ArrayList<User> members = new ArrayList<>();
-    Material inventoryMat;
-    Location inventoryLoc, shopLoc;
-    ItemStack sellItem, buyItem;
+	private User owner;
+	private List<User> managers, members;
+	private Material shopType;
+	private Location shopLoc, chestLoc;
+	private ItemStack sellItem, buyItem;
 
-    public Shop(Location shopLocation, Location invLoc, Material invMat, User owner, List<User> managers, List<User> members, ItemStack sellItem, ItemStack buyItem) {
-        shopLoc = shopLocation;
-        this.owner = owner;
-        inventoryLoc = invLoc;
-        inventoryMat = invMat;
-        this.managers.addAll(managers);
-        this.members.addAll(members);
-    }
+	public Shop(Tuple<Location, Location> locations, Material shopType, User owner, Tuple<List<User>, List<User>> players, Tuple<ItemStack, ItemStack> items) {
+		shopLoc = locations.getLeft();
+		this.owner = owner;
+		chestLoc = locations.getRight();
+		this.shopType = shopType;
+		managers = players.getLeft();
+		members = players.getRight();
+		sellItem = items.getLeft();
+		buyItem = items.getRight();
+	}
 
-    public Shop() {
+	@Deprecated
+	public Shop() {
+	}
 
-    }
+	public Location getInventoryLocation() {
+		return chestLoc;
+	}
 
-    public Location getInventoryLoc() {
-        return inventoryLoc;
-    }
+	public void setOwner(User owner) {
+		this.owner = owner;
+	}
 
-    public void setInventoryLoc(Location newLoc) {
-        inventoryLoc = newLoc;
-    }
+	public User getOwner() {
+		return owner;
+	}
 
-    public void setInventoryMat(Material newMat) {
-        inventoryMat = newMat;
-    }
+	public void setManagers(List<User> managers) {
+		this.managers = managers;
+	}
 
-    public Location getShopLoc() {
-        return shopLoc;
-    }
+	public List<User> getManagers() {
+		return managers;
+	}
 
-    public Material getInventoryMat() {
-        return inventoryMat;
-    }
+	public void setMembers(List<User> members) {
+		this.members = members;
+	}
 
-    public ItemStack getBuyItem() {
-        return buyItem;
-    }
+	public List<User> getMembers() {
+		return members;
+	}
 
-    public ItemStack getSellItem() {
-        return sellItem;
-    }
+	public void addManager(User newManager) {
+		managers.add(newManager);
+	}
 
-    public void setSellItem(ItemStack newItem) {
-        sellItem = newItem;
-    }
+	public void removeManager(User oldManager) {
+		managers.remove(oldManager);
+	}
 
-    public void setBuyItem(ItemStack newItem) {
-        buyItem = newItem;
-    }
+	public void addMember(User newMember) {
+		members.add(newMember);
+	}
 
-    public void addManager(User newManager) {
-        managers.add(newManager);
-    }
+	public void removeMember(User oldMember) {
+		members.remove(oldMember);
+	}
 
-    public void removeManager(User oldManager) {
-        managers.remove(oldManager);
-    }
+	public List<UUID> getManagersUUID() {
+		return managers.stream().map(User::getUUID).collect(Collectors.toList());
+	}
 
-    public void addMember(User newMember) {
-        members.add(newMember);
-    }
+	public List<UUID> getMembersUUID() {
+		return members.stream().map(User::getUUID).collect(Collectors.toList());
+	}
 
-    public void removeMember(User oldMember) {
-        members.remove(oldMember);
-    }
+	private static List<User> managersFromUUIDs(String... uuids) {
+		List<User> managers = new ArrayList<>();
+		for (String str : uuids) {
+			managers.add(new User(Bukkit.getPlayer(UUID.fromString(str)), ShopRole.MANAGER));
+		}
 
-    public String[] getManagersUUIDs() {
-        String[] uuids = new String[managers.size()];
-        for (User user : managers) {
-            uuids[managers.indexOf(user)] = user.getUUID().toString();
-        }
+		return managers;
+	}
 
-        return uuids;
-    }
+	private static List<User> membersFromUUIDs(String... uuids) {
+		List<User> members = new ArrayList<>();
+		for (String str : uuids) {
+			members.add(new User(Bukkit.getPlayer(UUID.fromString(str)), ShopRole.MEMBER));
+		}
 
-    public String[] getMembersUUIDs() {
-        String[] uuids = new String[members.size()];
-        for (User user : members) {
-            uuids[members.indexOf(user)] = user.getUUID().toString();
-        }
+		return members;
+	}
 
-        return uuids;
-    }
+	public void setChestLocation(Location newLoc) {
+		chestLoc = newLoc;
+	}
 
-    private static ArrayList<User> managersFromUUIDs(String[] uuids) {
-        ArrayList<User> managers = new ArrayList<>();
-        for (String str : uuids) {
-            managers.add(new User(Bukkit.getPlayer(UUID.fromString(str)), ShopRole.MANAGER));
-        }
+	public Location getShopLocation() {
+		return shopLoc;
+	}
 
-        return managers;
-    }
+	public void setShopType(Material newMat) {
+		shopType = newMat;
+	}
 
-    private static ArrayList<User> membersFromUUIDs(String[] uuids) {
-        ArrayList<User> members = new ArrayList<>();
-        for (String str : uuids) {
-            members.add(new User(Bukkit.getPlayer(UUID.fromString(str)), ShopRole.MEMBER));
-        }
+	public Material getShopType() {
+		return shopType;
+	}
 
-        return members;
-    }
+	public void setBuyItem(ItemStack newItem) {
+		buyItem = newItem;
+	}
 
-    private String serializeLocation(Location loc) {
-        String div = "_";
-        String world = loc.getWorld().getName();
-        int x = loc.getBlockX(), y = loc.getBlockY(), z = loc.getBlockZ();
+	public ItemStack getBuyItem() {
+		return buyItem;
+	}
 
-        return "l" + div + world + div + x + div + y + div + z;
-    }
+	public void setSellItem(ItemStack newItem) {
+		sellItem = newItem;
+	}
 
-    private static Location deserializeLocation(String loc) {
-        String div = "_";
-        if (loc.startsWith("l")) {
-            String locA[] = loc.split(div);
-            World world = Bukkit.getWorld(locA[1]);
-            int x = Integer.parseInt(locA[2]), y = Integer.parseInt(locA[3]), z = Integer.parseInt(locA[4]);
+	public ItemStack getSellItem() {
+		return sellItem;
+	}
 
-            return new Location(world, x, y, z);
-        }
+	private String serializeLocation(Location loc) {
+		return new Gson().toJson(loc);
+	}
 
-        return null;
-    }
+	private static Location deserializeLocation(String loc) {
+		return new Gson().fromJson(loc, Location.class);
+	}
 
-    public Map<String, Object> serialize() {
-        Map<String, Object> map = new HashMap<>();
+	public String serialize() {
+		return new Gson().toJson(this);
+	}
 
-        map.put("location", serializeLocation(shopLoc));
-        map.put("inventory", inventoryMat.toString());
-        map.put("inventory-location", serializeLocation(inventoryLoc));
-        map.put("owner", owner.getUUID().toString());
-        map.put("managers", getManagersUUIDs());
-        map.put("members", getMembersUUIDs());
-        map.put("sell-item", sellItem.serialize());
-        map.put("buy-item", buyItem.serialize());
-
-        return map;
-    }
-
-    public static Shop deserialize(Map<String, Object> map) {
-        Location shopLoc = deserializeLocation((String) map.get("location")),
-                invLoc = deserializeLocation((String) map.get("inventory-location"));
-        Material invMat = Material.valueOf(map.get("inventory").toString());
-        User owner = new User(Bukkit.getPlayer(UUID.fromString(map.get("owner").toString())), ShopRole.OWNER);
-        ArrayList<User> managers = managersFromUUIDs((String[]) map.get("managers"));
-        ArrayList<User> members = membersFromUUIDs((String[]) map.get("members"));
-
-        return new Shop(shopLoc, invLoc, invMat, owner, managers, members,
-                ItemStack.deserialize((Map<String, Object>) map.get("sell-item")),
-                ItemStack.deserialize((Map<String, Object>) map.get("buy-item")));
-    }
+	public static Shop deserialize(String serialized) {
+		return new Gson().fromJson(serialized, Shop.class);
+	}
 }

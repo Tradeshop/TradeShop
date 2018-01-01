@@ -24,27 +24,27 @@ package org.shanerx.tradeshop.enums;
 import org.bukkit.ChatColor;
 
 public enum ShopStatus {
-    OPEN("&a"),
+	OPEN("&a"),
 
-    CLOSED("&c");
+	CLOSED("&c");
 
-    private String key;
-    private static final char COLOUR_CHAR = '&';
+	private String key;
+	private static final char COLOUR_CHAR = '&';
 
-    @Override
-    public String toString() {
-        return colour(Setting.findSetting("shop-" + name().toLowerCase() + "-status").getString());
-    }
+	@Override
+	public String toString() {
+		return colour(Setting.findSetting("shop-" + name().toLowerCase() + "-status").getString());
+	}
 
-    public String getLine() {
-        return colour(key + "<" + Setting.findSetting("shop-" + name().toLowerCase() + "-status").getString() + key + ">");
-    }
+	public String getLine() {
+		return colour(key + "<" + Setting.findSetting("shop-" + name().toLowerCase() + "-status").getString() + key + ">");
+	}
 
-    ShopStatus(String key) {
-        this.key = key;
-    }
+	ShopStatus(String key) {
+		this.key = key;
+	}
 
-    public static String colour(String x) {
-        return ChatColor.translateAlternateColorCodes(COLOUR_CHAR, x);
-    }
+	public static String colour(String x) {
+		return ChatColor.translateAlternateColorCodes(COLOUR_CHAR, x);
+	}
 }

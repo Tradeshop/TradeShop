@@ -27,31 +27,31 @@ import org.shanerx.tradeshop.TradeShop;
 
 public enum Permissions {
 
-    HELP("help"),
+	HELP("help"),
 
-    CREATE("create"),
+	CREATE("create"),
 
-    CREATEI("create.infinite"),
+	CREATEI("create.infinite"),
 
-    CREATEBI("create.bi"),
+	CREATEBI("create.bi"),
 
-    ADMIN("admin"),
+	ADMIN("admin"),
 
-    WHO("who");
+	WHO("who");
 
-    private String key;
-    private final static TradeShop plugin = (TradeShop) Bukkit.getPluginManager().getPlugin("TradeShop");
+	private String key;
+	private final static TradeShop plugin = (TradeShop) Bukkit.getPluginManager().getPlugin("TradeShop");
 
-    Permissions(String key) {
-        this.key = key;
-    }
+	Permissions(String key) {
+		this.key = key;
+	}
 
-    @Override
-    public String toString() {
-        return "tradeshop." + key;
-    }
+	@Override
+	public String toString() {
+		return "tradeshop." + key;
+	}
 
-    public Permission getPerm() {
-        return new Permission(toString());
-    }
+	public Permission getPerm() {
+		return new Permission(toString());
+	}
 }

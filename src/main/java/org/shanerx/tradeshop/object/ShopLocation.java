@@ -21,37 +21,56 @@
 
 package org.shanerx.tradeshop.object;
 
+import com.google.gson.Gson;
+import com.google.gson.annotations.SerializedName;
 import org.bukkit.Bukkit;
-import org.bukkit.Location;
+import org.bukkit.World;
 
-public class ShopLocation {
+import java.io.Serializable;
 
-    String world;
-    double x, y, z;
-    Location location;
+@SuppressWarnings("unused")
+public class ShopLocation implements Serializable {
 
-    public ShopLocation(String w, double x, double y, double z) {
-        this.world = w;
-        this.x = x;
-        this.y = y;
-        this.z = z;
-        location = new Location(Bukkit.getWorld(w), x, y, z);
-    }
+	private transient World world;
+	@SerializedName("world")
+	private String worldName;
+	private double x, y, z;
 
-    public String serializeLocation() {
-        return "l" + "_" + world + "_" + x + "_" + y + "_" + z;
-    }
+	public ShopLocation(World w, double x, double y, double z) {
+		this.world = w;
+		worldName = w.getName();
+		this.x = x;
+		this.y = y;
+		this.z = z;
+	}
 
-    public static ShopLocation deserializeLocation(String loc) {
-        String locA[] = loc.split("_");
-        if (locA[0].equalsIgnoreCase("l")) {
-            return new ShopLocation(locA[1],
-                    Integer.parseInt(locA[2]),
-                    Integer.parseInt(locA[3]),
-                    Integer.parseInt(locA[4]));
-        }
+	public String serialize() {
+		return new Gson().toJson(this);
+	}
 
-        return null;
-    }
+	public static ShopLocation deserialize(String loc) {
+		ShopLocation shop = new Gson().fromJson(loc, ShopLocation.class);
+		shop.world = Bukkit.getWorld(shop.worldName);
+		return shop;
+	}
 
+	public String getWorldName() {
+		return worldName;
+	}
+
+	public World getWorld() {
+		return world;
+	}
+
+	public double getX() {
+		return x;
+	}
+
+	public double getY() {
+		return y;
+	}
+
+	public double getZ() {
+		return z;
+	}
 }

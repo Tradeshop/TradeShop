@@ -21,31 +21,48 @@
 
 package org.shanerx.tradeshop.object;
 
+import com.google.gson.Gson;
+import com.google.gson.annotations.SerializedName;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.shanerx.tradeshop.enums.ShopRole;
 
+import java.io.Serializable;
 import java.util.UUID;
 
-public class User {
+@SuppressWarnings("unused")
+public class User implements Serializable {
 
-    private Player player;
-    private ShopRole role;
+	private transient Player player;
+	@SerializedName("player")
+	private String playerUUID;
+	private ShopRole role;
 
-    public User(Player player, ShopRole role) {
-        this.player = player;
-        this.role = role;
-    }
+	public User(Player player, ShopRole role) {
+		this.player = player;
+		playerUUID = player.getUniqueId().toString();
+		this.role = role;
+	}
 
-    public Player getPlayer() {
-        return player;
-    }
+	public Player getPlayer() {
+		return player;
+	}
 
-    public UUID getUUID() {
-        return player.getUniqueId();
-    }
+	public UUID getUUID() {
+		return player.getUniqueId();
+	}
 
-    public ShopRole getRole() {
-        return role;
-    }
+	public ShopRole getRole() {
+		return role;
+	}
 
+	public String serialize() {
+		return new Gson().toJson(this);
+	}
+
+	public static User deserialize(String serialized) {
+		User user = new Gson().fromJson(serialized, User.class);
+		user.player = Bukkit.getPlayer(UUID.fromString(user.playerUUID));
+		return user;
+	}
 }

@@ -29,45 +29,45 @@ import org.shanerx.tradeshop.TradeShop;
 @SuppressWarnings("unused")
 public enum ShopType {
 
-    TRADE("trade"),
+	TRADE("trade"),
 
-    ITRADE("itrade"),
+	ITRADE("itrade"),
 
-    BITRADE("bitrade");
+	BITRADE("bitrade");
 
-    private String key;
-    private static TradeShop plugin = (TradeShop) Bukkit.getPluginManager().getPlugin("TradeShop");
+	private String key;
+	private static TradeShop plugin = (TradeShop) Bukkit.getPluginManager().getPlugin("TradeShop");
 
-    ShopType(String key) {
-        this.key = key;
-    }
+	ShopType(String key) {
+		this.key = key;
+	}
 
-    public String stripped() {
-        return Setting.findSetting(key + "shop-name").getString();
-    }
+	public String stripped() {
+		return Setting.findSetting(key + "shop-name").getString();
+	}
 
-    @Override
-    public String toString() {
-        return "[" + stripped() + "]";
-    }
+	@Override
+	public String toString() {
+		return "[" + stripped() + "]";
+	}
 
-    public boolean isProtectedFromExplosions() {
-        return !Setting.findSetting("explode." + key).getBoolean();
-    }
+	public boolean isProtectedFromExplosions() {
+		return !Setting.findSetting("explode." + key).getBoolean();
+	}
 
-    public static ShopType getType(Sign s) {
-        String check = ChatColor.stripColor(s.getLine(0));
+	public static ShopType getType(Sign s) {
+		String check = ChatColor.stripColor(s.getLine(0));
 
-        if (check.equalsIgnoreCase(TRADE.key)) {
-            return TRADE;
+		if (check.equalsIgnoreCase(TRADE.key)) {
+			return TRADE;
 
-        } else if (check.equalsIgnoreCase(ITRADE.key)) {
-            return ITRADE;
+		} else if (check.equalsIgnoreCase(ITRADE.key)) {
+			return ITRADE;
 
-        } else if (check.equalsIgnoreCase(BITRADE.key)) {
-            return BITRADE;
-        }
+		} else if (check.equalsIgnoreCase(BITRADE.key)) {
+			return BITRADE;
+		}
 
-        return null;
-    }
+		return null;
+	}
 }

@@ -39,219 +39,219 @@ import org.shanerx.tradeshop.util.Utils;
 
 public class TradeEventListener extends Utils implements Listener {
 
-    private TradeShop plugin;
+	private TradeShop plugin;
 
-    public TradeEventListener(TradeShop instance) {
-        plugin = instance;
-    }
+	public TradeEventListener(TradeShop instance) {
+		plugin = instance;
+	}
 
-    @SuppressWarnings("deprecation")
-    @EventHandler
-    public void onBlockInteract(PlayerInteractEvent e) {
+	@SuppressWarnings("deprecation")
+	@EventHandler
+	public void onBlockInteract(PlayerInteractEvent e) {
 
-        Player buyer = e.getPlayer();
+		Player buyer = e.getPlayer();
 
-        if (e.getAction() == Action.RIGHT_CLICK_BLOCK) {
+		if (e.getAction() == Action.RIGHT_CLICK_BLOCK) {
 
-            if (!isTradeShopSign(e.getClickedBlock())) {
-                return;
-            }
-            Sign s = (Sign) e.getClickedBlock().getState();
-            BlockState chestState;
+			if (!isTradeShopSign(e.getClickedBlock())) {
+				return;
+			}
+			Sign s = (Sign) e.getClickedBlock().getState();
+			BlockState chestState;
 
-            try {
-                chestState = findShopChest(s.getBlock()).getState();
-            } catch (NullPointerException npe) {
-                buyer.sendMessage(Message.MISSING_SHOP.getPrefixed());
-                return;
-            }
+			try {
+				chestState = findShopChest(s.getBlock()).getState();
+			} catch (NullPointerException npe) {
+				buyer.sendMessage(Message.MISSING_SHOP.getPrefixed());
+				return;
+			}
 
-            if (getShopUsers(chestState.getBlock()).contains(Bukkit.getOfflinePlayer(buyer.getName()))) {
-                buyer.sendMessage(Message.SELF_OWNED.getPrefixed());
-                return;
-            }
+			if (getShopUsers(chestState.getBlock()).contains(Bukkit.getOfflinePlayer(buyer.getName()))) {
+				buyer.sendMessage(Message.SELF_OWNED.getPrefixed());
+				return;
+			}
 
-            Inventory chestInventory = ((InventoryHolder) chestState).getInventory();
-            Inventory playerInventory = buyer.getInventory();
+			Inventory chestInventory = ((InventoryHolder) chestState).getInventory();
+			Inventory playerInventory = buyer.getInventory();
 
-            String line1 = s.getLine(1);
-            String line2 = s.getLine(2);
-            String[] info1 = line1.split(" ");
-            String[] info2 = line2.split(" ");
+			String line1 = s.getLine(1);
+			String line2 = s.getLine(2);
+			String[] info1 = line1.split(" ");
+			String[] info2 = line2.split(" ");
 
 
-            int amount1 = Integer.parseInt(info1[0]);
-            int amount2 = Integer.parseInt(info2[0]);
-            e.setCancelled(true);
+			int amount1 = Integer.parseInt(info1[0]);
+			int amount2 = Integer.parseInt(info2[0]);
+			e.setCancelled(true);
 
-            if (buyer.isSneaking()) {
-                if (!buyer.isOnGround() && Setting.ALLOW_QUAD_TRADE.getBoolean()) {
-                    amount1 = amount1 * 4;
-                    amount2 = amount2 * 4;
-                } else if (Setting.ALLOW_DOUBLE_TRADE.getBoolean()) {
-                    amount1 += amount1;
-                    amount2 += amount2;
-                }
-            }
+			if (buyer.isSneaking()) {
+				if (!buyer.isOnGround() && Setting.ALLOW_QUAD_TRADE.getBoolean()) {
+					amount1 = amount1 * 4;
+					amount2 = amount2 * 4;
+				} else if (Setting.ALLOW_DOUBLE_TRADE.getBoolean()) {
+					amount1 += amount1;
+					amount2 += amount2;
+				}
+			}
 
-            int durability1 = 0;
-            int durability2 = 0;
-            if (line1.split(":").length > 1) {
-                durability1 = Integer.parseInt(info1[1].split(":")[1]);
-                info1[1] = info1[1].split(":")[0];
-            }
-            if (line2.split(":").length > 1) {
-                durability2 = Integer.parseInt(info2[1].split(":")[1]);
-                info2[1] = info2[1].split(":")[0];
-            }
+			int durability1 = 0;
+			int durability2 = 0;
+			if (line1.split(":").length > 1) {
+				durability1 = Integer.parseInt(info1[1].split(":")[1]);
+				info1[1] = info1[1].split(":")[0];
+			}
+			if (line2.split(":").length > 1) {
+				durability2 = Integer.parseInt(info2[1].split(":")[1]);
+				info2[1] = info2[1].split(":")[0];
+			}
 
-            String item_name1, item_name2;
-            ItemStack item1 = null, item2 = null;
+			String item_name1, item_name2;
+			ItemStack item1 = null, item2 = null;
 
-            try {
-                item1 = isValidType(info1[1], durability1, amount1);
-                item2 = isValidType(info2[1], durability2, amount2);
-            } catch (ArrayIndexOutOfBoundsException er) {
-            }
+			try {
+				item1 = isValidType(info1[1], durability1, amount1);
+				item2 = isValidType(info2[1], durability2, amount2);
+			} catch (ArrayIndexOutOfBoundsException er) {
+			}
 
-            if (item1 == null || item2 == null) {
-                failedTrade(e, Message.BUY_FAILED_SIGN);
-                return;
-            } else if (isBlacklistItem(item1) || isBlacklistItem(item2)) {
-                failedTrade(e, Message.ILLEGAL_ITEM);
-                return;
-            }
+			if (item1 == null || item2 == null) {
+				failedTrade(e, Message.BUY_FAILED_SIGN);
+				return;
+			} else if (isBlacklistItem(item1) || isBlacklistItem(item2)) {
+				failedTrade(e, Message.ILLEGAL_ITEM);
+				return;
+			}
 
-            if (item1.hasItemMeta() && item1.getItemMeta().hasDisplayName()) {
-                item_name1 = item1.getItemMeta().getDisplayName();
-            } else {
-                item_name1 = info1[1];
-            }
+			if (item1.hasItemMeta() && item1.getItemMeta().hasDisplayName()) {
+				item_name1 = item1.getItemMeta().getDisplayName();
+			} else {
+				item_name1 = info1[1];
+			}
 
-            if (item2.hasItemMeta() && item2.getItemMeta().hasDisplayName()) {
-                item_name2 = item2.getItemMeta().getDisplayName();
-            } else {
-                item_name2 = info2[1];
-            }
+			if (item2.hasItemMeta() && item2.getItemMeta().hasDisplayName()) {
+				item_name2 = item2.getItemMeta().getDisplayName();
+			} else {
+				item_name2 = info2[1];
+			}
 
-            if (!containsAtLeast(playerInventory, item2)) {
-                buyer.sendMessage(Message.INSUFFICIENT_ITEMS.getPrefixed()
-                        .replace("{ITEM}", item_name2.toLowerCase()).replace("{AMOUNT}", String.valueOf(amount2)));
-                return;
-            }
+			if (!containsAtLeast(playerInventory, item2)) {
+				buyer.sendMessage(Message.INSUFFICIENT_ITEMS.getPrefixed()
+						.replace("{ITEM}", item_name2.toLowerCase()).replace("{AMOUNT}", String.valueOf(amount2)));
+				return;
+			}
 
-            if (!containsAtLeast(chestInventory, item1)) {
-                buyer.sendMessage(Message.SHOP_EMPTY.getPrefixed()
-                        .replace("{ITEM}", item_name1.toLowerCase()).replace("{AMOUNT}", String.valueOf(amount1)));
-                return;
-            }
+			if (!containsAtLeast(chestInventory, item1)) {
+				buyer.sendMessage(Message.SHOP_EMPTY.getPrefixed()
+						.replace("{ITEM}", item_name1.toLowerCase()).replace("{AMOUNT}", String.valueOf(amount1)));
+				return;
+			}
 
-            if (!canExchange(chestInventory, item1, item2)) {
-                buyer.sendMessage(Message.SHOP_FULL.getPrefixed()
-                        .replace("{ITEM}", item_name1.toLowerCase()).replace("{AMOUNT}", String.valueOf(amount1)));
-                return;
-            }
+			if (!canExchange(chestInventory, item1, item2)) {
+				buyer.sendMessage(Message.SHOP_FULL.getPrefixed()
+						.replace("{ITEM}", item_name1.toLowerCase()).replace("{AMOUNT}", String.valueOf(amount1)));
+				return;
+			}
 
-            if (!canExchange(playerInventory, item2, item1)) {
-                buyer.sendMessage(Message.PLAYER_FULL.getPrefixed()
-                        .replace("{ITEM}", item_name2.toLowerCase()).replace("{AMOUNT}", String.valueOf(amount2)));
-                return;
-            }
+			if (!canExchange(playerInventory, item2, item1)) {
+				buyer.sendMessage(Message.PLAYER_FULL.getPrefixed()
+						.replace("{ITEM}", item_name2.toLowerCase()).replace("{AMOUNT}", String.valueOf(amount2)));
+				return;
+			}
 
-            int count = amount1, removed;
-            while (count > 0) {
-                boolean resetItem = false;
-                ItemStack temp = chestInventory.getItem(chestInventory.first(item1.getType())),
-                        dupitm1 = item1.clone();
-                if (count > item1.getMaxStackSize()) {
-                    removed = item1.getMaxStackSize();
-                } else {
-                    removed = count;
-                }
+			int count = amount1, removed;
+			while (count > 0) {
+				boolean resetItem = false;
+				ItemStack temp = chestInventory.getItem(chestInventory.first(item1.getType())),
+						dupitm1 = item1.clone();
+				if (count > item1.getMaxStackSize()) {
+					removed = item1.getMaxStackSize();
+				} else {
+					removed = count;
+				}
 
-                if (removed > temp.getAmount()) {
-                    removed = temp.getAmount();
-                }
+				if (removed > temp.getAmount()) {
+					removed = temp.getAmount();
+				}
 
-                item1.setAmount(removed);
-                if (!item1.hasItemMeta() && temp.hasItemMeta()) {
-                    item1.setItemMeta(temp.getItemMeta());
-                    item1.setData(temp.getData());
-                    resetItem = true;
-                }
+				item1.setAmount(removed);
+				if (!item1.hasItemMeta() && temp.hasItemMeta()) {
+					item1.setItemMeta(temp.getItemMeta());
+					item1.setData(temp.getData());
+					resetItem = true;
+				}
 
-                chestInventory.removeItem(item1);
-                playerInventory.addItem(item1);
+				chestInventory.removeItem(item1);
+				playerInventory.addItem(item1);
 
-                if (resetItem) {
-                    item1 = dupitm1;
-                }
+				if (resetItem) {
+					item1 = dupitm1;
+				}
 
-                count -= removed;
-            }
+				count -= removed;
+			}
 
-            count = amount2;
-            while (count > 0) {
-                boolean resetItem = false;
-                ItemStack temp = chestInventory.getItem(chestInventory.first(item1.getType())),
-                        dupitm1 = item1.clone();
-                if (count > item2.getMaxStackSize())
-                    removed = item2.getMaxStackSize();
-                else
-                    removed = count;
+			count = amount2;
+			while (count > 0) {
+				boolean resetItem = false;
+				ItemStack temp = chestInventory.getItem(chestInventory.first(item1.getType())),
+						dupitm1 = item1.clone();
+				if (count > item2.getMaxStackSize())
+					removed = item2.getMaxStackSize();
+				else
+					removed = count;
 
-                if (removed > temp.getAmount())
-                    removed = temp.getAmount();
+				if (removed > temp.getAmount())
+					removed = temp.getAmount();
 
-                item2.setAmount(removed);
-                if (!item1.hasItemMeta() && temp.hasItemMeta()) {
-                    item1.setItemMeta(temp.getItemMeta());
-                    item1.setData(temp.getData());
-                    resetItem = true;
-                }
+				item2.setAmount(removed);
+				if (!item1.hasItemMeta() && temp.hasItemMeta()) {
+					item1.setItemMeta(temp.getItemMeta());
+					item1.setData(temp.getData());
+					resetItem = true;
+				}
 
-                playerInventory.removeItem(item2);
-                chestInventory.addItem(item2);
+				playerInventory.removeItem(item2);
+				chestInventory.addItem(item2);
 
-                if (resetItem) {
-                    item1 = dupitm1;
-                }
+				if (resetItem) {
+					item1 = dupitm1;
+				}
 
-                count -= removed;
-            }
+				count -= removed;
+			}
 
-            buyer.sendMessage(Message.ON_TRADE.getPrefixed()
-                    .replace("{AMOUNT1}", String.valueOf(amount1))
-                    .replace("{AMOUNT2}", String.valueOf(amount2))
-                    .replace("{ITEM1}", item_name1.toLowerCase())
-                    .replace("{ITEM2}", item_name2.toLowerCase())
-                    .replace("{SELLER}", s.getLine(3)));
+			buyer.sendMessage(Message.ON_TRADE.getPrefixed()
+					.replace("{AMOUNT1}", String.valueOf(amount1))
+					.replace("{AMOUNT2}", String.valueOf(amount2))
+					.replace("{ITEM1}", item_name1.toLowerCase())
+					.replace("{ITEM2}", item_name2.toLowerCase())
+					.replace("{SELLER}", s.getLine(3)));
 
-        } else if (e.getAction() == Action.LEFT_CLICK_BLOCK) {
+		} else if (e.getAction() == Action.LEFT_CLICK_BLOCK) {
 
-            if (!isTradeShopSign(e.getClickedBlock())) {
-                return;
-            }
-            Sign s = (Sign) e.getClickedBlock().getState();
+			if (!isTradeShopSign(e.getClickedBlock())) {
+				return;
+			}
+			Sign s = (Sign) e.getClickedBlock().getState();
 
-            try {
-                String line1 = s.getLine(1);
-                String line2 = s.getLine(2);
-                String[] info1 = line1.split(" ");
-                String[] info2 = line2.split(" ");
-                int amount1 = Integer.parseInt(info1[0]);
-                int amount2 = Integer.parseInt(info2[0]);
-                String item_name1 = info1[1].toUpperCase();
-                String item_name2 = info2[1].toUpperCase();
+			try {
+				String line1 = s.getLine(1);
+				String line2 = s.getLine(2);
+				String[] info1 = line1.split(" ");
+				String[] info2 = line2.split(" ");
+				int amount1 = Integer.parseInt(info1[0]);
+				int amount2 = Integer.parseInt(info2[0]);
+				String item_name1 = info1[1].toUpperCase();
+				String item_name2 = info2[1].toUpperCase();
 
-                buyer.sendMessage(Message.CONFIRM_TRADE.getPrefixed()
-                        .replace("{AMOUNT1}", String.valueOf(amount1))
-                        .replace("{AMOUNT2}", String.valueOf(amount2))
-                        .replace("{ITEM1}", item_name1.toLowerCase())
-                        .replace("{ITEM2}", item_name2.toLowerCase()));
-            } catch (Exception ex) {
-                //Do nothing
-            }
-        }
-    }
+				buyer.sendMessage(Message.CONFIRM_TRADE.getPrefixed()
+						.replace("{AMOUNT1}", String.valueOf(amount1))
+						.replace("{AMOUNT2}", String.valueOf(amount2))
+						.replace("{ITEM1}", item_name1.toLowerCase())
+						.replace("{ITEM2}", item_name2.toLowerCase()));
+			} catch (Exception ex) {
+				//Do nothing
+			}
+		}
+	}
 }

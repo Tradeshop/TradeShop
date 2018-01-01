@@ -39,79 +39,79 @@ import org.shanerx.tradeshop.trade.TradeEventListener;
 import org.shanerx.tradeshop.util.Updater;
 
 public class TradeShop extends JavaPlugin {
-    private final String version = this.getServer().getVersion();
-    private Metrics metrics;
-    private ListManager listManager;
-    private CustomItemManager customItemManager;
+	private final String version = this.getServer().getVersion();
+	private Metrics metrics;
+	private ListManager listManager;
+	private CustomItemManager customItemManager;
 
-    public ListManager getListManager() {
-        return listManager;
-    }
+	public ListManager getListManager() {
+		return listManager;
+	}
 
-    public CustomItemManager getCustomItemManager() {
-        return customItemManager;
-    }
+	public CustomItemManager getCustomItemManager() {
+		return customItemManager;
+	}
 
-    private Boolean isBelow19() {
-        if (version.contains("1.9")) {
-            return false;
-        } else if (version.contains("1.10")) {
-            return false;
-        } else if (version.contains("1.11")) {
-            return false;
-        } else if (version.contains("1.12")) {
-            return false;
-        }
+	private Boolean isBelow19() {
+		if (version.contains("1.9")) {
+			return false;
+		} else if (version.contains("1.10")) {
+			return false;
+		} else if (version.contains("1.11")) {
+			return false;
+		} else if (version.contains("1.12")) {
+			return false;
+		}
 
-        return true;
-    }
+		return true;
+	}
 
-    @Override
-    public void reloadConfig() {
-        Message.reload();
-        Setting.reload();
-    }
+	@Override
+	public void reloadConfig() {
+		Message.reload();
+		Setting.reload();
+	}
 
-    @Override
-    public void onEnable() {
-        if (isBelow19()) {
-            getLogger().info("[TradeShop] Minecraft versions before 1.9 are not supported beyond TradeShop version 1.5.2!");
-            getServer().getPluginManager().disablePlugin(this);
-            return;
-        }
+	@Override
+	public void onEnable() {
+		if (isBelow19()) {
+			getLogger().info("[TradeShop] Minecraft versions before 1.9 are not supported beyond TradeShop version 1.5.2!");
+			getServer().getPluginManager().disablePlugin(this);
+			return;
+		}
 
-        reloadConfig();
-        listManager = new ListManager();
-        customItemManager = new CustomItemManager();
+		reloadConfig();
+		listManager = new ListManager();
+		customItemManager = new CustomItemManager();
 
-        PluginManager pm = getServer().getPluginManager();
-        pm.registerEvents(new TradeEventListener(this), this);
-        pm.registerEvents(new ShopCreateEventListener(this), this);
-        pm.registerEvents(new BiTradeEventListener(this), this);
-        pm.registerEvents(new BiShopCreateEventListener(this), this);
-        pm.registerEvents(new AdminEventListener(this), this);
-        pm.registerEvents(new ITradeEventListener(this), this);
-        pm.registerEvents(new IShopCreateEventListener(this), this);
+		PluginManager pm = getServer().getPluginManager();
+		pm.registerEvents(new TradeEventListener(this), this);
+		pm.registerEvents(new ShopCreateEventListener(this), this);
+		pm.registerEvents(new BiTradeEventListener(this), this);
+		pm.registerEvents(new BiShopCreateEventListener(this), this);
+		pm.registerEvents(new AdminEventListener(this), this);
+		pm.registerEvents(new ITradeEventListener(this), this);
+		pm.registerEvents(new IShopCreateEventListener(this), this);
 
-        getCommand("tradeshop").setExecutor(new Executor(this));
+		getCommand("tradeshop").setExecutor(new Executor(this));
 
-        boolean checkUpdates = Setting.CHECK_UPDATES.getBoolean();
-        if (checkUpdates) {
-            new Thread(() -> new Updater(getDescription()).checkCurrentVersion()).start();
-        }
+		boolean checkUpdates = Setting.CHECK_UPDATES.getBoolean();
+		if (checkUpdates) {
+			new Thread(() -> new Updater(getDescription()).checkCurrentVersion()).start();
+		}
 
-        if (Setting.ALLOW_METRICS.getBoolean()) {
-            metrics = new Metrics(this);
-            getLogger().info("Metrics successfully initialized!");
-            
-        } else {
-            getLogger().warning("Metrics are disabled! Please consider enabling them to support the authors!");
-        }
-    }
+		if (Setting.ALLOW_METRICS.getBoolean()) {
+			metrics = new Metrics(this);
+			getLogger().info("Metrics successfully initialized!");
 
-    @Override
-    public void onDisable() {
-        customItemManager.clearManager();
-        listManager.clearLists();
-    }
+		} else {
+			getLogger().warning("Metrics are disabled! Please consider enabling them to support the authors!");
+		}
+	}
+
+	@Override
+	public void onDisable() {
+		customItemManager.clearManager();
+		listManager.clearLists();
+	}
 }

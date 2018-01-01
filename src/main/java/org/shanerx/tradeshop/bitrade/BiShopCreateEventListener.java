@@ -43,106 +43,106 @@ import java.util.Collections;
 
 public class BiShopCreateEventListener extends Utils implements Listener {
 
-    private TradeShop plugin;
+	private TradeShop plugin;
 
-    public BiShopCreateEventListener(TradeShop instance) {
-        plugin = instance;
-    }
+	public BiShopCreateEventListener(TradeShop instance) {
+		plugin = instance;
+	}
 
-    @SuppressWarnings("deprecation")
-    @EventHandler(priority = EventPriority.HIGH)
-    public void onSignChange(SignChangeEvent event) {
-        String header = ShopType.BITRADE.toString();
-        Player player = event.getPlayer();
-        Sign s = (Sign) event.getBlock().getState();
+	@SuppressWarnings("deprecation")
+	@EventHandler(priority = EventPriority.HIGH)
+	public void onSignChange(SignChangeEvent event) {
+		String header = ShopType.BITRADE.toString();
+		Player player = event.getPlayer();
+		Sign s = (Sign) event.getBlock().getState();
 
-        if (!(event.getLine(0).equalsIgnoreCase(header))) {
-            return;
-        }
+		if (!(event.getLine(0).equalsIgnoreCase(header))) {
+			return;
+		}
 
-        Block chest = findShopChest(s.getBlock());
+		Block chest = findShopChest(s.getBlock());
 
-        if (!player.hasPermission(Permissions.CREATEBI.getPerm())) {
-            failedSign(event, ShopType.BITRADE, Message.NO_TS_CREATE_PERMISSION);
-            return;
-        }
+		if (!player.hasPermission(Permissions.CREATEBI.getPerm())) {
+			failedSign(event, ShopType.BITRADE, Message.NO_TS_CREATE_PERMISSION);
+			return;
+		}
 
-        if (chest == null || !plugin.getListManager().isInventory(chest.getType())) {
-            failedSign(event, ShopType.BITRADE, Message.NO_CHEST);
-            return;
-        }
+		if (chest == null || !plugin.getListManager().isInventory(chest.getType())) {
+			failedSign(event, ShopType.BITRADE, Message.NO_CHEST);
+			return;
+		}
 
-        if (getShopUsers(s) != null) {
-            if (!getShopOwners(s).contains(Bukkit.getOfflinePlayer(player.getUniqueId()))) {
-                failedSign(event, ShopType.BITRADE, Message.NOT_OWNER);
-                return;
-            }
-        }
+		if (getShopUsers(s) != null) {
+			if (!getShopOwners(s).contains(Bukkit.getOfflinePlayer(player.getUniqueId()))) {
+				failedSign(event, ShopType.BITRADE, Message.NOT_OWNER);
+				return;
+			}
+		}
 
-        String line1 = event.getLine(1);
-        String line2 = event.getLine(2);
+		String line1 = event.getLine(1);
+		String line2 = event.getLine(2);
 
-        if (!line1.contains(" ") || !line2.contains(" ")) {
-            failedSign(event, ShopType.BITRADE, Message.MISSING_ITEM);
-            return;
-        }
+		if (!line1.contains(" ") || !line2.contains(" ")) {
+			failedSign(event, ShopType.BITRADE, Message.MISSING_ITEM);
+			return;
+		}
 
-        String[] info1 = line1.split(" ");
-        String[] info2 = line2.split(" ");
+		String[] info1 = line1.split(" ");
+		String[] info2 = line2.split(" ");
 
-        if (info1.length != 2 || info2.length != 2) {
-            failedSign(event, ShopType.BITRADE, Message.MISSING_INFO);
-            return;
-        }
+		if (info1.length != 2 || info2.length != 2) {
+			failedSign(event, ShopType.BITRADE, Message.MISSING_INFO);
+			return;
+		}
 
 
-        int durability1 = 0;
-        int durability2 = 0;
-        if (line1.split(":").length > 1) {
-            durability1 = Integer.parseInt(info1[1].split(":")[1]);
-            info1[1] = info1[1].split(":")[0];
-        }
-        if (line2.split(":").length > 1) {
-            durability2 = Integer.parseInt(info2[1].split(":")[1]);
-            info2[1] = info2[1].split(":")[0];
-        }
+		int durability1 = 0;
+		int durability2 = 0;
+		if (line1.split(":").length > 1) {
+			durability1 = Integer.parseInt(info1[1].split(":")[1]);
+			info1[1] = info1[1].split(":")[0];
+		}
+		if (line2.split(":").length > 1) {
+			durability2 = Integer.parseInt(info2[1].split(":")[1]);
+			info2[1] = info2[1].split(":")[0];
+		}
 
-        int amount1 = 0, amount2 = 0;
-        ItemStack item1 = null, item2 = null;
+		int amount1 = 0, amount2 = 0;
+		ItemStack item1 = null, item2 = null;
 
-        try {
-            amount1 = Integer.parseInt(info1[0]);
-            amount2 = Integer.parseInt(info2[0]);
+		try {
+			amount1 = Integer.parseInt(info1[0]);
+			amount2 = Integer.parseInt(info2[0]);
 
-        } catch (Exception e) {
-            failedSign(event, ShopType.BITRADE, Message.AMOUNT_NOT_NUM);
-            return;
-        }
+		} catch (Exception e) {
+			failedSign(event, ShopType.BITRADE, Message.AMOUNT_NOT_NUM);
+			return;
+		}
 
-        try {
-            item1 = isValidType(info1[1], durability1, amount1);
-            item2 = isValidType(info2[1], durability2, amount2);
-        } catch (ArrayIndexOutOfBoundsException e) {
-        }
+		try {
+			item1 = isValidType(info1[1], durability1, amount1);
+			item2 = isValidType(info2[1], durability2, amount2);
+		} catch (ArrayIndexOutOfBoundsException e) {
+		}
 
-        if (item1 == null || item2 == null) {
-            failedSign(event, ShopType.BITRADE, Message.MISSING_ITEM);
-            return;
-        } else if (isBlacklistItem(item1) || isBlacklistItem(item2)) {
-            failedSign(event, ShopType.BITRADE, Message.ILLEGAL_ITEM);
-            return;
-        }
+		if (item1 == null || item2 == null) {
+			failedSign(event, ShopType.BITRADE, Message.MISSING_ITEM);
+			return;
+		} else if (isBlacklistItem(item1) || isBlacklistItem(item2)) {
+			failedSign(event, ShopType.BITRADE, Message.ILLEGAL_ITEM);
+			return;
+		}
 
-        Inventory chestInventory = ((InventoryHolder) chest.getState()).getInventory();
-        event.setLine(0, ChatColor.DARK_GREEN + header);
-        event.setLine(3, player.getName());
-        changeInvName(chest.getState(), readInvName(chest.getState()),
-                Collections.singletonList(plugin.getServer().getOfflinePlayer(player.getUniqueId())), Collections.emptyList());
+		Inventory chestInventory = ((InventoryHolder) chest.getState()).getInventory();
+		event.setLine(0, ChatColor.DARK_GREEN + header);
+		event.setLine(3, player.getName());
+		changeInvName(chest.getState(), readInvName(chest.getState()),
+				Collections.singletonList(plugin.getServer().getOfflinePlayer(player.getUniqueId())), Collections.emptyList());
 
-        if (chestInventory.containsAtLeast(item1, amount1)) {
-            event.getPlayer().sendMessage(Message.SUCCESSFUL_SETUP.getPrefixed());
-        } else {
-            event.getPlayer().sendMessage(Message.EMPTY_TS_ON_SETUP.getPrefixed());
-        }
-    }
+		if (chestInventory.containsAtLeast(item1, amount1)) {
+			event.getPlayer().sendMessage(Message.SUCCESSFUL_SETUP.getPrefixed());
+		} else {
+			event.getPlayer().sendMessage(Message.EMPTY_TS_ON_SETUP.getPrefixed());
+		}
+	}
 }

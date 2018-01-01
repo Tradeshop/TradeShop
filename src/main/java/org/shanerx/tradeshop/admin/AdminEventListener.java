@@ -38,93 +38,93 @@ import org.shanerx.tradeshop.util.Utils;
 
 public class AdminEventListener extends Utils implements Listener {
 
-    private TradeShop plugin;
+	private TradeShop plugin;
 
-    public AdminEventListener(TradeShop instance) {
-        plugin = instance;
-    }
+	public AdminEventListener(TradeShop instance) {
+		plugin = instance;
+	}
 
-    @EventHandler(priority = EventPriority.HIGH)
-    public void onBlockBreak(BlockBreakEvent event) {
-        Player player = event.getPlayer();
-        Block block = event.getBlock();
+	@EventHandler(priority = EventPriority.HIGH)
+	public void onBlockBreak(BlockBreakEvent event) {
+		Player player = event.getPlayer();
+		Block block = event.getBlock();
 
-        if (isSign(block)) {
-            Sign s = (Sign) block.getState();
+		if (isSign(block)) {
+			Sign s = (Sign) block.getState();
 
-            if (!isShopSign(s.getBlock())) {
-                return;
+			if (!isShopSign(s.getBlock())) {
+				return;
 
-            } else if (player.hasPermission(Permissions.ADMIN.getPerm())) {
-                return;
+			} else if (player.hasPermission(Permissions.ADMIN.getPerm())) {
+				return;
 
-            } else if (findShopChest(block) != null && getShopOwners(s).contains(Bukkit.getOfflinePlayer(event.getPlayer().getUniqueId()))) {
-                return;
+			} else if (findShopChest(block) != null && getShopOwners(s).contains(Bukkit.getOfflinePlayer(event.getPlayer().getUniqueId()))) {
+				return;
 
-            }
-            event.setCancelled(true);
-            player.sendMessage(Message.NO_TS_DESTROY.getPrefixed());
+			}
+			event.setCancelled(true);
+			player.sendMessage(Message.NO_TS_DESTROY.getPrefixed());
 
-        } else if (plugin.getListManager().isInventory(block.getType())) {
-            if (player.hasPermission(Permissions.ADMIN.getPerm())) {
-                resetInvName(block.getState());
-                return;
-            }
+		} else if (plugin.getListManager().isInventory(block.getType())) {
+			if (player.hasPermission(Permissions.ADMIN.getPerm())) {
+				resetInvName(block.getState());
+				return;
+			}
 
-            Sign s;
-            try {
-                s = findShopSign(block);
-                if (s == null)
-                    throw new Exception();
-            } catch (Exception e) {
-                resetInvName(block.getState());
-                return;
-            }
+			Sign s;
+			try {
+				s = findShopSign(block);
+				if (s == null)
+					throw new Exception();
+			} catch (Exception e) {
+				resetInvName(block.getState());
+				return;
+			}
 
-            if (!isShopSign(s.getBlock())) {
-                resetInvName(block.getState());
-                return;
+			if (!isShopSign(s.getBlock())) {
+				resetInvName(block.getState());
+				return;
 
-            } else if (getShopOwners(s).contains(Bukkit.getOfflinePlayer(event.getPlayer().getUniqueId()))) {
-                resetInvName(block.getState());
-                return;
+			} else if (getShopOwners(s).contains(Bukkit.getOfflinePlayer(event.getPlayer().getUniqueId()))) {
+				resetInvName(block.getState());
+				return;
 
-            }
-            event.setCancelled(true);
-            player.sendMessage(Message.NO_TS_DESTROY.getPrefixed());
-        }
-    }
+			}
+			event.setCancelled(true);
+			player.sendMessage(Message.NO_TS_DESTROY.getPrefixed());
+		}
+	}
 
-    @EventHandler(priority = EventPriority.HIGH)
-    public void onChestOpen(PlayerInteractEvent e) {
-        Block block = e.getClickedBlock();
+	@EventHandler(priority = EventPriority.HIGH)
+	public void onChestOpen(PlayerInteractEvent e) {
+		Block block = e.getClickedBlock();
 
-        if (e.getAction() != Action.RIGHT_CLICK_BLOCK) {
-            return;
+		if (e.getAction() != Action.RIGHT_CLICK_BLOCK) {
+			return;
 
-        } else if (!plugin.getListManager().isInventory(block.getType())) {
-            return;
-        }
+		} else if (!plugin.getListManager().isInventory(block.getType())) {
+			return;
+		}
 
 
-        Sign s;
-        try {
-            s = findShopSign(block);
-            if (s == null)
-                throw new Exception();
-        } catch (Exception ex) {
-            return;
-        }
+		Sign s;
+		try {
+			s = findShopSign(block);
+			if (s == null)
+				throw new Exception();
+		} catch (Exception ex) {
+			return;
+		}
 
-        if (e.getPlayer().hasPermission(Permissions.ADMIN.getPerm())) {
-            //Do nothing
+		if (e.getPlayer().hasPermission(Permissions.ADMIN.getPerm())) {
+			//Do nothing
 
-        } else if (isShopSign(s.getBlock())) {
-            if (!getShopUsers(block).contains(Bukkit.getOfflinePlayer(e.getPlayer().getUniqueId()))) {
-                e.getPlayer().sendMessage(Message.NO_TS_OPEN.getPrefixed());
-                e.setCancelled(true);
-            }
-        }
-    }
+		} else if (isShopSign(s.getBlock())) {
+			if (!getShopUsers(block).contains(Bukkit.getOfflinePlayer(e.getPlayer().getUniqueId()))) {
+				e.getPlayer().sendMessage(Message.NO_TS_OPEN.getPrefixed());
+				e.setCancelled(true);
+			}
+		}
+	}
 }
 

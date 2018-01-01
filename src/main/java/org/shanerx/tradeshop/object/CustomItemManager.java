@@ -41,143 +41,143 @@ import java.util.logging.Level;
 
 public class CustomItemManager {
 
-    private Map<String, ItemStack> customItems = new HashMap<>();
-    private static final TradeShop plugin = (TradeShop) Bukkit.getPluginManager().getPlugin("TradeShop");
-    private static File file = new File(plugin.getDataFolder(), "customitems.yml");
-    private static FileConfiguration config = YamlConfiguration.loadConfiguration(file);
-    private static final char COLOUR_CHAR = '&';
+	private Map<String, ItemStack> customItems = new HashMap<>();
+	private static final TradeShop plugin = (TradeShop) Bukkit.getPluginManager().getPlugin("TradeShop");
+	private static File file = new File(plugin.getDataFolder(), "customitems.yml");
+	private static FileConfiguration config = YamlConfiguration.loadConfiguration(file);
+	private static final char COLOUR_CHAR = '&';
 
-    public CustomItemManager() {
-        loadItems();
-    }
+	public CustomItemManager() {
+		loadItems();
+	}
 
-    private void loadItems() {
-        for (String key : config.getKeys(false)) {
-            if (config.get(key) != null) {
-                customItems.put(key, loadItem(key));
-            }
-        }
+	private void loadItems() {
+		for (String key : config.getKeys(false)) {
+			if (config.get(key) != null) {
+				customItems.put(key, loadItem(key));
+			}
+		}
 
-        if (customItems.isEmpty()) {
-            addDefault();
-        }
-    }
+		if (customItems.isEmpty()) {
+			addDefault();
+		}
+	}
 
-    public void clearManager() {
-        save();
-        customItems.clear();
-    }
+	public void clearManager() {
+		save();
+		customItems.clear();
+	}
 
-    private ItemStack loadItem(String name) {
-        ItemStack itm = ItemStack.deserialize(config.getConfigurationSection(name).getValues(true));
-        ItemMeta meta = itm.getItemMeta();
+	private ItemStack loadItem(String name) {
+		ItemStack itm = ItemStack.deserialize(config.getConfigurationSection(name).getValues(true));
+		ItemMeta meta = itm.getItemMeta();
 
-        if (meta.hasLore()) {
-            ArrayList<String> str2 = new ArrayList<>();
-            for (String s : meta.getLore()) {
-                str2.add(ChatColor.translateAlternateColorCodes('&', s));
-            }
-            meta.setLore(str2);
-        }
+		if (meta.hasLore()) {
+			ArrayList<String> str2 = new ArrayList<>();
+			for (String s : meta.getLore()) {
+				str2.add(ChatColor.translateAlternateColorCodes('&', s));
+			}
+			meta.setLore(str2);
+		}
 
-        if (meta.hasDisplayName())
-            meta.setDisplayName(ChatColor.translateAlternateColorCodes('&', meta.getDisplayName()));
+		if (meta.hasDisplayName())
+			meta.setDisplayName(ChatColor.translateAlternateColorCodes('&', meta.getDisplayName()));
 
-        itm.setItemMeta(meta);
+		itm.setItemMeta(meta);
 
-        return itm;
-    }
+		return itm;
+	}
 
-    private void addDefault() {
-        if (customItems.isEmpty()) {
-            ItemStack dataHolder = new ItemStack(Material.TRIPWIRE_HOOK);
-            ItemMeta meta = dataHolder.getItemMeta();
+	private void addDefault() {
+		if (customItems.isEmpty()) {
+			ItemStack dataHolder = new ItemStack(Material.TRIPWIRE_HOOK);
+			ItemMeta meta = dataHolder.getItemMeta();
 
-            meta.setDisplayName("Key");
-            meta.setLore(Collections.singletonList("&aThe key to your dreams."));
-            dataHolder.setItemMeta(meta);
+			meta.setDisplayName("Key");
+			meta.setLore(Collections.singletonList("&aThe key to your dreams."));
+			dataHolder.setItemMeta(meta);
 
-            addItem("Key", dataHolder);
-        }
-    }
+			addItem("Key", dataHolder);
+		}
+	}
 
-    public ItemStack getItem(String key) {
-        if (customItems.containsKey(key)) {
-            return customItems.get(key);
-        }
+	public ItemStack getItem(String key) {
+		if (customItems.containsKey(key)) {
+			return customItems.get(key);
+		}
 
-        return null;
-    }
+		return null;
+	}
 
-    public void addItem(String key, ItemStack itm) {
-        if (customItems.containsKey(key)) {
-            customItems.replace(key, itm);
-        } else {
-            customItems.put(key, itm);
-        }
-    }
+	public void addItem(String key, ItemStack itm) {
+		if (customItems.containsKey(key)) {
+			customItems.replace(key, itm);
+		} else {
+			customItems.put(key, itm);
+		}
+	}
 
-    public void removeItem(String key) {
-        if (customItems.containsKey(key)) {
-            customItems.remove(key);
-        }
+	public void removeItem(String key) {
+		if (customItems.containsKey(key)) {
+			customItems.remove(key);
+		}
 
-        if (config.contains(key)) {
-            config.set(key, null);
-        }
-    }
+		if (config.contains(key)) {
+			config.set(key, null);
+		}
+	}
 
-    public Set<String> getItems() {
-        return customItems.keySet();
-    }
+	public Set<String> getItems() {
+		return customItems.keySet();
+	}
 
-    public void reload() {
-        try {
-            if (!plugin.getDataFolder().isDirectory()) {
-                plugin.getDataFolder().mkdirs();
-            }
-            if (!file.exists()) {
-                file.createNewFile();
-            }
-        } catch (IOException e) {
-            plugin.getLogger().log(Level.SEVERE, "Could not create Config file! Disabling plugin!", e);
-            plugin.getServer().getPluginManager().disablePlugin(plugin);
-        }
+	public void reload() {
+		try {
+			if (!plugin.getDataFolder().isDirectory()) {
+				plugin.getDataFolder().mkdirs();
+			}
+			if (!file.exists()) {
+				file.createNewFile();
+			}
+		} catch (IOException e) {
+			plugin.getLogger().log(Level.SEVERE, "Could not create Config file! Disabling plugin!", e);
+			plugin.getServer().getPluginManager().disablePlugin(plugin);
+		}
 
-        config = YamlConfiguration.loadConfiguration(file);
-        customItems.clear();
-        loadItems();
-    }
+		config = YamlConfiguration.loadConfiguration(file);
+		customItems.clear();
+		loadItems();
+	}
 
-    private void save() {
-        for (String str : customItems.keySet()) {
-            if (config.contains(str)) {
-                config.set(str, customItems.get(str).serialize());
-            } else {
-                config.createSection(str);
-                config.set(str, customItems.get(str).serialize());
-            }
-        }
+	private void save() {
+		for (String str : customItems.keySet()) {
+			if (config.contains(str)) {
+				config.set(str, customItems.get(str).serialize());
+			} else {
+				config.createSection(str);
+				config.set(str, customItems.get(str).serialize());
+			}
+		}
 
-        if (config != null) {
-            try {
-                config.save(file);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
+		if (config != null) {
+			try {
+				config.save(file);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
 
-        config = YamlConfiguration.loadConfiguration(file);
-        customItems.clear();
-        loadItems();
-    }
+		config = YamlConfiguration.loadConfiguration(file);
+		customItems.clear();
+		loadItems();
+	}
 
-    public FileConfiguration getConfig() {
-        return config;
-    }
+	public FileConfiguration getConfig() {
+		return config;
+	}
 
-    public String colour(String x) {
-        return ChatColor.translateAlternateColorCodes(COLOUR_CHAR, x);
-    }
+	public String colour(String x) {
+		return ChatColor.translateAlternateColorCodes(COLOUR_CHAR, x);
+	}
 
 }
