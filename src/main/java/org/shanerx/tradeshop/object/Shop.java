@@ -38,15 +38,15 @@ import java.util.stream.Collectors;
 @SuppressWarnings("unused")
 public class Shop implements Serializable {
 
-	private User owner;
-	private List<User> managers, members;
-	private Material shopType;
-	private Location shopLoc, chestLoc;
+    private ShopUser owner;
+    private List<ShopUser> managers, members;
+    private Material shopType;
+    private Location shopLoc, chestLoc;
 	private ItemStack sellItem, buyItem;
 
-	public Shop(Tuple<Location, Location> locations, Material shopType, User owner, Tuple<List<User>, List<User>> players, Tuple<ItemStack, ItemStack> items) {
-		shopLoc = locations.getLeft();
-		this.owner = owner;
+    public Shop(Tuple<Location, Location> locations, Material shopType, ShopUser owner, Tuple<List<ShopUser>, List<ShopUser>> players, Tuple<ItemStack, ItemStack> items) {
+        shopLoc = locations.getLeft();
+        this.owner = owner;
 		chestLoc = locations.getRight();
 		this.shopType = shopType;
 		managers = players.getLeft();
@@ -63,68 +63,68 @@ public class Shop implements Serializable {
 		return chestLoc;
 	}
 
-	public void setOwner(User owner) {
-		this.owner = owner;
-	}
+    public void setOwner(ShopUser owner) {
+        this.owner = owner;
+    }
 
-	public User getOwner() {
-		return owner;
-	}
+    public ShopUser getOwner() {
+        return owner;
+    }
 
-	public void setManagers(List<User> managers) {
-		this.managers = managers;
-	}
+    public void setManagers(List<ShopUser> managers) {
+        this.managers = managers;
+    }
 
-	public List<User> getManagers() {
-		return managers;
-	}
+    public List<ShopUser> getManagers() {
+        return managers;
+    }
 
-	public void setMembers(List<User> members) {
-		this.members = members;
-	}
+    public void setMembers(List<ShopUser> members) {
+        this.members = members;
+    }
 
-	public List<User> getMembers() {
-		return members;
-	}
+    public List<ShopUser> getMembers() {
+        return members;
+    }
 
-	public void addManager(User newManager) {
-		managers.add(newManager);
-	}
+    public void addManager(ShopUser newManager) {
+        managers.add(newManager);
+    }
 
-	public void removeManager(User oldManager) {
-		managers.remove(oldManager);
-	}
+    public void removeManager(ShopUser oldManager) {
+        managers.remove(oldManager);
+    }
 
-	public void addMember(User newMember) {
-		members.add(newMember);
-	}
+    public void addMember(ShopUser newMember) {
+        members.add(newMember);
+    }
 
-	public void removeMember(User oldMember) {
-		members.remove(oldMember);
-	}
+    public void removeMember(ShopUser oldMember) {
+        members.remove(oldMember);
+    }
 
 	public List<UUID> getManagersUUID() {
-		return managers.stream().map(User::getUUID).collect(Collectors.toList());
-	}
+        return managers.stream().map(ShopUser::getUUID).collect(Collectors.toList());
+    }
 
 	public List<UUID> getMembersUUID() {
-		return members.stream().map(User::getUUID).collect(Collectors.toList());
-	}
+        return members.stream().map(ShopUser::getUUID).collect(Collectors.toList());
+    }
 
-	private static List<User> managersFromUUIDs(String... uuids) {
-		List<User> managers = new ArrayList<>();
-		for (String str : uuids) {
-			managers.add(new User(Bukkit.getPlayer(UUID.fromString(str)), ShopRole.MANAGER));
-		}
+    private static List<ShopUser> managersFromUUIDs(String... uuids) {
+        List<ShopUser> managers = new ArrayList<>();
+        for (String str : uuids) {
+            managers.add(new ShopUser(Bukkit.getPlayer(UUID.fromString(str)), ShopRole.MANAGER));
+        }
 
 		return managers;
 	}
 
-	private static List<User> membersFromUUIDs(String... uuids) {
-		List<User> members = new ArrayList<>();
-		for (String str : uuids) {
-			members.add(new User(Bukkit.getPlayer(UUID.fromString(str)), ShopRole.MEMBER));
-		}
+    private static List<ShopUser> membersFromUUIDs(String... uuids) {
+        List<ShopUser> members = new ArrayList<>();
+        for (String str : uuids) {
+            members.add(new ShopUser(Bukkit.getPlayer(UUID.fromString(str)), ShopRole.MEMBER));
+        }
 
 		return members;
 	}

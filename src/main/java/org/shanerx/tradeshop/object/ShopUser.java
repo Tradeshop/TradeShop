@@ -31,14 +31,14 @@ import java.io.Serializable;
 import java.util.UUID;
 
 @SuppressWarnings("unused")
-public class User implements Serializable {
+public class ShopUser implements Serializable {
 
 	private transient Player player;
 	@SerializedName("player")
 	private String playerUUID;
 	private ShopRole role;
 
-	public User(Player player, ShopRole role) {
+	public ShopUser(Player player, ShopRole role) {
 		this.player = player;
 		playerUUID = player.getUniqueId().toString();
 		this.role = role;
@@ -60,9 +60,9 @@ public class User implements Serializable {
 		return new Gson().toJson(this);
 	}
 
-	public static User deserialize(String serialized) {
-		User user = new Gson().fromJson(serialized, User.class);
-		user.player = Bukkit.getPlayer(UUID.fromString(user.playerUUID));
-		return user;
+	public static ShopUser deserialize(String serialized) {
+		ShopUser shopUser = new Gson().fromJson(serialized, ShopUser.class);
+		shopUser.player = Bukkit.getPlayer(UUID.fromString(shopUser.playerUUID));
+		return shopUser;
 	}
 }

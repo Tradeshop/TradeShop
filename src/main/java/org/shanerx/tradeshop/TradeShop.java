@@ -32,6 +32,7 @@ import org.shanerx.tradeshop.enums.Message;
 import org.shanerx.tradeshop.enums.Setting;
 import org.shanerx.tradeshop.itrade.IShopCreateEventListener;
 import org.shanerx.tradeshop.itrade.ITradeEventListener;
+import org.shanerx.tradeshop.object.BukkitVersion;
 import org.shanerx.tradeshop.object.CustomItemManager;
 import org.shanerx.tradeshop.object.ListManager;
 import org.shanerx.tradeshop.trade.ShopCreateEventListener;
@@ -39,9 +40,9 @@ import org.shanerx.tradeshop.trade.TradeEventListener;
 import org.shanerx.tradeshop.util.Updater;
 
 public class TradeShop extends JavaPlugin {
-	private final String version = this.getServer().getVersion();
-	private Metrics metrics;
-	private ListManager listManager;
+    private final BukkitVersion VERSION = new BukkitVersion();
+    private Metrics metrics;
+    private ListManager listManager;
 	private CustomItemManager customItemManager;
 
 	public ListManager getListManager() {
@@ -52,20 +53,6 @@ public class TradeShop extends JavaPlugin {
 		return customItemManager;
 	}
 
-	private Boolean isBelow19() {
-		if (version.contains("1.9")) {
-			return false;
-		} else if (version.contains("1.10")) {
-			return false;
-		} else if (version.contains("1.11")) {
-			return false;
-		} else if (version.contains("1.12")) {
-			return false;
-		}
-
-		return true;
-	}
-
 	@Override
 	public void reloadConfig() {
 		Message.reload();
@@ -74,9 +61,9 @@ public class TradeShop extends JavaPlugin {
 
 	@Override
 	public void onEnable() {
-		if (isBelow19()) {
-			getLogger().info("[TradeShop] Minecraft versions before 1.9 are not supported beyond TradeShop version 1.5.2!");
-			getServer().getPluginManager().disablePlugin(this);
+        if (VERSION.isBelow19()) {
+            getLogger().info("[TradeShop] Minecraft versions before 1.9 are not supported beyond TradeShop version 1.5.2!");
+            getServer().getPluginManager().disablePlugin(this);
 			return;
 		}
 
@@ -112,6 +99,6 @@ public class TradeShop extends JavaPlugin {
 	@Override
 	public void onDisable() {
 		customItemManager.clearManager();
-		listManager.clearLists();
-	}
+        listManager.clearManager();
+    }
 }
