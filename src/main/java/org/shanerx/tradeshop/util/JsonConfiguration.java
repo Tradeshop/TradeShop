@@ -19,7 +19,7 @@
  * caused by their contribution(s) to the project. See the full License for more information
  */
 
-package org.shanerx.tradeshop.object;
+package org.shanerx.tradeshop.util;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
@@ -28,7 +28,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.World;
-import org.shanerx.tradeshop.util.Utils;
 
 import java.io.File;
 import java.io.FileNotFoundException;

@@ -32,11 +32,11 @@ import org.shanerx.tradeshop.enums.Message;
 import org.shanerx.tradeshop.enums.Setting;
 import org.shanerx.tradeshop.itrade.IShopCreateEventListener;
 import org.shanerx.tradeshop.itrade.ITradeEventListener;
-import org.shanerx.tradeshop.object.BukkitVersion;
 import org.shanerx.tradeshop.object.CustomItemManager;
 import org.shanerx.tradeshop.object.ListManager;
 import org.shanerx.tradeshop.trade.ShopCreateEventListener;
 import org.shanerx.tradeshop.trade.TradeEventListener;
+import org.shanerx.tradeshop.util.BukkitVersion;
 import org.shanerx.tradeshop.util.Updater;
 
 public class TradeShop extends JavaPlugin {
