@@ -56,8 +56,8 @@ public class BukkitVersion {
         return minor;
     }
 
-    public boolean isBelow19() {
-        return major < 1.9;
+    public boolean isBelow(double ver) {
+        return major < ver;
     }
 
     public boolean isAbove(double ver) {

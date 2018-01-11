@@ -61,8 +61,8 @@ public class TradeShop extends JavaPlugin {
 
 	@Override
 	public void onEnable() {
-        if (VERSION.isBelow19()) {
-            getLogger().info("[TradeShop] Minecraft versions before 1.9 are not supported beyond TradeShop version 1.5.2!");
+		if (VERSION.isBelow(1.9)) {
+			getLogger().info("[TradeShop] Minecraft versions before 1.9 are not supported beyond TradeShop version 1.5.2!");
             getServer().getPluginManager().disablePlugin(this);
 			return;
 		}

@@ -67,7 +67,7 @@ public class ShopLocation implements Serializable {
 		return world;
 	}
 
-	public String getWorldString() {
+	public String getWorldName() {
 		return world.getName();
 	}
 
