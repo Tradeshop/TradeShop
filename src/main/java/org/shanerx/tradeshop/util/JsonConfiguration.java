@@ -22,12 +22,13 @@
 package org.shanerx.tradeshop.util;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
-import org.bukkit.Location;
-import org.bukkit.World;
+import org.shanerx.tradeshop.object.Shop;
+import org.shanerx.tradeshop.object.ShopChunk;
+import org.shanerx.tradeshop.object.ShopLocation;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -38,16 +39,19 @@ import java.io.Serializable;
 @SuppressWarnings("unused")
 public class JsonConfiguration extends Utils implements Serializable {
 	private String pluginFolder;
+	private String path;
 	private File file;
 	private File filePath;
-	private Chunk chunk;
+	private ShopChunk chunk;
 	private String div = "_";
+	private JsonObject jsonObj;
 
 	public JsonConfiguration(Chunk c) {
-		this.chunk = c;
+		this.chunk = new ShopChunk(c);
 		this.pluginFolder = this.plugin.getDataFolder().getAbsolutePath();
-		this.file = new File(this.pluginFolder + File.separator + "Data" + File.separator + chunk.getWorld() + File.separator + serializeChunk(chunk) + ".json");
-		this.filePath = new File(this.pluginFolder + File.separator + "Data" + File.separator + chunk.getWorld());
+		this.path = this.pluginFolder + File.separator + "Data" + File.separator + chunk.getWorld().getName();
+		this.file = new File(path + File.separator + chunk.serialize() + ".json");
+		this.filePath = new File(path);
 		this.filePath.mkdirs();
 		if (!this.file.exists()) {
 			try {
@@ -56,14 +60,25 @@ public class JsonConfiguration extends Utils implements Serializable {
 				throw new RuntimeException(exception);
 			}
 		}
+
+		try {
+			jsonObj = new JsonParser().parse(new FileReader(file)).getAsJsonObject();
+		} catch (FileNotFoundException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
-	private void writeJSON(String path, String value) {
-		JsonObject obj = new JsonObject();
-		obj.add(path, new JsonParser().parse(value));
+	private void setShop(Shop shop) {
+		Gson gson = new GsonBuilder().setPrettyPrinting().serializeNulls().create();
+		String shopJson = gson.toJson(shop), toSaveStr = "";
+
+		jsonObj.add(shop.getShopLocationAsSL().serialize(), gson.toJsonTree(shop));
+
+		toSaveStr = gson.toJson(jsonObj);
+
 		try {
 			FileWriter fileWriter = new FileWriter(this.file);
-			fileWriter.write(obj.getAsString());
+			fileWriter.write(toSaveStr);
 			fileWriter.flush();
 			fileWriter.close();
 		} catch (Exception e) {
@@ -71,40 +86,14 @@ public class JsonConfiguration extends Utils implements Serializable {
 		}
 	}
 
-	private JsonObject readJSON(String path) {
-		try {
-			return new JsonParser().parse(new FileReader(file)).getAsJsonObject();
-		} catch (FileNotFoundException e) {
-			throw new RuntimeException(e);
-		}
-	}
+	private Shop getShop(ShopLocation loc) {
+		Gson gson = new Gson();
 
-	// CAREFUL: DOES NOT OUTPUT JSON! USE ONLY FOR FILE NAMES!
-	private String serializeChunk(Chunk chunk) {
-		String world = chunk.getWorld().getName();
-		int x = chunk.getX(), z = chunk.getZ();
-
-		return "c" + div + world + div + x + div + z;
-	}
-
-	// CAREFUL: DOES NOT TAKE JSON AS PARAMETER! USE ONLY FOR FILE NAMES!
-	private Chunk deserializeChunk(String loc) {
-		if (loc.startsWith("c")) {
-			String locA[] = loc.split(div);
-			World world = Bukkit.getWorld(locA[1]);
-			int x = Integer.parseInt(locA[2]), z = Integer.parseInt(locA[3]);
-
-			return world.getChunkAt(x, z);
+		if (jsonObj.has(loc.serialize())) {
+			return gson.fromJson(jsonObj.getAsJsonObject(loc.serialize()), Shop.class);
+		} else {
+			return null;
 		}
 
-		return null;
-	}
-
-	public String serializeLocation(Location loc) {
-		return new Gson().toJson(loc);
-	}
-
-	public Location deserializeLocation(String loc) {
-		return new Gson().fromJson(loc, Location.class);
 	}
 }

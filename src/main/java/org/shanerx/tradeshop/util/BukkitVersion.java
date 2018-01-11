@@ -56,8 +56,12 @@ public class BukkitVersion {
         return minor;
     }
 
-    public Boolean isBelow19() {
+    public boolean isBelow19() {
         return major < 1.9;
+    }
+
+    public boolean isAbove(double ver) {
+        return major >= ver;
     }
 
     private double parseDouble(String toParse) {

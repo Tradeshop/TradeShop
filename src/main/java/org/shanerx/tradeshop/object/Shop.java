@@ -111,8 +111,8 @@ public class Shop implements Serializable {
         return members.stream().map(ShopUser::getUUID).collect(Collectors.toList());
     }
 
-    private static List<ShopUser> managersFromUUIDs(String... uuids) {
-        List<ShopUser> managers = new ArrayList<>();
+	private List<ShopUser> managersFromUUIDs(String... uuids) {
+		List<ShopUser> managers = new ArrayList<>();
         for (String str : uuids) {
             managers.add(new ShopUser(Bukkit.getPlayer(UUID.fromString(str)), ShopRole.MANAGER));
         }
@@ -120,8 +120,8 @@ public class Shop implements Serializable {
 		return managers;
 	}
 
-    private static List<ShopUser> membersFromUUIDs(String... uuids) {
-        List<ShopUser> members = new ArrayList<>();
+	private List<ShopUser> membersFromUUIDs(String... uuids) {
+		List<ShopUser> members = new ArrayList<>();
         for (String str : uuids) {
             members.add(new ShopUser(Bukkit.getPlayer(UUID.fromString(str)), ShopRole.MEMBER));
         }
@@ -175,5 +175,13 @@ public class Shop implements Serializable {
 
 	public static Shop deserialize(String serialized) {
 		return new Gson().fromJson(serialized, Shop.class);
+	}
+
+	public ShopLocation getShopLocationAsSL() {
+		return new ShopLocation(shopLoc);
+	}
+
+	public ShopLocation getInventoryLocationAsSL() {
+		return new ShopLocation(chestLoc);
 	}
 }
