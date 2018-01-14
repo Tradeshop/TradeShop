@@ -31,7 +31,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.shanerx.tradeshop.admin.AdminEventListener;
+import org.shanerx.tradeshop.admin.ShopProtectionHandler;
 import org.shanerx.tradeshop.bitrade.BiShopCreateEventListener;
 import org.shanerx.tradeshop.bitrade.BiTradeEventListener;
 import org.shanerx.tradeshop.commands.Executor;
@@ -48,12 +48,16 @@ import java.util.Set;
 import java.util.logging.Level;
 
 public class TradeShop extends JavaPlugin {
+
     private File messagesFile = new File(this.getDataFolder(), "messages.yml");
     private FileConfiguration messages;
+
     private File settingsFile = new File(this.getDataFolder(), "config.yml");
     private FileConfiguration settings;
+
     private File customItemsFile = new File(this.getDataFolder(), "customitems.yml");
     private FileConfiguration customItems;
+
     private boolean mc18 = this.getServer().getVersion().contains("1.8");
 
     private ArrayList<Material> inventories = new ArrayList<>();
@@ -66,7 +70,6 @@ public class TradeShop extends JavaPlugin {
         return messages;
     }
 
-    @Deprecated
     @Override
     public FileConfiguration getConfig() {
         return settings;
@@ -86,6 +89,7 @@ public class TradeShop extends JavaPlugin {
 
     @Override
     public void reloadConfig() {
+
         messages = YamlConfiguration.loadConfiguration(messagesFile);
         settings = YamlConfiguration.loadConfiguration(settingsFile);
         customItems = YamlConfiguration.loadConfiguration(customItemsFile);
@@ -113,6 +117,7 @@ public class TradeShop extends JavaPlugin {
 
     @Override
     public void onEnable() {
+
         if (!isAboveMC18()) {
             getLogger().info("[TradeShop] Minecraft versions before 1.9 are not supported beyond TradeShop version 1.5.2!");
             getServer().getPluginManager().disablePlugin(this);
@@ -127,7 +132,7 @@ public class TradeShop extends JavaPlugin {
         pm.registerEvents(new ShopCreateEventListener(this), this);
         pm.registerEvents(new BiTradeEventListener(this), this);
         pm.registerEvents(new BiShopCreateEventListener(this), this);
-        pm.registerEvents(new AdminEventListener(this), this);
+        pm.registerEvents(new ShopProtectionHandler(this), this);
         pm.registerEvents(new ITradeEventListener(this), this);
         pm.registerEvents(new IShopCreateEventListener(this), this);
 
@@ -148,13 +153,15 @@ public class TradeShop extends JavaPlugin {
     }
 
     private void addMaterials() {
+
         inventories.clear();
         ArrayList<Material> allowedOld = new ArrayList<>();
         allowedOld.addAll(Arrays.asList(Material.CHEST, Material.TRAPPED_CHEST, Material.DROPPER, Material.HOPPER, Material.DISPENSER));
 
         for (String str : getSettings().getStringList("allowed-shops")) {
             if (str.equalsIgnoreCase("shulker")) {
-                inventories.addAll(Arrays.asList(Material.BLACK_SHULKER_BOX,
+                inventories.addAll(Arrays.asList(
+                        Material.BLACK_SHULKER_BOX,
                         Material.BLUE_SHULKER_BOX,
                         Material.BROWN_SHULKER_BOX,
                         Material.CYAN_SHULKER_BOX,
@@ -170,6 +177,7 @@ public class TradeShop extends JavaPlugin {
                         Material.WHITE_SHULKER_BOX,
                         Material.YELLOW_SHULKER_BOX,
                         Material.PURPLE_SHULKER_BOX));
+
             } else {
                 if (allowedOld.contains(Material.valueOf(str)))
                     inventories.add(Material.valueOf(str));
@@ -179,6 +187,7 @@ public class TradeShop extends JavaPlugin {
     }
 
     private void addDirections() {
+
         directions.clear();
         ArrayList<BlockFace> allowed = new ArrayList<>();
         allowed.addAll(Arrays.asList(BlockFace.DOWN, BlockFace.WEST, BlockFace.SOUTH, BlockFace.EAST, BlockFace.NORTH, BlockFace.UP));
@@ -210,6 +219,7 @@ public class TradeShop extends JavaPlugin {
     }
 
     private void addMessageDefaults() {
+
         addMessage("invalid-arguments", "&eTry &6/tradeshop help &eto display help!");
         addMessage("no-command-permission", "&aYou do not have permission to execute this command");
         addMessage("setup-help", "\n&2Setting up a TradeShop is easy! Just make sure to follow these steps:"
@@ -262,6 +272,7 @@ public class TradeShop extends JavaPlugin {
 
     private void addSettingsDefaults() {
         addSetting("check-updates", true);
+        addSetting("allow-metrics", true);
         addSetting("allowed-shops", new String[]{"CHEST", "TRAPPED_CHEST", "SHULKER"});
         addSetting("allowed-directions", new String[]{"DOWN", "WEST", "SOUTH", "EAST", "NORTH", "UP"});
         addSetting("itrade-shop-name", "Server Shop");
@@ -275,6 +286,9 @@ public class TradeShop extends JavaPlugin {
         addSetting("itradeshop-name", "iTrade");
         addSetting("bitradeshop-name", "BiTrade");
         addSetting("allow-metrics", true);
+        addSetting("explode.trade", false);
+        addSetting("explode.itrade", false);
+        addSetting("explode.bitrade", false);
 
         save();
     }
@@ -302,6 +316,7 @@ public class TradeShop extends JavaPlugin {
     }
 
     private void addCustomItemsDefaults() {
+
         if (getCustomItems().getValues(false).isEmpty()) {
             ItemStack dataHolder = new ItemStack(Material.TRIPWIRE_HOOK);
             ItemMeta meta = dataHolder.getItemMeta();
@@ -315,9 +330,21 @@ public class TradeShop extends JavaPlugin {
     }
 
     public ItemStack getCustomItem(String name) {
-        ItemStack itm = null;
 
-        if (!(getCustomItems().get(name) == null)) {
+        ItemStack itm = null;
+        String cName = "";
+
+        for (String s : getCustomItems().getKeys(false)) {
+            if (s.equalsIgnoreCase(name)) {
+                cName = s;
+            }
+        }
+
+        if (cName.length() == 0) {
+            cName = name;
+        }
+
+        if (!(getCustomItems().get(cName) == null)) {
             itm = ItemStack.deserialize(getCustomItems().getConfigurationSection(name).getValues(true));
             ItemMeta meta = itm.getItemMeta();
 
@@ -339,6 +366,7 @@ public class TradeShop extends JavaPlugin {
     }
 
     public void save() {
+
         if (messages != null)
             try {
                 messages.save(messagesFile);
@@ -362,6 +390,7 @@ public class TradeShop extends JavaPlugin {
     }
 
     private void createConfigs() {
+
         try {
             if (!getDataFolder().isDirectory()) {
                 getDataFolder().mkdirs();
@@ -379,9 +408,5 @@ public class TradeShop extends JavaPlugin {
             getLogger().log(Level.SEVERE, "Could not create config files! Disabling plugin!", e);
             getServer().getPluginManager().disablePlugin(this);
         }
-    }
-
-    @Override
-    public void onDisable() {
     }
 }

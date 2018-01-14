@@ -22,15 +22,17 @@
 package org.shanerx.tradeshop;
 
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
+import org.bukkit.block.Sign;
 
 @SuppressWarnings("unused")
 public enum ShopType {
 
     TRADE("[" + getTrade() + "]"),
 
-    ITRADE("[" + getiTrade() + "]"),
+    ITRADE("[" + getITrade() + "]"),
 
-    BITRADE("[" + getbiTrade() + "]");
+    BITRADE("[" + getBiTrade() + "]");
 
     private String header;
     private static TradeShop plugin = null;
@@ -50,11 +52,11 @@ public enum ShopType {
         return getPlugin().getSettings().getString("tradeshop-name");
     }
 
-    private static String getiTrade() {
+    private static String getITrade() {
         return getPlugin().getSettings().getString("itradeshop-name");
     }
 
-    private static String getbiTrade() {
+    private static String getBiTrade() {
         return getPlugin().getSettings().getString("bitradeshop-name");
     }
 
@@ -69,5 +71,37 @@ public enum ShopType {
     @Override
     public String toString() {
         return header;
+    }
+
+    public boolean isProtectedFromExplosions() {
+        switch (this) {
+            case TRADE:
+                return !getPlugin().getSettings().getBoolean("explode.trade");
+
+            case ITRADE:
+                return !getPlugin().getSettings().getBoolean("explode.itrade");
+
+            case BITRADE:
+                return !getPlugin().getSettings().getBoolean("explode.bitrade");
+
+            default:
+                return false;
+        }
+    }
+
+    public static ShopType getType(Sign s) {
+        String header = ChatColor.stripColor(s.getLine(0));
+
+        if (header.equalsIgnoreCase(TRADE.header)) {
+            return TRADE;
+
+        } else if (header.equalsIgnoreCase(ITRADE.header)) {
+            return ITRADE;
+
+        } else if (header.equalsIgnoreCase(BITRADE.header)) {
+            return BITRADE;
+        }
+
+        return null;
     }
 }

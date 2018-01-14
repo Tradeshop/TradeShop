@@ -3,6 +3,7 @@ package org.shanerx.tradeshop;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 
+@SuppressWarnings("unused")
 public enum Message {
     
     AMOUNT_NOT_NUM,

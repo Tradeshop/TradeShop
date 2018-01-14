@@ -36,6 +36,7 @@ import org.shanerx.tradeshop.Utils;
 
 import java.util.Collections;
 
+@SuppressWarnings("unused")
 public class IShopCreateEventListener extends Utils implements Listener {
 
     private TradeShop plugin;

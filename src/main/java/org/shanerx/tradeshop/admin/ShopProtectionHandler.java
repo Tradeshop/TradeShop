@@ -30,21 +30,28 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockExplodeEvent;
+import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.shanerx.tradeshop.Message;
+import org.shanerx.tradeshop.ShopType;
 import org.shanerx.tradeshop.TradeShop;
 import org.shanerx.tradeshop.Utils;
 
-public class AdminEventListener extends Utils implements Listener {
+import java.util.Iterator;
+
+@SuppressWarnings("unused")
+public class ShopProtectionHandler extends Utils implements Listener {
 
     private TradeShop plugin;
 
-    public AdminEventListener(TradeShop instance) {
+    public ShopProtectionHandler(TradeShop instance) {
         plugin = instance;
     }
 
     @EventHandler(priority = EventPriority.HIGH)
     public void onBlockBreak(BlockBreakEvent event) {
+
         Player player = event.getPlayer();
         Block block = event.getBlock();
 
@@ -96,6 +103,7 @@ public class AdminEventListener extends Utils implements Listener {
 
     @EventHandler(priority = EventPriority.HIGH)
     public void onChestOpen(PlayerInteractEvent e) {
+
         Block block = e.getClickedBlock();
 
         if (e.getAction() != Action.RIGHT_CLICK_BLOCK) {
@@ -116,7 +124,7 @@ public class AdminEventListener extends Utils implements Listener {
         }
 
         if (e.getPlayer().hasPermission(getAdminPerm())) {
-            //Do nothing
+            // Do nothing
 
         } else if (isShopSign(s.getBlock())) {
             if (!getShopUsers(block).contains(Bukkit.getOfflinePlayer(e.getPlayer().getUniqueId()))) {
@@ -125,5 +133,39 @@ public class AdminEventListener extends Utils implements Listener {
             }
         }
     }
+
+    @EventHandler(priority = EventPriority.HIGH)
+    public void onBlockExplode(BlockExplodeEvent e) {
+		Iterator<Block> iter = e.blockList().iterator();
+		while (iter.hasNext()) {
+			Block b = iter.next();
+			if (plugin.getAllowedInventories().contains(b.getType())) {
+                Sign s = findShopSign(b);
+                if (s != null && ShopType.getType(s).isProtectedFromExplosions()) {
+					iter.remove();
+				}
+
+            } else if (b.getState() instanceof Sign && findShopChest(b) != null) {
+				iter.remove();
+			}
+        }
+    }
+
+	@EventHandler(priority = EventPriority.HIGH)
+	public void onEntityExplode(EntityExplodeEvent e) {
+		Iterator<Block> iter = e.blockList().iterator();
+		while (iter.hasNext()) {
+			Block b = iter.next();
+			if (plugin.getAllowedInventories().contains(b.getType())) {
+				Sign s = findShopSign(b);
+				if (s != null && ShopType.getType(s).isProtectedFromExplosions()) {
+					iter.remove();
+				}
+
+			} else if (b.getState() instanceof Sign && findShopChest(b) != null) {
+				iter.remove();
+			}
+		}
+	}
 }
 
