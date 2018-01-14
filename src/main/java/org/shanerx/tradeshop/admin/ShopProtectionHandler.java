@@ -31,12 +31,14 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockExplodeEvent;
+import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.Material;
 import org.shanerx.tradeshop.Message;
 import org.shanerx.tradeshop.ShopType;
 import org.shanerx.tradeshop.TradeShop;
 import org.shanerx.tradeshop.Utils;
+
+import java.util.Iterator;
 
 @SuppressWarnings("unused")
 public class ShopProtectionHandler extends Utils implements Listener {
@@ -131,21 +133,39 @@ public class ShopProtectionHandler extends Utils implements Listener {
             }
         }
     }
-    
+
     @EventHandler(priority = EventPriority.HIGH)
     public void onBlockExplode(BlockExplodeEvent e) {
-
-        for (Block b : e.blockList()) {
-            if (plugin.getAllowedInventories().contains(b.getType())) {
+		Iterator<Block> iter = e.blockList().iterator();
+		while (iter.hasNext()) {
+			Block b = iter.next();
+			if (plugin.getAllowedInventories().contains(b.getType())) {
                 Sign s = findShopSign(b);
                 if (s != null && ShopType.getType(s).isProtectedFromExplosions()) {
-                    e.blockList().remove(b);
-                }
+					iter.remove();
+				}
 
             } else if (b.getState() instanceof Sign && findShopChest(b) != null) {
-                e.blockList().remove(b);
-            }
+				iter.remove();
+			}
         }
     }
+
+	@EventHandler(priority = EventPriority.HIGH)
+	public void onEntityExplode(EntityExplodeEvent e) {
+		Iterator<Block> iter = e.blockList().iterator();
+		while (iter.hasNext()) {
+			Block b = iter.next();
+			if (plugin.getAllowedInventories().contains(b.getType())) {
+				Sign s = findShopSign(b);
+				if (s != null && ShopType.getType(s).isProtectedFromExplosions()) {
+					iter.remove();
+				}
+
+			} else if (b.getState() instanceof Sign && findShopChest(b) != null) {
+				iter.remove();
+			}
+		}
+	}
 }
 
