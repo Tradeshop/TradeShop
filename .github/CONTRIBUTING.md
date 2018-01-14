@@ -29,7 +29,7 @@
   <li>Updating your Fork
     <ul>
       <li>Before you start committing make sure your fork is updated. (See [Syncing a Fork](https://help.github.com/articles/syncing-a-fork/) for more tips.)</li>
-      <li>We also expect that you have done some basic testing.</li>
+      <li>We also expect that you have done some testing.</li>
     </ul>
   </li>
 </ol>

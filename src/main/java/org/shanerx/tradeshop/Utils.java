@@ -36,7 +36,6 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.material.MaterialData;
 import org.bukkit.permissions.Permission;
 import org.bukkit.plugin.PluginDescriptionFile;
 
@@ -252,28 +251,33 @@ public class Utils {
      * Returns true itemStacks are equal excluding amount.
      *
      * @param itm1 the first item
-     * @param itm2 the ssecond item
+     * @param itm2 the second item
      * @return true if it args are equal.
      */
     public boolean itemCheck(ItemStack itm1, ItemStack itm2) {
-        int i1 = itm1.getAmount(), i2 = itm2.getAmount();
-        ItemMeta temp1 = itm1.getItemMeta();
-        MaterialData temp11 = itm1.getData();
-        boolean ret = false;
-        itm1.setAmount(1);
-        itm2.setAmount(1);
+        int check = 0;
 
-        if (!itm1.hasItemMeta() && itm2.hasItemMeta()) {
-            itm1.setItemMeta(itm2.getItemMeta());
-            itm1.setData(itm2.getData());
+        if (itm1.getType().equals(itm2.getType())) {
+            check++;
         }
-        ret = itm1.equals(itm2);
 
-        itm1.setItemMeta(temp1);
-        itm1.setData(temp11);
-        itm1.setAmount(i1);
-        itm2.setAmount(i2);
-        return ret;
+        if (itm1.getDurability() == itm2.getDurability()) {
+            check++;
+        }
+
+        if (itm1.getData().equals(itm2.getData())) {
+            check++;
+        }
+
+        if (itm1.hasItemMeta() && itm2.hasItemMeta()) {
+            if (itm1.getItemMeta().equals(itm2.getItemMeta())) {
+                check++;
+            }
+        } else if (!(itm1.hasItemMeta() && itm2.hasItemMeta())) {
+            check++;
+        }
+
+        return check == 4;
     }
 
     /**
