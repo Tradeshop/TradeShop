@@ -35,13 +35,17 @@ import org.bukkit.inventory.ItemStack;
 import org.shanerx.tradeshop.TradeShop;
 import org.shanerx.tradeshop.enums.Message;
 import org.shanerx.tradeshop.enums.Setting;
+import org.shanerx.tradeshop.util.ShopManager;
 import org.shanerx.tradeshop.util.Utils;
 
 public class BiTradeEventListener extends Utils implements Listener {
+
 	private TradeShop plugin;
+	private ShopManager shopUtils;
 
 	public BiTradeEventListener(TradeShop instance) {
 		plugin = instance;
+		shopUtils = new ShopManager();
 	}
 
 	@SuppressWarnings("deprecation")
@@ -65,7 +69,7 @@ public class BiTradeEventListener extends Utils implements Listener {
 				return;
 			}
 
-			if (getShopUsers(chestState.getBlock()).contains(Bukkit.getOfflinePlayer(buyer.getName()))) {
+			if (shopUtils.getShopUsers(chestState.getBlock()).contains(Bukkit.getOfflinePlayer(buyer.getName()))) {
 				buyer.sendMessage(Message.SELF_OWNED.getPrefixed());
 				return;
 			}
@@ -242,9 +246,9 @@ public class BiTradeEventListener extends Utils implements Listener {
 				return;
 			}
 
-			if (getShopUsers(chestState.getBlock()).contains(Bukkit.getOfflinePlayer(buyer.getName()))) {
+			if (shopUtils.getShopUsers(chestState.getBlock()).contains(Bukkit.getOfflinePlayer(buyer.getName()))) {
 
-				if (getShopOwners(chestState.getBlock()).contains(Bukkit.getOfflinePlayer(buyer.getName()))) {
+				if (shopUtils.getShopOwners(chestState.getBlock()).contains(Bukkit.getOfflinePlayer(buyer.getName()))) {
 					return;
 				}
 
@@ -294,6 +298,7 @@ public class BiTradeEventListener extends Utils implements Listener {
 				item1 = isValidType(info1[1], durability1, amount1);
 				item2 = isValidType(info2[1], durability2, amount2);
 			} catch (ArrayIndexOutOfBoundsException er) {
+				// Do nothing
 			}
 
 			if (item1 == null || item2 == null) {

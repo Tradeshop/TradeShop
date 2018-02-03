@@ -34,14 +34,17 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.shanerx.tradeshop.TradeShop;
 import org.shanerx.tradeshop.enums.Message;
 import org.shanerx.tradeshop.enums.Permissions;
+import org.shanerx.tradeshop.util.ShopManager;
 import org.shanerx.tradeshop.util.Utils;
 
 public class AdminEventListener extends Utils implements Listener {
 
 	private TradeShop plugin;
+	private ShopManager shopUtils;
 
 	public AdminEventListener(TradeShop instance) {
 		plugin = instance;
+		shopUtils = new ShopManager();
 	}
 
 	@EventHandler(priority = EventPriority.HIGH)
@@ -58,7 +61,7 @@ public class AdminEventListener extends Utils implements Listener {
 			} else if (player.hasPermission(Permissions.ADMIN.getPerm())) {
 				return;
 
-			} else if (findShopChest(block) != null && getShopOwners(s).contains(Bukkit.getOfflinePlayer(event.getPlayer().getUniqueId()))) {
+			} else if (findShopChest(block) != null && shopUtils.getShopOwners(s).contains(Bukkit.getOfflinePlayer(event.getPlayer().getUniqueId()))) {
 				return;
 
 			}
@@ -67,7 +70,7 @@ public class AdminEventListener extends Utils implements Listener {
 
 		} else if (plugin.getListManager().isInventory(block.getType())) {
 			if (player.hasPermission(Permissions.ADMIN.getPerm())) {
-				resetInvName(block.getState());
+				shopUtils.resetInvName(block.getState());
 				return;
 			}
 
@@ -77,16 +80,16 @@ public class AdminEventListener extends Utils implements Listener {
 				if (s == null)
 					throw new Exception();
 			} catch (Exception e) {
-				resetInvName(block.getState());
+				shopUtils.resetInvName(block.getState());
 				return;
 			}
 
 			if (!isShopSign(s.getBlock())) {
-				resetInvName(block.getState());
+				shopUtils.resetInvName(block.getState());
 				return;
 
-			} else if (getShopOwners(s).contains(Bukkit.getOfflinePlayer(event.getPlayer().getUniqueId()))) {
-				resetInvName(block.getState());
+			} else if (shopUtils.getShopOwners(s).contains(Bukkit.getOfflinePlayer(event.getPlayer().getUniqueId()))) {
+				shopUtils.resetInvName(block.getState());
 				return;
 
 			}
@@ -120,7 +123,7 @@ public class AdminEventListener extends Utils implements Listener {
 			//Do nothing
 
 		} else if (isShopSign(s.getBlock())) {
-			if (!getShopUsers(block).contains(Bukkit.getOfflinePlayer(e.getPlayer().getUniqueId()))) {
+			if (!shopUtils.getShopUsers(block).contains(Bukkit.getOfflinePlayer(e.getPlayer().getUniqueId()))) {
 				e.getPlayer().sendMessage(Message.NO_TS_OPEN.getPrefixed());
 				e.setCancelled(true);
 			}

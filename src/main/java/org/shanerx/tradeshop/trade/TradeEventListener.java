@@ -35,14 +35,17 @@ import org.bukkit.inventory.ItemStack;
 import org.shanerx.tradeshop.TradeShop;
 import org.shanerx.tradeshop.enums.Message;
 import org.shanerx.tradeshop.enums.Setting;
+import org.shanerx.tradeshop.util.ShopManager;
 import org.shanerx.tradeshop.util.Utils;
 
 public class TradeEventListener extends Utils implements Listener {
 
 	private TradeShop plugin;
+	private ShopManager shopUtils;
 
 	public TradeEventListener(TradeShop instance) {
 		plugin = instance;
+		shopUtils = new ShopManager();
 	}
 
 	@SuppressWarnings("deprecation")
@@ -66,7 +69,7 @@ public class TradeEventListener extends Utils implements Listener {
 				return;
 			}
 
-			if (getShopUsers(chestState.getBlock()).contains(Bukkit.getOfflinePlayer(buyer.getName()))) {
+			if (shopUtils.getShopUsers(chestState.getBlock()).contains(Bukkit.getOfflinePlayer(buyer.getName()))) {
 				buyer.sendMessage(Message.SELF_OWNED.getPrefixed());
 				return;
 			}

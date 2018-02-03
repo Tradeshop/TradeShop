@@ -36,6 +36,7 @@ import org.shanerx.tradeshop.enums.Message;
 import org.shanerx.tradeshop.enums.Permissions;
 import org.shanerx.tradeshop.enums.Potions;
 import org.shanerx.tradeshop.enums.Setting;
+import org.shanerx.tradeshop.util.ShopManager;
 import org.shanerx.tradeshop.util.Utils;
 
 import java.util.Arrays;
@@ -45,9 +46,11 @@ import java.util.Set;
 public class Executor extends Utils implements CommandExecutor {
 
 	private TradeShop plugin;
+	private ShopManager shopUtils;
 
 	public Executor(TradeShop instance) {
 		plugin = instance;
+		shopUtils = new ShopManager();
 	}
 
 	@Override
@@ -190,7 +193,7 @@ public class Executor extends Utils implements CommandExecutor {
 				Sign s;
 
 				try {
-					b = p.getTargetBlock((HashSet<Byte>) null, Setting.MAX_EDIT_DISTANCE.getInt());
+					b = p.getTargetBlock(/*(HashSet<Byte>)*/ null, Setting.MAX_EDIT_DISTANCE.getInt());
 
 					if (b == null || b.getType() == Material.AIR)
 						throw new NoSuchFieldException();
@@ -224,16 +227,16 @@ public class Executor extends Utils implements CommandExecutor {
 					} else
 						throw new NoSuchFieldException();
 
-					if (getShopOwners(s) != null)
-						for (OfflinePlayer pl : getShopOwners(s)) {
+					if (shopUtils.getShopOwners(s) != null)
+						for (OfflinePlayer pl : shopUtils.getShopOwners(s)) {
 							if (owners.equals(""))
 								owners = pl.getName();
 							else
 								owners += ", " + pl.getName();
 						}
 
-					if (getShopMembers(s) != null)
-						for (OfflinePlayer pl : getShopMembers(s)) {
+					if (shopUtils.getShopMembers(s) != null)
+						for (OfflinePlayer pl : shopUtils.getShopMembers(s)) {
 							if (members.equals(""))
 								members = pl.getName();
 							else
@@ -281,7 +284,7 @@ public class Executor extends Utils implements CommandExecutor {
 				}
 
 				Player p = (Player) sender;
-				Block b = p.getTargetBlock((HashSet<Byte>) null, Setting.MAX_EDIT_DISTANCE.getInt());
+				Block b = p.getTargetBlock(/*(HashSet<Byte>)*/ null, Setting.MAX_EDIT_DISTANCE.getInt());
 				if (b == null || b.getType() == Material.AIR) {
 					p.sendMessage(Message.NO_SIGHTED_SHOP.getPrefixed());
 					return true;
@@ -299,22 +302,22 @@ public class Executor extends Utils implements CommandExecutor {
 
 				switch (args[0].toLowerCase()) {
 					case "addowner":
-						if (!addOwner(b, target)) {
+						if (!shopUtils.addOwner(b, target)) {
 							p.sendMessage(Message.UNSUCCESSFUL_SHOP_MEMBERS.getPrefixed());
 							return true;
 						}
 						break;
 					case "removeowner":
-						removeOwner(b, target);
+						shopUtils.removeOwner(b, target);
 						break;
 					case "addmember":
-						if (!addMember(b, target)) {
+						if (!shopUtils.addMember(b, target)) {
 							p.sendMessage(Message.UNSUCCESSFUL_SHOP_MEMBERS.getPrefixed());
 							return true;
 						}
 						break;
 					case "removemember":
-						removeMember(b, target);
+						shopUtils.removeMember(b, target);
 						break;
 				}
 				p.sendMessage(Message.UPDATED_SHOP_MEMBERS.getPrefixed());

@@ -34,6 +34,7 @@ import org.shanerx.tradeshop.enums.Message;
 import org.shanerx.tradeshop.enums.Permissions;
 import org.shanerx.tradeshop.enums.Setting;
 import org.shanerx.tradeshop.enums.ShopType;
+import org.shanerx.tradeshop.util.ShopManager;
 import org.shanerx.tradeshop.util.Utils;
 
 import java.util.Collections;
@@ -41,9 +42,11 @@ import java.util.Collections;
 public class IShopCreateEventListener extends Utils implements Listener {
 
 	private TradeShop plugin;
+	private ShopManager shopUtils;
 
 	public IShopCreateEventListener(TradeShop instance) {
 		plugin = instance;
+		shopUtils = new ShopManager();
 	}
 
 	@SuppressWarnings("deprecation")
@@ -64,8 +67,8 @@ public class IShopCreateEventListener extends Utils implements Listener {
 			return;
 		}
 
-		if (findShopChest(s.getBlock()) != null && getShopUsers(findShopChest(s.getBlock())).size() > 0) {
-			getShopOwners(s).forEach(op -> {
+		if (findShopChest(s.getBlock()) != null && shopUtils.getShopUsers(findShopChest(s.getBlock())).size() > 0) {
+			shopUtils.getShopOwners(s).forEach(op -> {
 				if (!op.getName().equalsIgnoreCase(Setting.ITRADE_SHOP_NAME.getString())) {
 					failedSign(event, ShopType.ITRADE, Message.NOT_OWNER);
 				}
@@ -115,6 +118,7 @@ public class IShopCreateEventListener extends Utils implements Listener {
 			item1 = isValidType(info1[1], durability1, amount1);
 			item2 = isValidType(info2[1], durability2, amount2);
 		} catch (ArrayIndexOutOfBoundsException e) {
+			// Do nothing
 		}
 
 		if (item1 == null || item2 == null) {
@@ -126,7 +130,7 @@ public class IShopCreateEventListener extends Utils implements Listener {
 		}
 
 		if (chest != null) {
-			changeInvName(chest.getState(), readInvName(chest.getState()),
+			shopUtils.changeInvName(chest.getState(), shopUtils.readInvName(chest.getState()),
 					Collections.singletonList(plugin.getServer().getOfflinePlayer(Setting.ITRADE_SHOP_NAME.getString())), Collections.emptyList());
 		}
 

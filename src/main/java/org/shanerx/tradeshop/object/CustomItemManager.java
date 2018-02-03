@@ -133,12 +133,10 @@ public class CustomItemManager {
 
 	public void reload() {
 		try {
-			if (!plugin.getDataFolder().isDirectory()) {
-				plugin.getDataFolder().mkdirs();
-			}
-			if (!file.exists()) {
-				file.createNewFile();
-			}
+			if (!plugin.getDataFolder().isDirectory() && plugin.getDataFolder().mkdirs()
+					|| !file.exists() && file.createNewFile());
+			else throw new IOException();
+
 		} catch (IOException e) {
 			plugin.getLogger().log(Level.SEVERE, "Could not create Config file! Disabling plugin!", e);
 			plugin.getServer().getPluginManager().disablePlugin(plugin);

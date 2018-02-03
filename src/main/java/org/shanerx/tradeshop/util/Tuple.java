@@ -12,9 +12,16 @@ public class Tuple<R, L> implements Serializable {
 	@SerializedName("left")
 	private L l;
 
+	public Tuple() {}
+
 	public Tuple(R r, L l) {
 		this.r = r;
 		this.l = l;
+	}
+
+	public Tuple(Tuple<? extends R, ? extends L> t) {
+		this.r = t.r;
+		this.l = t.l;
 	}
 
 	public R getRight() {

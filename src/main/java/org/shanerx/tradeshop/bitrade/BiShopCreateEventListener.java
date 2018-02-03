@@ -37,6 +37,7 @@ import org.shanerx.tradeshop.TradeShop;
 import org.shanerx.tradeshop.enums.Message;
 import org.shanerx.tradeshop.enums.Permissions;
 import org.shanerx.tradeshop.enums.ShopType;
+import org.shanerx.tradeshop.util.ShopManager;
 import org.shanerx.tradeshop.util.Utils;
 
 import java.util.Collections;
@@ -44,9 +45,11 @@ import java.util.Collections;
 public class BiShopCreateEventListener extends Utils implements Listener {
 
 	private TradeShop plugin;
+	private ShopManager shopUtils;
 
 	public BiShopCreateEventListener(TradeShop instance) {
 		plugin = instance;
+		shopUtils = new ShopManager();
 	}
 
 	@SuppressWarnings("deprecation")
@@ -72,8 +75,8 @@ public class BiShopCreateEventListener extends Utils implements Listener {
 			return;
 		}
 
-		if (getShopUsers(s) != null) {
-			if (!getShopOwners(s).contains(Bukkit.getOfflinePlayer(player.getUniqueId()))) {
+		if (shopUtils.getShopUsers(s) != null) {
+			if (!shopUtils.getShopOwners(s).contains(Bukkit.getOfflinePlayer(player.getUniqueId()))) {
 				failedSign(event, ShopType.BITRADE, Message.NOT_OWNER);
 				return;
 			}
@@ -123,6 +126,7 @@ public class BiShopCreateEventListener extends Utils implements Listener {
 			item1 = isValidType(info1[1], durability1, amount1);
 			item2 = isValidType(info2[1], durability2, amount2);
 		} catch (ArrayIndexOutOfBoundsException e) {
+			// Do nothing
 		}
 
 		if (item1 == null || item2 == null) {
@@ -136,8 +140,12 @@ public class BiShopCreateEventListener extends Utils implements Listener {
 		Inventory chestInventory = ((InventoryHolder) chest.getState()).getInventory();
 		event.setLine(0, ChatColor.DARK_GREEN + header);
 		event.setLine(3, player.getName());
-		changeInvName(chest.getState(), readInvName(chest.getState()),
-				Collections.singletonList(plugin.getServer().getOfflinePlayer(player.getUniqueId())), Collections.emptyList());
+		shopUtils.changeInvName(
+				chest.getState(),
+				shopUtils.readInvName(chest.getState()),
+				Collections.singletonList(
+						plugin.getServer().getOfflinePlayer(player.getUniqueId())),
+				Collections.emptyList());
 
 		if (chestInventory.containsAtLeast(item1, amount1)) {
 			event.getPlayer().sendMessage(Message.SUCCESSFUL_SETUP.getPrefixed());

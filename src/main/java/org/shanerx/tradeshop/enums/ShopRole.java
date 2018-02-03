@@ -21,6 +21,7 @@
 
 package org.shanerx.tradeshop.enums;
 
+@SuppressWarnings("unused")
 public enum ShopRole {
 
 	OWNER(true, true, true, false),
