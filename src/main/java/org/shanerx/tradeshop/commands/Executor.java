@@ -40,7 +40,6 @@ import org.shanerx.tradeshop.util.ShopManager;
 import org.shanerx.tradeshop.util.Utils;
 
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.Set;
 
 public class Executor extends Utils implements CommandExecutor {
@@ -193,9 +192,9 @@ public class Executor extends Utils implements CommandExecutor {
 				Sign s;
 
 				try {
-					b = p.getTargetBlock(null, plugin.getSettings().getInt("max-edit-distance"));
-					
-					if (b == null || b.getType() == Material.AIR)
+					b = p.getTargetBlock((Set<Material>) null, Setting.MAX_EDIT_DISTANCE.getInt());
+
+if (b == null || b.getType() == Material.AIR)
 						throw new NoSuchFieldException();
 
 					if (isSign(b)) {
@@ -284,7 +283,7 @@ public class Executor extends Utils implements CommandExecutor {
 				}
 
 				Player p = (Player) sender;
-				Block b = p.getTargetBlock(null, plugin.getSettings().getInt("max-edit-distance"));
+				Block b = p.getTargetBlock((Set<Material>) null, Setting.MAX_EDIT_DISTANCE.getInt());
 
 				if (b == null || b.getType() == Material.AIR) {
 					p.sendMessage(Message.NO_SIGHTED_SHOP.getPrefixed());
