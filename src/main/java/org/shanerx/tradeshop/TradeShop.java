@@ -92,7 +92,11 @@ public class TradeShop extends JavaPlugin {
 			getLogger().info("Metrics successfully initialized!");
 
 		} else {
-			getLogger().warning("Metrics are disabled! Please consider enabling them to support the authors!");
+			getLogger().info(Message.colour("&a+--------------------------------------------------------+"));
+			getLogger().info(Message.colour("&7 Metrics are currently &cdisabled&r&7!"));
+			getLogger().info(Message.colour("&7 Please consider enabling them to support the developers!"));
+			getLogger().info(Message.colour("&a+--------------------------------------------------------+"));
+
 		}
 	}
 
