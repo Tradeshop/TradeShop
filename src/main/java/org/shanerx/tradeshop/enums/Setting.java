@@ -34,22 +34,31 @@ import java.util.logging.Level;
 
 public enum Setting {
 
-	CHECK_UPDATES,
-	ALLOWED_SHOPS,
-	ALLOWED_DIRECTIONS,
-	ITRADE_SHOP_NAME,
-	ALLOW_DOUBLE_TRADE,
-	ALLOW_QUAD_TRADE,
-	MAX_EDIT_DISTANCE,
-	MAX_SHOP_USERS,
-	ILLEGAL_ITEMS,
-	ALLOW_CUSTOM_ILLEGAL_ITEMS,
-	TRADESHOP_NAME,
-	ITRADESHOP_NAME,
-	BITRADESHOP_NAME,
-	SHOP_OPEN_STATUS,
-	SHOP_CLOSED_STATUS,
-	ALLOW_METRICS;
+	CHECK_UPDATES("check-updates"),
+	ALLOWED_SHOPS("allowed-shops"),
+	ALLOWED_DIRECTIONS("allowed-directions"),
+	ITRADESHOP_OWNER("tradeshop.owner"),
+	ALLOW_DOUBLE_TRADE("allow-double-trade"),
+	ALLOW_QUAD_TRADE("allow-quad-trade"),
+	MAX_EDIT_DISTANCE("max-edit-distance"),
+	MAX_SHOP_USERS("max-shop-users"),
+	ILLEGAL_ITEMS("illegal-items"),
+	ALLOW_CUSTOM_ILLEGAL_ITEMS("allow-custom-illegal-items"),
+	TRADESHOP_HEADER("tradeshop.header"),
+	ITRADESHOP_HEADER("tradeshop.header"),
+	BITRADESHOP_HEADER("tradeshop.header"),
+	TRADESHOP_EXPLODE("tradeshop.allow-explode"),
+	ITRADESHOP_EXPLODE("itradeshop.allow-explode"),
+	BITRADESHOP_EXPLODE("bitradeshop.allow-explode"),
+	SHOP_OPEN_STATUS("shop-open-status"),
+	SHOP_CLOSED_STATUS("shop-closed-status"),
+	ALLOW_METRICS("allow-metrics");
+
+	String path;
+
+	Setting(String path) {
+		this.path = path;
+	}
 
 	@Override
 	public String toString() {
@@ -99,22 +108,28 @@ public enum Setting {
 	private static FileConfiguration config = YamlConfiguration.loadConfiguration(file);
 
 	private static void setDefaults() {
-		addSetting("check-updates", true);
-		addSetting("allowed-shops", new String[]{"CHEST", "TRAPPED_CHEST", "SHULKER"});
-		addSetting("allowed-directions", new String[]{"DOWN", "WEST", "SOUTH", "EAST", "NORTH", "UP"});
-		addSetting("itrade-shop-name", "Server Shop");
-		addSetting("allow-double-trade", true);
-		addSetting("allow-quad-trade", true);
-		addSetting("max-edit-distance", 4);
-		addSetting("max-shop-users", 5);
-		addSetting("illegal-items", new String[]{"Bedrock", "Command_Block"});
-		addSetting("allow-custom-illegal-items", true);
-		addSetting("tradeshop-name", "Trade");
-		addSetting("itradeshop-name", "iTrade");
-		addSetting("bitradeshop-name", "BiTrade");
-		addSetting("shop-open-status", "Open");
-		addSetting("shop-closed-status", "Closed");
-		addSetting("allow-metrics", true);
+		addSetting(CHECK_UPDATES.path, true);
+		addSetting(ALLOWED_SHOPS.path, new String[]{"CHEST", "TRAPPED_CHEST", "SHULKER"});
+		addSetting(ALLOWED_DIRECTIONS.path, new String[]{"DOWN", "WEST", "SOUTH", "EAST", "NORTH", "UP"});
+		addSetting(ALLOW_DOUBLE_TRADE.path, true);
+		addSetting(ALLOW_QUAD_TRADE.path, true);
+		addSetting(MAX_EDIT_DISTANCE.path, 4);
+		addSetting(MAX_SHOP_USERS.path, 5);
+		addSetting(ILLEGAL_ITEMS.path, new String[]{"Bedrock", "Command_Block"});
+		addSetting(ALLOW_CUSTOM_ILLEGAL_ITEMS.path, true);
+		addSetting(SHOP_OPEN_STATUS.path, "Open");
+		addSetting(SHOP_CLOSED_STATUS.path, "Closed");
+		addSetting(ALLOW_METRICS.path, true);
+
+		addSetting(TRADESHOP_HEADER.path, "Trade");
+		addSetting(TRADESHOP_EXPLODE.path, false);
+
+		addSetting(ITRADESHOP_HEADER.path, "iTrade");
+		addSetting(ITRADESHOP_OWNER.path, "Server Shop");
+		addSetting(ITRADESHOP_EXPLODE.path, false);
+
+		addSetting(BITRADESHOP_HEADER.path, "BiTrade");
+		addSetting(BITRADESHOP_EXPLODE.path, false);
 
 		save();
 	}

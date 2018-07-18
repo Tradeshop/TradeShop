@@ -42,8 +42,16 @@ public enum ShopType {
 		this.key = key;
 	}
 
+	private static String getITrade() {
+		return Setting.ITRADESHOP_HEADER.getString();
+	}
+
+	private static String getBiTrade() {
+		return Setting.BITRADESHOP_HEADER.getString();
+	}
+
 	public String getName() {
-		return Setting.findSetting(key + "shop-name").getString();
+		return Setting.TRADESHOP_HEADER.getString();
 	}
 
 	@Override
@@ -51,24 +59,16 @@ public enum ShopType {
 		return "[" + getName() + "]";
 	}
 
-    private static String getITrade() {
-        return plugin.getSettings().getString("itradeshop-name");
-    }
-
-    private static String getBiTrade() {
-        return plugin.getSettings().getString("bitradeshop-name");
-    }
-
     public boolean isProtectedFromExplosions() {
         switch (this) {
             case TRADE:
-                return !plugin.getSettings().getBoolean("explode.trade");
+				return !Setting.TRADESHOP_EXPLODE.getBoolean();
 
             case ITRADE:
-                return !plugin.getSettings().getBoolean("explode.itrade");
+				return !Setting.ITRADESHOP_EXPLODE.getBoolean();
 
             case BITRADE:
-                return !plugin.getSettings().getBoolean("explode.bitrade");
+				return !Setting.BITRADESHOP_EXPLODE.getBoolean();
 
             default:
                 return false;
