@@ -60,33 +60,32 @@ public enum Setting {
 		this.path = path;
 	}
 
-	@Override
-	public String toString() {
-		return name().toLowerCase().replace("_", "-");
+	public String toPath() {
+		return path;
 	}
 
 	public Object getSetting() {
-		return config.get(toString());
+		return config.get(toPath());
 	}
 
 	public String getString() {
-		return config.getString(toString());
+		return config.getString(toPath());
 	}
 
 	public List<String> getStringList() {
-		return config.getStringList(toString());
+		return config.getStringList(toPath());
 	}
 
 	public int getInt() {
-		return config.getInt(toString());
+		return config.getInt(toPath());
 	}
 
 	public double getDouble() {
-		return config.getDouble(toString());
+		return config.getDouble(toPath());
 	}
 
 	public boolean getBoolean() {
-		return config.getBoolean(toString());
+		return config.getBoolean(toPath());
 	}
 
 	public static ArrayList<String> getItemBlackList() {

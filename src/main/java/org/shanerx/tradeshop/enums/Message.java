@@ -71,7 +71,7 @@ public enum Message {
 	@Override
 	public String toString() {
 		return colour(config.getString(name().toLowerCase().replace("_", "-"))
-				.replace("%header%", (String) Setting.TRADESHOP_NAME.getSetting()));
+				.replace("%header%", Setting.TRADESHOP_HEADER.getString()));
 	}
 
 	public String getPrefixed() {
