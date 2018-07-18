@@ -42,13 +42,13 @@ public enum ShopType {
 		this.key = key;
 	}
 
-	public String stripped() {
+	public String getName() {
 		return Setting.findSetting(key + "shop-name").getString();
 	}
 
 	@Override
 	public String toString() {
-		return "[" + stripped() + "]";
+		return "[" + getName() + "]";
 	}
 
     private static String getITrade() {
@@ -57,17 +57,6 @@ public enum ShopType {
 
     private static String getBiTrade() {
         return plugin.getSettings().getString("bitradeshop-name");
-    }
-
-		if (check.equalsIgnoreCase(TRADE.key)) {
-			return TRADE;
-
-		} else if (check.equalsIgnoreCase(ITRADE.key)) {
-			return ITRADE;
-
-    @Override
-    public String toString() {
-        return header;
     }
 
     public boolean isProtectedFromExplosions() {
