@@ -192,7 +192,7 @@ public class Executor extends Utils implements CommandExecutor {
 				Sign s;
 
 				try {
-					b = p.getTargetBlock((Set<Material>) null, Setting.MAX_EDIT_DISTANCE.getInt());
+					b = p.getTargetBlock(null, Setting.MAX_EDIT_DISTANCE.getInt());
 
 if (b == null || b.getType() == Material.AIR)
 						throw new NoSuchFieldException();
@@ -206,7 +206,7 @@ if (b == null || b.getType() == Material.AIR)
 
 						if (isInfiniteTradeShopSign(s.getBlock())) {
 							p.sendMessage(Message.WHO_MESSAGE.getPrefixed()
-									.replace("{OWNERS}", Setting.ITRADE_SHOP_NAME.getString())
+									.replace("{OWNERS}", Setting.ITRADESHOP_OWNER.getString())
 									.replace("{MEMBERS}", "None"));
 							return true;
 						}
@@ -219,7 +219,7 @@ if (b == null || b.getType() == Material.AIR)
 
 						if (isInfiniteTradeShopSign(s.getBlock())) {
 							p.sendMessage(Message.WHO_MESSAGE.getPrefixed()
-									.replace("{OWNERS}", Setting.ITRADE_SHOP_NAME.getString())
+									.replace("{OWNERS}", Setting.ITRADESHOP_OWNER.getString())
 									.replace("{MEMBERS}", "None"));
 							return true;
 						}
@@ -283,7 +283,7 @@ if (b == null || b.getType() == Material.AIR)
 				}
 
 				Player p = (Player) sender;
-				Block b = p.getTargetBlock((Set<Material>) null, Setting.MAX_EDIT_DISTANCE.getInt());
+				Block b = p.getTargetBlock(null, Setting.MAX_EDIT_DISTANCE.getInt());
 
 				if (b == null || b.getType() == Material.AIR) {
 					p.sendMessage(Message.NO_SIGHTED_SHOP.getPrefixed());
