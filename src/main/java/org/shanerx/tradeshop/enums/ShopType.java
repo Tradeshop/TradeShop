@@ -31,9 +31,9 @@ public enum ShopType {
 
 	TRADE("trade"),
 
-	ITRADE("itrade"),
+    ITRADE("[" + getITrade() + "]"),
 
-	BITRADE("bitrade");
+    BITRADE("[" + getBiTrade() + "]");
 
 	private String key;
 	private static TradeShop plugin = (TradeShop) Bukkit.getPluginManager().getPlugin("TradeShop");
@@ -51,12 +51,13 @@ public enum ShopType {
 		return "[" + stripped() + "]";
 	}
 
-	public boolean isProtectedFromExplosions() {
-		return !Setting.findSetting("explode." + key).getBoolean();
-	}
+    private static String getITrade() {
+        return plugin.getSettings().getString("itradeshop-name");
+    }
 
-	public static ShopType getType(Sign s) {
-		String check = ChatColor.stripColor(s.getLine(0));
+    private static String getBiTrade() {
+        return plugin.getSettings().getString("bitradeshop-name");
+    }
 
 		if (check.equalsIgnoreCase(TRADE.key)) {
 			return TRADE;
@@ -64,10 +65,40 @@ public enum ShopType {
 		} else if (check.equalsIgnoreCase(ITRADE.key)) {
 			return ITRADE;
 
-		} else if (check.equalsIgnoreCase(BITRADE.key)) {
-			return BITRADE;
-		}
+    @Override
+    public String toString() {
+        return header;
+    }
 
-		return null;
-	}
+    public boolean isProtectedFromExplosions() {
+        switch (this) {
+            case TRADE:
+                return !plugin.getSettings().getBoolean("explode.trade");
+
+            case ITRADE:
+                return !plugin.getSettings().getBoolean("explode.itrade");
+
+            case BITRADE:
+                return !plugin.getSettings().getBoolean("explode.bitrade");
+
+            default:
+                return false;
+        }
+    }
+
+    public static ShopType getType(Sign s) {
+        String header = ChatColor.stripColor(s.getLine(0));
+
+        if (header.equalsIgnoreCase(TRADE.toString())) {
+            return TRADE;
+
+        } else if (header.equalsIgnoreCase(ITRADE.toString())) {
+            return ITRADE;
+
+        } else if (header.equalsIgnoreCase(BITRADE.toString())) {
+            return BITRADE;
+        }
+
+        return null;
+    }
 }

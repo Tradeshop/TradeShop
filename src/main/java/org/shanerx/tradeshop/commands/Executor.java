@@ -193,8 +193,8 @@ public class Executor extends Utils implements CommandExecutor {
 				Sign s;
 
 				try {
-					b = p.getTargetBlock(/*(HashSet<Byte>)*/ null, Setting.MAX_EDIT_DISTANCE.getInt());
-
+					b = p.getTargetBlock(null, plugin.getSettings().getInt("max-edit-distance"));
+					
 					if (b == null || b.getType() == Material.AIR)
 						throw new NoSuchFieldException();
 
@@ -284,7 +284,8 @@ public class Executor extends Utils implements CommandExecutor {
 				}
 
 				Player p = (Player) sender;
-				Block b = p.getTargetBlock(/*(HashSet<Byte>)*/ null, Setting.MAX_EDIT_DISTANCE.getInt());
+				Block b = p.getTargetBlock(null, plugin.getSettings().getInt("max-edit-distance"));
+
 				if (b == null || b.getType() == Material.AIR) {
 					p.sendMessage(Message.NO_SIGHTED_SHOP.getPrefixed());
 					return true;
@@ -301,6 +302,7 @@ public class Executor extends Utils implements CommandExecutor {
 				b = findShopChest(findShopSign(b).getBlock());
 
 				switch (args[0].toLowerCase()) {
+
 					case "addowner":
 						if (!shopUtils.addOwner(b, target)) {
 							p.sendMessage(Message.UNSUCCESSFUL_SHOP_MEMBERS.getPrefixed());
