@@ -40,7 +40,6 @@ import org.shanerx.tradeshop.util.ShopManager;
 import org.shanerx.tradeshop.util.Utils;
 
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.Set;
 
 public class Executor extends Utils implements CommandExecutor {
@@ -193,7 +192,7 @@ public class Executor extends Utils implements CommandExecutor {
 				Sign s;
 
 				try {
-					b = p.getTargetBlock(/*(HashSet<Byte>)*/ null, Setting.MAX_EDIT_DISTANCE.getInt());
+					b = p.getTargetBlock((Set<Material>) null, Setting.MAX_EDIT_DISTANCE.getInt());
 
 					if (b == null || b.getType() == Material.AIR)
 						throw new NoSuchFieldException();
@@ -284,7 +283,7 @@ public class Executor extends Utils implements CommandExecutor {
 				}
 
 				Player p = (Player) sender;
-				Block b = p.getTargetBlock(/*(HashSet<Byte>)*/ null, Setting.MAX_EDIT_DISTANCE.getInt());
+				Block b = p.getTargetBlock((Set<Material>) null, Setting.MAX_EDIT_DISTANCE.getInt());
 				if (b == null || b.getType() == Material.AIR) {
 					p.sendMessage(Message.NO_SIGHTED_SHOP.getPrefixed());
 					return true;
