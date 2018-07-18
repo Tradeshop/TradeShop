@@ -35,6 +35,7 @@ import org.bukkit.inventory.ItemStack;
 import org.shanerx.tradeshop.TradeShop;
 import org.shanerx.tradeshop.enums.Message;
 import org.shanerx.tradeshop.enums.Setting;
+import org.shanerx.tradeshop.enums.ShopType;
 import org.shanerx.tradeshop.util.ShopManager;
 import org.shanerx.tradeshop.util.Utils;
 
@@ -54,20 +55,24 @@ public class ShopTradeListener extends Utils implements Listener {
 	public void onBlockInteract(PlayerInteractEvent e) {
 
 		Player buyer = e.getPlayer();
+		ShopType shopType;
+		Sign s;
+		BlockState chestState;
 
 		if (e.getAction() == Action.RIGHT_CLICK_BLOCK) {
 
-			if (!isTradeShopSign(e.getClickedBlock())) {
+			if (isShopSign(e.getClickedBlock())) {
+				s = (Sign) e.getClickedBlock().getState();
+				shopType = ShopType.getType(s);
+			} else {
 				return;
 			}
-
-			Sign s = (Sign) e.getClickedBlock().getState();
-			BlockState chestState;
 
 			try {
 				chestState = findShopChest(s.getBlock()).getState();
 			} catch (NullPointerException npe) {
-				buyer.sendMessage(Message.MISSING_SHOP.getPrefixed());
+				if (!shopType.equals(ShopType.ITRADE))
+					buyer.sendMessage(Message.MISSING_SHOP.getPrefixed());
 				return;
 			}
 
@@ -75,6 +80,10 @@ public class ShopTradeListener extends Utils implements Listener {
 				buyer.sendMessage(Message.SELF_OWNED.getPrefixed());
 				return;
 			}
+
+
+			//TODO finish merging Bi/i Trade listeners
+
 
 			Inventory chestInventory = ((InventoryHolder) chestState).getInventory();
 			Inventory playerInventory = buyer.getInventory();
