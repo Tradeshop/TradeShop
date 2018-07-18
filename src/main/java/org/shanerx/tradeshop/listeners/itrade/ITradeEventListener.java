@@ -19,7 +19,7 @@
  * caused by their contribution(s) to the project. See the full License for more information
  */
 
-package org.shanerx.tradeshop.itrade;
+package org.shanerx.tradeshop.listeners.itrade;
 
 import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;

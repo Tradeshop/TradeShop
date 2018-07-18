@@ -24,18 +24,16 @@ package org.shanerx.tradeshop;
 import org.bstats.bukkit.Metrics;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.shanerx.tradeshop.admin.AdminEventListener;
-import org.shanerx.tradeshop.bitrade.BiShopCreateEventListener;
-import org.shanerx.tradeshop.bitrade.BiTradeEventListener;
+import org.shanerx.tradeshop.listeners.ShopCreateListener;
+import org.shanerx.tradeshop.listeners.ShopTradeListener;
+import org.shanerx.tradeshop.listeners.AdminEventListener;
+import org.shanerx.tradeshop.listeners.bitrade.BiTradeEventListener;
 import org.shanerx.tradeshop.commands.Executor;
 import org.shanerx.tradeshop.enums.Message;
 import org.shanerx.tradeshop.enums.Setting;
-import org.shanerx.tradeshop.itrade.IShopCreateEventListener;
-import org.shanerx.tradeshop.itrade.ITradeEventListener;
+import org.shanerx.tradeshop.listeners.itrade.ITradeEventListener;
 import org.shanerx.tradeshop.object.CustomItemManager;
 import org.shanerx.tradeshop.object.ListManager;
-import org.shanerx.tradeshop.trade.ShopCreateEventListener;
-import org.shanerx.tradeshop.trade.TradeEventListener;
 import org.shanerx.tradeshop.util.BukkitVersion;
 import org.shanerx.tradeshop.util.Updater;
 
@@ -72,13 +70,12 @@ public class TradeShop extends JavaPlugin {
 		customItemManager = new CustomItemManager();
 
 		PluginManager pm = getServer().getPluginManager();
-		pm.registerEvents(new TradeEventListener(this), this);
-		pm.registerEvents(new ShopCreateEventListener(this), this);
-		pm.registerEvents(new BiTradeEventListener(this), this);
-		pm.registerEvents(new BiShopCreateEventListener(this), this);
 		pm.registerEvents(new AdminEventListener(this), this);
+		pm.registerEvents(new ShopCreateListener(this), this);
+		pm.registerEvents(new ShopTradeListener(this), this);
+
+		pm.registerEvents(new BiTradeEventListener(this), this);
 		pm.registerEvents(new ITradeEventListener(this), this);
-		pm.registerEvents(new IShopCreateEventListener(this), this);
 
 		getCommand("tradeshop").setExecutor(new Executor(this));
 
