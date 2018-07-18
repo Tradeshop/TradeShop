@@ -19,7 +19,7 @@
  * caused by their contribution(s) to the project. See the full License for more information
  */
 
-package org.shanerx.tradeshop.admin;
+package org.shanerx.tradeshop.listeners.admin;
 
 import org.bukkit.Bukkit;
 import org.bukkit.block.Block;
