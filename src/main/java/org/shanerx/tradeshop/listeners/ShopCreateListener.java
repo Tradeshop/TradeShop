@@ -57,7 +57,6 @@ public class ShopCreateListener extends Utils implements Listener {
 	@EventHandler
 	public void onSignChange(SignChangeEvent event) {
 		ShopType shopType;
-		String header;
 		Permissions createPermission;
 
 		Player player = event.getPlayer();
@@ -77,7 +76,6 @@ public class ShopCreateListener extends Utils implements Listener {
 			return;
 		}
 
-		header = shopType.toString();
 		Block chest = findShopChest(s.getBlock());
 
 		if (!player.hasPermission(createPermission.getPerm())) {
@@ -166,7 +164,7 @@ public class ShopCreateListener extends Utils implements Listener {
 			event.setLine(3, Setting.ITRADESHOP_OWNER.getString());
 		}
 
-		event.setLine(0, ChatColor.DARK_GREEN + header);
+		event.setLine(0, ChatColor.DARK_GREEN + shopType.toHeader());
 
 
 		if ((chestInventory == null && shopType.equals(ShopType.ITRADE)) || chestInventory.containsAtLeast(item1, amount1)) {

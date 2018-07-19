@@ -60,13 +60,13 @@ public enum ShopType {
     public static ShopType getType(Sign s) {
         String header = ChatColor.stripColor(s.getLine(0));
 
-        if (header.equalsIgnoreCase(TRADE.toString())) {
+		if (header.equalsIgnoreCase(TRADE.toHeader())) {
             return TRADE;
 
-        } else if (header.equalsIgnoreCase(ITRADE.toString())) {
+		} else if (header.equalsIgnoreCase(ITRADE.toHeader())) {
             return ITRADE;
 
-        } else if (header.equalsIgnoreCase(BITRADE.toString())) {
+		} else if (header.equalsIgnoreCase(BITRADE.toHeader())) {
             return BITRADE;
         }
 

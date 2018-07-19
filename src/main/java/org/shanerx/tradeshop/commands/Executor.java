@@ -187,7 +187,8 @@ public class Executor extends Utils implements CommandExecutor {
 
 				boolean noShop = false;
 				Player p = (Player) sender;
-				String owners = "", members = "";
+				StringBuilder owners = new StringBuilder();
+				StringBuilder members = new StringBuilder();
 				Block b;
 				Sign s;
 
@@ -228,29 +229,29 @@ if (b == null || b.getType() == Material.AIR)
 
 					if (shopUtils.getShopOwners(s) != null)
 						for (OfflinePlayer pl : shopUtils.getShopOwners(s)) {
-							if (owners.equals(""))
-								owners = pl.getName();
+							if (owners.toString().equals(""))
+								owners = new StringBuilder(pl.getName());
 							else
-								owners += ", " + pl.getName();
+								owners.append(", ").append(pl.getName());
 						}
 
 					if (shopUtils.getShopMembers(s) != null)
 						for (OfflinePlayer pl : shopUtils.getShopMembers(s)) {
-							if (members.equals(""))
-								members = pl.getName();
+							if (members.toString().equals(""))
+								members = new StringBuilder(pl.getName());
 							else
-								members += ", " + pl.getName();
+								members.append(", ").append(pl.getName());
 						}
 
-					if (owners.equals("")) {
-						owners = "None";
+					if (owners.toString().equals("")) {
+						owners = new StringBuilder("None");
 					}
-					if (members.equals("")) {
-						members = "None";
+					if (members.toString().equals("")) {
+						members = new StringBuilder("None");
 					}
 					p.sendMessage(Message.WHO_MESSAGE.getPrefixed()
-							.replace("{OWNERS}", owners)
-							.replace("{MEMBERS}", members));
+							.replace("{OWNERS}", owners.toString())
+							.replace("{MEMBERS}", members.toString()));
 					return true;
 				} catch (NoSuchFieldException e) {
 					p.sendMessage(Message.NO_SIGHTED_SHOP.getPrefixed());

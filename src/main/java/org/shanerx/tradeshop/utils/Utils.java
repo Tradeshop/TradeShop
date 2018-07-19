@@ -122,7 +122,7 @@ public class Utils {
 			return false;
 		}
 		Sign sign = (Sign) b.getState();
-		return ChatColor.stripColor(sign.getLine(0)).equalsIgnoreCase(ShopType.TRADE.toString());
+		return ChatColor.stripColor(sign.getLine(0)).equalsIgnoreCase(ShopType.TRADE.toHeader());
 	}
 
 
@@ -136,7 +136,7 @@ public class Utils {
 			return false;
 		}
 		Sign sign = (Sign) b.getState();
-		return ChatColor.stripColor(sign.getLine(0)).equalsIgnoreCase(ShopType.BITRADE.toString());
+		return ChatColor.stripColor(sign.getLine(0)).equalsIgnoreCase(ShopType.BITRADE.toHeader());
 	}
 
 	/**
@@ -149,7 +149,7 @@ public class Utils {
 			return false;
 		}
 		Sign sign = (Sign) b.getState();
-		return ChatColor.stripColor(sign.getLine(0)).equalsIgnoreCase(ShopType.ITRADE.toString());
+		return ChatColor.stripColor(sign.getLine(0)).equalsIgnoreCase(ShopType.ITRADE.toHeader());
 	}
 
 	/**

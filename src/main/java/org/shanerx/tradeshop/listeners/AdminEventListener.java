@@ -119,10 +119,7 @@ public class AdminEventListener extends Utils implements Listener {
 			return;
 		}
 
-		if (e.getPlayer().hasPermission(Permissions.ADMIN.getPerm())) {
-			//Do nothing
-
-		} else if (isShopSign(s.getBlock())) {
+		if (!e.getPlayer().hasPermission(Permissions.ADMIN.getPerm()) && isShopSign(s.getBlock())) {
 			if (!shopUtils.getShopUsers(block).contains(Bukkit.getOfflinePlayer(e.getPlayer().getUniqueId()))) {
 				e.getPlayer().sendMessage(Message.NO_TS_OPEN.getPrefixed());
 				e.setCancelled(true);

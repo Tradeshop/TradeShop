@@ -84,8 +84,7 @@ public class ListManager {
 
 	private void updateDirections() {
 		directions.clear();
-		ArrayList<BlockFace> allowed = new ArrayList<>();
-		allowed.addAll(Arrays.asList(BlockFace.DOWN, BlockFace.WEST, BlockFace.SOUTH, BlockFace.EAST, BlockFace.NORTH, BlockFace.UP));
+		ArrayList<BlockFace> allowed = new ArrayList<>(Arrays.asList(BlockFace.DOWN, BlockFace.WEST, BlockFace.SOUTH, BlockFace.EAST, BlockFace.NORTH, BlockFace.UP));
 
 		for (String str : Setting.ALLOWED_DIRECTIONS.getStringList()) {
 			if (allowed.contains(BlockFace.valueOf(str)))
@@ -95,8 +94,7 @@ public class ListManager {
 
 	private void updateMaterials() {
 		inventories.clear();
-		ArrayList<Material> allowed = new ArrayList<>();
-		allowed.addAll(Arrays.asList(Material.CHEST, Material.TRAPPED_CHEST, Material.DROPPER, Material.HOPPER, Material.DISPENSER));
+		ArrayList<Material> allowed = new ArrayList<>(Arrays.asList(Material.CHEST, Material.TRAPPED_CHEST, Material.DROPPER, Material.HOPPER, Material.DISPENSER));
 
 		for (String str : Setting.ALLOWED_SHOPS.getStringList()) {
 			if (str.equalsIgnoreCase("shulker")) {
