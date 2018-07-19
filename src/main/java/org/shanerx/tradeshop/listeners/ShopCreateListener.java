@@ -35,6 +35,7 @@ import org.bukkit.inventory.ItemStack;
 import org.shanerx.tradeshop.TradeShop;
 import org.shanerx.tradeshop.enumys.Message;
 import org.shanerx.tradeshop.enumys.Permissions;
+import org.shanerx.tradeshop.enumys.Setting;
 import org.shanerx.tradeshop.enumys.ShopType;
 import org.shanerx.tradeshop.utils.ShopManager;
 import org.shanerx.tradeshop.utils.Utils;
@@ -62,15 +63,13 @@ public class ShopCreateListener extends Utils implements Listener {
 		Player player = event.getPlayer();
 		Sign s = (Sign) event.getBlock().getState();
 
-		if ((event.getLine(0).equalsIgnoreCase(ShopType.TRADE.toString()))) {
+		if ((event.getLine(0).equalsIgnoreCase(ShopType.TRADE.toHeader()))) {
 			shopType = ShopType.TRADE;
 			createPermission = Permissions.CREATE;
-		}
-		else if ((event.getLine(0).equalsIgnoreCase(ShopType.BITRADE.toString()))) {
+		} else if ((event.getLine(0).equalsIgnoreCase(ShopType.BITRADE.toHeader()))) {
 			shopType = ShopType.BITRADE;
 			createPermission = Permissions.CREATEBI;
-		}
-		else if ((event.getLine(0).equalsIgnoreCase(ShopType.ITRADE.toString()))) {
+		} else if ((event.getLine(0).equalsIgnoreCase(ShopType.ITRADE.toHeader()))) {
 			shopType = ShopType.ITRADE;
 			createPermission = Permissions.CREATEI;
 		}
@@ -86,12 +85,12 @@ public class ShopCreateListener extends Utils implements Listener {
 			return;
 		}
 
-		if (chest == null || !plugin.getListManager().isInventory(chest.getType())) {
+		if ((chest == null || !plugin.getListManager().isInventory(chest.getType())) && shopType != ShopType.ITRADE) {
 			failedSign(event, shopType, Message.NO_CHEST);
 			return;
 		}
 
-		if (shopUtils.getShopUsers(s) != null) {
+		if (!shopType.equals(ShopType.ITRADE) && shopUtils.getShopUsers(s) != null) {
 			if (!shopUtils.getShopOwners(s).contains(Bukkit.getOfflinePlayer(player.getUniqueId()))) {
 				failedSign(event, shopType, Message.NOT_OWNER);
 				return;
@@ -154,19 +153,23 @@ public class ShopCreateListener extends Utils implements Listener {
 			failedSign(event, shopType, Message.ILLEGAL_ITEM);
 			return;
 		}
+		Inventory chestInventory = null;
 
-		Inventory chestInventory = ((InventoryHolder) chest.getState()).getInventory();
+		if (!shopType.equals(ShopType.ITRADE)) {
+			chestInventory = ((InventoryHolder) chest.getState()).getInventory();
+			event.setLine(3, player.getName());
+			shopUtils.changeInvName(chest.getState(),
+					shopUtils.readInvName(chest.getState()),
+					Collections.singletonList(plugin.getServer().getOfflinePlayer(player.getUniqueId())),
+					Collections.emptyList());
+		} else {
+			event.setLine(3, Setting.ITRADESHOP_OWNER.getString());
+		}
+
 		event.setLine(0, ChatColor.DARK_GREEN + header);
-		event.setLine(3, player.getName());
 
-		shopUtils.changeInvName(
-				chest.getState(),
-				shopUtils.readInvName(chest.getState()),
-				Collections.singletonList(plugin.getServer().getOfflinePlayer(player.getUniqueId())),
-				Collections.emptyList()
-		);
 
-		if (chestInventory.containsAtLeast(item1, amount1)) {
+		if ((chestInventory == null && shopType.equals(ShopType.ITRADE)) || chestInventory.containsAtLeast(item1, amount1)) {
 			event.getPlayer().sendMessage(Message.SUCCESSFUL_SETUP.getPrefixed());
 		} else {
 			event.getPlayer().sendMessage(Message.EMPTY_TS_ON_SETUP.getPrefixed());

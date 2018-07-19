@@ -29,51 +29,33 @@ import org.shanerx.tradeshop.TradeShop;
 @SuppressWarnings("unused")
 public enum ShopType {
 
-	TRADE("trade"),
+	TRADE(Setting.TRADESHOP_HEADER.getString(), Setting.TRADESHOP_EXPLODE.getBoolean()),
 
-    ITRADE("[" + getITrade() + "]"),
+	ITRADE(Setting.ITRADESHOP_HEADER.getString(), Setting.ITRADESHOP_EXPLODE.getBoolean()),
 
-    BITRADE("[" + getBiTrade() + "]");
+	BITRADE(Setting.BITRADESHOP_HEADER.getString(), Setting.BITRADESHOP_EXPLODE.getBoolean());
 
 	private String key;
+	private boolean explode;
 	private static TradeShop plugin = (TradeShop) Bukkit.getPluginManager().getPlugin("TradeShop");
 
-	ShopType(String key) {
+	ShopType(String key, boolean explode) {
 		this.key = key;
-	}
-
-	private static String getITrade() {
-		return Setting.ITRADESHOP_HEADER.getString();
-	}
-
-	private static String getBiTrade() {
-		return Setting.BITRADESHOP_HEADER.getString();
-	}
-
-	public String getName() {
-		return Setting.TRADESHOP_HEADER.getString();
+		this.explode = explode;
 	}
 
 	@Override
 	public String toString() {
-		return "[" + getName() + "]";
+		return key;
 	}
 
-    public boolean isProtectedFromExplosions() {
-        switch (this) {
-            case TRADE:
-				return !Setting.TRADESHOP_EXPLODE.getBoolean();
+	public String toHeader() {
+		return "[" + key + "]";
+	}
 
-            case ITRADE:
-				return !Setting.ITRADESHOP_EXPLODE.getBoolean();
-
-            case BITRADE:
-				return !Setting.BITRADESHOP_EXPLODE.getBoolean();
-
-            default:
-                return false;
-        }
-    }
+	public boolean protectFromExplosion() {
+		return !explode;
+	}
 
     public static ShopType getType(Sign s) {
         String header = ChatColor.stripColor(s.getLine(0));
