@@ -1,9 +1,5 @@
 name: TradeShop
-<<<<<<< HEAD
 version: 2.0.0-DEV
-=======
-version: 1.8.1
->>>>>>> origin
 main: org.shanerx.tradeshop.TradeShop
 
 author: Lori00
