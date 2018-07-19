@@ -19,30 +19,26 @@
  * caused by their contribution(s) to the project. See the full License for more information
  */
 
-package org.shanerx.tradeshop.util;
+package org.shanerx.tradeshop.utils;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
-import org.bukkit.Nameable;
-import org.bukkit.OfflinePlayer;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
-import org.bukkit.block.BlockState;
 import org.bukkit.block.Sign;
 import org.bukkit.event.block.SignChangeEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.material.MaterialData;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.shanerx.tradeshop.TradeShop;
-import org.shanerx.tradeshop.enums.Message;
-import org.shanerx.tradeshop.enums.Potions;
-import org.shanerx.tradeshop.enums.Setting;
-import org.shanerx.tradeshop.enums.ShopType;
+import org.shanerx.tradeshop.enumys.Message;
+import org.shanerx.tradeshop.enumys.Potions;
+import org.shanerx.tradeshop.enumys.Setting;
+import org.shanerx.tradeshop.enumys.ShopType;
 
 import java.util.ArrayList;
 import java.util.Arrays;

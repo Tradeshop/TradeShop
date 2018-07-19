@@ -19,7 +19,7 @@
  * caused by their contribution(s) to the project. See the full License for more information
  */
 
-package org.shanerx.tradeshop.object;
+package org.shanerx.tradeshop.objects;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;

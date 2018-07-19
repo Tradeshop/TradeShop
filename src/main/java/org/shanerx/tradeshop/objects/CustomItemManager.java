@@ -19,7 +19,7 @@
  * caused by their contribution(s) to the project. See the full License for more information
  */
 
-package org.shanerx.tradeshop.object;
+package org.shanerx.tradeshop.objects;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -118,9 +118,7 @@ public class CustomItemManager {
 	}
 
 	public void removeItem(String key) {
-		if (customItems.containsKey(key)) {
-			customItems.remove(key);
-		}
+		customItems.remove(key);
 
 		if (config.contains(key)) {
 			config.set(key, null);

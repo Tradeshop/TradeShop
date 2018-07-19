@@ -19,32 +19,39 @@
  * caused by their contribution(s) to the project. See the full License for more information
  */
 
-package org.shanerx.tradeshop.enums;
+package org.shanerx.tradeshop.enumys;
 
-import org.bukkit.ChatColor;
+import org.bukkit.Bukkit;
+import org.bukkit.permissions.Permission;
+import org.shanerx.tradeshop.TradeShop;
 
-public enum ShopStatus {
-	OPEN("&a"),
+public enum Permissions {
 
-	CLOSED("&c");
+	HELP("help"),
+
+	CREATE("create"),
+
+	CREATEI("create.infinite"),
+
+	CREATEBI("create.bi"),
+
+	ADMIN("admin"),
+
+	WHO("who");
 
 	private String key;
-	private static final char COLOUR_CHAR = '&';
+	private final static TradeShop plugin = (TradeShop) Bukkit.getPluginManager().getPlugin("TradeShop");
 
-	@Override
-	public String toString() {
-		return colour(Setting.findSetting("shop-" + name().toLowerCase() + "-status").getString());
-	}
-
-	public String getLine() {
-		return colour(key + "<" + Setting.findSetting("shop-" + name().toLowerCase() + "-status").getString() + key + ">");
-	}
-
-	ShopStatus(String key) {
+	Permissions(String key) {
 		this.key = key;
 	}
 
-	public static String colour(String x) {
-		return ChatColor.translateAlternateColorCodes(COLOUR_CHAR, x);
+	@Override
+	public String toString() {
+		return "tradeshop." + key;
+	}
+
+	public Permission getPerm() {
+		return new Permission(toString());
 	}
 }

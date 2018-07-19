@@ -19,16 +19,16 @@
  * caused by their contribution(s) to the project. See the full License for more information
  */
 
-package org.shanerx.tradeshop.util;
+package org.shanerx.tradeshop.utils;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import org.bukkit.Chunk;
-import org.shanerx.tradeshop.object.Shop;
-import org.shanerx.tradeshop.object.ShopChunk;
-import org.shanerx.tradeshop.object.ShopLocation;
+import org.shanerx.tradeshop.objects.Shop;
+import org.shanerx.tradeshop.objects.ShopChunk;
+import org.shanerx.tradeshop.objects.ShopLocation;
 
 import java.io.File;
 import java.io.FileNotFoundException;

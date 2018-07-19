@@ -19,50 +19,64 @@
  * caused by their contribution(s) to the project. See the full License for more information
  */
 
-package org.shanerx.tradeshop.object;
+package org.shanerx.tradeshop.objects;
 
-import com.google.gson.Gson;
-import com.google.gson.annotations.SerializedName;
 import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
-import org.shanerx.tradeshop.enums.ShopRole;
+import org.bukkit.Chunk;
+import org.bukkit.World;
 
 import java.io.Serializable;
-import java.util.UUID;
 
-@SuppressWarnings("unused")
-public class ShopUser implements Serializable {
+public class ShopChunk implements Serializable {
 
-	private transient Player player;
-	@SerializedName("player")
-	private String playerUUID;
-	private ShopRole role;
+	private World world;
+	private int x, z;
+	private String div = "_";
+	private Chunk chunk;
 
-	public ShopUser(Player player, ShopRole role) {
-		this.player = player;
-		playerUUID = player.getUniqueId().toString();
-		this.role = role;
+	public ShopChunk(World w, int x, int z) {
+		this.world = w;
+		this.x = x;
+		this.z = z;
+		chunk = world.getChunkAt(x, z);
 	}
 
-	public Player getPlayer() {
-		return player;
-	}
-
-	public UUID getUUID() {
-		return player.getUniqueId();
-	}
-
-	public ShopRole getRole() {
-		return role;
+	public ShopChunk(Chunk c) {
+		this.world = c.getWorld();
+		this.x = c.getX();
+		this.z = c.getZ();
+		chunk = c;
 	}
 
 	public String serialize() {
-		return new Gson().toJson(this);
+		return "c" + div + world.getName() + div + x + div + z;
 	}
 
-	public static ShopUser deserialize(String serialized) {
-		ShopUser shopUser = new Gson().fromJson(serialized, ShopUser.class);
-		shopUser.player = Bukkit.getPlayer(UUID.fromString(shopUser.playerUUID));
-		return shopUser;
+	public Chunk deserialize(String loc) {
+		if (loc.startsWith("c")) {
+			String locA[] = loc.split(div);
+			World world = Bukkit.getWorld(locA[1]);
+			int x = Integer.parseInt(locA[2]), z = Integer.parseInt(locA[3]);
+
+			return world.getChunkAt(x, z);
+		}
+
+		return null;
+	}
+
+	public World getWorld() {
+		return world;
+	}
+
+	public int getX() {
+		return x;
+	}
+
+	public int getZ() {
+		return z;
+	}
+
+	public Chunk getChunk() {
+		return chunk;
 	}
 }

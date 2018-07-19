@@ -32,12 +32,12 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.shanerx.tradeshop.TradeShop;
-import org.shanerx.tradeshop.enums.Message;
-import org.shanerx.tradeshop.enums.Permissions;
-import org.shanerx.tradeshop.enums.Potions;
-import org.shanerx.tradeshop.enums.Setting;
-import org.shanerx.tradeshop.util.ShopManager;
-import org.shanerx.tradeshop.util.Utils;
+import org.shanerx.tradeshop.enumys.Message;
+import org.shanerx.tradeshop.enumys.Permissions;
+import org.shanerx.tradeshop.enumys.Potions;
+import org.shanerx.tradeshop.enumys.Setting;
+import org.shanerx.tradeshop.utils.ShopManager;
+import org.shanerx.tradeshop.utils.Utils;
 
 import java.util.Arrays;
 import java.util.Set;

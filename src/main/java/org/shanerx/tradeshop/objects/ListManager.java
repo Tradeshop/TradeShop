@@ -19,11 +19,11 @@
  * caused by their contribution(s) to the project. See the full License for more information
  */
 
-package org.shanerx.tradeshop.object;
+package org.shanerx.tradeshop.objects;
 
 import org.bukkit.Material;
 import org.bukkit.block.BlockFace;
-import org.shanerx.tradeshop.enums.Setting;
+import org.shanerx.tradeshop.enumys.Setting;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -95,7 +95,8 @@ public class ListManager {
 
 	private void updateMaterials() {
 		inventories.clear();
-		ArrayList<Material> allowed = (ArrayList<Material>) Arrays.asList(Material.CHEST, Material.TRAPPED_CHEST, Material.DROPPER, Material.HOPPER, Material.DISPENSER);
+		ArrayList<Material> allowed = new ArrayList<>();
+		allowed.addAll(Arrays.asList(Material.CHEST, Material.TRAPPED_CHEST, Material.DROPPER, Material.HOPPER, Material.DISPENSER));
 
 		for (String str : Setting.ALLOWED_SHOPS.getStringList()) {
 			if (str.equalsIgnoreCase("shulker")) {

@@ -25,21 +25,21 @@ import org.bstats.bukkit.Metrics;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.shanerx.tradeshop.commands.Executor;
-import org.shanerx.tradeshop.enums.Message;
-import org.shanerx.tradeshop.enums.Setting;
+import org.shanerx.tradeshop.enumys.Message;
+import org.shanerx.tradeshop.enumys.Setting;
 import org.shanerx.tradeshop.listeners.AdminEventListener;
 import org.shanerx.tradeshop.listeners.ShopCreateListener;
 import org.shanerx.tradeshop.listeners.ShopTradeListener;
-import org.shanerx.tradeshop.object.CustomItemManager;
-import org.shanerx.tradeshop.object.ListManager;
-import org.shanerx.tradeshop.util.Updater;
+import org.shanerx.tradeshop.objects.CustomItemManager;
+import org.shanerx.tradeshop.objects.ListManager;
+import org.shanerx.tradeshop.utils.Updater;
 
 public class TradeShop extends JavaPlugin {
 
 	private boolean mc18 = this.getServer().getVersion().contains("1.8");
 
-	private ListManager lists = new ListManager();
-	private CustomItemManager cim = new CustomItemManager();
+	private ListManager lists;
+	private CustomItemManager cim;
 
 	private Metrics metrics;
 
@@ -63,9 +63,11 @@ public class TradeShop extends JavaPlugin {
 			getServer().getPluginManager().disablePlugin(this);
 			return;
 		}
-
 		Message.reload();
 		Setting.reload();
+
+		lists = new ListManager();
+		cim = new CustomItemManager();
 
 		PluginManager pm = getServer().getPluginManager();
 		pm.registerEvents(new AdminEventListener(this), this);

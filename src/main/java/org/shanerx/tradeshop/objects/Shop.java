@@ -19,15 +19,15 @@
  * caused by their contribution(s) to the project. See the full License for more information
  */
 
-package org.shanerx.tradeshop.object;
+package org.shanerx.tradeshop.objects;
 
 import com.google.gson.Gson;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
-import org.shanerx.tradeshop.enums.ShopRole;
-import org.shanerx.tradeshop.util.Tuple;
+import org.shanerx.tradeshop.enumys.ShopRole;
+import org.shanerx.tradeshop.utils.Tuple;
 
 import java.io.Serializable;
 import java.util.ArrayList;

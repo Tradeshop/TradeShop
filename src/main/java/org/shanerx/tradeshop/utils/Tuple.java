@@ -19,40 +19,47 @@
  * caused by their contribution(s) to the project. See the full License for more information
  */
 
-package org.shanerx.tradeshop.enums;
+package org.shanerx.tradeshop.utils;
 
-@SuppressWarnings("unused")
-public enum ShopRole {
+import com.google.gson.Gson;
+import com.google.gson.annotations.SerializedName;
 
-	OWNER(true, true, true, false),
-	MANAGER(false, true, true, false),
-	MEMBER(false, false, true, false),
-	SHOPPER(false, false, false, true);
+import java.io.Serializable;
 
-	private String roleName;
-	private transient boolean destroy, edit, open, shop;
+public class Tuple<R, L> implements Serializable {
 
-	ShopRole(boolean destroy, boolean edit, boolean open, boolean shop) {
-		this.destroy = destroy;
-		this.edit = edit;
-		this.open = open;
-		this.shop = shop;
-		roleName = name();
+	@SerializedName("right")
+	private R r;
+	@SerializedName("left")
+	private L l;
+
+	public Tuple() {
 	}
 
-	public boolean canDestroy() {
-		return destroy;
+	public Tuple(R r, L l) {
+		this.r = r;
+		this.l = l;
 	}
 
-	public boolean canEdit() {
-		return edit;
+	public Tuple(Tuple<? extends R, ? extends L> t) {
+		this.r = t.r;
+		this.l = t.l;
 	}
 
-	public boolean canOpen() {
-		return open;
+	public R getRight() {
+		return r;
 	}
 
-	public boolean canShop() {
-		return shop;
+	public L getLeft() {
+		return l;
+	}
+
+	public String serialize() {
+		return new Gson().toJson(this);
+	}
+
+	@Override
+	public String toString() {
+		return serialize();
 	}
 }

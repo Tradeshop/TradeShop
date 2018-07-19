@@ -33,11 +33,11 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.shanerx.tradeshop.TradeShop;
-import org.shanerx.tradeshop.enums.Message;
-import org.shanerx.tradeshop.enums.Permissions;
-import org.shanerx.tradeshop.enums.ShopType;
-import org.shanerx.tradeshop.util.ShopManager;
-import org.shanerx.tradeshop.util.Utils;
+import org.shanerx.tradeshop.enumys.Message;
+import org.shanerx.tradeshop.enumys.Permissions;
+import org.shanerx.tradeshop.enumys.ShopType;
+import org.shanerx.tradeshop.utils.ShopManager;
+import org.shanerx.tradeshop.utils.Utils;
 
 import java.util.Collections;
 
