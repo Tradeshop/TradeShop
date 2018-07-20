@@ -21,26 +21,23 @@
 
 package org.shanerx.tradeshop.listeners;
 
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.SignChangeEvent;
-import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.InventoryHolder;
-import org.bukkit.inventory.ItemStack;
 import org.shanerx.tradeshop.TradeShop;
 import org.shanerx.tradeshop.enumys.Message;
-import org.shanerx.tradeshop.enumys.Permissions;
 import org.shanerx.tradeshop.enumys.Setting;
+import org.shanerx.tradeshop.enumys.ShopRole;
 import org.shanerx.tradeshop.enumys.ShopType;
+import org.shanerx.tradeshop.objects.Shop;
+import org.shanerx.tradeshop.objects.ShopUser;
+import org.shanerx.tradeshop.utils.JsonConfiguration;
 import org.shanerx.tradeshop.utils.ShopManager;
+import org.shanerx.tradeshop.utils.Tuple;
 import org.shanerx.tradeshop.utils.Utils;
-
-import java.util.Collections;
 
 @SuppressWarnings("unused")
 public class ShopCreateListener extends Utils implements Listener {
@@ -56,121 +53,43 @@ public class ShopCreateListener extends Utils implements Listener {
 	@SuppressWarnings("deprecation")
 	@EventHandler
 	public void onSignChange(SignChangeEvent event) {
-		ShopType shopType;
-		Permissions createPermission;
+		//TODO checking for pre owned chest, add empty chest at setup message
 
-		Player player = event.getPlayer();
-		Sign s = (Sign) event.getBlock().getState();
+		Sign shopSign = (Sign) event.getBlock().getState();
+		shopSign.setLine(0, event.getLine(0));
 
-		if ((event.getLine(0).equalsIgnoreCase(ShopType.TRADE.toHeader()))) {
-			shopType = ShopType.TRADE;
-			createPermission = Permissions.CREATE;
-		} else if ((event.getLine(0).equalsIgnoreCase(ShopType.BITRADE.toHeader()))) {
-			shopType = ShopType.BITRADE;
-			createPermission = Permissions.CREATEBI;
-		} else if ((event.getLine(0).equalsIgnoreCase(ShopType.ITRADE.toHeader()))) {
-			shopType = ShopType.ITRADE;
-			createPermission = Permissions.CREATEI;
-		}
-		else {
+		if (!ShopType.isShop(shopSign)) {
 			return;
 		}
+		ShopType shopType = ShopType.getType(shopSign);
+		Player p = event.getPlayer();
+		ShopUser owner = new ShopUser(p, ShopRole.OWNER);
 
-		Block chest = findShopChest(s.getBlock());
-
-		if (!player.hasPermission(createPermission.getPerm())) {
+		if (!shopType.checkPerm(p)) {
 			failedSign(event, shopType, Message.NO_TS_CREATE_PERMISSION);
-			return;
 		}
 
-		if ((chest == null || !plugin.getListManager().isInventory(chest.getType())) && shopType != ShopType.ITRADE) {
+		if (!checkShopChest(shopSign.getBlock())) {
 			failedSign(event, shopType, Message.NO_CHEST);
 			return;
 		}
+		Block shopChest = findShopChest(shopSign.getBlock());
 
-		if (!shopType.equals(ShopType.ITRADE) && shopUtils.getShopUsers(s) != null) {
-			if (!shopUtils.getShopOwners(s).contains(Bukkit.getOfflinePlayer(player.getUniqueId()))) {
-				failedSign(event, shopType, Message.NOT_OWNER);
-				return;
-			}
-		}
+		Shop shop = new Shop(new Tuple<>(shopSign.getLocation(), shopChest.getLocation()), shopType, owner);
 
-
-		String line1 = event.getLine(1);
-		String line2 = event.getLine(2);
-
-		if (!line1.contains(" ") || !line2.contains(" ")) {
-			failedSign(event, shopType, Message.MISSING_ITEM);
-			return;
-		}
-
-		String[] info1 = line1.split(" ");
-		String[] info2 = line2.split(" ");
-
-		if (info1.length != 2 || info2.length != 2) {
-			failedSign(event, shopType, Message.MISSING_INFO);
-			return;
-		}
-
-
-		int durability1 = 0;
-		int durability2 = 0;
-		if (line1.split(":").length > 1) {
-			durability1 = Integer.parseInt(info1[1].split(":")[1]);
-			info1[1] = info1[1].split(":")[0];
-		}
-		if (line2.split(":").length > 1) {
-			durability2 = Integer.parseInt(info2[1].split(":")[1]);
-			info2[1] = info2[1].split(":")[0];
-		}
-
-		int amount1, amount2;
-		ItemStack item1 = null, item2 = null;
-
-		try {
-			amount1 = Integer.parseInt(info1[0]);
-			amount2 = Integer.parseInt(info2[0]);
-
-		} catch (Exception e) {
-			failedSign(event, shopType, Message.AMOUNT_NOT_NUM);
-			return;
-		}
-
-		try {
-			item1 = isValidType(info1[1], durability1, amount1);
-			item2 = isValidType(info2[1], durability2, amount2);
-		} catch (ArrayIndexOutOfBoundsException e) {
-			// Do nothing:
-			// if exception is thrown, item1 and/or item2 will be null and the following clause will be executed
-		}
-
-		if (item1 == null || item2 == null) {
-			failedSign(event, shopType, Message.MISSING_ITEM);
-			return;
-		} else if (isBlacklistItem(item1) || isBlacklistItem(item2)) {
-			failedSign(event, shopType, Message.ILLEGAL_ITEM);
-			return;
-		}
-		Inventory chestInventory = null;
-
-		if (!shopType.equals(ShopType.ITRADE)) {
-			chestInventory = ((InventoryHolder) chest.getState()).getInventory();
-			event.setLine(3, player.getName());
-			shopUtils.changeInvName(chest.getState(),
-					shopUtils.readInvName(chest.getState()),
-					Collections.singletonList(plugin.getServer().getOfflinePlayer(player.getUniqueId())),
-					Collections.emptyList());
+		shopSign.setLine(0, colorize("&e" + shopType.toHeader()));
+		shopSign.setLine(1, "");
+		shopSign.setLine(2, "");
+		if (shopType.equals(ShopType.ITRADE)) {
+			shopSign.setLine(3, Setting.ITRADESHOP_OWNER.getString());
 		} else {
-			event.setLine(3, Setting.ITRADESHOP_OWNER.getString());
+			shopSign.setLine(3, p.getName());
 		}
 
-		event.setLine(0, ChatColor.DARK_GREEN + shopType.toHeader());
+		JsonConfiguration json = new JsonConfiguration(shopSign.getChunk());
+		json.saveShop(shop);
 
-
-		if ((chestInventory == null && shopType.equals(ShopType.ITRADE)) || chestInventory.containsAtLeast(item1, amount1)) {
-			event.getPlayer().sendMessage(Message.SUCCESSFUL_SETUP.getPrefixed());
-		} else {
-			event.getPlayer().sendMessage(Message.EMPTY_TS_ON_SETUP.getPrefixed());
-		}
+		p.sendMessage(Message.SUCCESSFUL_SETUP.getPrefixed());
+		return;
 	}
 }

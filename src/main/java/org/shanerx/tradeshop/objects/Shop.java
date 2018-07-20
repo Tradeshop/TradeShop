@@ -24,14 +24,15 @@ package org.shanerx.tradeshop.objects;
 import com.google.gson.Gson;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.shanerx.tradeshop.enumys.ShopRole;
+import org.shanerx.tradeshop.enumys.ShopType;
 import org.shanerx.tradeshop.utils.Tuple;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -40,27 +41,37 @@ public class Shop implements Serializable {
 
     private ShopUser owner;
     private List<ShopUser> managers, members;
-    private Material shopType;
-    private Location shopLoc, chestLoc;
-	private ItemStack sellItem, buyItem;
+	private ShopType shopType;
+	private ShopLocation shopLoc, chestLoc;
+	private transient ItemStack sellItem, buyItem;
+	private Map<String, Object> sellItemMap, buyItemMap;
 
-    public Shop(Tuple<Location, Location> locations, Material shopType, ShopUser owner, Tuple<List<ShopUser>, List<ShopUser>> players, Tuple<ItemStack, ItemStack> items) {
-        shopLoc = locations.getLeft();
-        this.owner = owner;
-		chestLoc = locations.getRight();
+	public Shop(Tuple<Location, Location> locations, ShopType shopType, ShopUser owner, Tuple<List<ShopUser>, List<ShopUser>> players, Tuple<ItemStack, ItemStack> items) {
+		shopLoc = new ShopLocation(locations.getLeft());
+		this.owner = owner;
+		chestLoc = new ShopLocation(locations.getRight());
 		this.shopType = shopType;
 		managers = players.getLeft();
 		members = players.getRight();
 		sellItem = items.getLeft();
 		buyItem = items.getRight();
+
+		sellItemMap = sellItem.serialize();
+		buyItemMap = buyItem.serialize();
 	}
 
-	@Deprecated
-	public Shop() {
+	public Shop(Tuple<Location, Location> locations, ShopType shopType, ShopUser owner) {
+		shopLoc = new ShopLocation(locations.getLeft());
+		this.owner = owner;
+		chestLoc = new ShopLocation(locations.getRight());
+		this.shopType = shopType;
 	}
 
-	public Location getInventoryLocation() {
-		return chestLoc;
+	public static Shop deserialize(String serialized) {
+		Shop shop = new Gson().fromJson(serialized, Shop.class);
+		shop.itemFromMap();
+
+		return shop;
 	}
 
     public void setOwner(ShopUser owner) {
@@ -129,19 +140,19 @@ public class Shop implements Serializable {
 		return members;
 	}
 
+	public Location getInventoryLocation() {
+		return chestLoc.getLocation();
+	}
+
 	public void setChestLocation(Location newLoc) {
-		chestLoc = newLoc;
+		chestLoc = new ShopLocation(newLoc);
 	}
 
 	public Location getShopLocation() {
-		return shopLoc;
+		return shopLoc.getLocation();
 	}
 
-	public void setShopType(Material newMat) {
-		shopType = newMat;
-	}
-
-	public Material getShopType() {
+	public ShopType getShopType() {
 		return shopType;
 	}
 
@@ -161,6 +172,10 @@ public class Shop implements Serializable {
 		return sellItem;
 	}
 
+	public void setShopType(ShopType newType) {
+		shopType = newType;
+	}
+
 	private String serializeLocation(Location loc) {
 		return new Gson().toJson(loc);
 	}
@@ -173,15 +188,21 @@ public class Shop implements Serializable {
 		return new Gson().toJson(this);
 	}
 
-	public static Shop deserialize(String serialized) {
-		return new Gson().fromJson(serialized, Shop.class);
+	public void itemFromMap() {
+		if (sellItemMap != null && sellItem == null) {
+			sellItem = ItemStack.deserialize(sellItemMap);
+		}
+
+		if (buyItemMap != null && buyItem == null) {
+			buyItem = ItemStack.deserialize(buyItemMap);
+		}
 	}
 
 	public ShopLocation getShopLocationAsSL() {
-		return new ShopLocation(shopLoc);
+		return shopLoc;
 	}
 
 	public ShopLocation getInventoryLocationAsSL() {
-		return new ShopLocation(chestLoc);
+		return chestLoc;
 	}
 }

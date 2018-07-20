@@ -519,4 +519,14 @@ public class Utils {
 
 		return null;
 	}
+
+	/**
+	 * Checks to see if the shop chest is findable
+	 *
+	 * @param sign the TradeShop sign
+	 * @return the shop's inventory holder block.
+	 */
+	public boolean checkShopChest(Block sign) {
+		return findShopChest(sign) != null;
+	}
 }

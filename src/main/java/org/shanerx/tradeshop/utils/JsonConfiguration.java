@@ -23,6 +23,7 @@ package org.shanerx.tradeshop.utils;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import org.bukkit.Chunk;
@@ -35,6 +36,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.Serializable;
+import java.util.logging.Level;
 
 @SuppressWarnings("unused")
 public class JsonConfiguration extends Utils implements Serializable {
@@ -45,6 +47,7 @@ public class JsonConfiguration extends Utils implements Serializable {
 	private ShopChunk chunk;
 	private String div = "_";
 	private JsonObject jsonObj;
+	private Gson gson = new GsonBuilder().setPrettyPrinting().serializeNulls().create();
 
 	public JsonConfiguration(Chunk c) {
 		this.chunk = new ShopChunk(c);
@@ -61,32 +64,52 @@ public class JsonConfiguration extends Utils implements Serializable {
 			}
 		}
 
+		loadContents();
+	}
+
+	private void loadContents() {
 		try {
 			jsonObj = new JsonParser().parse(new FileReader(file)).getAsJsonObject();
 		} catch (FileNotFoundException e) {
 			throw new RuntimeException(e);
+		} catch (IllegalStateException e) {
+			//Do Nothing, usually thrown when file is empty just after creation
 		}
 	}
 
-	private void setShop(Shop shop) {
-		Gson gson = new GsonBuilder().setPrettyPrinting().serializeNulls().create();
-		String shopJson = gson.toJson(shop), toSaveStr = "";
-
-		jsonObj.add(shop.getShopLocationAsSL().serialize(), gson.toJsonTree(shop));
-
-		toSaveStr = gson.toJson(jsonObj);
-
+	private void saveContents(String str) {
 		try {
 			FileWriter fileWriter = new FileWriter(this.file);
-			fileWriter.write(toSaveStr);
+			fileWriter.write(str);
 			fileWriter.flush();
 			fileWriter.close();
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
+
+		loadContents();
 	}
 
-	private Shop getShop(ShopLocation loc) {
+	public void saveShop(Shop shop) {
+		String sl = shop.getShopLocationAsSL().serialize();
+		plugin.getLogger().log(Level.WARNING, "1"); //TODO remove
+		JsonElement obj = gson.toJsonTree(shop); //TODO Fix Stack overflow from here --
+		plugin.getLogger().log(Level.WARNING, "2"); //TODO remove
+		jsonObj.add(sl, obj);
+		plugin.getLogger().log(Level.WARNING, "3"); //TODO remove
+
+		saveContents(gson.toJson(jsonObj));
+	}
+
+	public void removeShop(ShopLocation loc) {
+		if (jsonObj.has(loc.serialize())) {
+			jsonObj.remove(loc.serialize());
+		}
+
+		saveContents(gson.toJson(jsonObj));
+	}
+
+	public Shop loadShop(ShopLocation loc) {
 		Gson gson = new Gson();
 
 		if (jsonObj.has(loc.serialize())) {
@@ -94,6 +117,5 @@ public class JsonConfiguration extends Utils implements Serializable {
 		} else {
 			return null;
 		}
-
 	}
 }

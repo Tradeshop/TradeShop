@@ -21,27 +21,34 @@
 
 package org.shanerx.tradeshop.enumys;
 
+import com.google.gson.Gson;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.block.Sign;
+import org.bukkit.entity.Player;
+import org.bukkit.permissions.Permission;
 import org.shanerx.tradeshop.TradeShop;
 
+import java.io.Serializable;
+
 @SuppressWarnings("unused")
-public enum ShopType {
+public enum ShopType implements Serializable {
 
-	TRADE(Setting.TRADESHOP_HEADER.getString(), Setting.TRADESHOP_EXPLODE.getBoolean()),
+	TRADE(Setting.TRADESHOP_HEADER.getString(), Setting.TRADESHOP_EXPLODE.getBoolean(), Permissions.CREATE.getPerm()),
 
-	ITRADE(Setting.ITRADESHOP_HEADER.getString(), Setting.ITRADESHOP_EXPLODE.getBoolean()),
+	ITRADE(Setting.ITRADESHOP_HEADER.getString(), Setting.ITRADESHOP_EXPLODE.getBoolean(), Permissions.CREATEI.getPerm()),
 
-	BITRADE(Setting.BITRADESHOP_HEADER.getString(), Setting.BITRADESHOP_EXPLODE.getBoolean());
+	BITRADE(Setting.BITRADESHOP_HEADER.getString(), Setting.BITRADESHOP_EXPLODE.getBoolean(), Permissions.CREATEBI.getPerm());
 
 	private String key;
-	private boolean explode;
-	private static TradeShop plugin = (TradeShop) Bukkit.getPluginManager().getPlugin("TradeShop");
+	private transient static TradeShop plugin = (TradeShop) Bukkit.getPluginManager().getPlugin("TradeShop");
+	private transient boolean explode;
+	private transient Permission perm;
 
-	ShopType(String key, boolean explode) {
+	ShopType(String key, boolean explode, Permission perm) {
 		this.key = key;
 		this.explode = explode;
+		this.perm = perm;
 	}
 
 	@Override
@@ -55,6 +62,10 @@ public enum ShopType {
 
 	public boolean protectFromExplosion() {
 		return !explode;
+	}
+
+	public static boolean isShop(Sign s) {
+		return getType(s) != null;
 	}
 
     public static ShopType getType(Sign s) {
@@ -72,4 +83,17 @@ public enum ShopType {
 
         return null;
     }
+
+	public static ShopRole deserialize(String serialized) {
+		ShopRole shopRole = new Gson().fromJson(serialized, ShopRole.class);
+		return shopRole;
+	}
+
+	public boolean checkPerm(Player pl) {
+		return pl.hasPermission(perm);
+	}
+
+	public String serialize() {
+		return new Gson().toJson(this);
+	}
 }

@@ -74,14 +74,6 @@ public class TradeShop extends JavaPlugin {
 		pm.registerEvents(new ShopCreateListener(this), this);
 		pm.registerEvents(new ShopTradeListener(this), this);
 
-
-		// TODO FINISH CLEANUP of LISTENERS
-		/*
-		pm.registerEvents(new BiTradeEventListener(this), this);
-		pm.registerEvents(new ShopProtectionHandler(this), this);
-		pm.registerEvents(new ITradeEventListener(this), this);
-		pm.registerEvents(new IShopCreateEventListener(this), this);*/
-
 		getCommand("tradeshop").setExecutor(new Executor(this));
 
 		boolean checkUpdates = Setting.CHECK_UPDATES.getBoolean();
