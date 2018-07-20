@@ -21,6 +21,7 @@
 
 package org.shanerx.tradeshop.listeners;
 
+import org.bukkit.ChatColor;
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
@@ -77,13 +78,13 @@ public class ShopCreateListener extends Utils implements Listener {
 
 		Shop shop = new Shop(new Tuple<>(shopSign.getLocation(), shopChest.getLocation()), shopType, owner);
 
-		shopSign.setLine(0, colorize("&e" + shopType.toHeader()));
-		shopSign.setLine(1, "");
-		shopSign.setLine(2, "");
+		event.setLine(0, ChatColor.DARK_GRAY + shopType.toHeader());
+		event.setLine(1, "");
+		event.setLine(2, "");
 		if (shopType.equals(ShopType.ITRADE)) {
-			shopSign.setLine(3, Setting.ITRADESHOP_OWNER.getString());
+			event.setLine(3, Setting.ITRADESHOP_OWNER.getString());
 		} else {
-			shopSign.setLine(3, p.getName());
+			event.setLine(3, p.getName());
 		}
 
 		JsonConfiguration json = new JsonConfiguration(shopSign.getChunk());

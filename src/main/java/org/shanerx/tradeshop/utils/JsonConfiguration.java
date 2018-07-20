@@ -36,7 +36,6 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.Serializable;
-import java.util.logging.Level;
 
 @SuppressWarnings("unused")
 public class JsonConfiguration extends Utils implements Serializable {
@@ -73,7 +72,7 @@ public class JsonConfiguration extends Utils implements Serializable {
 		} catch (FileNotFoundException e) {
 			throw new RuntimeException(e);
 		} catch (IllegalStateException e) {
-			//Do Nothing, usually thrown when file is empty just after creation
+			jsonObj = new JsonObject();
 		}
 	}
 
@@ -92,11 +91,8 @@ public class JsonConfiguration extends Utils implements Serializable {
 
 	public void saveShop(Shop shop) {
 		String sl = shop.getShopLocationAsSL().serialize();
-		plugin.getLogger().log(Level.WARNING, "1"); //TODO remove
-		JsonElement obj = gson.toJsonTree(shop); //TODO Fix Stack overflow from here --
-		plugin.getLogger().log(Level.WARNING, "2"); //TODO remove
+		JsonElement obj = gson.toJsonTree(shop);
 		jsonObj.add(sl, obj);
-		plugin.getLogger().log(Level.WARNING, "3"); //TODO remove
 
 		saveContents(gson.toJson(jsonObj));
 	}
@@ -111,11 +107,15 @@ public class JsonConfiguration extends Utils implements Serializable {
 
 	public Shop loadShop(ShopLocation loc) {
 		Gson gson = new Gson();
+		Shop shop = null;
 
 		if (jsonObj.has(loc.serialize())) {
-			return gson.fromJson(jsonObj.getAsJsonObject(loc.serialize()), Shop.class);
+			shop = gson.fromJson(jsonObj.getAsJsonObject(loc.serialize()), Shop.class);
 		} else {
 			return null;
 		}
+
+		shop.fixAfterLoad();
+		return shop;
 	}
 }

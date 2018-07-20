@@ -31,6 +31,7 @@ import org.shanerx.tradeshop.utils.Tuple;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -65,6 +66,10 @@ public class Shop implements Serializable {
 		this.owner = owner;
 		chestLoc = new ShopLocation(locations.getRight());
 		this.shopType = shopType;
+		managers = Collections.emptyList();
+		members = Collections.emptyList();
+		sellItemMap = Collections.emptyMap();
+		buyItemMap = Collections.emptyMap();
 	}
 
 	public static Shop deserialize(String serialized) {
@@ -204,5 +209,11 @@ public class Shop implements Serializable {
 
 	public ShopLocation getInventoryLocationAsSL() {
 		return chestLoc;
+	}
+
+	public void fixAfterLoad() {
+		itemFromMap();
+		shopLoc.stringToWorld();
+		chestLoc.stringToWorld();
 	}
 }

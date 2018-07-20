@@ -29,12 +29,14 @@ import java.io.Serializable;
 
 public class ShopLocation implements Serializable {
 
-	private World world;
+	private transient World world;
+	private String worldName;
 	private double x, y, z;
-	private String div = "_";
+	private transient String div = "_";
 
 	public ShopLocation(World w, double x, double y, double z) {
 		this.world = w;
+		this.worldName = w.getName();
 		this.x = x;
 		this.y = y;
 		this.z = z;
@@ -42,6 +44,7 @@ public class ShopLocation implements Serializable {
 
 	public ShopLocation(Location loc) {
 		this.world = loc.getWorld();
+		this.worldName = loc.getWorld().getName();
 		this.x = loc.getX();
 		this.y = loc.getY();
 		this.z = loc.getZ();
@@ -68,7 +71,13 @@ public class ShopLocation implements Serializable {
 	}
 
 	public String getWorldName() {
-		return world.getName();
+		return worldName;
+	}
+
+	public void stringToWorld() {
+		if (worldName != null && world == null) {
+			world = Bukkit.getWorld(worldName);
+		}
 	}
 
 	public double getX() {
