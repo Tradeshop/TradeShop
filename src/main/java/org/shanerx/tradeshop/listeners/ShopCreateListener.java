@@ -28,6 +28,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.SignChangeEvent;
+import org.bukkit.inventory.InventoryHolder;
 import org.shanerx.tradeshop.TradeShop;
 import org.shanerx.tradeshop.enumys.Message;
 import org.shanerx.tradeshop.enumys.Setting;
@@ -35,7 +36,6 @@ import org.shanerx.tradeshop.enumys.ShopRole;
 import org.shanerx.tradeshop.enumys.ShopType;
 import org.shanerx.tradeshop.objects.Shop;
 import org.shanerx.tradeshop.objects.ShopUser;
-import org.shanerx.tradeshop.utils.JsonConfiguration;
 import org.shanerx.tradeshop.utils.ShopManager;
 import org.shanerx.tradeshop.utils.Tuple;
 import org.shanerx.tradeshop.utils.Utils;
@@ -78,7 +78,7 @@ public class ShopCreateListener extends Utils implements Listener {
 
 		Shop shop = new Shop(new Tuple<>(shopSign.getLocation(), shopChest.getLocation()), shopType, owner);
 
-		event.setLine(0, ChatColor.DARK_GRAY + shopType.toHeader());
+		event.setLine(0, ChatColor.GRAY + shopType.toHeader());
 		event.setLine(1, "");
 		event.setLine(2, "");
 		if (shopType.equals(ShopType.ITRADE)) {
@@ -87,8 +87,10 @@ public class ShopCreateListener extends Utils implements Listener {
 			event.setLine(3, p.getName());
 		}
 
-		JsonConfiguration json = new JsonConfiguration(shopSign.getChunk());
-		json.saveShop(shop);
+		shop.saveShop();
+
+		setName((InventoryHolder) shopChest.getState(), "$ ^Sign:" + shop.getShopLocationAsSL().serialize() +
+				"$ ^Owner:" + owner.getUUID());
 
 		p.sendMessage(Message.SUCCESSFUL_SETUP.getPrefixed());
 		return;

@@ -107,10 +107,10 @@ public class JsonConfiguration extends Utils implements Serializable {
 
 	public Shop loadShop(ShopLocation loc) {
 		Gson gson = new Gson();
-		Shop shop = null;
+		Shop shop;
 
 		if (jsonObj.has(loc.serialize())) {
-			shop = gson.fromJson(jsonObj.getAsJsonObject(loc.serialize()), Shop.class);
+			shop = gson.fromJson(jsonObj.get(loc.serialize()), Shop.class);
 		} else {
 			return null;
 		}

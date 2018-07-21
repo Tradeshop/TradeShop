@@ -24,12 +24,14 @@ package org.shanerx.tradeshop.utils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
+import org.bukkit.Nameable;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.Sign;
 import org.bukkit.event.block.SignChangeEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.material.MaterialData;
@@ -528,5 +530,20 @@ public class Utils {
 	 */
 	public boolean checkShopChest(Block sign) {
 		return findShopChest(sign) != null;
+	}
+
+	/**
+	 * Sets the name (title) of an inventory.
+	 * <br>
+	 * Represents a wrapper method for {@code Nameable#setCustomTitle(title)}
+	 * and was written with the DRY concept in mind.
+	 *
+	 * @param ih    the InventoryHolder object
+	 * @param title the new title.
+	 */
+	public void setName(InventoryHolder ih, String title) {
+		if (ih instanceof Nameable) {
+			((Nameable) ih).setCustomName(title);
+		}
 	}
 }

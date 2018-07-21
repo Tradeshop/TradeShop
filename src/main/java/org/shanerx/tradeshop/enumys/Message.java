@@ -40,7 +40,7 @@ public enum Message {
 	EMPTY_TS_ON_SETUP,
 	FULL_AMOUNT,
 	HELD_EMPTY,
-	HELD_ITEM,
+	ITEM_ADDED,
 	ILLEGAL_ITEM,
 	INSUFFICIENT_ITEMS,
 	INVALID_ARGUMENTS,
@@ -108,15 +108,7 @@ public enum Message {
 		addMessage("shop-full", "&cThis TradeShop is full, please contact the owner to get it emptied!");
 		addMessage("player-full", "&cYour inventory is full, please make room before trading items!");
 		addMessage("confirm-trade", "&eTrade &6 {AMOUNT1} {ITEM1} &e for &6 {AMOUNT2} {ITEM2} &e?");
-		addMessage("held-item", "\n&6You are currently holding: " +
-				"\n&2Material: &e{MATERIAL}" +
-				"\n&2ID Number: &e{ID}" +
-				"\n&2Durability: &e{DURABILITY}" +
-				"\n&2Amount: &e{AMOUNT}" +
-				"\n&6You do not need to use the durability if it is 0" +
-				"\n&6Put this on your TradeShop sign: " +
-				"\n&e{AMOUNT} {MATERIAL}:{DURABILITY} " +
-				"\n&e{AMOUNT} {ID}:{DURABILITY}");
+		addMessage("item-added", "&aItem successfully added to sign.");
 		addMessage("held-empty", "&eYou are currently holding nothing.");
 		addMessage("player-only-command", "&eThis command is only available to players.");
 		addMessage("missing-shop", "&cThere is not currently a shop here, please tell the owner or come back later!");

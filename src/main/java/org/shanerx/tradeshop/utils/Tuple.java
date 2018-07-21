@@ -26,7 +26,7 @@ import com.google.gson.annotations.SerializedName;
 
 import java.io.Serializable;
 
-public class Tuple<R, L> implements Serializable {
+public class Tuple<L, R> implements Serializable {
 
 	@SerializedName("right")
 	private R r;
@@ -36,12 +36,12 @@ public class Tuple<R, L> implements Serializable {
 	public Tuple() {
 	}
 
-	public Tuple(R r, L l) {
+	public Tuple(L l, R r) {
 		this.r = r;
 		this.l = l;
 	}
 
-	public Tuple(Tuple<? extends R, ? extends L> t) {
+	public Tuple(Tuple<? extends L, ? extends R> t) {
 		this.r = t.r;
 		this.l = t.l;
 	}

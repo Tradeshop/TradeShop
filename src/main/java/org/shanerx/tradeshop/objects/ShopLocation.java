@@ -32,7 +32,6 @@ public class ShopLocation implements Serializable {
 	private transient World world;
 	private String worldName;
 	private double x, y, z;
-	private transient String div = "_";
 
 	public ShopLocation(World w, double x, double y, double z) {
 		this.world = w;
@@ -50,20 +49,20 @@ public class ShopLocation implements Serializable {
 		this.z = loc.getZ();
 	}
 
-	public String serialize() {
-		return "l" + div + world.getName() + div + x + div + y + div + z;
-	}
-
-	public Location deserialize(String loc) {
+	public static ShopLocation deserialize(String loc) {
 		if (loc.startsWith("l")) {
-			String locA[] = loc.split(div);
+			String locA[] = loc.split("_"); //Keep same as div
 			World world = Bukkit.getWorld(locA[1]);
 			double x = Integer.parseInt(locA[2]), y = Integer.parseInt(locA[3]), z = Integer.parseInt(locA[4]);
 
-			return new Location(world, x, y, z);
+			return new ShopLocation(world, x, y, z);
 		}
 
 		return null;
+	}
+
+	public String serialize() {
+		return "l" + "_" + world.getName() + "_" + x + "_" + y + "_" + z;
 	}
 
 	public World getWorld() {

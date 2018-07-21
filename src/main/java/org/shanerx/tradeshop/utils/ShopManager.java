@@ -385,19 +385,4 @@ public class ShopManager extends Utils {
 	public void removeOwner(Sign s, OfflinePlayer p) {
 		removeOwner(findShopChest(s.getBlock()), p);
 	}
-
-	/**
-	 * Sets the name (title) of an inventory.
-	 * <br>
-	 * Represents a wrapper method for {@code Nameable#setCustomTitle(title)}
-	 * and was written with the DRY concept in mind.
-	 *
-	 * @param ih    the InventoryHolder object
-	 * @param title the new title.
-	 */
-	public void setName(InventoryHolder ih, String title) {
-		if (ih instanceof Nameable) {
-			((Nameable) ih).setCustomName(title);
-		}
-	}
 }

@@ -24,6 +24,8 @@ package org.shanerx.tradeshop.enumys;
 import com.google.gson.Gson;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Material;
+import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
 import org.bukkit.permissions.Permission;
@@ -66,6 +68,14 @@ public enum ShopType implements Serializable {
 
 	public static boolean isShop(Sign s) {
 		return getType(s) != null;
+	}
+
+	public static boolean isShop(Block b) {
+		if (b != null && (b.getType() == Material.SIGN_POST || b.getType() == Material.WALL_SIGN)) {
+			return getType((Sign) b.getState()) != null;
+		}
+
+		return false;
 	}
 
     public static ShopType getType(Sign s) {

@@ -27,6 +27,7 @@ import org.bukkit.Location;
 import org.bukkit.inventory.ItemStack;
 import org.shanerx.tradeshop.enumys.ShopRole;
 import org.shanerx.tradeshop.enumys.ShopType;
+import org.shanerx.tradeshop.utils.JsonConfiguration;
 import org.shanerx.tradeshop.utils.Tuple;
 
 import java.io.Serializable;
@@ -163,6 +164,7 @@ public class Shop implements Serializable {
 
 	public void setBuyItem(ItemStack newItem) {
 		buyItem = newItem;
+		buyItemMap = buyItem.serialize();
 	}
 
 	public ItemStack getBuyItem() {
@@ -171,6 +173,7 @@ public class Shop implements Serializable {
 
 	public void setSellItem(ItemStack newItem) {
 		sellItem = newItem;
+		sellItemMap = sellItem.serialize();
 	}
 
 	public ItemStack getSellItem() {
@@ -194,11 +197,11 @@ public class Shop implements Serializable {
 	}
 
 	public void itemFromMap() {
-		if (sellItemMap != null && sellItem == null) {
+		if (sellItemMap.size() > 0 && sellItem == null) {
 			sellItem = ItemStack.deserialize(sellItemMap);
 		}
 
-		if (buyItemMap != null && buyItem == null) {
+		if (buyItemMap.size() > 0 && buyItem == null) {
 			buyItem = ItemStack.deserialize(buyItemMap);
 		}
 	}
@@ -215,5 +218,15 @@ public class Shop implements Serializable {
 		itemFromMap();
 		shopLoc.stringToWorld();
 		chestLoc.stringToWorld();
+	}
+
+	public void updateSign() {
+
+	}
+
+	public void saveShop() {
+		JsonConfiguration json = new JsonConfiguration(shopLoc.getLocation().getChunk());
+
+		json.saveShop(this);
 	}
 }
