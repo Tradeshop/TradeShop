@@ -35,8 +35,12 @@ import org.bukkit.inventory.ItemStack;
 import org.shanerx.tradeshop.TradeShop;
 import org.shanerx.tradeshop.enums.Message;
 import org.shanerx.tradeshop.enums.Setting;
+import org.shanerx.tradeshop.enums.ShopRole;
 import org.shanerx.tradeshop.enums.ShopType;
+import org.shanerx.tradeshop.objects.Shop;
+import org.shanerx.tradeshop.objects.ShopUser;
 import org.shanerx.tradeshop.utils.ShopManager;
+import org.shanerx.tradeshop.utils.Tuple;
 import org.shanerx.tradeshop.utils.Utils;
 
 @SuppressWarnings("unused")
@@ -55,6 +59,7 @@ public class ShopTradeListener extends Utils implements Listener {
 	public void onBlockInteract(PlayerInteractEvent e) {
 
 		Player buyer = e.getPlayer();
+		Shop shop;
 		ShopType shopType;
 		Sign s;
 		BlockState chestState = null;
@@ -84,6 +89,8 @@ public class ShopTradeListener extends Utils implements Listener {
 
 			Inventory chestInventory;
 
+            shop = new Shop(new Tuple<>(e.getClickedBlock().getLocation(), findShopChest(e.getClickedBlock()).getLocation()), shopType, new ShopUser(Bukkit.getPlayerExact(s.getLine(3)), ShopRole.OWNER));
+
 			try {
 				chestInventory = ((InventoryHolder) chestState).getInventory();
 			} catch (NullPointerException npe) {
@@ -92,14 +99,15 @@ public class ShopTradeListener extends Utils implements Listener {
 
 			Inventory playerInventory = buyer.getInventory();
 
-			String line1 = s.getLine(1);
+			/*String line1 = s.getLine(1);
 			String line2 = s.getLine(2);
 			String[] info1 = line1.split(" ");
 			String[] info2 = line2.split(" ");
+            */
 
+			int amount1 = shop.getSellItem().getAmount();
+			int amount2 = shop.getBuyItem().getAmount();
 
-			int amount1 = Integer.parseInt(info1[0]);
-			int amount2 = Integer.parseInt(info2[0]);
 			e.setCancelled(true);
 
 			if (buyer.isSneaking()) {
@@ -112,8 +120,10 @@ public class ShopTradeListener extends Utils implements Listener {
 				}
 			}
 
-			int durability1 = 0;
-			int durability2 = 0;
+			int durability1 = shop.getBuyItem().getDurability();
+			int durability2 = shop.getSellItem().getDurability();
+
+			/*
 			if (line1.split("8").length > 1) {
 				durability1 = Integer.parseInt(info1[1].split(":")[1]);
 				info1[1] = info1[1].split(":")[0];
@@ -122,11 +132,12 @@ public class ShopTradeListener extends Utils implements Listener {
 				durability2 = Integer.parseInt(info2[1].split(":")[1]);
 				info2[1] = info2[1].split(":")[0];
 			}
+			*/
 
 			String item_name1, item_name2;
-			ItemStack item1 = null, item2 = null;
+			ItemStack item1 = shop.getBuyItem(), item2 = shop.getSellItem();
 
-			try {
+			/*try {
 				item1 = isValidType(info1[1], durability1, amount1);
 				item2 = isValidType(info2[1], durability2, amount2);
 			} catch (ArrayIndexOutOfBoundsException er) {
@@ -135,22 +146,19 @@ public class ShopTradeListener extends Utils implements Listener {
 			if (item1 == null || item2 == null) {
 				failedTrade(e, Message.BUY_FAILED_SIGN);
 				return;
-			} else if (isBlacklistItem(item1) || isBlacklistItem(item2)) {
+			}
+			*/
+
+			if (isBlacklistItem(item1) || isBlacklistItem(item2)) {
 				failedTrade(e, Message.ILLEGAL_ITEM);
 				return;
 			}
 
-			if (item1.hasItemMeta() && item1.getItemMeta().hasDisplayName()) {
-				item_name1 = item1.getItemMeta().getDisplayName();
-			} else {
-				item_name1 = info1[1];
-			}
+			if (item1.hasItemMeta()) item_name1 = item1.getItemMeta().getDisplayName();
+            else item_name1 = item1.getType().toString();
 
-			if (item2.hasItemMeta() && item2.getItemMeta().hasDisplayName()) {
-				item_name2 = item2.getItemMeta().getDisplayName();
-			} else {
-				item_name2 = info2[1];
-			}
+            if (item2.hasItemMeta()) item_name2 = item2.getItemMeta().getDisplayName();
+            else item_name2 = item2.getType().toString();
 
 			if (!containsAtLeast(playerInventory, item2)) {
 				buyer.sendMessage(Message.INSUFFICIENT_ITEMS.getPrefixed()
@@ -269,20 +277,22 @@ public class ShopTradeListener extends Utils implements Listener {
 				}
 			}
 
-			buyer.sendMessage(Message.ON_TRADE.getPrefixed()
-					.replace("{AMOUNT1}", String.valueOf(amount1))
-					.replace("{AMOUNT2}", String.valueOf(amount2))
-					.replace("{ITEM1}", item_name1.toLowerCase())
-					.replace("{ITEM2}", item_name2.toLowerCase())
-					.replace("{SELLER}", s.getLine(3)));
+            buyer.sendMessage(Message.ON_TRADE.getPrefixed()
+                    .replace("{AMOUNT1}", String.valueOf(amount1))
+                    .replace("{AMOUNT2}", String.valueOf(amount2))
+                    .replace("{ITEM1}", item_name1.toLowerCase())
+                    .replace("{ITEM2}", item_name2.toLowerCase())
+                    .replace("{SELLER}", shop.getOwner().getPlayer().getName()));
 
 		} else if (e.getAction() == Action.LEFT_CLICK_BLOCK) {
 
-			if (!isBiTradeShopSign(e.getClickedBlock())) {
+            s = (Sign) e.getClickedBlock().getState();
+            shopType = ShopType.getType(s);
+            shop = new Shop(new Tuple<>(e.getClickedBlock().getLocation(), findShopChest(e.getClickedBlock()).getLocation()), shopType, new ShopUser(Bukkit.getPlayerExact(s.getLine(3)), ShopRole.OWNER));
+
+            if (!isBiTradeShopSign(e.getClickedBlock())) {
 				return;
 			}
-
-			s = (Sign) e.getClickedBlock().getState();
 
 			try {
 				chestState = findShopChest(s.getBlock()).getState();
@@ -301,19 +311,21 @@ public class ShopTradeListener extends Utils implements Listener {
 				e.setCancelled(true);
 				return;
 			}
+
 			e.setCancelled(true);
 
 			Inventory chestInventory = ((InventoryHolder) chestState).getInventory();
 			Inventory playerInventory = buyer.getInventory();
 
+			/*
 			String line2 = s.getLine(2);
 			String line1 = s.getLine(1);
 			String[] info2 = line2.split(" ");
 			String[] info1 = line1.split(" ");
+            */
 
-
-			int amount2 = Integer.parseInt(info2[0]);
-			int amount1 = Integer.parseInt(info1[0]);
+            int amount2 = shop.getBuyItem().getAmount();
+            int amount1 = shop.getSellItem().getAmount();
 
 			if (buyer.isSneaking()) {
 				if (!buyer.isOnGround() && Setting.ALLOW_QUAD_TRADE.getBoolean()) {
@@ -325,8 +337,10 @@ public class ShopTradeListener extends Utils implements Listener {
 				}
 			}
 
-			int durability2 = 0;
-			int durability1 = 0;
+			int durability2 = shop.getBuyItem().getDurability();
+			int durability1 = shop.getSellItem().getDurability();
+
+			/*
 			if (line2.split(":").length > 1) {
 				durability2 = Integer.parseInt(info2[1].split(":")[1]);
 				info2[1] = info2[1].split(":")[0];
@@ -335,35 +349,36 @@ public class ShopTradeListener extends Utils implements Listener {
 				durability1 = Integer.parseInt(info1[1].split(":")[1]);
 				info1[1] = info1[1].split(":")[0];
 			}
+			*/
 
 			String item_name1, item_name2;
-			ItemStack item1 = null, item2 = null;
+			ItemStack item1 = shop.getBuyItem(), item2 = shop.getSellItem();
 
-			try {
+			/*try {
 				item1 = isValidType(info1[1], durability1, amount1);
 				item2 = isValidType(info2[1], durability2, amount2);
 			} catch (ArrayIndexOutOfBoundsException er) {
 				// Do nothing
-			}
+			}*/
 
-			if (item1 == null || item2 == null) {
+			/*if (item1 == null || item2 == null) {
 				failedTrade(e, Message.BUY_FAILED_SIGN);
 				return;
 			} else if (isBlacklistItem(item1) || isBlacklistItem(item2)) {
 				failedTrade(e, Message.ILLEGAL_ITEM);
 				return;
-			}
+			}*/
 
 			if (item1.hasItemMeta() && item1.getItemMeta().hasDisplayName()) {
 				item_name1 = item1.getItemMeta().getDisplayName();
 			} else {
-				item_name1 = info1[1];
+                item_name1 = item1.getType().toString();
 			}
 
 			if (item2.hasItemMeta() && item2.getItemMeta().hasDisplayName()) {
 				item_name2 = item2.getItemMeta().getDisplayName();
 			} else {
-				item_name2 = info2[1];
+                item_name2 = item2.getType().toString();
 			}
 
 			if (!containsAtLeast(playerInventory, item1)) {
@@ -452,12 +467,12 @@ public class ShopTradeListener extends Utils implements Listener {
 				count -= removed;
 			}
 
-			buyer.sendMessage(Message.ON_TRADE.getPrefixed()
-					.replace("{AMOUNT2}", String.valueOf(amount1))
-					.replace("{AMOUNT1}", String.valueOf(amount2))
-					.replace("{ITEM2}", item_name1.toLowerCase())
-					.replace("{ITEM1}", item_name2.toLowerCase())
-					.replace("{SELLER}", s.getLine(3)));
+            buyer.sendMessage(Message.ON_TRADE.getPrefixed()
+                    .replace("{AMOUNT2}", String.valueOf(amount1))
+                    .replace("{AMOUNT1}", String.valueOf(amount2))
+                    .replace("{ITEM2}", item_name1.toLowerCase())
+                    .replace("{ITEM1}", item_name2.toLowerCase())
+                    .replace("{SELLER}", shop.getOwner().getPlayer().getName()));
 		}
 	}
 }

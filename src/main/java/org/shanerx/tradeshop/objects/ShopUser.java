@@ -24,6 +24,7 @@ package org.shanerx.tradeshop.objects;
 import com.google.gson.Gson;
 import com.google.gson.annotations.SerializedName;
 import org.bukkit.Bukkit;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.shanerx.tradeshop.enums.ShopRole;
 
@@ -33,18 +34,18 @@ import java.util.UUID;
 @SuppressWarnings("unused")
 public class ShopUser implements Serializable {
 
-	private transient Player player;
+	private transient OfflinePlayer player;
 	@SerializedName("player")
 	private String playerUUID;
 	private ShopRole role;
 
-	public ShopUser(Player player, ShopRole role) {
+	public ShopUser(OfflinePlayer player, ShopRole role) {
 		this.player = player;
 		playerUUID = player.getUniqueId().toString();
 		this.role = role;
 	}
 
-	public Player getPlayer() {
+	public OfflinePlayer getPlayer() {
 		return player;
 	}
 
@@ -62,7 +63,7 @@ public class ShopUser implements Serializable {
 
 	public static ShopUser deserialize(String serialized) {
 		ShopUser shopUser = new Gson().fromJson(serialized, ShopUser.class);
-		shopUser.player = Bukkit.getPlayer(UUID.fromString(shopUser.playerUUID));
+		shopUser.player = Bukkit.getOfflinePlayer(UUID.fromString(shopUser.playerUUID));
 		return shopUser;
 	}
 }
