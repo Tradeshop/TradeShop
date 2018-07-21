@@ -25,8 +25,8 @@ import com.google.gson.Gson;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.inventory.ItemStack;
-import org.shanerx.tradeshop.enumys.ShopRole;
-import org.shanerx.tradeshop.enumys.ShopType;
+import org.shanerx.tradeshop.enums.ShopRole;
+import org.shanerx.tradeshop.enums.ShopType;
 import org.shanerx.tradeshop.utils.JsonConfiguration;
 import org.shanerx.tradeshop.utils.Tuple;
 

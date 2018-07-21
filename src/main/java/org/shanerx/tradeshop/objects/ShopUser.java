@@ -25,7 +25,7 @@ import com.google.gson.Gson;
 import com.google.gson.annotations.SerializedName;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
-import org.shanerx.tradeshop.enumys.ShopRole;
+import org.shanerx.tradeshop.enums.ShopRole;
 
 import java.io.Serializable;
 import java.util.UUID;

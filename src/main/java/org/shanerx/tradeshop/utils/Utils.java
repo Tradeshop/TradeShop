@@ -37,10 +37,10 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.material.MaterialData;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.shanerx.tradeshop.TradeShop;
-import org.shanerx.tradeshop.enumys.Message;
-import org.shanerx.tradeshop.enumys.Potions;
-import org.shanerx.tradeshop.enumys.Setting;
-import org.shanerx.tradeshop.enumys.ShopType;
+import org.shanerx.tradeshop.enums.Message;
+import org.shanerx.tradeshop.enums.Potions;
+import org.shanerx.tradeshop.enums.Setting;
+import org.shanerx.tradeshop.enums.ShopType;
 
 import java.util.ArrayList;
 import java.util.Arrays;

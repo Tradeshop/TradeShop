@@ -33,9 +33,9 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.shanerx.tradeshop.TradeShop;
-import org.shanerx.tradeshop.enumys.Message;
-import org.shanerx.tradeshop.enumys.Setting;
-import org.shanerx.tradeshop.enumys.ShopType;
+import org.shanerx.tradeshop.enums.Message;
+import org.shanerx.tradeshop.enums.Setting;
+import org.shanerx.tradeshop.enums.ShopType;
 import org.shanerx.tradeshop.utils.ShopManager;
 import org.shanerx.tradeshop.utils.Utils;
 

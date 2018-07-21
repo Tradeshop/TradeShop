@@ -19,7 +19,7 @@
  * caused by their contribution(s) to the project. See the full License for more information
  */
 
-package org.shanerx.tradeshop.enumys;
+package org.shanerx.tradeshop.enums;
 
 import com.google.gson.Gson;
 import org.bukkit.Bukkit;

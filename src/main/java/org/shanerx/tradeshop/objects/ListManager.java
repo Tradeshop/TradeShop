@@ -23,7 +23,7 @@ package org.shanerx.tradeshop.objects;
 
 import org.bukkit.Material;
 import org.bukkit.block.BlockFace;
-import org.shanerx.tradeshop.enumys.Setting;
+import org.shanerx.tradeshop.enums.Setting;
 
 import java.util.ArrayList;
 import java.util.Arrays;
