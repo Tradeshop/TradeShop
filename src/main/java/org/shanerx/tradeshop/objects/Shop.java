@@ -23,10 +23,13 @@ package org.shanerx.tradeshop.objects;
 
 import com.google.gson.Gson;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.block.BlockState;
+import org.bukkit.block.Sign;
 import org.bukkit.inventory.ItemStack;
 import org.shanerx.tradeshop.enumys.ShopRole;
+import org.shanerx.tradeshop.enumys.ShopStatus;
 import org.shanerx.tradeshop.enumys.ShopType;
 import org.shanerx.tradeshop.utils.JsonConfiguration;
 import org.shanerx.tradeshop.utils.Tuple;
@@ -48,6 +51,7 @@ public class Shop implements Serializable {
 	private ShopLocation shopLoc, chestLoc;
 	private transient ItemStack sellItem, buyItem;
 	private Map<String, Object> sellItemMap, buyItemMap;
+	private ShopStatus status = ShopStatus.CLOSED;
 
 	public Shop(Tuple<Location, Location> locations, ShopType shopType, ShopUser owner, Tuple<List<ShopUser>, List<ShopUser>> players, Tuple<ItemStack, ItemStack> items) {
 		shopLoc = new ShopLocation(locations.getLeft());
@@ -228,8 +232,17 @@ public class Shop implements Serializable {
 		chestLoc.stringToWorld();
 	}
 
-	public void updateSign() {
+	public static Shop loadShop(Sign s) {
+		JsonConfiguration json = new JsonConfiguration(s.getLocation().getChunk());
 
+		return json.loadShop(new ShopLocation(s.getLocation()));
+	}
+
+	public static Shop loadShop(String str) {
+		ShopLocation sl = ShopLocation.deserialize(str);
+		JsonConfiguration json = new JsonConfiguration(sl.getLocation().getChunk());
+
+		return json.loadShop(sl);
 	}
 
 	public void saveShop() {
@@ -238,11 +251,46 @@ public class Shop implements Serializable {
 		json.saveShop(this);
 	}
 
+	public Sign getShopSign() {
+		Location loc = getShopLocation();
+		if (!ShopType.isShop(loc.getBlock()))
+			return null;
+
+		return (Sign) loc.getBlock().getState();
+	}
+
+	public void updateSign() {
+		if (sellItem != null && buyItem != null) {
+			Sign s = getShopSign();
+			s.setLine(0, ChatColor.DARK_GREEN + shopType.toHeader());
+			s.setLine(3, status.getLine());
+
+		}
+
+		//TODO make update sign text/colour
+	}
+
 	public BlockState getChest() {
 		try {
 			return getInventoryLocation().getBlock().getState();
 		} catch (NullPointerException npe) {
 			return null;
 		}
+	}
+
+	public ShopStatus getStatus() {
+		return status;
+	}
+
+	public void setOpen() {
+		status = ShopStatus.OPEN;
+	}
+
+	public void setClosed() {
+		status = ShopStatus.CLOSED;
+	}
+
+	public boolean isOpen() {
+		return status == ShopStatus.OPEN;
 	}
 }

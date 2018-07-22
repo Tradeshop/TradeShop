@@ -330,28 +330,18 @@ public class Utils {
 	 * @param mat String to check
 	 * @return returns item or null if invalid
 	 */
-	public ItemStack isValidType(String mat) {
+	public boolean isValidType(String mat) {
 		ArrayList<String> illegalItems = plugin.getListManager().getBlacklist();
 		Set<String> customItemSet = plugin.getCustomItemManager().getItems();
 		String matLower = mat.toLowerCase();
-		ItemStack blacklist = getBlackListItem();
 
 		if (isInt(mat) && Material.getMaterial(Integer.parseInt(mat)) != null) {
-			Material temp = Material.getMaterial(Integer.parseInt(mat));
-			if (illegalItems.contains(Material.matchMaterial(mat))) {
-				return blacklist;
-			}
-
-			return new ItemStack(temp, 1);
+			return !illegalItems.contains(Material.matchMaterial(mat));
 		}
 
 		if (Material.matchMaterial(mat) != null) {
 			Material temp = Material.matchMaterial(mat);
-			if (illegalItems.contains(temp.name().toLowerCase())) {
-				return blacklist;
-			}
-
-			return new ItemStack(temp, 1);
+			return !illegalItems.contains(temp.name().toLowerCase());
 		}
 
 		if (customItemSet.size() > 0) {
@@ -359,59 +349,30 @@ public class Utils {
 				if (str.equalsIgnoreCase(mat)) {
 					ItemStack temp = plugin.getCustomItemManager().getItem(mat);
 					if (!Setting.ALLOW_CUSTOM_ILLEGAL_ITEMS.getBoolean()) {
-						if (illegalItems.contains(temp.getType().name().toLowerCase())) {
-							return blacklist;
-						}
+						return !illegalItems.contains(temp.getType().name().toLowerCase());
 					}
 
-					return temp;
+					return true;
 				}
 			}
 		}
 
 		if (Potions.isType(mat)) {
-			ItemStack temp = Potions.valueOf(mat.toUpperCase()).getItem();
 			if (illegalItems.contains(matLower)) {
-				return null;
+				return false;
 			} else if (matLower.contains("p_")) {
-				if (illegalItems.contains("potion")) {
-					return blacklist;
-				}
+				return !illegalItems.contains("potion");
 			} else if (matLower.contains("s_")) {
-				if (illegalItems.contains("splash_potion")) {
-					return blacklist;
-				}
+				return !illegalItems.contains("splash_potion");
 			} else if (matLower.contains("l_")) {
-				if (illegalItems.contains("lingering_potion")) {
-					return blacklist;
-				}
+				return !illegalItems.contains("lingering_potion");
 			}
 
-			return temp;
+			return true;
 		}
 
-		return null;
+		return false;
 
-	}
-
-	/**
-	 * Checks whether or not it is a valid material or custom item.
-	 *
-	 * @param mat        String to check
-	 * @param durability durability to set
-	 * @param amount     amount to set
-	 * @return returns item or null if invalid
-	 */
-	public ItemStack isValidType(String mat, int durability, int amount) {
-		ItemStack itm = isValidType(mat);
-
-		if (itm == null) {
-			return null;
-		}
-
-		itm.setDurability((short) durability);
-		itm.setAmount(amount);
-		return itm;
 	}
 
 	/**

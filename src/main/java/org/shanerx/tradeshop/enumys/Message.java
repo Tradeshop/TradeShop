@@ -115,7 +115,7 @@ public enum Message {
 		addMessage("no-sighted-shop", "&cNo shop in range!");
 		addMessage("updated-shop-members", "&aShop owners and members have been updated!");
 		addMessage("unsuccessful-shop-members", "&aThat player is either already on the shop, or you have reached the maximum number of users!");
-		addMessage("who-message", "&6Shop users are:\n&2Owners: &e{OWNERS}\n&2Members: &e{MEMBERS}");
+		addMessage("who-message", "&6Shop users are:\n&2Owner: &e{OWNERS}\n&Managers: &e{MANAGERS}\n&2Members: &e{MEMBERS}");
 		addMessage("self-owned", "&cYou cannot buy from a shop in which you are a user.");
 		addMessage("not-owner", "&cYou cannot create a sign for a shop that you do not own.");
 		addMessage("illegal-item", "&cYou cannot use one or more of those items in shops.");

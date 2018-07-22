@@ -65,4 +65,8 @@ public class ShopUser implements Serializable {
 		shopUser.player = Bukkit.getOfflinePlayer(UUID.fromString(shopUser.playerUUID));
 		return shopUser;
 	}
+
+	public String getName() {
+		return getPlayer().getName();
+	}
 }

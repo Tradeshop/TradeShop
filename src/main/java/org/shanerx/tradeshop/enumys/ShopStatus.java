@@ -28,23 +28,23 @@ public enum ShopStatus {
 
 	CLOSED("&c");
 
-	private String key;
+	private String colour;
 	private static final char COLOUR_CHAR = '&';
+
+	ShopStatus(String colour) {
+		this.colour = colour;
+	}
+
+	public static String colorize(String x) {
+		return ChatColor.translateAlternateColorCodes(COLOUR_CHAR, x);
+	}
 
 	@Override
 	public String toString() {
-		return colour(Setting.findSetting("shop-" + name().toLowerCase() + "-status").getString());
+		return colorize(Setting.findSetting("shop-" + name().toLowerCase() + "-status").getString());
 	}
 
 	public String getLine() {
-		return colour(key + "<" + Setting.findSetting("shop-" + name().toLowerCase() + "-status").getString() + key + ">");
-	}
-
-	ShopStatus(String key) {
-		this.key = key;
-	}
-
-	public static String colour(String x) {
-		return ChatColor.translateAlternateColorCodes(COLOUR_CHAR, x);
+		return colorize(colour + "<" + Setting.findSetting("shop-" + name().toLowerCase() + "-status").getString() + colour + ">");
 	}
 }

@@ -31,7 +31,6 @@ import org.bukkit.event.block.SignChangeEvent;
 import org.bukkit.inventory.InventoryHolder;
 import org.shanerx.tradeshop.TradeShop;
 import org.shanerx.tradeshop.enumys.Message;
-import org.shanerx.tradeshop.enumys.Setting;
 import org.shanerx.tradeshop.enumys.ShopRole;
 import org.shanerx.tradeshop.enumys.ShopType;
 import org.shanerx.tradeshop.objects.Shop;
@@ -81,17 +80,14 @@ public class ShopCreateListener extends Utils implements Listener {
 		event.setLine(0, ChatColor.GRAY + shopType.toHeader());
 		event.setLine(1, "");
 		event.setLine(2, "");
-		if (shopType.equals(ShopType.ITRADE)) {
-			event.setLine(3, Setting.ITRADESHOP_OWNER.getString());
-		} else {
-			event.setLine(3, p.getName());
-		}
+		event.setLine(3, shop.getStatus().getLine());
 
 		shop.saveShop();
 
 		setName((InventoryHolder) shopChest.getState(), "$ ^Sign:" + shop.getShopLocationAsSL().serialize() +
 				"$ ^Owner:" + owner.getUUID());
 
+		shop.updateSign();
 		p.sendMessage(Message.SUCCESSFUL_SETUP.getPrefixed());
 		return;
 	}

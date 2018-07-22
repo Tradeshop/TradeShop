@@ -79,6 +79,11 @@ public class ShopTradeListener extends Utils implements Listener {
 				return;
 			}
 
+			if (!shop.isOpen()) {
+				buyer.sendMessage(Message.SHOP_CLOSED.getPrefixed()); //TODO add shop closed message
+				return;
+			}
+
 			if (!shop.getShopType().equals(ShopType.ITRADE) && shop.getUsers().contains(buyer.getUniqueId())) {
 				buyer.sendMessage(Message.SELF_OWNED.getPrefixed());
 				return;
@@ -112,7 +117,16 @@ public class ShopTradeListener extends Utils implements Listener {
 			String item_name1, item_name2;
 			ItemStack item1 = shop.getSellItem(), item2 = shop.getBuyItem();
 
-			//TODO Add in blacklist checking and clean all of this up ----------------------------------------------
+			if (!isValidType(item1.getType().toString())) {
+				buyer.sendMessage(Message.ILLEGAL_ITEM.getPrefixed());
+				return;
+			}
+
+			if (!isValidType(item2.getType().toString())) {
+				buyer.sendMessage(Message.ILLEGAL_ITEM.getPrefixed());
+				return;
+			}
+
 
 			if (isBlacklistItem(item1) || isBlacklistItem(item2)) {
 				failedTrade(e, Message.ILLEGAL_ITEM);

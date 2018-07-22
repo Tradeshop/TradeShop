@@ -39,6 +39,7 @@ import org.shanerx.tradeshop.enumys.Setting;
 import org.shanerx.tradeshop.enumys.ShopType;
 import org.shanerx.tradeshop.objects.Shop;
 import org.shanerx.tradeshop.objects.ShopLocation;
+import org.shanerx.tradeshop.objects.ShopUser;
 import org.shanerx.tradeshop.utils.JsonConfiguration;
 import org.shanerx.tradeshop.utils.ShopManager;
 import org.shanerx.tradeshop.utils.Utils;
@@ -184,6 +185,12 @@ public class Executor extends Utils implements CommandExecutor {
 					sender.sendMessage(Message.HELD_EMPTY.getPrefixed());
 					return true;
 				}
+
+				if (!isValidType(itemInHand.getType().toString())) {
+					sender.sendMessage(Message.ILLEGAL_ITEM.getPrefixed());
+					return true;
+				}
+
 				shop.setSellItem(itemInHand);
 				shop.saveShop();
 
@@ -237,6 +244,12 @@ public class Executor extends Utils implements CommandExecutor {
 					sender.sendMessage(Message.HELD_EMPTY.getPrefixed());
 					return true;
 				}
+
+				if (!isValidType(itemInHand.getType().toString())) {
+					sender.sendMessage(Message.ILLEGAL_ITEM.getPrefixed());
+					return true;
+				}
+
 				shop.setBuyItem(itemInHand);
 				shop.saveShop();
 
@@ -257,10 +270,11 @@ public class Executor extends Utils implements CommandExecutor {
 					return true;
 				}
 
-				boolean noShop = false;
 				Player p = (Player) sender;
-				StringBuilder owners = new StringBuilder();
+				String owner = "";
+				StringBuilder managers = new StringBuilder();
 				StringBuilder members = new StringBuilder();
+				Shop shop;
 				Block b;
 				Sign s;
 
@@ -270,59 +284,64 @@ public class Executor extends Utils implements CommandExecutor {
 					if (b == null || b.getType() == Material.AIR)
 						throw new NoSuchFieldException();
 
-					if (isSign(b)) {
-
-						if (!isShopSign(b))
-							throw new NoSuchFieldException();
-
+					if (ShopType.isShop(b)) {
 						s = (Sign) b.getState();
+						shop = Shop.loadShop(s);
 
-						if (isInfiniteTradeShopSign(s.getBlock())) {
+						if (shop.getShopType().isITrade()) {
 							p.sendMessage(Message.WHO_MESSAGE.getPrefixed()
-									.replace("{OWNERS}", Setting.ITRADESHOP_OWNER.getString())
+									.replace("{OWNER}", Setting.ITRADESHOP_OWNER.getString())
+									.replace("{MANAGERS}", "None")
 									.replace("{MEMBERS}", "None"));
 							return true;
 						}
 
-					} else if (plugin.getListManager().isInventory(b.getType())) {
-						if (findShopSign(b) == null)
-							throw new NoSuchFieldException();
+					} else if (plugin.getListManager().isInventory(b.getType()) &&
+							((InventoryHolder) b.getState()).getInventory().getName().contains("$ ^Sign:l_")) {
+						String loc = ((InventoryHolder) b.getState()).getInventory().getName().split("$ ^")[1];
+						shop = Shop.loadShop(loc);
+						s = shop.getShopSign();
 
-						s = findShopSign(b);
-
-						if (isInfiniteTradeShopSign(s.getBlock())) {
+						if (shop.getShopType().isITrade()) {
 							p.sendMessage(Message.WHO_MESSAGE.getPrefixed()
-									.replace("{OWNERS}", Setting.ITRADESHOP_OWNER.getString())
+									.replace("{OWNER}", Setting.ITRADESHOP_OWNER.getString())
+									.replace("{MANAGERS}", "None")
 									.replace("{MEMBERS}", "None"));
 							return true;
 						}
 					} else
 						throw new NoSuchFieldException();
 
-					if (shopUtils.getShopOwners(s) != null)
-						for (OfflinePlayer pl : shopUtils.getShopOwners(s)) {
-							if (owners.toString().equals(""))
-								owners = new StringBuilder(pl.getName());
-							else
-								owners.append(", ").append(pl.getName());
-						}
+					if (shop.getOwner() != null)
+						owner = shop.getOwner().getName();
 
-					if (shopUtils.getShopMembers(s) != null)
-						for (OfflinePlayer pl : shopUtils.getShopMembers(s)) {
+					if (shop.getManagers().size() > 0) {
+						for (ShopUser usr : shop.getManagers()) {
+							if (managers.toString().equals(""))
+								managers = new StringBuilder(usr.getName());
+							else
+								managers.append(", ").append(usr.getName());
+						}
+					}
+
+					if (shop.getMembers().size() > 0) {
+						for (ShopUser usr : shop.getMembers()) {
 							if (members.toString().equals(""))
-								members = new StringBuilder(pl.getName());
+								members = new StringBuilder(usr.getName());
 							else
-								members.append(", ").append(pl.getName());
+								members.append(", ").append(usr.getName());
 						}
+					}
 
-					if (owners.toString().equals("")) {
-						owners = new StringBuilder("None");
+					if (managers.toString().equals("")) {
+						managers = new StringBuilder("None");
 					}
 					if (members.toString().equals("")) {
 						members = new StringBuilder("None");
 					}
 					p.sendMessage(Message.WHO_MESSAGE.getPrefixed()
-							.replace("{OWNERS}", owners.toString())
+							.replace("{OWNER}", owner)
+							.replace("{MANAGERS}", managers.toString())
 							.replace("{MEMBERS}", members.toString()));
 					return true;
 				} catch (NoSuchFieldException e) {
@@ -346,6 +365,8 @@ public class Executor extends Utils implements CommandExecutor {
 				return true;
 
 			}
+
+			//TODO Add ShopOpen and ShopClose Commands
 
 		} else if (args.length == 2) {
 			if (Arrays.asList("addowner", "removeowner", "addmember", "removemember").contains(args[0].toLowerCase())) {

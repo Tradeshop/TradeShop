@@ -106,4 +106,16 @@ public enum ShopType implements Serializable {
 	public String serialize() {
 		return new Gson().toJson(this);
 	}
+
+	public boolean isTrade() {
+		return this.equals(TRADE);
+	}
+
+	public boolean isITrade() {
+		return this.equals(ITRADE);
+	}
+
+	public boolean isBiTrade() {
+		return this.equals(BITRADE);
+	}
 }
