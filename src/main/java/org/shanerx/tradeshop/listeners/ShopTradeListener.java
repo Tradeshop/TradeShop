@@ -33,14 +33,13 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.shanerx.tradeshop.TradeShop;
-import org.shanerx.tradeshop.enums.Message;
-import org.shanerx.tradeshop.enums.Setting;
-import org.shanerx.tradeshop.enums.ShopRole;
-import org.shanerx.tradeshop.enums.ShopType;
+import org.shanerx.tradeshop.enumys.Message;
+import org.shanerx.tradeshop.enumys.Setting;
+import org.shanerx.tradeshop.enumys.ShopType;
 import org.shanerx.tradeshop.objects.Shop;
-import org.shanerx.tradeshop.objects.ShopUser;
+import org.shanerx.tradeshop.objects.ShopLocation;
+import org.shanerx.tradeshop.utils.JsonConfiguration;
 import org.shanerx.tradeshop.utils.ShopManager;
-import org.shanerx.tradeshop.utils.Tuple;
 import org.shanerx.tradeshop.utils.Utils;
 
 @SuppressWarnings("unused")
@@ -60,36 +59,32 @@ public class ShopTradeListener extends Utils implements Listener {
 
 		Player buyer = e.getPlayer();
 		Shop shop;
-		ShopType shopType;
 		Sign s;
-		BlockState chestState = null;
+		BlockState chestState;
 
 		if (e.getAction().equals(Action.RIGHT_CLICK_BLOCK)) {
 
 			if (isShopSign(e.getClickedBlock())) {
 				s = (Sign) e.getClickedBlock().getState();
-				shopType = ShopType.getType(s);
 			} else {
 				return;
 			}
 
-			try {
-				chestState = findShopChest(s.getBlock()).getState();
-			} catch (NullPointerException npe) {
-				if (!shopType.equals(ShopType.ITRADE)) {
-					buyer.sendMessage(Message.MISSING_SHOP.getPrefixed());
-					return;
-				}
+			JsonConfiguration json = new JsonConfiguration(s.getChunk());
+			shop = json.loadShop(new ShopLocation(s.getLocation()));
+
+			chestState = shop.getChest();
+			if (!shop.getShopType().equals(ShopType.ITRADE) && chestState == null) {
+				buyer.sendMessage(Message.MISSING_SHOP.getPrefixed());
+				return;
 			}
 
-			if (!shopType.equals(ShopType.ITRADE) && shopUtils.getShopUsers(chestState.getBlock()).contains(Bukkit.getOfflinePlayer(buyer.getName()))) {
+			if (!shop.getShopType().equals(ShopType.ITRADE) && shop.getUsers().contains(buyer.getUniqueId())) {
 				buyer.sendMessage(Message.SELF_OWNED.getPrefixed());
 				return;
 			}
 
 			Inventory chestInventory;
-
-            shop = new Shop(new Tuple<>(e.getClickedBlock().getLocation(), findShopChest(e.getClickedBlock()).getLocation()), shopType, new ShopUser(Bukkit.getPlayerExact(s.getLine(3)), ShopRole.OWNER));
 
 			try {
 				chestInventory = ((InventoryHolder) chestState).getInventory();
@@ -98,12 +93,6 @@ public class ShopTradeListener extends Utils implements Listener {
 			}
 
 			Inventory playerInventory = buyer.getInventory();
-
-			/*String line1 = s.getLine(1);
-			String line2 = s.getLine(2);
-			String[] info1 = line1.split(" ");
-			String[] info2 = line2.split(" ");
-            */
 
 			int amount1 = shop.getSellItem().getAmount();
 			int amount2 = shop.getBuyItem().getAmount();
@@ -120,34 +109,10 @@ public class ShopTradeListener extends Utils implements Listener {
 				}
 			}
 
-			int durability1 = shop.getBuyItem().getDurability();
-			int durability2 = shop.getSellItem().getDurability();
-
-			/*
-			if (line1.split("8").length > 1) {
-				durability1 = Integer.parseInt(info1[1].split(":")[1]);
-				info1[1] = info1[1].split(":")[0];
-			}
-			if (line2.split("9").length > 1) {
-				durability2 = Integer.parseInt(info2[1].split(":")[1]);
-				info2[1] = info2[1].split(":")[0];
-			}
-			*/
-
 			String item_name1, item_name2;
-			ItemStack item1 = shop.getBuyItem(), item2 = shop.getSellItem();
+			ItemStack item1 = shop.getSellItem(), item2 = shop.getBuyItem();
 
-			/*try {
-				item1 = isValidType(info1[1], durability1, amount1);
-				item2 = isValidType(info2[1], durability2, amount2);
-			} catch (ArrayIndexOutOfBoundsException er) {
-			}
-
-			if (item1 == null || item2 == null) {
-				failedTrade(e, Message.BUY_FAILED_SIGN);
-				return;
-			}
-			*/
+			//TODO Add in blacklist checking and clean all of this up ----------------------------------------------
 
 			if (isBlacklistItem(item1) || isBlacklistItem(item2)) {
 				failedTrade(e, Message.ILLEGAL_ITEM);
@@ -155,10 +120,10 @@ public class ShopTradeListener extends Utils implements Listener {
 			}
 
 			if (item1.hasItemMeta()) item_name1 = item1.getItemMeta().getDisplayName();
-            else item_name1 = item1.getType().toString();
+			else item_name1 = item1.getType().toString();
 
             if (item2.hasItemMeta()) item_name2 = item2.getItemMeta().getDisplayName();
-            else item_name2 = item2.getType().toString();
+			else item_name2 = item2.getType().toString();
 
 			if (!containsAtLeast(playerInventory, item2)) {
 				buyer.sendMessage(Message.INSUFFICIENT_ITEMS.getPrefixed()
@@ -189,7 +154,7 @@ public class ShopTradeListener extends Utils implements Listener {
 
 			int count = amount1, removed;
 
-			if (!shopType.equals(ShopType.ITRADE)) {
+			if (!shop.getShopType().equals(ShopType.ITRADE)) {
 				while (count > 0) {
 					boolean resetItem = false;
 					ItemStack temp = chestInventory.getItem(chestInventory.first(item1.getType())),
@@ -286,28 +251,27 @@ public class ShopTradeListener extends Utils implements Listener {
 
 		} else if (e.getAction() == Action.LEFT_CLICK_BLOCK) {
 
-            s = (Sign) e.getClickedBlock().getState();
-            shopType = ShopType.getType(s);
-            shop = new Shop(new Tuple<>(e.getClickedBlock().getLocation(), findShopChest(e.getClickedBlock()).getLocation()), shopType, new ShopUser(Bukkit.getPlayerExact(s.getLine(3)), ShopRole.OWNER));
+			s = (Sign) e.getClickedBlock().getState();
+
+			JsonConfiguration json = new JsonConfiguration(s.getChunk());
+			shop = json.loadShop(new ShopLocation(s.getLocation()));
 
             if (!isBiTradeShopSign(e.getClickedBlock())) {
 				return;
 			}
 
-			try {
-				chestState = findShopChest(s.getBlock()).getState();
-			} catch (NullPointerException npe) {
+			chestState = shop.getChest();
+			if (chestState == null) {
 				buyer.sendMessage(Message.MISSING_SHOP.getPrefixed());
 				return;
 			}
 
-			if (shopUtils.getShopUsers(chestState.getBlock()).contains(Bukkit.getOfflinePlayer(buyer.getName()))) {
-
+			if (shop.getUsers().contains(buyer.getUniqueId())) {
+				buyer.sendMessage(Message.SELF_OWNED.getPrefixed());
 				if (shopUtils.getShopOwners(chestState.getBlock()).contains(Bukkit.getOfflinePlayer(buyer.getName()))) {
 					return;
 				}
 
-				buyer.sendMessage(Message.SELF_OWNED.getPrefixed());
 				e.setCancelled(true);
 				return;
 			}
@@ -317,57 +281,29 @@ public class ShopTradeListener extends Utils implements Listener {
 			Inventory chestInventory = ((InventoryHolder) chestState).getInventory();
 			Inventory playerInventory = buyer.getInventory();
 
-			/*
-			String line2 = s.getLine(2);
-			String line1 = s.getLine(1);
-			String[] info2 = line2.split(" ");
-			String[] info1 = line1.split(" ");
-            */
-
             int amount2 = shop.getBuyItem().getAmount();
             int amount1 = shop.getSellItem().getAmount();
 
 			if (buyer.isSneaking()) {
 				if (!buyer.isOnGround() && Setting.ALLOW_QUAD_TRADE.getBoolean()) {
-					amount2 = amount2 * 4;
-					amount1 = amount1 * 4;
+					amount2 *= 4;
+					amount1 *= 4;
 				} else if (Setting.ALLOW_DOUBLE_TRADE.getBoolean()) {
 					amount2 += amount2;
 					amount1 += amount1;
 				}
 			}
 
-			int durability2 = shop.getBuyItem().getDurability();
-			int durability1 = shop.getSellItem().getDurability();
-
-			/*
-			if (line2.split(":").length > 1) {
-				durability2 = Integer.parseInt(info2[1].split(":")[1]);
-				info2[1] = info2[1].split(":")[0];
-			}
-			if (line1.split(":").length > 1) {
-				durability1 = Integer.parseInt(info1[1].split(":")[1]);
-				info1[1] = info1[1].split(":")[0];
-			}
-			*/
-
 			String item_name1, item_name2;
 			ItemStack item1 = shop.getBuyItem(), item2 = shop.getSellItem();
 
-			/*try {
-				item1 = isValidType(info1[1], durability1, amount1);
-				item2 = isValidType(info2[1], durability2, amount2);
-			} catch (ArrayIndexOutOfBoundsException er) {
-				// Do nothing
-			}*/
-
-			/*if (item1 == null || item2 == null) {
+			if (item1 == null || item2 == null) {
 				failedTrade(e, Message.BUY_FAILED_SIGN);
 				return;
 			} else if (isBlacklistItem(item1) || isBlacklistItem(item2)) {
 				failedTrade(e, Message.ILLEGAL_ITEM);
 				return;
-			}*/
+			}
 
 			if (item1.hasItemMeta() && item1.getItemMeta().hasDisplayName()) {
 				item_name1 = item1.getItemMeta().getDisplayName();

@@ -19,53 +19,39 @@
  * caused by their contribution(s) to the project. See the full License for more information
  */
 
-package org.shanerx.tradeshop.enums;
+package org.shanerx.tradeshop.enumys;
 
-import com.google.gson.Gson;
+import org.bukkit.Bukkit;
+import org.bukkit.permissions.Permission;
+import org.shanerx.tradeshop.TradeShop;
 
-import java.io.Serializable;
+public enum Permissions {
 
-@SuppressWarnings("unused")
-public enum ShopRole implements Serializable {
+	HELP("help"),
 
-	OWNER(true, true, true, false),
-	MANAGER(false, true, true, false),
-	MEMBER(false, false, true, false),
-	SHOPPER(false, false, false, true);
+	CREATE("create"),
 
-	private String roleName;
-	private transient boolean destroy, edit, open, shop;
+	CREATEI("create.infinite"),
 
-	ShopRole(boolean destroy, boolean edit, boolean open, boolean shop) {
-		this.destroy = destroy;
-		this.edit = edit;
-		this.open = open;
-		this.shop = shop;
-		roleName = name();
+	CREATEBI("create.bi"),
+
+	ADMIN("admin"),
+
+	WHO("who");
+
+	private String key;
+	private final static TradeShop plugin = (TradeShop) Bukkit.getPluginManager().getPlugin("TradeShop");
+
+	Permissions(String key) {
+		this.key = key;
 	}
 
-	public boolean canDestroy() {
-		return destroy;
+	@Override
+	public String toString() {
+		return "tradeshop." + key;
 	}
 
-	public boolean canEdit() {
-		return edit;
-	}
-
-	public boolean canOpen() {
-		return open;
-	}
-
-	public boolean canShop() {
-		return shop;
-	}
-
-	public static ShopRole deserialize(String serialized) {
-		ShopRole shopRole = new Gson().fromJson(serialized, ShopRole.class);
-		return shopRole;
-	}
-
-	public String serialize() {
-		return new Gson().toJson(this);
+	public Permission getPerm() {
+		return new Permission(toString());
 	}
 }

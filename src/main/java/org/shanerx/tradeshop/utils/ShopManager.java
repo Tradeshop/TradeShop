@@ -29,7 +29,7 @@ import org.bukkit.block.BlockState;
 import org.bukkit.block.Sign;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
-import org.shanerx.tradeshop.enums.Setting;
+import org.shanerx.tradeshop.enumys.Setting;
 
 import java.util.ArrayList;
 import java.util.Collections;

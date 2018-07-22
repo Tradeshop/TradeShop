@@ -24,9 +24,10 @@ package org.shanerx.tradeshop.objects;
 import com.google.gson.Gson;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.block.BlockState;
 import org.bukkit.inventory.ItemStack;
-import org.shanerx.tradeshop.enums.ShopRole;
-import org.shanerx.tradeshop.enums.ShopType;
+import org.shanerx.tradeshop.enumys.ShopRole;
+import org.shanerx.tradeshop.enumys.ShopType;
 import org.shanerx.tradeshop.utils.JsonConfiguration;
 import org.shanerx.tradeshop.utils.Tuple;
 
@@ -99,6 +100,13 @@ public class Shop implements Serializable {
     public void setMembers(List<ShopUser> members) {
         this.members = members;
     }
+
+	public List<ShopUser> getUsers() {
+		List<ShopUser> users = Collections.EMPTY_LIST;
+		users.addAll(managers);
+		users.addAll(members);
+		return users;
+	}
 
     public List<ShopUser> getMembers() {
         return members;
@@ -228,5 +236,13 @@ public class Shop implements Serializable {
 		JsonConfiguration json = new JsonConfiguration(shopLoc.getLocation().getChunk());
 
 		json.saveShop(this);
+	}
+
+	public BlockState getChest() {
+		try {
+			return getInventoryLocation().getBlock().getState();
+		} catch (NullPointerException npe) {
+			return null;
+		}
 	}
 }
