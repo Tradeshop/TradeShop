@@ -79,13 +79,13 @@ public class ShopTradeListener extends Utils implements Listener {
 				return;
 			}
 
-			if (!shop.isOpen()) {
-				buyer.sendMessage(Message.SHOP_CLOSED.getPrefixed()); //TODO add shop closed message
+			if (!shop.getShopType().equals(ShopType.ITRADE) && shop.getUsersUUID().contains(buyer.getUniqueId())) {
+				buyer.sendMessage(Message.SELF_OWNED.getPrefixed());
 				return;
 			}
 
-			if (!shop.getShopType().equals(ShopType.ITRADE) && shop.getUsers().contains(buyer.getUniqueId())) {
-				buyer.sendMessage(Message.SELF_OWNED.getPrefixed());
+			if (!shop.isOpen()) {
+				buyer.sendMessage(Message.SHOP_CLOSED.getPrefixed());
 				return;
 			}
 
@@ -117,19 +117,8 @@ public class ShopTradeListener extends Utils implements Listener {
 			String item_name1, item_name2;
 			ItemStack item1 = shop.getSellItem(), item2 = shop.getBuyItem();
 
-			if (!isValidType(item1.getType().toString())) {
+			if (!(isValidType(item1.getType().toString()) && isValidType(item2.getType().toString()))) {
 				buyer.sendMessage(Message.ILLEGAL_ITEM.getPrefixed());
-				return;
-			}
-
-			if (!isValidType(item2.getType().toString())) {
-				buyer.sendMessage(Message.ILLEGAL_ITEM.getPrefixed());
-				return;
-			}
-
-
-			if (isBlacklistItem(item1) || isBlacklistItem(item2)) {
-				failedTrade(e, Message.ILLEGAL_ITEM);
 				return;
 			}
 
@@ -265,10 +254,13 @@ public class ShopTradeListener extends Utils implements Listener {
 
 		} else if (e.getAction() == Action.LEFT_CLICK_BLOCK) {
 
-			s = (Sign) e.getClickedBlock().getState();
+			if (isShopSign(e.getClickedBlock())) {
+				s = (Sign) e.getClickedBlock().getState();
+			} else {
+				return;
+			}
 
-			JsonConfiguration json = new JsonConfiguration(s.getChunk());
-			shop = json.loadShop(new ShopLocation(s.getLocation()));
+			shop = Shop.loadShop(s);
 
             if (!isBiTradeShopSign(e.getClickedBlock())) {
 				return;

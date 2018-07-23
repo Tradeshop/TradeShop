@@ -27,6 +27,7 @@ import org.shanerx.tradeshop.enumys.Setting;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.stream.Collectors;
 
 @SuppressWarnings("unused")
 public class ListManager {
@@ -79,7 +80,7 @@ public class ListManager {
 
 	private void updateBlacklist() {
 		blacklist.clear();
-		blacklist.addAll(Setting.ILLEGAL_ITEMS.getStringList());
+		blacklist.addAll(Setting.ILLEGAL_ITEMS.getStringList().stream().map(String::toLowerCase).collect(Collectors.toList()));
 	}
 
 	private void updateDirections() {

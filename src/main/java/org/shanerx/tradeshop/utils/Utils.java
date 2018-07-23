@@ -335,10 +335,6 @@ public class Utils {
 		Set<String> customItemSet = plugin.getCustomItemManager().getItems();
 		String matLower = mat.toLowerCase();
 
-		if (isInt(mat) && Material.getMaterial(Integer.parseInt(mat)) != null) {
-			return !illegalItems.contains(Material.matchMaterial(mat));
-		}
-
 		if (Material.matchMaterial(mat) != null) {
 			Material temp = Material.matchMaterial(mat);
 			return !illegalItems.contains(temp.name().toLowerCase());

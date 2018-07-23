@@ -97,9 +97,7 @@ public enum Setting {
 	}
 
 	public static Setting findSetting(String search) {
-		search.toUpperCase().replace("-", "_");
-
-		return valueOf(search);
+		return valueOf(search.toUpperCase().replace("-", "_"));
 	}
 
 	private static TradeShop plugin = (TradeShop) Bukkit.getPluginManager().getPlugin("TradeShop");

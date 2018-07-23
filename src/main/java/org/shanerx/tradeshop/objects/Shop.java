@@ -105,8 +105,13 @@ public class Shop implements Serializable {
         this.members = members;
     }
 
+	public static Shop loadShop(ShopLocation loc) {
+		return loadShop(loc.serialize());
+	}
+
 	public List<ShopUser> getUsers() {
-		List<ShopUser> users = Collections.EMPTY_LIST;
+		List<ShopUser> users = new ArrayList<>();
+		users.add(owner);
 		users.addAll(managers);
 		users.addAll(members);
 		return users;
@@ -245,6 +250,10 @@ public class Shop implements Serializable {
 		return json.loadShop(sl);
 	}
 
+	public List<UUID> getUsersUUID() {
+		return getUsers().stream().map(ShopUser::getUUID).collect(Collectors.toList());
+	}
+
 	public void saveShop() {
 		JsonConfiguration json = new JsonConfiguration(shopLoc.getLocation().getChunk());
 
@@ -260,14 +269,22 @@ public class Shop implements Serializable {
 	}
 
 	public void updateSign() {
-		if (sellItem != null && buyItem != null) {
-			Sign s = getShopSign();
-			s.setLine(0, ChatColor.DARK_GREEN + shopType.toHeader());
-			s.setLine(3, status.getLine());
+		Sign s = getShopSign();
 
+		if (sellItem != null && buyItem != null) {
+			s.setLine(0, ChatColor.DARK_GREEN + shopType.toHeader());
 		}
 
-		//TODO make update sign text/colour
+		if (sellItem != null) {
+			s.setLine(1, sellItem.getAmount() + " " + sellItem.getType());
+		}
+
+		if (buyItem != null) {
+			s.setLine(2, buyItem.getAmount() + " " + buyItem.getType());
+		}
+
+		s.setLine(3, status.getLine());
+		s.update();
 	}
 
 	public BlockState getChest() {

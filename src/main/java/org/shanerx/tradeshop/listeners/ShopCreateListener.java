@@ -39,6 +39,8 @@ import org.shanerx.tradeshop.utils.ShopManager;
 import org.shanerx.tradeshop.utils.Tuple;
 import org.shanerx.tradeshop.utils.Utils;
 
+import java.util.UUID;
+
 @SuppressWarnings("unused")
 public class ShopCreateListener extends Utils implements Listener {
 
@@ -73,9 +75,20 @@ public class ShopCreateListener extends Utils implements Listener {
 			failedSign(event, shopType, Message.NO_CHEST);
 			return;
 		}
-		Block shopChest = findShopChest(shopSign.getBlock());
 
+		Block shopChest = findShopChest(shopSign.getBlock());
 		Shop shop = new Shop(new Tuple<>(shopSign.getLocation(), shopChest.getLocation()), shopType, owner);
+
+		if (plugin.getListManager().isInventory(shopChest.getType()) &&
+				((InventoryHolder) shopChest.getState()).getInventory().getName().contains("$ ^Sign:l_")) {
+			String uuid = ((InventoryHolder) shopChest.getState()).getInventory().getName().split("$ ^")[1];
+			uuid.replace("Owner:", "");
+
+			if (UUID.fromString(uuid).equals(owner.getUUID())) {
+				failedSign(event, shopType, Message.NOT_OWNER);
+				return;
+			}
+		}
 
 		event.setLine(0, ChatColor.GRAY + shopType.toHeader());
 		event.setLine(1, "");

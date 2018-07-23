@@ -38,9 +38,7 @@ import org.shanerx.tradeshop.enumys.Permissions;
 import org.shanerx.tradeshop.enumys.Setting;
 import org.shanerx.tradeshop.enumys.ShopType;
 import org.shanerx.tradeshop.objects.Shop;
-import org.shanerx.tradeshop.objects.ShopLocation;
 import org.shanerx.tradeshop.objects.ShopUser;
-import org.shanerx.tradeshop.utils.JsonConfiguration;
 import org.shanerx.tradeshop.utils.ShopManager;
 import org.shanerx.tradeshop.utils.Utils;
 
@@ -161,18 +159,17 @@ public class Executor extends Utils implements CommandExecutor {
 
 				}
 
-				JsonConfiguration json = new JsonConfiguration(b.getChunk());
 				Shop shop;
 				int amount = 0; //TODO add support for text entries
 				String mat = ""; //TODO add support for text entries
 
 				if (ShopType.isShop(b)) {
-					ShopLocation sl = new ShopLocation(b.getLocation());
-					shop = json.loadShop(sl);
+					shop = Shop.loadShop((Sign) b.getState());
 				} else if (plugin.getListManager().isInventory(b.getType()) &&
 						((InventoryHolder) b.getState()).getInventory().getName().contains("$ ^Sign:l_")) {
 					String loc = ((InventoryHolder) b.getState()).getInventory().getName().split("$ ^")[1];
-					shop = json.loadShop(ShopLocation.deserialize(loc));
+					loc.replace("Sign:", "");
+					shop = Shop.loadShop(loc);
 				} else {
 					p.sendMessage(Message.NO_SIGHTED_SHOP.getPrefixed());
 					return true;
@@ -193,10 +190,7 @@ public class Executor extends Utils implements CommandExecutor {
 
 				shop.setSellItem(itemInHand);
 				shop.saveShop();
-
-				Sign shopSign = (Sign) shop.getShopLocation().getBlock().getState();
-				shopSign.setLine(1, itemInHand.getAmount() + " " + itemInHand.getType());
-				shopSign.update();
+				shop.updateSign();
 
 				sender.sendMessage(Message.ITEM_ADDED.getPrefixed());
 				return true;
@@ -221,19 +215,24 @@ public class Executor extends Utils implements CommandExecutor {
 
 				}
 
-				JsonConfiguration json = new JsonConfiguration(b.getChunk());
 				Shop shop;
 				int amount = 0; //TODO add support for text entries
 				String mat = ""; //TODO add support for text entries
 
 				if (ShopType.isShop(b)) {
-					shop = json.loadShop(new ShopLocation(b.getLocation()));
+					shop = Shop.loadShop((Sign) b.getState());
 				} else if (plugin.getListManager().isInventory(b.getType()) &&
 						((InventoryHolder) b.getState()).getInventory().getName().contains("$ ^Sign:l_")) {
-					String loc = ((InventoryHolder) b.getState()).getInventory().getName().split("$ ^")[1];
-					shop = json.loadShop(ShopLocation.deserialize(loc));
+					String loc = ((InventoryHolder) b.getState()).getInventory().getName().split("$ ^")[0];
+					loc.replace("Sign:", "");
+					shop = Shop.loadShop(loc);
 				} else {
 					p.sendMessage(Message.NO_SIGHTED_SHOP.getPrefixed());
+					return true;
+				}
+
+				if (!(shop.getOwner().getUUID().equals(p.getUniqueId()) || shop.getManagersUUID().contains(p.getUniqueId()))) {
+					p.sendMessage(Message.NO_EDIT.getPrefixed());
 					return true;
 				}
 
@@ -252,12 +251,101 @@ public class Executor extends Utils implements CommandExecutor {
 
 				shop.setBuyItem(itemInHand);
 				shop.saveShop();
-
-				Sign shopSign = (Sign) shop.getShopLocation().getBlock().getState();
-				shopSign.setLine(2, itemInHand.getAmount() + " " + itemInHand.getType());
-				shopSign.update();
+				shop.updateSign();
 
 				sender.sendMessage(Message.ITEM_ADDED.getPrefixed());
+				return true;
+
+			} else if (args[0].equalsIgnoreCase("open")) {
+				if (!(sender instanceof Player)) {
+					sender.sendMessage(Message.PLAYER_ONLY_COMMAND.getPrefixed());
+					return true;
+				}
+
+				if (!sender.hasPermission(Permissions.CREATE.getPerm())) {
+					sender.sendMessage(Message.NO_COMMAND_PERMISSION.getPrefixed());
+					return true;
+				}
+
+				Player p = (Player) sender;
+				Block b = p.getTargetBlock(null, Setting.MAX_EDIT_DISTANCE.getInt());
+
+				if (b == null || b.getType() == Material.AIR) {
+					p.sendMessage(Message.NO_SIGHTED_SHOP.getPrefixed());
+					return true;
+
+				}
+
+				Shop shop;
+
+				if (ShopType.isShop(b)) {
+					shop = Shop.loadShop((Sign) b.getState());
+				} else if (plugin.getListManager().isInventory(b.getType()) &&
+						((InventoryHolder) b.getState()).getInventory().getName().contains("$ ^Sign:l_")) {
+					String loc = ((InventoryHolder) b.getState()).getInventory().getName().split("$ ^")[0];
+					loc.replace("Sign:", "");
+					shop = Shop.loadShop(loc);
+				} else {
+					p.sendMessage(Message.NO_SIGHTED_SHOP.getPrefixed());
+					return true;
+				}
+
+				if (!(shop.getOwner().getUUID().equals(p.getUniqueId()) || shop.getManagersUUID().contains(p.getUniqueId()))) {
+					p.sendMessage(Message.NO_EDIT.getPrefixed());
+					return true;
+				}
+
+				shop.setOpen();
+				shop.saveShop();
+				shop.updateSign();
+
+				sender.sendMessage(Message.CHANGE_OPEN.getPrefixed());
+				return true;
+
+			} else if (args[0].equalsIgnoreCase("close")) {
+				if (!(sender instanceof Player)) {
+					sender.sendMessage(Message.PLAYER_ONLY_COMMAND.getPrefixed());
+					return true;
+				}
+
+				if (!sender.hasPermission(Permissions.CREATE.getPerm())) {
+					sender.sendMessage(Message.NO_COMMAND_PERMISSION.getPrefixed());
+					return true;
+				}
+
+				Player p = (Player) sender;
+				Block b = p.getTargetBlock(null, Setting.MAX_EDIT_DISTANCE.getInt());
+
+				if (b == null || b.getType() == Material.AIR) {
+					p.sendMessage(Message.NO_SIGHTED_SHOP.getPrefixed());
+					return true;
+
+				}
+
+				Shop shop;
+
+				if (ShopType.isShop(b)) {
+					shop = Shop.loadShop((Sign) b.getState());
+				} else if (plugin.getListManager().isInventory(b.getType()) &&
+						((InventoryHolder) b.getState()).getInventory().getName().contains("$ ^Sign:l_")) {
+					String loc = ((InventoryHolder) b.getState()).getInventory().getName().split("$ ^")[0];
+					loc.replace("Sign:", "");
+					shop = Shop.loadShop(loc);
+				} else {
+					p.sendMessage(Message.NO_SIGHTED_SHOP.getPrefixed());
+					return true;
+				}
+
+				if (!(shop.getOwner().getUUID().equals(p.getUniqueId()) || shop.getManagersUUID().contains(p.getUniqueId()))) {
+					p.sendMessage(Message.NO_EDIT.getPrefixed());
+					return true;
+				}
+
+				shop.setClosed();
+				shop.saveShop();
+				shop.updateSign();
+
+				sender.sendMessage(Message.CHANGE_CLOSED.getPrefixed());
 				return true;
 
 			} else if (args[0].equalsIgnoreCase("who")) {
@@ -365,9 +453,6 @@ public class Executor extends Utils implements CommandExecutor {
 				return true;
 
 			}
-
-			//TODO Add ShopOpen and ShopClose Commands
-
 		} else if (args.length == 2) {
 			if (Arrays.asList("addowner", "removeowner", "addmember", "removemember").contains(args[0].toLowerCase())) {
 				if (!(sender instanceof Player)) {

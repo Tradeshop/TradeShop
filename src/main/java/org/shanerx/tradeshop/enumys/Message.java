@@ -62,10 +62,14 @@ public enum Message {
 	SETUP_HELP,
 	SHOP_EMPTY,
 	SHOP_FULL,
+	SHOP_CLOSED,
 	SHOP_FULL_AMOUNT,
 	SUCCESSFUL_SETUP,
 	UNSUCCESSFUL_SHOP_MEMBERS,
 	UPDATED_SHOP_MEMBERS,
+	NO_EDIT,
+	CHANGE_CLOSED,
+	CHANGE_OPEN,
 	WHO_MESSAGE;
 
 	@Override
@@ -115,14 +119,19 @@ public enum Message {
 		addMessage("no-sighted-shop", "&cNo shop in range!");
 		addMessage("updated-shop-members", "&aShop owners and members have been updated!");
 		addMessage("unsuccessful-shop-members", "&aThat player is either already on the shop, or you have reached the maximum number of users!");
-		addMessage("who-message", "&6Shop users are:\n&2Owner: &e{OWNERS}\n&Managers: &e{MANAGERS}\n&2Members: &e{MEMBERS}");
+		addMessage("who-message", "&6Shop users are:\n&2Owner: &e{OWNER}\n&2Managers: &e{MANAGERS}\n&2Members: &e{MEMBERS}");
 		addMessage("self-owned", "&cYou cannot buy from a shop in which you are a user.");
 		addMessage("not-owner", "&cYou cannot create a sign for a shop that you do not own.");
 		addMessage("illegal-item", "&cYou cannot use one or more of those items in shops.");
 		addMessage("missing-item", "&cYour sign is missing an item for trade.");
 		addMessage("missing-info", "&cYour sign is missing necessary information.");
 		addMessage("amount-not-num", "&cYou should have an amount before each item.");
+		addMessage("shop-closed", "&cThis shop is currently closed.");
 		addMessage("buy-failed-sign", "&cThis shop sign does not seem to be formatted correctly, please notify the owner.");
+		addMessage("no-edit", "&cYou do not have permission to edit this shop.");
+		addMessage("change-closed", "&cThe shop is now &l&bCLOSED&r&a.");
+		addMessage("change-open", "&aThe shop is now &l&bOPEN&r&a.");
+
 
 		save();
 	}

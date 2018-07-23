@@ -45,15 +45,29 @@ public class ShopUser implements Serializable {
 	}
 
 	public OfflinePlayer getPlayer() {
+		fix();
 		return player;
 	}
 
 	public UUID getUUID() {
+		fix();
 		return player.getUniqueId();
 	}
 
 	public ShopRole getRole() {
+		fix();
 		return role;
+	}
+
+	public String getName() {
+		fix();
+		return getPlayer().getName();
+	}
+
+	private void fix() {
+		if (player == null && playerUUID != null && playerUUID != "") {
+			player = Bukkit.getOfflinePlayer(UUID.fromString(playerUUID));
+		}
 	}
 
 	public String serialize() {
@@ -64,9 +78,5 @@ public class ShopUser implements Serializable {
 		ShopUser shopUser = new Gson().fromJson(serialized, ShopUser.class);
 		shopUser.player = Bukkit.getOfflinePlayer(UUID.fromString(shopUser.playerUUID));
 		return shopUser;
-	}
-
-	public String getName() {
-		return getPlayer().getName();
 	}
 }
