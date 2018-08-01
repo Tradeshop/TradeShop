@@ -70,43 +70,41 @@ public class Executor extends Utils implements CommandExecutor {
 				StringBuilder sb = new StringBuilder();
 				String msg;
 
-				sb.append("\n");
-				sb.append("&2" + getPluginName() + " " + getVersion() + " by " + pdf.getAuthors().get(0) + " & " + pdf.getAuthors().get(1) + "\n");
-				sb.append("\n");
-				sb.append("\n");
-				sb.append("&6/tradeshop help &c - Display help message");
-				sb.append("\n");
+				sb
+						.append("\n&2")
+						.append(getPluginName())
+						.append(" ")
+						.append(getVersion())
+						.append(" by ").append(pdf.getAuthors().get(0)).append(" & ").append(pdf.getAuthors().get(1))
+						.append("\n\n&6/tradeshop help &c - Display help message\n");
 
 				if (sender.hasPermission(Permissions.CREATE.getPerm())) {
-					sb.append("&6/tradeshop setup &c - Display TradeShop setup tutorial");
-					sb.append("\n");
-					sb.append("&6/tradeshop item &c - Shows helpful information on item held by player");
-					sb.append("\n");
+					sb
+							.append("&6/tradeshop setup &c - Display TradeShop setup tutorial\n")
+							.append("&6/tradeshop item &c - Shows helpful information on item held by player\n");
 				}
 
-				sb.append("&6/tradeshop bugs &c - Report bugs");
-				sb.append("\n");
-				sb.append("\n");
-				sb.append("&6/tradeshop addowner|removeowner [target] - Add another owner to your shop");
-				sb.append("\n");
-				sb.append("&6/tradeshop addmember|removemember [target] - Add a collaborator to your shop");
-				sb.append("\n");
+				sb
+						.append("&6/tradeshop bugs &c - Report bugs\n")
+						.append("&6/tradeshop addowner|removeowner [target] - Add another owner to your shop\n")
+						.append("&6/tradeshop addmember|removemember [target] - Add a collaborator to your shop\n");
 
 				if (sender.hasPermission(Permissions.WHO.getPerm())) {
-					sb.append("&6/tradeshop who - Shows members shop being looked at");
-					sb.append("\n");
+					sb.append("&6/tradeshop who - Shows members shop being looked at\n");
 				}
 
+
 				if (sender.hasPermission(Permissions.ADMIN.getPerm())) {
-					sb.append("\n");
-					sb.append("&6/tradeshop addItem [item name] &c - Adds custom items to config");
-					sb.append("\n");
-					sb.append("&6/tradeshop removeItem [item name] &c - Removes custom items to config");
-					sb.append("\n");
-					sb.append("&6/tradeshop getCustomItems &c - shows all custom items");
-					sb.append("\n");
-					sb.append("&6/tradeshop reload &c - Reloads plugin configuration files");
-					sb.append("\n");
+					sb
+							.append("\n")
+							.append("&6/tradeshop addItem [item name] &c - Adds custom items to config")
+							.append("\n")
+							.append("&6/tradeshop removeItem [item name] &c - Removes custom items to config")
+							.append("\n")
+							.append("&6/tradeshop getCustomItems &c - shows all custom items")
+							.append("\n")
+							.append("&6/tradeshop reload &c - Reloads plugin configuration files")
+							.append("\n");
 				}
 
 				msg = sb.toString();
@@ -479,11 +477,9 @@ public class Executor extends Utils implements CommandExecutor {
 
 				OfflinePlayer target = Bukkit.getOfflinePlayer(args[1]);
 				if (!target.hasPlayedBefore()) {
-					p.sendMessage(Message.INVALID_ARGUMENTS.getPrefixed()); //TODO change to player not found message
+					p.sendMessage(Message.PLAYER_NOT_FOUND.getPrefixed());
 					return true;
 				}
-
-				ShopUser toAdd = new ShopUser(target, ShopRole.MANAGER);
 
 				Shop shop = Shop.loadShop(s);
 
@@ -491,17 +487,23 @@ public class Executor extends Utils implements CommandExecutor {
 
 					case "addmanager":
 						shop.addManager(new ShopUser(target, ShopRole.MANAGER));
+						if (!shop.getMembersUUID().contains(target.getUniqueId())) {
+							shop.removeMember(new ShopUser(target, ShopRole.MEMBER));
+						}
 						break;
 					case "removemanager":
 						shop.removeManager(new ShopUser(target, ShopRole.MANAGER));
 						break;
 					case "addmember":
-						shop.addMember(new ShopUser(target, ShopRole.MEMBER));
+						if (!shop.getManagersUUID().contains(target.getUniqueId())) {
+							shop.addMember(new ShopUser(target, ShopRole.MEMBER));
+						}
 						break;
 					case "removemember":
 						shop.removeMember(new ShopUser(target, ShopRole.MEMBER));
 						break;
 				}
+
 				p.sendMessage(Message.UPDATED_SHOP_MEMBERS.getPrefixed());
 				return true;
 

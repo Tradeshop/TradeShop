@@ -57,6 +57,7 @@ public enum Message {
 	NOT_OWNER,
 	ON_TRADE,
 	PLAYER_FULL,
+	PLAYER_NOT_FOUND,
 	PLAYER_ONLY_COMMAND,
 	SELF_OWNED,
 	SETUP_HELP,
@@ -131,7 +132,7 @@ public enum Message {
 		addMessage("no-edit", "&cYou do not have permission to edit this shop.");
 		addMessage("change-closed", "&cThe shop is now &l&bCLOSED&r&a.");
 		addMessage("change-open", "&aThe shop is now &l&bOPEN&r&a.");
-
+		addMessage("player-not-found", "&cThat player could not be found.");
 
 		save();
 	}
