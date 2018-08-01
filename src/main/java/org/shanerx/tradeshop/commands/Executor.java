@@ -86,11 +86,19 @@ public class Executor extends Utils implements CommandExecutor {
 
 				sb
 						.append("&6/tradeshop bugs &c - Report bugs\n")
-						.append("&6/tradeshop addowner|removeowner [target] - Add another owner to your shop\n")
-						.append("&6/tradeshop addmember|removemember [target] - Add a collaborator to your shop\n");
+						.append("&6/tradeshop addowner|removeowner [target] &c - Add another owner to your shop\n")
+						.append("&6/tradeshop addmember|removemember [target] &c - Add a collaborator to your shop\n");
+
+				if (sender.hasPermission(Permissions.EDIT.getPerm())) {
+					sb
+							.append("&6/tradeshop addproduct &c - Add item to your shop\n")
+							.append("&6/tradeshop addcost &c - Change cost of your shop\n")
+							.append("&6/tradeshop open &c - Open shop\n")
+							.append("&6/tradeshop close &c -Close shop\n");
+				}
 
 				if (sender.hasPermission(Permissions.WHO.getPerm())) {
-					sb.append("&6/tradeshop who - Shows members shop being looked at\n");
+					sb.append("&6/tradeshop who &c - Shows members shop being looked at\n");
 				}
 
 
@@ -98,7 +106,7 @@ public class Executor extends Utils implements CommandExecutor {
 					sb
 							.append("\n&6/tradeshop addItem [item name] &c - Adds custom items to config")
 							.append("\n&6/tradeshop removeItem [item name] &c - Removes custom items to config")
-							.append("\n&6/tradeshop getCustomItems &c - shows all custom items")
+							.append("\n&6/tradeshop getcustomitems &c - shows all custom items")
 							.append("\n&6/tradeshop reload &c - Reloads plugin configuration files\n");
 				}
 
