@@ -25,6 +25,7 @@ import com.google.gson.Gson;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
+import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Sign;
 import org.bukkit.inventory.ItemStack;
@@ -121,20 +122,26 @@ public class Shop implements Serializable {
         return members;
     }
 
+	public static Shop loadShop(String serializedShopLocation) {
+		ShopLocation sl = ShopLocation.deserialize(serializedShopLocation);
+		JsonConfiguration json = new JsonConfiguration(sl.getLocation().getChunk());
+
+		return json.loadShop(sl);
+	}
+
     public void addManager(ShopUser newManager) {
         managers.add(newManager);
+		saveShop();
     }
 
     public void removeManager(ShopUser oldManager) {
         managers.remove(oldManager);
+		saveShop();
     }
 
     public void addMember(ShopUser newMember) {
         members.add(newMember);
-    }
-
-    public void removeMember(ShopUser oldMember) {
-        members.remove(oldMember);
+		saveShop();
     }
 
 	public List<UUID> getManagersUUID() {
@@ -243,11 +250,9 @@ public class Shop implements Serializable {
 		return json.loadShop(new ShopLocation(s.getLocation()));
 	}
 
-	public static Shop loadShop(String str) {
-		ShopLocation sl = ShopLocation.deserialize(str);
-		JsonConfiguration json = new JsonConfiguration(sl.getLocation().getChunk());
-
-		return json.loadShop(sl);
+	public void removeMember(ShopUser oldMember) {
+		members.remove(oldMember);
+		saveShop();
 	}
 
 	public List<UUID> getUsersUUID() {
@@ -261,18 +266,22 @@ public class Shop implements Serializable {
 	}
 
 	public Sign getShopSign() {
-		Location loc = getShopLocation();
-		if (!ShopType.isShop(loc.getBlock()))
-			return null;
+		Block b = getShopLocation().getBlock();
+		Sign s = null;
 
-		return (Sign) loc.getBlock().getState();
+		if (ShopType.isShop(b)) {
+			s = (Sign) b.getState();
+		}
+		return s;
 	}
 
 	public void updateSign() {
 		Sign s = getShopSign();
 
-		if (sellItem != null && buyItem != null) {
+		if (!missingItems()) {
 			s.setLine(0, ChatColor.DARK_GREEN + shopType.toHeader());
+		} else {
+			s.setLine(0, ChatColor.GRAY + shopType.toHeader());
 		}
 
 		if (sellItem != null) {
@@ -300,11 +309,19 @@ public class Shop implements Serializable {
 	}
 
 	public void setOpen() {
-		status = ShopStatus.OPEN;
+		if (missingItems()) {
+			status = ShopStatus.OPEN;
+			updateSign();
+		}
+	}
+
+	public boolean missingItems() {
+		return sellItem == null || buyItem == null;
 	}
 
 	public void setClosed() {
 		status = ShopStatus.CLOSED;
+		updateSign();
 	}
 
 	public boolean isOpen() {

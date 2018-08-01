@@ -36,10 +36,10 @@ import org.shanerx.tradeshop.TradeShop;
 import org.shanerx.tradeshop.enumys.Message;
 import org.shanerx.tradeshop.enumys.Permissions;
 import org.shanerx.tradeshop.enumys.Setting;
+import org.shanerx.tradeshop.enumys.ShopRole;
 import org.shanerx.tradeshop.enumys.ShopType;
 import org.shanerx.tradeshop.objects.Shop;
 import org.shanerx.tradeshop.objects.ShopUser;
-import org.shanerx.tradeshop.utils.ShopManager;
 import org.shanerx.tradeshop.utils.Utils;
 
 import java.util.Arrays;
@@ -48,11 +48,9 @@ import java.util.Set;
 public class Executor extends Utils implements CommandExecutor {
 
 	private TradeShop plugin;
-	private ShopManager shopUtils;
 
 	public Executor(TradeShop instance) {
 		plugin = instance;
-		shopUtils = new ShopManager();
 	}
 
 	@Override
@@ -139,7 +137,7 @@ public class Executor extends Utils implements CommandExecutor {
 				sender.sendMessage(colorize(getPrefix() + "&6The configuration files have been reloaded!"));
 				return true;
 
-			} else if (args[0].equalsIgnoreCase("addProduct")) { //TODO FINISH ADD/Remove Items to Sign
+			} else if (args[0].equalsIgnoreCase("addProduct")) { //TODO add removeProduct
 				if (!(sender instanceof Player)) {
 					sender.sendMessage(Message.PLAYER_ONLY_COMMAND.getPrefixed());
 					return true;
@@ -161,7 +159,7 @@ public class Executor extends Utils implements CommandExecutor {
 
 				Shop shop;
 				int amount = 0; //TODO add support for text entries
-				String mat = ""; //TODO add support for text entries
+				String mat = "";
 
 				if (ShopType.isShop(b)) {
 					shop = Shop.loadShop((Sign) b.getState());
@@ -195,7 +193,7 @@ public class Executor extends Utils implements CommandExecutor {
 				sender.sendMessage(Message.ITEM_ADDED.getPrefixed());
 				return true;
 
-			} else if (args[0].equalsIgnoreCase("addCost")) { //TODO FINISH ADD/Remove Items to Sign
+			} else if (args[0].equalsIgnoreCase("addCost")) { //TODO Add removeCost
 				if (!(sender instanceof Player)) {
 					sender.sendMessage(Message.PLAYER_ONLY_COMMAND.getPrefixed());
 					return true;
@@ -217,7 +215,7 @@ public class Executor extends Utils implements CommandExecutor {
 
 				Shop shop;
 				int amount = 0; //TODO add support for text entries
-				String mat = ""; //TODO add support for text entries
+				String mat = "";
 
 				if (ShopType.isShop(b)) {
 					shop = Shop.loadShop((Sign) b.getState());
@@ -292,6 +290,11 @@ public class Executor extends Utils implements CommandExecutor {
 
 				if (!(shop.getOwner().getUUID().equals(p.getUniqueId()) || shop.getManagersUUID().contains(p.getUniqueId()))) {
 					p.sendMessage(Message.NO_EDIT.getPrefixed());
+					return true;
+				}
+
+				if (shop.missingItems()) {
+					p.sendMessage(Message.MISSING_ITEM.getPrefixed());
 					return true;
 				}
 
@@ -454,7 +457,7 @@ public class Executor extends Utils implements CommandExecutor {
 
 			}
 		} else if (args.length == 2) {
-			if (Arrays.asList("addowner", "removeowner", "addmember", "removemember").contains(args[0].toLowerCase())) {
+			if (Arrays.asList("addmanager", "removemanager", "addmember", "removemember").contains(args[0].toLowerCase())) { //TODO Fix these to work with the new systems
 				if (!(sender instanceof Player)) {
 					sender.sendMessage(Message.PLAYER_ONLY_COMMAND.getPrefixed());
 					return true;
@@ -463,41 +466,40 @@ public class Executor extends Utils implements CommandExecutor {
 
 				Player p = (Player) sender;
 				Block b = p.getTargetBlock(null, Setting.MAX_EDIT_DISTANCE.getInt());
+				Sign s = null;
 
-				if (b == null || b.getType() == Material.AIR) {
-					p.sendMessage(Message.NO_SIGHTED_SHOP.getPrefixed());
-					return true;
-
-				} else if (isShopSign(b)) {
-					b = findShopChest(b);
-
+				if (b != null && plugin.getListManager().isInventory(b.getType())) {
+					s = findShopSign(b);
+				} else if (ShopType.isShop(b)) {
+					s = (Sign) b.getState();
 				} else if (!plugin.getListManager().isInventory(b.getType()) || findShopSign(b) == null) {
 					p.sendMessage(Message.NO_SIGHTED_SHOP.getPrefixed());
 					return true;
-
 				}
+
 				OfflinePlayer target = Bukkit.getOfflinePlayer(args[1]);
-				b = findShopChest(findShopSign(b).getBlock());
+				if (!target.hasPlayedBefore()) {
+					p.sendMessage(Message.INVALID_ARGUMENTS.getPrefixed()); //TODO change to player not found message
+					return true;
+				}
+
+				ShopUser toAdd = new ShopUser(target, ShopRole.MANAGER);
+
+				Shop shop = Shop.loadShop(s);
 
 				switch (args[0].toLowerCase()) {
 
-					case "addowner":
-						if (!shopUtils.addOwner(b, target)) {
-							p.sendMessage(Message.UNSUCCESSFUL_SHOP_MEMBERS.getPrefixed());
-							return true;
-						}
+					case "addmanager":
+						shop.addManager(new ShopUser(target, ShopRole.MANAGER));
 						break;
-					case "removeowner":
-						shopUtils.removeOwner(b, target);
+					case "removemanager":
+						shop.removeManager(new ShopUser(target, ShopRole.MANAGER));
 						break;
 					case "addmember":
-						if (!shopUtils.addMember(b, target)) {
-							p.sendMessage(Message.UNSUCCESSFUL_SHOP_MEMBERS.getPrefixed());
-							return true;
-						}
+						shop.addMember(new ShopUser(target, ShopRole.MEMBER));
 						break;
 					case "removemember":
-						shopUtils.removeMember(b, target);
+						shop.removeMember(new ShopUser(target, ShopRole.MEMBER));
 						break;
 				}
 				p.sendMessage(Message.UPDATED_SHOP_MEMBERS.getPrefixed());

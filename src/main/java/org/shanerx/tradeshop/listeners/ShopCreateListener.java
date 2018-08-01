@@ -22,43 +22,40 @@
 package org.shanerx.tradeshop.listeners;
 
 import org.bukkit.ChatColor;
-import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.SignChangeEvent;
-import org.bukkit.inventory.InventoryHolder;
 import org.shanerx.tradeshop.TradeShop;
 import org.shanerx.tradeshop.enumys.Message;
 import org.shanerx.tradeshop.enumys.ShopRole;
 import org.shanerx.tradeshop.enumys.ShopType;
 import org.shanerx.tradeshop.objects.Shop;
+import org.shanerx.tradeshop.objects.ShopChest;
 import org.shanerx.tradeshop.objects.ShopUser;
-import org.shanerx.tradeshop.utils.ShopManager;
 import org.shanerx.tradeshop.utils.Tuple;
 import org.shanerx.tradeshop.utils.Utils;
-
-import java.util.UUID;
 
 @SuppressWarnings("unused")
 public class ShopCreateListener extends Utils implements Listener {
 
 	private TradeShop plugin;
-	private ShopManager shopUtils;
 
 	public ShopCreateListener(TradeShop instance) {
 		plugin = instance;
-		shopUtils = new ShopManager();
 	}
 
 	@SuppressWarnings("deprecation")
 	@EventHandler
 	public void onSignChange(SignChangeEvent event) {
-		//TODO checking for pre owned chest, add empty chest at setup message
+		//TODO add empty chest at setup message
 
 		Sign shopSign = (Sign) event.getBlock().getState();
 		shopSign.setLine(0, event.getLine(0));
+		shopSign.setLine(1, event.getLine(1));
+		shopSign.setLine(2, event.getLine(2));
+		shopSign.setLine(3, event.getLine(3));
 
 		if (!ShopType.isShop(shopSign)) {
 			return;
@@ -76,31 +73,25 @@ public class ShopCreateListener extends Utils implements Listener {
 			return;
 		}
 
-		Block shopChest = findShopChest(shopSign.getBlock());
-		Shop shop = new Shop(new Tuple<>(shopSign.getLocation(), shopChest.getLocation()), shopType, owner);
+		ShopChest shopChest = new ShopChest(findShopChest(event.getBlock()), p.getUniqueId(), shopSign.getLocation());
+		Shop shop = new Shop(new Tuple<>(shopSign.getLocation(), shopChest.getChest().getLocation()), shopType, owner);
 
-		if (plugin.getListManager().isInventory(shopChest.getType()) &&
-				((InventoryHolder) shopChest.getState()).getInventory().getName().contains("$ ^Sign:l_")) {
-			String uuid = ((InventoryHolder) shopChest.getState()).getInventory().getName().split("$ ^")[1];
-			uuid.replace("Owner:", "");
-
-			if (UUID.fromString(uuid).equals(owner.getUUID())) {
+		if (shopChest.hasOwner() && !shopChest.getOwner().equals(owner.getUUID())) {
 				failedSign(event, shopType, Message.NOT_OWNER);
 				return;
-			}
 		}
 
-		event.setLine(0, ChatColor.GRAY + shopType.toHeader());
-		event.setLine(1, "");
-		event.setLine(2, "");
-		event.setLine(3, shop.getStatus().getLine());
+		if (shop.missingItems()) {
+			event.setLine(0, ChatColor.GRAY + shopType.toHeader());
+		} else {
+			event.setLine(0, ChatColor.DARK_GREEN + shopType.toHeader());
+		}
 
+		event.setLine(3, shop.getStatus().getLine());
 		shop.saveShop();
 
-		setName((InventoryHolder) shopChest.getState(), "$ ^Sign:" + shop.getShopLocationAsSL().serialize() +
-				"$ ^Owner:" + owner.getUUID());
+		shopChest.setName();
 
-		shop.updateSign();
 		p.sendMessage(Message.SUCCESSFUL_SETUP.getPrefixed());
 		return;
 	}

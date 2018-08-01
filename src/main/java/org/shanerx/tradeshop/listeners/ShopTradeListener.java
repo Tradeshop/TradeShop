@@ -21,7 +21,6 @@
 
 package org.shanerx.tradeshop.listeners;
 
-import org.bukkit.Bukkit;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
@@ -39,18 +38,15 @@ import org.shanerx.tradeshop.enumys.ShopType;
 import org.shanerx.tradeshop.objects.Shop;
 import org.shanerx.tradeshop.objects.ShopLocation;
 import org.shanerx.tradeshop.utils.JsonConfiguration;
-import org.shanerx.tradeshop.utils.ShopManager;
 import org.shanerx.tradeshop.utils.Utils;
 
 @SuppressWarnings("unused")
 public class ShopTradeListener extends Utils implements Listener {
 
 	private TradeShop plugin;
-	private ShopManager shopUtils;
 
 	public ShopTradeListener(TradeShop instance) {
 		plugin = instance;
-		shopUtils = new ShopManager();
 	}
 
 	@SuppressWarnings("deprecation")
@@ -274,7 +270,7 @@ public class ShopTradeListener extends Utils implements Listener {
 
 			if (shop.getUsers().contains(buyer.getUniqueId())) {
 				buyer.sendMessage(Message.SELF_OWNED.getPrefixed());
-				if (shopUtils.getShopOwners(chestState.getBlock()).contains(Bukkit.getOfflinePlayer(buyer.getName()))) {
+				if (buyer.getUniqueId().equals(shop.getOwner().getUUID())) {
 					return;
 				}
 

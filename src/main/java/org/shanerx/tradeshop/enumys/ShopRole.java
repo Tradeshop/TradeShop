@@ -21,12 +21,8 @@
 
 package org.shanerx.tradeshop.enumys;
 
-import com.google.gson.Gson;
-
-import java.io.Serializable;
-
 @SuppressWarnings("unused")
-public enum ShopRole implements Serializable {
+public enum ShopRole {
 
 	OWNER(true, true, true, false),
 	MANAGER(false, true, true, false),
@@ -58,14 +54,5 @@ public enum ShopRole implements Serializable {
 
 	public boolean canShop() {
 		return shop;
-	}
-
-	public static ShopRole deserialize(String serialized) {
-		ShopRole shopRole = new Gson().fromJson(serialized, ShopRole.class);
-		return shopRole;
-	}
-
-	public String serialize() {
-		return new Gson().toJson(this);
 	}
 }
