@@ -37,6 +37,8 @@ public enum Permissions {
 
 	ADMIN("admin"),
 
+	EDIT("edit"), // non admin perm
+
 	WHO("who");
 
 	private String key;

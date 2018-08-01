@@ -96,15 +96,10 @@ public class Executor extends Utils implements CommandExecutor {
 
 				if (sender.hasPermission(Permissions.ADMIN.getPerm())) {
 					sb
-							.append("\n")
-							.append("&6/tradeshop addItem [item name] &c - Adds custom items to config")
-							.append("\n")
-							.append("&6/tradeshop removeItem [item name] &c - Removes custom items to config")
-							.append("\n")
-							.append("&6/tradeshop getCustomItems &c - shows all custom items")
-							.append("\n")
-							.append("&6/tradeshop reload &c - Reloads plugin configuration files")
-							.append("\n");
+							.append("\n&6/tradeshop addItem [item name] &c - Adds custom items to config")
+							.append("\n&6/tradeshop removeItem [item name] &c - Removes custom items to config")
+							.append("\n&6/tradeshop getCustomItems &c - shows all custom items")
+							.append("\n&6/tradeshop reload &c - Reloads plugin configuration files\n");
 				}
 
 				msg = sb.toString();
@@ -113,7 +108,7 @@ public class Executor extends Utils implements CommandExecutor {
 				return true;
 
 			} else if (args[0].equalsIgnoreCase("bugs")) {
-				sender.sendMessage(colorize("\n &2To report any bugs to the author, either send a PM on"
+				sender.sendMessage(colorize("\n&2To report any bugs to the author, either send a PM on"
 						+ " &cSpigot &2- &egoo.gl/s6Jk23 &2or open an issue on &cGitHub &2-&e goo.gl/X4qqyg\n"));
 				return true;
 
@@ -141,7 +136,7 @@ public class Executor extends Utils implements CommandExecutor {
 					return true;
 				}
 
-				if (!sender.hasPermission(Permissions.CREATE.getPerm())) {
+				if (!sender.hasPermission(Permissions.EDIT.getPerm())) {
 					sender.sendMessage(Message.NO_COMMAND_PERMISSION.getPrefixed());
 					return true;
 				}
@@ -197,7 +192,7 @@ public class Executor extends Utils implements CommandExecutor {
 					return true;
 				}
 
-				if (!sender.hasPermission(Permissions.CREATE.getPerm())) {
+				if (!sender.hasPermission(Permissions.EDIT.getPerm())) {
 					sender.sendMessage(Message.NO_COMMAND_PERMISSION.getPrefixed());
 					return true;
 				}
@@ -258,7 +253,7 @@ public class Executor extends Utils implements CommandExecutor {
 					return true;
 				}
 
-				if (!sender.hasPermission(Permissions.CREATE.getPerm())) {
+				if (!sender.hasPermission(Permissions.EDIT.getPerm())) {
 					sender.sendMessage(Message.NO_COMMAND_PERMISSION.getPrefixed());
 					return true;
 				}
@@ -309,7 +304,7 @@ public class Executor extends Utils implements CommandExecutor {
 					return true;
 				}
 
-				if (!sender.hasPermission(Permissions.CREATE.getPerm())) {
+				if (!sender.hasPermission(Permissions.EDIT.getPerm())) {
 					sender.sendMessage(Message.NO_COMMAND_PERMISSION.getPrefixed());
 					return true;
 				}
