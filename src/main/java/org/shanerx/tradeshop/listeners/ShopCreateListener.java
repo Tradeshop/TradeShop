@@ -27,7 +27,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.SignChangeEvent;
-import org.shanerx.tradeshop.TradeShop;
 import org.shanerx.tradeshop.enumys.Message;
 import org.shanerx.tradeshop.enumys.ShopRole;
 import org.shanerx.tradeshop.enumys.ShopType;
@@ -39,12 +38,6 @@ import org.shanerx.tradeshop.utils.Utils;
 
 @SuppressWarnings("unused")
 public class ShopCreateListener extends Utils implements Listener {
-
-	private TradeShop plugin;
-
-	public ShopCreateListener(TradeShop instance) {
-		plugin = instance;
-	}
 
 	@SuppressWarnings("deprecation")
 	@EventHandler

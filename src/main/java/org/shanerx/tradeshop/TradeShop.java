@@ -71,8 +71,8 @@ public class TradeShop extends JavaPlugin {
 
 		PluginManager pm = getServer().getPluginManager();
 		pm.registerEvents(new AdminEventListener(this), this);
-		pm.registerEvents(new ShopCreateListener(this), this);
-		pm.registerEvents(new ShopTradeListener(this), this);
+		pm.registerEvents(new ShopCreateListener(), this);
+		pm.registerEvents(new ShopTradeListener(), this);
 
 		getCommand("tradeshop").setExecutor(new Executor(this));
 

@@ -31,7 +31,6 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
-import org.shanerx.tradeshop.TradeShop;
 import org.shanerx.tradeshop.enumys.Message;
 import org.shanerx.tradeshop.enumys.Setting;
 import org.shanerx.tradeshop.enumys.ShopType;
@@ -43,12 +42,6 @@ import org.shanerx.tradeshop.utils.Utils;
 @SuppressWarnings("unused")
 public class ShopTradeListener extends Utils implements Listener {
 
-	private TradeShop plugin;
-
-	public ShopTradeListener(TradeShop instance) {
-		plugin = instance;
-	}
-
 	@SuppressWarnings("deprecation")
 	@EventHandler
 	public void onBlockInteract(PlayerInteractEvent e) {
@@ -58,7 +51,7 @@ public class ShopTradeListener extends Utils implements Listener {
 		Sign s;
 		BlockState chestState;
 
-		if (e.getAction().equals(Action.RIGHT_CLICK_BLOCK)) {
+		if (e.getAction() == Action.RIGHT_CLICK_BLOCK) {
 
 			if (isShopSign(e.getClickedBlock())) {
 				s = (Sign) e.getClickedBlock().getState();
