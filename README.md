@@ -3,11 +3,12 @@
 ## Description
 This plugin manages how players trade one item for another. The concept behind it is very simple, you just place a chest and a sign on top, then write all the information on the sign.
 
-#### Author: Lori00 / ShanerX
-#### Name: TradeShop
-#### Version: v1.8.0
-#### Tested MC versions: MC-1.8.X, 1.9.X, 1.10.X, 1.11.x, 1.12.x
-*Please see [the wiki](https://github.com/SparklingComet/TradeShop/wiki) for more information regarding supported versions.*
+**Author:** Lori00 / ShanerX
+<br/>**Name:** TradeShop
+<br/>**Version:** v1.8.0
+<br/>**Tested on:** Minecraft-1.8.X, 1.9.X, 1.10.X, 1.11.x, 1.12.x
+<pre>    Note: TradeShop v1.6.0+ does NOT support MC 1.8.x and below!</pre>
+*Please see [the release notes on version 1.6](https://github.com/SparklingComet/TradeShop/wiki/1.6-Release-notes#known-issues) for more information regarding (un)supported Bukkit/Spigot versions.*
 
 
 ## Downloads
