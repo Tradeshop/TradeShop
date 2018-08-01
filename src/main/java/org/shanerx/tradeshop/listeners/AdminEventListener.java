@@ -55,9 +55,11 @@ public class AdminEventListener extends Utils implements Listener {
 			Shop shop = Shop.loadShop((Sign) block.getState());
 
 			if (player.hasPermission(Permissions.ADMIN.getPerm())) {
+				new ShopChest(findShopChest(block).getLocation()).resetName();
 				return;
 
 			} else if (shop.getChest() != null && event.getPlayer().getUniqueId().equals(shop.getOwner())) {
+				new ShopChest(findShopChest(block).getLocation()).resetName();
 				return;
 
 			}
@@ -70,12 +72,8 @@ public class AdminEventListener extends Utils implements Listener {
 				return;
 			}
 
-			Sign s;
-			try {
-				s = findShopSign(block);
-				if (s == null)
-					throw new Exception();
-			} catch (Exception e) {
+			Sign s = findShopSign(block);
+			if (s == null) {
 				new ShopChest(block.getLocation()).resetName();
 				return;
 			}
@@ -109,18 +107,13 @@ public class AdminEventListener extends Utils implements Listener {
 		}
 
 
-		Sign s;
-		try {
-			s = findShopSign(block);
-			if (s == null)
-				throw new Exception();
-		} catch (Exception ex) {
+		Sign s = findShopSign(block);
+		if (s == null) {
 			return;
 		}
 
-		Shop shop = Shop.loadShop(s);
-
 		if (!e.getPlayer().hasPermission(Permissions.ADMIN.getPerm()) && ShopType.isShop(s.getBlock())) {
+			Shop shop = Shop.loadShop(s);
 			if (!shop.getUsersUUID().contains(e.getPlayer().getUniqueId())) {
 				e.getPlayer().sendMessage(Message.NO_TS_OPEN.getPrefixed());
 				e.setCancelled(true);

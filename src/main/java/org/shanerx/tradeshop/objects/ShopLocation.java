@@ -53,7 +53,7 @@ public class ShopLocation implements Serializable {
 		if (loc.startsWith("l")) {
 			String locA[] = loc.split("_"); //Keep same as div
 			World world = Bukkit.getWorld(locA[1]);
-			double x = Integer.parseInt(locA[2]), y = Integer.parseInt(locA[3]), z = Integer.parseInt(locA[4]);
+			double x = Double.parseDouble(locA[2]), y = Double.parseDouble(locA[3]), z = Double.parseDouble(locA[4]);
 
 			return new ShopLocation(world, x, y, z);
 		}

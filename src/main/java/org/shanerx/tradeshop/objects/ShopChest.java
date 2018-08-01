@@ -38,7 +38,7 @@ public class ShopChest {
 	private Location loc;
 	private Block chest;
 	private UUID owner;
-	private String sep1 = "\\& \\^", sep2 = ":";
+	private String sep1 = "\\$ \\^", sep2 = ":";
 
 	public ShopChest(Location chestLoc) {
 		this.loc = chestLoc;
@@ -63,7 +63,7 @@ public class ShopChest {
 	public void loadFromName() {
 		if (chest != null &&
 				((Nameable) chest.getState()).getCustomName() != null &&
-				((Nameable) chest.getState()).getCustomName().contains("Sign:l_")) {
+				((Nameable) chest.getState()).getCustomName().contains("$ ^Sign:l_")) {
 			String name[] = ((Nameable) chest.getState()).getCustomName().split(sep1);
 			shopSign = ShopLocation.deserialize(name[1].split(sep2)[1]);
 			owner = UUID.fromString(name[2].split(sep2)[1]);
@@ -73,7 +73,7 @@ public class ShopChest {
 	public String getName() {
 		StringBuilder sb = new StringBuilder();
 		if (((Nameable) chest.getState()).getCustomName() != null) {
-			sb.append(((Nameable) chest.getState()).getCustomName());
+			sb.append(((Nameable) chest.getState()).getCustomName().replaceAll(sep1, ""));
 		}
 		sb.append("$ ^Sign:");
 		sb.append(shopSign.serialize());
