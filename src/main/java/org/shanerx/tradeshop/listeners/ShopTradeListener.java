@@ -53,7 +53,7 @@ public class ShopTradeListener extends Utils implements Listener {
 
 		if (e.getAction() == Action.RIGHT_CLICK_BLOCK) {
 
-			if (isShopSign(e.getClickedBlock())) {
+			if (ShopType.isShop(e.getClickedBlock())) {
 				s = (Sign) e.getClickedBlock().getState();
 			} else {
 				return;
@@ -243,7 +243,7 @@ public class ShopTradeListener extends Utils implements Listener {
 
 		} else if (e.getAction() == Action.LEFT_CLICK_BLOCK) {
 
-			if (isShopSign(e.getClickedBlock())) {
+			if (ShopType.isShop(e.getClickedBlock())) {
 				s = (Sign) e.getClickedBlock().getState();
 			} else {
 				return;
@@ -251,7 +251,7 @@ public class ShopTradeListener extends Utils implements Listener {
 
 			shop = Shop.loadShop(s);
 
-            if (!isBiTradeShopSign(e.getClickedBlock())) {
+			if (ShopType.getType(s) != ShopType.BITRADE) {
 				return;
 			}
 

@@ -114,66 +114,6 @@ public class Utils {
 	}
 
 	/**
-	 * Checks whether or not the block entered is a {@code Trade} sign.
-	 *
-	 * @return true if it is
-	 */
-	public boolean isTradeShopSign(Block b) {
-		if (!isSign(b)) {
-			return false;
-		}
-		Sign sign = (Sign) b.getState();
-		return ChatColor.stripColor(sign.getLine(0)).equalsIgnoreCase(ShopType.TRADE.toHeader());
-	}
-
-
-	/**
-	 * Checks whether or not the block entered is a {@code BiTrade} sign.
-	 *
-	 * @return true if it is
-	 */
-	public boolean isBiTradeShopSign(Block b) {
-		if (!isSign(b)) {
-			return false;
-		}
-		Sign sign = (Sign) b.getState();
-		return ChatColor.stripColor(sign.getLine(0)).equalsIgnoreCase(ShopType.BITRADE.toHeader());
-	}
-
-	/**
-	 * Checks whether or not the block entered is a {@code iTrade} sign.
-	 *
-	 * @return true if it is
-	 */
-	public boolean isInfiniteTradeShopSign(Block b) {
-		if (!isSign(b)) {
-			return false;
-		}
-		Sign sign = (Sign) b.getState();
-		return ChatColor.stripColor(sign.getLine(0)).equalsIgnoreCase(ShopType.ITRADE.toHeader());
-	}
-
-	/**
-	 * Returns true if it is a TradeShop (Regardless of its type).
-	 *
-	 * @param b the sign block
-	 * @return true if it is a TradeShop.
-	 */
-	public boolean isShopSign(Block b) {
-		return isTradeShopSign(b) || isInfiniteTradeShopSign(b) || isBiTradeShopSign(b);
-	}
-
-	/**
-	 * Returns true if it is a sign (not necessarily a TradeSign).
-	 *
-	 * @param b the sign block
-	 * @return true if it is a sign.
-	 */
-	public boolean isSign(Block b) {
-		return b != null && (b.getType() == Material.SIGN_POST || b.getType() == Material.WALL_SIGN);
-	}
-
-	/**
 	 * Returns true if the number is an {@code int}.
 	 *
 	 * @param str the string that should be parsed
@@ -435,7 +375,7 @@ public class Utils {
 
 		for (BlockFace face : faces) {
 			Block relative = chest.getRelative(face);
-			if (isShopSign(relative)) {
+			if (ShopType.isShop(relative)) {
 				return (Sign) relative.getState();
 			} else if (flatFaces.contains(face) && (chest.getType().equals(Material.CHEST) || chest.getType().equals(Material.TRAPPED_CHEST))) {
 				if (relative.getType().equals(chest.getType())) {
@@ -449,7 +389,7 @@ public class Utils {
 			chest = chest.getRelative(doubleSide);
 			for (BlockFace face : faces) {
 				Block relative = chest.getRelative(face);
-				if (isShopSign(relative)) {
+				if (ShopType.isShop(relative)) {
 					return (Sign) relative.getState();
 				}
 			}

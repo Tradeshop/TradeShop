@@ -119,7 +119,7 @@ public class AdminEventListener extends Utils implements Listener {
 
 		Shop shop = Shop.loadShop(s);
 
-		if (!e.getPlayer().hasPermission(Permissions.ADMIN.getPerm()) && isShopSign(s.getBlock())) {
+		if (!e.getPlayer().hasPermission(Permissions.ADMIN.getPerm()) && ShopType.isShop(s.getBlock())) {
 			if (!shop.getUsersUUID().contains(e.getPlayer().getUniqueId())) {
 				e.getPlayer().sendMessage(Message.NO_TS_OPEN.getPrefixed());
 				e.setCancelled(true);

@@ -42,7 +42,7 @@ public class ShopCreateListener extends Utils implements Listener {
 	@SuppressWarnings("deprecation")
 	@EventHandler
 	public void onSignChange(SignChangeEvent event) {
-		//TODO add empty chest at setup message
+		//TODO add empty chest at setup message, add support for empty itrade
 
 		Sign shopSign = (Sign) event.getBlock().getState();
 		shopSign.setLine(0, event.getLine(0));

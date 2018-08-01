@@ -352,7 +352,7 @@ public class Executor extends Utils implements CommandExecutor {
 				sender.sendMessage(Message.CHANGE_CLOSED.getPrefixed());
 				return true;
 
-			} else if (args[0].equalsIgnoreCase("who")) {
+			} else if (args[0].equalsIgnoreCase("who")) { //TODO add 'what' command - opens inventory with buy/sell items in it so player can view them
 				if (!(sender instanceof Player)) {
 					sender.sendMessage(Message.PLAYER_ONLY_COMMAND.getPrefixed());
 					return true;
