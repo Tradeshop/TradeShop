@@ -504,6 +504,8 @@ public class Executor extends Utils implements CommandExecutor {
 						break;
 				}
 
+				shop.saveShop();
+				shop.updateSign();
 				p.sendMessage(Message.UPDATED_SHOP_MEMBERS.getPrefixed());
 				return true;
 
@@ -544,7 +546,7 @@ public class Executor extends Utils implements CommandExecutor {
 				sender.sendMessage(colorize("&a" + name + " has been removed from the custom items."));
 				return true;
 
-			} else if (args[0].equalsIgnoreCase("getCI")) {
+			} else if (args[0].equalsIgnoreCase("getCI") || args[0].equalsIgnoreCase("items")) {
 				if (!(sender instanceof Player)) {
 					sender.sendMessage(Message.PLAYER_ONLY_COMMAND.getPrefixed());
 					return true;
