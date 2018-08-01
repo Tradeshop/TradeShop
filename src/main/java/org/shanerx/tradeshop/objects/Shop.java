@@ -308,11 +308,19 @@ public class Shop implements Serializable {
 		return status;
 	}
 
-	public void setOpen() {
-		if (missingItems()) {
+	public boolean setOpen() {
+		boolean ret;
+
+		if (!missingItems()) {
 			status = ShopStatus.OPEN;
-			updateSign();
+			ret = true;
+		} else {
+			status = ShopStatus.CLOSED;
+			ret = false;
 		}
+
+		updateSign();
+		return ret;
 	}
 
 	public boolean missingItems() {

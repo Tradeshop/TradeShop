@@ -35,6 +35,7 @@ import org.shanerx.tradeshop.enumys.Message;
 import org.shanerx.tradeshop.enumys.Permissions;
 import org.shanerx.tradeshop.enumys.ShopType;
 import org.shanerx.tradeshop.objects.Shop;
+import org.shanerx.tradeshop.objects.ShopChest;
 import org.shanerx.tradeshop.utils.Utils;
 
 public class AdminEventListener extends Utils implements Listener {
@@ -65,7 +66,7 @@ public class AdminEventListener extends Utils implements Listener {
 
 		} else if (plugin.getListManager().isInventory(block.getType())) {
 			if (player.hasPermission(Permissions.ADMIN.getPerm())) {
-				//shopUtils.resetInvName(block.getState()); TODO reset inventory name on break
+				new ShopChest(block.getLocation()).resetName();
 				return;
 			}
 
@@ -75,19 +76,19 @@ public class AdminEventListener extends Utils implements Listener {
 				if (s == null)
 					throw new Exception();
 			} catch (Exception e) {
-				//shopUtils.resetInvName(block.getState()); TODO reset inventory name on break
+				new ShopChest(block.getLocation()).resetName();
 				return;
 			}
 
 			if (!ShopType.isShop(s)) {
-				//shopUtils.resetInvName(block.getState()); TODO reset inventory name on break
+				new ShopChest(block.getLocation()).resetName();
 				return;
 			}
 
 			Shop shop = Shop.loadShop(s);
 
 			if (event.getPlayer().getUniqueId().equals(shop.getOwner())) {
-				//shopUtils.resetInvName(block.getState()); TODO reset inventory name on break
+				new ShopChest(block.getLocation()).resetName();
 				return;
 			}
 

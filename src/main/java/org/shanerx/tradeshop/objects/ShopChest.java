@@ -40,9 +40,8 @@ public class ShopChest {
 	private UUID owner;
 	private String sep1 = "\\& \\^", sep2 = ":";
 
-	public ShopChest(Location chestLoc, Location shopLoc) {
+	public ShopChest(Location chestLoc) {
 		this.loc = chestLoc;
-		this.shopSign = new ShopLocation(shopLoc);
 
 		getBlock();
 		loadFromName();
@@ -66,25 +65,36 @@ public class ShopChest {
 				((Nameable) chest.getState()).getCustomName() != null &&
 				((Nameable) chest.getState()).getCustomName().contains("Sign:l_")) {
 			String name[] = ((Nameable) chest.getState()).getCustomName().split(sep1);
-			shopSign = ShopLocation.deserialize(name[0].split(sep2)[1]);
-			owner = UUID.fromString(name[1].split(sep2)[1]);
+			shopSign = ShopLocation.deserialize(name[1].split(sep2)[1]);
+			owner = UUID.fromString(name[2].split(sep2)[1]);
 		}
 	}
 
 	public String getName() {
 		StringBuilder sb = new StringBuilder();
-		sb.append("Sign:");
-		sb.append(shopSign.serialize()); //TODO NPE from here 86-76
+		if (((Nameable) chest.getState()).getCustomName() != null) {
+			sb.append(((Nameable) chest.getState()).getCustomName());
+		}
+		sb.append("$ ^Sign:");
+		sb.append(shopSign.serialize());
 		sb.append("$ ^Owner:");
 		sb.append(owner.toString());
 
 		return sb.toString();
 	}
 
+	public void resetName() {
+		BlockState bs = chest.getState();
+		if (bs instanceof InventoryHolder && bs instanceof Nameable) {
+			((Nameable) bs).setCustomName(((Nameable) chest.getState()).getCustomName().split(sep1)[0]);
+			bs.update();
+		}
+	}
+
 	public void setName() {
 		BlockState bs = chest.getState();
 		if (bs instanceof InventoryHolder && bs instanceof Nameable) {
-			((Nameable) bs).setCustomName(getName()); //TODO NPE 86-76
+			((Nameable) bs).setCustomName(getName());
 			bs.update();
 		}
 	}

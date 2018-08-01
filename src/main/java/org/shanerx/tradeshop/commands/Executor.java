@@ -299,11 +299,14 @@ public class Executor extends Utils implements CommandExecutor {
 					return true;
 				}
 
-				shop.setOpen();
+				boolean opened = shop.setOpen();
 				shop.saveShop();
-				shop.updateSign();
 
-				sender.sendMessage(Message.CHANGE_OPEN.getPrefixed());
+				if (opened) {
+					sender.sendMessage(Message.CHANGE_OPEN.getPrefixed());
+				} else {
+					sender.sendMessage(Message.MISSING_ITEM.getPrefixed());
+				}
 				return true;
 
 			} else if (args[0].equalsIgnoreCase("close")) {
