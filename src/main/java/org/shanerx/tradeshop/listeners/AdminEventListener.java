@@ -59,7 +59,7 @@ public class AdminEventListener extends Utils implements Listener {
 				shop.remove();
 				return;
 
-			} else if (shop.getChest() != null && event.getPlayer().getUniqueId().equals(shop.getOwner())) {
+			} else if (shop.getInventory() != null && event.getPlayer().getUniqueId().equals(shop.getOwner())) {
 				shop.getChestAsSC().resetName();
 				shop.remove();
 				return;

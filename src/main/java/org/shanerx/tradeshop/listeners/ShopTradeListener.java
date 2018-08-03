@@ -62,7 +62,7 @@ public class ShopTradeListener extends Utils implements Listener {
 			JsonConfiguration json = new JsonConfiguration(s.getChunk());
 			shop = json.loadShop(new ShopLocation(s.getLocation()));
 
-			chestState = shop.getChest();
+			chestState = shop.getInventory();
 			if (!shop.getShopType().equals(ShopType.ITRADE) && chestState == null) {
 				buyer.sendMessage(Message.MISSING_SHOP.getPrefixed());
 				return;
@@ -243,19 +243,18 @@ public class ShopTradeListener extends Utils implements Listener {
 
 		} else if (e.getAction() == Action.LEFT_CLICK_BLOCK) {
 
-			if (ShopType.isShop(e.getClickedBlock())) {
-				s = (Sign) e.getClickedBlock().getState();
-			} else {
+			if (!ShopType.isShop(e.getClickedBlock())) {
 				return;
 			}
 
+			s = (Sign) e.getClickedBlock().getState();
 			shop = Shop.loadShop(s);
 
 			if (ShopType.getType(s) != ShopType.BITRADE) {
 				return;
 			}
 
-			chestState = shop.getChest();
+			chestState = shop.getInventory();
 			if (chestState == null) {
 				buyer.sendMessage(Message.MISSING_SHOP.getPrefixed());
 				return;
