@@ -51,8 +51,8 @@ public class Shop implements Serializable {
     private List<ShopUser> managers, members;
 	private ShopType shopType;
 	private ShopLocation shopLoc, chestLoc;
-	private transient ItemStack sellItem, buyItem;
-	private String sellItemB64, buyItemB64;
+	private transient ItemStack product, cost;
+	private String productB64, costB64;
 	private ShopStatus status = ShopStatus.CLOSED;
 
 	public Shop(Tuple<Location, Location> locations, ShopType shopType, ShopUser owner, Tuple<List<ShopUser>, List<ShopUser>> players, Tuple<ItemStack, ItemStack> items) {
@@ -62,11 +62,11 @@ public class Shop implements Serializable {
 		this.shopType = shopType;
 		managers = players.getLeft();
 		members = players.getRight();
-		sellItem = items.getLeft();
-		buyItem = items.getRight();
+		product = items.getLeft();
+		cost = items.getRight();
 
-		sellItemB64 = ItemSerializer.itemStackArrayToBase64(sellItem);
-		buyItemB64 = ItemSerializer.itemStackArrayToBase64(buyItem);
+		productB64 = ItemSerializer.itemStackArrayToBase64(product);
+		costB64 = ItemSerializer.itemStackArrayToBase64(cost);
 	}
 
 	public Shop(Tuple<Location, Location> locations, ShopType shopType, ShopUser owner) {
@@ -76,8 +76,8 @@ public class Shop implements Serializable {
 		this.shopType = shopType;
 		managers = Collections.emptyList();
 		members = Collections.emptyList();
-		sellItemB64 = "";
-		buyItemB64 = "";
+		productB64 = "";
+		costB64 = "";
 	}
 
 	public static Shop deserialize(String serialized) {
@@ -191,22 +191,22 @@ public class Shop implements Serializable {
 		return shopType;
 	}
 
-	public void setBuyItem(ItemStack newItem) {
-		buyItem = newItem;
-		buyItemB64 = ItemSerializer.itemStackArrayToBase64(buyItem);
+	public void setCost(ItemStack newItem) {
+		cost = newItem;
+		costB64 = ItemSerializer.itemStackArrayToBase64(cost);
 	}
 
-	public ItemStack getBuyItem() {
-		return buyItem;
+	public ItemStack getCost() {
+		return cost;
 	}
 
-	public void setSellItem(ItemStack newItem) {
-		sellItem = newItem;
-		sellItemB64 = ItemSerializer.itemStackArrayToBase64(sellItem);
+	public void setProduct(ItemStack newItem) {
+		product = newItem;
+		productB64 = ItemSerializer.itemStackArrayToBase64(product);
 	}
 
-	public ItemStack getSellItem() {
-		return sellItem;
+	public ItemStack getProduct() {
+		return product;
 	}
 
 	public void setShopType(ShopType newType) {
@@ -226,17 +226,17 @@ public class Shop implements Serializable {
 	}
 
 	public void itemsFromB64() {
-		if (sellItemB64.length() > 0 && sellItem == null) {
+		if (productB64.length() > 0 && product == null) {
 			try {
-				sellItem = ItemSerializer.itemStackArrayFromBase64(sellItemB64);
+				product = ItemSerializer.itemStackArrayFromBase64(productB64);
 			} catch (IOException ex) {
 				ex.printStackTrace();
 			}
 		}
 
-		if (buyItemB64.length() > 0 && buyItem == null) {
+		if (costB64.length() > 0 && cost == null) {
 			try {
-				buyItem = ItemSerializer.itemStackArrayFromBase64(buyItemB64);
+				cost = ItemSerializer.itemStackArrayFromBase64(costB64);
 			} catch (IOException ex) {
 				ex.printStackTrace();
 			}
@@ -297,12 +297,12 @@ public class Shop implements Serializable {
 			s.setLine(0, ChatColor.GRAY + shopType.toHeader());
 		}
 
-		if (sellItem != null) {
-			s.setLine(1, sellItem.getAmount() + " " + sellItem.getType());
+		if (product != null) {
+			s.setLine(1, product.getAmount() + " " + product.getType());
 		}
 
-		if (buyItem != null) {
-			s.setLine(2, buyItem.getAmount() + " " + buyItem.getType());
+		if (cost != null) {
+			s.setLine(2, cost.getAmount() + " " + cost.getType());
 		}
 
 		s.setLine(3, status.getLine());
@@ -337,7 +337,7 @@ public class Shop implements Serializable {
 	}
 
 	public boolean missingItems() {
-		return sellItem == null || buyItem == null;
+		return product == null || cost == null;
 	}
 
 	public void setClosed() {

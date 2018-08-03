@@ -69,6 +69,7 @@ public class ShopCreateListener extends Utils implements Listener {
 
 		ShopChest shopChest;
 		Block chest = findShopChest(event.getBlock());
+
 		if (ShopChest.isShopChest(chest)) {
 			shopChest = new ShopChest(chest.getLocation());
 		} else {

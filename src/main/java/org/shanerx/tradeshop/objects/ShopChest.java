@@ -23,17 +23,21 @@ package org.shanerx.tradeshop.objects;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.Nameable;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
+import org.bukkit.block.Chest;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.shanerx.tradeshop.TradeShop;
+import org.shanerx.tradeshop.utils.Utils;
 
 import java.util.UUID;
 
-public class ShopChest {
+public class ShopChest extends Utils {
 
 	//TODO make rename both halfs of a double chest
 
@@ -82,6 +86,10 @@ public class ShopChest {
 		}
 
 		return null;
+	}
+
+	public Block getOtherHalfOfDoubleChest() {
+		return Utils.getOtherHalfOfDoubleChest(chest);
 	}
 
 	public void loadFromName() {

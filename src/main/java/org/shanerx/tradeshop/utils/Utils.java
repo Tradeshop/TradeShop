@@ -26,6 +26,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
+import org.bukkit.block.Chest;
 import org.bukkit.block.Sign;
 import org.bukkit.event.block.SignChangeEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
@@ -422,10 +423,27 @@ public class Utils {
 	 * Checks to see if the shop chest is findable
 	 *
 	 * @param sign the TradeShop sign
-	 * @return the shop's inventory holder block.
+	 * @return whether the sign is linked to a chest.
 	 */
 	public boolean checkShopChest(Block sign) {
 		return findShopChest(sign) != null;
+	}
+
+	public static Block getOtherHalfOfDoubleChest(Block chest) {
+		for (BlockFace face : BlockFace.values()) {
+			Block adjoining = chest.getRelative(face);
+
+			if (adjoining.getType() != Material.CHEST) {
+				continue;
+			}
+
+			if (((Chest) adjoining.getState()).getInventory() == ((Chest) chest.getState()).getInventory()) {
+				return adjoining;
+			}
+
+		}
+
+		return null;
 	}
 
 	public void debug(String text) {

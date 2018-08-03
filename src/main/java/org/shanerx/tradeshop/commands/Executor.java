@@ -190,7 +190,7 @@ public class Executor extends Utils implements CommandExecutor {
 					return true;
 				}
 
-				shop.setSellItem(itemInHand);
+				shop.setProduct(itemInHand);
 				shop.saveShop();
 				shop.updateSign();
 
@@ -251,7 +251,7 @@ public class Executor extends Utils implements CommandExecutor {
 					return true;
 				}
 
-				shop.setBuyItem(itemInHand);
+				shop.setCost(itemInHand);
 				shop.saveShop();
 				shop.updateSign();
 
@@ -470,9 +470,9 @@ public class Executor extends Utils implements CommandExecutor {
 				productLabel.setItemMeta(productMeta);
 
 				shopContents.setItem(1, costLabel);
-				shopContents.setItem(2, shop.getSellItem());
+				shopContents.setItem(2, shop.getProduct());
 				shopContents.setItem(6, productLabel);
-				shopContents.setItem(7, shop.getBuyItem());
+				shopContents.setItem(7, shop.getCost());
 
 				p.openInventory(shopContents);
 				return true;

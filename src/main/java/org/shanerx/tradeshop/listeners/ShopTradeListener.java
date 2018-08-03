@@ -88,72 +88,72 @@ public class ShopTradeListener extends Utils implements Listener {
 
 			Inventory playerInventory = buyer.getInventory();
 
-			int amount1 = shop.getSellItem().getAmount();
-			int amount2 = shop.getBuyItem().getAmount();
+			int amountProd = shop.getProduct().getAmount();
+			int amountCost = shop.getCost().getAmount();
 
 			e.setCancelled(true);
 
 			if (buyer.isSneaking()) {
 				if (!buyer.isOnGround() && Setting.ALLOW_QUAD_TRADE.getBoolean()) {
-					amount1 = amount1 * 4;
-					amount2 = amount2 * 4;
+					amountProd *= 4;
+					amountCost *= 4;
 				} else if (Setting.ALLOW_DOUBLE_TRADE.getBoolean()) {
-					amount1 += amount1;
-					amount2 += amount2;
+					amountProd *= 2;
+					amountCost *= 2;
 				}
 			}
 
-			String item_name1, item_name2;
-			ItemStack item1 = shop.getSellItem(), item2 = shop.getBuyItem();
+			String productName, costName;
+			ItemStack product = shop.getProduct(), cost = shop.getCost();
 
-			if (!(isValidType(item1.getType().toString()) && isValidType(item2.getType().toString()))) {
+			if (!(isValidType(product.getType().toString()) && isValidType(cost.getType().toString()))) {
 				buyer.sendMessage(Message.ILLEGAL_ITEM.getPrefixed());
 				return;
 			}
 
-			if (item1.hasItemMeta()) item_name1 = item1.getItemMeta().getDisplayName();
-			else item_name1 = item1.getType().toString();
+			if (product.hasItemMeta()) productName = product.getItemMeta().getDisplayName();
+			else productName = product.getType().toString();
 
-            if (item2.hasItemMeta()) item_name2 = item2.getItemMeta().getDisplayName();
-			else item_name2 = item2.getType().toString();
+            if (cost.hasItemMeta()) costName = cost.getItemMeta().getDisplayName();
+			else costName = cost.getType().toString();
 
-			if (!containsAtLeast(playerInventory, item2)) {
+			if (!containsAtLeast(playerInventory, cost)) {
 				buyer.sendMessage(Message.INSUFFICIENT_ITEMS.getPrefixed()
-						.replace("{ITEM}", item_name2.toLowerCase()).replace("{AMOUNT}", String.valueOf(amount2)));
+						.replace("{ITEM}", costName.toLowerCase()).replace("{AMOUNT}", String.valueOf(amountCost)));
 				return;
 			}
 
-			if (!canExchange(playerInventory, item2, item1)) {
+			if (!canExchange(playerInventory, cost, product)) {
 				buyer.sendMessage(Message.PLAYER_FULL.getPrefixed()
-						.replace("{ITEM}", item_name2.toLowerCase()).replace("{AMOUNT}", String.valueOf(amount2)));
+						.replace("{ITEM}", costName.toLowerCase()).replace("{AMOUNT}", String.valueOf(amountCost)));
 				return;
 			}
 
 			if (chestInventory != null) {
-				if (!containsAtLeast(chestInventory, item1)) {
+				if (!containsAtLeast(chestInventory, product)) {
 					buyer.sendMessage(Message.SHOP_EMPTY.getPrefixed()
-							.replace("{ITEM}", item_name1.toLowerCase()).replace("{AMOUNT}", String.valueOf(amount1)));
+							.replace("{ITEM}", productName.toLowerCase()).replace("{AMOUNT}", String.valueOf(amountProd)));
 					return;
 				}
 
 
-				if (!canExchange(chestInventory, item1, item2)) {
+				if (!canExchange(chestInventory, product, cost)) {
 					buyer.sendMessage(Message.SHOP_FULL.getPrefixed()
-							.replace("{ITEM}", item_name1.toLowerCase()).replace("{AMOUNT}", String.valueOf(amount1)));
+							.replace("{ITEM}", productName.toLowerCase()).replace("{AMOUNT}", String.valueOf(amountProd)));
 					return;
 				}
 			}
 
-			int count = amount1, removed;
+			int count = amountProd, removed;
 
 			if (!shop.getShopType().equals(ShopType.ITRADE)) {
 				while (count > 0) {
 					boolean resetItem = false;
-					ItemStack temp = chestInventory.getItem(chestInventory.first(item1.getType())),
-							dupitm1 = item1.clone();
+					ItemStack temp = chestInventory.getItem(chestInventory.first(product.getType())),
+							dupitm1 = product.clone();
 
-					if (count > item1.getMaxStackSize()) {
-						removed = item1.getMaxStackSize();
+					if (count > product.getMaxStackSize()) {
+						removed = product.getMaxStackSize();
 					} else {
 						removed = count;
 					}
@@ -162,83 +162,83 @@ public class ShopTradeListener extends Utils implements Listener {
 						removed = temp.getAmount();
 					}
 
-					item1.setAmount(removed);
-					if (!item1.hasItemMeta() && temp.hasItemMeta()) {
-						item1.setItemMeta(temp.getItemMeta());
-						item1.setData(temp.getData());
+					product.setAmount(removed);
+					if (!product.hasItemMeta() && temp.hasItemMeta()) {
+						product.setItemMeta(temp.getItemMeta());
+						product.setData(temp.getData());
 						resetItem = true;
 					}
 
-					chestInventory.removeItem(item1);
-					playerInventory.addItem(item1);
+					chestInventory.removeItem(product);
+					playerInventory.addItem(product);
 
 					if (resetItem) {
-						item1 = dupitm1;
+						product = dupitm1;
 					}
 
 					count -= removed;
 				}
 
-				count = amount2;
+				count = amountCost;
 				while (count > 0) {
 					boolean resetItem = false;
-					ItemStack temp = chestInventory.getItem(chestInventory.first(item1.getType())),
-							dupitm1 = item1.clone();
-					if (count > item2.getMaxStackSize())
-						removed = item2.getMaxStackSize();
+					ItemStack temp = chestInventory.getItem(chestInventory.first(cost.getType())),
+							dupitm1 = cost.clone();
+					if (count > cost.getMaxStackSize())
+						removed = cost.getMaxStackSize();
 					else
 						removed = count;
 
 					if (removed > temp.getAmount())
 						removed = temp.getAmount();
 
-					item2.setAmount(removed);
-					if (!item1.hasItemMeta() && temp.hasItemMeta()) {
-						item1.setItemMeta(temp.getItemMeta());
-						item1.setData(temp.getData());
+					cost.setAmount(removed);
+					if (!cost.hasItemMeta() && temp.hasItemMeta()) {
+						cost.setItemMeta(temp.getItemMeta());
+						cost.setData(temp.getData());
 						resetItem = true;
 					}
 
-					playerInventory.removeItem(item2);
-					chestInventory.addItem(item2);
+					playerInventory.removeItem(cost);
+					chestInventory.addItem(cost);
 
 					if (resetItem) {
-						item1 = dupitm1;
+						cost = dupitm1;
 					}
 
 					count -= removed;
 				}
 			} else {
 				while (count > 0) {
-					if (count > item1.getMaxStackSize()) {
-						removed = item1.getMaxStackSize();
+					if (count > product.getMaxStackSize()) {
+						removed = product.getMaxStackSize();
 					} else {
 						removed = count;
 					}
 
-					item1.setAmount(removed);
-					playerInventory.addItem(item1);
+					product.setAmount(removed);
+					playerInventory.addItem(product);
 					count -= removed;
 				}
 
-				count = amount2;
+				count = amountCost;
 				while (count > 0) {
-					if (count > item2.getMaxStackSize())
-						removed = item2.getMaxStackSize();
+					if (count > cost.getMaxStackSize())
+						removed = cost.getMaxStackSize();
 					else
 						removed = count;
 
-					item2.setAmount(removed);
-					playerInventory.removeItem(item2);
+					cost.setAmount(removed);
+					playerInventory.removeItem(cost);
 					count -= removed;
 				}
 			}
 
             buyer.sendMessage(Message.ON_TRADE.getPrefixed()
-                    .replace("{AMOUNT1}", String.valueOf(amount1))
-                    .replace("{AMOUNT2}", String.valueOf(amount2))
-                    .replace("{ITEM1}", item_name1.toLowerCase())
-                    .replace("{ITEM2}", item_name2.toLowerCase())
+                    .replace("{AMOUNT1}", String.valueOf(amountProd))
+                    .replace("{AMOUNT2}", String.valueOf(amountCost))
+                    .replace("{ITEM1}", productName.toLowerCase())
+                    .replace("{ITEM2}", costName.toLowerCase())
                     .replace("{SELLER}", shop.getOwner().getPlayer().getName()));
 
 		} else if (e.getAction() == Action.LEFT_CLICK_BLOCK) {
@@ -276,73 +276,73 @@ public class ShopTradeListener extends Utils implements Listener {
 			Inventory chestInventory = ((InventoryHolder) chestState).getInventory();
 			Inventory playerInventory = buyer.getInventory();
 
-            int amount2 = shop.getBuyItem().getAmount();
-            int amount1 = shop.getSellItem().getAmount();
+			int amountProd = shop.getProduct().getAmount();
+			int amountCost = shop.getCost().getAmount();
 
 			if (buyer.isSneaking()) {
 				if (!buyer.isOnGround() && Setting.ALLOW_QUAD_TRADE.getBoolean()) {
-					amount2 *= 4;
-					amount1 *= 4;
+					amountProd *= 4;
+					amountCost *= 4;
 				} else if (Setting.ALLOW_DOUBLE_TRADE.getBoolean()) {
-					amount2 += amount2;
-					amount1 += amount1;
+					amountProd *= 2;
+					amountCost *= 2;
 				}
 			}
 
-			String item_name1, item_name2;
-			ItemStack item1 = shop.getSellItem(), item2 = shop.getBuyItem();
+			String productName, costName;
+			ItemStack product = shop.getProduct(), cost = shop.getCost();
 
-			if (item1 == null || item2 == null) {
+			if (product == null || cost == null) {
 				failedTrade(e, Message.BUY_FAILED_SIGN);
 				return;
-			} else if (isBlacklistItem(item1) || isBlacklistItem(item2)) {
+			} else if (isBlacklistItem(product) || isBlacklistItem(cost)) {
 				failedTrade(e, Message.ILLEGAL_ITEM);
 				return;
 			}
 
-			if (item1.hasItemMeta() && item1.getItemMeta().hasDisplayName()) {
-				item_name1 = item1.getItemMeta().getDisplayName();
+			if (product.hasItemMeta() && product.getItemMeta().hasDisplayName()) {
+				productName = product.getItemMeta().getDisplayName();
 			} else {
-                item_name1 = item1.getType().toString();
+                productName = product.getType().toString();
 			}
 
-			if (item2.hasItemMeta() && item2.getItemMeta().hasDisplayName()) {
-				item_name2 = item2.getItemMeta().getDisplayName();
+			if (cost.hasItemMeta() && cost.getItemMeta().hasDisplayName()) {
+				costName = cost.getItemMeta().getDisplayName();
 			} else {
-                item_name2 = item2.getType().toString();
+                costName = cost.getType().toString();
 			}
 
-			if (!containsAtLeast(playerInventory, item1)) {
+			if (!containsAtLeast(playerInventory, product)) {
 				buyer.sendMessage(Message.INSUFFICIENT_ITEMS.getPrefixed()
-						.replace("{ITEM}", item_name1.toLowerCase()).replace("{AMOUNT}", String.valueOf(amount1)));
+						.replace("{ITEM}", productName.toLowerCase()).replace("{AMOUNT}", String.valueOf(amountProd)));
 				return;
 			}
 
-			if (!containsAtLeast(chestInventory, item2)) {
+			if (!containsAtLeast(chestInventory, cost)) {
 				buyer.sendMessage(Message.SHOP_EMPTY.getPrefixed()
-						.replace("{ITEM}", item_name2.toLowerCase()).replace("{AMOUNT}", String.valueOf(amount2)));
+						.replace("{ITEM}", costName.toLowerCase()).replace("{AMOUNT}", String.valueOf(amountCost)));
 				return;
 			}
 
-			if (!canExchange(chestInventory, item2, item1)) {
+			if (!canExchange(chestInventory, cost, product)) {
 				buyer.sendMessage(Message.SHOP_FULL.getPrefixed()
-						.replace("{ITEM}", item_name2.toLowerCase()).replace("{AMOUNT}", String.valueOf(amount2)));
+						.replace("{ITEM}", costName.toLowerCase()).replace("{AMOUNT}", String.valueOf(cost)));
 				return;
 			}
 
-			if (!canExchange(playerInventory, item1, item2)) {
+			if (!canExchange(playerInventory, product, cost)) {
 				buyer.sendMessage(Message.PLAYER_FULL.getPrefixed()
-						.replace("{ITEM}", item_name1.toLowerCase()).replace("{AMOUNT}", String.valueOf(amount1)));
+						.replace("{ITEM}", productName.toLowerCase()).replace("{AMOUNT}", String.valueOf(amountProd)));
 				return;
 			}
 
-			int count = amount1, removed;
+			int count = amountProd, removed;
 			while (count > 0) {
 				boolean resetItem = false;
-				ItemStack temp = chestInventory.getItem(chestInventory.first(item1.getType())),
-						dupitm1 = item1.clone();
-				if (count > item1.getMaxStackSize()) {
-					removed = item1.getMaxStackSize();
+				ItemStack temp = chestInventory.getItem(chestInventory.first(product.getType())),
+						dupitm1 = product.clone();
+				if (count > product.getMaxStackSize()) {
+					removed = product.getMaxStackSize();
 				} else {
 					removed = count;
 				}
@@ -351,58 +351,58 @@ public class ShopTradeListener extends Utils implements Listener {
 					removed = temp.getAmount();
 				}
 
-				item1.setAmount(removed);
-				if (!item1.hasItemMeta() && temp.hasItemMeta()) {
-					item1.setItemMeta(temp.getItemMeta());
-					item1.setData(temp.getData());
+				product.setAmount(removed);
+				if (!product.hasItemMeta() && temp.hasItemMeta()) {
+					product.setItemMeta(temp.getItemMeta());
+					product.setData(temp.getData());
 					resetItem = true;
 				}
 
-				playerInventory.removeItem(item1);
-				chestInventory.addItem(item1);
+				playerInventory.removeItem(product);
+				chestInventory.addItem(product);
 
 				if (resetItem) {
-					item1 = dupitm1;
+					product = dupitm1;
 				}
 
 				count -= removed;
 			}
 
-			count = amount2;
+			count = amountCost;
 			while (count > 0) {
 				boolean resetItem = false;
-				ItemStack temp = chestInventory.getItem(chestInventory.first(item1.getType())),
-						dupitm1 = item1.clone();
-				if (count > item2.getMaxStackSize())
-					removed = item2.getMaxStackSize();
+				ItemStack temp = chestInventory.getItem(chestInventory.first(cost.getType())),
+						dupitm1 = cost.clone();
+				if (count > cost.getMaxStackSize())
+					removed = cost.getMaxStackSize();
 				else
 					removed = count;
 
 				if (removed > temp.getAmount())
 					removed = temp.getAmount();
 
-				item2.setAmount(removed);
-				if (!item1.hasItemMeta() && temp.hasItemMeta()) {
-					item1.setItemMeta(temp.getItemMeta());
-					item1.setData(temp.getData());
+				cost.setAmount(removed);
+				if (!cost.hasItemMeta() && temp.hasItemMeta()) {
+					cost.setItemMeta(temp.getItemMeta());
+					cost.setData(temp.getData());
 					resetItem = true;
 				}
 
-				chestInventory.removeItem(item2);
-				playerInventory.addItem(item2);
+				chestInventory.removeItem(cost);
+				playerInventory.addItem(cost);
 
 				if (resetItem) {
-					item1 = dupitm1;
+					cost = dupitm1;
 				}
 
 				count -= removed;
 			}
 
             buyer.sendMessage(Message.ON_TRADE.getPrefixed()
-                    .replace("{AMOUNT2}", String.valueOf(amount1))
-                    .replace("{AMOUNT1}", String.valueOf(amount2))
-                    .replace("{ITEM2}", item_name1.toLowerCase())
-                    .replace("{ITEM1}", item_name2.toLowerCase())
+                    .replace("{AMOUNT2}", String.valueOf(amountCost))
+                    .replace("{AMOUNT1}", String.valueOf(amountProd))
+                    .replace("{ITEM2}", costName.toLowerCase())
+                    .replace("{ITEM1}", productName.toLowerCase())
                     .replace("{SELLER}", shop.getOwner().getPlayer().getName()));
 		}
 	}
