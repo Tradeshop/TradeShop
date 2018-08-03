@@ -23,12 +23,9 @@ package org.shanerx.tradeshop.objects;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.Nameable;
 import org.bukkit.block.Block;
-import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
-import org.bukkit.block.Chest;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
@@ -143,7 +140,11 @@ public class ShopChest extends Utils {
 		BlockState bs = chest.getState();
 		if (bs instanceof InventoryHolder && bs instanceof Nameable) {
 			((Nameable) bs).setCustomName(getName());
-			((Nameable) Utils.getOtherHalfOfDoubleChest(chest).getState()).setCustomName(getName());
+
+			if (Utils.isDoubleChest(chest)) {
+				((Nameable) Utils.getOtherHalfOfDoubleChest(chest).getState()).setCustomName(getName());
+			}
+
 			bs.update();
 		}
 	}

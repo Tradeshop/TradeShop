@@ -21,6 +21,7 @@
 
 package org.shanerx.tradeshop.listeners;
 
+import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
@@ -29,6 +30,7 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.shanerx.tradeshop.TradeShop;
 import org.shanerx.tradeshop.enumys.Message;
@@ -122,6 +124,40 @@ public class AdminEventListener extends Utils implements Listener {
 				e.setCancelled(true);
 			}
 		}
+	}
+
+	@EventHandler(priority = EventPriority.HIGH)
+	public void onBlockPlace(BlockPlaceEvent event) {
+		Block block = event.getBlock();
+		if (block.getType() != Material.CHEST || block.getType() != Material.TRAPPED_CHEST) {
+			return;
+		}
+
+		if (!plugin.getListManager().getInventories().contains(block.getType())) {
+			return;
+		}
+
+		if (!isDoubleChest(block)) {
+			return;
+		}
+
+		Block otherhalf = getOtherHalfOfDoubleChest(block);
+		Player p = event.getPlayer();
+
+		if (!ShopChest.isShopChest(otherhalf)) {
+			return;
+		}
+
+		ShopChest shopOtherHalf = new ShopChest(otherhalf.getLocation());
+
+		if (shopOtherHalf.hasOwner() && !shopOtherHalf.getOwner().equals(p.getUniqueId())) {
+			event.setCancelled(true);
+			return;
+		}
+
+		ShopChest shopChest = new ShopChest(block, shopOtherHalf.getOwner(), shopOtherHalf.getShopSign().getLocation());
+		shopChest.setName();
+		return;
 	}
 }
 

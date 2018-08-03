@@ -26,7 +26,6 @@ import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
-import org.bukkit.block.Chest;
 import org.bukkit.block.Sign;
 import org.bukkit.event.block.SignChangeEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
@@ -430,20 +429,24 @@ public class Utils {
 	}
 
 	public static Block getOtherHalfOfDoubleChest(Block chest) {
-		for (BlockFace face : BlockFace.values()) {
+		if (chest.getType() != Material.CHEST || chest.getType() != Material.TRAPPED_CHEST) {
+			return null;
+		}
+		ArrayList<BlockFace> flatFaces = new ArrayList<>(Arrays.asList(BlockFace.NORTH, BlockFace.EAST, BlockFace.SOUTH, BlockFace.WEST));
+
+		for (BlockFace face : flatFaces) {
 			Block adjoining = chest.getRelative(face);
 
-			if (adjoining.getType() != Material.CHEST) {
-				continue;
-			}
-
-			if (((Chest) adjoining.getState()).getInventory() == ((Chest) chest.getState()).getInventory()) {
+			if (adjoining.getType() == chest.getType()) {
 				return adjoining;
 			}
-
 		}
 
 		return null;
+	}
+
+	public static boolean isDoubleChest(Block chest) {
+		return getOtherHalfOfDoubleChest(chest) != null;
 	}
 
 	public void debug(String text) {
