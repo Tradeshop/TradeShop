@@ -55,11 +55,13 @@ public class AdminEventListener extends Utils implements Listener {
 			Shop shop = Shop.loadShop((Sign) block.getState());
 
 			if (player.hasPermission(Permissions.ADMIN.getPerm())) {
-				new ShopChest(findShopChest(block).getLocation()).resetName();
+				shop.getChestAsSC().resetName();
+				shop.remove();
 				return;
 
 			} else if (shop.getChest() != null && event.getPlayer().getUniqueId().equals(shop.getOwner())) {
-				new ShopChest(findShopChest(block).getLocation()).resetName();
+				shop.getChestAsSC().resetName();
+				shop.remove();
 				return;
 
 			}
@@ -86,7 +88,8 @@ public class AdminEventListener extends Utils implements Listener {
 			Shop shop = Shop.loadShop(s);
 
 			if (event.getPlayer().getUniqueId().equals(shop.getOwner())) {
-				new ShopChest(block.getLocation()).resetName();
+				shop.getChestAsSC().resetName();
+				shop.remove();
 				return;
 			}
 

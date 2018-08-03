@@ -118,6 +118,10 @@ public class Shop implements Serializable {
 		return users;
 	}
 
+	public ShopChest getChestAsSC() {
+		return new ShopChest(chestLoc.getLocation());
+	}
+
     public List<ShopUser> getMembers() {
         return members;
     }
@@ -330,6 +334,12 @@ public class Shop implements Serializable {
 	public void setClosed() {
 		status = ShopStatus.CLOSED;
 		updateSign();
+	}
+
+	public void remove() {
+		JsonConfiguration json = new JsonConfiguration(shopLoc.getLocation().getChunk());
+
+		json.removeShop(shopLoc);
 	}
 
 	public boolean isOpen() {

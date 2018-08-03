@@ -261,12 +261,12 @@ public class ShopTradeListener extends Utils implements Listener {
 				return;
 			}
 
-			if (shop.getUsers().contains(buyer.getUniqueId())) {
-				buyer.sendMessage(Message.SELF_OWNED.getPrefixed());
+			if (shop.getUsersUUID().contains(buyer.getUniqueId())) {
 				if (buyer.getUniqueId().equals(shop.getOwner().getUUID())) {
 					return;
 				}
 
+				buyer.sendMessage(Message.SELF_OWNED.getPrefixed());
 				e.setCancelled(true);
 				return;
 			}

@@ -26,12 +26,16 @@ import org.bukkit.Location;
 import org.bukkit.Nameable;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
+import org.bukkit.inventory.ItemStack;
 import org.shanerx.tradeshop.TradeShop;
 
 import java.util.UUID;
 
 public class ShopChest {
+
+	//TODO make rename both halfs of a double chest
 
 	private transient static TradeShop plugin = (TradeShop) Bukkit.getPluginManager().getPlugin("TradeShop");
 	private ShopLocation shopSign;
@@ -54,10 +58,30 @@ public class ShopChest {
 		this.chest = chest;
 	}
 
-	public void getBlock() {
+	public static boolean isShopChest(Block checking) {
+		return checking != null &&
+				plugin.getListManager().getInventories().contains(checking.getType()) &&
+				((Nameable) checking.getState()).getCustomName() != null &&
+				((Nameable) checking.getState()).getCustomName().contains("$ ^Sign:l_");
+	}
+
+	private void getBlock() {
 		if (loc.getBlock() != null && plugin.getListManager().getInventories().contains(loc.getBlock().getType())) {
 			chest = loc.getBlock();
 		}
+	}
+
+	public BlockState getBlockState() {
+		return chest.getState();
+	}
+
+	public Inventory getInventory() {
+		BlockState bs = chest.getState();
+		if (bs instanceof InventoryHolder) {
+			return ((InventoryHolder) bs).getInventory();
+		}
+
+		return null;
 	}
 
 	public void loadFromName() {
@@ -68,6 +92,21 @@ public class ShopChest {
 			shopSign = ShopLocation.deserialize(name[1].split(sep2)[1]);
 			owner = UUID.fromString(name[2].split(sep2)[1]);
 		}
+	}
+
+	public boolean isEmpty() {
+		Inventory inv = getInventory();
+		if (inv == null) {
+			return true;
+		}
+
+		for (ItemStack i : inv.getStorageContents()) {
+			if (i != null) {
+				return false;
+			}
+		}
+
+		return true;
 	}
 
 	public String getName() {

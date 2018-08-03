@@ -22,6 +22,7 @@
 package org.shanerx.tradeshop.listeners;
 
 import org.bukkit.ChatColor;
+import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -42,7 +43,7 @@ public class ShopCreateListener extends Utils implements Listener {
 	@SuppressWarnings("deprecation")
 	@EventHandler
 	public void onSignChange(SignChangeEvent event) {
-		//TODO add empty chest at setup message, add support for empty itrade
+		//TODO add support for chestless itrade, 1 sign per chest
 
 		Sign shopSign = (Sign) event.getBlock().getState();
 		shopSign.setLine(0, event.getLine(0));
@@ -66,13 +67,26 @@ public class ShopCreateListener extends Utils implements Listener {
 			return;
 		}
 
-		ShopChest shopChest = new ShopChest(findShopChest(event.getBlock()), p.getUniqueId(), shopSign.getLocation());
-		Shop shop = new Shop(new Tuple<>(shopSign.getLocation(), shopChest.getChest().getLocation()), shopType, owner);
+		ShopChest shopChest;
+		Block chest = findShopChest(event.getBlock());
+		if (ShopChest.isShopChest(chest)) {
+			shopChest = new ShopChest(chest.getLocation());
+		} else {
+			shopChest = new ShopChest(chest, p.getUniqueId(), shopSign.getLocation());
+		}
 
 		if (shopChest.hasOwner() && !shopChest.getOwner().equals(owner.getUUID())) {
-				failedSign(event, shopType, Message.NOT_OWNER);
-				return;
+			failedSign(event, shopType, Message.NOT_OWNER);
+			return;
 		}
+
+		if (shopChest.hasShop() && !shopChest.getShopSign().getLocation().equals(shopSign.getLocation())) {
+			failedSign(event, shopType, Message.EXISTING_SHOP);
+			return;
+		}
+
+
+		Shop shop = new Shop(new Tuple<>(shopSign.getLocation(), shopChest.getChest().getLocation()), shopType, owner);
 
 		if (shop.missingItems()) {
 			event.setLine(0, ChatColor.GRAY + shopType.toHeader());
@@ -86,6 +100,9 @@ public class ShopCreateListener extends Utils implements Listener {
 		shopChest.setName();
 
 		p.sendMessage(Message.SUCCESSFUL_SETUP.getPrefixed());
+		if (shopChest.isEmpty()) {
+			p.sendMessage(Message.EMPTY_TS_ON_SETUP.getPrefixed());
+		}
 		return;
 	}
 }
