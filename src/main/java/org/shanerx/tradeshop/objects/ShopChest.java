@@ -39,8 +39,6 @@ import java.util.UUID;
 
 public class ShopChest extends Utils {
 
-	//TODO make rename both halfs of a double chest
-
 	private transient static TradeShop plugin = (TradeShop) Bukkit.getPluginManager().getPlugin("TradeShop");
 	private ShopLocation shopSign;
 	private Location loc;
