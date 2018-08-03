@@ -345,4 +345,14 @@ public class Shop implements Serializable {
 	public boolean isOpen() {
 		return status == ShopStatus.OPEN;
 	}
+
+	public void switchType() {
+		if (shopType == ShopType.TRADE)
+			setShopType(ShopType.BITRADE);
+		else if (shopType == ShopType.BITRADE)
+			setShopType(ShopType.TRADE);
+
+		updateSign();
+		saveShop();
+	}
 }

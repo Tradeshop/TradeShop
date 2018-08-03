@@ -290,7 +290,7 @@ public class ShopTradeListener extends Utils implements Listener {
 			}
 
 			String item_name1, item_name2;
-			ItemStack item1 = shop.getBuyItem(), item2 = shop.getSellItem();
+			ItemStack item1 = shop.getSellItem(), item2 = shop.getBuyItem();
 
 			if (item1 == null || item2 == null) {
 				failedTrade(e, Message.BUY_FAILED_SIGN);

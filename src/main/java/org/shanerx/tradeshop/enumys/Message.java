@@ -72,6 +72,7 @@ public enum Message {
 	CHANGE_CLOSED,
 	CHANGE_OPEN,
 	EXISTING_SHOP,
+	SHOP_TYPE_SWITCHED,
 	WHO_MESSAGE;
 
 	@Override
@@ -135,6 +136,7 @@ public enum Message {
 		addMessage("change-open", "&aThe shop is now &l&bOPEN&r&a.");
 		addMessage("player-not-found", "&cThat player could not be found.");
 		addMessage("existing-shop", "&cYou may only have 1 shop per inventory block.");
+		addMessage("shop-type-switched", "&aShop type has been switched to %newtype%.");
 
 		save();
 	}

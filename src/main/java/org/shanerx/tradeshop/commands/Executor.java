@@ -355,6 +355,50 @@ public class Executor extends Utils implements CommandExecutor {
 				sender.sendMessage(Message.CHANGE_CLOSED.getPrefixed());
 				return true;
 
+			} else if (args[0].equalsIgnoreCase("switch")) {
+				if (!(sender instanceof Player)) {
+					sender.sendMessage(Message.PLAYER_ONLY_COMMAND.getPrefixed());
+					return true;
+				}
+
+				if (!sender.hasPermission(Permissions.EDIT.getPerm())) {
+					sender.sendMessage(Message.NO_COMMAND_PERMISSION.getPrefixed());
+					return true;
+				}
+
+				Player p = (Player) sender;
+				Block b = p.getTargetBlock(null, Setting.MAX_EDIT_DISTANCE.getInt());
+
+				if (b == null || b.getType() == Material.AIR) {
+					p.sendMessage(Message.NO_SIGHTED_SHOP.getPrefixed());
+					return true;
+
+				}
+
+				Shop shop;
+
+				if (ShopType.isShop(b)) {
+					shop = Shop.loadShop((Sign) b.getState());
+				} else if (plugin.getListManager().isInventory(b.getType()) &&
+						((InventoryHolder) b.getState()).getInventory().getName().contains("$ ^Sign:l_")) {
+					String loc = ((InventoryHolder) b.getState()).getInventory().getName().split("$ ^")[0];
+					loc.replace("Sign:", "");
+					shop = Shop.loadShop(loc);
+				} else {
+					p.sendMessage(Message.NO_SIGHTED_SHOP.getPrefixed());
+					return true;
+				}
+
+				if (!(shop.getOwner().getUUID().equals(p.getUniqueId()) || shop.getManagersUUID().contains(p.getUniqueId()))) {
+					p.sendMessage(Message.NO_EDIT.getPrefixed());
+					return true;
+				}
+
+				shop.switchType();
+
+				sender.sendMessage(Message.SHOP_TYPE_SWITCHED.getPrefixed().replace("%newtype%", shop.getShopType().toHeader()));
+				return true;
+
 			} else if (args[0].equalsIgnoreCase("who")) { //TODO add 'what' command - opens inventory with buy/sell items in it so player can view them
 				if (!(sender instanceof Player)) {
 					sender.sendMessage(Message.PLAYER_ONLY_COMMAND.getPrefixed());
