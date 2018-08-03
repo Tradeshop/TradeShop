@@ -30,8 +30,10 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.shanerx.tradeshop.TradeShop;
 import org.shanerx.tradeshop.enumys.Message;
 import org.shanerx.tradeshop.enumys.Permissions;
@@ -42,6 +44,7 @@ import org.shanerx.tradeshop.objects.Shop;
 import org.shanerx.tradeshop.objects.ShopUser;
 import org.shanerx.tradeshop.utils.Utils;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Set;
 
@@ -399,7 +402,82 @@ public class Executor extends Utils implements CommandExecutor {
 				sender.sendMessage(Message.SHOP_TYPE_SWITCHED.getPrefixed().replace("%newtype%", shop.getShopType().toHeader()));
 				return true;
 
-			} else if (args[0].equalsIgnoreCase("who")) { //TODO add 'what' command - opens inventory with buy/sell items in it so player can view them
+			} else if (args[0].equalsIgnoreCase("what")) {
+				if (!(sender instanceof Player)) {
+					sender.sendMessage(Message.PLAYER_ONLY_COMMAND.getPrefixed());
+					return true;
+				}
+
+				if (!sender.hasPermission(Permissions.EDIT.getPerm())) {
+					sender.sendMessage(Message.NO_COMMAND_PERMISSION.getPrefixed());
+					return true;
+				}
+
+				Player p = (Player) sender;
+				Block b = p.getTargetBlock(null, Setting.MAX_EDIT_DISTANCE.getInt());
+
+				if (b == null || b.getType() == Material.AIR) {
+					p.sendMessage(Message.NO_SIGHTED_SHOP.getPrefixed());
+					return true;
+
+				}
+
+				Shop shop;
+
+				if (ShopType.isShop(b)) {
+					shop = Shop.loadShop((Sign) b.getState());
+				} else if (plugin.getListManager().isInventory(b.getType()) &&
+						((InventoryHolder) b.getState()).getInventory().getName().contains("$ ^Sign:l_")) {
+					String loc = ((InventoryHolder) b.getState()).getInventory().getName().split("$ ^")[0];
+					loc.replace("Sign:", "");
+					shop = Shop.loadShop(loc);
+				} else {
+					p.sendMessage(Message.NO_SIGHTED_SHOP.getPrefixed());
+					return true;
+				}
+
+				if (!(shop.getOwner().getUUID().equals(p.getUniqueId()) || shop.getManagersUUID().contains(p.getUniqueId()))) {
+					p.sendMessage(Message.NO_EDIT.getPrefixed());
+					return true;
+				}
+
+				Inventory shopContents = Bukkit.createInventory(null, 9, colorize(Bukkit.getOfflinePlayer(shop.getOwner().getUUID()).getName() + "'s Shop                                 "));
+
+				ItemStack costLabel = new ItemStack(Material.STAINED_GLASS_PANE, 1, (short) 13),
+						productLabel = new ItemStack(Material.STAINED_GLASS_PANE, 1, (short) 4);
+
+				ItemMeta costMeta = costLabel.getItemMeta(),
+						productMeta = productLabel.getItemMeta();
+
+				ArrayList<String> costLore = new ArrayList<>();
+				costLore.add("This is the item");
+				costLore.add("removed from your");
+				costLore.add("inventory to make");
+				costLore.add("a trade.");
+
+				ArrayList<String> productLore = new ArrayList<>();
+				productLore.add("This is the item");
+				productLore.add("the you receive");
+				productLore.add("from a trade.");
+
+				costMeta.setDisplayName("Cost Item");
+				costMeta.setLore(costLore);
+
+				productMeta.setDisplayName("Product Item");
+				productMeta.setLore(productLore);
+
+				costLabel.setItemMeta(costMeta);
+				productLabel.setItemMeta(productMeta);
+
+				shopContents.setItem(1, costLabel);
+				shopContents.setItem(2, shop.getSellItem());
+				shopContents.setItem(6, productLabel);
+				shopContents.setItem(7, shop.getBuyItem());
+
+				p.openInventory(shopContents);
+				return true;
+
+			} else if (args[0].equalsIgnoreCase("who")) {
 				if (!(sender instanceof Player)) {
 					sender.sendMessage(Message.PLAYER_ONLY_COMMAND.getPrefixed());
 					return true;

@@ -28,6 +28,7 @@ import org.shanerx.tradeshop.commands.Executor;
 import org.shanerx.tradeshop.enumys.Message;
 import org.shanerx.tradeshop.enumys.Setting;
 import org.shanerx.tradeshop.listeners.AdminEventListener;
+import org.shanerx.tradeshop.listeners.CustomInventoryListener;
 import org.shanerx.tradeshop.listeners.ShopCreateListener;
 import org.shanerx.tradeshop.listeners.ShopTradeListener;
 import org.shanerx.tradeshop.objects.CustomItemManager;
@@ -73,6 +74,7 @@ public class TradeShop extends JavaPlugin {
 		pm.registerEvents(new AdminEventListener(this), this);
 		pm.registerEvents(new ShopCreateListener(), this);
 		pm.registerEvents(new ShopTradeListener(), this);
+		pm.registerEvents(new CustomInventoryListener(), this);
 
 		getCommand("tradeshop").setExecutor(new Executor(this));
 

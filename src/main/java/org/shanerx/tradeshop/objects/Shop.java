@@ -32,14 +32,15 @@ import org.bukkit.inventory.ItemStack;
 import org.shanerx.tradeshop.enumys.ShopRole;
 import org.shanerx.tradeshop.enumys.ShopStatus;
 import org.shanerx.tradeshop.enumys.ShopType;
+import org.shanerx.tradeshop.utils.ItemSerializer;
 import org.shanerx.tradeshop.utils.JsonConfiguration;
 import org.shanerx.tradeshop.utils.Tuple;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -51,7 +52,7 @@ public class Shop implements Serializable {
 	private ShopType shopType;
 	private ShopLocation shopLoc, chestLoc;
 	private transient ItemStack sellItem, buyItem;
-	private Map<String, Object> sellItemMap, buyItemMap;
+	private String sellItemB64, buyItemB64;
 	private ShopStatus status = ShopStatus.CLOSED;
 
 	public Shop(Tuple<Location, Location> locations, ShopType shopType, ShopUser owner, Tuple<List<ShopUser>, List<ShopUser>> players, Tuple<ItemStack, ItemStack> items) {
@@ -64,8 +65,8 @@ public class Shop implements Serializable {
 		sellItem = items.getLeft();
 		buyItem = items.getRight();
 
-		sellItemMap = sellItem.serialize();
-		buyItemMap = buyItem.serialize();
+		sellItemB64 = ItemSerializer.itemStackArrayToBase64(sellItem);
+		buyItemB64 = ItemSerializer.itemStackArrayToBase64(buyItem);
 	}
 
 	public Shop(Tuple<Location, Location> locations, ShopType shopType, ShopUser owner) {
@@ -75,13 +76,13 @@ public class Shop implements Serializable {
 		this.shopType = shopType;
 		managers = Collections.emptyList();
 		members = Collections.emptyList();
-		sellItemMap = Collections.emptyMap();
-		buyItemMap = Collections.emptyMap();
+		sellItemB64 = "";
+		buyItemB64 = "";
 	}
 
 	public static Shop deserialize(String serialized) {
 		Shop shop = new Gson().fromJson(serialized, Shop.class);
-		shop.itemFromMap();
+		shop.itemsFromB64();
 
 		return shop;
 	}
@@ -192,7 +193,7 @@ public class Shop implements Serializable {
 
 	public void setBuyItem(ItemStack newItem) {
 		buyItem = newItem;
-		buyItemMap = buyItem.serialize();
+		buyItemB64 = ItemSerializer.itemStackArrayToBase64(buyItem);
 	}
 
 	public ItemStack getBuyItem() {
@@ -201,7 +202,7 @@ public class Shop implements Serializable {
 
 	public void setSellItem(ItemStack newItem) {
 		sellItem = newItem;
-		sellItemMap = sellItem.serialize();
+		sellItemB64 = ItemSerializer.itemStackArrayToBase64(sellItem);
 	}
 
 	public ItemStack getSellItem() {
@@ -224,13 +225,21 @@ public class Shop implements Serializable {
 		return new Gson().toJson(this);
 	}
 
-	public void itemFromMap() {
-		if (sellItemMap.size() > 0 && sellItem == null) {
-			sellItem = ItemStack.deserialize(sellItemMap);
+	public void itemsFromB64() {
+		if (sellItemB64.length() > 0 && sellItem == null) {
+			try {
+				sellItem = ItemSerializer.itemStackArrayFromBase64(sellItemB64);
+			} catch (IOException ex) {
+				ex.printStackTrace();
+			}
 		}
 
-		if (buyItemMap.size() > 0 && buyItem == null) {
-			buyItem = ItemStack.deserialize(buyItemMap);
+		if (buyItemB64.length() > 0 && buyItem == null) {
+			try {
+				buyItem = ItemSerializer.itemStackArrayFromBase64(buyItemB64);
+			} catch (IOException ex) {
+				ex.printStackTrace();
+			}
 		}
 	}
 
@@ -243,7 +252,7 @@ public class Shop implements Serializable {
 	}
 
 	public void fixAfterLoad() {
-		itemFromMap();
+		itemsFromB64();
 		shopLoc.stringToWorld();
 		chestLoc.stringToWorld();
 	}
