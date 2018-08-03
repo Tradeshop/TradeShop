@@ -111,10 +111,12 @@ public class ShopTradeListener extends Utils implements Listener {
 				return;
 			}
 
-			if (product.hasItemMeta()) productName = product.getItemMeta().getDisplayName();
+			if (product.hasItemMeta() && product.getItemMeta().hasDisplayName())
+				productName = product.getItemMeta().getDisplayName();
 			else productName = product.getType().toString();
 
-            if (cost.hasItemMeta()) costName = cost.getItemMeta().getDisplayName();
+			if (cost.hasItemMeta() && cost.getItemMeta().hasDisplayName())
+				costName = cost.getItemMeta().getDisplayName();
 			else costName = cost.getType().toString();
 
 			if (!containsAtLeast(playerInventory, cost)) {
@@ -132,7 +134,8 @@ public class ShopTradeListener extends Utils implements Listener {
 			if (chestInventory != null) {
 				if (!containsAtLeast(chestInventory, product)) {
 					buyer.sendMessage(Message.SHOP_EMPTY.getPrefixed()
-							.replace("{ITEM}", productName.toLowerCase()).replace("{AMOUNT}", String.valueOf(amountProd)));
+							.replace("{ITEM}", productName.toLowerCase())
+							.replace("{AMOUNT}", String.valueOf(amountProd)));
 					return;
 				}
 
