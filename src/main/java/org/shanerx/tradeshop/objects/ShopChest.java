@@ -134,6 +134,9 @@ public class ShopChest extends Utils {
 		BlockState bs = chest.getState();
 		if (bs instanceof InventoryHolder && bs instanceof Nameable) {
 			((Nameable) bs).setCustomName(((Nameable) chest.getState()).getCustomName().split(sep1)[0]);
+			((Nameable) Utils.getOtherHalfOfDoubleChest(chest).getState()).setCustomName(
+					((Nameable) Utils.getOtherHalfOfDoubleChest(chest).getState()).getCustomName().split(sep1)[0]);
+
 			bs.update();
 		}
 	}
@@ -142,6 +145,7 @@ public class ShopChest extends Utils {
 		BlockState bs = chest.getState();
 		if (bs instanceof InventoryHolder && bs instanceof Nameable) {
 			((Nameable) bs).setCustomName(getName());
+			((Nameable) Utils.getOtherHalfOfDoubleChest(chest).getState()).setCustomName(getName());
 			bs.update();
 		}
 	}
