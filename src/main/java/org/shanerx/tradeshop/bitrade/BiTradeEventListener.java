@@ -193,8 +193,8 @@ public class BiTradeEventListener extends Utils implements Listener {
             count = amount2;
             while (count > 0) {
                 boolean resetItem = false;
-				ItemStack temp = playerInventory.getItem(playerInventory.first(item2.getType())),
-						dupitm2 = item2.clone();
+                ItemStack temp = chestInventory.getItem(chestInventory.first(item1.getType())),
+                        dupitm1 = item1.clone();
                 if (count > item2.getMaxStackSize())
                     removed = item2.getMaxStackSize();
                 else
@@ -204,9 +204,9 @@ public class BiTradeEventListener extends Utils implements Listener {
                     removed = temp.getAmount();
 
                 item2.setAmount(removed);
-				if (!item2.hasItemMeta() && temp.hasItemMeta()) {
-					item2.setItemMeta(temp.getItemMeta());
-					item2.setData(temp.getData());
+                if (!item1.hasItemMeta() && temp.hasItemMeta()) {
+                    item1.setItemMeta(temp.getItemMeta());
+                    item1.setData(temp.getData());
                     resetItem = true;
                 }
 
@@ -214,7 +214,7 @@ public class BiTradeEventListener extends Utils implements Listener {
                 chestInventory.addItem(item2);
 
                 if (resetItem) {
-					item2 = dupitm2;
+                    item1 = dupitm1;
                 }
 
                 count -= removed;
@@ -377,8 +377,8 @@ public class BiTradeEventListener extends Utils implements Listener {
             count = amount2;
             while (count > 0) {
                 boolean resetItem = false;
-				ItemStack temp = playerInventory.getItem(playerInventory.first(item2.getType())),
-						dupitm2 = item2.clone();
+                ItemStack temp = chestInventory.getItem(chestInventory.first(item1.getType())),
+                        dupitm1 = item1.clone();
                 if (count > item2.getMaxStackSize())
                     removed = item2.getMaxStackSize();
                 else
@@ -388,9 +388,9 @@ public class BiTradeEventListener extends Utils implements Listener {
                     removed = temp.getAmount();
 
                 item2.setAmount(removed);
-				if (!item2.hasItemMeta() && temp.hasItemMeta()) {
-					item2.setItemMeta(temp.getItemMeta());
-					item2.setData(temp.getData());
+                if (!item1.hasItemMeta() && temp.hasItemMeta()) {
+                    item1.setItemMeta(temp.getItemMeta());
+                    item1.setData(temp.getData());
                     resetItem = true;
                 }
 
@@ -398,7 +398,7 @@ public class BiTradeEventListener extends Utils implements Listener {
                 playerInventory.addItem(item2);
 
                 if (resetItem) {
-					item2 = dupitm2;
+                    item1 = dupitm1;
                 }
 
                 count -= removed;
