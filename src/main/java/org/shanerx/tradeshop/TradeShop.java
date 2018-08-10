@@ -44,8 +44,12 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class TradeShop extends JavaPlugin {
 
@@ -58,11 +62,11 @@ public class TradeShop extends JavaPlugin {
 	private File customItemsFile = new File(this.getDataFolder(), "customitems.yml");
 	private FileConfiguration customItems;
 
-	private boolean mc18 = this.getServer().getVersion().contains("1.8");
-
 	private ArrayList<Material> inventories = new ArrayList<>();
 	private ArrayList<BlockFace> directions = new ArrayList<>();
 	private ArrayList<String> blacklist = new ArrayList<>();
+
+	private Map<String, Integer> verMap;
 
 	private Metrics metrics;
 
@@ -79,8 +83,47 @@ public class TradeShop extends JavaPlugin {
 		return customItems;
 	}
 
-	public Boolean isAboveMC18() {
-		return !mc18;
+	public Map<String, Integer> getVerMap() {
+		Pattern pat = Pattern.compile("(?!\\.)(\\d+(\\.\\d+)+)(?![\\d\\.])");
+		Matcher matcher = pat.matcher(this.getServer().getVersion());
+
+		String ver;
+		if (matcher.find()) {
+			ver = matcher.group();
+		} else {
+			return null;
+		}
+
+		String[] verSplit = ver.split("\\.");
+
+		int[] verInts = new int[3];
+
+		for (int i = 0; i < verSplit.length; i++) {
+			if (isInt(verSplit[i])) {
+				verInts[i] = Integer.parseInt(verSplit[i]);
+			}
+		}
+
+		Map<String, Integer> map = new HashMap<>();
+		map.put("major", verInts[0]);
+		map.put("minor", verInts[1]);
+		map.put("patch", verInts[2]);
+
+		return map;
+	}
+
+	public boolean isUnderMC19() {
+		if (verMap != null) {
+			return verMap.get("major") == 1 && verMap.get("minor") < 9;
+		}
+		return true;
+	}
+
+	public boolean isAboveMC112() {
+		if (verMap != null) {
+			return verMap.get("major") == 1 && verMap.get("minor") > 12;
+		}
+		return true;
 	}
 
 	public FileConfiguration getSettings() {
@@ -118,8 +161,16 @@ public class TradeShop extends JavaPlugin {
 	@Override
 	public void onEnable() {
 
-		if (!isAboveMC18()) {
+		verMap = getVerMap();
+
+		if (isUnderMC19()) {
 			getLogger().info("[TradeShop] Minecraft versions before 1.9 are not supported beyond TradeShop version 1.5.2!");
+			getServer().getPluginManager().disablePlugin(this);
+			return;
+		}
+
+		if (isAboveMC112()) {
+			getLogger().info("[TradeShop] This version does not support minecraft 1.13, please update to 2.0 or later!");
 			getServer().getPluginManager().disablePlugin(this);
 			return;
 		}
@@ -420,6 +471,15 @@ public class TradeShop extends JavaPlugin {
 		} catch (IOException e) {
 			getLogger().log(Level.SEVERE, "Could not create config files! Disabling plugin!", e);
 			getServer().getPluginManager().disablePlugin(this);
+		}
+	}
+
+	public boolean isInt(String str) {
+		try {
+			Integer.parseInt(str);
+			return true;
+		} catch (Exception e) {
+			return false;
 		}
 	}
 }
