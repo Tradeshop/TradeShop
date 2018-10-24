@@ -34,8 +34,12 @@ public enum ShopType {
 
     BITRADE("[" + getBiTrade() + "]");
 
-    private String header;
     private static TradeShop plugin = null;
+    private String header;
+
+    ShopType(String s) {
+        header = s;
+    }
 
     private static void setPlugin() {
         if (plugin == null) {
@@ -60,8 +64,20 @@ public enum ShopType {
         return getPlugin().getSettings().getString("bitradeshop-name");
     }
 
-    ShopType(String s) {
-        header = s;
+    public static ShopType getType(Sign s) {
+        String header = ChatColor.stripColor(s.getLine(0));
+
+        if (header.equalsIgnoreCase(TRADE.header)) {
+            return TRADE;
+
+        } else if (header.equalsIgnoreCase(ITRADE.header)) {
+            return ITRADE;
+
+        } else if (header.equalsIgnoreCase(BITRADE.header)) {
+            return BITRADE;
+        }
+
+        return null;
     }
 
     public String header() {
@@ -87,21 +103,5 @@ public enum ShopType {
             default:
                 return false;
         }
-    }
-
-    public static ShopType getType(Sign s) {
-        String header = ChatColor.stripColor(s.getLine(0));
-
-        if (header.equalsIgnoreCase(TRADE.header)) {
-            return TRADE;
-
-        } else if (header.equalsIgnoreCase(ITRADE.header)) {
-            return ITRADE;
-
-        } else if (header.equalsIgnoreCase(BITRADE.header)) {
-            return BITRADE;
-        }
-
-        return null;
     }
 }

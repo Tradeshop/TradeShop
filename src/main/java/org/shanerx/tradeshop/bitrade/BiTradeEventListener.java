@@ -35,6 +35,9 @@ import org.bukkit.inventory.ItemStack;
 import org.shanerx.tradeshop.Message;
 import org.shanerx.tradeshop.TradeShop;
 import org.shanerx.tradeshop.Utils;
+import org.shanerx.tradeshop.trade.TradeEventListener;
+
+import java.util.Objects;
 
 @SuppressWarnings("unused")
 public class BiTradeEventListener extends Utils implements Listener {
@@ -111,114 +114,52 @@ public class BiTradeEventListener extends Utils implements Listener {
             try {
                 item1 = isValidType(info1[1], durability1, amount1);
                 item2 = isValidType(info2[1], durability2, amount2);
-            } catch (ArrayIndexOutOfBoundsException er) {
+            } catch (ArrayIndexOutOfBoundsException ignored) {
             }
 
-            if (item1 == null || item2 == null) {
-                failedTrade(e, Message.BUY_FAILED_SIGN);
-                return;
-            } else if (isBlacklistItem(item1) || isBlacklistItem(item2)) {
-                failedTrade(e, Message.ILLEGAL_ITEM);
-                return;
-            }
+            if (isBlacklisted(e, item1, item2)) return;
 
-            if (item1.hasItemMeta() && item1.getItemMeta().hasDisplayName()) {
+            if (Objects.requireNonNull(item1).hasItemMeta() && item1.getItemMeta().hasDisplayName()) {
                 item_name1 = item1.getItemMeta().getDisplayName();
             } else {
                 item_name1 = info1[1];
             }
 
-            if (item2.hasItemMeta() && item2.getItemMeta().hasDisplayName()) {
+            if (Objects.requireNonNull(item2).hasItemMeta() && item2.getItemMeta().hasDisplayName()) {
                 item_name2 = item2.getItemMeta().getDisplayName();
             } else {
                 item_name2 = info2[1];
             }
 
-            if (!containsAtLeast(playerInventory, item2)) {
+            if (containsLessThan(playerInventory, item2)) {
                 buyer.sendMessage(colorize(getPrefix() + plugin.getMessages().getString("insufficient-items")
                         .replace("{ITEM}", item_name2.toLowerCase()).replace("{AMOUNT}", String.valueOf(amount2))));
                 return;
             }
 
-            if (!containsAtLeast(chestInventory, item1)) {
+            if (containsLessThan(chestInventory, item1)) {
                 buyer.sendMessage(colorize(getPrefix() + plugin.getMessages().getString("shop-empty")
                         .replace("{ITEM}", item_name1.toLowerCase()).replace("{AMOUNT}", String.valueOf(amount1))));
                 return;
             }
 
-            if (!canExchange(chestInventory, item1, item2)) {
+            if (canNotExchange(chestInventory, item1, item2)) {
                 buyer.sendMessage(colorize(getPrefix() + plugin.getMessages().getString("shop-full")
                         .replace("{ITEM}", item_name1.toLowerCase()).replace("{AMOUNT}", String.valueOf(amount1))));
                 return;
             }
 
-            if (!canExchange(playerInventory, item2, item1)) {
+            if (canNotExchange(playerInventory, item2, item1)) {
                 buyer.sendMessage(colorize(getPrefix() + plugin.getMessages().getString("player-full")
                         .replace("{ITEM}", item_name2.toLowerCase()).replace("{AMOUNT}", String.valueOf(amount2))));
                 return;
             }
 
             int count = amount1, removed;
-            while (count > 0) {
-                boolean resetItem = false;
-                ItemStack temp = chestInventory.getItem(chestInventory.first(item1.getType())),
-                        dupitm1 = item1.clone();
-                if (count > item1.getMaxStackSize()) {
-                    removed = item1.getMaxStackSize();
-                } else {
-                    removed = count;
-                }
-
-                if (removed > temp.getAmount()) {
-                    removed = temp.getAmount();
-                }
-
-                item1.setAmount(removed);
-                if (!item1.hasItemMeta() && temp.hasItemMeta()) {
-                    item1.setItemMeta(temp.getItemMeta());
-                    item1.setData(temp.getData());
-                    resetItem = true;
-                }
-
-                chestInventory.removeItem(item1);
-                playerInventory.addItem(item1);
-
-                if (resetItem) {
-                    item1 = dupitm1;
-                }
-
-                count -= removed;
-            }
+            item1 = TradeEventListener.moveToPlayer(chestInventory, playerInventory, item1, count);
 
             count = amount2;
-            while (count > 0) {
-                boolean resetItem = false;
-                ItemStack temp = chestInventory.getItem(chestInventory.first(item1.getType())),
-                        dupitm1 = item1.clone();
-                if (count > item2.getMaxStackSize())
-                    removed = item2.getMaxStackSize();
-                else
-                    removed = count;
-
-                if (removed > temp.getAmount())
-                    removed = temp.getAmount();
-
-                item2.setAmount(removed);
-                if (!item1.hasItemMeta() && temp.hasItemMeta()) {
-                    item1.setItemMeta(temp.getItemMeta());
-                    item1.setData(temp.getData());
-                    resetItem = true;
-                }
-
-                playerInventory.removeItem(item2);
-                chestInventory.addItem(item2);
-
-                if (resetItem) {
-                    item1 = dupitm1;
-                }
-
-                count -= removed;
-            }
+            TradeEventListener.moveToChest(chestInventory, playerInventory, item1, item2, count);
 
             String message = Message.ON_TRADE.toString()
                     .replace("{AMOUNT1}", String.valueOf(amount1))
@@ -295,114 +236,52 @@ public class BiTradeEventListener extends Utils implements Listener {
             try {
                 item1 = isValidType(info1[1], durability1, amount1);
                 item2 = isValidType(info2[1], durability2, amount2);
-            } catch (ArrayIndexOutOfBoundsException er) {
+            } catch (ArrayIndexOutOfBoundsException ignored) {
             }
 
-            if (item1 == null || item2 == null) {
-                failedTrade(e, Message.BUY_FAILED_SIGN);
-                return;
-            } else if (isBlacklistItem(item1) || isBlacklistItem(item2)) {
-                failedTrade(e, Message.ILLEGAL_ITEM);
-                return;
-            }
+            if (isBlacklisted(e, item1, item2)) return;
 
-            if (item1.hasItemMeta() && item1.getItemMeta().hasDisplayName()) {
+            if (Objects.requireNonNull(item1).hasItemMeta() && item1.getItemMeta().hasDisplayName()) {
                 item_name1 = item1.getItemMeta().getDisplayName();
             } else {
                 item_name1 = info1[1];
             }
 
-            if (item2.hasItemMeta() && item2.getItemMeta().hasDisplayName()) {
+            if (Objects.requireNonNull(item2).hasItemMeta() && item2.getItemMeta().hasDisplayName()) {
                 item_name2 = item2.getItemMeta().getDisplayName();
             } else {
                 item_name2 = info2[1];
             }
 
-            if (!containsAtLeast(playerInventory, item1)) {
+            if (containsLessThan(playerInventory, item1)) {
                 buyer.sendMessage(colorize(getPrefix() + Message.INSUFFICIENT_ITEMS.toString()
                         .replace("{ITEM}", item_name1.toLowerCase()).replace("{AMOUNT}", String.valueOf(amount1))));
                 return;
             }
 
-            if (!containsAtLeast(chestInventory, item2)) {
+            if (containsLessThan(chestInventory, item2)) {
                 buyer.sendMessage(colorize(getPrefix() + Message.SHOP_EMPTY.toString()
                         .replace("{ITEM}", item_name2.toLowerCase()).replace("{AMOUNT}", String.valueOf(amount2))));
                 return;
             }
 
-            if (!canExchange(chestInventory, item2, item1)) {
+            if (canNotExchange(chestInventory, item2, item1)) {
                 buyer.sendMessage(colorize(getPrefix() + Message.SHOP_FULL.toString()
                         .replace("{ITEM}", item_name2.toLowerCase()).replace("{AMOUNT}", String.valueOf(amount2))));
                 return;
             }
 
-            if (!canExchange(playerInventory, item1, item2)) {
+            if (canNotExchange(playerInventory, item1, item2)) {
                 buyer.sendMessage(colorize(getPrefix() + Message.PLAYER_FULL.toString()
                         .replace("{ITEM}", item_name1.toLowerCase()).replace("{AMOUNT}", String.valueOf(amount1))));
                 return;
             }
 
             int count = amount1, removed;
-            while (count > 0) {
-                boolean resetItem = false;
-                ItemStack temp = chestInventory.getItem(chestInventory.first(item1.getType())),
-                        dupitm1 = item1.clone();
-                if (count > item1.getMaxStackSize()) {
-                    removed = item1.getMaxStackSize();
-                } else {
-                    removed = count;
-                }
-
-                if (removed > temp.getAmount()) {
-                    removed = temp.getAmount();
-                }
-
-                item1.setAmount(removed);
-                if (!item1.hasItemMeta() && temp.hasItemMeta()) {
-                    item1.setItemMeta(temp.getItemMeta());
-                    item1.setData(temp.getData());
-                    resetItem = true;
-                }
-
-                playerInventory.removeItem(item1);
-                chestInventory.addItem(item1);
-
-                if (resetItem) {
-                    item1 = dupitm1;
-                }
-
-                count -= removed;
-            }
+            item1 = TradeEventListener.moveToPlayer(chestInventory, playerInventory, item1, count);
 
             count = amount2;
-            while (count > 0) {
-                boolean resetItem = false;
-                ItemStack temp = chestInventory.getItem(chestInventory.first(item1.getType())),
-                        dupitm1 = item1.clone();
-                if (count > item2.getMaxStackSize())
-                    removed = item2.getMaxStackSize();
-                else
-                    removed = count;
-
-                if (removed > temp.getAmount())
-                    removed = temp.getAmount();
-
-                item2.setAmount(removed);
-                if (!item1.hasItemMeta() && temp.hasItemMeta()) {
-                    item1.setItemMeta(temp.getItemMeta());
-                    item1.setData(temp.getData());
-                    resetItem = true;
-                }
-
-                chestInventory.removeItem(item2);
-                playerInventory.addItem(item2);
-
-                if (resetItem) {
-                    item1 = dupitm1;
-                }
-
-                count -= removed;
-            }
+            TradeEventListener.moveToChest(chestInventory, playerInventory, item1, item2, count);
             String message = Message.ON_TRADE.toString()
                     .replace("{AMOUNT2}", String.valueOf(amount1))
                     .replace("{AMOUNT1}", String.valueOf(amount2))
@@ -411,5 +290,16 @@ public class BiTradeEventListener extends Utils implements Listener {
                     .replace("{SELLER}", s.getLine(3));
             buyer.sendMessage(colorize(getPrefix() + message));
         }
+    }
+
+    private boolean isBlacklisted(PlayerInteractEvent e, ItemStack item1, ItemStack item2) {
+        if (item1 == null || item2 == null) {
+            failedTrade(e, Message.BUY_FAILED_SIGN);
+            return true;
+        } else if (isBlacklistItem(item1) || isBlacklistItem(item2)) {
+            failedTrade(e, Message.ILLEGAL_ITEM);
+            return true;
+        }
+        return false;
     }
 }

@@ -57,12 +57,10 @@ public class ITradeEventListener extends Utils implements Listener {
             }
 
             Sign s = (Sign) e.getClickedBlock().getState();
-            Inventory chestInventory;
 
             try {
-                chestInventory = ((InventoryHolder) findShopChest(s.getBlock()).getState()).getInventory();
-            } catch (NullPointerException npe) {
-                chestInventory = null;
+                ((InventoryHolder) findShopChest(s.getBlock()).getState()).getInventory();
+            } catch (NullPointerException ignored) {
             }
 
             Inventory playerInventory = buyer.getInventory();
@@ -103,7 +101,7 @@ public class ITradeEventListener extends Utils implements Listener {
             try {
                 item1 = isValidType(info1[1], durability1, amount1);
                 item2 = isValidType(info2[1], durability2, amount2);
-            } catch (ArrayIndexOutOfBoundsException er) {
+            } catch (ArrayIndexOutOfBoundsException ignored) {
             }
 
             if (item1 == null || item2 == null) {
@@ -126,21 +124,21 @@ public class ITradeEventListener extends Utils implements Listener {
                 item_name2 = info2[1];
             }
 
-            if (!containsAtLeast(playerInventory, item2)) {
+            if (containsLessThan(playerInventory, item2)) {
                 buyer.sendMessage(colorize(getPrefix() + Message.INSUFFICIENT_ITEMS.toString()
                         .replace("{ITEM}", item_name2.toLowerCase())
                         .replace("{AMOUNT}", String.valueOf(amount2))));
                 return;
             }
 
-            if (!canExchange(playerInventory, item2, item1)) {
+            if (canNotExchange(playerInventory, item2, item1)) {
                 buyer.sendMessage(colorize(getPrefix() + Message.PLAYER_FULL.toString()
                         .replace("{ITEM}", item_name2.toLowerCase())
                         .replace("{AMOUNT}", String.valueOf(amount2))));
                 return;
             }
 
-            int count = amount1, removed = 0;
+            int count = amount1, removed;
             while (count > 0) {
                 if (count > item1.getMaxStackSize()) {
                     removed = item1.getMaxStackSize();

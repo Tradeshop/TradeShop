@@ -266,14 +266,11 @@ public enum Potions {
         }
 
         try {
-            if (valueOf(type.toUpperCase()) != null) {
-                return true;
-            }
+            valueOf(type.toUpperCase());
+            return true;
         } catch (IllegalArgumentException e) {
             return false;
         }
-
-        return false;
     }
 
     public PotionData getPotionData() {

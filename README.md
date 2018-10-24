@@ -1,5 +1,18 @@
 # TradeShop
 
+### Updated to 1.13 by Dart2112
+
+## 1.13 Update Notes
+
+Changes in 1.13 mean that numerical item IDs don't exist anymore,
+as such the following things have changed:
+
+IDs are not reported when using the item command
+
+You must write item names on signs, e.g. "stone" instead of "1".
+This was something you could do before but it is now enforced since there is no
+elegant way to get materials from IDs in 1.13
+
 ## Description
 This plugin manages how players trade one item for another. The concept behind it is very simple, you just place a chest and a sign on top, then write all the information on the sign.
 

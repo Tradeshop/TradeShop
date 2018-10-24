@@ -21,11 +21,7 @@
 
 package org.shanerx.tradeshop;
 
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.Material;
-import org.bukkit.Nameable;
-import org.bukkit.OfflinePlayer;
+import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
@@ -39,12 +35,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.permissions.Permission;
 import org.bukkit.plugin.PluginDescriptionFile;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 
 /**
@@ -66,13 +57,6 @@ public class Utils {
     private final Permission PCREATEBI = new Permission("tradeshop.create.bi");
     private final Permission PWHO = new Permission("tradeshop.who");
 
-    private final UUID KOPUUID = UUID.fromString("daf79be7-bc1d-47d3-9896-f97b8d4cea7d");
-    private final UUID LORIUUID = UUID.fromString("e296bc43-2972-4111-9843-48fc32302fd4");
-
-    public UUID[] getMakers() {
-        return new UUID[]{KOPUUID, LORIUUID};
-    }
-
     /**
      * Returns the plugin name.
      *
@@ -89,24 +73,6 @@ public class Utils {
      */
     public String getVersion() {
         return pdf.getVersion();
-    }
-
-    /**
-     * Returns a list of authors.
-     *
-     * @return the authors
-     */
-    public List<String> getAuthors() {
-        return pdf.getAuthors();
-    }
-
-    /**
-     * Returns the website of the plugin.
-     *
-     * @return the website
-     */
-    public String getWebsite() {
-        return pdf.getWebsite();
     }
 
     /**
@@ -229,7 +195,7 @@ public class Utils {
      * @return true if it is a sign.
      */
     public boolean isSign(Block b) {
-        return b != null && (b.getType() == Material.SIGN_POST || b.getType() == Material.WALL_SIGN);
+        return b != null && (b.getType() == Material.SIGN || b.getType() == Material.WALL_SIGN);
     }
 
     /**
@@ -261,6 +227,7 @@ public class Utils {
             check++;
         }
 
+        //noinspection deprecation
         if (itm1.getDurability() == itm2.getDurability()) {
             check++;
         }
@@ -281,26 +248,6 @@ public class Utils {
     }
 
     /**
-     * Checks whether or not a certain ItemStack can fit inside an inventory.
-     *
-     * @param inv the Inventory the item should be placed into
-     * @param itm the ItemStack
-     * @return true if the Inventory has enough space for the ItemStack.
-     */
-    public boolean canFit(Inventory inv, ItemStack itm) {
-        int count = 0, empty = 0;
-        for (ItemStack i : inv.getContents()) {
-            if (i != null) {
-                if (itemCheck(itm, i)) {
-                    count += i.getAmount();
-                }
-            } else
-                empty += itm.getMaxStackSize();
-        }
-        return empty + (count % itm.getMaxStackSize()) >= itm.getAmount();
-    }
-
-    /**
      * Checks whether a trade can take place.
      *
      * @param inv    the Inventory object representing the inventory that is subject to the transaction.
@@ -308,7 +255,7 @@ public class Utils {
      * @param itmIn  the ItemStack that is being received
      * @return true if the exchange may take place.
      */
-    public boolean canExchange(Inventory inv, ItemStack itmOut, ItemStack itmIn) {
+    public boolean canNotExchange(Inventory inv, ItemStack itmOut, ItemStack itmIn) {
         int count = 0,
                 slots = 0,
                 empty = 0,
@@ -336,7 +283,7 @@ public class Utils {
             } else
                 empty += itmIn.getMaxStackSize();
         }
-        return empty + ((slots * itmIn.getMaxStackSize()) - count) >= amtIn;
+        return empty + ((slots * itmIn.getMaxStackSize()) - count) < amtIn;
     }
 
     /**
@@ -368,9 +315,9 @@ public class Utils {
     /**
      * Sets the event sign to a failed creation sign
      *
-     * @param e           event where shop creation failed
-     * @param shop        Shoptype enum to get header
-     * @param msg The enum constant representing the error message
+     * @param e    event where shop creation failed
+     * @param shop Shoptype enum to get header
+     * @param msg  The enum constant representing the error message
      */
     public void failedSign(SignChangeEvent e, ShopType shop, Message msg) {
         failedSignReset(e, shop);
@@ -380,7 +327,7 @@ public class Utils {
     /**
      * Sets the event sign to a failed creation sign
      *
-     * @param e           Event to reset the sign for
+     * @param e   Event to reset the sign for
      * @param msg The enum constant representing the error message
      */
     public void failedTrade(PlayerInteractEvent e, Message msg) {
@@ -399,13 +346,8 @@ public class Utils {
         String matLower = mat.toLowerCase();
         ItemStack blacklist = getBlackListItem();
 
-        if (isInt(mat) && Material.getMaterial(Integer.parseInt(mat)) != null) {
-            Material temp = Material.getMaterial(Integer.parseInt(mat));
-            if (illegalItems.contains(temp.name().toLowerCase())) {
-                return blacklist;
-            }
-
-            return new ItemStack(temp, 1);
+        if (isInt(mat)) {
+            return null;
         }
 
         if (Material.matchMaterial(mat) != null) {
@@ -472,6 +414,7 @@ public class Utils {
             return null;
         }
 
+        //noinspection deprecation
         itm.setDurability((short) durability);
         itm.setAmount(amount);
         return itm;
@@ -502,7 +445,7 @@ public class Utils {
      * @param item the item to be checked
      * @return true if the condition is met.
      */
-    public boolean containsAtLeast(Inventory inv, ItemStack item) {
+    public boolean containsLessThan(Inventory inv, ItemStack item) {
         int count = 0;
         for (ItemStack itm : inv.getContents()) {
             if (itm != null) {
@@ -511,7 +454,7 @@ public class Utils {
                 }
             }
         }
-        return count >= item.getAmount();
+        return count < item.getAmount();
     }
 
     /**
@@ -536,7 +479,7 @@ public class Utils {
     public Sign findShopSign(Block chest) {
         ArrayList<BlockFace> faces = plugin.getAllowedDirections();
         Collections.reverse(faces);
-        ArrayList<BlockFace> flatFaces = new ArrayList<BlockFace>(Arrays.asList(BlockFace.NORTH, BlockFace.EAST, BlockFace.SOUTH, BlockFace.WEST));
+        ArrayList<BlockFace> flatFaces = new ArrayList<>(Arrays.asList(BlockFace.NORTH, BlockFace.EAST, BlockFace.SOUTH, BlockFace.WEST));
         boolean isDouble = false;
         BlockFace doubleSide = null;
 
@@ -591,6 +534,7 @@ public class Utils {
      * @param b the inventory holder block
      * @return all the owners.
      */
+    @SuppressWarnings("deprecation")
     public List<OfflinePlayer> getShopOwners(Block b) {
         if (!plugin.getAllowedInventories().contains(b.getType())) {
             return null;
@@ -614,11 +558,14 @@ public class Utils {
                 } else {
                     return null;
                 }
-            } else if (!owners.contains(Bukkit.getOfflinePlayer(s.getLine(3)))) {
-                owners.add(Bukkit.getOfflinePlayer(s.getLine(3)));
-                changeInvName(b.getState(), readInvName(b.getState()), Collections.singletonList(plugin.getServer().getOfflinePlayer(s.getLine(3))), Collections.emptyList());
+            } else {
+                assert s != null;
+                if (!owners.contains(Bukkit.getOfflinePlayer(Objects.requireNonNull(s).getLine(3)))) {
+                    owners.add(Bukkit.getOfflinePlayer(s.getLine(3)));
+                    changeInvName(b.getState(), readInvName(b.getState()), Collections.singletonList(plugin.getServer().getOfflinePlayer(s.getLine(3))), Collections.emptyList());
+                }
             }
-        } catch (NullPointerException npe) {
+        } catch (NullPointerException ignored) {
         }
         return owners;
     }
@@ -629,6 +576,7 @@ public class Utils {
      * @param block the inventory holder block
      * @return all the members.
      */
+    @SuppressWarnings("deprecation")
     public List<OfflinePlayer> getShopMembers(Block block) {
         BlockState b = block.getState();
 
@@ -657,7 +605,7 @@ public class Utils {
             } else if (getShopOwners(s).size() == 0 || !getShopOwners(s).contains(Bukkit.getOfflinePlayer(s.getLine(3)))) {
                 changeInvName(b, readInvName(b), Collections.singletonList(plugin.getServer().getOfflinePlayer(s.getLine(3))), members);
             }
-        } catch (NullPointerException npe) {
+        } catch (NullPointerException ignored) {
         }
         return members;
     }
@@ -734,16 +682,15 @@ public class Utils {
      * @param name    original name of inventory, null to use generic name
      * @param owners  List of inventory owners
      * @param members List of inventory members
-     * @return void
      */
     public void changeInvName(BlockState state, String name, List<OfflinePlayer> owners, List<OfflinePlayer> members) {
         StringBuilder sb = new StringBuilder();
         if (name == null || name.equalsIgnoreCase("")) {
             name = "";
         }
-        sb.append(name + " <");
-        owners.forEach(o -> sb.append("o:" + o.getName() + ";"));
-        members.forEach(m -> sb.append("m:" + m.getName() + ";"));
+        sb.append(name).append(" <");
+        owners.forEach(o -> sb.append("o:").append(o.getName()).append(";"));
+        members.forEach(m -> sb.append("m:").append(m.getName()).append(";"));
         sb.append(">");
         setName((InventoryHolder) state, sb.toString());
     }
@@ -779,12 +726,10 @@ public class Utils {
      * Resets the name of the inventory
      *
      * @param state blockState to change the name of
-     * @return void
      */
     public void resetInvName(BlockState state) {
         Inventory inv = ((InventoryHolder) state).getInventory();
         String name = inv.getName();
-        String[] temp = name.split(";");
 
         if (name.startsWith("o:")) {
             name = "";
@@ -818,28 +763,13 @@ public class Utils {
         List<OfflinePlayer> members = getShopMembers(b);
         if (!members.contains(p)) {
             members.add(p);
-            if (owners.contains(p)) {
-                owners.remove(p);
-            }
+            owners.remove(p);
         } else {
             return false;
         }
 
         changeInvName(b.getState(), readInvName(b.getState()), owners, members);
         return true;
-    }
-
-    /**
-     * Adds a player to the members list of a TradeShop.
-     * <br>
-     * The target player is not required to be online at the time of the operation.
-     *
-     * @param s the TradeShop sign
-     * @param p the OfflinePlayer object.
-     * @return true if successful
-     */
-    public boolean addMember(Sign s, OfflinePlayer p) {
-        return addMember(findShopChest(s.getBlock()), p);
     }
 
     /**
@@ -856,18 +786,6 @@ public class Utils {
         members.remove(p);
 
         changeInvName(b.getState(), readInvName(b.getState()), owners, members);
-    }
-
-    /**
-     * Removes a player from the members list of a TradeShop.
-     * <br>
-     * The target player is not required to be online at the time of the operation.
-     *
-     * @param s the TradeShop sign
-     * @param p the OfflinePlayer object.
-     */
-    public void removeMember(Sign s, OfflinePlayer p) {
-        removeMember(findShopChest(s.getBlock()), p);
     }
 
     /**
@@ -888,28 +806,13 @@ public class Utils {
         List<OfflinePlayer> members = getShopMembers(b);
         if (!owners.contains(p)) {
             owners.add(p);
-            if (members.contains(p)) {
-                members.remove(p);
-            }
+            members.remove(p);
         } else {
             return false;
         }
 
         changeInvName(b.getState(), readInvName(b.getState()), owners, members);
         return true;
-    }
-
-    /**
-     * Adds a player to the owners list of a TradeShop.
-     * <br>
-     * The target player is not required to be online at the time of the operation.
-     *
-     * @param s the TradeShop sign
-     * @param p the OfflinePlayer object.
-     * @return true if successful
-     */
-    public boolean addOwner(Sign s, OfflinePlayer p) {
-        return addOwner(findShopChest(s.getBlock()), p);
     }
 
     /**
@@ -926,18 +829,6 @@ public class Utils {
         owners.remove(p);
 
         changeInvName(b.getState(), readInvName(b.getState()), owners, members);
-    }
-
-    /**
-     * Removes a player from the owners list of a TradeShop.
-     * <br>
-     * The target player is not required to be online at the time of the operation.
-     *
-     * @param s the TradeShop sign
-     * @param p the OfflinePlayer object.
-     */
-    public void removeOwner(Sign s, OfflinePlayer p) {
-        removeOwner(findShopChest(s.getBlock()), p);
     }
 
     /**

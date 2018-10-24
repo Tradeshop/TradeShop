@@ -55,14 +55,14 @@ public class IShopCreateEventListener extends Utils implements Listener {
         if (!(event.getLine(0).equalsIgnoreCase(header))) {
             return;
         }
-        
+
         if (!player.hasPermission(getCreateIPerm())) {
             failedSign(event, ShopType.ITRADE, Message.NO_TS_CREATE_PERMISSION);
             return;
         }
 
         Block chest = findShopChest(s.getBlock());
-        
+
         if (chest != null && getShopOwners(chest).size() > 0) {
             getShopOwners(chest).forEach(op -> {
                 if (!op.getName().equalsIgnoreCase(plugin.getSettings().getString("itrade-shop-name"))) {
@@ -113,7 +113,7 @@ public class IShopCreateEventListener extends Utils implements Listener {
         try {
             item1 = isValidType(info1[1], durability1, amount1);
             item2 = isValidType(info2[1], durability2, amount2);
-        } catch (ArrayIndexOutOfBoundsException e) {
+        } catch (ArrayIndexOutOfBoundsException ignored) {
         }
 
         if (item1 == null || item2 == null) {

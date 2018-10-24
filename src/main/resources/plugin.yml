@@ -1,9 +1,10 @@
 name: TradeShop
 version: 1.8.1
 main: org.shanerx.tradeshop.TradeShop
+api-version: 1.13
 
 author: Lori00
-authors: [KillerOfPie]
+authors: [KillerOfPie, Dart2112]
 description: A new powerful trading plugin.
 website: https://www.spigotmc.org/resources/tradeshop.32762/
 

@@ -5,7 +5,7 @@ import org.bukkit.ChatColor;
 
 @SuppressWarnings("unused")
 public enum Message {
-    
+
     AMOUNT_NOT_NUM,
     BUY_FAILED_SIGN,
     CONFIRM_TRADE,
@@ -39,7 +39,14 @@ public enum Message {
     UNSUCCESSFUL_SHOP_MEMBERS,
     UPDATED_SHOP_MEMBERS,
     WHO_MESSAGE;
-    
+
+    public static final char COLOUR_CHAR = '&';
+    private static TradeShop plugin = (TradeShop) Bukkit.getPluginManager().getPlugin("TradeShop");
+
+    public static String colour(String x) {
+        return ChatColor.translateAlternateColorCodes(COLOUR_CHAR, x);
+    }
+
     @Override
     public String toString() {
         return colour(
@@ -48,14 +55,7 @@ public enum Message {
                                 .toLowerCase()
                                 .replace("_", "-")
                 ).replace("%header%",
-                                plugin.getSettings().getString("tradeshop-name"))
+                        plugin.getSettings().getString("tradeshop-name"))
         );
-    }
-    
-    private static TradeShop plugin = (TradeShop) Bukkit.getPluginManager().getPlugin("TradeShop");
-    public static final char COLOUR_CHAR = '&';
-    
-    public static String colour(String x) {
-        return ChatColor.translateAlternateColorCodes(COLOUR_CHAR, x);
     }
 }

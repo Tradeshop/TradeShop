@@ -39,6 +39,7 @@ import org.shanerx.tradeshop.TradeShop;
 import org.shanerx.tradeshop.Utils;
 
 import java.util.Iterator;
+import java.util.Objects;
 
 @SuppressWarnings("unused")
 public class ShopProtectionHandler extends Utils implements Listener {
@@ -123,10 +124,7 @@ public class ShopProtectionHandler extends Utils implements Listener {
             return;
         }
 
-        if (e.getPlayer().hasPermission(getAdminPerm())) {
-            // Do nothing
-
-        } else if (isShopSign(s.getBlock())) {
+        if (!e.getPlayer().hasPermission(getAdminPerm()) && isShopSign(s.getBlock())) {
             if (!getShopUsers(block).contains(Bukkit.getOfflinePlayer(e.getPlayer().getUniqueId()))) {
                 e.getPlayer().sendMessage(colorize(getPrefix() + Message.NO_TS_OPEN));
                 e.setCancelled(true);
@@ -136,36 +134,29 @@ public class ShopProtectionHandler extends Utils implements Listener {
 
     @EventHandler(priority = EventPriority.HIGH)
     public void onBlockExplode(BlockExplodeEvent e) {
-		Iterator<Block> iter = e.blockList().iterator();
-		while (iter.hasNext()) {
-			Block b = iter.next();
-			if (plugin.getAllowedInventories().contains(b.getType())) {
-                Sign s = findShopSign(b);
-                if (s != null && ShopType.getType(s).isProtectedFromExplosions()) {
-					iter.remove();
-				}
-
-            } else if (b.getState() instanceof Sign && findShopChest(b) != null) {
-				iter.remove();
-			}
-        }
+        Iterator<Block> iter = e.blockList().iterator();
+        processExplosion(iter);
     }
 
-	@EventHandler(priority = EventPriority.HIGH)
-	public void onEntityExplode(EntityExplodeEvent e) {
-		Iterator<Block> iter = e.blockList().iterator();
-		while (iter.hasNext()) {
-			Block b = iter.next();
-			if (plugin.getAllowedInventories().contains(b.getType())) {
-				Sign s = findShopSign(b);
-				if (s != null && ShopType.getType(s).isProtectedFromExplosions()) {
-					iter.remove();
-				}
+    @EventHandler(priority = EventPriority.HIGH)
+    public void onEntityExplode(EntityExplodeEvent e) {
+        Iterator<Block> iter = e.blockList().iterator();
+        processExplosion(iter);
+    }
 
-			} else if (b.getState() instanceof Sign && findShopChest(b) != null) {
-				iter.remove();
-			}
-		}
-	}
+    private void processExplosion(Iterator<Block> iter) {
+        while (iter.hasNext()) {
+            Block b = iter.next();
+            if (plugin.getAllowedInventories().contains(b.getType())) {
+                Sign s = findShopSign(b);
+                if (s != null && Objects.requireNonNull(ShopType.getType(s)).isProtectedFromExplosions()) {
+                    iter.remove();
+                }
+
+            } else if (b.getState() instanceof Sign && findShopChest(b) != null) {
+                iter.remove();
+            }
+        }
+    }
 }
 

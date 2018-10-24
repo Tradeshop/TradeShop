@@ -107,7 +107,7 @@ public class BiShopCreateEventListener extends Utils implements Listener {
             info2[1] = info2[1].split(":")[0];
         }
 
-        int amount1 = 0, amount2 = 0;
+        int amount1, amount2;
         ItemStack item1 = null, item2 = null;
 
         try {
@@ -122,7 +122,7 @@ public class BiShopCreateEventListener extends Utils implements Listener {
         try {
             item1 = isValidType(info1[1], durability1, amount1);
             item2 = isValidType(info2[1], durability2, amount2);
-        } catch (ArrayIndexOutOfBoundsException e) {
+        } catch (ArrayIndexOutOfBoundsException ignored) {
         }
 
         if (item1 == null || item2 == null) {
@@ -141,10 +141,8 @@ public class BiShopCreateEventListener extends Utils implements Listener {
 
         if (chestInventory.containsAtLeast(item1, amount1)) {
             event.getPlayer().sendMessage(colorize(getPrefix() + Message.SUCCESSFUL_SETUP));
-            return;
         } else {
             event.getPlayer().sendMessage(colorize(getPrefix() + Message.EMPTY_TS_ON_SETUP));
-            return;
         }
     }
 }
