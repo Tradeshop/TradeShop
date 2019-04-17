@@ -35,11 +35,6 @@ public class BukkitVersion {
         this.minor = parseInt(ver[2]);
     }
 
-    public BukkitVersion(double major, int minor) {
-        this.major = major;
-        this.minor = minor;
-    }
-
     public String toString() {
         return major + "." + minor;
     }

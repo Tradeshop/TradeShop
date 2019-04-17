@@ -33,20 +33,16 @@ import org.shanerx.tradeshop.listeners.ShopCreateListener;
 import org.shanerx.tradeshop.listeners.ShopTradeListener;
 import org.shanerx.tradeshop.objects.CustomItemManager;
 import org.shanerx.tradeshop.objects.ListManager;
+import org.shanerx.tradeshop.utils.BukkitVersion;
 import org.shanerx.tradeshop.utils.Updater;
 
 public class TradeShop extends JavaPlugin {
 
-	private boolean mc18 = this.getServer().getVersion().contains("1.8");
-
 	private ListManager lists;
 	private CustomItemManager cim;
+	private BukkitVersion version;
 
 	private Metrics metrics;
-
-	public Boolean isAboveMC18() {
-		return !mc18;
-	}
 
 	public ListManager getListManager() {
 		return lists;
@@ -56,14 +52,26 @@ public class TradeShop extends JavaPlugin {
 		return cim;
 	}
 
+	public BukkitVersion getVersion() {
+		return version;
+	}
+
 	@Override
 	public void onEnable() {
+		version = new BukkitVersion();
 
-		if (!isAboveMC18()) {
+		if (version.isBelow(1.9)) {
 			getLogger().info("[TradeShop] Minecraft versions before 1.9 are not supported beyond TradeShop version 1.5.2!");
 			getServer().getPluginManager().disablePlugin(this);
 			return;
 		}
+
+		if (version.isAbove(1.12)) {
+			getLogger().info("[TradeShop] This version does not support minecraft 1.13 or higher, please update to 2.0 or later!");
+			getServer().getPluginManager().disablePlugin(this);
+			return;
+		}
+
 		Message.reload();
 		Setting.reload();
 

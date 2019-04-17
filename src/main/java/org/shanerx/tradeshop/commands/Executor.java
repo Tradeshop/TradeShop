@@ -73,8 +73,7 @@ public class Executor extends Utils implements CommandExecutor {
 				StringBuilder sb = new StringBuilder();
 				String msg;
 
-				sb
-						.append("\n&2")
+				sb.append("\n&2")
 						.append(getPluginName())
 						.append(" ")
 						.append(getVersion())
@@ -82,19 +81,16 @@ public class Executor extends Utils implements CommandExecutor {
 						.append("\n\n&6/tradeshop help &c - Display help message\n");
 
 				if (sender.hasPermission(Permissions.CREATE.getPerm())) {
-					sb
-							.append("&6/tradeshop setup &c - Display TradeShop setup tutorial\n")
+					sb.append("&6/tradeshop setup &c - Display TradeShop setup tutorial\n")
 							.append("&6/tradeshop item &c - Shows helpful information on item held by player\n");
 				}
 
-				sb
-						.append("&6/tradeshop bugs &c - Report bugs\n")
-						.append("&6/tradeshop addowner|removeowner [target] &c - Add another owner to your shop\n")
-						.append("&6/tradeshop addmember|removemember [target] &c - Add a collaborator to your shop\n");
+				sb.append("&6/tradeshop bugs &c - Report bugs\n")
+						.append("&6/tradeshop addowner|removeowner [target] &c - Add/Remove another owner to your shop\n")
+						.append("&6/tradeshop addmember|removemember [target] &c - Add/Remove a collaborator to your shop\n");
 
 				if (sender.hasPermission(Permissions.EDIT.getPerm())) {
-					sb
-							.append("&6/tradeshop addproduct &c - Add item to your shop\n")
+					sb.append("&6/tradeshop addproduct &c - Add item to your shop\n")
 							.append("&6/tradeshop addcost &c - Change cost of your shop\n")
 							.append("&6/tradeshop open &c - Open shop\n")
 							.append("&6/tradeshop close &c -Close shop\n");
@@ -106,8 +102,7 @@ public class Executor extends Utils implements CommandExecutor {
 
 
 				if (sender.hasPermission(Permissions.ADMIN.getPerm())) {
-					sb
-							.append("\n&6/tradeshop addItem [item name] &c - Adds custom items to config")
+					sb.append("\n&6/tradeshop addItem [item name] &c - Adds custom items to config")
 							.append("\n&6/tradeshop removeItem [item name] &c - Removes custom items to config")
 							.append("\n&6/tradeshop getcustomitems &c - shows all custom items")
 							.append("\n&6/tradeshop reload &c - Reloads plugin configuration files\n");
