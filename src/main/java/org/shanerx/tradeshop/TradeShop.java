@@ -60,7 +60,7 @@ public class TradeShop extends JavaPlugin {
 	public void onEnable() {
 		version = new BukkitVersion();
 
-		if (version.isBelow(1.9)) {
+		if (version.isBelow(1, 9)) {
 			getLogger().info("[TradeShop] Minecraft versions before 1.9 are not supported beyond TradeShop version 1.5.2!");
 			getServer().getPluginManager().disablePlugin(this);
 			return;

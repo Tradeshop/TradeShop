@@ -12,10 +12,12 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <maven.build.timestamp.format>yyyy-MM-dd'T'HH.mm.ss</maven.build.timestamp.format>
     </properties>
 
     <build>
         <defaultGoal>install</defaultGoal>
+        <finalName>${project.artifactId}-${project.version}-${maven.build.timestamp}</finalName>
 
         <plugins>
             <plugin>
@@ -40,7 +42,6 @@
                     <relocations>
                         <relocation>
                             <pattern>org.bstats</pattern>
-                            <!-- Replace this with your package! -->
                             <shadedPattern>org.shanerx.tradeshop</shadedPattern>
                         </relocation>
                     </relocations>
@@ -62,6 +63,7 @@
             </resource>
         </resources>
 
+
     </build>
 
     <repositories>
@@ -80,14 +82,14 @@
         <dependency>
             <groupId>org.bukkit</groupId>
             <artifactId>bukkit</artifactId>
-            <version>1.12.2-R0.1-SNAPSHOT</version>
+            <version>1.13.2-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot-api</artifactId>
-            <version>1.12.2-R0.1-SNAPSHOT</version>
+            <version>1.13.2-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
 

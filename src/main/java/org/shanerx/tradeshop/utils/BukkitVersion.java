@@ -23,59 +23,130 @@ package org.shanerx.tradeshop.utils;
 
 import org.bukkit.Bukkit;
 
-public class BukkitVersion {
-    private final String SERVERVERSION = Bukkit.getBukkitVersion();
+import java.util.HashMap;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
-    private double major;
-    private int minor;
+public class BukkitVersion {
+	private final String VERSION = Bukkit.getBukkitVersion();
+	private Map<String, Integer> verMap;
 
     public BukkitVersion() {
-        String[] ver = SERVERVERSION.split("-")[0].split("\\.");
-        this.major = parseDouble(ver[0]) + parseMinor(ver[1]);
-        this.minor = parseInt(ver[2]);
+		verMap = getVerMap();
     }
 
     public String toString() {
-        return major + "." + minor;
+		return getMajor() + "." + getMinor() + "." + getPatch();
     }
 
     public String getFullVersion() {
-        return SERVERVERSION;
+		return VERSION;
     }
 
-    public double getMajor() {
-        return major;
+	private int getMajor() {
+		return verMap.get("major");
     }
 
-    public int getMinor() {
-        return minor;
+	private int getMinor() {
+		return verMap.get("minor");
     }
 
-    public boolean isBelow(double ver) {
-        return major < ver;
+	private int getPatch() {
+		return verMap.get("patch");
+	}
+
+	public boolean isBelow(int major, int minor) {
+		if (getMajor() < major) {
+			return true;
+		} else if (getMajor() == major) {
+			return getMinor() < minor;
+		}
+
+		return false;
     }
 
-    public boolean isAbove(double ver) {
-        return major >= ver;
+	public boolean isBelow(int major, int minor, int patch) {
+		if (getMajor() < major) {
+			return true;
+		} else if (getMajor() == major) {
+			if (getMinor() < minor) {
+				return true;
+			} else if (getMinor() == minor) {
+				return getPatch() < patch;
+			}
+		}
+
+		return false;
+	}
+
+	public boolean isAbove(int major, int minor) {
+		if (getMajor() > major) {
+			return true;
+		} else if (getMajor() == major) {
+			return getMinor() > minor;
+		}
+
+		return false;
     }
 
-    private double parseDouble(String toParse) {
-        try {
-            return Double.parseDouble(toParse);
-        } catch (NumberFormatException e) {
-            return 0;
-        }
-    }
+	public boolean isAbove(int major, int minor, int patch) {
+		if (getMajor() > major) {
+			return true;
+		} else if (getMajor() == major) {
+			if (getMinor() > minor) {
+				return true;
+			} else if (getMinor() == minor) {
+				return getPatch() > patch;
+			}
+		}
 
-    private int parseInt(String toParse) {
-        try {
-            return Integer.parseInt(toParse);
-        } catch (NumberFormatException e) {
-            return 0;
-        }
-    }
+		return false;
+	}
 
-    private double parseMinor(String toParse) {
-        return parseDouble(toParse) / Math.pow(10, toParse.length());
-    }
+	public boolean isEqual(int major, int minor) {
+		return getMajor() == major && getMinor() == minor;
+	}
+
+	public boolean isEqual(int major, int minor, int patch) {
+		return getMajor() == major && getMinor() == minor && getPatch() == getPatch();
+	}
+
+	public boolean isInt(String str) {
+		try {
+			Integer.parseInt(str);
+			return true;
+		} catch (Exception e) {
+			return false;
+		}
+	}
+
+	public Map<String, Integer> getVerMap() {
+		Pattern pat = Pattern.compile("(?!\\.)(\\d+(\\.\\d+)+)(?![\\d\\.])");
+		Matcher matcher = pat.matcher(VERSION);
+
+		String ver;
+		if (matcher.find()) {
+			ver = matcher.group();
+		} else {
+			return null;
+		}
+
+		String[] verSplit = ver.split("\\.");
+
+		int[] verInts = new int[3];
+
+		for (int i = 0; i < verSplit.length; i++) {
+			if (isInt(verSplit[i])) {
+				verInts[i] = Integer.parseInt(verSplit[i]);
+			}
+		}
+
+		Map<String, Integer> map = new HashMap<>();
+		map.put("major", verInts[0]);
+		map.put("minor", verInts[1]);
+		map.put("patch", verInts[2]);
+
+		return map;
+	}
 }
