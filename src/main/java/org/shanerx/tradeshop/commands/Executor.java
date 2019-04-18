@@ -57,7 +57,6 @@ public class Executor extends Utils implements CommandExecutor {
 	}
 
 	@Override
-	@SuppressWarnings("deprecation")
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
 		if (args.length == 0) {
 			sender.sendMessage(Message.INVALID_ARGUMENTS.getPrefixed());
