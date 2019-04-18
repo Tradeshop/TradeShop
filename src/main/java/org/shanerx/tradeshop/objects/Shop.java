@@ -554,17 +554,41 @@ public class Shop implements Serializable {
 		}
 
 		if (product != null) {
+			StringBuilder sb = new StringBuilder();
+			String[] name;
+
+			sb.append(product.getAmount());
+			sb.append(" ");
+
 			if (product.hasItemMeta() && product.getItemMeta().hasDisplayName())
-				s.setLine(1, product.getAmount() + " " + product.getItemMeta().getDisplayName());
+				name = product.getItemMeta().getDisplayName().split("/[A-Z_]/gi");
 			else
-				s.setLine(1, product.getAmount() + " " + product.getType().toString());
+				name = product.getType().toString().split("/[A-Z_]/gi");
+
+			for (String str : name) {
+				sb.append(str);
+			}
+
+			s.setLine(1, sb.toString());
 		}
 
 		if (cost != null) {
+			StringBuilder sb = new StringBuilder();
+			String[] name;
+
+			sb.append(cost.getAmount());
+			sb.append(" ");
+
 			if(cost.hasItemMeta() && cost.getItemMeta().hasDisplayName())
-				s.setLine(1, cost.getAmount() + " " + cost.getItemMeta().getDisplayName());
+				name = cost.getItemMeta().getDisplayName().split("/[A-Z_]/gi");
 			else
-				s.setLine(2, cost.getAmount() + " " + cost.getType().toString());
+				name = cost.getType().toString().split("/[A-Z_]/gi");
+
+			for (String str : name) {
+				sb.append(str);
+			}
+
+			s.setLine(2, sb.toString());
 		}
 
 		s.setLine(3, status.getLine());
