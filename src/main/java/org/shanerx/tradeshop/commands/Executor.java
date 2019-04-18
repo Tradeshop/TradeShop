@@ -436,38 +436,56 @@ public class Executor extends Utils implements CommandExecutor {
 					return true;
 				}
 
-				Inventory shopContents = Bukkit.createInventory(null, 9, colorize(Bukkit.getOfflinePlayer(shop.getOwner().getUUID()).getName() + "'s Shop                                 "));
+				Inventory shopContents = Bukkit.createInventory(null, 18, colorize(Bukkit.getOfflinePlayer(shop.getOwner().getUUID()).getName() + "'s Shop                                 "));
 
-				ItemStack costLabel = new ItemStack(Material.STAINED_GLASS_PANE, 1, (short) 13),
-						productLabel = new ItemStack(Material.STAINED_GLASS_PANE, 1, (short) 4);
+				ItemStack costLabel = new ItemStack(Material.GREEN_STAINED_GLASS_PANE, 1),
+						productLabel = new ItemStack(Material.YELLOW_STAINED_GLASS_PANE, 1),
+						blankLabel = new ItemStack(Material.LIGHT_GRAY_STAINED_GLASS_PANE, 1);
 
 				ItemMeta costMeta = costLabel.getItemMeta(),
-						productMeta = productLabel.getItemMeta();
+						productMeta = productLabel.getItemMeta(),
+						blankMeta = blankLabel.getItemMeta();
 
 				ArrayList<String> costLore = new ArrayList<>();
 				costLore.add("This is the item");
-				costLore.add("removed from your");
-				costLore.add("inventory to make");
-				costLore.add("a trade.");
+				costLore.add("you give to make");
+				costLore.add("the trade.");
 
 				ArrayList<String> productLore = new ArrayList<>();
 				productLore.add("This is the item");
 				productLore.add("the you receive");
-				productLore.add("from a trade.");
+				productLore.add("from the trade.");
 
-				costMeta.setDisplayName("Cost Item");
+				costMeta.setDisplayName("Cost");
 				costMeta.setLore(costLore);
 
-				productMeta.setDisplayName("Product Item");
+				productMeta.setDisplayName("Product");
 				productMeta.setLore(productLore);
+
+				blankMeta.setDisplayName(" ");
 
 				costLabel.setItemMeta(costMeta);
 				productLabel.setItemMeta(productMeta);
+				blankLabel.setItemMeta(blankMeta);
 
-				shopContents.setItem(1, costLabel);
-				shopContents.setItem(2, shop.getProduct());
+				shopContents.setItem(2, costLabel);
+				shopContents.setItem(11, shop.getProduct());
 				shopContents.setItem(6, productLabel);
-				shopContents.setItem(7, shop.getCost());
+				shopContents.setItem(15, shop.getCost());
+				shopContents.setItem(0, blankLabel);
+				shopContents.setItem(1, blankLabel);
+				shopContents.setItem(3, blankLabel);
+				shopContents.setItem(4, blankLabel);
+				shopContents.setItem(5, blankLabel);
+				shopContents.setItem(7, blankLabel);
+				shopContents.setItem(8, blankLabel);
+				shopContents.setItem(9, blankLabel);
+				shopContents.setItem(10, blankLabel);
+				shopContents.setItem(12, blankLabel);
+				shopContents.setItem(13, blankLabel);
+				shopContents.setItem(14, blankLabel);
+				shopContents.setItem(16, blankLabel);
+				shopContents.setItem(17, blankLabel);
 
 				p.openInventory(shopContents);
 				return true;

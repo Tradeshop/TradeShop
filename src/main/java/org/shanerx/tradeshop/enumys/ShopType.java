@@ -71,7 +71,7 @@ public enum ShopType implements Serializable {
 	}
 
 	public static boolean isShop(Block b) {
-		if (b != null && (b.getType() == Material.SIGN_POST || b.getType() == Material.WALL_SIGN)) {
+		if (b != null && (b.getType() == Material.SIGN || b.getType() == Material.WALL_SIGN)) {
 			return isShop((Sign) b.getState());
 		}
 

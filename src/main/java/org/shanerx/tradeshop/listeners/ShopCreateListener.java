@@ -101,7 +101,7 @@ public class ShopCreateListener extends Utils implements Listener {
 		shopChest.setName();
 
 		p.sendMessage(Message.SUCCESSFUL_SETUP.getPrefixed());
-		if (shopChest.isEmpty()) {
+		if (shopChest.isEmpty() && shop.hasProduct()) {
 			p.sendMessage(Message.EMPTY_TS_ON_SETUP.getPrefixed());
 		}
 		return;

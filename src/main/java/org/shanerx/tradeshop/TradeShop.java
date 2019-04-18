@@ -66,6 +66,12 @@ public class TradeShop extends JavaPlugin {
 			return;
 		}
 
+		if (version.isBelow(1, 13)) {
+			getLogger().info("[TradeShop] Minecraft versions before 1.13 are not supported beyond TradeShop version 1.8.2!");
+			getServer().getPluginManager().disablePlugin(this);
+			return;
+		}
+
 		Message.reload();
 		Setting.reload();
 

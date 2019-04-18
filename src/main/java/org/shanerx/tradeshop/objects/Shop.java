@@ -405,12 +405,21 @@ public class Shop implements Serializable {
 	}
 
 	/**
-	 * Returns the product item
+	 * Checks if shop has product
 	 *
-	 * @return Product ItemStack
+	 * @return True if product != null
 	 */
-	public ItemStack getProduct() {
-		return product;
+	public boolean hasProduct() {
+		return product != null;
+	}
+
+	/**
+	 * Checks if shop has cost
+	 *
+	 * @return True if cost != null
+	 */
+	public boolean hasCost() {
+		return cost != null;
 	}
 
 	/**
@@ -421,6 +430,15 @@ public class Shop implements Serializable {
 	public void setProduct(ItemStack newItem) {
 		product = newItem;
 		productB64 = ItemSerializer.itemStackArrayToBase64(product);
+	}
+
+	/**
+	 * Returns the product item
+	 *
+	 * @return Product ItemStack
+	 */
+	public ItemStack getProduct() {
+		return product;
 	}
 
 	/**
@@ -539,14 +557,14 @@ public class Shop implements Serializable {
 			if (product.hasItemMeta() && product.getItemMeta().hasDisplayName())
 				s.setLine(1, product.getAmount() + " " + product.getItemMeta().getDisplayName());
 			else
-				s.setLine(1, product.getAmount() + " " + product.getType());
+				s.setLine(1, product.getAmount() + " " + product.getType().toString());
 		}
 
 		if (cost != null) {
 			if(cost.hasItemMeta() && cost.getItemMeta().hasDisplayName())
 				s.setLine(1, cost.getAmount() + " " + cost.getItemMeta().getDisplayName());
 			else
-				s.setLine(2, cost.getAmount() + " " + cost.getType());
+				s.setLine(2, cost.getAmount() + " " + cost.getType().toString());
 		}
 
 		s.setLine(3, status.getLine());

@@ -1,9 +1,10 @@
 name: TradeShop
 version: 2.0.0-DEV
 main: org.shanerx.tradeshop.TradeShop
+api-version: 1.13
+load: POSTWORLD
 
-author: Lori00
-authors: [KillerOfPie]
+authors: [Lori00, KillerOfPie]
 description: A new powerful trading plugin.
 website: https://www.spigotmc.org/resources/tradeshop.32762/
 
