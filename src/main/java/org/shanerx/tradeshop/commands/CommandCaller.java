@@ -24,7 +24,9 @@ package org.shanerx.tradeshop.commands;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 import org.shanerx.tradeshop.TradeShop;
+import org.shanerx.tradeshop.enumys.Commands;
 import org.shanerx.tradeshop.enumys.Message;
 import org.shanerx.tradeshop.objects.CommandPass;
 
@@ -37,18 +39,94 @@ public class CommandCaller implements CommandExecutor {
 		plugin = instance;
 	}
 
+    private CommandPass cmdPass;
+    private Commands command;
+    private CommandRunner cmdRnnr;
+
 	@Override
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
-		CommandPass cmdPass = new CommandPass(sender, cmd, label, args);
+        cmdPass = new CommandPass(sender, cmd, label, args);
+        command = Commands.getType(cmdPass.getArgAt(0));
+        cmdRnnr = new CommandRunner(plugin, cmdPass, command);
 
-		if (cmdPass.hasArgs()) {
+        if (!cmdPass.hasArgs()) {
 			sender.sendMessage(Message.INVALID_ARGUMENTS.getPrefixed());
 			return true;
 
 		} else {
+            if (command == null) {
+                sender.sendMessage(Message.INVALID_ARGUMENTS.getPrefixed());
+                return true;
+            }
+
+            if (!checkPerm()) {
+                return true;
+            }
+
+            if (command.getMinArgs() < args.length || command.getMaxArgs() > args.length) {
+                sender.sendMessage(Message.INVALID_ARGUMENTS.getPrefixed());
+                return true;
+            }
+
+            if (command.needsPlayer() && !(sender instanceof Player)) {
+                sender.sendMessage(Message.PLAYER_ONLY_COMMAND.getPrefixed());
+                return true;
+            }
+
+            switch (command) {
+                case HELP:
+                    cmdRnnr.help();
+                    break;
+                case BUGS:
+                    cmdRnnr.bugs();
+                    break;
+                case SETUP:
+                    cmdRnnr.setup();
+                    break;
+                case RELOAD:
+                    cmdRnnr.reload();
+                    break;
+                case ADDPRODUCT:
+                    cmdRnnr.addProduct();
+                    break;
+                case ADDCOST:
+                    cmdRnnr.addCost();
+                    break;
+                case OPEN:
+                    cmdRnnr.open();
+                    break;
+                case CLOSE:
+                    cmdRnnr.close();
+                    break;
+                case SWITCH:
+                    cmdRnnr.switchShop();
+                    break;
+                case WHAT:
+                    cmdRnnr.what();
+                    break;
+                case WHO:
+                    cmdRnnr.who();
+                    break;
+                case GETCUSTOMITEMS:
+                    cmdRnnr.getCustomItems();
+                    break;
+
+            }
+
+
 
 		}
 
 		return true;
 	}
+
+
+    public boolean checkPerm() {
+        if (!cmdPass.getSender().hasPermission(command.getPerm().getPerm())) {
+            cmdPass.getSender().sendMessage(Message.NO_COMMAND_PERMISSION.getPrefixed());
+            return false;
+        }
+
+        return true;
+    }
 }

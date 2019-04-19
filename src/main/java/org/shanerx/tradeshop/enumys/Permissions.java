@@ -39,7 +39,9 @@ public enum Permissions {
 
 	EDIT("edit"), // non admin perm
 
-	WHO("who");
+	INFO("info"),
+
+	NONE("");
 
 	private String key;
 	private final static TradeShop plugin = (TradeShop) Bukkit.getPluginManager().getPlugin("TradeShop");

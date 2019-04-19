@@ -65,10 +65,10 @@ public class CommandPass {
 	}
 
 	public String getArgAt(int index) {
-		if (index < argsSize()) {
+		if (hasArgAt(index)) {
 			return args.get(index);
 		} else {
-			throw new ArrayIndexOutOfBoundsException("No argument with index at: " + index);
+			return null;
 		}
 	}
 

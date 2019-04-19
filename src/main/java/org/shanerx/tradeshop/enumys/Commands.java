@@ -27,32 +27,37 @@ import java.util.List;
 
 public enum Commands {
 
-	HELP(Lists.newArrayList("help", "?"), 0, 0),
-	SETUP(Lists.newArrayList("setup", "start", "create", "make"), 0, 0),
-	BUGS(Lists.newArrayList("bug", "bugs"), 0, 0),
-	ADDOWNER(Lists.newArrayList("addOwner"), 0, 0),
-	REMOVEOWNER(Lists.newArrayList("removeOwner"), 0, 0),
-	ADDMEMBER(Lists.newArrayList("addMember"), 0, 0),
-	REMOVEMEMBER(Lists.newArrayList("removeMember"), 0, 0),
-	ADDPRODUCT(Lists.newArrayList("addProduct"), 0, 0),
-	ADDCOST(Lists.newArrayList("addCost"), 0, 0),
-	OPEN(Lists.newArrayList("open"), 0, 0),
-	CLOSE(Lists.newArrayList("close"), 0, 0),
-	WHO(Lists.newArrayList("who"), 0, 0),
-	WHAT(Lists.newArrayList("what", "peek", "windowShop", "shop", "view"), 0, 0),
-	ADDITEM(Lists.newArrayList("additem", "newItem"), 0, 0),
-	REMOVEITEM(Lists.newArrayList("removeItem", "delItem"), 0, 0),
-	GETCUSTOMITEMS(Lists.newArrayList("getCustomItems", "getCIs"), 0, 0),
-	RELOAD(Lists.newArrayList("reload"), 0, 0);
+	HELP(Lists.newArrayList("help", "?"), Permissions.HELP, 1, 2, false),
+	SETUP(Lists.newArrayList("setup", "start", "create", "make"), Permissions.HELP, 1, 1, false),
+	BUGS(Lists.newArrayList("bug", "bugs"), Permissions.NONE, 1, 1, false),
+	ADDOWNER(Lists.newArrayList("addOwner"), Permissions.NONE, 2, 2, true),
+	REMOVEOWNER(Lists.newArrayList("removeOwner", "delOwner"), Permissions.NONE, 2, 2, true),
+	ADDMEMBER(Lists.newArrayList("addMember"), Permissions.NONE, 2, 2, true),
+	REMOVEMEMBER(Lists.newArrayList("removeMember", "delMember"), Permissions.NONE, 2, 2, true),
+	ADDPRODUCT(Lists.newArrayList("addProduct"), Permissions.NONE, 1, 3, true),
+	ADDCOST(Lists.newArrayList("addCost"), Permissions.NONE, 1, 3, true),
+	OPEN(Lists.newArrayList("open"), Permissions.NONE, 1, 1, true),
+	CLOSE(Lists.newArrayList("close"), Permissions.NONE, 1, 1, true),
+	WHO(Lists.newArrayList("who"), Permissions.INFO, 1, 1, true),
+	WHAT(Lists.newArrayList("what", "peek", "windowShop", "shop", "view"), Permissions.INFO, 1, 1, true),
+	ADDITEM(Lists.newArrayList("additem", "newItem"), Permissions.ADMIN, 1, 2, true),
+	REMOVEITEM(Lists.newArrayList("removeItem", "delItem"), Permissions.ADMIN, 2, 2, false),
+	GETCUSTOMITEMS(Lists.newArrayList("getCustomItems", "getCIs"), Permissions.ADMIN, 2, 2, true),
+	RELOAD(Lists.newArrayList("reload"), Permissions.ADMIN, 1, 1, false),
+	SWITCH(Lists.newArrayList("switch"), Permissions.EDIT, 1, 1, true);
 
 	private String name;
 	private List<String> names;
 	private int minArgs, maxArgs;
+	private Permissions perm;
+	private boolean needsPlayer;
 
-	Commands(List<String> names, int minArgs, int maxArgs) {
+	Commands(List<String> names, Permissions perm, int minArgs, int maxArgs, boolean needsPlayer) {
 		this.names = names;
+		this.perm = perm;
 		this.minArgs = minArgs;
 		this.maxArgs = maxArgs;
+		this.needsPlayer = needsPlayer;
 		name = name();
 	}
 
@@ -68,6 +73,18 @@ public enum Commands {
 		return maxArgs;
 	}
 
+	public static Commands getType(String toCheck) {
+		for (Commands cmd : values()) {
+			for (String str : cmd.getNames()) {
+				if (str.equalsIgnoreCase(toCheck)) {
+					return cmd;
+				}
+			}
+		}
+
+		return null;
+	}
+
 	public boolean isName(String str) {
 		for (String test : names) {
 			if (test.equalsIgnoreCase(str)) {
@@ -78,4 +95,11 @@ public enum Commands {
 		return false;
 	}
 
+	public Permissions getPerm() {
+		return perm;
+	}
+
+	public boolean needsPlayer() {
+		return needsPlayer;
+	}
 }
