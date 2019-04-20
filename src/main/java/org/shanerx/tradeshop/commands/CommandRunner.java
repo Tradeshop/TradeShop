@@ -23,6 +23,7 @@ package org.shanerx.tradeshop.commands;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
@@ -541,4 +542,148 @@ public class CommandRunner extends Utils {
         sendMessage(sb.toString());
         return;
     }
+
+    public void addCustomItem() {
+        ItemStack itm = pSender.getInventory().getItemInMainHand();
+
+        if (itm.getType().equals(Material.AIR) || itm.getType() == null) {
+            sendMessage(colorize("&cYou must ne holding an item to create a custom item."));
+            return;
+        }
+
+        plugin.getCustomItemManager().addItem(command.getArgAt(1), itm);
+        sendMessage(colorize("&a" + command.getArgAt(1) + " has been added to the custom items."));
+        return;
+    }
+
+    public void removeCustomItem() {
+        plugin.getCustomItemManager().removeItem(command.getArgAt(1));
+        sendMessage(colorize("&a" + command.getArgAt(1) + " has been removed from the custom items."));
+        return;
+    }
+
+    public void addManager() {
+        Block b = pSender.getTargetBlock(null, Setting.MAX_EDIT_DISTANCE.getInt());
+        Sign s = null;
+
+        if (b != null && plugin.getListManager().isInventory(b.getType())) {
+            s = findShopSign(b);
+        } else if (ShopType.isShop(b)) {
+            s = (Sign) b.getState();
+        } else if (!plugin.getListManager().isInventory(b.getType()) || findShopSign(b) == null) {
+            sendMessage(Message.NO_SIGHTED_SHOP.getPrefixed());
+            return;
+        }
+
+        OfflinePlayer target = Bukkit.getOfflinePlayer(command.getArgAt(1));
+        if (!target.hasPlayedBefore()) {
+            sendMessage(Message.PLAYER_NOT_FOUND.getPrefixed());
+            return;
+        }
+
+        Shop shop = Shop.loadShop(s);
+        shop.addManager(new ShopUser(target, ShopRole.MANAGER));
+        if (!shop.getMembersUUID().contains(target.getUniqueId())) {
+            shop.removeMember(new ShopUser(target, ShopRole.MEMBER));
+        }
+
+        shop.saveShop();
+        shop.updateSign();
+        sendMessage(Message.UPDATED_SHOP_MEMBERS.getPrefixed());
+    }
+
+    public void removeManager() {
+        Block b = pSender.getTargetBlock(null, Setting.MAX_EDIT_DISTANCE.getInt());
+        Sign s = null;
+
+        if (b != null && plugin.getListManager().isInventory(b.getType())) {
+            s = findShopSign(b);
+        } else if (ShopType.isShop(b)) {
+            s = (Sign) b.getState();
+        } else if (!plugin.getListManager().isInventory(b.getType()) || findShopSign(b) == null) {
+            sendMessage(Message.NO_SIGHTED_SHOP.getPrefixed());
+            return;
+        }
+
+        OfflinePlayer target = Bukkit.getOfflinePlayer(command.getArgAt(1));
+        if (!target.hasPlayedBefore()) {
+            sendMessage(Message.PLAYER_NOT_FOUND.getPrefixed());
+            return;
+        }
+
+        Shop shop = Shop.loadShop(s);
+        boolean removed = shop.removeManager(new ShopUser(target, ShopRole.MANAGER));
+        if (!removed) {
+            sendMessage(Message.UNSUCCESSFUL_SHOP_MEMBERS.getPrefixed());
+            return;
+        }
+
+        shop.saveShop();
+        shop.updateSign();
+        sendMessage(Message.UPDATED_SHOP_MEMBERS.getPrefixed());
+    }
+
+    public void addMember() {
+        Block b = pSender.getTargetBlock(null, Setting.MAX_EDIT_DISTANCE.getInt());
+        Sign s = null;
+
+        if (b != null && plugin.getListManager().isInventory(b.getType())) {
+            s = findShopSign(b);
+        } else if (ShopType.isShop(b)) {
+            s = (Sign) b.getState();
+        } else if (!plugin.getListManager().isInventory(b.getType()) || findShopSign(b) == null) {
+            sendMessage(Message.NO_SIGHTED_SHOP.getPrefixed());
+            return;
+        }
+
+        OfflinePlayer target = Bukkit.getOfflinePlayer(command.getArgAt(1));
+        if (!target.hasPlayedBefore()) {
+            sendMessage(Message.PLAYER_NOT_FOUND.getPrefixed());
+            return;
+        }
+
+        Shop shop = Shop.loadShop(s);
+        if (!shop.getManagersUUID().contains(target.getUniqueId())) {
+            shop.addMember(new ShopUser(target, ShopRole.MEMBER));
+        }
+
+        shop.saveShop();
+        shop.updateSign();
+        sendMessage(Message.UPDATED_SHOP_MEMBERS.getPrefixed());
+    }
+
+    public void removeMember() {
+        Block b = pSender.getTargetBlock(null, Setting.MAX_EDIT_DISTANCE.getInt());
+        Sign s = null;
+
+        if (b != null && plugin.getListManager().isInventory(b.getType())) {
+            s = findShopSign(b);
+        } else if (ShopType.isShop(b)) {
+            s = (Sign) b.getState();
+        } else if (!plugin.getListManager().isInventory(b.getType()) || findShopSign(b) == null) {
+            sendMessage(Message.NO_SIGHTED_SHOP.getPrefixed());
+            return;
+        }
+
+        OfflinePlayer target = Bukkit.getOfflinePlayer(command.getArgAt(1));
+        if (!target.hasPlayedBefore()) {
+            sendMessage(Message.PLAYER_NOT_FOUND.getPrefixed());
+            return;
+        }
+
+        Shop shop = Shop.loadShop(s);
+
+        boolean removed = shop.removeMember(new ShopUser(target, ShopRole.MEMBER));
+        if (!removed) {
+            sendMessage(Message.UNSUCCESSFUL_SHOP_MEMBERS.getPrefixed());
+            return;
+        }
+
+
+        shop.saveShop();
+        shop.updateSign();
+        sendMessage(Message.UPDATED_SHOP_MEMBERS.getPrefixed());
+    }
+
+
 }

@@ -235,10 +235,16 @@ public class Shop implements Serializable {
 	 * Removes a manager from the shop
 	 *
 	 * @param oldManager the player to be removes as a shopUser object
+     * @return true if manager was removed
 	 */
-	public void removeManager(ShopUser oldManager) {
-		managers.remove(oldManager);
-		saveShop();
+    public boolean removeManager(ShopUser oldManager) {
+        if (managers.contains(oldManager)) {
+            managers.remove(oldManager);
+            saveShop();
+            return true;
+        }
+
+        return false;
 	}
 
 	/**
@@ -502,10 +508,16 @@ public class Shop implements Serializable {
 	 * Remove a member from the shop
 	 *
 	 * @param oldMember Member to be removed
+     * @return true if member was removed
 	 */
-	public void removeMember(ShopUser oldMember) {
-		members.remove(oldMember);
-		saveShop();
+    public boolean removeMember(ShopUser oldMember) {
+        if (members.contains(oldMember)) {
+            members.remove(oldMember);
+            saveShop();
+            return true;
+        }
+
+        return false;
 	}
 
 	/**

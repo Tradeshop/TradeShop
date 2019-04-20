@@ -47,7 +47,6 @@ public class CommandCaller implements CommandExecutor {
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
         cmdPass = new CommandPass(sender, cmd, label, args);
         command = Commands.getType(cmdPass.getArgAt(0));
-        cmdRnnr = new CommandRunner(plugin, cmdPass, command);
 
         if (!cmdPass.hasArgs()) {
 			sender.sendMessage(Message.INVALID_ARGUMENTS.getPrefixed());
@@ -72,6 +71,8 @@ public class CommandCaller implements CommandExecutor {
                 sender.sendMessage(Message.PLAYER_ONLY_COMMAND.getPrefixed());
                 return true;
             }
+
+            cmdRnnr = new CommandRunner(plugin, cmdPass, command);
 
             switch (command) {
                 case HELP:
@@ -110,6 +111,25 @@ public class CommandCaller implements CommandExecutor {
                 case GETCUSTOMITEMS:
                     cmdRnnr.getCustomItems();
                     break;
+                case ADDCUSTOMITEM:
+                    cmdRnnr.addCustomItem();
+                    break;
+                case REMOVECUSTOMITEM:
+                    cmdRnnr.removeCustomItem();
+                    break;
+                case ADDMANAGER:
+                    cmdRnnr.addManager();
+                    break;
+                case REMOVEMANGAER:
+                    cmdRnnr.removeManager();
+                    break;
+                case ADDMEMBER:
+                    cmdRnnr.addMember();
+                    break;
+                case REMOVEMEMBER:
+                    cmdRnnr.removeMember();
+                    break;
+
 
             }
 

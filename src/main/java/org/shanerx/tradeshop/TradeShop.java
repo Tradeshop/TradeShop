@@ -24,7 +24,7 @@ package org.shanerx.tradeshop;
 import org.bstats.bukkit.Metrics;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.shanerx.tradeshop.commands.Executor;
+import org.shanerx.tradeshop.commands.CommandCaller;
 import org.shanerx.tradeshop.enumys.Message;
 import org.shanerx.tradeshop.enumys.Setting;
 import org.shanerx.tradeshop.listeners.AdminEventListener;
@@ -84,7 +84,7 @@ public class TradeShop extends JavaPlugin {
 		pm.registerEvents(new ShopTradeListener(), this);
 		pm.registerEvents(new CustomInventoryListener(), this);
 
-		getCommand("tradeshop").setExecutor(new Executor(this));
+        getCommand("tradeshop").setExecutor(new CommandCaller(this));
 
 		boolean checkUpdates = Setting.CHECK_UPDATES.getBoolean();
 
