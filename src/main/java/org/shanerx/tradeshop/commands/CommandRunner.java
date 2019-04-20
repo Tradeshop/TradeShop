@@ -32,11 +32,7 @@ import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.shanerx.tradeshop.TradeShop;
-import org.shanerx.tradeshop.enumys.Message;
-import org.shanerx.tradeshop.enumys.Permissions;
-import org.shanerx.tradeshop.enumys.Setting;
-import org.shanerx.tradeshop.enumys.ShopRole;
-import org.shanerx.tradeshop.enumys.ShopType;
+import org.shanerx.tradeshop.enumys.*;
 import org.shanerx.tradeshop.objects.CommandPass;
 import org.shanerx.tradeshop.objects.Shop;
 import org.shanerx.tradeshop.objects.ShopUser;
@@ -60,10 +56,18 @@ public class CommandRunner extends Utils {
         }
     }
 
+    /**
+     * Colors and sends the string to the sender
+     *
+     * @param message message to send to the sender
+     */
     public void sendMessage(String message) {
         command.getSender().sendMessage(colorize(message));
     }
 
+    /**
+     * Builds and sends the sender the help message
+     */
     public void help() {
         StringBuilder sb = new StringBuilder();
 
@@ -105,19 +109,40 @@ public class CommandRunner extends Utils {
         sendMessage(sb.toString());
     }
 
+    /**
+     * Sends the sender the bug message
+     */
     public void bugs() {
         sendMessage("\n&2To report any bugs to the author, either send a PM on &cSpigot &2- &egoo.gl/s6Jk23 &2or open an issue on &cGitHub &2-&e goo.gl/X4qqyg\n");
     }
 
+    /**
+     * Sends the sender the setup message
+     */
     public void setup() {
         sendMessage(Message.SETUP_HELP.getPrefixed());
     }
 
+    /**
+     * Reloads the plugin and sends success message
+     */
     public void reload() {
         plugin.reloadConfig();
         sendMessage(getPrefix() + "&6The configuration files have been reloaded!");
     }
 
+    /**
+     * Adds a product to a Shop
+     * <p>
+     * With no variables sent will use the amount and data of the held item for product
+     * </p>
+     * <p>
+     * If the player uses a int in the first variable they can change the amount for the item they are holding
+     * </p>
+     * <p>
+     * With 2 variables used the player can use an amount and material to set the sign instead of a held item
+     * </p>
+     */
     public void addProduct() {
         Block b = pSender.getTargetBlock(null, Setting.MAX_EDIT_DISTANCE.getInt());
 
@@ -131,11 +156,11 @@ public class CommandRunner extends Utils {
         int amount = 0;
         Material mat = null;
 
-		if (command.hasArgAt(1) && isInt(command.getArgAt(1))) {
+        if (command.hasArgAt(1) && isInt(command.getArgAt(1))) {
             amount = Integer.parseInt(command.getArgAt(1));
         }
 
-		if (command.hasArgAt(2) && Material.getMaterial(command.getArgAt(2).toUpperCase()) != null) {
+        if (command.hasArgAt(2) && Material.getMaterial(command.getArgAt(2).toUpperCase()) != null) {
             mat = Material.getMaterial(command.getArgAt(2).toUpperCase());
         }
 
@@ -180,6 +205,18 @@ public class CommandRunner extends Utils {
         sendMessage(Message.ITEM_ADDED.getPrefixed());
     }
 
+    /**
+     * Adds a cost to a Shop
+     * <p>
+     *     With no variables sent will use the amount and data of the held item for cost
+     * </p>
+     * <p>
+     *     If the player uses a int in the first variable they can change the amount for the item they are holding
+     * </p>
+     * <p>
+     *     With 2 variables used the player can use an amount and material to set the sign instead of a held item
+     * </p>
+     */
     public void addCost() {
         Block b = pSender.getTargetBlock(null, Setting.MAX_EDIT_DISTANCE.getInt());
 
@@ -247,6 +284,9 @@ public class CommandRunner extends Utils {
         sendMessage(Message.ITEM_ADDED.getPrefixed());
     }
 
+    /**
+     * Sets the shop to the open status allowing trades to happen
+     */
     public void open() {
         Block b = pSender.getTargetBlock(null, Setting.MAX_EDIT_DISTANCE.getInt());
 
@@ -289,6 +329,9 @@ public class CommandRunner extends Utils {
         }
     }
 
+    /**
+     * Sets the shop to the close status preventing trades from happen
+     */
     public void close() {
         Block b = pSender.getTargetBlock(null, Setting.MAX_EDIT_DISTANCE.getInt());
 
@@ -323,6 +366,9 @@ public class CommandRunner extends Utils {
         sendMessage(Message.CHANGE_CLOSED.getPrefixed());
     }
 
+    /**
+     * Switches the shop type between BiTrade and Trade
+     */
     public void switchShop() {
         Block b = pSender.getTargetBlock(null, Setting.MAX_EDIT_DISTANCE.getInt());
 
@@ -355,6 +401,9 @@ public class CommandRunner extends Utils {
         sendMessage(Message.SHOP_TYPE_SWITCHED.getPrefixed().replace("%newtype%", shop.getShopType().toHeader()));
     }
 
+    /**
+     * Opens a GUI containing the items to be traded at the shop the player is looking at
+     */
     public void what() {
         Block b = pSender.getTargetBlock(null, Setting.MAX_EDIT_DISTANCE.getInt());
 
@@ -436,6 +485,9 @@ public class CommandRunner extends Utils {
         pSender.openInventory(shopContents);
     }
 
+    /**
+     * Tells the player who the Owner/Managers/Members that are on the shop are
+     */
     public void who() {
         String owner = "";
         StringBuilder managers = new StringBuilder();
@@ -514,6 +566,9 @@ public class CommandRunner extends Utils {
         }
     }
 
+    /**
+     * Sends the sender a list of available custom items
+     */
     public void getCustomItems() {
         Set<String> items = plugin.getCustomItemManager().getItems();
         StringBuilder sb = new StringBuilder();
@@ -527,6 +582,9 @@ public class CommandRunner extends Utils {
         sendMessage(sb.toString());
     }
 
+    /**
+     * Adds the held item with specified name to the custom item file
+     */
     public void addCustomItem() {
         ItemStack itm = pSender.getInventory().getItemInMainHand();
 
@@ -539,11 +597,17 @@ public class CommandRunner extends Utils {
         sendMessage(colorize("&a" + command.getArgAt(1) + " has been added to the custom items."));
     }
 
+    /**
+     * Removes the named custom item from the file
+     */
     public void removeCustomItem() {
         plugin.getCustomItemManager().removeItem(command.getArgAt(1));
         sendMessage(colorize("&a" + command.getArgAt(1) + " has been removed from the custom items."));
     }
 
+    /**
+     * Adds the specified player to the shop as a manager
+     */
     public void addManager() {
         Block b = pSender.getTargetBlock(null, Setting.MAX_EDIT_DISTANCE.getInt());
         Sign s;
@@ -574,6 +638,9 @@ public class CommandRunner extends Utils {
         sendMessage(Message.UPDATED_SHOP_MEMBERS.getPrefixed());
     }
 
+    /**
+     * Removes the specified player from the shop if they currently are a manager
+     */
     public void removeManager() {
         Block b = pSender.getTargetBlock(null, Setting.MAX_EDIT_DISTANCE.getInt());
         Sign s;
@@ -605,6 +672,9 @@ public class CommandRunner extends Utils {
         sendMessage(Message.UPDATED_SHOP_MEMBERS.getPrefixed());
     }
 
+    /**
+     * Adds the specified player to the shop as a member
+     */
     public void addMember() {
         Block b = pSender.getTargetBlock(null, Setting.MAX_EDIT_DISTANCE.getInt());
         Sign s;
@@ -634,6 +704,9 @@ public class CommandRunner extends Utils {
         sendMessage(Message.UPDATED_SHOP_MEMBERS.getPrefixed());
     }
 
+    /**
+     * Removes the specified player from the shop if they are a member
+     */
     public void removeMember() {
         Block b = pSender.getTargetBlock(null, Setting.MAX_EDIT_DISTANCE.getInt());
         Sign s;

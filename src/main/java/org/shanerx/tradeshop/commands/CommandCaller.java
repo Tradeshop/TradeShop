@@ -31,120 +31,130 @@ import org.shanerx.tradeshop.enumys.Message;
 import org.shanerx.tradeshop.enumys.Permissions;
 import org.shanerx.tradeshop.objects.CommandPass;
 
+/**
+ * This class is used for calling command methods from CommandRunner
+ * as well as doing initial checks for necessary arguments,
+ * permissions, and sender type
+ **/
 public class CommandCaller implements CommandExecutor {
 
-	private TradeShop plugin;
+    private TradeShop plugin;
 
 
-	public CommandCaller(TradeShop instance) {
-		plugin = instance;
-	}
+    public CommandCaller(TradeShop instance) {
+        plugin = instance;
+    }
 
-	private CommandPass cmdPass;
-	private Commands command;
-	private CommandRunner cmdRnnr;
+    private CommandPass cmdPass;
+    private Commands command;
+    private CommandRunner cmdRnnr;
 
-	@Override
-	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
-		cmdPass = new CommandPass(sender, cmd, label, args);
-		command = Commands.getType(cmdPass.getArgAt(0));
+    @Override
+    public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
+        cmdPass = new CommandPass(sender, cmd, label, args);
+        command = Commands.getType(cmdPass.getArgAt(0));
 
-		if (!cmdPass.hasArgs()) {
-			sender.sendMessage(Message.INVALID_ARGUMENTS.getPrefixed());
-			return true;
+        if (!cmdPass.hasArgs()) {
+            sender.sendMessage(Message.INVALID_ARGUMENTS.getPrefixed());
+            return true;
 
-		}
+        }
 
-		if (command == null) {
-			sender.sendMessage(Message.INVALID_ARGUMENTS.getPrefixed());
-			return true;
-		}
+        if (command == null) {
+            sender.sendMessage(Message.INVALID_ARGUMENTS.getPrefixed());
+            return true;
+        }
 
-		if (!checkPerm()) {
-			return true;
-		}
+        if (!checkPerm()) {
+            return true;
+        }
 
-		if (command.getMinArgs() > args.length || command.getMaxArgs() < args.length) {
-			sender.sendMessage(Message.INVALID_ARGUMENTS.getPrefixed());
-			return true;
-		}
+        if (command.getMinArgs() > args.length || command.getMaxArgs() < args.length) {
+            sender.sendMessage(Message.INVALID_ARGUMENTS.getPrefixed());
+            return true;
+        }
 
-		if (command.needsPlayer() && !(sender instanceof Player)) {
-			sender.sendMessage(Message.PLAYER_ONLY_COMMAND.getPrefixed());
-			return true;
-		}
+        if (command.needsPlayer() && !(sender instanceof Player)) {
+            sender.sendMessage(Message.PLAYER_ONLY_COMMAND.getPrefixed());
+            return true;
+        }
 
-		cmdRnnr = new CommandRunner(plugin, cmdPass);
+        cmdRnnr = new CommandRunner(plugin, cmdPass);
 
-		switch (command) {
-			case HELP:
-				cmdRnnr.help();
-				break;
-			case BUGS:
-				cmdRnnr.bugs();
-				break;
-			case SETUP:
-				cmdRnnr.setup();
-				break;
-			case RELOAD:
-				cmdRnnr.reload();
-				break;
-			case ADDPRODUCT:
-				cmdRnnr.addProduct();
-				break;
-			case ADDCOST:
-				cmdRnnr.addCost();
-				break;
-			case OPEN:
-				cmdRnnr.open();
-				break;
-			case CLOSE:
-				cmdRnnr.close();
-				break;
-			case SWITCH:
-				cmdRnnr.switchShop();
-				break;
-			case WHAT:
-				cmdRnnr.what();
-				break;
-			case WHO:
-				cmdRnnr.who();
-				break;
-			case GETCUSTOMITEMS:
-				cmdRnnr.getCustomItems();
-				break;
-			case ADDCUSTOMITEM:
-				cmdRnnr.addCustomItem();
-				break;
-			case REMOVECUSTOMITEM:
-				cmdRnnr.removeCustomItem();
-				break;
-			case ADDMANAGER:
-				cmdRnnr.addManager();
-				break;
-			case REMOVEMANGAER:
-				cmdRnnr.removeManager();
-				break;
-			case ADDMEMBER:
-				cmdRnnr.addMember();
-				break;
-			case REMOVEMEMBER:
-				cmdRnnr.removeMember();
-				break;
-
-
-		}
-
-		return true;
-	}
+        switch (command) {
+            case HELP:
+                cmdRnnr.help();
+                break;
+            case BUGS:
+                cmdRnnr.bugs();
+                break;
+            case SETUP:
+                cmdRnnr.setup();
+                break;
+            case RELOAD:
+                cmdRnnr.reload();
+                break;
+            case ADDPRODUCT:
+                cmdRnnr.addProduct();
+                break;
+            case ADDCOST:
+                cmdRnnr.addCost();
+                break;
+            case OPEN:
+                cmdRnnr.open();
+                break;
+            case CLOSE:
+                cmdRnnr.close();
+                break;
+            case SWITCH:
+                cmdRnnr.switchShop();
+                break;
+            case WHAT:
+                cmdRnnr.what();
+                break;
+            case WHO:
+                cmdRnnr.who();
+                break;
+            case GETCUSTOMITEMS:
+                cmdRnnr.getCustomItems();
+                break;
+            case ADDCUSTOMITEM:
+                cmdRnnr.addCustomItem();
+                break;
+            case REMOVECUSTOMITEM:
+                cmdRnnr.removeCustomItem();
+                break;
+            case ADDMANAGER:
+                cmdRnnr.addManager();
+                break;
+            case REMOVEMANGAER:
+                cmdRnnr.removeManager();
+                break;
+            case ADDMEMBER:
+                cmdRnnr.addMember();
+                break;
+            case REMOVEMEMBER:
+                cmdRnnr.removeMember();
+                break;
 
 
-	public boolean checkPerm() {
-		if (!cmdPass.getSender().hasPermission(command.getPerm().getPerm()) && !command.getPerm().equals(Permissions.NONE)) {
-			cmdPass.getSender().sendMessage(Message.NO_COMMAND_PERMISSION.getPrefixed());
-			return false;
-		}
+        }
 
-		return true;
-	}
+        return true;
+    }
+
+
+    /**
+     * Checks if the sender has the required permission
+     *
+     * @return true if permission is NONE or sender has permission
+     */
+    public boolean checkPerm() {
+        if (!cmdPass.getSender().hasPermission(command.getPerm().getPerm()) && !command.getPerm().equals(Permissions.NONE)) {
+            cmdPass.getSender().sendMessage(Message.NO_COMMAND_PERMISSION.getPrefixed());
+            return false;
+        }
+
+        return true;
+    }
 }

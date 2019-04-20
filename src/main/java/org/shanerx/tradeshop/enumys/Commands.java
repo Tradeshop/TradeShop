@@ -25,81 +25,140 @@ import com.google.common.collect.Lists;
 
 import java.util.List;
 
+/**
+ * Enum holding all commands as well as aliases,
+ * required permissions, minimum and maximum
+ * arguments, and whether or not command must be
+ * run by a player
+ **/
+
 public enum Commands {
 
-	HELP(Lists.newArrayList("help", "?"), Permissions.HELP, 1, 2, false),
-	SETUP(Lists.newArrayList("setup", "start", "create", "make"), Permissions.HELP, 1, 1, false),
-	BUGS(Lists.newArrayList("bug", "bugs"), Permissions.NONE, 1, 1, false),
+    HELP(Lists.newArrayList("help", "?"), Permissions.HELP, 1, 2, false),
+    SETUP(Lists.newArrayList("setup", "start", "create", "make"), Permissions.HELP, 1, 1, false),
+    BUGS(Lists.newArrayList("bug", "bugs"), Permissions.NONE, 1, 1, false),
     ADDMANAGER(Lists.newArrayList("addManager"), Permissions.NONE, 2, 2, true),
     REMOVEMANGAER(Lists.newArrayList("removeManager", "delManager"), Permissions.NONE, 2, 2, true),
-	ADDMEMBER(Lists.newArrayList("addMember"), Permissions.NONE, 2, 2, true),
-	REMOVEMEMBER(Lists.newArrayList("removeMember", "delMember"), Permissions.NONE, 2, 2, true),
-	ADDPRODUCT(Lists.newArrayList("addProduct", "setProduct"), Permissions.NONE, 1, 3, true),
-	ADDCOST(Lists.newArrayList("addCost", "setCost"), Permissions.NONE, 1, 3, true),
-	OPEN(Lists.newArrayList("open"), Permissions.NONE, 1, 1, true),
-	CLOSE(Lists.newArrayList("close"), Permissions.NONE, 1, 1, true),
-	WHO(Lists.newArrayList("who"), Permissions.INFO, 1, 1, true),
-	WHAT(Lists.newArrayList("what", "peek", "windowShop", "shop", "view"), Permissions.INFO, 1, 1, true),
+    ADDMEMBER(Lists.newArrayList("addMember"), Permissions.NONE, 2, 2, true),
+    REMOVEMEMBER(Lists.newArrayList("removeMember", "delMember"), Permissions.NONE, 2, 2, true),
+    ADDPRODUCT(Lists.newArrayList("addProduct", "setProduct"), Permissions.NONE, 1, 3, true),
+    ADDCOST(Lists.newArrayList("addCost", "setCost"), Permissions.NONE, 1, 3, true),
+    OPEN(Lists.newArrayList("open"), Permissions.NONE, 1, 1, true),
+    CLOSE(Lists.newArrayList("close"), Permissions.NONE, 1, 1, true),
+    WHO(Lists.newArrayList("who"), Permissions.INFO, 1, 1, true),
+    WHAT(Lists.newArrayList("what", "peek", "windowShop", "shop", "view"), Permissions.INFO, 1, 1, true),
     ADDCUSTOMITEM(Lists.newArrayList("addCustomItem", "additem", "newItem"), Permissions.ADMIN, 1, 2, true),
     REMOVECUSTOMITEM(Lists.newArrayList("removeCustomItem", "removeItem", "delItem"), Permissions.ADMIN, 2, 2, false),
-	GETCUSTOMITEMS(Lists.newArrayList("getCustomItems", "getCIs"), Permissions.ADMIN, 2, 2, true),
-	RELOAD(Lists.newArrayList("reload"), Permissions.ADMIN, 1, 1, false),
-	SWITCH(Lists.newArrayList("switch"), Permissions.EDIT, 1, 1, true);
+    GETCUSTOMITEMS(Lists.newArrayList("getCustomItems", "getCIs"), Permissions.ADMIN, 2, 2, true),
+    RELOAD(Lists.newArrayList("reload"), Permissions.ADMIN, 1, 1, false),
+    SWITCH(Lists.newArrayList("switch"), Permissions.EDIT, 1, 1, true);
 
-	private String name;
-	private List<String> names;
-	private int minArgs, maxArgs;
-	private Permissions perm;
-	private boolean needsPlayer;
+    /**
+     * Name of the permission
+     **/
+    private String name;
+    /**
+     * All names that can be used to call the command
+     **/
+    private List<String> names;
+    /**
+     * Minimum and Maximum arguments required for the command
+     **/
+    private int minArgs, maxArgs;
+    /**
+     * Permission required for the command
+     **/
+    private Permissions perm;
+    /**
+     * Whether the command requires a player to run
+     **/
+    private boolean needsPlayer;
 
-	Commands(List<String> names, Permissions perm, int minArgs, int maxArgs, boolean needsPlayer) {
-		this.names = names;
-		this.perm = perm;
-		this.minArgs = minArgs;
-		this.maxArgs = maxArgs;
-		this.needsPlayer = needsPlayer;
-		name = name();
-	}
+    Commands(List<String> names, Permissions perm, int minArgs, int maxArgs, boolean needsPlayer) {
+        this.names = names;
+        this.perm = perm;
+        this.minArgs = minArgs;
+        this.maxArgs = maxArgs;
+        this.needsPlayer = needsPlayer;
+        name = name();
+    }
 
-	public List<String> getNames() {
-		return names;
-	}
+    /**
+     * Returns Enum Value if present of the string variable
+     *
+     * @param toCheck String to check if enum exists for
+     * @return Commands Enum value of string
+     */
+    public static Commands getType(String toCheck) {
+        for (Commands cmd : values()) {
+            for (String str : cmd.getNames()) {
+                if (str.equalsIgnoreCase(toCheck)) {
+                    return cmd;
+                }
+            }
+        }
 
-	public int getMinArgs() {
-		return minArgs;
-	}
+        return null;
+    }
 
-	public int getMaxArgs() {
-		return maxArgs;
-	}
+    /**
+     * Returns list of all usable names for the command
+     *
+     * @return List<String> containing names
+     */
+    public List<String> getNames() {
+        return names;
+    }
 
-	public static Commands getType(String toCheck) {
-		for (Commands cmd : values()) {
-			for (String str : cmd.getNames()) {
-				if (str.equalsIgnoreCase(toCheck)) {
-					return cmd;
-				}
-			}
-		}
+    /**
+     * Returns minimum required arguments
+     *
+     * @return int minimum arguments
+     */
+    public int getMinArgs() {
+        return minArgs;
+    }
 
-		return null;
-	}
+    /**
+     * Returns maximum required arguments
+     *
+     * @return int maximum arguments
+     */
+    public int getMaxArgs() {
+        return maxArgs;
+    }
 
-	public boolean isName(String str) {
-		for (String test : names) {
-			if (test.equalsIgnoreCase(str)) {
-				return true;
-			}
-		}
+    /**
+     * Returns true if string has equivalent command enum
+     *
+     * @param toCheck String to check if enum exists for
+     * @return true if enum exists
+     */
+    public boolean isName(String toCheck) {
+        for (String test : names) {
+            if (test.equalsIgnoreCase(toCheck)) {
+                return true;
+            }
+        }
 
-		return false;
-	}
+        return false;
+    }
 
-	public Permissions getPerm() {
-		return perm;
-	}
+    /**
+     * Returns Permission enum required for command
+     *
+     * @return Permissions enum required for command
+     */
+    public Permissions getPerm() {
+        return perm;
+    }
 
-	public boolean needsPlayer() {
-		return needsPlayer;
-	}
+    /**
+     * Returns true if command needs a player to run
+     *
+     * @return true if command requires player
+     */
+    public boolean needsPlayer() {
+        return needsPlayer;
+    }
 }
