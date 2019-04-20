@@ -72,7 +72,7 @@ public class CommandCaller implements CommandExecutor {
                 return true;
             }
 
-            cmdRnnr = new CommandRunner(plugin, cmdPass, command);
+            cmdRnnr = new CommandRunner(plugin, cmdPass);
 
             switch (command) {
                 case HELP:

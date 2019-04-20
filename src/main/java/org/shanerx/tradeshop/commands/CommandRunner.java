@@ -45,23 +45,19 @@ public class CommandRunner extends Utils {
 
     private TradeShop plugin;
     private CommandPass command;
-    private boolean isSenderPlayer;
     private Player pSender;
-    private Commands cmd;
 
-    public CommandRunner(TradeShop instance, CommandPass command, Commands cmd) {
+    public CommandRunner(TradeShop instance, CommandPass command) {
         this.plugin = instance;
         this.command = command;
-        this.cmd = cmd;
 
         if (command.getSender() instanceof Player) {
-            isSenderPlayer = true;
             pSender = (Player) command.getSender();
         }
     }
 
     public void sendMessage(String message) {
-        sendMessage(colorize(message));
+        command.getSender().sendMessage(colorize(message));
     }
 
     public void help() {
@@ -107,24 +103,21 @@ public class CommandRunner extends Utils {
 
     public void bugs() {
         sendMessage("\n&2To report any bugs to the author, either send a PM on &cSpigot &2- &egoo.gl/s6Jk23 &2or open an issue on &cGitHub &2-&e goo.gl/X4qqyg\n");
-        return;
     }
 
     public void setup() {
         sendMessage(Message.SETUP_HELP.getPrefixed());
-        return;
     }
 
     public void reload() {
         plugin.reloadConfig();
         sendMessage(getPrefix() + "&6The configuration files have been reloaded!");
-        return;
     }
 
     public void addProduct() {
         Block b = pSender.getTargetBlock(null, Setting.MAX_EDIT_DISTANCE.getInt());
 
-        if (b == null || b.getType() == Material.AIR) {
+        if (b.getType() == Material.AIR) {
             sendMessage(Message.NO_SIGHTED_SHOP.getPrefixed());
             return;
 
@@ -146,8 +139,7 @@ public class CommandRunner extends Utils {
             shop = Shop.loadShop((Sign) b.getState());
         } else if (plugin.getListManager().isInventory(b.getType()) &&
                 ((InventoryHolder) b.getState()).getInventory().getName().contains("$ ^Sign:l_")) {
-            String loc = ((InventoryHolder) b.getState()).getInventory().getName().split("$ ^")[1];
-            loc.replace("Sign:", "");
+            String loc = ((InventoryHolder) b.getState()).getInventory().getName().split("$ ^")[1].replace("Sign:", "");
             shop = Shop.loadShop(loc);
         } else {
             sendMessage(Message.NO_SIGHTED_SHOP.getPrefixed());
@@ -163,7 +155,7 @@ public class CommandRunner extends Utils {
             itemInHand = new ItemStack(mat, 1);
         }
 
-        if (itemInHand == null || itemInHand.getType() == Material.AIR) {
+        if (itemInHand.getType() == Material.AIR) {
             sendMessage(Message.HELD_EMPTY.getPrefixed());
             return;
         }
@@ -182,13 +174,12 @@ public class CommandRunner extends Utils {
         shop.updateSign();
 
         sendMessage(Message.ITEM_ADDED.getPrefixed());
-        return;
     }
 
     public void addCost() {
         Block b = pSender.getTargetBlock(null, Setting.MAX_EDIT_DISTANCE.getInt());
 
-        if (b == null || b.getType() == Material.AIR) {
+        if (b.getType() == Material.AIR) {
             pSender.sendMessage(Message.NO_SIGHTED_SHOP.getPrefixed());
             return;
 
@@ -210,8 +201,7 @@ public class CommandRunner extends Utils {
             shop = Shop.loadShop((Sign) b.getState());
         } else if (plugin.getListManager().isInventory(b.getType()) &&
                 ((InventoryHolder) b.getState()).getInventory().getName().contains("$ ^Sign:l_")) {
-            String loc = ((InventoryHolder) b.getState()).getInventory().getName().split("$ ^")[0];
-            loc.replace("Sign:", "");
+            String loc = ((InventoryHolder) b.getState()).getInventory().getName().split("$ ^")[0].replace("Sign:", "");
             shop = Shop.loadShop(loc);
         } else {
             sendMessage(Message.NO_SIGHTED_SHOP.getPrefixed());
@@ -232,7 +222,7 @@ public class CommandRunner extends Utils {
             itemInHand = new ItemStack(mat, 1);
         }
 
-        if (itemInHand == null || itemInHand.getType() == Material.AIR) {
+        if (itemInHand.getType() == Material.AIR) {
             sendMessage(Message.HELD_EMPTY.getPrefixed());
             return;
         }
@@ -251,13 +241,12 @@ public class CommandRunner extends Utils {
         shop.updateSign();
 
         sendMessage(Message.ITEM_ADDED.getPrefixed());
-        return;
     }
 
     public void open() {
         Block b = pSender.getTargetBlock(null, Setting.MAX_EDIT_DISTANCE.getInt());
 
-        if (b == null || b.getType() == Material.AIR) {
+        if (b.getType() == Material.AIR) {
             pSender.sendMessage(Message.NO_SIGHTED_SHOP.getPrefixed());
             return;
 
@@ -269,8 +258,7 @@ public class CommandRunner extends Utils {
             shop = Shop.loadShop((Sign) b.getState());
         } else if (plugin.getListManager().isInventory(b.getType()) &&
                 ((InventoryHolder) b.getState()).getInventory().getName().contains("$ ^Sign:l_")) {
-            String loc = ((InventoryHolder) b.getState()).getInventory().getName().split("$ ^")[0];
-            loc.replace("Sign:", "");
+            String loc = ((InventoryHolder) b.getState()).getInventory().getName().split("$ ^")[0].replace("Sign:", "");
             shop = Shop.loadShop(loc);
         } else {
             sendMessage(Message.NO_SIGHTED_SHOP.getPrefixed());
@@ -295,13 +283,12 @@ public class CommandRunner extends Utils {
         } else {
             sendMessage(Message.MISSING_ITEM.getPrefixed());
         }
-        return;
     }
 
     public void close() {
         Block b = pSender.getTargetBlock(null, Setting.MAX_EDIT_DISTANCE.getInt());
 
-        if (b == null || b.getType() == Material.AIR) {
+        if (b.getType() == Material.AIR) {
             sendMessage(Message.NO_SIGHTED_SHOP.getPrefixed());
             return;
 
@@ -313,8 +300,7 @@ public class CommandRunner extends Utils {
             shop = Shop.loadShop((Sign) b.getState());
         } else if (plugin.getListManager().isInventory(b.getType()) &&
                 ((InventoryHolder) b.getState()).getInventory().getName().contains("$ ^Sign:l_")) {
-            String loc = ((InventoryHolder) b.getState()).getInventory().getName().split("$ ^")[0];
-            loc.replace("Sign:", "");
+            String loc = ((InventoryHolder) b.getState()).getInventory().getName().split("$ ^")[0].replace("Sign:", "");
             shop = Shop.loadShop(loc);
         } else {
             sendMessage(Message.NO_SIGHTED_SHOP.getPrefixed());
@@ -331,13 +317,12 @@ public class CommandRunner extends Utils {
         shop.updateSign();
 
         sendMessage(Message.CHANGE_CLOSED.getPrefixed());
-        return;
     }
 
     public void switchShop() {
         Block b = pSender.getTargetBlock(null, Setting.MAX_EDIT_DISTANCE.getInt());
 
-        if (b == null || b.getType() == Material.AIR) {
+        if (b.getType() == Material.AIR) {
             sendMessage(Message.NO_SIGHTED_SHOP.getPrefixed());
             return;
 
@@ -349,8 +334,7 @@ public class CommandRunner extends Utils {
             shop = Shop.loadShop((Sign) b.getState());
         } else if (plugin.getListManager().isInventory(b.getType()) &&
                 ((InventoryHolder) b.getState()).getInventory().getName().contains("$ ^Sign:l_")) {
-            String loc = ((InventoryHolder) b.getState()).getInventory().getName().split("$ ^")[0];
-            loc.replace("Sign:", "");
+            String loc = ((InventoryHolder) b.getState()).getInventory().getName().split("$ ^")[0].replace("Sign:", "");
             shop = Shop.loadShop(loc);
         } else {
             sendMessage(Message.NO_SIGHTED_SHOP.getPrefixed());
@@ -365,13 +349,12 @@ public class CommandRunner extends Utils {
         shop.switchType();
 
         sendMessage(Message.SHOP_TYPE_SWITCHED.getPrefixed().replace("%newtype%", shop.getShopType().toHeader()));
-        return;
     }
 
     public void what() {
         Block b = pSender.getTargetBlock(null, Setting.MAX_EDIT_DISTANCE.getInt());
 
-        if (b == null || b.getType() == Material.AIR) {
+        if (b.getType() == Material.AIR) {
             sendMessage(Message.NO_SIGHTED_SHOP.getPrefixed());
             return;
 
@@ -383,8 +366,7 @@ public class CommandRunner extends Utils {
             shop = Shop.loadShop((Sign) b.getState());
         } else if (plugin.getListManager().isInventory(b.getType()) &&
                 ((InventoryHolder) b.getState()).getInventory().getName().contains("$ ^Sign:l_")) {
-            String loc = ((InventoryHolder) b.getState()).getInventory().getName().split("$ ^")[0];
-            loc.replace("Sign:", "");
+            String loc = ((InventoryHolder) b.getState()).getInventory().getName().split("$ ^")[0].replace("Sign:", "");
             shop = Shop.loadShop(loc);
         } else {
             sendMessage(Message.NO_SIGHTED_SHOP.getPrefixed());
@@ -448,7 +430,6 @@ public class CommandRunner extends Utils {
         shopContents.setItem(17, blankLabel);
 
         pSender.openInventory(shopContents);
-        return;
     }
 
     public void who() {
@@ -462,7 +443,7 @@ public class CommandRunner extends Utils {
         try {
             b = pSender.getTargetBlock(null, Setting.MAX_EDIT_DISTANCE.getInt());
 
-            if (b == null || b.getType() == Material.AIR)
+            if (b.getType() == Material.AIR)
                 throw new NoSuchFieldException();
 
             if (ShopType.isShop(b)) {
@@ -524,10 +505,8 @@ public class CommandRunner extends Utils {
                     .replace("{OWNER}", owner)
                     .replace("{MANAGERS}", managers.toString())
                     .replace("{MEMBERS}", members.toString()));
-            return;
         } catch (NoSuchFieldException e) {
             sendMessage(Message.NO_SIGHTED_SHOP.getPrefixed());
-            return;
         }
     }
 
@@ -536,41 +515,40 @@ public class CommandRunner extends Utils {
         StringBuilder sb = new StringBuilder();
         sendMessage(colorize("&aCurrent custom items:"));
         for (String s : items) {
-            sb.append("-" + s + "  ");
+            sb.append("-");
+            sb.append(s);
+            sb.append("  ");
         }
 
         sendMessage(sb.toString());
-        return;
     }
 
     public void addCustomItem() {
         ItemStack itm = pSender.getInventory().getItemInMainHand();
 
-        if (itm.getType().equals(Material.AIR) || itm.getType() == null) {
+        if (itm.getType().equals(Material.AIR)) {
             sendMessage(colorize("&cYou must ne holding an item to create a custom item."));
             return;
         }
 
         plugin.getCustomItemManager().addItem(command.getArgAt(1), itm);
         sendMessage(colorize("&a" + command.getArgAt(1) + " has been added to the custom items."));
-        return;
     }
 
     public void removeCustomItem() {
         plugin.getCustomItemManager().removeItem(command.getArgAt(1));
         sendMessage(colorize("&a" + command.getArgAt(1) + " has been removed from the custom items."));
-        return;
     }
 
     public void addManager() {
         Block b = pSender.getTargetBlock(null, Setting.MAX_EDIT_DISTANCE.getInt());
-        Sign s = null;
+        Sign s;
 
-        if (b != null && plugin.getListManager().isInventory(b.getType())) {
+        if (plugin.getListManager().isInventory(b.getType())) {
             s = findShopSign(b);
         } else if (ShopType.isShop(b)) {
             s = (Sign) b.getState();
-        } else if (!plugin.getListManager().isInventory(b.getType()) || findShopSign(b) == null) {
+        } else {
             sendMessage(Message.NO_SIGHTED_SHOP.getPrefixed());
             return;
         }
@@ -594,13 +572,13 @@ public class CommandRunner extends Utils {
 
     public void removeManager() {
         Block b = pSender.getTargetBlock(null, Setting.MAX_EDIT_DISTANCE.getInt());
-        Sign s = null;
+        Sign s;
 
-        if (b != null && plugin.getListManager().isInventory(b.getType())) {
+        if (plugin.getListManager().isInventory(b.getType())) {
             s = findShopSign(b);
         } else if (ShopType.isShop(b)) {
             s = (Sign) b.getState();
-        } else if (!plugin.getListManager().isInventory(b.getType()) || findShopSign(b) == null) {
+        } else {
             sendMessage(Message.NO_SIGHTED_SHOP.getPrefixed());
             return;
         }
@@ -625,13 +603,13 @@ public class CommandRunner extends Utils {
 
     public void addMember() {
         Block b = pSender.getTargetBlock(null, Setting.MAX_EDIT_DISTANCE.getInt());
-        Sign s = null;
+        Sign s;
 
-        if (b != null && plugin.getListManager().isInventory(b.getType())) {
+        if (plugin.getListManager().isInventory(b.getType())) {
             s = findShopSign(b);
         } else if (ShopType.isShop(b)) {
             s = (Sign) b.getState();
-        } else if (!plugin.getListManager().isInventory(b.getType()) || findShopSign(b) == null) {
+        } else {
             sendMessage(Message.NO_SIGHTED_SHOP.getPrefixed());
             return;
         }
@@ -654,13 +632,13 @@ public class CommandRunner extends Utils {
 
     public void removeMember() {
         Block b = pSender.getTargetBlock(null, Setting.MAX_EDIT_DISTANCE.getInt());
-        Sign s = null;
+        Sign s;
 
-        if (b != null && plugin.getListManager().isInventory(b.getType())) {
+        if (plugin.getListManager().isInventory(b.getType())) {
             s = findShopSign(b);
         } else if (ShopType.isShop(b)) {
             s = (Sign) b.getState();
-        } else if (!plugin.getListManager().isInventory(b.getType()) || findShopSign(b) == null) {
+        } else {
             sendMessage(Message.NO_SIGHTED_SHOP.getPrefixed());
             return;
         }
