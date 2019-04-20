@@ -573,9 +573,9 @@ public class Shop implements Serializable {
 			sb.append(" ");
 
 			if (product.hasItemMeta() && product.getItemMeta().hasDisplayName())
-				name = product.getItemMeta().getDisplayName().split("/[A-Z_]/gi");
+				name = product.getItemMeta().getDisplayName().split("[A-Za-z_]");
 			else
-				name = product.getType().toString().split("/[A-Z_]/gi");
+				name = product.getType().toString().split("[A-Za-z_]");
 
 			for (String str : name) {
 				sb.append(str);
@@ -592,9 +592,9 @@ public class Shop implements Serializable {
 			sb.append(" ");
 
 			if(cost.hasItemMeta() && cost.getItemMeta().hasDisplayName())
-				name = cost.getItemMeta().getDisplayName().split("/[A-Z_]/gi");
+				name = cost.getItemMeta().getDisplayName().split("[A-Za-z_]");
 			else
-				name = cost.getType().toString().split("/[A-Z_]/gi");
+				name = cost.getType().toString().split("[A-Za-z_]");
 
 			for (String str : name) {
 				sb.append(str);
