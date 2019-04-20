@@ -36,7 +36,6 @@ import org.bukkit.material.MaterialData;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.shanerx.tradeshop.TradeShop;
 import org.shanerx.tradeshop.enumys.Message;
-import org.shanerx.tradeshop.enumys.Potions;
 import org.shanerx.tradeshop.enumys.Setting;
 import org.shanerx.tradeshop.enumys.ShopType;
 
@@ -290,20 +289,6 @@ public class Utils {
 					return true;
 				}
 			}
-		}
-
-		if (Potions.isType(mat)) {
-			if (illegalItems.contains(matLower)) {
-				return false;
-			} else if (matLower.contains("p_")) {
-				return !illegalItems.contains("potion");
-			} else if (matLower.contains("s_")) {
-				return !illegalItems.contains("splash_potion");
-			} else if (matLower.contains("l_")) {
-				return !illegalItems.contains("lingering_potion");
-			}
-
-			return true;
 		}
 
 		return false;
