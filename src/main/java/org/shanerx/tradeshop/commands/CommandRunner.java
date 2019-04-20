@@ -32,7 +32,11 @@ import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.shanerx.tradeshop.TradeShop;
-import org.shanerx.tradeshop.enumys.*;
+import org.shanerx.tradeshop.enumys.Message;
+import org.shanerx.tradeshop.enumys.Permissions;
+import org.shanerx.tradeshop.enumys.Setting;
+import org.shanerx.tradeshop.enumys.ShopRole;
+import org.shanerx.tradeshop.enumys.ShopType;
 import org.shanerx.tradeshop.objects.CommandPass;
 import org.shanerx.tradeshop.objects.Shop;
 import org.shanerx.tradeshop.objects.ShopUser;
@@ -127,11 +131,11 @@ public class CommandRunner extends Utils {
         int amount = 0;
         Material mat = null;
 
-        if (isInt(command.getArgAt(1))) {
+		if (command.hasArgAt(1) && isInt(command.getArgAt(1))) {
             amount = Integer.parseInt(command.getArgAt(1));
         }
 
-        if (Material.getMaterial(command.getArgAt(2).toUpperCase()) != null) {
+		if (command.hasArgAt(2) && Material.getMaterial(command.getArgAt(2).toUpperCase()) != null) {
             mat = Material.getMaterial(command.getArgAt(2).toUpperCase());
         }
 
@@ -189,11 +193,11 @@ public class CommandRunner extends Utils {
         int amount = 0;
         Material mat = null;
 
-        if (isInt(command.getArgAt(1))) {
+		if (command.hasArgAt(1) && isInt(command.getArgAt(1))) {
             amount = Integer.parseInt(command.getArgAt(1));
         }
 
-        if (Material.getMaterial(command.getArgAt(2).toUpperCase()) != null) {
+		if (command.hasArgAt(2) && Material.getMaterial(command.getArgAt(2).toUpperCase()) != null) {
             mat = Material.getMaterial(command.getArgAt(2).toUpperCase());
         }
 

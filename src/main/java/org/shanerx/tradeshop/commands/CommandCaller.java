@@ -28,6 +28,7 @@ import org.bukkit.entity.Player;
 import org.shanerx.tradeshop.TradeShop;
 import org.shanerx.tradeshop.enumys.Commands;
 import org.shanerx.tradeshop.enumys.Message;
+import org.shanerx.tradeshop.enumys.Permissions;
 import org.shanerx.tradeshop.objects.CommandPass;
 
 public class CommandCaller implements CommandExecutor {
@@ -39,100 +40,97 @@ public class CommandCaller implements CommandExecutor {
 		plugin = instance;
 	}
 
-    private CommandPass cmdPass;
-    private Commands command;
-    private CommandRunner cmdRnnr;
+	private CommandPass cmdPass;
+	private Commands command;
+	private CommandRunner cmdRnnr;
 
 	@Override
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
-        cmdPass = new CommandPass(sender, cmd, label, args);
-        command = Commands.getType(cmdPass.getArgAt(0));
+		cmdPass = new CommandPass(sender, cmd, label, args);
+		command = Commands.getType(cmdPass.getArgAt(0));
 
-        if (!cmdPass.hasArgs()) {
+		if (!cmdPass.hasArgs()) {
 			sender.sendMessage(Message.INVALID_ARGUMENTS.getPrefixed());
 			return true;
 
-		} else {
-            if (command == null) {
-                sender.sendMessage(Message.INVALID_ARGUMENTS.getPrefixed());
-                return true;
-            }
+		}
 
-            if (!checkPerm()) {
-                return true;
-            }
+		if (command == null) {
+			sender.sendMessage(Message.INVALID_ARGUMENTS.getPrefixed());
+			return true;
+		}
 
-            if (command.getMinArgs() < args.length || command.getMaxArgs() > args.length) {
-                sender.sendMessage(Message.INVALID_ARGUMENTS.getPrefixed());
-                return true;
-            }
+		if (!checkPerm()) {
+			return true;
+		}
 
-            if (command.needsPlayer() && !(sender instanceof Player)) {
-                sender.sendMessage(Message.PLAYER_ONLY_COMMAND.getPrefixed());
-                return true;
-            }
+		if (command.getMinArgs() > args.length || command.getMaxArgs() < args.length) {
+			sender.sendMessage(Message.INVALID_ARGUMENTS.getPrefixed());
+			return true;
+		}
 
-            cmdRnnr = new CommandRunner(plugin, cmdPass);
+		if (command.needsPlayer() && !(sender instanceof Player)) {
+			sender.sendMessage(Message.PLAYER_ONLY_COMMAND.getPrefixed());
+			return true;
+		}
 
-            switch (command) {
-                case HELP:
-                    cmdRnnr.help();
-                    break;
-                case BUGS:
-                    cmdRnnr.bugs();
-                    break;
-                case SETUP:
-                    cmdRnnr.setup();
-                    break;
-                case RELOAD:
-                    cmdRnnr.reload();
-                    break;
-                case ADDPRODUCT:
-                    cmdRnnr.addProduct();
-                    break;
-                case ADDCOST:
-                    cmdRnnr.addCost();
-                    break;
-                case OPEN:
-                    cmdRnnr.open();
-                    break;
-                case CLOSE:
-                    cmdRnnr.close();
-                    break;
-                case SWITCH:
-                    cmdRnnr.switchShop();
-                    break;
-                case WHAT:
-                    cmdRnnr.what();
-                    break;
-                case WHO:
-                    cmdRnnr.who();
-                    break;
-                case GETCUSTOMITEMS:
-                    cmdRnnr.getCustomItems();
-                    break;
-                case ADDCUSTOMITEM:
-                    cmdRnnr.addCustomItem();
-                    break;
-                case REMOVECUSTOMITEM:
-                    cmdRnnr.removeCustomItem();
-                    break;
-                case ADDMANAGER:
-                    cmdRnnr.addManager();
-                    break;
-                case REMOVEMANGAER:
-                    cmdRnnr.removeManager();
-                    break;
-                case ADDMEMBER:
-                    cmdRnnr.addMember();
-                    break;
-                case REMOVEMEMBER:
-                    cmdRnnr.removeMember();
-                    break;
+		cmdRnnr = new CommandRunner(plugin, cmdPass);
 
-
-            }
-
+		switch (command) {
+			case HELP:
+				cmdRnnr.help();
+				break;
+			case BUGS:
+				cmdRnnr.bugs();
+				break;
+			case SETUP:
+				cmdRnnr.setup();
+				break;
+			case RELOAD:
+				cmdRnnr.reload();
+				break;
+			case ADDPRODUCT:
+				cmdRnnr.addProduct();
+				break;
+			case ADDCOST:
+				cmdRnnr.addCost();
+				break;
+			case OPEN:
+				cmdRnnr.open();
+				break;
+			case CLOSE:
+				cmdRnnr.close();
+				break;
+			case SWITCH:
+				cmdRnnr.switchShop();
+				break;
+			case WHAT:
+				cmdRnnr.what();
+				break;
+			case WHO:
+				cmdRnnr.who();
+				break;
+			case GETCUSTOMITEMS:
+				cmdRnnr.getCustomItems();
+				break;
+			case ADDCUSTOMITEM:
+				cmdRnnr.addCustomItem();
+				break;
+			case REMOVECUSTOMITEM:
+				cmdRnnr.removeCustomItem();
+				break;
+			case ADDMANAGER:
+				cmdRnnr.addManager();
+				break;
+			case REMOVEMANGAER:
+				cmdRnnr.removeManager();
+				break;
+			case ADDMEMBER:
+				cmdRnnr.addMember();
+				break;
+			case REMOVEMEMBER:
+				cmdRnnr.removeMember();
+				break;
 
 
 		}
@@ -141,12 +139,12 @@ public class CommandCaller implements CommandExecutor {
 	}
 
 
-    public boolean checkPerm() {
-        if (!cmdPass.getSender().hasPermission(command.getPerm().getPerm())) {
-            cmdPass.getSender().sendMessage(Message.NO_COMMAND_PERMISSION.getPrefixed());
-            return false;
-        }
+	public boolean checkPerm() {
+		if (!cmdPass.getSender().hasPermission(command.getPerm().getPerm()) && !command.getPerm().equals(Permissions.NONE)) {
+			cmdPass.getSender().sendMessage(Message.NO_COMMAND_PERMISSION.getPrefixed());
+			return false;
+		}
 
-        return true;
-    }
+		return true;
+	}
 }
