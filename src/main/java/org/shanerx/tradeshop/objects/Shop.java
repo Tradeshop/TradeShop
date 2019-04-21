@@ -559,6 +559,7 @@ public class Shop implements Serializable {
 	public void updateSign() {
 		Sign s = getShopSign();
 
+
 		if (!missingItems()) {
 			s.setLine(0, ChatColor.DARK_GREEN + shopType.toHeader());
 		} else {
@@ -567,40 +568,29 @@ public class Shop implements Serializable {
 
 		if (product != null) {
 			StringBuilder sb = new StringBuilder();
-			String[] name;
 
 			sb.append(product.getAmount());
 			sb.append(" ");
 
-			if (product.hasItemMeta() && product.getItemMeta().hasDisplayName())
-				name = product.getItemMeta().getDisplayName().split("[A-Za-z_]");
-			else
-				name = product.getType().toString().split("[A-Za-z_]");
+			sb.append((product.hasItemMeta() && product.getItemMeta().hasDisplayName()) ?
+					product.getItemMeta().getDisplayName() :
+					product.getType().toString());
 
-			for (String str : name) {
-				sb.append(str);
-			}
+			s.setLine(1, sb.toString().substring(0, (sb.length() < 15) ? sb.length() : 15));
 
-			s.setLine(1, sb.toString());
 		}
 
 		if (cost != null) {
 			StringBuilder sb = new StringBuilder();
-			String[] name;
 
 			sb.append(cost.getAmount());
 			sb.append(" ");
 
-			if(cost.hasItemMeta() && cost.getItemMeta().hasDisplayName())
-				name = cost.getItemMeta().getDisplayName().split("[A-Za-z_]");
-			else
-				name = cost.getType().toString().split("[A-Za-z_]");
+			sb.append((cost.hasItemMeta() && cost.getItemMeta().hasDisplayName()) ?
+					cost.getItemMeta().getDisplayName() :
+					cost.getType().toString());
 
-			for (String str : name) {
-				sb.append(str);
-			}
-
-			s.setLine(2, sb.toString());
+			s.setLine(2, sb.toString().substring(0, (sb.length() < 15) ? sb.length() : 15));
 		}
 
 		s.setLine(3, status.getLine());
