@@ -341,7 +341,7 @@ public class ShopTradeListener extends Utils implements Listener {
 			int count = amountProd, removed;
 			while (count > 0) {
 				boolean resetItem = false;
-				ItemStack temp = chestInventory.getItem(chestInventory.first(product.getType())),
+				ItemStack temp = playerInventory.getItem(playerInventory.first(product.getType())),
 						dupitm1 = product.clone();
 				if (count > product.getMaxStackSize()) {
 					removed = product.getMaxStackSize();
