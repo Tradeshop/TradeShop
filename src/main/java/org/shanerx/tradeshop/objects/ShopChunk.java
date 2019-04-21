@@ -54,7 +54,7 @@ public class ShopChunk implements Serializable {
 
 	public Chunk deserialize(String loc) {
 		if (loc.startsWith("c")) {
-			String locA[] = loc.split(div);
+			String[] locA = loc.split(div);
 			World world = Bukkit.getWorld(locA[1]);
 			int x = Integer.parseInt(locA[2]), z = Integer.parseInt(locA[3]);
 

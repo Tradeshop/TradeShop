@@ -51,7 +51,7 @@ public class ShopLocation implements Serializable {
 
 	public static ShopLocation deserialize(String loc) {
 		if (loc.startsWith("l")) {
-			String locA[] = loc.split("_"); //Keep same as div
+			String[] locA = loc.split("_"); //Keep same as div
 			World world = Bukkit.getWorld(locA[1]);
 			double x = Double.parseDouble(locA[2]), y = Double.parseDouble(locA[3]), z = Double.parseDouble(locA[4]);
 
