@@ -62,34 +62,44 @@ public class ShopCreateListener extends Utils implements Listener {
 			failedSign(event, shopType, Message.NO_TS_CREATE_PERMISSION);
 		}
 
-		if (!checkShopChest(shopSign.getBlock())) {
+		if (!checkShopChest(shopSign.getBlock()) && !shopType.isITrade()) {
 			failedSign(event, shopType, Message.NO_CHEST);
 			return;
 		}
 
 		ShopChest shopChest;
+		Shop shop;
 		Block chest = findShopChest(event.getBlock());
 
-		if (ShopChest.isShopChest(chest)) {
-			shopChest = new ShopChest(chest.getLocation());
+		if (!shopType.isITrade()) {
+			if (ShopChest.isShopChest(chest)) {
+				shopChest = new ShopChest(chest.getLocation());
+			} else {
+				shopChest = new ShopChest(chest, p.getUniqueId(), shopSign.getLocation());
+			}
+
+			if (shopChest.hasOwner() && !shopChest.getOwner().equals(owner.getUUID())) {
+				failedSign(event, shopType, Message.NOT_OWNER);
+				return;
+			}
+
+			if (shopChest.hasShop() && !shopChest.getShopSign().getLocation().equals(shopSign.getLocation())) {
+				failedSign(event, shopType, Message.EXISTING_SHOP);
+				return;
+			}
+
+			shop = new Shop(new Tuple<>(shopSign.getLocation(), shopChest.getChest().getLocation()), shopType, owner);
+			shopChest.setName();
+
+
+			if (shopChest.isEmpty() && shop.hasProduct()) {
+				p.sendMessage(Message.EMPTY_TS_ON_SETUP.getPrefixed());
+			}
 		} else {
-			shopChest = new ShopChest(chest, p.getUniqueId(), shopSign.getLocation());
+			shop = new Shop(shopSign.getLocation(), shopType, owner);
 		}
 
-		if (shopChest.hasOwner() && !shopChest.getOwner().equals(owner.getUUID())) {
-			failedSign(event, shopType, Message.NOT_OWNER);
-			return;
-		}
-
-		if (shopChest.hasShop() && !shopChest.getShopSign().getLocation().equals(shopSign.getLocation())) {
-			failedSign(event, shopType, Message.EXISTING_SHOP);
-			return;
-		}
-
-
-		Shop shop = new Shop(new Tuple<>(shopSign.getLocation(), shopChest.getChest().getLocation()), shopType, owner);
-
-		if (shop.missingItems()) {
+		if (shop.missingItems() && !shopType.isITrade()) {
 			event.setLine(0, ChatColor.GRAY + shopType.toHeader());
 		} else {
 			event.setLine(0, ChatColor.DARK_GREEN + shopType.toHeader());
@@ -98,12 +108,7 @@ public class ShopCreateListener extends Utils implements Listener {
 		event.setLine(3, shop.getStatus().getLine());
 		shop.saveShop();
 
-		shopChest.setName();
-
 		p.sendMessage(Message.SUCCESSFUL_SETUP.getPrefixed());
-		if (shopChest.isEmpty() && shop.hasProduct()) {
-			p.sendMessage(Message.EMPTY_TS_ON_SETUP.getPrefixed());
-		}
 		return;
 	}
 }

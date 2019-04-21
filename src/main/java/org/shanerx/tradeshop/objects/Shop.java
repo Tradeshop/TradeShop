@@ -97,6 +97,23 @@ public class Shop implements Serializable {
 	}
 
 	/**
+	 * Creates a Shop object
+	 *
+	 * @param location Location of shop sign
+	 * @param owner    Owner of the shop as a ShopUser
+	 * @param shopType Type of the shop as ShopType
+	 */
+	public Shop(Location location, ShopType shopType, ShopUser owner) {
+		shopLoc = new ShopLocation(location);
+		this.owner = owner;
+		this.shopType = shopType;
+		managers = Collections.emptyList();
+		members = Collections.emptyList();
+		productB64 = "";
+		costB64 = "";
+	}
+
+	/**
 	 * Deserializes the object to Json using Gson
 	 *
 	 * @return Shop object from file
@@ -501,7 +518,8 @@ public class Shop implements Serializable {
 	public void fixAfterLoad() {
 		itemsFromB64();
 		shopLoc.stringToWorld();
-		chestLoc.stringToWorld();
+		if (!shopType.isITrade())
+			chestLoc.stringToWorld();
 	}
 
 	/**

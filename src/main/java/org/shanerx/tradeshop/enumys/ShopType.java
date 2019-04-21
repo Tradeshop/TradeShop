@@ -28,7 +28,6 @@ import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
-import org.bukkit.permissions.Permission;
 import org.shanerx.tradeshop.TradeShop;
 
 import java.io.Serializable;
@@ -36,18 +35,18 @@ import java.io.Serializable;
 @SuppressWarnings("unused")
 public enum ShopType implements Serializable {
 
-	TRADE(Setting.TRADESHOP_HEADER.getString(), Setting.TRADESHOP_EXPLODE.getBoolean(), Permissions.CREATE.getPerm()),
+	TRADE(Setting.TRADESHOP_HEADER.getString(), Setting.TRADESHOP_EXPLODE.getBoolean(), Permissions.CREATE),
 
-	ITRADE(Setting.ITRADESHOP_HEADER.getString(), Setting.ITRADESHOP_EXPLODE.getBoolean(), Permissions.CREATEI.getPerm()),
+	ITRADE(Setting.ITRADESHOP_HEADER.getString(), Setting.ITRADESHOP_EXPLODE.getBoolean(), Permissions.CREATEI),
 
-	BITRADE(Setting.BITRADESHOP_HEADER.getString(), Setting.BITRADESHOP_EXPLODE.getBoolean(), Permissions.CREATEBI.getPerm());
+	BITRADE(Setting.BITRADESHOP_HEADER.getString(), Setting.BITRADESHOP_EXPLODE.getBoolean(), Permissions.CREATEBI);
 
 	private String key;
 	private transient static TradeShop plugin = (TradeShop) Bukkit.getPluginManager().getPlugin("TradeShop");
 	private transient boolean explode;
-	private transient Permission perm;
+	private transient Permissions perm;
 
-	ShopType(String key, boolean explode, Permission perm) {
+	ShopType(String key, boolean explode, Permissions perm) {
 		this.key = key;
 		this.explode = explode;
 		this.perm = perm;
@@ -100,7 +99,7 @@ public enum ShopType implements Serializable {
 	}
 
 	public boolean checkPerm(Player pl) {
-		return pl.hasPermission(perm);
+		return pl.hasPermission(perm.getPerm());
 	}
 
 	public String serialize() {
