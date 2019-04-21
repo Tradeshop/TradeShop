@@ -52,7 +52,8 @@ public enum Setting {
 	BITRADESHOP_EXPLODE("bitradeshop.allow-explode"),
 	SHOP_OPEN_STATUS("shop-open-status"),
 	SHOP_CLOSED_STATUS("shop-closed-status"),
-	ALLOW_METRICS("allow-metrics");
+	ALLOW_METRICS("allow-metrics"),
+	ENABLE_DEBUG("enable-debug");
 
 	String path;
 
@@ -117,6 +118,7 @@ public enum Setting {
 		addSetting(SHOP_OPEN_STATUS.path, "Open");
 		addSetting(SHOP_CLOSED_STATUS.path, "Closed");
 		addSetting(ALLOW_METRICS.path, true);
+		addSetting(ENABLE_DEBUG.path, false);
 
 		addSetting(TRADESHOP_HEADER.path, "Trade");
 		addSetting(TRADESHOP_EXPLODE.path, false);

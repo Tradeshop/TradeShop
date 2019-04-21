@@ -138,7 +138,7 @@ public class Utils {
 		int i1 = itm1.getAmount(), i2 = itm2.getAmount();
 		ItemMeta temp1 = itm1.getItemMeta();
 		MaterialData temp11 = itm1.getData();
-		boolean ret = false;
+		boolean ret;
 		itm1.setAmount(1);
 		itm2.setAmount(1);
 
@@ -153,26 +153,6 @@ public class Utils {
 		itm1.setAmount(i1);
 		itm2.setAmount(i2);
 		return ret;
-	}
-
-	/**
-	 * Checks whether or not a certain ItemStack can fit inside an inventory.
-	 *
-	 * @param inv the Inventory the item should be placed into
-	 * @param itm the ItemStack
-	 * @return true if the Inventory has enough space for the ItemStack.
-	 */
-	public boolean canFit(Inventory inv, ItemStack itm) {
-		int count = 0, empty = 0;
-		for (ItemStack i : inv.getContents()) {
-			if (i != null) {
-				if (itemCheck(itm, i)) {
-					count += i.getAmount();
-				}
-			} else
-				empty += itm.getMaxStackSize();
-		}
-		return empty + (count % itm.getMaxStackSize()) >= itm.getAmount();
 	}
 
 	/**
@@ -435,6 +415,8 @@ public class Utils {
 	}
 
 	public void debug(String text) {
-		plugin.getLogger().log(Level.WARNING, text);
+		if (Setting.ENABLE_DEBUG.getBoolean()) {
+			plugin.getLogger().log(Level.WARNING, text);
+		}
 	}
 }
