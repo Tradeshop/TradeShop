@@ -81,7 +81,7 @@ public class ShopCreateListener extends Utils implements Listener {
 			}
 
 			if (shopChest.hasOwner() && !shopChest.getOwner().equals(owner.getUUID())) {
-				failedSign(event, shopType, Message.NOT_OWNER);
+				failedSign(event, shopType, Message.NO_SHOP_PERMISSION);
 				return;
 			}
 

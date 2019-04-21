@@ -15,7 +15,7 @@ You may download the latest version from the [plugin's resource page on SpigotMC
 
 
 ## Discussion
-Please post reviews on the SpigotMC resource page. Suggestions and bug reports may be sent through a the [GitHub issues tab](https://github.com/SparklingComet/TradeShop/issues).
+Please post reviews on the [SpigotMC resource page](https://www.spigotmc.org/resources/32762/). Suggestions and bug reports may be sent through a the [GitHub issues tab](https://github.com/SparklingComet/TradeShop/issues).
 
 
 # Commands & Permissions

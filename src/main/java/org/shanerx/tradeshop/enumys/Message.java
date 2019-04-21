@@ -54,7 +54,7 @@ public enum Message {
 	NO_TS_CREATE_PERMISSION,
 	NO_TS_DESTROY,
 	NO_TS_OPEN,
-	NOT_OWNER,
+	NO_SHOP_PERMISSION,
 	ON_TRADE,
 	PLAYER_FULL,
 	PLAYER_NOT_FOUND,
@@ -124,7 +124,7 @@ public enum Message {
 		addMessage("unsuccessful-shop-members", "&aThat player is either already on the shop, or you have reached the maximum number of users!");
 		addMessage("who-message", "&6Shop users are:\n&2Owner: &e{OWNER}\n&2Managers: &e{MANAGERS}\n&2Members: &e{MEMBERS}");
 		addMessage("self-owned", "&cYou cannot buy from a shop in which you are a user.");
-		addMessage("not-owner", "&cYou cannot create a sign for a shop that you do not own.");
+		addMessage("no-shop-permission", "&cYou do not have permission to edit that shop.");
 		addMessage("illegal-item", "&cYou cannot use one or more of those items in shops.");
 		addMessage("missing-item", "&cYour sign is missing an item for trade.");
 		addMessage("missing-info", "&cYour sign is missing necessary information.");
