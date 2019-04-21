@@ -56,16 +56,13 @@ public class AdminEventListener extends Utils implements Listener {
 		if (ShopType.isShop(block)) {
 			Shop shop = Shop.loadShop((Sign) block.getState());
 
-			if (player.hasPermission(Permissions.ADMIN.getPerm())) {
-				shop.getChestAsSC().resetName();
+			if (player.hasPermission(Permissions.ADMIN.getPerm()) || event.getPlayer().getUniqueId().equals(shop.getOwner().getUUID())) {
+
+				if (shop.getInventory() != null)
+					shop.getChestAsSC().resetName();
+
 				shop.remove();
 				return;
-
-			} else if (shop.getInventory() != null && event.getPlayer().getUniqueId().equals(shop.getOwner())) {
-				shop.getChestAsSC().resetName();
-				shop.remove();
-				return;
-
 			}
 			event.setCancelled(true);
 			player.sendMessage(Message.NO_TS_DESTROY.getPrefixed());
@@ -89,7 +86,7 @@ public class AdminEventListener extends Utils implements Listener {
 
 			Shop shop = Shop.loadShop(s);
 
-			if (event.getPlayer().getUniqueId().equals(shop.getOwner())) {
+			if (event.getPlayer().getUniqueId().equals(shop.getOwner().getUUID())) {
 				shop.getChestAsSC().resetName();
 				shop.remove();
 				return;

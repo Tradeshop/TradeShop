@@ -91,7 +91,7 @@ public class ShopChest extends Utils {
 		if (chest != null &&
 				((Nameable) chest.getState()).getCustomName() != null &&
 				((Nameable) chest.getState()).getCustomName().contains("$ ^Sign:l_")) {
-			String name[] = ((Nameable) chest.getState()).getCustomName().split(sep1);
+			String[] name = ((Nameable) chest.getState()).getCustomName().split(sep1);
 			shopSign = ShopLocation.deserialize(name[1].split(sep2)[1]);
 			owner = UUID.fromString(name[2].split(sep2)[1]);
 		}
@@ -127,10 +127,15 @@ public class ShopChest extends Utils {
 
 	public void resetName() {
 		BlockState bs = chest.getState();
-		if (bs instanceof InventoryHolder && bs instanceof Nameable) {
+		if (bs instanceof InventoryHolder && bs instanceof Nameable && ((Nameable) bs).getCustomName() != null
+				&& ((Nameable) bs).getCustomName().contains(sep1)) {
+
 			((Nameable) bs).setCustomName(((Nameable) chest.getState()).getCustomName().split(sep1)[0]);
-			((Nameable) Utils.getOtherHalfOfDoubleChest(chest).getState()).setCustomName(
-					((Nameable) Utils.getOtherHalfOfDoubleChest(chest).getState()).getCustomName().split(sep1)[0]);
+
+			if (Utils.isDoubleChest(chest)) {
+				((Nameable) Utils.getOtherHalfOfDoubleChest(chest).getState()).setCustomName(
+						((Nameable) Utils.getOtherHalfOfDoubleChest(chest).getState()).getCustomName().split(sep1)[0]);
+			}
 
 			bs.update();
 		}
