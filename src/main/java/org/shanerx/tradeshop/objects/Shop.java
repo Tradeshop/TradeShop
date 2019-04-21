@@ -597,6 +597,8 @@ public class Shop implements Serializable {
 
 			s.setLine(1, sb.toString().substring(0, (sb.length() < 15) ? sb.length() : 15));
 
+		} else {
+			s.setLine(1, "");
 		}
 
 		if (cost != null) {
@@ -610,6 +612,8 @@ public class Shop implements Serializable {
 					cost.getType().toString());
 
 			s.setLine(2, sb.toString().substring(0, (sb.length() < 15) ? sb.length() : 15));
+		} else {
+			s.setLine(2, "");
 		}
 
 		s.setLine(3, status.getLine());
@@ -638,6 +642,8 @@ public class Shop implements Serializable {
 
 			signEvent.setLine(1, sb.toString().substring(0, (sb.length() < 15) ? sb.length() : 15));
 
+		} else {
+			signEvent.setLine(1, "");
 		}
 
 		if (cost != null) {
@@ -651,6 +657,8 @@ public class Shop implements Serializable {
 					cost.getType().toString());
 
 			signEvent.setLine(2, sb.toString().substring(0, (sb.length() < 15) ? sb.length() : 15));
+		} else {
+			signEvent.setLine(2, "");
 		}
 
 		signEvent.setLine(3, status.getLine());

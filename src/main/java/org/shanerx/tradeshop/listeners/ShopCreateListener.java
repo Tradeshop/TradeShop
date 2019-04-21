@@ -101,43 +101,14 @@ public class ShopCreateListener extends Utils implements Listener {
 			shop = new Shop(shopSign.getLocation(), shopType, owner);
 		}
 
-		String line1 = event.getLine(1), line2 = event.getLine(2);
-		boolean hasText = true;
+		ItemStack product = lineCheck(event.getLine(1)),
+				cost = lineCheck(event.getLine(2));
 
-		if (line1 == null)
-			line1 = "";
-		if (line2 == null)
-			line2 = "";
-
-		while (!line1.equalsIgnoreCase("") && line1.split(" ").length == 2) {
-			if (!line1.contains(" ") || !isInt(line1.split(" ")[0]) || Material.matchMaterial(line1.split(" ")[1]) == null)
-				event.setLine(1, "");
-
-			String[] info = line1.split(" ");
-			int amount = Integer.parseInt(info[0]);
-			ItemStack cost = new ItemStack(Material.matchMaterial(info[1]), amount);
-
-			if (isBlacklistItem(cost))
-				event.setLine(1, "");
-
-			shop.setCost(cost);
-			break;
-		}
-
-		while (!line2.equalsIgnoreCase("") && line2.split(" ").length == 2) {
-			if (!line2.contains(" ") || !isInt(line2.split(" ")[0]) || Material.matchMaterial(line2.split(" ")[1]) == null)
-				event.setLine(1, "");
-
-			String[] info = line2.split(" ");
-			int amount = Integer.parseInt(info[0]);
-			ItemStack product = new ItemStack(Material.matchMaterial(info[1]), amount);
-
-			if (isBlacklistItem(product))
-				event.setLine(1, "");
-
+		if (product != null)
 			shop.setProduct(product);
-			break;
-		}
+
+		if (cost != null)
+			shop.setCost(cost);
 
 		if (shop.missingItems() && !shopType.isITrade()) {
 			event.setLine(0, ChatColor.GRAY + shopType.toHeader());
@@ -150,6 +121,28 @@ public class ShopCreateListener extends Utils implements Listener {
 		shop.updateSign(event);
 
 		p.sendMessage(Message.SUCCESSFUL_SETUP.getPrefixed());
-		return;
+	}
+
+	private ItemStack lineCheck(String line) {
+		if (line == null || line.equalsIgnoreCase("") || !line.contains(" ") || line.split(" ").length != 2)
+			return null;
+
+		String[] info = line.split(" ");
+
+		for (String str : info) {
+			if (str == null || str.equalsIgnoreCase(""))
+				return null;
+		}
+
+		if (!isInt(info[0]) || Material.matchMaterial(info[1]) == null)
+			return null;
+
+		int amount = Integer.parseInt(info[0]);
+		ItemStack product = new ItemStack(Material.matchMaterial(info[1]), amount);
+
+		if (isBlacklistItem(product))
+			return null;
+
+		return product;
 	}
 }
