@@ -272,7 +272,6 @@ public class Utils {
 		}
 
 		return false;
-
 	}
 
 	/**
@@ -391,27 +390,6 @@ public class Utils {
 	 */
 	public boolean checkShopChest(Block sign) {
 		return findShopChest(sign) != null;
-	}
-
-	public static Block getOtherHalfOfDoubleChest(Block chest) {
-		if (chest.getType() != Material.CHEST || chest.getType() != Material.TRAPPED_CHEST) {
-			return null;
-		}
-		ArrayList<BlockFace> flatFaces = new ArrayList<>(Arrays.asList(BlockFace.NORTH, BlockFace.EAST, BlockFace.SOUTH, BlockFace.WEST));
-
-		for (BlockFace face : flatFaces) {
-			Block adjoining = chest.getRelative(face);
-
-			if (adjoining.getType() == chest.getType()) {
-				return adjoining;
-			}
-		}
-
-		return null;
-	}
-
-	public static boolean isDoubleChest(Block chest) {
-		return getOtherHalfOfDoubleChest(chest) != null;
 	}
 
 	public void debug(String text) {

@@ -158,33 +158,24 @@ public class Updater {
 	public enum BuildType {
 
 		DEV,
-
 		BETA,
-
 		STABLE,
-
 		FINAL
 	}
 
 	public enum SemVer {
 
 		MAJOR,
-
 		MINOR,
-
 		PATCH,
-
 		BUILD_TYPE
 	}
 
 	public enum RelationalStatus {
 
 		AHEAD,
-
 		UP_TO_DATE,
-
 		BEHIND,
-
 		UNKNOWN
 	}
 }

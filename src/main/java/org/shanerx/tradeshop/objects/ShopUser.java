@@ -65,7 +65,7 @@ public class ShopUser implements Serializable {
 	}
 
 	private void fix() {
-		if (player == null && playerUUID != null && playerUUID != "") {
+		if (player == null && playerUUID != null && playerUUID.equalsIgnoreCase("")) {
 			player = Bukkit.getOfflinePlayer(UUID.fromString(playerUUID));
 		}
 	}

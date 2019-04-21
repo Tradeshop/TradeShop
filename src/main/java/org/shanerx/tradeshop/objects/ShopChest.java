@@ -23,8 +23,10 @@ package org.shanerx.tradeshop.objects;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.Nameable;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
@@ -32,6 +34,8 @@ import org.bukkit.inventory.ItemStack;
 import org.shanerx.tradeshop.TradeShop;
 import org.shanerx.tradeshop.utils.Utils;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.UUID;
 
 public class ShopChest extends Utils {
@@ -41,7 +45,7 @@ public class ShopChest extends Utils {
 	private Location loc;
 	private Block chest;
 	private UUID owner;
-	private String sep1 = "\\$ \\^", sep2 = ":";
+	private String sectionSeparator = "\\$ \\^", titleSeparator = ":";
 
 	public ShopChest(Location chestLoc) {
 		this.loc = chestLoc;
@@ -83,17 +87,13 @@ public class ShopChest extends Utils {
 		return null;
 	}
 
-	public Block getOtherHalfOfDoubleChest() {
-		return Utils.getOtherHalfOfDoubleChest(chest);
-	}
-
 	public void loadFromName() {
 		if (chest != null &&
 				((Nameable) chest.getState()).getCustomName() != null &&
 				((Nameable) chest.getState()).getCustomName().contains("$ ^Sign:l_")) {
-			String[] name = ((Nameable) chest.getState()).getCustomName().split(sep1);
-			shopSign = ShopLocation.deserialize(name[1].split(sep2)[1]);
-			owner = UUID.fromString(name[2].split(sep2)[1]);
+			String[] name = ((Nameable) chest.getState()).getCustomName().split(sectionSeparator);
+			shopSign = ShopLocation.deserialize(name[1].split(titleSeparator)[1]);
+			owner = UUID.fromString(name[2].split(titleSeparator)[1]);
 		}
 	}
 
@@ -115,7 +115,7 @@ public class ShopChest extends Utils {
 	public String getName() {
 		StringBuilder sb = new StringBuilder();
 		if (((Nameable) chest.getState()).getCustomName() != null) {
-			sb.append(((Nameable) chest.getState()).getCustomName().replaceAll(sep1, ""));
+			sb.append(((Nameable) chest.getState()).getCustomName().replaceAll(sectionSeparator, ""));
 		}
 		sb.append("$ ^Sign:");
 		sb.append(shopSign.serialize());
@@ -128,13 +128,13 @@ public class ShopChest extends Utils {
 	public void resetName() {
 		BlockState bs = chest.getState();
 		if (bs instanceof InventoryHolder && bs instanceof Nameable && ((Nameable) bs).getCustomName() != null
-				&& ((Nameable) bs).getCustomName().contains(sep1)) {
+				&& ((Nameable) bs).getCustomName().contains(sectionSeparator)) {
 
-			((Nameable) bs).setCustomName(((Nameable) chest.getState()).getCustomName().split(sep1)[0]);
+			((Nameable) bs).setCustomName(((Nameable) chest.getState()).getCustomName().split(sectionSeparator)[0]);
 
-			if (Utils.isDoubleChest(chest)) {
-				((Nameable) Utils.getOtherHalfOfDoubleChest(chest).getState()).setCustomName(
-						((Nameable) Utils.getOtherHalfOfDoubleChest(chest).getState()).getCustomName().split(sep1)[0]);
+			if (isDoubleChest(chest)) {
+				((Nameable) getOtherHalfOfDoubleChest(chest).getState()).setCustomName(
+						((Nameable) getOtherHalfOfDoubleChest(chest).getState()).getCustomName().split(sectionSeparator)[0]);
 			}
 
 			bs.update();
@@ -146,8 +146,8 @@ public class ShopChest extends Utils {
 		if (bs instanceof InventoryHolder && bs instanceof Nameable) {
 			((Nameable) bs).setCustomName(getName());
 
-			if (Utils.isDoubleChest(chest)) {
-				((Nameable) Utils.getOtherHalfOfDoubleChest(chest).getState()).setCustomName(getName());
+			if (isDoubleChest(chest)) {
+				((Nameable) getOtherHalfOfDoubleChest(chest).getState()).setCustomName(getName());
 			}
 
 			bs.update();
@@ -180,5 +180,26 @@ public class ShopChest extends Utils {
 
 	public boolean hasShop() {
 		return shopSign != null;
+	}
+
+	public Block getOtherHalfOfDoubleChest(Block chest) {
+		if (chest.getType() != Material.CHEST || chest.getType() != Material.TRAPPED_CHEST) {
+			return null;
+		}
+		ArrayList<BlockFace> flatFaces = new ArrayList<>(Arrays.asList(BlockFace.NORTH, BlockFace.EAST, BlockFace.SOUTH, BlockFace.WEST));
+
+		for (BlockFace face : flatFaces) {
+			Block adjoining = chest.getRelative(face);
+
+			if (adjoining.getType() == chest.getType()) {
+				return adjoining;
+			}
+		}
+
+		return null;
+	}
+
+	public boolean isDoubleChest(Block chest) {
+		return getOtherHalfOfDoubleChest(chest) != null;
 	}
 }

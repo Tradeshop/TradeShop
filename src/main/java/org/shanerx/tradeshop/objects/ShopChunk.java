@@ -31,7 +31,7 @@ public class ShopChunk implements Serializable {
 
 	private World world;
 	private int x, z;
-	private String div = "_";
+	final private String div = "_";
 	private Chunk chunk;
 
 	public ShopChunk(World w, int x, int z) {
@@ -52,9 +52,9 @@ public class ShopChunk implements Serializable {
 		return "c" + div + world.getName() + div + x + div + z;
 	}
 
-	public Chunk deserialize(String loc) {
+	public static Chunk deserialize(String loc) {
 		if (loc.startsWith("c")) {
-			String[] locA = loc.split(div);
+			String[] locA = loc.split("_");//Keep same as div
 			World world = Bukkit.getWorld(locA[1]);
 			int x = Integer.parseInt(locA[2]), z = Integer.parseInt(locA[3]);
 

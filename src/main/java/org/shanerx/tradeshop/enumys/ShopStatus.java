@@ -24,8 +24,8 @@ package org.shanerx.tradeshop.enumys;
 import org.bukkit.ChatColor;
 
 public enum ShopStatus {
-	OPEN("&a"),
 
+	OPEN("&a"),
 	CLOSED("&c");
 
 	private String colour;

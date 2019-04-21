@@ -32,6 +32,7 @@ public class ShopLocation implements Serializable {
 	private transient World world;
 	private String worldName;
 	private double x, y, z;
+	final private String div = "_";
 
 	public ShopLocation(World w, double x, double y, double z) {
 		this.world = w;
@@ -62,7 +63,7 @@ public class ShopLocation implements Serializable {
 	}
 
 	public String serialize() {
-		return "l" + "_" + world.getName() + "_" + x + "_" + y + "_" + z;
+		return "l" + div + world.getName() + div + x + div + y + div + z;
 	}
 
 	public World getWorld() {

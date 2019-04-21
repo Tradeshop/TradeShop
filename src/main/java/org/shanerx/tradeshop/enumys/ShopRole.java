@@ -24,6 +24,9 @@ package org.shanerx.tradeshop.enumys;
 @SuppressWarnings("unused")
 public enum ShopRole {
 
+	/**
+	 * ShopRole(canDestroy, canEdit, canOpen, canShop)
+	 */
 	OWNER(true, true, true, false),
 	MANAGER(false, true, true, false),
 	MEMBER(false, false, true, false),

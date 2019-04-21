@@ -99,23 +99,23 @@ public class ListManager {
 
 		for (String str : Setting.ALLOWED_SHOPS.getStringList()) {
 			if (str.equalsIgnoreCase("shulker")) {
-				inventories.addAll(Arrays.asList(Material.SHULKER_BOX,
-						Material.WHITE_SHULKER_BOX,
-						Material.ORANGE_SHULKER_BOX,
-						Material.MAGENTA_SHULKER_BOX,
-						Material.LIGHT_BLUE_SHULKER_BOX,
-						Material.YELLOW_SHULKER_BOX,
-						Material.LIME_SHULKER_BOX,
-						Material.PINK_SHULKER_BOX,
-						Material.GRAY_SHULKER_BOX,
-						Material.LIGHT_GRAY_SHULKER_BOX,
-						Material.CYAN_SHULKER_BOX,
-						Material.PURPLE_SHULKER_BOX,
-						Material.BLUE_SHULKER_BOX,
-						Material.BROWN_SHULKER_BOX,
-						Material.GREEN_SHULKER_BOX,
-						Material.RED_SHULKER_BOX,
-						Material.BLACK_SHULKER_BOX));
+				inventories.add(Material.SHULKER_BOX);
+				inventories.add(Material.WHITE_SHULKER_BOX);
+				inventories.add(Material.ORANGE_SHULKER_BOX);
+				inventories.add(Material.MAGENTA_SHULKER_BOX);
+				inventories.add(Material.LIGHT_BLUE_SHULKER_BOX);
+				inventories.add(Material.YELLOW_SHULKER_BOX);
+				inventories.add(Material.LIME_SHULKER_BOX);
+				inventories.add(Material.PINK_SHULKER_BOX);
+				inventories.add(Material.GRAY_SHULKER_BOX);
+				inventories.add(Material.LIGHT_GRAY_SHULKER_BOX);
+				inventories.add(Material.CYAN_SHULKER_BOX);
+				inventories.add(Material.PURPLE_SHULKER_BOX);
+				inventories.add(Material.BLUE_SHULKER_BOX);
+				inventories.add(Material.BROWN_SHULKER_BOX);
+				inventories.add(Material.GREEN_SHULKER_BOX);
+				inventories.add(Material.RED_SHULKER_BOX);
+				inventories.add(Material.BLACK_SHULKER_BOX);
 			} else {
 				if (allowed.contains(Material.valueOf(str)))
 					inventories.add(Material.valueOf(str));

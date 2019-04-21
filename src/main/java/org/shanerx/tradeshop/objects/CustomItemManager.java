@@ -172,8 +172,4 @@ public class CustomItemManager {
 		return config;
 	}
 
-	public String colour(String x) {
-		return ChatColor.translateAlternateColorCodes(COLOUR_CHAR, x);
-	}
-
 }
