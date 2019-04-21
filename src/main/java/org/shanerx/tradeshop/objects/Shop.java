@@ -28,6 +28,7 @@ import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Sign;
+import org.bukkit.event.block.SignChangeEvent;
 import org.bukkit.inventory.ItemStack;
 import org.shanerx.tradeshop.enumys.ShopRole;
 import org.shanerx.tradeshop.enumys.ShopStatus;
@@ -613,6 +614,46 @@ public class Shop implements Serializable {
 
 		s.setLine(3, status.getLine());
 		s.update();
+	}
+
+	/**
+	 * Updates the text on the shops sign
+	 */
+	public void updateSign(SignChangeEvent signEvent) {
+		if (!missingItems()) {
+			signEvent.setLine(0, ChatColor.DARK_GREEN + shopType.toHeader());
+		} else {
+			signEvent.setLine(0, ChatColor.GRAY + shopType.toHeader());
+		}
+
+		if (product != null) {
+			StringBuilder sb = new StringBuilder();
+
+			sb.append(product.getAmount());
+			sb.append(" ");
+
+			sb.append((product.hasItemMeta() && product.getItemMeta().hasDisplayName()) ?
+					product.getItemMeta().getDisplayName() :
+					product.getType().toString());
+
+			signEvent.setLine(1, sb.toString().substring(0, (sb.length() < 15) ? sb.length() : 15));
+
+		}
+
+		if (cost != null) {
+			StringBuilder sb = new StringBuilder();
+
+			sb.append(cost.getAmount());
+			sb.append(" ");
+
+			sb.append((cost.hasItemMeta() && cost.getItemMeta().hasDisplayName()) ?
+					cost.getItemMeta().getDisplayName() :
+					cost.getType().toString());
+
+			signEvent.setLine(2, sb.toString().substring(0, (sb.length() < 15) ? sb.length() : 15));
+		}
+
+		signEvent.setLine(3, status.getLine());
 	}
 
 	/**

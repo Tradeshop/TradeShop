@@ -266,7 +266,7 @@ public class Utils {
 	 * Checks whether or not it is a valid material or custom item.
 	 *
 	 * @param mat String to check
-	 * @return returns item or null if invalid
+	 * @return returns true if valid material
 	 */
 	public boolean isValidType(String mat) {
 		ArrayList<String> illegalItems = plugin.getListManager().getBlacklist();
