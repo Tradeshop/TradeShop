@@ -136,11 +136,15 @@ public class AdminEventListener extends Utils implements Listener {
 			return;
 		}
 
-		if (!isDoubleChest(block)) {
+        if (!ShopChest.isShopChest(block)) {
+            return;
+        }
+
+        if (!ShopChest.isDoubleChest(block)) {
 			return;
 		}
 
-		Block otherhalf = getOtherHalfOfDoubleChest(block);
+        Block otherhalf = ShopChest.getOtherHalfOfDoubleChest(block);
 		Player p = event.getPlayer();
 
 		if (!ShopChest.isShopChest(otherhalf)) {

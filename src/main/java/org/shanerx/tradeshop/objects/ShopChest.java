@@ -184,7 +184,7 @@ public class ShopChest extends Utils {
 		return shopSign != null;
 	}
 
-	public Block getOtherHalfOfDoubleChest(Block chest) {
+	public static Block getOtherHalfOfDoubleChest(Block chest) {
 		if (chest.getType() != Material.CHEST || chest.getType() != Material.TRAPPED_CHEST) {
 			return null;
 		}
@@ -201,7 +201,7 @@ public class ShopChest extends Utils {
 		return null;
 	}
 
-	public boolean isDoubleChest(Block chest) {
+	public static boolean isDoubleChest(Block chest) {
 		return getOtherHalfOfDoubleChest(chest) != null;
 	}
 }
