@@ -288,7 +288,9 @@ public class Shop implements Serializable {
 	 * @return List of all managers uuid
 	 */
 	public List<UUID> getManagersUUID() {
-		return managers.stream().map(ShopUser::getUUID).collect(Collectors.toList());
+        if (managers != null)
+            return managers.stream().map(ShopUser::getUUID).collect(Collectors.toList());
+        return Collections.emptyList();
 	}
 
 	/**
