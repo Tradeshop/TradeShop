@@ -23,11 +23,13 @@ package org.shanerx.tradeshop.enumys;
 
 import org.bukkit.Material;
 import org.shanerx.tradeshop.utils.BukkitVersion;
+import org.shanerx.tradeshop.utils.Utils;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
-public class ShopSign {
+public class ShopSign extends Utils {
 
 	private BukkitVersion version = new BukkitVersion();
 	private ArrayList<Material> signTypes = new ArrayList<>();
@@ -35,12 +37,14 @@ public class ShopSign {
 	public ShopSign() {
 		for (Signs type : Signs.values()) {
 			boolean pass = true;
+			debug(type.toString());
+			debug("MaxVer 0 :" + type.getMaxVer().get(0));
+			debug("MaxVer 1 :" + type.getMaxVer().get(1));
+			debug("MaxVer 2 :" + type.getMaxVer().get(2));
 
 			if (type.hasMinVersion() && version.isBelow(type.getMinVer().get(0), type.getMinVer().get(1), type.getMinVer().get(2))) {
 				pass = false;
-			}
-
-			if (type.hasMaxVersion() && version.isAbove(type.getMaxVer().get(0), type.getMaxVer().get(1), type.getMaxVer().get(2))) {
+			} else if (type.hasMaxVersion() && version.isAbove(type.getMaxVer().get(0), type.getMaxVer().get(1), type.getMaxVer().get(2))) {
 				pass = false;
 			}
 
@@ -70,7 +74,7 @@ public class ShopSign {
 		ACACIA_WALL_SIGN("1.14.0", ""),
 		DARK_OAK_WALL_SIGN("1.14.0", "");
 
-		private List<Integer> minVer, maxVer;
+		private List<Integer> minVer = Arrays.asList(new Integer[3]), maxVer = Arrays.asList(new Integer[3]);
 		private boolean hasMin = true, hasMax = true;
 
 		Signs(String minVersion, String maxVersion) {
@@ -80,15 +84,19 @@ public class ShopSign {
 			if (maxVersion.equalsIgnoreCase(""))
 				hasMax = false;
 
-			if (hasMin)
-				for (String str : minVersion.split(".")) {
-					minVer.add(Integer.parseInt(str));
+			if (hasMin) {
+				String[] minVerArray = minVersion.split("[.]");
+				for (int i = 0; i < minVerArray.length; i++) {
+					minVer.set(i, Integer.parseInt(minVerArray[i]));
 				}
+			}
 
-			if (hasMax)
-				for (String str : maxVersion.split(".")) {
-					maxVer.add(Integer.parseInt(str));
+			if (hasMax) {
+				String[] maxVerArray = maxVersion.split("[.]");
+				for (int i = 0; i < maxVerArray.length; i++) {
+					maxVer.set(i, Integer.parseInt(maxVerArray[i]));
 				}
+			}
 		}
 
 		public boolean hasMinVersion() {

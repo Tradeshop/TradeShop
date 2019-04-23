@@ -1,7 +1,5 @@
 /*
- *                 Copyright (c) 2016-2017
- *         SparklingComet @ http://shanerx.org
- *      KillerOfPie @ http://killerofpie.github.io
+ *     Copyright (c) 2016-2017 SparklingComet @ http://shanerx.org
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +16,7 @@
  * NOTICE: All modifications made by others to the source code belong
  * to the respective contributor. No contributor should be held liable for
  * any damages of any kind, whether be material or moral, which were
- * caused by their contribution(s) to the project. See the full License for more information.
+ * caused by their contribution(s) to the project. See the full License for more information
  */
 
 package org.shanerx.tradeshop;
@@ -29,6 +27,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.shanerx.tradeshop.commands.CommandCaller;
 import org.shanerx.tradeshop.enumys.Message;
 import org.shanerx.tradeshop.enumys.Setting;
+import org.shanerx.tradeshop.enumys.ShopSign;
 import org.shanerx.tradeshop.listeners.AdminEventListener;
 import org.shanerx.tradeshop.listeners.CustomInventoryListener;
 import org.shanerx.tradeshop.listeners.ShopCreateListener;
@@ -49,6 +48,7 @@ public class TradeShop extends JavaPlugin {
 	private ListManager lists;
 	private CustomItemManager cim;
 	private BukkitVersion version;
+	private ShopSign signs;
 
 	private Metrics metrics;
 
@@ -62,6 +62,10 @@ public class TradeShop extends JavaPlugin {
 
 	public BukkitVersion getVersion() {
 		return version;
+	}
+
+	public ShopSign getSigns() {
+		return signs;
 	}
 
 	@Override
@@ -93,6 +97,8 @@ public class TradeShop extends JavaPlugin {
 		pm.registerEvents(new CustomInventoryListener(), this);
 
         getCommand("tradeshop").setExecutor(new CommandCaller(this));
+
+		signs = new ShopSign();
 
 		boolean checkUpdates = Setting.CHECK_UPDATES.getBoolean();
 
