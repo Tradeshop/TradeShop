@@ -25,6 +25,7 @@ import org.bstats.bukkit.Metrics;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.shanerx.tradeshop.commands.CommandCaller;
+import org.shanerx.tradeshop.commands.CommandTabCaller;
 import org.shanerx.tradeshop.enumys.Message;
 import org.shanerx.tradeshop.enumys.Setting;
 import org.shanerx.tradeshop.enumys.ShopSign;
@@ -97,6 +98,7 @@ public class TradeShop extends JavaPlugin {
 		pm.registerEvents(new CustomInventoryListener(), this);
 
         getCommand("tradeshop").setExecutor(new CommandCaller(this));
+		getCommand("tradeshop").setTabCompleter(new CommandTabCaller(this));
 
 		signs = new ShopSign();
 

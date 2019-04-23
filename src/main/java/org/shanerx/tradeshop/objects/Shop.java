@@ -1,7 +1,5 @@
 /*
- *                 Copyright (c) 2016-2017
- *         SparklingComet @ http://shanerx.org
- *      KillerOfPie @ http://killerofpie.github.io
+ *     Copyright (c) 2016-2017 SparklingComet @ http://shanerx.org
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +16,7 @@
  * NOTICE: All modifications made by others to the source code belong
  * to the respective contributor. No contributor should be held liable for
  * any damages of any kind, whether be material or moral, which were
- * caused by their contribution(s) to the project. See the full License for more information.
+ * caused by their contribution(s) to the project. See the full License for more information
  */
 
 package org.shanerx.tradeshop.objects;
@@ -42,6 +40,7 @@ import org.shanerx.tradeshop.utils.Tuple;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
@@ -756,5 +755,35 @@ public class Shop implements Serializable {
 
 		updateSign();
 		saveShop();
+	}
+
+	/**
+	 * Returns a list of Managers' names
+	 *
+	 * @return List of Managers' names
+	 */
+	public List<String> getManagersNames() {
+		List<String> names = Arrays.asList(new String[getManagers().size()]);
+
+		for (int i = 0; i < getManagers().size(); i++) {
+			names.set(i, getManagers().get(i).getName());
+		}
+
+		return names;
+	}
+
+	/**
+	 * Returns a list of Members' names
+	 *
+	 * @return List of Members' names
+	 */
+	public List<String> getMembersNames() {
+		List<String> names = Arrays.asList(new String[getMembers().size()]);
+
+		for (int i = 0; i < getMembers().size(); i++) {
+			names.set(i, getMembers().get(i).getName());
+		}
+
+		return names;
 	}
 }
