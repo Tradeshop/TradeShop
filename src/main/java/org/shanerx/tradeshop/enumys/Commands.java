@@ -1,7 +1,5 @@
 /*
- *                 Copyright (c) 2016-2017
- *         SparklingComet @ http://shanerx.org
- *      KillerOfPie @ http://killerofpie.github.io
+ *     Copyright (c) 2016-2017 SparklingComet @ http://shanerx.org
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +16,7 @@
  * NOTICE: All modifications made by others to the source code belong
  * to the respective contributor. No contributor should be held liable for
  * any damages of any kind, whether be material or moral, which were
- * caused by their contribution(s) to the project. See the full License for more information.
+ * caused by their contribution(s) to the project. See the full License for more information
  */
 
 package org.shanerx.tradeshop.enumys;
@@ -38,7 +36,7 @@ public enum Commands {
 
     HELP(Lists.newArrayList("help", "?"), Permissions.HELP, 1, 2, false),
     SETUP(Lists.newArrayList("setup", "start", "create", "make"), Permissions.HELP, 1, 1, false),
-    BUGS(Lists.newArrayList("bug", "bugs"), Permissions.NONE, 1, 1, false),
+	BUGS(Lists.newArrayList("bugs", "bug"), Permissions.NONE, 1, 1, false),
     ADDMANAGER(Lists.newArrayList("addManager"), Permissions.NONE, 2, 2, true),
     REMOVEMANGAER(Lists.newArrayList("removeManager", "delManager"), Permissions.NONE, 2, 2, true),
     ADDMEMBER(Lists.newArrayList("addMember"), Permissions.NONE, 2, 2, true),
@@ -111,6 +109,16 @@ public enum Commands {
     public List<String> getNames() {
         return names;
     }
+
+
+	/**
+	 * Returns list of all usable names for the command
+	 *
+	 * @return List<String> containing names
+	 */
+	public String getFirstName() {
+		return names.get(0);
+	}
 
     /**
      * Returns minimum required arguments

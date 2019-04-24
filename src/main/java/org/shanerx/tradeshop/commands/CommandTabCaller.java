@@ -108,7 +108,7 @@ public class CommandTabCaller implements TabCompleter {
 			if (cmdPass.argsSize() < 2) {
 				List<String> subCmds = Arrays.asList(new String[Commands.values().length]);
 				for (int i = 0; i < Commands.values().length; i++) {
-					subCmds.set(i, Commands.values()[i].toString());
+					subCmds.set(i, Commands.values()[i].getFirstName());
 				}
 
 				return subCmds;
