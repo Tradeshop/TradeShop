@@ -1,7 +1,5 @@
 /*
- *                 Copyright (c) 2016-2017
- *         SparklingComet @ http://shanerx.org
- *      KillerOfPie @ http://killerofpie.github.io
+ *     Copyright (c) 2016-2017 SparklingComet @ http://shanerx.org
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +16,7 @@
  * NOTICE: All modifications made by others to the source code belong
  * to the respective contributor. No contributor should be held liable for
  * any damages of any kind, whether be material or moral, which were
- * caused by their contribution(s) to the project. See the full License for more information.
+ * caused by their contribution(s) to the project. See the full License for more information
  */
 
 package org.shanerx.tradeshop.commands;
@@ -34,18 +32,13 @@ import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.shanerx.tradeshop.TradeShop;
-import org.shanerx.tradeshop.enumys.Message;
-import org.shanerx.tradeshop.enumys.Permissions;
-import org.shanerx.tradeshop.enumys.Setting;
-import org.shanerx.tradeshop.enumys.ShopRole;
-import org.shanerx.tradeshop.enumys.ShopType;
+import org.shanerx.tradeshop.enumys.*;
 import org.shanerx.tradeshop.objects.CommandPass;
 import org.shanerx.tradeshop.objects.Shop;
 import org.shanerx.tradeshop.objects.ShopUser;
 import org.shanerx.tradeshop.utils.Utils;
 
 import java.util.ArrayList;
-import java.util.Set;
 
 public class CommandRunner extends Utils {
 
@@ -568,45 +561,6 @@ public class CommandRunner extends Utils {
 		} catch (Exception e) {
             sendMessage(Message.NO_SIGHTED_SHOP.getPrefixed());
         }
-    }
-
-    /**
-     * Sends the sender a list of available custom items
-     */
-    public void getCustomItems() {
-        Set<String> items = plugin.getCustomItemManager().getItems();
-        StringBuilder sb = new StringBuilder();
-        sendMessage(colorize("&aCurrent custom items:"));
-        for (String s : items) {
-            sb.append("-");
-            sb.append(s);
-            sb.append("  ");
-        }
-
-        sendMessage(sb.toString());
-    }
-
-    /**
-     * Adds the held item with specified name to the custom item file
-     */
-    public void addCustomItem() {
-        ItemStack itm = pSender.getInventory().getItemInMainHand();
-
-        if (itm.getType().equals(Material.AIR)) {
-            sendMessage(colorize("&cYou must ne holding an item to create a custom item."));
-            return;
-        }
-
-        plugin.getCustomItemManager().addItem(command.getArgAt(1), itm);
-        sendMessage(colorize("&a" + command.getArgAt(1) + " has been added to the custom items."));
-    }
-
-    /**
-     * Removes the named custom item from the file
-     */
-    public void removeCustomItem() {
-        plugin.getCustomItemManager().removeItem(command.getArgAt(1));
-        sendMessage(colorize("&a" + command.getArgAt(1) + " has been removed from the custom items."));
     }
 
     /**

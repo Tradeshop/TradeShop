@@ -232,24 +232,10 @@ public class Utils {
 	 */
 	public boolean isValidType(String mat) {
 		ArrayList<Material> blackList = plugin.getListManager().getBlacklist();
-		Set<String> customItemSet = plugin.getCustomItemManager().getItems();
 
 		if (Material.matchMaterial(mat) != null) {
 			Material temp = Material.matchMaterial(mat);
 			return !blackList.contains(temp);
-		}
-
-		if (customItemSet.size() > 0) {
-			for (String str : customItemSet) {
-				if (str.equalsIgnoreCase(mat)) {
-					ItemStack temp = plugin.getCustomItemManager().getItem(mat);
-					if (!Setting.ALLOW_CUSTOM_ILLEGAL_ITEMS.getBoolean()) {
-						return !blackList.contains(temp.getType());
-					}
-
-					return true;
-				}
-			}
 		}
 
 		return false;

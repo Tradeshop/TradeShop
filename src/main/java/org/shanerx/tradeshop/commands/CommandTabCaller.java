@@ -87,12 +87,6 @@ public class CommandTabCaller implements TabCompleter {
 					return tabCompleter.what();
 				case WHO:
 					return tabCompleter.who();
-				case GETCUSTOMITEMS:
-					return tabCompleter.getCustomItems();
-				case ADDCUSTOMITEM:
-					return tabCompleter.addCustomItem();
-				case REMOVECUSTOMITEM:
-					return tabCompleter.removeCustomItem();
 				case ADDMANAGER:
 					return tabCompleter.addManager();
 				case REMOVEMANGAER:

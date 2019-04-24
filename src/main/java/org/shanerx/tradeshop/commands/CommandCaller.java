@@ -114,15 +114,6 @@ public class CommandCaller implements CommandExecutor {
             case WHO:
                 cmdRnnr.who();
                 break;
-            case GETCUSTOMITEMS:
-                cmdRnnr.getCustomItems();
-                break;
-            case ADDCUSTOMITEM:
-                cmdRnnr.addCustomItem();
-                break;
-            case REMOVECUSTOMITEM:
-                cmdRnnr.removeCustomItem();
-                break;
             case ADDMANAGER:
                 cmdRnnr.addManager();
                 break;

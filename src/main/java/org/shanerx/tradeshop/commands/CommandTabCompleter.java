@@ -127,22 +127,6 @@ public class CommandTabCompleter extends Utils {
 		return Collections.EMPTY_LIST;
 	}
 
-	public List<String> getCustomItems() {
-		return Collections.EMPTY_LIST;
-	}
-
-	public List<String> addCustomItem() {
-		return Collections.EMPTY_LIST;
-	}
-
-	public List<String> removeCustomItem() {
-		if (command.argsSize() == 2) {
-			return new ArrayList<>(plugin.getCustomItemManager().getItems());
-		}
-
-		return Collections.EMPTY_LIST;
-	}
-
 	public List<String> addManager() {
 		if (command.argsSize() == 1) {
 			List<String> names = new ArrayList<>();

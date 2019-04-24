@@ -33,7 +33,6 @@ import org.shanerx.tradeshop.listeners.AdminEventListener;
 import org.shanerx.tradeshop.listeners.CustomInventoryListener;
 import org.shanerx.tradeshop.listeners.ShopCreateListener;
 import org.shanerx.tradeshop.listeners.ShopTradeListener;
-import org.shanerx.tradeshop.objects.CustomItemManager;
 import org.shanerx.tradeshop.objects.ListManager;
 import org.shanerx.tradeshop.utils.BukkitVersion;
 import org.shanerx.tradeshop.utils.Updater;
@@ -47,7 +46,6 @@ public class TradeShop extends JavaPlugin {
 	 */
 
 	private ListManager lists;
-	private CustomItemManager cim;
 	private BukkitVersion version;
 	private ShopSign signs;
 
@@ -55,10 +53,6 @@ public class TradeShop extends JavaPlugin {
 
 	public ListManager getListManager() {
 		return lists;
-	}
-
-	public CustomItemManager getCustomItemManager() {
-		return cim;
 	}
 
 	public BukkitVersion getVersion() {
@@ -89,7 +83,6 @@ public class TradeShop extends JavaPlugin {
 		Setting.reload();
 
 		lists = new ListManager();
-		cim = new CustomItemManager();
 
 		PluginManager pm = getServer().getPluginManager();
 		pm.registerEvents(new AdminEventListener(this), this);

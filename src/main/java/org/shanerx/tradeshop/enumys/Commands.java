@@ -47,9 +47,6 @@ public enum Commands {
     CLOSE(Lists.newArrayList("close"), Permissions.NONE, 1, 1, true),
     WHO(Lists.newArrayList("who"), Permissions.INFO, 1, 1, true),
     WHAT(Lists.newArrayList("what", "peek", "windowShop", "shop", "view"), Permissions.INFO, 1, 1, true),
-    ADDCUSTOMITEM(Lists.newArrayList("addCustomItem", "additem", "newItem"), Permissions.ADMIN, 1, 2, true),
-    REMOVECUSTOMITEM(Lists.newArrayList("removeCustomItem", "removeItem", "delItem"), Permissions.ADMIN, 2, 2, false),
-    GETCUSTOMITEMS(Lists.newArrayList("getCustomItems", "getCIs"), Permissions.ADMIN, 2, 2, true),
     RELOAD(Lists.newArrayList("reload"), Permissions.ADMIN, 1, 1, false),
     SWITCH(Lists.newArrayList("switch"), Permissions.EDIT, 1, 1, true);
 

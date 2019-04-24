@@ -43,7 +43,6 @@ public enum Setting {
 	MAX_EDIT_DISTANCE("max-edit-distance"),
 	MAX_SHOP_USERS("max-shop-users"),
 	ILLEGAL_ITEMS("illegal-items"),
-	ALLOW_CUSTOM_ILLEGAL_ITEMS("allow-custom-illegal-items"),
 	TRADESHOP_HEADER("tradeshop.header"),
 	ITRADESHOP_HEADER("itradeshop.header"),
 	BITRADESHOP_HEADER("bitradeshop.header"),
@@ -114,7 +113,6 @@ public enum Setting {
 		addSetting(MAX_EDIT_DISTANCE.path, 4);
 		addSetting(MAX_SHOP_USERS.path, 5);
 		addSetting(ILLEGAL_ITEMS.path, new String[]{"Air", "Void_Air", "Cave_Air", "Bedrock", "Command_Block"});
-		addSetting(ALLOW_CUSTOM_ILLEGAL_ITEMS.path, true);
 		addSetting(SHOP_OPEN_STATUS.path, "Open");
 		addSetting(SHOP_CLOSED_STATUS.path, "Closed");
 		addSetting(ALLOW_METRICS.path, true);
