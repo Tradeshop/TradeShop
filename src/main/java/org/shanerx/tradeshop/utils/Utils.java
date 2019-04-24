@@ -1,7 +1,5 @@
 /*
- *                 Copyright (c) 2016-2017
- *         SparklingComet @ http://shanerx.org
- *      KillerOfPie @ http://killerofpie.github.io
+ *     Copyright (c) 2016-2017 SparklingComet @ http://shanerx.org
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +16,7 @@
  * NOTICE: All modifications made by others to the source code belong
  * to the respective contributor. No contributor should be held liable for
  * any damages of any kind, whether be material or moral, which were
- * caused by their contribution(s) to the project. See the full License for more information.
+ * caused by their contribution(s) to the project. See the full License for more information
  */
 
 package org.shanerx.tradeshop.utils;
@@ -41,12 +39,7 @@ import org.shanerx.tradeshop.enumys.Message;
 import org.shanerx.tradeshop.enumys.Setting;
 import org.shanerx.tradeshop.enumys.ShopType;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.logging.Level;
 
 
@@ -197,19 +190,6 @@ public class Utils {
 	}
 
 	/**
-	 * Serves as reference for blacklist item
-	 *
-	 * @return returns item for blacklist fail
-	 */
-	public ItemStack getBlackListItem() {
-		ItemStack blacklist = new ItemStack(Material.BEDROCK);
-		ItemMeta bm = blacklist.getItemMeta();
-		bm.setDisplayName("blacklisted&4&0&4");
-		blacklist.setItemMeta(bm);
-		return blacklist;
-	}
-
-	/**
 	 * Sets the event sign to a failed creation sign
 	 *
 	 * @param e    Event to reset the sign for
@@ -251,13 +231,12 @@ public class Utils {
 	 * @return returns true if valid material
 	 */
 	public boolean isValidType(String mat) {
-		ArrayList<String> illegalItems = plugin.getListManager().getBlacklist();
+		ArrayList<Material> blackList = plugin.getListManager().getBlacklist();
 		Set<String> customItemSet = plugin.getCustomItemManager().getItems();
-		String matLower = mat.toLowerCase();
 
 		if (Material.matchMaterial(mat) != null) {
 			Material temp = Material.matchMaterial(mat);
-			return !illegalItems.contains(temp.name().toLowerCase());
+			return !blackList.contains(temp);
 		}
 
 		if (customItemSet.size() > 0) {
@@ -265,7 +244,7 @@ public class Utils {
 				if (str.equalsIgnoreCase(mat)) {
 					ItemStack temp = plugin.getCustomItemManager().getItem(mat);
 					if (!Setting.ALLOW_CUSTOM_ILLEGAL_ITEMS.getBoolean()) {
-						return !illegalItems.contains(temp.getType().name().toLowerCase());
+						return !blackList.contains(temp.getType());
 					}
 
 					return true;
@@ -274,22 +253,6 @@ public class Utils {
 		}
 
 		return false;
-	}
-
-	/**
-	 * Checks whether or not it is a valid material or custom item.
-	 *
-	 * @param itm Item to check
-	 * @return true if item is blacklist item
-	 */
-	public boolean isBlacklistItem(ItemStack itm) {
-		ItemStack blacklist = getBlackListItem();
-
-		if (!itm.hasItemMeta()) {
-			return false;
-		} else if (!itm.getItemMeta().hasDisplayName()) {
-			return false;
-		} else return itm.getItemMeta().getDisplayName().equalsIgnoreCase(blacklist.getItemMeta().getDisplayName());
 	}
 
 	/**

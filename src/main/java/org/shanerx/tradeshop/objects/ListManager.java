@@ -1,7 +1,5 @@
 /*
- *                 Copyright (c) 2016-2017
- *         SparklingComet @ http://shanerx.org
- *      KillerOfPie @ http://killerofpie.github.io
+ *     Copyright (c) 2016-2017 SparklingComet @ http://shanerx.org
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +16,7 @@
  * NOTICE: All modifications made by others to the source code belong
  * to the respective contributor. No contributor should be held liable for
  * any damages of any kind, whether be material or moral, which were
- * caused by their contribution(s) to the project. See the full License for more information.
+ * caused by their contribution(s) to the project. See the full License for more information
  */
 
 package org.shanerx.tradeshop.objects;
@@ -29,12 +27,11 @@ import org.shanerx.tradeshop.enumys.Setting;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.stream.Collectors;
 
 @SuppressWarnings("unused")
 public class ListManager {
 
-	private ArrayList<String> blacklist = new ArrayList<>();
+	private ArrayList<Material> blacklist = new ArrayList<>();
 	private ArrayList<BlockFace> directions = new ArrayList<>();
 	private ArrayList<Material> inventories = new ArrayList<>();
 
@@ -51,12 +48,12 @@ public class ListManager {
 		return inventories;
 	}
 
-	public ArrayList<String> getBlacklist() {
+	public ArrayList<Material> getBlacklist() {
 		return blacklist;
 	}
 
 	public boolean isBlacklisted(Material mat) {
-        return blacklist.contains(mat.toString());
+		return blacklist.contains(mat);
     }
 
 	public boolean isDirection(BlockFace face) {
@@ -82,7 +79,11 @@ public class ListManager {
 
 	private void updateBlacklist() {
 		blacklist.clear();
-		blacklist.addAll(Setting.ILLEGAL_ITEMS.getStringList().stream().map(String::toLowerCase).collect(Collectors.toList()));
+		for (String str : Setting.ILLEGAL_ITEMS.getStringList()) {
+			Material mat = Material.matchMaterial(str);
+			if (mat != null)
+				blacklist.add(mat);
+		}
 	}
 
 	private void updateDirections() {

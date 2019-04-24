@@ -1,7 +1,5 @@
 /*
- *                 Copyright (c) 2016-2017
- *         SparklingComet @ http://shanerx.org
- *      KillerOfPie @ http://killerofpie.github.io
+ *     Copyright (c) 2016-2017 SparklingComet @ http://shanerx.org
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +16,7 @@
  * NOTICE: All modifications made by others to the source code belong
  * to the respective contributor. No contributor should be held liable for
  * any damages of any kind, whether be material or moral, which were
- * caused by their contribution(s) to the project. See the full License for more information.
+ * caused by their contribution(s) to the project. See the full License for more information
  */
 
 package org.shanerx.tradeshop.listeners;
@@ -47,7 +45,6 @@ public class ShopCreateListener extends Utils implements Listener {
 	@SuppressWarnings("deprecation")
 	@EventHandler
 	public void onSignChange(SignChangeEvent event) {
-		//TODO add support for chestless itrade, 1 sign per chest
 
 		Sign shopSign = (Sign) event.getBlock().getState();
 		shopSign.setLine(0, event.getLine(0));
@@ -140,11 +137,11 @@ public class ShopCreateListener extends Utils implements Listener {
 			return null;
 
 		int amount = Integer.parseInt(info[0]);
-		ItemStack product = new ItemStack(Material.matchMaterial(info[1]), amount);
+        ItemStack item = new ItemStack(Material.matchMaterial(info[1]), amount);
 
-		if (isBlacklistItem(product))
+        if (plugin.getListManager().isBlacklisted(item.getType()))
 			return null;
 
-		return product;
+        return item;
 	}
 }

@@ -1,7 +1,5 @@
 /*
- *                 Copyright (c) 2016-2017
- *         SparklingComet @ http://shanerx.org
- *      KillerOfPie @ http://killerofpie.github.io
+ *     Copyright (c) 2016-2017 SparklingComet @ http://shanerx.org
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +16,7 @@
  * NOTICE: All modifications made by others to the source code belong
  * to the respective contributor. No contributor should be held liable for
  * any damages of any kind, whether be material or moral, which were
- * caused by their contribution(s) to the project. See the full License for more information.
+ * caused by their contribution(s) to the project. See the full License for more information
  */
 
 package org.shanerx.tradeshop.listeners;
@@ -299,7 +297,7 @@ public class ShopTradeListener extends Utils implements Listener {
 			if (product == null || cost == null) {
 				failedTrade(e, Message.BUY_FAILED_SIGN);
 				return;
-			} else if (isBlacklistItem(product) || isBlacklistItem(cost)) {
+			} else if (plugin.getListManager().isBlacklisted(product.getType()) || plugin.getListManager().isBlacklisted(cost.getType())) {
 				failedTrade(e, Message.ILLEGAL_ITEM);
 				return;
 			}
