@@ -29,7 +29,7 @@ import org.shanerx.tradeshop.TradeShop;
 import org.shanerx.tradeshop.enumys.Commands;
 import org.shanerx.tradeshop.enumys.Message;
 import org.shanerx.tradeshop.enumys.Permissions;
-import org.shanerx.tradeshop.objects.CommandPass;
+import org.shanerx.tradeshop.framework.CustomCommandHandler;
 
 /**
  * This class is used for calling command methods from CommandRunner
@@ -53,6 +53,7 @@ public class CommandCaller implements CommandExecutor {
         cmdPass = new CommandPass(sender, cmd, label, args);
         command = Commands.getType(cmdPass.getArgAt(0));
 
+
         if (!cmdPass.hasArgs()) {
             sender.sendMessage(Message.INVALID_ARGUMENTS.getPrefixed());
             return true;
@@ -60,7 +61,15 @@ public class CommandCaller implements CommandExecutor {
         }
 
         if (command == null) {
-            sender.sendMessage(Message.INVALID_ARGUMENTS.getPrefixed());
+	        CustomCommandHandler handler = CustomCommandHandler.getInstance();
+	        String subcmd = cmdPass.getArgAt(0);
+
+	        if (!handler.isAvailable(subcmd)) {
+		        handler.getExecutable(subcmd).run(args);
+		        return true;
+	        }
+
+	        sender.sendMessage(Message.INVALID_ARGUMENTS.getPrefixed());
             return true;
         }
 
@@ -126,8 +135,6 @@ public class CommandCaller implements CommandExecutor {
             case REMOVEMEMBER:
                 cmdRnnr.removeMember();
                 break;
-
-
         }
 
         return true;

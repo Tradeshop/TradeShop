@@ -29,7 +29,6 @@ import org.shanerx.tradeshop.TradeShop;
 import org.shanerx.tradeshop.enumys.Commands;
 import org.shanerx.tradeshop.enumys.Message;
 import org.shanerx.tradeshop.enumys.Permissions;
-import org.shanerx.tradeshop.objects.CommandPass;
 
 import java.util.Arrays;
 import java.util.Collections;

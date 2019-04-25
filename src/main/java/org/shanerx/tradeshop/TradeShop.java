@@ -29,6 +29,7 @@ import org.shanerx.tradeshop.commands.CommandTabCaller;
 import org.shanerx.tradeshop.enumys.Message;
 import org.shanerx.tradeshop.enumys.Setting;
 import org.shanerx.tradeshop.enumys.ShopSign;
+import org.shanerx.tradeshop.framework.CustomCommandHandler;
 import org.shanerx.tradeshop.listeners.AdminEventListener;
 import org.shanerx.tradeshop.listeners.CustomInventoryListener;
 import org.shanerx.tradeshop.listeners.ShopCreateListener;
@@ -108,5 +109,7 @@ public class TradeShop extends JavaPlugin {
 		} else {
 			getLogger().warning("Metrics are disabled! Please consider enabling them to support the authors!");
 		}
+
+		CustomCommandHandler.init(this);
 	}
 }

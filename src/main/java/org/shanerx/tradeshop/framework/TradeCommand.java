@@ -21,64 +21,17 @@
  * caused by their contribution(s) to the project. See the full License for more information.
  */
 
-package org.shanerx.tradeshop.objects;
+package org.shanerx.tradeshop.framework;
 
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandSender;
+import org.bukkit.plugin.Plugin;
 
-import java.util.ArrayList;
+public interface TradeCommand {
+	public String getCmd();
+	public Plugin getPlugin();
 
-public class CommandPass {
+	public String getUsage();
+	public String getDescription();
+	public String getPermission();
 
-	private CommandSender sender;
-	private Command cmd;
-	private String label;
-	private ArrayList<String> args;
-
-	public CommandPass(CommandSender sender, Command cmd, String label, String[] args) {
-		this.sender = sender;
-		this.cmd = cmd;
-		this.label = label;
-		this.args = new ArrayList();
-
-		for (String str : args) {
-			this.args.add(str);
-		}
-	}
-
-	public CommandSender getSender() {
-		return sender;
-	}
-
-	public Command getCmd() {
-		return cmd;
-	}
-
-	public String getLabel() {
-		return label;
-	}
-
-	public int argsSize() {
-		return args.size();
-	}
-
-	public boolean hasArgAt(int index) {
-		return index < argsSize();
-	}
-
-	public String getArgAt(int index) {
-		if (hasArgAt(index)) {
-			return args.get(index);
-		} else {
-			return null;
-		}
-	}
-
-	public ArrayList<String> getArgs() {
-		return args;
-	}
-
-	public boolean hasArgs() {
-		return argsSize() > 0;
-	}
+	public boolean run(String[] args);
 }

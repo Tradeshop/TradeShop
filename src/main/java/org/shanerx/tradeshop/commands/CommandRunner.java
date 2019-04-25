@@ -33,7 +33,6 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.shanerx.tradeshop.TradeShop;
 import org.shanerx.tradeshop.enumys.*;
-import org.shanerx.tradeshop.objects.CommandPass;
 import org.shanerx.tradeshop.objects.Shop;
 import org.shanerx.tradeshop.objects.ShopUser;
 import org.shanerx.tradeshop.utils.Utils;

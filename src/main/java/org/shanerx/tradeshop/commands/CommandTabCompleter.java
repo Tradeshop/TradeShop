@@ -30,7 +30,6 @@ import org.shanerx.tradeshop.TradeShop;
 import org.shanerx.tradeshop.enumys.Commands;
 import org.shanerx.tradeshop.enumys.Setting;
 import org.shanerx.tradeshop.enumys.ShopType;
-import org.shanerx.tradeshop.objects.CommandPass;
 import org.shanerx.tradeshop.objects.Shop;
 import org.shanerx.tradeshop.utils.Utils;
 
