@@ -29,6 +29,7 @@ import org.shanerx.tradeshop.commands.CommandTabCaller;
 import org.shanerx.tradeshop.enumys.Message;
 import org.shanerx.tradeshop.enumys.Setting;
 import org.shanerx.tradeshop.enumys.ShopSign;
+import org.shanerx.tradeshop.framework.AddonManager;
 import org.shanerx.tradeshop.framework.CustomCommandHandler;
 import org.shanerx.tradeshop.listeners.AdminEventListener;
 import org.shanerx.tradeshop.listeners.CustomInventoryListener;
@@ -49,6 +50,7 @@ public class TradeShop extends JavaPlugin {
 	private ListManager lists;
 	private BukkitVersion version;
 	private ShopSign signs;
+	private AddonManager addonManager;
 
 	private Metrics metrics;
 
@@ -62,6 +64,10 @@ public class TradeShop extends JavaPlugin {
 
 	public ShopSign getSigns() {
 		return signs;
+	}
+
+	public AddonManager getAddonManager() {
+		return addonManager;
 	}
 
 	@Override
@@ -110,6 +116,6 @@ public class TradeShop extends JavaPlugin {
 			getLogger().warning("Metrics are disabled! Please consider enabling them to support the authors!");
 		}
 
-		CustomCommandHandler.init(this);
+		addonManager = new AddonManager(this);
 	}
 }

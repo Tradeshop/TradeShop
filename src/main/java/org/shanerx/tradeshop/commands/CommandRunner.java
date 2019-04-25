@@ -40,6 +40,7 @@ import org.shanerx.tradeshop.objects.ShopUser;
 import org.shanerx.tradeshop.utils.Utils;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 
 public class CommandRunner extends Utils {
 
@@ -107,8 +108,9 @@ public class CommandRunner extends Utils {
         }
 
 	    CustomCommandHandler handler = CustomCommandHandler.getInstance();
-        while (handler.iter().hasNext()) {
-	        String cmdName = handler.iter().next();
+        Iterator<String> iter = handler.iter();
+        while (iter.hasNext()) {
+	        String cmdName = iter.next();
         	TradeCommand cmd = handler.getExecutable(cmdName);
 
 		    if (command.getSender().hasPermission(cmd.getPermission())) {

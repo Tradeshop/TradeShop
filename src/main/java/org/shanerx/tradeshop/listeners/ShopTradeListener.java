@@ -21,6 +21,7 @@
 
 package org.shanerx.tradeshop.listeners;
 
+import org.bukkit.Bukkit;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
@@ -34,6 +35,7 @@ import org.bukkit.inventory.ItemStack;
 import org.shanerx.tradeshop.enumys.Message;
 import org.shanerx.tradeshop.enumys.Setting;
 import org.shanerx.tradeshop.enumys.ShopType;
+import org.shanerx.tradeshop.framework.PlayerTradeEvent;
 import org.shanerx.tradeshop.objects.Shop;
 import org.shanerx.tradeshop.objects.ShopLocation;
 import org.shanerx.tradeshop.utils.JsonConfiguration;
@@ -244,6 +246,8 @@ public class ShopTradeListener extends Utils implements Listener {
                     .replace("{ITEM2}", costName.toLowerCase())
                     .replace("{SELLER}", shop.getOwner().getPlayer().getName()));
 
+			Bukkit.getPluginManager().callEvent(new PlayerTradeEvent(e.getPlayer(), cost, product, shop, e.getClickedBlock(), e.getBlockFace()));
+
 		} else if (e.getAction() == Action.LEFT_CLICK_BLOCK) {
 
 			if (!ShopType.isShop(e.getClickedBlock())) {
@@ -406,6 +410,8 @@ public class ShopTradeListener extends Utils implements Listener {
                     .replace("{ITEM2}", costName.toLowerCase())
                     .replace("{ITEM1}", productName.toLowerCase())
                     .replace("{SELLER}", shop.getOwner().getPlayer().getName()));
+
+			Bukkit.getPluginManager().callEvent(new PlayerTradeEvent(e.getPlayer(), cost, product, shop, e.getClickedBlock(), e.getBlockFace()));
 		}
 	}
 }

@@ -45,11 +45,11 @@ public class CustomCommandHandler {
 	/* *** */
 
 	private TradeShop plugin;
-	private Map<String, TradeCommand> addonCmds;
+	Map<String, TradeCommand> addonCmds;
 
 	private CustomCommandHandler(TradeShop plugin) {
 		if (instance != null) {
-			throw new IllegalStateException("Access forbidden: attempting to create further instances of simpleton class!");
+			throw new IllegalStateException("Access forbidden: attempting to create further instances of singleton class!");
 		}
 
 		this.plugin = plugin;
