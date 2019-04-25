@@ -27,6 +27,7 @@ import org.shanerx.tradeshop.TradeShop;
 import org.shanerx.tradeshop.enumys.Commands;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 public class CustomCommandHandler {
@@ -74,5 +75,9 @@ public class CustomCommandHandler {
 
 	public TradeCommand getExecutable(String subCmd) {
 		return addonCmds.get(subCmd.toLowerCase());
+	}
+
+	public Iterator<String> iter() {
+		return addonCmds.keySet().iterator();
 	}
 }

@@ -30,6 +30,7 @@ import org.shanerx.tradeshop.enumys.Commands;
 import org.shanerx.tradeshop.enumys.Message;
 import org.shanerx.tradeshop.enumys.Permissions;
 import org.shanerx.tradeshop.framework.CustomCommandHandler;
+import org.shanerx.tradeshop.framework.TradeCommand;
 
 /**
  * This class is used for calling command methods from CommandRunner
@@ -65,7 +66,12 @@ public class CommandCaller implements CommandExecutor {
 	        String subcmd = cmdPass.getArgAt(0);
 
 	        if (!handler.isAvailable(subcmd)) {
-		        handler.getExecutable(subcmd).run(args);
+		        TradeCommand exec = handler.getExecutable(subcmd);
+		        if (checkPerm(exec)) {
+		        	if(!exec.run(args)) {
+				        sender.sendMessage(Message.INVALID_ARGUMENTS.getPrefixed());
+			        }
+		        }
 		        return true;
 	        }
 
@@ -148,6 +154,20 @@ public class CommandCaller implements CommandExecutor {
      */
     public boolean checkPerm() {
         if (!cmdPass.getSender().hasPermission(command.getPerm().getPerm()) && !command.getPerm().equals(Permissions.NONE)) {
+            cmdPass.getSender().sendMessage(Message.NO_COMMAND_PERMISSION.getPrefixed());
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Checks if the sender has the required permission
+     *
+     * @return true if permission is NONE or sender has permission
+     */
+    public boolean checkPerm(TradeCommand command) {
+        if (!cmdPass.getSender().hasPermission(command.getPermission()) && !command.getPermission().equals(Permissions.NONE)) {
             cmdPass.getSender().sendMessage(Message.NO_COMMAND_PERMISSION.getPrefixed());
             return false;
         }

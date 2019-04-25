@@ -33,6 +33,8 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.shanerx.tradeshop.TradeShop;
 import org.shanerx.tradeshop.enumys.*;
+import org.shanerx.tradeshop.framework.CustomCommandHandler;
+import org.shanerx.tradeshop.framework.TradeCommand;
 import org.shanerx.tradeshop.objects.Shop;
 import org.shanerx.tradeshop.objects.ShopUser;
 import org.shanerx.tradeshop.utils.Utils;
@@ -104,7 +106,19 @@ public class CommandRunner extends Utils {
                     .append("\n&6/tradeshop reload &c - Reloads plugin configuration files\n");
         }
 
-        sendMessage(sb.toString());
+	    CustomCommandHandler handler = CustomCommandHandler.getInstance();
+        while (handler.iter().hasNext()) {
+	        String cmdName = handler.iter().next();
+        	TradeCommand cmd = handler.getExecutable(cmdName);
+
+		    if (command.getSender().hasPermission(cmd.getPermission())) {
+			    sb.append("\n&6/tradeshop " + cmdName + " " + cmd.getUsage()
+					    + " &c - " + cmd.getDescription()
+					    + "&f[" + cmd.getPlugin().getName() + "]");
+		    }
+        }
+
+	    sendMessage(colorize(sb.append("\n").toString()));
     }
 
     /**
