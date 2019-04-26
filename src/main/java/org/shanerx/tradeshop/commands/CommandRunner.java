@@ -72,6 +72,11 @@ public class CommandRunner extends Utils {
      * Builds and sends the sender the help message
      */
     public void help() {
+    	if (command.argsSize() == 2) {
+    		usage(command.getArgAt(1));
+    		return;
+	    }
+
         StringBuilder sb = new StringBuilder();
 
         sb.append("\n&2")
