@@ -49,7 +49,7 @@ public class CustomCommandHandler {
 
 	private CustomCommandHandler(TradeShop plugin) {
 		if (instance != null) {
-			throw new IllegalStateException("Access forbidden: attempting to create further instances of singleton class!");
+			throw new IllegalStateException("Error: Access forbidden: attempting to create further instances of singleton class!");
 		}
 
 		this.plugin = plugin;
@@ -67,7 +67,7 @@ public class CustomCommandHandler {
 
 	public void registerCommand(TradeCommand subCmd) {
 		if (!isAvailable(subCmd.getCmd())) {
-			throw new IllegalArgumentException("Another addon has already register a subcommand with this name already exists!");
+			throw new IllegalArgumentException("Error: A subcommand with this name already exists!");
 		}
 
 		addonCmds.put(subCmd.getCmd().toLowerCase(), subCmd);

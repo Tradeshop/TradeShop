@@ -77,50 +77,41 @@ public class CommandRunner extends Utils {
                 .append(" ")
                 .append(getVersion())
                 .append(" by ").append(pdf.getAuthors().get(0)).append(" & ").append(pdf.getAuthors().get(1))
-                .append("\n\n&6/tradeshop help &c - Display help message\n");
+                .append("\n\n&b/tradeshop &f &f Display help message\n");
 
-        if (command.getSender().hasPermission(Permissions.CREATE.getPerm())) {
-            sb.append("&6/tradeshop setup &c - Display TradeShop setup tutorial\n")
-                    .append("&6/tradeshop item &c - Shows helpful information on item held by player\n");
+        for (Commands c : Commands.values()) {
+	        if (pSender.hasPermission(c.getPerm().getPerm())) {
+	        	sb.append(Message.colour(String.format("&b/%s &f &f %s\n", c.getFirstName(), c.getDescription())));
+	        }
         }
 
-        sb.append("&6/tradeshop bugs &c - Report bugs\n")
-                .append("&6/tradeshop addowner|removeowner [target] &c - Add/Remove another owner to your shop\n")
-                .append("&6/tradeshop addmember|removemember [target] &c - Add/Remove a collaborator to your shop\n");
-
-        if (command.getSender().hasPermission(Permissions.EDIT.getPerm())) {
-            sb.append("&6/tradeshop addproduct &c - Add item to your shop\n")
-                    .append("&6/tradeshop addcost &c - Change cost of your shop\n")
-                    .append("&6/tradeshop open &c - Open shop\n")
-                    .append("&6/tradeshop close &c -Close shop\n");
-        }
-
-        if (command.getSender().hasPermission(Permissions.INFO.getPerm())) {
-            sb.append("&6/tradeshop who &c - Shows members shop being looked at\n");
-        }
-
-
-        if (command.getSender().hasPermission(Permissions.ADMIN.getPerm())) {
-            sb.append("\n&6/tradeshop addItem [item name] &c - Adds custom items to config")
-                    .append("\n&6/tradeshop removeItem [item name] &c - Removes custom items to config")
-                    .append("\n&6/tradeshop getcustomitems &c - shows all custom items")
-                    .append("\n&6/tradeshop reload &c - Reloads plugin configuration files\n");
-        }
-
-	    CustomCommandHandler handler = CustomCommandHandler.getInstance();
-        Iterator<String> iter = handler.iter();
+	    Iterator<String> iter = CustomCommandHandler.getInstance().iter();
         while (iter.hasNext()) {
 	        String cmdName = iter.next();
-        	TradeCommand cmd = handler.getExecutable(cmdName);
-
-		    if (command.getSender().hasPermission(cmd.getPermission())) {
-			    sb.append("\n&6/tradeshop " + cmdName + " " + cmd.getUsage()
-					    + " &c - " + cmd.getDescription()
-					    + "&f[" + cmd.getPlugin().getName() + "]");
-		    }
+	        TradeCommand cmd = CustomCommandHandler.getInstance().getExecutable(cmdName);
+	        if (pSender.hasPermission(cmd.getPermission())) {
+		        sb.append(Message.colour(String.format("&b/%s &f &f %s\n", cmdName, cmd.getDescription())));
+	        }
         }
 
 	    sendMessage(colorize(sb.append("\n").toString()));
+    }
+
+    public void usage(String subcmd) {
+    	CustomCommandHandler handler = CustomCommandHandler.getInstance();
+	    if (handler.isAvailable(subcmd)) {
+	    	sendMessage(Message.INVALID_SUBCOMMAND.getPrefixed());
+	    	return;
+	    }
+	    else if (handler.isNativeCommand(subcmd)) {
+		    Commands cmd = Commands.getType(subcmd);
+		    sendMessage(Message.colour(String.format("&6Showing help for &c%s&r\n&b%s &e - %s", subcmd, cmd.getUsage(), cmd.getDescription())));
+		    return;
+	    }
+
+	    TradeCommand cmd = handler.getExecutable(subcmd);
+	    sendMessage(Message.colour(String.format("&6Showing help for &c%s&r\n&b%s &e - %s &f[%s]", subcmd, cmd.getUsage(), cmd.getDescription(), cmd.getPlugin().getName())));
+	    return;
     }
 
     /**

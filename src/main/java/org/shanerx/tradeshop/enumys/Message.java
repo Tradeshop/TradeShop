@@ -75,7 +75,8 @@ public enum Message {
 	CHANGE_OPEN,
 	EXISTING_SHOP,
 	SHOP_TYPE_SWITCHED,
-	WHO_MESSAGE;
+	WHO_MESSAGE,
+	INVALID_SUBCOMMAND;
 
 	@Override
 	public String toString() {
@@ -139,6 +140,7 @@ public enum Message {
 		addMessage("player-not-found", "&cThat player could not be found.");
 		addMessage("existing-shop", "&cYou may only have 1 shop per inventory block.");
 		addMessage("shop-type-switched", "&aShop type has been switched to %newtype%.");
+		addMessage("invalid-subcommand", "&cInvalid subcommand. Cannot display usage.");
 
 		save();
 	}

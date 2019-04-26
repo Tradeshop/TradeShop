@@ -34,49 +34,65 @@ import java.util.List;
 
 public enum Commands {
 
-    HELP(Lists.newArrayList("help", "?"), Permissions.HELP, 1, 2, false),
-    SETUP(Lists.newArrayList("setup", "start", "create", "make"), Permissions.HELP, 1, 1, false),
-	BUGS(Lists.newArrayList("bugs", "bug"), Permissions.NONE, 1, 1, false),
-    ADDMANAGER(Lists.newArrayList("addManager"), Permissions.NONE, 2, 2, true),
-    REMOVEMANGAER(Lists.newArrayList("removeManager", "delManager"), Permissions.NONE, 2, 2, true),
-    ADDMEMBER(Lists.newArrayList("addMember"), Permissions.NONE, 2, 2, true),
-    REMOVEMEMBER(Lists.newArrayList("removeMember", "delMember"), Permissions.NONE, 2, 2, true),
-    ADDPRODUCT(Lists.newArrayList("addProduct", "setProduct"), Permissions.NONE, 1, 3, true),
-    ADDCOST(Lists.newArrayList("addCost", "setCost"), Permissions.NONE, 1, 3, true),
-    OPEN(Lists.newArrayList("open"), Permissions.NONE, 1, 1, true),
-    CLOSE(Lists.newArrayList("close"), Permissions.NONE, 1, 1, true),
-    WHO(Lists.newArrayList("who"), Permissions.INFO, 1, 1, true),
-    WHAT(Lists.newArrayList("what", "peek", "windowShop", "shop", "view"), Permissions.INFO, 1, 1, true),
-    RELOAD(Lists.newArrayList("reload"), Permissions.ADMIN, 1, 1, false),
-    SWITCH(Lists.newArrayList("switch"), Permissions.EDIT, 1, 1, true);
+    HELP(Lists.newArrayList("help", "?"), Permissions.HELP, 1, 2, false, "Display help message", "/ts help [command]"),
+    SETUP(Lists.newArrayList("setup", "start", "create", "make"), Permissions.HELP, 1, 1, false, "Display shop setup tutorial", "/tradeshop setup"),
+	BUGS(Lists.newArrayList("bugs", "bug"), Permissions.NONE, 1, 1, false, "Report bugs to the developers", "/tradeshop bugs"),
+    ADDMANAGER(Lists.newArrayList("addManager"), Permissions.NONE, 2, 2, true, "Add manager to shop", "/tradeshop addmanager <name>"),
+    REMOVEMANGAER(Lists.newArrayList("removeManager", "delManager"), Permissions.NONE, 2, 2, true, "Remove manager from shop", "/tradeshop removemanager <name>"),
+    ADDMEMBER(Lists.newArrayList("addMember"), Permissions.NONE, 2, 2, true, "Add member to shop", "/tradeshop addmember <name>"),
+    REMOVEMEMBER(Lists.newArrayList("removeMember", "delMember"), Permissions.NONE, 2, 2, true, "Remove member from shop", "/tradeshop removemember <name>"),
+    ADDPRODUCT(Lists.newArrayList("addProduct", "setProduct"), Permissions.NONE, 1, 3, true, "Add item to shop", "/tradeshop addproduct|setproduct"),
+    ADDCOST(Lists.newArrayList("addCost", "setCost"), Permissions.NONE, 1, 3, true, "Set cost of trade", "/tradeshop addcost|setcost"),
+    OPEN(Lists.newArrayList("open"), Permissions.NONE, 1, 1, true, "Open shop", "/tradeshop open"),
+    CLOSE(Lists.newArrayList("close"), Permissions.NONE, 1, 1, true, "Close shop", "tradeshop close"),
+    WHO(Lists.newArrayList("who"), Permissions.INFO, 1, 1, true, "Shop members of shop", "tradeshop who"),
+    WHAT(Lists.newArrayList("what", "peek", "windowShop", "shop", "view"), Permissions.INFO, 1, 1, true, "Peek at shop inventory", "/tradeshop what|peek|view|shop"),
+    RELOAD(Lists.newArrayList("reload"), Permissions.ADMIN, 1, 1, false, "Reload configuration files", "/tradeshop reload"),
+    SWITCH(Lists.newArrayList("switch"), Permissions.EDIT, 1, 1, true, "Switch shop type", "tradeshop switch");
 
     /**
      * Name of the permission
      **/
     private String name;
+
     /**
      * All names that can be used to call the command
      **/
     private List<String> names;
+
     /**
      * Minimum and Maximum arguments required for the command
      **/
     private int minArgs, maxArgs;
+
     /**
      * Permission required for the command
      **/
     private Permissions perm;
+
     /**
      * Whether the command requires a player to run
      **/
     private boolean needsPlayer;
 
-    Commands(List<String> names, Permissions perm, int minArgs, int maxArgs, boolean needsPlayer) {
+    /**
+     * Description for command
+     */
+    private String description;
+
+	/**
+	 * Command usage
+	 */
+	private String usage;
+
+    Commands(List<String> names, Permissions perm, int minArgs, int maxArgs, boolean needsPlayer, String description, String usage) {
         this.names = names;
         this.perm = perm;
         this.minArgs = minArgs;
         this.maxArgs = maxArgs;
         this.needsPlayer = needsPlayer;
+        this.description = description;
+        this.usage = usage;
         name = name();
     }
 
@@ -168,4 +184,20 @@ public enum Commands {
     public boolean needsPlayer() {
         return needsPlayer;
     }
+
+	/**
+	 * Returns the description for the command
+	 * @return the description
+	 */
+	public String getDescription() {
+		return description;
+	}
+
+	/**
+	 * Returns command usage
+	 * @return usage
+	 */
+	public String getUsage() {
+		return usage;
+	}
 }
