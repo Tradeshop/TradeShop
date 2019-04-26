@@ -1,5 +1,5 @@
 /*
- *                 Copyright (c) 2016-2017
+ *                 Copyright (c) 2016-2019
  *         SparklingComet @ http://shanerx.org
  *      KillerOfPie @ http://killerofpie.github.io
  *
