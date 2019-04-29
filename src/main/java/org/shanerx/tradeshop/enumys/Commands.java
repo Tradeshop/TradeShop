@@ -1,24 +1,26 @@
 /*
- *                 Copyright (c) 2016-2019
- *         SparklingComet @ http://shanerx.org
- *      KillerOfPie @ http://killerofpie.github.io
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ *                         Copyright (c) 2016-2019
+ *                SparklingComet @ http://shanerx.org
+ *               KillerOfPie @ http://killerofpie.github.io
  *
- *              http://www.apache.org/licenses/LICENSE-2.0
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ *                http://www.apache.org/licenses/LICENSE-2.0
  *
- * NOTICE: All modifications made by others to the source code belong
- * to the respective contributor. No contributor should be held liable for
- * any damages of any kind, whether be material or moral, which were
- * caused by their contribution(s) to the project. See the full License for more information.
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ *
+ *  NOTICE: All modifications made by others to the source code belong
+ *  to the respective contributor. No contributor should be held liable for
+ *  any damages of any kind, whether be material or moral, which were
+ *  caused by their contribution(s) to the project. See the full License for more information.
+ *
  */
 
 package org.shanerx.tradeshop.enumys;
@@ -36,21 +38,21 @@ import java.util.List;
 
 public enum Commands {
 
-    HELP(Lists.newArrayList("help", "?"), Permissions.HELP, 1, 2, false, "Display help message", "/ts help [command]"),
-    SETUP(Lists.newArrayList("setup", "start", "create", "make"), Permissions.HELP, 1, 1, false, "Display shop setup tutorial", "/tradeshop setup"),
-	BUGS(Lists.newArrayList("bugs", "bug"), Permissions.NONE, 1, 1, false, "Report bugs to the developers", "/tradeshop bugs"),
-    ADDMANAGER(Lists.newArrayList("addManager"), Permissions.NONE, 2, 2, true, "Add manager to shop", "/tradeshop addmanager <name>"),
-    REMOVEMANGAER(Lists.newArrayList("removeManager", "delManager"), Permissions.NONE, 2, 2, true, "Remove manager from shop", "/tradeshop removemanager <name>"),
-    ADDMEMBER(Lists.newArrayList("addMember"), Permissions.NONE, 2, 2, true, "Add member to shop", "/tradeshop addmember <name>"),
-    REMOVEMEMBER(Lists.newArrayList("removeMember", "delMember"), Permissions.NONE, 2, 2, true, "Remove member from shop", "/tradeshop removemember <name>"),
-    ADDPRODUCT(Lists.newArrayList("addProduct", "setProduct"), Permissions.NONE, 1, 3, true, "Add item to shop", "/tradeshop addproduct|setproduct"),
-    ADDCOST(Lists.newArrayList("addCost", "setCost"), Permissions.NONE, 1, 3, true, "Set cost of trade", "/tradeshop addcost|setcost"),
-    OPEN(Lists.newArrayList("open"), Permissions.NONE, 1, 1, true, "Open shop", "/tradeshop open"),
-    CLOSE(Lists.newArrayList("close"), Permissions.NONE, 1, 1, true, "Close shop", "tradeshop close"),
-    WHO(Lists.newArrayList("who"), Permissions.INFO, 1, 1, true, "Shop members of shop", "tradeshop who"),
-    WHAT(Lists.newArrayList("what", "peek", "windowShop", "shop", "view"), Permissions.INFO, 1, 1, true, "Peek at shop inventory", "/tradeshop what|peek|view|shop"),
-    RELOAD(Lists.newArrayList("reload"), Permissions.ADMIN, 1, 1, false, "Reload configuration files", "/tradeshop reload"),
-    SWITCH(Lists.newArrayList("switch"), Permissions.EDIT, 1, 1, true, "Switch shop type", "tradeshop switch");
+    HELP(Lists.newArrayList("help", "?"), Permissions.HELP, 1, 2, false, "Display help message", "/tradeshop $cmd$ [command]"),
+    SETUP(Lists.newArrayList("setup", "start", "create", "make"), Permissions.HELP, 1, 1, false, "Display shop setup tutorial", "/tradeshop $cmd$"),
+    BUGS(Lists.newArrayList("bugs", "bug"), Permissions.NONE, 1, 1, false, "Report bugs to the developers", "/tradeshop $cmd$"),
+    ADDMANAGER(Lists.newArrayList("addManager"), Permissions.NONE, 2, 2, true, "Add manager to shop", "/tradeshop $cmd$ <name>"),
+    REMOVEMANGAER(Lists.newArrayList("removeManager", "delManager"), Permissions.NONE, 2, 2, true, "Remove manager from shop", "/tradeshop $cmd$ <name>"),
+    ADDMEMBER(Lists.newArrayList("addMember"), Permissions.NONE, 2, 2, true, "Add member to shop", "/tradeshop $cmd$ <name>"),
+    REMOVEMEMBER(Lists.newArrayList("removeMember", "delMember"), Permissions.NONE, 2, 2, true, "Remove member from shop", "/tradeshop $cmd$ <name>"),
+    ADDPRODUCT(Lists.newArrayList("addProduct", "setProduct"), Permissions.NONE, 1, 3, true, "Add product of shop shop", "/tradeshop $cmd$ [Amount] [Material]"),
+    ADDCOST(Lists.newArrayList("addCost", "setCost"), Permissions.NONE, 1, 3, true, "Set cost of trade", "/tradeshop $cmd$ [Amount] [Material]"),
+    OPEN(Lists.newArrayList("open"), Permissions.NONE, 1, 1, true, "Open shop", "/tradeshop $cmd$"),
+    CLOSE(Lists.newArrayList("close"), Permissions.NONE, 1, 1, true, "Close shop", "/tradeshop $cmd$"),
+    WHO(Lists.newArrayList("who"), Permissions.INFO, 1, 1, true, "Shop members of shop", "/tradeshop $cmd$"),
+    WHAT(Lists.newArrayList("what", "peek", "windowShop", "shop", "view"), Permissions.INFO, 1, 1, true, "Peek at shop inventory", "/tradeshop $cmd$"),
+    RELOAD(Lists.newArrayList("reload"), Permissions.ADMIN, 1, 1, false, "Reload configuration files", "/tradeshop $cmd$"),
+    SWITCH(Lists.newArrayList("switch"), Permissions.EDIT, 1, 1, true, "Switch shop type", "/tradeshop $cmd$");
 
     /**
      * Name of the permission
@@ -200,6 +202,26 @@ public enum Commands {
 	 * @return usage
 	 */
 	public String getUsage() {
-		return usage;
-	}
+        return usage.replace("$cmd$", getFirstName());
+    }
+
+    /**
+     * Returns command aliases
+     *
+     * @return usage
+     */
+    public String getAliases() {
+        int namesSize = getNames().size();
+        if (namesSize == 1)
+            return "None";
+
+        StringBuilder sb = new StringBuilder();
+        for (int i = 1; i < namesSize; i++) {
+            sb.append(getNames().get(i));
+            if (i < namesSize - 1)
+                sb.append("|");
+        }
+
+        return sb.toString();
+    }
 }
