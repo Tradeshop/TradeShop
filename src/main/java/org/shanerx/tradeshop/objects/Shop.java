@@ -26,7 +26,6 @@
 package org.shanerx.tradeshop.objects;
 
 import com.google.gson.Gson;
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
@@ -54,7 +53,7 @@ import java.util.stream.Collectors;
 public class Shop implements Serializable {
 
     private ShopUser owner;
-    private List<ShopUser> managers, members;
+	private List<UUID> managers, members;
 	private ShopType shopType;
 	private ShopLocation shopLoc, chestLoc;
 	private transient ItemStack product, cost;
@@ -70,7 +69,7 @@ public class Shop implements Serializable {
 	 * @param items     Items to go into the shop as Tuple, left = Product, right = Cost
 	 * @param players   Users to be added to the shop as Tuple, left = Managers, right = Members
 	 */
-	public Shop(Tuple<Location, Location> locations, ShopType shopType, ShopUser owner, Tuple<List<ShopUser>, List<ShopUser>> players, Tuple<ItemStack, ItemStack> items) {
+	public Shop(Tuple<Location, Location> locations, ShopType shopType, ShopUser owner, Tuple<List<UUID>, List<UUID>> players, Tuple<ItemStack, ItemStack> items) {
 		shopLoc = new ShopLocation(locations.getLeft());
 		this.owner = owner;
 		chestLoc = new ShopLocation(locations.getRight());
@@ -187,7 +186,13 @@ public class Shop implements Serializable {
 	 * @return List of managers as ShopUser
 	 */
 	public List<ShopUser> getManagers() {
-		return managers;
+		List<ShopUser> tempManagers = new ArrayList<>();
+
+		for (UUID user : managers) {
+			tempManagers.add(new ShopUser(user, ShopRole.MANAGER));
+		}
+
+		return tempManagers;
 	}
 
 	/**
@@ -195,7 +200,7 @@ public class Shop implements Serializable {
 	 *
 	 * @param managers the managers to be set to the shop
 	 */
-	public void setManagers(List<ShopUser> managers) {
+	public void setManagers(List<UUID> managers) {
 		this.managers = managers;
 	}
 
@@ -207,8 +212,8 @@ public class Shop implements Serializable {
 	public List<ShopUser> getUsers() {
 		List<ShopUser> users = new ArrayList<>();
 		users.add(owner);
-		users.addAll(managers);
-		users.addAll(members);
+		users.addAll(getManagers());
+		users.addAll(getMembers());
 		return users;
 	}
 
@@ -227,7 +232,13 @@ public class Shop implements Serializable {
 	 * @return List of members as ShopUser
 	 */
 	public List<ShopUser> getMembers() {
-		return members;
+		List<ShopUser> tempMembers = new ArrayList<>();
+
+		for (UUID user : members) {
+			tempMembers.add(new ShopUser(user, ShopRole.MEMBER));
+		}
+
+		return tempMembers;
 	}
 
 	/**
@@ -235,7 +246,7 @@ public class Shop implements Serializable {
 	 *
 	 * @param members the members to be set to the shop
 	 */
-	public void setMembers(List<ShopUser> members) {
+	public void setMembers(List<UUID> members) {
 		this.members = members;
 	}
 
@@ -245,8 +256,8 @@ public class Shop implements Serializable {
 	 * @param newManager the player to be added as a shopUser object
 	 * @return true if player has been added
 	 */
-	public boolean addManager(ShopUser newManager) {
-		if (!getUsersUUID().contains(newManager.getUUID())) {
+	public boolean addManager(UUID newManager) {
+		if (!getUsersUUID().contains(newManager)) {
 			managers.add(newManager);
 			saveShop();
 			return true;
@@ -255,17 +266,25 @@ public class Shop implements Serializable {
 	}
 
 	/**
-	 * Removes a manager from the shop
+	 * Removes a user from the shop
 	 *
-	 * @param oldManager the player to be removes as a shopUser object
-     * @return true if manager was removed
+	 * @param oldUser the UUID of the player to be removed
+	 * @return true if user was removed
 	 */
-    public boolean removeManager(ShopUser oldManager) {
-        if (managers.contains(oldManager)) {
-            managers.remove(oldManager);
+	public boolean removeUser(UUID oldUser) {
+		if (getManagersUUID().contains(oldUser)) {
+			managers.remove(oldUser);
             saveShop();
+			updateSign();
             return true;
         }
+
+		if (getMembersUUID().contains(oldUser)) {
+			members.remove(oldUser);
+			saveShop();
+			updateSign();
+			return true;
+		}
 
         return false;
 	}
@@ -276,8 +295,8 @@ public class Shop implements Serializable {
 	 * @param newMember the player to be added as a shopUser object
 	 * @return true if player has been added
 	 */
-	public boolean addMember(ShopUser newMember) {
-		if (!getUsersUUID().contains(newMember.getUUID())) {
+	public boolean addMember(UUID newMember) {
+		if (!getUsersUUID().contains(newMember)) {
 			members.add(newMember);
 			saveShop();
 			return true;
@@ -291,9 +310,7 @@ public class Shop implements Serializable {
 	 * @return List of all managers uuid
 	 */
 	public List<UUID> getManagersUUID() {
-        if (managers != null)
-            return managers.stream().map(ShopUser::getUUID).collect(Collectors.toList());
-        return Collections.emptyList();
+		return managers;
 	}
 
 	/**
@@ -302,36 +319,6 @@ public class Shop implements Serializable {
 	 * @return list of member uuid
 	 */
 	public List<UUID> getMembersUUID() {
-		return members.stream().map(ShopUser::getUUID).collect(Collectors.toList());
-	}
-
-	/**
-	 * Fills the manager list from uuid values in file
-	 *
-	 * @param uuids uuid list from file
-	 * @return list of managers as ShopUser
-	 */
-	private List<ShopUser> managersFromUUIDs(String... uuids) {
-		List<ShopUser> managers = new ArrayList<>();
-		for (String str : uuids) {
-			managers.add(new ShopUser(Bukkit.getPlayer(UUID.fromString(str)), ShopRole.MANAGER));
-		}
-
-		return managers;
-	}
-
-	/**
-	 * Fills the member list from uuid values in file
-	 *
-	 * @param uuids uuid list from file
-	 * @return list of members as ShopUser
-	 */
-	private List<ShopUser> membersFromUUIDs(String... uuids) {
-		List<ShopUser> members = new ArrayList<>();
-		for (String str : uuids) {
-			members.add(new ShopUser(Bukkit.getPlayer(UUID.fromString(str)), ShopRole.MEMBER));
-		}
-
 		return members;
 	}
 
@@ -532,22 +519,6 @@ public class Shop implements Serializable {
 		shopLoc.stringToWorld();
 		if (!shopType.isITrade())
 			chestLoc.stringToWorld();
-	}
-
-	/**
-	 * Remove a member from the shop
-	 *
-	 * @param oldMember Member to be removed
-     * @return true if member was removed
-	 */
-    public boolean removeMember(ShopUser oldMember) {
-        if (members.contains(oldMember)) {
-            members.remove(oldMember);
-            saveShop();
-            return true;
-        }
-
-        return false;
 	}
 
 	/**
@@ -793,5 +764,18 @@ public class Shop implements Serializable {
 		}
 
 		return names;
+	}
+
+	/**
+	 * Returns a list of Members' and Managers' names
+	 *
+	 * @return List of Members' and Managers' names
+	 */
+	public List<String> getUserNames() {
+		List<String> users = new ArrayList<>();
+		users.addAll(getManagersNames());
+		users.addAll(getMembersNames());
+
+		return users;
 	}
 }

@@ -1,29 +1,30 @@
 /*
- *                 Copyright (c) 2016-2019
- *         SparklingComet @ http://shanerx.org
- *      KillerOfPie @ http://killerofpie.github.io
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ *                         Copyright (c) 2016-2019
+ *                SparklingComet @ http://shanerx.org
+ *               KillerOfPie @ http://killerofpie.github.io
  *
- *              http://www.apache.org/licenses/LICENSE-2.0
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ *                http://www.apache.org/licenses/LICENSE-2.0
  *
- * NOTICE: All modifications made by others to the source code belong
- * to the respective contributor. No contributor should be held liable for
- * any damages of any kind, whether be material or moral, which were
- * caused by their contribution(s) to the project. See the full License for more information.
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ *
+ *  NOTICE: All modifications made by others to the source code belong
+ *  to the respective contributor. No contributor should be held liable for
+ *  any damages of any kind, whether be material or moral, which were
+ *  caused by their contribution(s) to the project. See the full License for more information.
+ *
  */
 
 package org.shanerx.tradeshop.commands;
 
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
@@ -129,21 +130,15 @@ public class CommandTabCompleter extends Utils {
 	}
 
 	public List<String> addManager() {
-		if (command.argsSize() == 1) {
-			List<String> names = new ArrayList<>();
-
-			for (Player p : Bukkit.getOnlinePlayers()) {
-				names.add(p.getName());
-			}
-
-			return names;
+		if (command.argsSize() == 2) {
+			return null;
 		}
 
 		return Collections.EMPTY_LIST;
 	}
 
-	public List<String> removeManager() {
-		if (command.argsSize() == 1) {
+	public List<String> removeUser() {
+		if (command.argsSize() == 2) {
 			Block b = pSender.getTargetBlock(null, Setting.MAX_EDIT_DISTANCE.getInt());
 			Sign s;
 
@@ -156,41 +151,15 @@ public class CommandTabCompleter extends Utils {
 			}
 			Shop shop = Shop.loadShop(s);
 
-			return shop.getManagersNames();
+			return shop.getUserNames();
 		}
 
 		return Collections.EMPTY_LIST;
 	}
 
 	public List<String> addMember() {
-		if (command.argsSize() == 1) {
-			List<String> names = new ArrayList<>();
-
-			for (Player p : Bukkit.getOnlinePlayers()) {
-				names.add(p.getName());
-			}
-
-			return names;
-		}
-
-		return Collections.EMPTY_LIST;
-	}
-
-	public List<String> removeMember() {
-		if (command.argsSize() == 1) {
-			Block b = pSender.getTargetBlock(null, Setting.MAX_EDIT_DISTANCE.getInt());
-			Sign s;
-
-			if (plugin.getListManager().isInventory(b.getType())) {
-				s = findShopSign(b);
-			} else if (ShopType.isShop(b)) {
-				s = (Sign) b.getState();
-			} else {
-				return Collections.EMPTY_LIST;
-			}
-			Shop shop = Shop.loadShop(s);
-
-			return shop.getMembersNames();
+		if (command.argsSize() == 2) {
+			return null;
 		}
 
 		return Collections.EMPTY_LIST;

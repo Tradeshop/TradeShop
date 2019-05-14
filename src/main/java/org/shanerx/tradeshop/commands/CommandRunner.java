@@ -39,7 +39,6 @@ import org.shanerx.tradeshop.TradeShop;
 import org.shanerx.tradeshop.enumys.Commands;
 import org.shanerx.tradeshop.enumys.Message;
 import org.shanerx.tradeshop.enumys.Setting;
-import org.shanerx.tradeshop.enumys.ShopRole;
 import org.shanerx.tradeshop.enumys.ShopType;
 import org.shanerx.tradeshop.framework.CustomCommandHandler;
 import org.shanerx.tradeshop.framework.TradeCommand;
@@ -476,20 +475,20 @@ public class CommandRunner extends Utils {
 			return;
 		}
 
-		shop.addManager(new ShopUser(target, ShopRole.MANAGER));
-		if (!shop.getMembersUUID().contains(target.getUniqueId())) {
-			shop.removeMember(new ShopUser(target, ShopRole.MEMBER));
+		if (shop.getUsersUUID().contains(target.getUniqueId())) {
+			sendMessage(Message.UNSUCCESSFUL_SHOP_MEMBERS.getPrefixed());
+			return;
 		}
 
-		shop.saveShop();
-		shop.updateSign();
+		shop.addManager(target.getUniqueId());
+
 		sendMessage(Message.UPDATED_SHOP_MEMBERS.getPrefixed());
 	}
 
 	/**
 	 * Removes the specified player from the shop if they currently are a manager
 	 */
-	public void removeManager() {
+	public void removeUser() {
 		Shop shop = findShop();
 
 		if(shop == null)
@@ -506,14 +505,11 @@ public class CommandRunner extends Utils {
 			return;
 		}
 
-		boolean removed = shop.removeManager(new ShopUser(target, ShopRole.MANAGER));
-		if (!removed) {
+		if (!shop.removeUser(target.getUniqueId())) {
 			sendMessage(Message.UNSUCCESSFUL_SHOP_MEMBERS.getPrefixed());
 			return;
 		}
 
-		shop.saveShop();
-		shop.updateSign();
 		sendMessage(Message.UPDATED_SHOP_MEMBERS.getPrefixed());
 	}
 
@@ -537,44 +533,14 @@ public class CommandRunner extends Utils {
 			return;
 		}
 
-		if (!shop.getManagersUUID().contains(target.getUniqueId())) {
-			shop.addMember(new ShopUser(target, ShopRole.MEMBER));
-		}
 
-		shop.saveShop();
-		shop.updateSign();
-		sendMessage(Message.UPDATED_SHOP_MEMBERS.getPrefixed());
-	}
-
-	/**
-	 * Removes the specified player from the shop if they are a member
-	 */
-	public void removeMember() {
-		Shop shop = findShop();
-
-		if(shop == null)
-			return;
-
-		if (!shop.getOwner().getUUID().equals(pSender.getUniqueId()) || !shop.getManagersUUID().contains(pSender.getUniqueId())) {
-			sendMessage(Message.NO_SHOP_PERMISSION.getPrefixed());
-			return;
-		}
-
-		OfflinePlayer target = Bukkit.getOfflinePlayer(command.getArgAt(1));
-		if (!target.hasPlayedBefore()) {
-			sendMessage(Message.PLAYER_NOT_FOUND.getPrefixed());
-			return;
-		}
-
-		boolean removed = shop.removeMember(new ShopUser(target, ShopRole.MEMBER));
-		if (!removed) {
+		if (shop.getUsersUUID().contains(target.getUniqueId())) {
 			sendMessage(Message.UNSUCCESSFUL_SHOP_MEMBERS.getPrefixed());
 			return;
 		}
 
+		shop.addMember(target.getUniqueId());
 
-		shop.saveShop();
-		shop.updateSign();
 		sendMessage(Message.UPDATED_SHOP_MEMBERS.getPrefixed());
 	}
 

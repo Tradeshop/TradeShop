@@ -92,12 +92,10 @@ public class CommandTabCaller implements TabCompleter {
 					return tabCompleter.who();
 				case ADDMANAGER:
 					return tabCompleter.addManager();
-				case REMOVEMANGAER:
-					return tabCompleter.removeManager();
+				case REMOVEUSER:
+					return tabCompleter.removeUser();
 				case ADDMEMBER:
 					return tabCompleter.addMember();
-				case REMOVEMEMBER:
-					return tabCompleter.removeMember();
 				default:
 					return Collections.EMPTY_LIST;
 			}
