@@ -118,14 +118,28 @@ public enum Commands {
         return null;
     }
 
-    /**
-     * Returns list of all usable names for the command
-     *
-     * @return List<String> containing names
-     */
-    public List<String> getNames() {
-        return names;
-    }
+	/**
+	 * Returns list of all usable names for the command
+	 *
+	 * @return List<String> containing names
+	 */
+	public List<String> getNames() {
+		return names;
+	}
+
+	/**
+	 * Returns true if the sent string is contained within a command or its aliases
+	 *
+	 * @return true if the sent string is contained within a command or its aliases
+	 */
+	public boolean isPartialName(String cmd) {
+		for (String name : getNames()) {
+			if (name.toLowerCase().contains(cmd.toLowerCase()))
+				return true;
+		}
+
+		return false;
+	}
 
 
 	/**

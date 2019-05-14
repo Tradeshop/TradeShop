@@ -206,8 +206,6 @@ public class CommandRunner extends Utils {
 		}
 
 		shop.setProduct(itemInHand);
-		shop.saveShop();
-		shop.updateSign();
 
 		sendMessage(Message.ITEM_ADDED.getPrefixed());
 	}
@@ -269,8 +267,6 @@ public class CommandRunner extends Utils {
 		}
 
 		shop.setCost(itemInHand);
-		shop.saveShop();
-		shop.updateSign();
 
 		sendMessage(Message.ITEM_ADDED.getPrefixed());
 	}

@@ -397,6 +397,8 @@ public class Shop implements Serializable {
 	public void setCost(ItemStack newItem) {
 		cost = newItem;
 		costB64 = ItemSerializer.itemStackArrayToBase64(cost);
+		saveShop();
+		updateSign();
 	}
 
 	/**
@@ -461,6 +463,8 @@ public class Shop implements Serializable {
 	public void setProduct(ItemStack newItem) {
 		product = newItem;
 		productB64 = ItemSerializer.itemStackArrayToBase64(product);
+		saveShop();
+		updateSign();
 	}
 
 	/**
