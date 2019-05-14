@@ -178,7 +178,7 @@ public class CommandRunner extends Utils {
 			mat = Material.getMaterial(command.getArgAt(2).toUpperCase());
 		}
 
-		if (!shop.getOwner().getUUID().equals(pSender.getUniqueId()) || !shop.getManagersUUID().contains(pSender.getUniqueId())) {
+		if (!(shop.getOwner().getUUID().equals(pSender.getUniqueId()) || shop.getManagersUUID().contains(pSender.getUniqueId()))) {
 			sendMessage(Message.NO_SHOP_PERMISSION.getPrefixed());
 			return;
 		}
@@ -186,7 +186,7 @@ public class CommandRunner extends Utils {
 		ItemStack itemInHand;
 
 		if (mat == null) {
-			itemInHand = pSender.getInventory().getItemInMainHand();
+			itemInHand = pSender.getInventory().getItemInMainHand().clone();
 		} else {
 			itemInHand = new ItemStack(mat, 1);
 		}
@@ -249,7 +249,7 @@ public class CommandRunner extends Utils {
 		ItemStack itemInHand;
 
 		if (mat == null) {
-			itemInHand = pSender.getInventory().getItemInMainHand();
+			itemInHand = pSender.getInventory().getItemInMainHand().clone();
 		} else {
 			itemInHand = new ItemStack(mat, 1);
 		}
