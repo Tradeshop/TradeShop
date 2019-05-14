@@ -36,7 +36,11 @@ import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.shanerx.tradeshop.TradeShop;
-import org.shanerx.tradeshop.enumys.*;
+import org.shanerx.tradeshop.enumys.Commands;
+import org.shanerx.tradeshop.enumys.Message;
+import org.shanerx.tradeshop.enumys.Setting;
+import org.shanerx.tradeshop.enumys.ShopRole;
+import org.shanerx.tradeshop.enumys.ShopType;
 import org.shanerx.tradeshop.framework.CustomCommandHandler;
 import org.shanerx.tradeshop.framework.TradeCommand;
 import org.shanerx.tradeshop.objects.Shop;
@@ -510,6 +514,8 @@ public class CommandRunner extends Utils {
 
         try {
             b = pSender.getTargetBlock(null, Setting.MAX_EDIT_DISTANCE.getInt());
+			debug("Max_Edit_Distance: " + Setting.MAX_EDIT_DISTANCE.getInt());
+			debug("getTargetBlock Type: : " + b.getType());
 
             if (b.getType() == Material.AIR)
                 throw new NoSuchFieldException();
