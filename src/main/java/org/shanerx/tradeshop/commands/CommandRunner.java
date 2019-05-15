@@ -132,7 +132,7 @@ public class CommandRunner extends Utils {
 	 * Sends the sender the bug message
 	 */
 	public void bugs() {
-		sendMessage("\n&2To report any bugs to the author, either send a PM on &cSpigot &2- &egoo.gl/s6Jk23 &2or open an issue on &cGitHub &2-&e goo.gl/X4qqyg\n");
+		sendMessage("\n&a[&eTradeShop&a] \n&2To report any bugs to the author, either send a PM on &cSpigot &2- &egoo.gl/s6Jk23 &2or open an issue on &cGitHub &2-&e goo.gl/X4qqyg\n");
 	}
 
 	/**

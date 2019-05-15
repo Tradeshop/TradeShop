@@ -1,24 +1,26 @@
 /*
- *                 Copyright (c) 2016-2019
- *         SparklingComet @ http://shanerx.org
- *      KillerOfPie @ http://killerofpie.github.io
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ *                         Copyright (c) 2016-2019
+ *                SparklingComet @ http://shanerx.org
+ *               KillerOfPie @ http://killerofpie.github.io
  *
- *              http://www.apache.org/licenses/LICENSE-2.0
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ *                http://www.apache.org/licenses/LICENSE-2.0
  *
- * NOTICE: All modifications made by others to the source code belong
- * to the respective contributor. No contributor should be held liable for
- * any damages of any kind, whether be material or moral, which were
- * caused by their contribution(s) to the project. See the full License for more information.
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ *
+ *  NOTICE: All modifications made by others to the source code belong
+ *  to the respective contributor. No contributor should be held liable for
+ *  any damages of any kind, whether be material or moral, which were
+ *  caused by their contribution(s) to the project. See the full License for more information.
+ *
  */
 
 package org.shanerx.tradeshop.enumys;
@@ -99,10 +101,13 @@ public enum Message {
 		addMessage("no-command-permission", "&aYou do not have permission to execute this command");
 		addMessage("setup-help", "\n&2Setting up a TradeShop is easy! Just make sure to follow these steps:"
 				+ "\n \nStep 1: &ePlace down a chest."
-				+ "\n&2Step 2: &ePlace a sign on top of the chest."
+				+ "\n&2Step 2: &ePlace a sign on top of or around the chest."
 				+ "\n&2Step 3: &eWrite the following on the sign"
-				+ "\n&6[%header%]\n<amount> <item_you_sell>\n<amount> <item_you_buy>\n&6&oEmpty line"
-				+ "\n&2Step 4: &eIf you are unsure what the item is, use &6/tradeshop item");
+				+ "\n&6[%header%]"
+				+ "\n&6&o-- Leave Blank --"
+				+ "\n&6&o-- Leave Blank --"
+				+ "\n&6&o-- Leave Blank --"
+				+ "\n&2Step 4: &eUse the addCost and addProduct commands to add items to your shop");
 		addMessage("no-ts-create-permission", "&cYou don't have permission to create TradeShops!");
 		addMessage("no-chest", "&cYou need to put a chest under the sign!");
 		addMessage("invalid-sign", "&cInvalid sign format!");
