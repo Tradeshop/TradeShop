@@ -93,8 +93,8 @@ public class CommandRunner extends Utils {
 				.append("\n\n&b/tradeshop &f &f Display help message\n");
 
 		for (Commands c : Commands.values()) {
-			if (pSender.hasPermission(c.getPerm().getPerm())) {
-				sb.append(Message.colour(String.format("&b/%s &f &f %s\n", c.getFirstName(), c.getDescription())));
+			if (c.checkPerm(pSender)) {
+				sb.append(Message.colour(String.format("&b/ts %s  &f %s\n", c.getFirstName(), c.getDescription())));
 			}
 		}
 
@@ -103,26 +103,28 @@ public class CommandRunner extends Utils {
 			String cmdName = iter.next();
 			TradeCommand cmd = CustomCommandHandler.getInstance().getExecutable(cmdName);
 			if (pSender.hasPermission(cmd.getPermission())) {
-				sb.append(Message.colour(String.format("&b/%s &f &f %s\n", cmdName, cmd.getDescription())));
+				sb.append(Message.colour(String.format("&b/%s  &f %s\n", cmdName, cmd.getDescription())));
 			}
 		}
 
-		sendMessage(colorize(sb.append("\n").toString()));
+		sb.append("\n ");
+		sendMessage(colorize(sb.toString()));
 	}
 
 	public void usage(String subcmd) {
 		CustomCommandHandler handler = CustomCommandHandler.getInstance();
+
 		if (handler.isAvailable(subcmd)) {
 			sendMessage(Message.INVALID_SUBCOMMAND.getPrefixed());
 			return;
 		} else if (handler.isNativeCommand(subcmd)) {
 			Commands cmd = Commands.getType(subcmd);
-			sendMessage(Message.colour(String.format("&6Showing help for &c%s&r\n&bUsage: %s \n&bAliases: %s\n&bDescription:&e %s", subcmd, cmd.getUsage(), cmd.getAliases(), cmd.getDescription())));
+			sendMessage(Message.colour(String.format("&6Showing help for &c%s&r\n&bUsage:&e %s \n&bAliases: %s\n&bDescription:&e %s", subcmd, cmd.getUsage(), cmd.getAliases(), cmd.getDescription())));
 			return;
 		}
 
 		TradeCommand cmd = handler.getExecutable(subcmd);
-		sendMessage(Message.colour(String.format("&6Showing help for &c%s&r\n&bUsage: %s \n&bAliases: %s\n&bDescription:&e %s\n &f[%s]", subcmd, cmd.getUsage(), cmd.getAliases(), cmd.getDescription(), cmd.getPlugin().getName())));
+		sendMessage(Message.colour(String.format("&6Showing help for &c%s&r\n&bUsage:&e %s \n&bAliases: %s\n&bDescription:&e %s\n &f[%s]", subcmd, cmd.getUsage(), cmd.getAliases(), cmd.getDescription(), cmd.getPlugin().getName())));
 		return;
 	}
 

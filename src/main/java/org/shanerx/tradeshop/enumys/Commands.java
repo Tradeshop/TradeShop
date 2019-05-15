@@ -26,6 +26,7 @@
 package org.shanerx.tradeshop.enumys;
 
 import com.google.common.collect.Lists;
+import org.bukkit.entity.Player;
 
 import java.util.List;
 
@@ -226,15 +227,26 @@ public enum Commands {
     public String getAliases() {
         int namesSize = getNames().size();
         if (namesSize == 1)
-            return "None";
+			return "&eNone";
 
         StringBuilder sb = new StringBuilder();
         for (int i = 1; i < namesSize; i++) {
+			sb.append("&e");
             sb.append(getNames().get(i));
             if (i < namesSize - 1)
-                sb.append("|");
+				sb.append("&b | ");
         }
 
         return sb.toString();
     }
+
+	/**
+	 * Checks if the player has permission for the command
+	 *
+	 * @param player player to check perm for
+	 * @return true is player has perm
+	 */
+	public boolean checkPerm(Player player) {
+		return getPerm() == Permissions.NONE || player.hasPermission(getPerm().getPerm());
+	}
 }

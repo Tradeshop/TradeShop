@@ -58,9 +58,10 @@ public class CommandTabCompleter extends Utils {
 
 	public List<String> help() {
 		if (command.argsSize() == 2) {
-			List<String> subCmds = Arrays.asList(new String[Commands.values().length]);
-			for (int i = 0; i < Commands.values().length; i++) {
-				subCmds.set(i, Commands.values()[i].getFirstName());
+			List<String> subCmds = new ArrayList<>();
+			for (Commands cmds : Commands.values()) {
+				if (cmds.isPartialName(command.getArgAt(1)))
+					subCmds.add(cmds.getFirstName());
 			}
 
 			return subCmds;
