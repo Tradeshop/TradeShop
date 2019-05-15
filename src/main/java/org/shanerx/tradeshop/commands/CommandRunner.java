@@ -146,7 +146,9 @@ public class CommandRunner extends Utils {
 	 * Reloads the plugin and sends success message
 	 */
 	public void reload() {
-		plugin.reloadConfig();
+		plugin.getListManager().reload();
+		Message.reload();
+		Setting.reload();
 		sendMessage(getPrefix() + "&6The configuration files have been reloaded!");
 	}
 
