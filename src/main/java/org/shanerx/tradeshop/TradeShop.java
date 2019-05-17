@@ -40,12 +40,6 @@ import org.shanerx.tradeshop.utils.Updater;
 
 public class TradeShop extends JavaPlugin {
 
-	/**
-	 * TODO change DEV tag in pom.xml
-	 * TODO change DEV tag in plugin.yml
-	 * TODO change DEV tag in README.md
-	 */
-
 	private ListManager lists;
 	private BukkitVersion version;
 	private ShopSign signs;
