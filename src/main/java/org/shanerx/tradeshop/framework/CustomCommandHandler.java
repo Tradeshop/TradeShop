@@ -66,7 +66,10 @@ public class CustomCommandHandler {
 	}
 
 	public void registerCommand(TradeCommand subCmd) {
-		if (!isAvailable(subCmd.getCmd())) {
+		if (!plugin.getAddonManager().isRegistered(subCmd.getPlugin())) {
+			throw new IllegalStateException("Error: Access forbidden: unhooked addon attempting to register commands!");
+		}
+		else if (!isAvailable(subCmd.getCmd())) {
 			throw new IllegalArgumentException("Error: A subcommand with this name already exists!");
 		}
 

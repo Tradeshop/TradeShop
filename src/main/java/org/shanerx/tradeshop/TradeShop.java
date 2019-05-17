@@ -33,10 +33,7 @@ import org.shanerx.tradeshop.enumys.Setting;
 import org.shanerx.tradeshop.enumys.ShopSign;
 import org.shanerx.tradeshop.framework.AddonManager;
 import org.shanerx.tradeshop.framework.CustomCommandHandler;
-import org.shanerx.tradeshop.listeners.AdminEventListener;
-import org.shanerx.tradeshop.listeners.CustomInventoryListener;
-import org.shanerx.tradeshop.listeners.ShopCreateListener;
-import org.shanerx.tradeshop.listeners.ShopTradeListener;
+import org.shanerx.tradeshop.listeners.*;
 import org.shanerx.tradeshop.objects.ListManager;
 import org.shanerx.tradeshop.utils.BukkitVersion;
 import org.shanerx.tradeshop.utils.Updater;
@@ -98,6 +95,7 @@ public class TradeShop extends JavaPlugin {
 		pm.registerEvents(new ShopCreateListener(), this);
 		pm.registerEvents(new ShopTradeListener(), this);
 		pm.registerEvents(new CustomInventoryListener(), this);
+		pm.registerEvents(new AddonListener(this), this);
 
         getCommand("tradeshop").setExecutor(new CommandCaller(this));
 		getCommand("tradeshop").setTabCompleter(new CommandTabCaller(this));
