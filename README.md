@@ -17,5 +17,3 @@ Please post reviews on the [SpigotMC resource page](https://www.spigotmc.org/res
 
 # Commands & Permissions
 A full list of commands can be found [here](https://github.com/ShanerX/TradeShop/wiki/Commands), and Permissions list can be found [here](https://github.com/ShanerX/TradeShop/wiki/Permissions).
-
-#### The current version is marked as DEV as significant changes/fixes were introduced. This means that it is very likely that there will be bugs.
