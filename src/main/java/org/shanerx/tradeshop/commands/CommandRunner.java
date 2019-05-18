@@ -564,7 +564,7 @@ public class CommandRunner extends Utils {
 				return Shop.loadShop((Sign) b.getState());
 
 			} else if (plugin.getListManager().isInventory(b.getType()) &&
-					((InventoryHolder) b.getState()).getInventory().getName().contains("$ ^Sign:l_")) {
+                    ((InventoryHolder) b.getBlockData()).getInventory().getType().getDefaultTitle().contains("$ ^Sign:l_")) {
 
 				ShopChest shopChest = new ShopChest(b.getLocation());
 				return Shop.loadShop(shopChest.getShopSign());
