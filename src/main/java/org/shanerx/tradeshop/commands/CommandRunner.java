@@ -29,6 +29,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.block.Block;
+import org.bukkit.block.Container;
 import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
@@ -564,7 +565,7 @@ public class CommandRunner extends Utils {
 				return Shop.loadShop((Sign) b.getState());
 
 			} else if (plugin.getListManager().isInventory(b.getType()) &&
-					((InventoryHolder) b.getState()).getInventory().getName().contains("$ ^Sign:l_")) {
+					((Container) b.getState()).getCustomName().contains("$ ^Sign:l_")) {
 
 				ShopChest shopChest = new ShopChest(b.getLocation());
 				return Shop.loadShop(shopChest.getShopSign());

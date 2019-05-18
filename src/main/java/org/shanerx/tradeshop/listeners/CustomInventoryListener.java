@@ -37,7 +37,7 @@ public class CustomInventoryListener extends Utils implements Listener {
 
 		Inventory inventory = event.getInventory();
 
-		if (ChatColor.stripColor(inventory.getName()).endsWith("Shop                                 ")) {
+		if (ChatColor.stripColor(event.getView().getTitle()).endsWith("Shop                                 ")) {
 			event.setCancelled(true);
 		}
 	}
