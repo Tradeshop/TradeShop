@@ -1,7 +1,7 @@
 name: TradeShop
 version: 2.0.1
 main: org.shanerx.tradeshop.TradeShop
-api-version: 1.14
+api-version: 1.13
 load: POSTWORLD
 
 authors: [Lori00, KillerOfPie]
