@@ -70,6 +70,10 @@ public class TradeShop extends JavaPlugin {
 		return addonManager;
 	}
 
+	public Updater getUpdater() {
+		return new Updater(getDescription());
+	}
+
 	@Override
 	public void onEnable() {
 		version = new BukkitVersion();

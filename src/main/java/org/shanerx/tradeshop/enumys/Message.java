@@ -78,7 +78,10 @@ public enum Message {
 	EXISTING_SHOP,
 	SHOP_TYPE_SWITCHED,
 	WHO_MESSAGE,
-	INVALID_SUBCOMMAND;
+	INVALID_SUBCOMMAND,
+	PLUGIN_BEHIND,
+	MULTI_UPDATE,
+	MULTI_AMOUNT;
 
 	@Override
 	public String toString() {
@@ -146,6 +149,9 @@ public enum Message {
 		addMessage("existing-shop", "&cYou may only have 1 shop per inventory block.");
 		addMessage("shop-type-switched", "&aShop type has been switched to %newtype%.");
 		addMessage("invalid-subcommand", "&cInvalid subcommand. Cannot display usage.");
+		addMessage("plugin-behind", "&cThe server is running an old version of TradeShop, please update the plugin.");
+		addMessage("multi-update", "&aTrade multiplier has been updated to %amount%.");
+		addMessage("multi-amount", "&aYour trade multiplier is %amount%.");
 
 		save();
 	}

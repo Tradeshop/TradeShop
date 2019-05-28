@@ -1,24 +1,26 @@
 /*
- *                 Copyright (c) 2016-2019
- *         SparklingComet @ http://shanerx.org
- *      KillerOfPie @ http://killerofpie.github.io
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ *                         Copyright (c) 2016-2019
+ *                SparklingComet @ http://shanerx.org
+ *               KillerOfPie @ http://killerofpie.github.io
  *
- *              http://www.apache.org/licenses/LICENSE-2.0
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ *                http://www.apache.org/licenses/LICENSE-2.0
  *
- * NOTICE: All modifications made by others to the source code belong
- * to the respective contributor. No contributor should be held liable for
- * any damages of any kind, whether be material or moral, which were
- * caused by their contribution(s) to the project. See the full License for more information.
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ *
+ *  NOTICE: All modifications made by others to the source code belong
+ *  to the respective contributor. No contributor should be held liable for
+ *  any damages of any kind, whether be material or moral, which were
+ *  caused by their contribution(s) to the project. See the full License for more information.
+ *
  */
 
 package org.shanerx.tradeshop.listeners;
@@ -42,6 +44,8 @@ import org.shanerx.tradeshop.objects.Shop;
 import org.shanerx.tradeshop.objects.ShopLocation;
 import org.shanerx.tradeshop.utils.JsonConfiguration;
 import org.shanerx.tradeshop.utils.Utils;
+
+import java.util.Map;
 
 @SuppressWarnings("unused")
 public class ShopTradeListener extends Utils implements Listener {
@@ -98,12 +102,11 @@ public class ShopTradeListener extends Utils implements Listener {
 			e.setCancelled(true);
 
 			if (buyer.isSneaking()) {
-				if (!buyer.isOnGround() && Setting.ALLOW_QUAD_TRADE.getBoolean()) {
-					amountProd *= 4;
-					amountCost *= 4;
-				} else if (Setting.ALLOW_DOUBLE_TRADE.getBoolean()) {
-					amountProd *= 2;
-					amountCost *= 2;
+				if (Setting.ALLOW_MULTI_TRADE.getBoolean()) {
+					JsonConfiguration pJson = new JsonConfiguration(buyer.getUniqueId());
+					Map<String, Integer> data = pJson.loadPlayer();
+					amountProd *= data.get("multi");
+					amountCost *= data.get("multi");
 				}
 			}
 
@@ -123,7 +126,7 @@ public class ShopTradeListener extends Utils implements Listener {
 				costName = cost.getItemMeta().getDisplayName();
 			else costName = cost.getType().toString();
 
-			if (!containsAtLeast(playerInventory, cost)) {
+			if (!containsAtLeast(playerInventory, cost, amountCost)) {
 				buyer.sendMessage(Message.INSUFFICIENT_ITEMS.getPrefixed()
 						.replace("{ITEM}", costName.toLowerCase()).replace("{AMOUNT}", String.valueOf(amountCost)));
 				return;
@@ -136,7 +139,7 @@ public class ShopTradeListener extends Utils implements Listener {
 			}
 
 			if (chestInventory != null) {
-				if (!containsAtLeast(chestInventory, product)) {
+				if (!containsAtLeast(chestInventory, product, amountProd)) {
 					buyer.sendMessage(Message.SHOP_EMPTY.getPrefixed()
 							.replace("{ITEM}", productName.toLowerCase())
 							.replace("{AMOUNT}", String.valueOf(amountProd)));
@@ -288,12 +291,11 @@ public class ShopTradeListener extends Utils implements Listener {
 			int amountCost = shop.getCost().getAmount();
 
 			if (buyer.isSneaking()) {
-				if (!buyer.isOnGround() && Setting.ALLOW_QUAD_TRADE.getBoolean()) {
-					amountProd *= 4;
-					amountCost *= 4;
-				} else if (Setting.ALLOW_DOUBLE_TRADE.getBoolean()) {
-					amountProd *= 2;
-					amountCost *= 2;
+				if (Setting.ALLOW_MULTI_TRADE.getBoolean()) {
+					JsonConfiguration pJson = new JsonConfiguration(buyer.getUniqueId());
+					Map<String, Integer> data = pJson.loadPlayer();
+					amountProd *= data.get("multi");
+					amountCost *= data.get("multi");
 				}
 			}
 
@@ -320,13 +322,13 @@ public class ShopTradeListener extends Utils implements Listener {
                 costName = cost.getType().toString();
 			}
 
-			if (!containsAtLeast(playerInventory, product)) {
+			if (!containsAtLeast(playerInventory, product, amountProd)) {
 				buyer.sendMessage(Message.INSUFFICIENT_ITEMS.getPrefixed()
 						.replace("{ITEM}", productName.toLowerCase()).replace("{AMOUNT}", String.valueOf(amountProd)));
 				return;
 			}
 
-			if (!containsAtLeast(chestInventory, cost)) {
+			if (!containsAtLeast(chestInventory, cost, amountCost)) {
 				buyer.sendMessage(Message.SHOP_EMPTY.getPrefixed()
 						.replace("{ITEM}", costName.toLowerCase()).replace("{AMOUNT}", String.valueOf(amountCost)));
 				return;

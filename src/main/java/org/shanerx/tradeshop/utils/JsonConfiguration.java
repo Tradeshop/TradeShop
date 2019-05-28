@@ -1,24 +1,26 @@
 /*
- *                 Copyright (c) 2016-2019
- *         SparklingComet @ http://shanerx.org
- *      KillerOfPie @ http://killerofpie.github.io
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ *                         Copyright (c) 2016-2019
+ *                SparklingComet @ http://shanerx.org
+ *               KillerOfPie @ http://killerofpie.github.io
  *
- *              http://www.apache.org/licenses/LICENSE-2.0
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ *                http://www.apache.org/licenses/LICENSE-2.0
  *
- * NOTICE: All modifications made by others to the source code belong
- * to the respective contributor. No contributor should be held liable for
- * any damages of any kind, whether be material or moral, which were
- * caused by their contribution(s) to the project. See the full License for more information.
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ *
+ *  NOTICE: All modifications made by others to the source code belong
+ *  to the respective contributor. No contributor should be held liable for
+ *  any damages of any kind, whether be material or moral, which were
+ *  caused by their contribution(s) to the project. See the full License for more information.
+ *
  */
 
 package org.shanerx.tradeshop.utils;
@@ -28,6 +30,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.google.gson.reflect.TypeToken;
 import org.bukkit.Chunk;
 import org.shanerx.tradeshop.objects.Shop;
 import org.shanerx.tradeshop.objects.ShopChunk;
@@ -38,23 +41,43 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 
-@SuppressWarnings("unused")
 public class JsonConfiguration extends Utils implements Serializable {
 	private String pluginFolder;
 	private String path;
 	private File file;
 	private File filePath;
-	private ShopChunk chunk;
-	private String div = "_";
 	private JsonObject jsonObj;
-	private Gson gson = new GsonBuilder().setPrettyPrinting().serializeNulls().create();
+	private int configType = -1;
+	private Gson gson = new GsonBuilder().enableComplexMapKeySerialization().setPrettyPrinting().serializeNulls().create();
 
 	public JsonConfiguration(Chunk c) {
-		this.chunk = new ShopChunk(c);
+		configType = 0;
+		ShopChunk chunk = new ShopChunk(c);
 		this.pluginFolder = this.plugin.getDataFolder().getAbsolutePath();
 		this.path = this.pluginFolder + File.separator + "Data" + File.separator + chunk.getWorld().getName();
 		this.file = new File(path + File.separator + chunk.serialize() + ".json");
+		this.filePath = new File(path);
+		this.filePath.mkdirs();
+		if (!this.file.exists()) {
+			try {
+				this.file.createNewFile();
+			} catch (Exception exception) {
+				throw new RuntimeException(exception);
+			}
+		}
+
+		loadContents();
+	}
+
+	public JsonConfiguration(UUID uuid) {
+		configType = 1;
+		this.pluginFolder = this.plugin.getDataFolder().getAbsolutePath();
+		this.path = this.pluginFolder + File.separator + "Data" + File.separator + "Players";
+		this.file = new File(path + File.separator + uuid.toString() + ".json");
 		this.filePath = new File(path);
 		this.filePath.mkdirs();
 		if (!this.file.exists()) {
@@ -91,7 +114,44 @@ public class JsonConfiguration extends Utils implements Serializable {
 		loadContents();
 	}
 
+	public void savePlayer(Map<String, Integer> data) {
+		if (configType != 1)
+			return;
+
+		JsonElement obj = gson.toJsonTree(data);
+		jsonObj.add("data", obj);
+
+		saveContents(gson.toJson(jsonObj));
+	}
+
+	public void removePlayer() {
+		if (configType != 1)
+			return;
+
+		file.delete();
+	}
+
+	public Map<String, Integer> loadPlayer() {
+		if (configType != 1)
+			return null;
+
+		Gson gson = new Gson();
+		Map<String, Integer> data;
+
+		if (jsonObj.has("data")) {
+			data = gson.fromJson(jsonObj.get("data"), new TypeToken<Map<String, Integer>>() {
+			}.getType());
+		} else {
+			data = new HashMap<>();
+		}
+
+		return data;
+	}
+
 	public void saveShop(Shop shop) {
+		if (configType != 0)
+			return;
+
 		String sl = shop.getShopLocationAsSL().serialize();
 		JsonElement obj = gson.toJsonTree(shop);
 		jsonObj.add(sl, obj);
@@ -100,6 +160,9 @@ public class JsonConfiguration extends Utils implements Serializable {
 	}
 
 	public void removeShop(ShopLocation loc) {
+		if (configType != 0)
+			return;
+
 		if (jsonObj.has(loc.serialize())) {
 			jsonObj.remove(loc.serialize());
 		}
@@ -108,6 +171,9 @@ public class JsonConfiguration extends Utils implements Serializable {
 	}
 
 	public Shop loadShop(ShopLocation loc) {
+		if (configType != 0)
+			return null;
+
 		Gson gson = new Gson();
 		Shop shop;
 

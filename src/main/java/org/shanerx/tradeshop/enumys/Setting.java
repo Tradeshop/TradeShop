@@ -1,24 +1,26 @@
 /*
- *                 Copyright (c) 2016-2019
- *         SparklingComet @ http://shanerx.org
- *      KillerOfPie @ http://killerofpie.github.io
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ *                         Copyright (c) 2016-2019
+ *                SparklingComet @ http://shanerx.org
+ *               KillerOfPie @ http://killerofpie.github.io
  *
- *              http://www.apache.org/licenses/LICENSE-2.0
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ *                http://www.apache.org/licenses/LICENSE-2.0
  *
- * NOTICE: All modifications made by others to the source code belong
- * to the respective contributor. No contributor should be held liable for
- * any damages of any kind, whether be material or moral, which were
- * caused by their contribution(s) to the project. See the full License for more information.
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ *
+ *  NOTICE: All modifications made by others to the source code belong
+ *  to the respective contributor. No contributor should be held liable for
+ *  any damages of any kind, whether be material or moral, which were
+ *  caused by their contribution(s) to the project. See the full License for more information.
+ *
  */
 
 package org.shanerx.tradeshop.enumys;
@@ -40,8 +42,7 @@ public enum Setting {
 	ALLOWED_SHOPS("allowed-shops"),
 	ALLOWED_DIRECTIONS("allowed-directions"),
 	ITRADESHOP_OWNER("itradeshop.owner"),
-	ALLOW_DOUBLE_TRADE("allow-double-trade"),
-	ALLOW_QUAD_TRADE("allow-quad-trade"),
+	ALLOW_MULTI_TRADE("allow-multi-trade"),
 	MAX_EDIT_DISTANCE("max-edit-distance"),
 	MAX_SHOP_USERS("max-shop-users"),
 	ILLEGAL_ITEMS("illegal-items"),
@@ -110,8 +111,7 @@ public enum Setting {
 		addSetting(CHECK_UPDATES.path, true);
 		addSetting(ALLOWED_SHOPS.path, new String[]{"CHEST", "TRAPPED_CHEST", "SHULKER"});
 		addSetting(ALLOWED_DIRECTIONS.path, new String[]{"DOWN", "WEST", "SOUTH", "EAST", "NORTH", "UP"});
-		addSetting(ALLOW_DOUBLE_TRADE.path, true);
-		addSetting(ALLOW_QUAD_TRADE.path, true);
+		addSetting(ALLOW_MULTI_TRADE.path, true);
 		addSetting(MAX_EDIT_DISTANCE.path, 4);
 		addSetting(MAX_SHOP_USERS.path, 5);
 		addSetting(ILLEGAL_ITEMS.path, new String[]{"Air", "Void_Air", "Cave_Air", "Bedrock", "Command_Block"});

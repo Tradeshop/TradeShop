@@ -1,24 +1,26 @@
 /*
- *                 Copyright (c) 2016-2019
- *         SparklingComet @ http://shanerx.org
- *      KillerOfPie @ http://killerofpie.github.io
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ *                         Copyright (c) 2016-2019
+ *                SparklingComet @ http://shanerx.org
+ *               KillerOfPie @ http://killerofpie.github.io
  *
- *              http://www.apache.org/licenses/LICENSE-2.0
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ *                http://www.apache.org/licenses/LICENSE-2.0
  *
- * NOTICE: All modifications made by others to the source code belong
- * to the respective contributor. No contributor should be held liable for
- * any damages of any kind, whether be material or moral, which were
- * caused by their contribution(s) to the project. See the full License for more information.
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ *
+ *  NOTICE: All modifications made by others to the source code belong
+ *  to the respective contributor. No contributor should be held liable for
+ *  any damages of any kind, whether be material or moral, which were
+ *  caused by their contribution(s) to the project. See the full License for more information.
+ *
  */
 
 package org.shanerx.tradeshop.listeners;
@@ -102,6 +104,8 @@ public class ShopCreateListener extends Utils implements Listener {
 			shop = new Shop(shopSign.getLocation(), shopType, owner);
 		}
 
+		shop.setEvent(event);
+
 		ItemStack product = lineCheck(event.getLine(1)),
 				cost = lineCheck(event.getLine(2));
 
@@ -111,7 +115,7 @@ public class ShopCreateListener extends Utils implements Listener {
 		if (cost != null)
 			shop.setCost(cost);
 
-		if (shop.missingItems() && !shopType.isITrade()) {
+		if (shop.isMissingItems()) {
 			event.setLine(0, ChatColor.GRAY + shopType.toHeader());
 		} else {
 			event.setLine(0, ChatColor.DARK_GREEN + shopType.toHeader());
@@ -120,6 +124,7 @@ public class ShopCreateListener extends Utils implements Listener {
 		event.setLine(3, shop.getStatus().getLine());
 		shop.saveShop();
 		shop.updateSign(event);
+		shop.removeEvent();
 
 		p.sendMessage(Message.SUCCESSFUL_SETUP.getPrefixed());
 	}
@@ -138,8 +143,7 @@ public class ShopCreateListener extends Utils implements Listener {
 		if (!isInt(info[0]) || Material.matchMaterial(info[1]) == null)
 			return null;
 
-		int amount = Integer.parseInt(info[0]);
-        ItemStack item = new ItemStack(Material.matchMaterial(info[1]), amount);
+		ItemStack item = new ItemStack(Material.matchMaterial(info[1]), Integer.parseInt(info[0]));
 
         if (plugin.getListManager().isBlacklisted(item.getType()))
 			return null;

@@ -57,6 +57,7 @@ public class Shop implements Serializable {
 	private ShopType shopType;
 	private ShopLocation shopLoc, chestLoc;
 	private transient ItemStack product, cost;
+	private transient SignChangeEvent signChangeEvent;
 	private String productB64, costB64;
 	private ShopStatus status = ShopStatus.CLOSED;
 
@@ -178,6 +179,22 @@ public class Shop implements Serializable {
 	 */
 	public void setOwner(ShopUser owner) {
 		this.owner = owner;
+	}
+
+	/**
+	 * Adds the sign change event to the shop to be used during sign update
+	 *
+	 * @param event The SignChangeEvent to hold
+	 */
+	public void setEvent(SignChangeEvent event) {
+		this.signChangeEvent = event;
+	}
+
+	/**
+	 * Removes the SignChangeEvent from the shop(Should be done before leaving the event)
+	 */
+	public void removeEvent() {
+		this.signChangeEvent = null;
 	}
 
 	/**
@@ -558,55 +575,58 @@ public class Shop implements Serializable {
 	 * Updates the text on the shops sign
 	 */
 	public void updateSign() {
-		Sign s = getShopSign();
+		if (signChangeEvent != null)
+			updateSign(signChangeEvent);
+		else {
+			Sign s = getShopSign();
 
+			if (!isMissingItems()) {
+				s.setLine(0, ChatColor.DARK_GREEN + shopType.toHeader());
+			} else {
+				s.setLine(0, ChatColor.GRAY + shopType.toHeader());
+			}
 
-		if (!missingItems()) {
-			s.setLine(0, ChatColor.DARK_GREEN + shopType.toHeader());
-		} else {
-			s.setLine(0, ChatColor.GRAY + shopType.toHeader());
+			if (product != null) {
+				StringBuilder sb = new StringBuilder();
+
+				sb.append(product.getAmount());
+				sb.append(" ");
+
+				sb.append((product.hasItemMeta() && product.getItemMeta().hasDisplayName()) ?
+						product.getItemMeta().getDisplayName() :
+						product.getType().toString());
+
+				s.setLine(1, sb.toString().substring(0, (sb.length() < 15) ? sb.length() : 15));
+
+			} else {
+				s.setLine(1, "");
+			}
+
+			if (cost != null) {
+				StringBuilder sb = new StringBuilder();
+
+				sb.append(cost.getAmount());
+				sb.append(" ");
+
+				sb.append((cost.hasItemMeta() && cost.getItemMeta().hasDisplayName()) ?
+						cost.getItemMeta().getDisplayName() :
+						cost.getType().toString());
+
+				s.setLine(2, sb.toString().substring(0, (sb.length() < 15) ? sb.length() : 15));
+			} else {
+				s.setLine(2, "");
+			}
+
+			s.setLine(3, status.getLine());
+			s.update();
 		}
-
-		if (product != null) {
-			StringBuilder sb = new StringBuilder();
-
-			sb.append(product.getAmount());
-			sb.append(" ");
-
-			sb.append((product.hasItemMeta() && product.getItemMeta().hasDisplayName()) ?
-					product.getItemMeta().getDisplayName() :
-					product.getType().toString());
-
-			s.setLine(1, sb.toString().substring(0, (sb.length() < 15) ? sb.length() : 15));
-
-		} else {
-			s.setLine(1, "");
-		}
-
-		if (cost != null) {
-			StringBuilder sb = new StringBuilder();
-
-			sb.append(cost.getAmount());
-			sb.append(" ");
-
-			sb.append((cost.hasItemMeta() && cost.getItemMeta().hasDisplayName()) ?
-					cost.getItemMeta().getDisplayName() :
-					cost.getType().toString());
-
-			s.setLine(2, sb.toString().substring(0, (sb.length() < 15) ? sb.length() : 15));
-		} else {
-			s.setLine(2, "");
-		}
-
-		s.setLine(3, status.getLine());
-		s.update();
 	}
 
 	/**
 	 * Updates the text on the shops sign
 	 */
 	public void updateSign(SignChangeEvent signEvent) {
-		if (!missingItems()) {
+		if (!isMissingItems()) {
 			signEvent.setLine(0, ChatColor.DARK_GREEN + shopType.toHeader());
 		} else {
 			signEvent.setLine(0, ChatColor.GRAY + shopType.toHeader());
@@ -676,7 +696,7 @@ public class Shop implements Serializable {
 	public boolean setOpen() {
 		boolean ret;
 
-		if (!missingItems()) {
+		if (!isMissingItems()) {
 			status = ShopStatus.OPEN;
 			ret = true;
 		} else {
@@ -693,7 +713,7 @@ public class Shop implements Serializable {
 	 *
 	 * @return true if items are missing
 	 */
-	public boolean missingItems() {
+	public boolean isMissingItems() {
 		return product == null || cost == null;
 	}
 

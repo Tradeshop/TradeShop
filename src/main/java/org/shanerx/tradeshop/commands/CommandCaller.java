@@ -142,6 +142,9 @@ public class CommandCaller implements CommandExecutor {
             case ADDMEMBER:
                 cmdRnnr.addMember();
                 break;
+            case MULTI:
+                cmdRnnr.multi();
+                break;
         }
 
         return true;

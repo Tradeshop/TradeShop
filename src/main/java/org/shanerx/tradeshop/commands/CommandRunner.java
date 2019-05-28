@@ -33,7 +33,6 @@ import org.bukkit.block.Container;
 import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.shanerx.tradeshop.TradeShop;
@@ -46,10 +45,12 @@ import org.shanerx.tradeshop.framework.TradeCommand;
 import org.shanerx.tradeshop.objects.Shop;
 import org.shanerx.tradeshop.objects.ShopChest;
 import org.shanerx.tradeshop.objects.ShopUser;
+import org.shanerx.tradeshop.utils.JsonConfiguration;
 import org.shanerx.tradeshop.utils.Utils;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.Map;
 
 public class CommandRunner extends Utils {
 
@@ -289,7 +290,7 @@ public class CommandRunner extends Utils {
 			return;
 		}
 
-		if (shop.missingItems()) {
+		if (shop.isMissingItems()) {
 			sendMessage(Message.MISSING_ITEM.getPrefixed());
 			return;
 		}
@@ -547,6 +548,31 @@ public class CommandRunner extends Utils {
 		shop.addMember(target.getUniqueId());
 
 		sendMessage(Message.UPDATED_SHOP_MEMBERS.getPrefixed());
+	}
+
+	/**
+	 * Changes the players trade multiplier for current login
+	 */
+	public void multi() {
+		JsonConfiguration json = new JsonConfiguration(pSender.getUniqueId());
+		Map<String, Integer> data = json.loadPlayer();
+
+		if (command.argsSize() == 1) {
+			sendMessage(Message.MULTI_AMOUNT.getPrefixed().replaceAll("%amount%", String.valueOf(data.get("multi"))));
+		} else {
+			int amount = 2;
+
+			if (isInt(command.getArgAt(1)))
+				amount = Integer.parseInt(command.getArgAt(1));
+
+			if (amount < 2)
+				amount = 2;
+
+			data.put("multi", amount);
+			json.savePlayer(data);
+
+			sendMessage(Message.MULTI_UPDATE.getPrefixed().replaceAll("%amount%", String.valueOf(amount)));
+		}
 	}
 
 	/**
