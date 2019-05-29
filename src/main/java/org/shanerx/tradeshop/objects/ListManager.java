@@ -38,10 +38,12 @@ public class ListManager {
 	private ArrayList<Material> blacklist = new ArrayList<>();
 	private ArrayList<BlockFace> directions = new ArrayList<>();
 	private ArrayList<Material> inventories = new ArrayList<>();
+	private ArrayList<String> gameMats = new ArrayList<>();
 
 
 	public ListManager() {
 		reload();
+		setMaterialList();
 	}
 
 	public ArrayList<BlockFace> getDirections() {
@@ -54,6 +56,10 @@ public class ListManager {
 
 	public ArrayList<Material> getBlacklist() {
 		return blacklist;
+	}
+
+	public ArrayList<String> getGameMats() {
+		return gameMats;
 	}
 
 	public boolean isBlacklisted(Material mat) {
@@ -86,6 +92,12 @@ public class ListManager {
 			Material mat = Material.matchMaterial(str);
 			if (mat != null)
 				blacklist.add(mat);
+		}
+	}
+
+	private void setMaterialList() {
+		for (Material mat : Material.values()) {
+			gameMats.add(mat.toString());
 		}
 	}
 

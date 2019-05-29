@@ -1,24 +1,26 @@
 /*
- *                 Copyright (c) 2016-2019
- *         SparklingComet @ http://shanerx.org
- *      KillerOfPie @ http://killerofpie.github.io
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ *                         Copyright (c) 2016-2019
+ *                SparklingComet @ http://shanerx.org
+ *               KillerOfPie @ http://killerofpie.github.io
  *
- *              http://www.apache.org/licenses/LICENSE-2.0
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ *                http://www.apache.org/licenses/LICENSE-2.0
  *
- * NOTICE: All modifications made by others to the source code belong
- * to the respective contributor. No contributor should be held liable for
- * any damages of any kind, whether be material or moral, which were
- * caused by their contribution(s) to the project. See the full License for more information.
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ *
+ *  NOTICE: All modifications made by others to the source code belong
+ *  to the respective contributor. No contributor should be held liable for
+ *  any damages of any kind, whether be material or moral, which were
+ *  caused by their contribution(s) to the project. See the full License for more information.
+ *
  */
 
 package org.shanerx.tradeshop.objects;
@@ -129,10 +131,14 @@ public class ShopChest extends Utils {
 
 	public void resetName() {
 		BlockState bs = chest.getState();
-		if (bs instanceof InventoryHolder && bs instanceof Nameable && ((Nameable) bs).getCustomName() != null
-				&& ((Nameable) bs).getCustomName().contains(sectionSeparator)) {
-
-			((Nameable) bs).setCustomName(((Nameable) chest.getState()).getCustomName().split(sectionSeparator)[0]);
+		debug("SC:132 -- bs customname: " + ((Nameable) bs).getCustomName());
+		debug("SC:133 -- bs instanceof: " + (bs instanceof Nameable));
+		debug("SC:134 -- bs != null: " + (((Nameable) bs).getCustomName() != null));
+		debug("SC:135 -- bs contains: " + (((Nameable) bs).getCustomName().contains("$ ^Sign:l_")));
+		if (bs instanceof Nameable && ((Nameable) bs).getCustomName() != null
+				&& ((Nameable) bs).getCustomName().contains("$ ^Sign:l_")) {
+			debug("SC:138");
+			((Nameable) bs).setCustomName(((Nameable) bs).getCustomName().split(sectionSeparator)[0]);
 
 			if (isDoubleChest(chest)) {
 				((Nameable) getOtherHalfOfDoubleChest(chest).getState()).setCustomName(
@@ -180,8 +186,16 @@ public class ShopChest extends Utils {
 		return owner != null;
 	}
 
-	public boolean hasShop() {
+	public boolean hasShopSign() {
 		return shopSign != null;
+	}
+
+	public Shop getShop() {
+		if (hasShopSign()) {
+			Shop shop = Shop.loadShop(getShopSign());
+		}
+
+		return null;
 	}
 
 	public static Block getOtherHalfOfDoubleChest(Block chest) {

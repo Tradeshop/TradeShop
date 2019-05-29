@@ -46,14 +46,21 @@ public enum Setting {
 	MAX_EDIT_DISTANCE("max-edit-distance"),
 	MAX_SHOP_USERS("max-shop-users"),
 	ILLEGAL_ITEMS("illegal-items"),
+
 	TRADESHOP_HEADER("tradeshop.header"),
 	ITRADESHOP_HEADER("itradeshop.header"),
 	BITRADESHOP_HEADER("bitradeshop.header"),
+
 	TRADESHOP_EXPLODE("tradeshop.allow-explode"),
 	ITRADESHOP_EXPLODE("itradeshop.allow-explode"),
 	BITRADESHOP_EXPLODE("bitradeshop.allow-explode"),
+
+	TRADESHOP_HOPPER_EXPORT("tradeshop.allow-hopper-export"),
+	BITRADESHOP_HOPPER_EXPORT("bitradeshop.allow-hopper-export"),
+
 	SHOP_OPEN_STATUS("shop-open-status"),
 	SHOP_CLOSED_STATUS("shop-closed-status"),
+
 	ALLOW_METRICS("allow-metrics"),
 	ENABLE_DEBUG("enable-debug");
 
@@ -122,6 +129,7 @@ public enum Setting {
 
 		addSetting(TRADESHOP_HEADER.path, "Trade");
 		addSetting(TRADESHOP_EXPLODE.path, false);
+		addSetting(TRADESHOP_HOPPER_EXPORT.path, false);
 
 		addSetting(ITRADESHOP_HEADER.path, "iTrade");
 		addSetting(ITRADESHOP_OWNER.path, "Server Shop");
@@ -129,6 +137,7 @@ public enum Setting {
 
 		addSetting(BITRADESHOP_HEADER.path, "BiTrade");
 		addSetting(BITRADESHOP_EXPLODE.path, false);
+		addSetting(BITRADESHOP_HOPPER_EXPORT.path, false);
 
 		save();
 	}

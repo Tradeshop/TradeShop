@@ -88,7 +88,7 @@ public class ShopCreateListener extends Utils implements Listener {
 				return;
 			}
 
-			if (shopChest.hasShop() && !shopChest.getShopSign().getLocation().equals(shopSign.getLocation())) {
+			if (shopChest.hasShopSign() && !shopChest.getShopSign().getLocation().equals(shopSign.getLocation())) {
 				failedSign(event, shopType, Message.EXISTING_SHOP);
 				return;
 			}
@@ -122,9 +122,9 @@ public class ShopCreateListener extends Utils implements Listener {
 		}
 
 		event.setLine(3, shop.getStatus().getLine());
-		shop.saveShop();
 		shop.updateSign(event);
 		shop.removeEvent();
+		shop.saveShop();
 
 		p.sendMessage(Message.SUCCESSFUL_SETUP.getPrefixed());
 	}

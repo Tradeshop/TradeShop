@@ -39,6 +39,7 @@ import org.shanerx.tradeshop.enumys.Setting;
 import org.shanerx.tradeshop.enumys.ShopType;
 import org.shanerx.tradeshop.objects.Shop;
 import org.shanerx.tradeshop.objects.ShopChest;
+import org.shanerx.tradeshop.objects.ShopLocation;
 import org.shanerx.tradeshop.utils.Utils;
 
 import java.util.ArrayList;
@@ -64,7 +65,9 @@ public class ShopProtectionListener extends Utils implements Listener {
 		Nameable fromContainer = (Nameable) event.getSource().getLocation().getBlock().getState();
 
 		if (fromContainer.getCustomName() != null && fromContainer.getCustomName().contains("$ ^Sign:l_")) {
-			event.setCancelled(true);
+			Shop shop = Shop.loadShop(ShopLocation.deserialize(fromContainer.getCustomName().split("\\$ \\^")[1].split(":")[1]));
+
+			event.setCancelled(!Setting.findSetting(shop.getShopType().toString() + "SHOP_HOPPER_EXPORT").getBoolean());
 		}
 	}
 

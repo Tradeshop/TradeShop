@@ -25,7 +25,6 @@
 
 package org.shanerx.tradeshop.commands;
 
-import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
@@ -86,12 +85,7 @@ public class CommandTabCompleter extends Utils {
 		if (command.argsSize() == 2) {
 			return Arrays.asList("1", "2", "4", "8", "16", "32", "64", "96", "128");
 		} else if (command.argsSize() == 3) {
-			List<String> materials = new ArrayList<>();
-
-			for (Material mat : Material.values())
-				materials.add(mat.toString());
-
-			return materials;
+			return partialGameMats(command.getArgAt(2));
 		}
 		return Collections.EMPTY_LIST;
 	}
@@ -100,12 +94,7 @@ public class CommandTabCompleter extends Utils {
 		if (command.argsSize() == 2) {
 			return Arrays.asList("1", "2", "4", "8", "16", "32", "64", "96", "128");
 		} else if (command.argsSize() == 3) {
-			List<String> materials = new ArrayList<>();
-
-			for (Material mat : Material.values())
-				materials.add(mat.toString());
-
-			return materials;
+			return partialGameMats(command.getArgAt(2));
 		}
 		return Collections.EMPTY_LIST;
 	}
@@ -164,5 +153,16 @@ public class CommandTabCompleter extends Utils {
 		}
 
 		return Collections.EMPTY_LIST;
+	}
+
+	private List<String> partialGameMats(String request) {
+		List<String> toReturn = new ArrayList<>();
+		for (String str : plugin.getListManager().getGameMats()) {
+			if (str.toLowerCase().contains(request.toLowerCase())) {
+				toReturn.add(str);
+			}
+		}
+
+		return toReturn;
 	}
 }
