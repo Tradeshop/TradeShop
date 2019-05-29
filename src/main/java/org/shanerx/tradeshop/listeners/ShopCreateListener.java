@@ -35,11 +35,13 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.SignChangeEvent;
 import org.bukkit.inventory.ItemStack;
 import org.shanerx.tradeshop.enumys.Message;
+import org.shanerx.tradeshop.enumys.Setting;
 import org.shanerx.tradeshop.enumys.ShopRole;
 import org.shanerx.tradeshop.enumys.ShopType;
 import org.shanerx.tradeshop.objects.Shop;
 import org.shanerx.tradeshop.objects.ShopChest;
 import org.shanerx.tradeshop.objects.ShopUser;
+import org.shanerx.tradeshop.utils.JsonConfiguration;
 import org.shanerx.tradeshop.utils.Tuple;
 import org.shanerx.tradeshop.utils.Utils;
 
@@ -69,6 +71,13 @@ public class ShopCreateListener extends Utils implements Listener {
 
 		if (!checkShopChest(shopSign.getBlock()) && !shopType.isITrade()) {
 			failedSign(event, shopType, Message.NO_CHEST);
+			return;
+		}
+
+		JsonConfiguration chunk = new JsonConfiguration(shopSign.getChunk());
+
+		if (Setting.MAX_SHOPS_PER_CHUNK.getInt() <= chunk.getShopCount() + 1) {
+			failedSign(event, shopType, Message.TOO_MANY_CHESTS);
 			return;
 		}
 

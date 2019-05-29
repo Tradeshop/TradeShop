@@ -81,7 +81,8 @@ public enum Message {
 	INVALID_SUBCOMMAND,
 	PLUGIN_BEHIND,
 	MULTI_UPDATE,
-	MULTI_AMOUNT;
+	MULTI_AMOUNT,
+	TOO_MANY_CHESTS;
 
 	@Override
 	public String toString() {
@@ -148,10 +149,11 @@ public enum Message {
 		addMessage("player-not-found", "&cThat player could not be found.");
 		addMessage("existing-shop", "&cYou may only have 1 shop per inventory block.");
 		addMessage("shop-type-switched", "&aShop type has been switched to %newtype%.");
-		addMessage("invalid-subcommand", "&cInvalid subcommand. Cannot display usage.");
+		addMessage("invalid-subcommand", "&cInvalid sub-command. Cannot display usage.");
 		addMessage("plugin-behind", "&cThe server is running an old version of TradeShop, please update the plugin.");
 		addMessage("multi-update", "&aTrade multiplier has been updated to %amount%.");
 		addMessage("multi-amount", "&aYour trade multiplier is %amount%.");
+		addMessage("too-many-chests", "&cThere are too many shops in this chunk, you can not add another one.");
 
 		save();
 	}

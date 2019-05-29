@@ -186,4 +186,8 @@ public class JsonConfiguration extends Utils implements Serializable {
 		shop.fixAfterLoad();
 		return shop;
 	}
+
+	public int getShopCount() {
+		return jsonObj.size();
+	}
 }

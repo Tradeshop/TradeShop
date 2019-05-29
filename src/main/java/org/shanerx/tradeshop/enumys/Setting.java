@@ -62,7 +62,8 @@ public enum Setting {
 	SHOP_CLOSED_STATUS("shop-closed-status"),
 
 	ALLOW_METRICS("allow-metrics"),
-	ENABLE_DEBUG("enable-debug");
+	ENABLE_DEBUG("enable-debug"),
+	MAX_SHOPS_PER_CHUNK("max-shops-per-chunk");
 
 	String path;
 
@@ -124,6 +125,7 @@ public enum Setting {
 		addSetting(ILLEGAL_ITEMS.path, new String[]{"Air", "Void_Air", "Cave_Air", "Bedrock", "Command_Block"});
 		addSetting(SHOP_OPEN_STATUS.path, "Open");
 		addSetting(SHOP_CLOSED_STATUS.path, "Closed");
+		addSetting(MAX_SHOPS_PER_CHUNK.path, 128);
 		addSetting(ALLOW_METRICS.path, true);
 		addSetting(ENABLE_DEBUG.path, false);
 
