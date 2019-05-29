@@ -723,6 +723,7 @@ public class Shop implements Serializable {
 		}
 
 		updateSign();
+		saveShop();
 		return ret;
 	}
 
@@ -741,6 +742,7 @@ public class Shop implements Serializable {
 	public void setClosed() {
 		status = ShopStatus.CLOSED;
 		updateSign();
+		saveShop();
 	}
 
 	/**

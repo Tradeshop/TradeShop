@@ -70,12 +70,6 @@ public class ShopTradeListener extends Utils implements Listener {
 			JsonConfiguration json = new JsonConfiguration(s.getChunk());
 			shop = json.loadShop(new ShopLocation(s.getLocation()));
 
-			chestState = shop.getInventory();
-			if (!shop.getShopType().equals(ShopType.ITRADE) && chestState == null) {
-				buyer.sendMessage(Message.MISSING_SHOP.getPrefixed());
-				return;
-			}
-
 			if (!shop.getShopType().equals(ShopType.ITRADE) && shop.getUsersUUID().contains(buyer.getUniqueId())) {
 				buyer.sendMessage(Message.SELF_OWNED.getPrefixed());
 				return;
@@ -83,6 +77,13 @@ public class ShopTradeListener extends Utils implements Listener {
 
 			if (!shop.isOpen()) {
 				buyer.sendMessage(Message.SHOP_CLOSED.getPrefixed());
+				return;
+			}
+
+			chestState = shop.getInventory();
+			if (!shop.getShopType().equals(ShopType.ITRADE) && chestState == null) {
+				buyer.sendMessage(Message.MISSING_CHEST.getPrefixed());
+				shop.setClosed();
 				return;
 			}
 
@@ -96,8 +97,8 @@ public class ShopTradeListener extends Utils implements Listener {
 
 			Inventory playerInventory = buyer.getInventory();
 
-			int amountProd = shop.getProduct().getAmount();
-			int amountCost = shop.getCost().getAmount();
+			int amountProd = shop.getProductAmt();
+			int amountCost = shop.getCostAmt();
 
 			e.setCancelled(true);
 
@@ -143,6 +144,10 @@ public class ShopTradeListener extends Utils implements Listener {
 					buyer.sendMessage(Message.SHOP_EMPTY.getPrefixed()
 							.replace("{ITEM}", productName.toLowerCase())
 							.replace("{AMOUNT}", String.valueOf(amountProd)));
+
+					if (!containsAtLeast(chestInventory, product, shop.getProductAmt()))
+						shop.setClosed();
+
 					return;
 				}
 
