@@ -25,8 +25,9 @@
 
 package org.shanerx.tradeshop.listeners;
 
-import org.bukkit.Material;
+import org.bukkit.Nameable;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockState;
 import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -72,6 +73,12 @@ public class AdminEventListener extends Utils implements Listener {
 			player.sendMessage(Message.NO_TS_DESTROY.getPrefixed());
 
 		} else if (plugin.getListManager().isInventory(block.getType())) {
+			BlockState bs = block.getState();
+			if (!(bs instanceof Nameable && ((Nameable) bs).getCustomName() != null
+					&& ((Nameable) bs).getCustomName().contains("$ ^Sign:l_"))) {
+				return;
+			}
+
 			if (player.hasPermission(Permissions.ADMIN.getPerm())) {
 				new ShopChest(block.getLocation()).resetName();
 				return;
@@ -91,8 +98,19 @@ public class AdminEventListener extends Utils implements Listener {
 			Shop shop = Shop.loadShop(s);
 
 			if (event.getPlayer().getUniqueId().equals(shop.getOwner().getUUID())) {
-				new ShopChest(shop.getInventoryLocation()).resetName();
-				shop.remove();
+				if (!ShopChest.isDoubleChest(block)) {
+					new ShopChest(shop.getInventoryLocation()).resetName();
+					shop.removeInventory();
+					shop.setClosed();
+					shop.saveShop();
+				} else {
+					if (bs instanceof Nameable && ((Nameable) bs).getCustomName() != null
+							&& ((Nameable) bs).getCustomName().contains("$ ^Sign:l_")) {
+						((Nameable) bs).setCustomName(((Nameable) bs).getCustomName().split("\\$ \\^")[0]);
+
+						bs.update();
+					}
+				}
 				return;
 			}
 
@@ -130,38 +148,42 @@ public class AdminEventListener extends Utils implements Listener {
 	@EventHandler(priority = EventPriority.HIGH)
 	public void onBlockPlace(BlockPlaceEvent event) {
 		Block block = event.getBlock();
-		if (block.getType() != Material.CHEST || block.getType() != Material.TRAPPED_CHEST) {
-			return;
-		}
 
-		if (!plugin.getListManager().getInventories().contains(block.getType())) {
+		if (!plugin.getListManager().getInventories().contains(block.getType()))
 			return;
-		}
-
-        if (!ShopChest.isShopChest(block)) {
-            return;
-        }
 
         if (!ShopChest.isDoubleChest(block)) {
-			return;
+			Sign shopSign = findShopSign(block);
+
+			if (shopSign == null)
+				return;
+
+			Shop shop = Shop.loadShop(shopSign);
+
+			if (shop.getShopType().isITrade())
+				return;
+
+			new ShopChest(block, shop.getOwner().getUUID(), shopSign.getLocation()).setEventName(event);
+			shop.setInventoryLocation(block.getLocation());
+			shop.saveShop();
+
+		} else {
+			Block otherhalf = ShopChest.getOtherHalfOfDoubleChest(block);
+			Player p = event.getPlayer();
+
+			if (!ShopChest.isShopChest(otherhalf)) {
+				return;
+			}
+
+			ShopChest shopOtherHalf = new ShopChest(otherhalf.getLocation());
+
+			if (shopOtherHalf.hasOwner() && !shopOtherHalf.getOwner().equals(p.getUniqueId())) {
+				event.setCancelled(true);
+				return;
+			}
+
+			new ShopChest(block, shopOtherHalf.getOwner(), shopOtherHalf.getShopSign().getLocation()).setEventName(event);
 		}
-
-        Block otherhalf = ShopChest.getOtherHalfOfDoubleChest(block);
-		Player p = event.getPlayer();
-
-		if (!ShopChest.isShopChest(otherhalf)) {
-			return;
-		}
-
-		ShopChest shopOtherHalf = new ShopChest(otherhalf.getLocation());
-
-		if (shopOtherHalf.hasOwner() && !shopOtherHalf.getOwner().equals(p.getUniqueId())) {
-			event.setCancelled(true);
-			return;
-		}
-
-		ShopChest shopChest = new ShopChest(block, shopOtherHalf.getOwner(), shopOtherHalf.getShopSign().getLocation());
-		shopChest.setName();
 		return;
 	}
 }

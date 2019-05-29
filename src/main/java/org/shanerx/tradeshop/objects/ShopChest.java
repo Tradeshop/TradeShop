@@ -32,6 +32,7 @@ import org.bukkit.Nameable;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
+import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
@@ -130,33 +131,39 @@ public class ShopChest extends Utils {
 	}
 
 	public void resetName() {
+		if (chest != null) {
+			BlockState bs = chest.getState();
+			if (bs instanceof Nameable && ((Nameable) bs).getCustomName() != null
+					&& ((Nameable) bs).getCustomName().contains("$ ^Sign:l_")) {
+				((Nameable) bs).setCustomName(((Nameable) bs).getCustomName().split(sectionSeparator)[0]);
+
+				if (isDoubleChest(chest)) {
+					((Nameable) getOtherHalfOfDoubleChest(chest).getState()).setCustomName(
+							((Nameable) getOtherHalfOfDoubleChest(chest).getState()).getCustomName().split(sectionSeparator)[0]);
+				}
+
+				bs.update();
+			}
+		}
+	}
+
+	public void setName() {
 		BlockState bs = chest.getState();
-		debug("SC:132 -- bs customname: " + ((Nameable) bs).getCustomName());
-		debug("SC:133 -- bs instanceof: " + (bs instanceof Nameable));
-		debug("SC:134 -- bs != null: " + (((Nameable) bs).getCustomName() != null));
-		debug("SC:135 -- bs contains: " + (((Nameable) bs).getCustomName().contains("$ ^Sign:l_")));
-		if (bs instanceof Nameable && ((Nameable) bs).getCustomName() != null
-				&& ((Nameable) bs).getCustomName().contains("$ ^Sign:l_")) {
-			debug("SC:138");
-			((Nameable) bs).setCustomName(((Nameable) bs).getCustomName().split(sectionSeparator)[0]);
+		if (bs instanceof Nameable) {
+			((Nameable) bs).setCustomName(getName());
 
 			if (isDoubleChest(chest)) {
-				((Nameable) getOtherHalfOfDoubleChest(chest).getState()).setCustomName(
-						((Nameable) getOtherHalfOfDoubleChest(chest).getState()).getCustomName().split(sectionSeparator)[0]);
+				((Nameable) getOtherHalfOfDoubleChest(chest).getState()).setCustomName(getName());
 			}
 
 			bs.update();
 		}
 	}
 
-	public void setName() {
-		BlockState bs = chest.getState();
-		if (bs instanceof InventoryHolder && bs instanceof Nameable) {
+	public void setEventName(BlockPlaceEvent event) {
+		BlockState bs = event.getBlockPlaced().getState();
+		if (bs instanceof Nameable) {
 			((Nameable) bs).setCustomName(getName());
-
-			if (isDoubleChest(chest)) {
-				((Nameable) getOtherHalfOfDoubleChest(chest).getState()).setCustomName(getName());
-			}
 
 			bs.update();
 		}

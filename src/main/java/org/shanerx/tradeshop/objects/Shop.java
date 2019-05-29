@@ -534,7 +534,7 @@ public class Shop implements Serializable {
 	public void fixAfterLoad() {
 		itemsFromB64();
 		shopLoc.stringToWorld();
-		if (!shopType.isITrade())
+		if (!shopType.isITrade() && chestLoc != null)
 			chestLoc.stringToWorld();
 	}
 
@@ -680,6 +680,24 @@ public class Shop implements Serializable {
 	}
 
 	/**
+	 * Removes the shops inventory from the shop
+	 */
+	public void removeInventory() {
+		if (hasInventory()) {
+			chestLoc = null;
+		}
+	}
+
+	/**
+	 * Returns if the shops inventory exists
+	 *
+	 * @return shops inventory as BlockState
+	 */
+	public boolean hasInventory() {
+		return getInventory() != null;
+	}
+
+	/**
 	 * Returns the shops status as ShopStatus
 	 *
 	 * @return Shops status as ShopStatus
@@ -696,7 +714,7 @@ public class Shop implements Serializable {
 	public boolean setOpen() {
 		boolean ret;
 
-		if (!isMissingItems()) {
+		if (!isMissingItems() && chestLoc != null) {
 			status = ShopStatus.OPEN;
 			ret = true;
 		} else {

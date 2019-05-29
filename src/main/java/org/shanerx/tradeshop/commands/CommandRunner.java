@@ -301,7 +301,7 @@ public class CommandRunner extends Utils {
 		if (opened) {
 			sendMessage(Message.CHANGE_OPEN.getPrefixed());
 		} else {
-			sendMessage(Message.MISSING_ITEM.getPrefixed());
+			sendMessage(Message.MISSING_CHEST.getPrefixed());
 		}
 	}
 

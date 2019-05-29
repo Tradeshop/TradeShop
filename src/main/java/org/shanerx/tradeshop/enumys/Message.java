@@ -49,7 +49,7 @@ public enum Message {
 	INSUFFICIENT_ITEMS,
 	INVALID_ARGUMENTS,
 	INVALID_SIGN,
-	MISSING_INFO,
+	MISSING_CHEST,
 	MISSING_ITEM,
 	MISSING_SHOP,
 	NO_CHEST,
@@ -138,7 +138,7 @@ public enum Message {
 		addMessage("no-shop-permission", "&cYou do not have permission to edit that shop.");
 		addMessage("illegal-item", "&cYou cannot use one or more of those items in shops.");
 		addMessage("missing-item", "&cYour sign is missing an item for trade.");
-		addMessage("missing-info", "&cYour sign is missing necessary information.");
+		addMessage("missing-chest", "&cYour shop is missing a chest.");
 		addMessage("amount-not-num", "&cYou should have an amount before each item.");
 		addMessage("shop-closed", "&cThis shop is currently closed.");
 		addMessage("buy-failed-sign", "&cThis shop sign does not seem to be formatted correctly, please notify the owner.");
