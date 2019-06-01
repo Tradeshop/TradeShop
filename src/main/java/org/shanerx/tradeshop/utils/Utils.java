@@ -47,6 +47,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.logging.Level;
 
@@ -58,13 +59,15 @@ import java.util.logging.Level;
  */
 public class Utils {
 
-	protected final PluginDescriptionFile pdf = Bukkit.getPluginManager().getPlugin("TradeShop").getDescription();
-	protected final String PREFIX = "&a[&eTradeShop&a] ";
+	protected TradeShop plugin = (TradeShop) Bukkit.getPluginManager().getPlugin("TradeShop");
 
-	protected final TradeShop plugin = (TradeShop) Bukkit.getPluginManager().getPlugin("TradeShop");
+	protected PluginDescriptionFile pdf = plugin.getDescription();
+	protected String PREFIX = "&a[&eTradeShop&a] ";
+	private UUID KOPUUID = UUID.fromString("daf79be7-bc1d-47d3-9896-f97b8d4cea7d");
+	private UUID LORIUUID = UUID.fromString("e296bc43-2972-4111-9843-48fc32302fd4");
 
-	private final UUID KOPUUID = UUID.fromString("daf79be7-bc1d-47d3-9896-f97b8d4cea7d");
-	private final UUID LORIUUID = UUID.fromString("e296bc43-2972-4111-9843-48fc32302fd4");
+	public Utils() {
+	}
 
 	public UUID[] getMakers() {
 		return new UUID[]{KOPUUID, LORIUUID};
@@ -238,15 +241,8 @@ public class Utils {
 	 * @param mat String to check
 	 * @return returns true if valid material
 	 */
-	public boolean isValidType(String mat) {
-		ArrayList<Material> blackList = plugin.getListManager().getBlacklist();
-
-		if (Material.matchMaterial(mat) != null) {
-			Material temp = Material.matchMaterial(mat);
-			return !blackList.contains(temp);
-		}
-
-		return false;
+	public boolean isValidType(Material mat) {
+		return !plugin.getListManager().getBlacklist().contains(mat);
 	}
 
 	/**
@@ -258,9 +254,9 @@ public class Utils {
 	 * @param item the item to be checked
 	 * @return true if the condition is met.
 	 */
-	public boolean containsAtLeast(Inventory inv, ItemStack item, int amount) {
+	public boolean containsAtLeast(ItemStack[] inv, ItemStack item, int amount) {
 		int count = 0;
-		for (ItemStack itm : inv.getContents()) {
+		for (ItemStack itm : inv) {
 			if (itm != null) {
 				if (itemCheck(item, itm)) {
 					count += itm.getAmount();
@@ -279,8 +275,7 @@ public class Utils {
 	 * @return the colorized string returned by the above method.
 	 */
 	public String colorize(String msg) {
-		msg = ChatColor.translateAlternateColorCodes('&', msg);
-		return msg;
+		return ChatColor.translateAlternateColorCodes('&', msg);
 	}
 
 	/**
@@ -353,7 +348,125 @@ public class Utils {
 
 	public void debug(String text) {
 		if (Setting.ENABLE_DEBUG.getBoolean()) {
-			plugin.getLogger().log(Level.WARNING, text);
+			Bukkit.getLogger().log(Level.WARNING, text);
 		}
+	}
+
+	/**
+	 * Returns true if inventory has enough cost to make trade
+	 *
+	 * @param inv        inventory to check
+	 * @param itemList   items to check
+	 * @param multiplier multiplier to use for check
+	 * @return true if shop has enough cost to make trade
+	 */
+	public Boolean checkInventory(Inventory inv, List<ItemStack> itemList, int multiplier) {
+		Inventory clone = Bukkit.createInventory(null, inv.getStorageContents().length);
+		clone.setContents(inv.getStorageContents().clone());
+		if (multiplier < 1)
+			multiplier = 1;
+
+		for (ItemStack iS : itemList) {
+			if (containsAtLeast(clone.getContents(), iS, iS.getAmount() * multiplier)) {
+				int count = iS.getAmount() * multiplier, removed;
+				while (count > 0) {
+					boolean resetItem = false;
+					ItemStack temp = clone.getItem(clone.first(iS.getType())),
+							dupitm1 = iS.clone();
+
+					if (count > iS.getMaxStackSize()) {
+						removed = iS.getMaxStackSize();
+					} else {
+						removed = count;
+					}
+
+					if (removed > temp.getAmount()) {
+						removed = temp.getAmount();
+					}
+
+					iS.setAmount(removed);
+					if (!iS.hasItemMeta() && temp.hasItemMeta()) {
+						iS.setItemMeta(temp.getItemMeta());
+						iS.setData(temp.getData());
+						resetItem = true;
+					}
+
+					clone.removeItem(iS);
+
+					if (resetItem) {
+						iS = dupitm1;
+					}
+
+					count -= removed;
+				}
+			} else
+				return false;
+		}
+
+		return true;
+	}
+
+	/**
+	 * Checks whether a trade can take place.
+	 *
+	 * @param inv        the Inventory object representing the inventory that is subject to the transaction.
+	 * @param itmOut     the ItemStack List that is being given away
+	 * @param itmIn      the ItemStack List that is being received
+	 * @param multiplier the multiplier for the trade
+	 * @return true if the exchange may take place.
+	 */
+	public boolean canExchangeAll(Inventory inv, List<ItemStack> itmOut, List<ItemStack> itmIn, int multiplier) {
+		Inventory clone = Bukkit.createInventory(null, inv.getStorageContents().length);
+		clone.setContents(inv.getStorageContents().clone());
+
+		if (multiplier < 1)
+			multiplier = 1;
+
+		for (ItemStack iS : itmOut) {
+			if (containsAtLeast(clone.getContents(), iS, iS.getAmount() * multiplier)) {
+				int count = iS.getAmount() * multiplier, removed;
+				while (count > 0) {
+					boolean resetItem = false;
+					ItemStack temp = clone.getItem(clone.first(iS.getType())),
+							dupitm1 = iS.clone();
+
+					if (count > iS.getMaxStackSize()) {
+						removed = iS.getMaxStackSize();
+					} else {
+						removed = count;
+					}
+
+					if (removed > temp.getAmount()) {
+						removed = temp.getAmount();
+					}
+
+					iS.setAmount(removed);
+					if (!iS.hasItemMeta() && temp.hasItemMeta()) {
+						iS.setItemMeta(temp.getItemMeta());
+						iS.setData(temp.getData());
+						resetItem = true;
+					}
+
+					clone.removeItem(iS);
+
+					if (resetItem) {
+						iS = dupitm1;
+					}
+
+					count -= removed;
+				}
+			} else
+				return false;
+		}
+
+		for (ItemStack iS : itmIn) {
+			iS.setAmount(iS.getAmount() * multiplier);
+			Map<Integer, ItemStack> returnedItems = clone.addItem(iS);
+
+			if (!returnedItems.isEmpty())
+				return false;
+		}
+
+		return true;
 	}
 }

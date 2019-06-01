@@ -30,8 +30,10 @@ import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
+import org.bukkit.block.Container;
 import org.bukkit.block.Sign;
 import org.bukkit.event.block.SignChangeEvent;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.shanerx.tradeshop.enumys.ShopRole;
 import org.shanerx.tradeshop.enumys.ShopStatus;
@@ -39,6 +41,7 @@ import org.shanerx.tradeshop.enumys.ShopType;
 import org.shanerx.tradeshop.utils.ItemSerializer;
 import org.shanerx.tradeshop.utils.JsonConfiguration;
 import org.shanerx.tradeshop.utils.Tuple;
+import org.shanerx.tradeshop.utils.Utils;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -56,10 +59,11 @@ public class Shop implements Serializable {
 	private List<UUID> managers, members;
 	private ShopType shopType;
 	private ShopLocation shopLoc, chestLoc;
-	private transient ItemStack product, cost;
+	private transient List<ItemStack> product, cost;
 	private transient SignChangeEvent signChangeEvent;
-	private String productB64, costB64;
-	private ShopStatus status = ShopStatus.CLOSED;
+	private transient Inventory storageInv;
+	private transient Utils utils;
+	private List<String> productListB64, costListB64;
 
 	/**
 	 * Creates a Shop object
@@ -77,11 +81,24 @@ public class Shop implements Serializable {
 		this.shopType = shopType;
 		managers = players.getLeft();
 		members = players.getRight();
-		product = items.getLeft();
-		cost = items.getRight();
 
-		productB64 = ItemSerializer.itemStackArrayToBase64(product);
-		costB64 = ItemSerializer.itemStackArrayToBase64(cost);
+		product = new ArrayList<>();
+		cost = new ArrayList<>();
+		productListB64 = new ArrayList<>();
+		costListB64 = new ArrayList<>();
+
+		product.add(items.getLeft());
+		cost.add(items.getRight());
+
+		for (ItemStack iS : product) {
+			productListB64.add(ItemSerializer.itemStackArrayToBase64(iS));
+		}
+
+		for (ItemStack iS : cost) {
+			costListB64.add(ItemSerializer.itemStackArrayToBase64(iS));
+		}
+
+		fixAfterLoad();
 	}
 
 	/**
@@ -98,9 +115,16 @@ public class Shop implements Serializable {
 		this.shopType = shopType;
 		managers = Collections.emptyList();
 		members = Collections.emptyList();
-		productB64 = "";
-		costB64 = "";
+
+		productListB64 = new ArrayList<>();
+		costListB64 = new ArrayList<>();
+		product = new ArrayList<>();
+		cost = new ArrayList<>();
+
+		fixAfterLoad();
 	}
+
+	private ShopStatus status = ShopStatus.CLOSED;
 
 	/**
 	 * Creates a Shop object
@@ -115,8 +139,13 @@ public class Shop implements Serializable {
 		this.shopType = shopType;
 		managers = Collections.emptyList();
 		members = Collections.emptyList();
-		productB64 = "";
-		costB64 = "";
+
+		productListB64 = new ArrayList<>();
+		costListB64 = new ArrayList<>();
+		product = new ArrayList<>();
+		cost = new ArrayList<>();
+
+		fixAfterLoad();
 	}
 
 	/**
@@ -126,7 +155,7 @@ public class Shop implements Serializable {
 	 */
 	public static Shop deserialize(String serialized) {
 		Shop shop = new Gson().fromJson(serialized, Shop.class);
-		shop.itemsFromB64();
+		shop.fixAfterLoad();
 
 		return shop;
 	}
@@ -138,9 +167,15 @@ public class Shop implements Serializable {
 	 * @return The shop from file
 	 */
 	public static Shop loadShop(ShopLocation loc) {
-		JsonConfiguration json = new JsonConfiguration(loc.getLocation().getChunk());
+		return new JsonConfiguration(loc.getLocation().getChunk()).loadShop(loc);
+	}
 
-		return json.loadShop(loc);
+	public List<String> getProductListB64() {
+		return productListB64;
+	}
+
+	public List<String> getCostListB64() {
+		return costListB64;
 	}
 
 	/**
@@ -170,6 +205,16 @@ public class Shop implements Serializable {
 	 */
 	public ShopUser getOwner() {
 		return owner;
+	}
+
+	/**
+	 * Sets the storageInventory
+	 */
+	public void setStorageInventory() {
+		if (getStorage() != null && getStorage() instanceof Container)
+			storageInv = ((Container) getStorage()).getInventory();
+		else
+			storageInv = null;
 	}
 
 	/**
@@ -387,9 +432,9 @@ public class Shop implements Serializable {
 	/**
 	 * returns the cost item
 	 *
-	 * @return Cost item
+	 * @return Cost ItemStack List
 	 */
-	public ItemStack getCost() {
+	public List<ItemStack> getCost() {
 		return cost;
 	}
 
@@ -399,46 +444,81 @@ public class Shop implements Serializable {
 	 * @param newItem ItemStack to be set
 	 */
 	public void setCost(ItemStack newItem) {
-		cost = newItem;
-		costB64 = ItemSerializer.itemStackArrayToBase64(cost);
+		cost.clear();
+		costListB64.clear();
+
+		int amount = newItem.getAmount();
+		List<ItemStack> items = new ArrayList<>();
+		while (amount > 0) {
+			if (newItem.getMaxStackSize() < amount) {
+				ItemStack itm = newItem.clone();
+				itm.setAmount(newItem.getMaxStackSize());
+				items.add(itm);
+				amount -= newItem.getMaxStackSize();
+			} else {
+				ItemStack itm = newItem.clone();
+				itm.setAmount(amount);
+				items.add(itm);
+				amount -= amount;
+			}
+		}
+
+		for (ItemStack iS : items) {
+			cost.add(iS);
+			costListB64.add(ItemSerializer.itemStackArrayToBase64(iS));
+		}
+
 		saveShop();
 		updateSign();
 	}
 
 	/**
-	 * Returns the amount of the product item
+	 * Adds more cost items
 	 *
-	 * @return int amount of product item
+	 * @param newItem ItemStack to be added
 	 */
-	public int getProductAmt() {
-		return product.getAmount();
+	public void addCost(ItemStack newItem) {
+		int amount = newItem.getAmount();
+		List<ItemStack> items = new ArrayList<>();
+		while (amount > 0) {
+			if (newItem.getMaxStackSize() < amount) {
+				ItemStack itm = newItem.clone();
+				itm.setAmount(newItem.getMaxStackSize());
+				items.add(itm);
+				amount -= newItem.getMaxStackSize();
+			} else {
+				ItemStack itm = newItem.clone();
+				itm.setAmount(amount);
+				items.add(itm);
+				amount -= amount;
+			}
+		}
+
+		for (ItemStack iS : items) {
+			cost.add(iS);
+			costListB64.add(ItemSerializer.itemStackArrayToBase64(iS));
+		}
+
+		saveShop();
+		updateSign();
 	}
 
 	/**
-	 * Sets the product items amount
+	 * Removes the cost item at the index
 	 *
-	 * @param amount int to be set to the product items amount
+	 * @param index index of item to remove
 	 */
-	public void setProductAmt(int amount) {
-		product.setAmount(amount);
-	}
+	public boolean removeCost(int index) {
+		try {
+			cost.remove(index);
+			costListB64.remove(index);
 
-	/**
-	 * Returns the amount of the cost item
-	 *
-	 * @return int amount of cost item
-	 */
-	public int getCostAmt() {
-		return cost.getAmount();
-	}
-
-	/**
-	 * Sets the cost items amount
-	 *
-	 * @param amount int to be set to the cost items amount
-	 */
-	public void setCostAmt(int amount) {
-		cost.setAmount(amount);
+			saveShop();
+			updateSign();
+			return true;
+		} catch (IndexOutOfBoundsException ex) {
+			return false;
+		}
 	}
 
 	/**
@@ -447,7 +527,7 @@ public class Shop implements Serializable {
 	 * @return True if product != null
 	 */
 	public boolean hasProduct() {
-		return product != null;
+		return product.size() > 0;
 	}
 
 	/**
@@ -456,7 +536,47 @@ public class Shop implements Serializable {
 	 * @return True if cost != null
 	 */
 	public boolean hasCost() {
-		return cost != null;
+		return cost.size() > 0;
+	}
+
+	/**
+	 * Adds more product items
+	 *
+	 * @param newItem ItemStack to be added
+	 */
+	public void addProduct(ItemStack newItem) {
+		int amount = newItem.getAmount();
+		List<ItemStack> items = new ArrayList<>();
+		while (amount > 0) {
+			if (newItem.getMaxStackSize() < amount) {
+				ItemStack itm = newItem.clone();
+				itm.setAmount(newItem.getMaxStackSize());
+				items.add(itm);
+				amount -= newItem.getMaxStackSize();
+			} else {
+				ItemStack itm = newItem.clone();
+				itm.setAmount(amount);
+				items.add(itm);
+				amount -= amount;
+			}
+		}
+
+		for (ItemStack iS : items) {
+			product.add(iS);
+			productListB64.add(ItemSerializer.itemStackArrayToBase64(iS));
+		}
+
+		saveShop();
+		updateSign();
+	}
+
+	/**
+	 * Returns the product item
+	 *
+	 * @return Product ItemStack List
+	 */
+	public List<ItemStack> getProduct() {
+		return product;
 	}
 
 	/**
@@ -465,19 +585,50 @@ public class Shop implements Serializable {
 	 * @param newItem item to be set to product
 	 */
 	public void setProduct(ItemStack newItem) {
-		product = newItem;
-		productB64 = ItemSerializer.itemStackArrayToBase64(product);
+		product.clear();
+		productListB64.clear();
+
+		int amount = newItem.getAmount();
+		List<ItemStack> items = new ArrayList<>();
+		while (amount > 0) {
+			if (newItem.getMaxStackSize() < amount) {
+				ItemStack itm = newItem.clone();
+				itm.setAmount(newItem.getMaxStackSize());
+				items.add(itm);
+				amount -= newItem.getMaxStackSize();
+			} else {
+				ItemStack itm = newItem.clone();
+				itm.setAmount(amount);
+				items.add(itm);
+				amount -= amount;
+			}
+		}
+
+		for (ItemStack iS : items) {
+			product.add(iS);
+			productListB64.add(ItemSerializer.itemStackArrayToBase64(iS));
+		}
+
 		saveShop();
 		updateSign();
 	}
 
 	/**
-	 * Returns the product item
+	 * Removes the product item at the index
 	 *
-	 * @return Product ItemStack
+	 * @param index index of item to remove
 	 */
-	public ItemStack getProduct() {
-		return product;
+	public boolean removeProduct(int index) {
+		try {
+			product.remove(index);
+			productListB64.remove(index);
+
+			saveShop();
+			updateSign();
+			return true;
+		} catch (IndexOutOfBoundsException ex) {
+			return false;
+		}
 	}
 
 	/**
@@ -493,19 +644,34 @@ public class Shop implements Serializable {
 	 * Converts Base64 String to itemstack values
 	 */
 	public void itemsFromB64() {
-		if (productB64.length() > 0 && product == null) {
-			try {
-				product = ItemSerializer.itemStackArrayFromBase64(productB64);
-			} catch (IOException ex) {
-				ex.printStackTrace();
+		if (product == null)
+			product = new ArrayList<>();
+		if (productListB64 == null)
+			productListB64 = new ArrayList<>();
+		if (cost == null)
+			cost = new ArrayList<>();
+		if (costListB64 == null)
+			costListB64 = new ArrayList<>();
+
+		product.clear();
+		for (String B64 : productListB64) {
+			if (B64.length() > 0) {
+				try {
+					product.add(ItemSerializer.itemStackArrayFromBase64(B64));
+				} catch (IOException ex) {
+					ex.printStackTrace();
+				}
 			}
 		}
 
-		if (costB64.length() > 0 && cost == null) {
-			try {
-				cost = ItemSerializer.itemStackArrayFromBase64(costB64);
-			} catch (IOException ex) {
-				ex.printStackTrace();
+		cost.clear();
+		for (String B64 : costListB64) {
+			if (B64.length() > 0) {
+				try {
+					cost.add(ItemSerializer.itemStackArrayFromBase64(B64));
+				} catch (IOException ex) {
+					ex.printStackTrace();
+				}
 			}
 		}
 	}
@@ -532,6 +698,7 @@ public class Shop implements Serializable {
 	 * Fixes values that cannot be serialized after loading
 	 */
 	public void fixAfterLoad() {
+		utils = new Utils();
 		itemsFromB64();
 		shopLoc.stringToWorld();
 		if (!shopType.isITrade() && chestLoc != null)
@@ -551,9 +718,7 @@ public class Shop implements Serializable {
 	 * Saves the shop too file
 	 */
 	public void saveShop() {
-		JsonConfiguration json = new JsonConfiguration(shopLoc.getLocation().getChunk());
-
-		json.saveShop(this);
+		new JsonConfiguration(shopLoc.getLocation().getChunk()).saveShop(this);
 	}
 
 	/**
@@ -586,35 +751,39 @@ public class Shop implements Serializable {
 				s.setLine(0, ChatColor.GRAY + shopType.toHeader());
 			}
 
-			if (product != null) {
+			if (product.size() == 1) {
 				StringBuilder sb = new StringBuilder();
 
-				sb.append(product.getAmount());
+				sb.append(product.get(0).getAmount());
 				sb.append(" ");
 
-				sb.append((product.hasItemMeta() && product.getItemMeta().hasDisplayName()) ?
-						product.getItemMeta().getDisplayName() :
-						product.getType().toString());
+				sb.append((product.get(0).hasItemMeta() && product.get(0).getItemMeta().hasDisplayName()) ?
+						product.get(0).getItemMeta().getDisplayName() :
+						product.get(0).getType().toString());
 
 				s.setLine(1, sb.toString().substring(0, (sb.length() < 15) ? sb.length() : 15));
 
-			} else {
+			} else if (product.size() == 0) {
 				s.setLine(1, "");
+			} else {
+				s.setLine(1, "Use 'what' cmd");
 			}
 
-			if (cost != null) {
+			if (cost.size() == 1) {
 				StringBuilder sb = new StringBuilder();
 
-				sb.append(cost.getAmount());
+				sb.append(cost.get(0).getAmount());
 				sb.append(" ");
 
-				sb.append((cost.hasItemMeta() && cost.getItemMeta().hasDisplayName()) ?
-						cost.getItemMeta().getDisplayName() :
-						cost.getType().toString());
+				sb.append((cost.get(0).hasItemMeta() && cost.get(0).getItemMeta().hasDisplayName()) ?
+						cost.get(0).getItemMeta().getDisplayName() :
+						cost.get(0).getType().toString());
 
 				s.setLine(2, sb.toString().substring(0, (sb.length() < 15) ? sb.length() : 15));
-			} else {
+			} else if(cost.size() == 0) {
 				s.setLine(2, "");
+			} else {
+				s.setLine(2, "Use 'what' cmd");
 			}
 
 			s.setLine(3, status.getLine());
@@ -632,35 +801,39 @@ public class Shop implements Serializable {
 			signEvent.setLine(0, ChatColor.GRAY + shopType.toHeader());
 		}
 
-		if (product != null) {
+		if (product.size() == 1) {
 			StringBuilder sb = new StringBuilder();
 
-			sb.append(product.getAmount());
+			sb.append(product.get(0).getAmount());
 			sb.append(" ");
 
-			sb.append((product.hasItemMeta() && product.getItemMeta().hasDisplayName()) ?
-					product.getItemMeta().getDisplayName() :
-					product.getType().toString());
+			sb.append((product.get(0).hasItemMeta() && product.get(0).getItemMeta().hasDisplayName()) ?
+					product.get(0).getItemMeta().getDisplayName() :
+					product.get(0).getType().toString());
 
 			signEvent.setLine(1, sb.toString().substring(0, (sb.length() < 15) ? sb.length() : 15));
 
-		} else {
+		} else if(product.size() == 0) {
 			signEvent.setLine(1, "");
+		} else {
+			signEvent.setLine(1, "Use 'what' cmd");
 		}
 
-		if (cost != null) {
+		if (cost.size() == 1) {
 			StringBuilder sb = new StringBuilder();
 
-			sb.append(cost.getAmount());
+			sb.append(cost.get(0).getAmount());
 			sb.append(" ");
 
-			sb.append((cost.hasItemMeta() && cost.getItemMeta().hasDisplayName()) ?
-					cost.getItemMeta().getDisplayName() :
-					cost.getType().toString());
+			sb.append((cost.get(0).hasItemMeta() && cost.get(0).getItemMeta().hasDisplayName()) ?
+					cost.get(0).getItemMeta().getDisplayName() :
+					cost.get(0).getType().toString());
 
 			signEvent.setLine(2, sb.toString().substring(0, (sb.length() < 15) ? sb.length() : 15));
-		} else {
+		} else if (cost.size() == 0){
 			signEvent.setLine(2, "");
+		} else {
+			signEvent.setLine(2, "Use 'what' cmd");
 		}
 
 		signEvent.setLine(3, status.getLine());
@@ -671,7 +844,7 @@ public class Shop implements Serializable {
 	 *
 	 * @return shops inventory as BlockState
 	 */
-	public BlockState getInventory() {
+	public BlockState getStorage() {
 		try {
 			return getInventoryLocation().getBlock().getState();
 		} catch (NullPointerException npe) {
@@ -682,8 +855,8 @@ public class Shop implements Serializable {
 	/**
 	 * Removes the shops inventory from the shop
 	 */
-	public void removeInventory() {
-		if (hasInventory()) {
+	public void removeStorage() {
+		if (hasStorage()) {
 			chestLoc = null;
 		}
 	}
@@ -693,8 +866,8 @@ public class Shop implements Serializable {
 	 *
 	 * @return shops inventory as BlockState
 	 */
-	public boolean hasInventory() {
-		return getInventory() != null;
+	public boolean hasStorage() {
+		return getStorage() != null;
 	}
 
 	/**
@@ -722,8 +895,8 @@ public class Shop implements Serializable {
 			ret = false;
 		}
 
-		updateSign();
 		saveShop();
+		updateSign();
 		return ret;
 	}
 
@@ -741,8 +914,8 @@ public class Shop implements Serializable {
 	 */
 	public void setClosed() {
 		status = ShopStatus.CLOSED;
-		updateSign();
 		saveShop();
+		updateSign();
 	}
 
 	/**
@@ -772,8 +945,8 @@ public class Shop implements Serializable {
 		else if (shopType == ShopType.BITRADE)
 			setShopType(ShopType.TRADE);
 
-		updateSign();
 		saveShop();
+		updateSign();
 	}
 
 	/**
@@ -817,5 +990,55 @@ public class Shop implements Serializable {
 		users.addAll(getMembersNames());
 
 		return users;
+	}
+
+	/**
+	 * Checks if all Costs in the list are valid for trade
+	 *
+	 * @return true if all costs are valid
+	 */
+	public boolean areCostsValid() {
+		for (ItemStack iS : cost) {
+			if (!utils.isValidType(iS.getType()))
+				return false;
+		}
+
+		return true;
+	}
+
+	/**
+	 * Checks if all Products in the list are valid for trade
+	 *
+	 * @return true if all products are valid
+	 */
+	public boolean areProductsValid() {
+		for (ItemStack iS : product) {
+			if (!utils.isValidType(iS.getType()))
+				return false;
+		}
+
+		return true;
+	}
+
+	/**
+	 * Returns true if shop has enough product to make trade
+	 *
+	 * @param multiplier multiplier to use for check
+	 * @return true if shop has enough product to make trade
+	 */
+	public Boolean checkProduct(int multiplier) {
+		setStorageInventory();
+		return utils.checkInventory(storageInv, product, multiplier);
+	}
+
+	/**
+	 * Returns true if shop has enough cost to make trade
+	 *
+	 * @param multiplier multiplier to use for check
+	 * @return true if shop has enough cost to make trade
+	 */
+	public Boolean checkCost(int multiplier) {
+		setStorageInventory();
+		return utils.checkInventory(storageInv, cost, multiplier);
 	}
 }

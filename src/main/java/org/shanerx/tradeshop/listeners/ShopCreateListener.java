@@ -130,7 +130,6 @@ public class ShopCreateListener extends Utils implements Listener {
 			event.setLine(0, ChatColor.DARK_GREEN + shopType.toHeader());
 		}
 
-		event.setLine(3, shop.getStatus().getLine());
 		shop.updateSign(event);
 		shop.removeEvent();
 		shop.saveShop();

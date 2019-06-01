@@ -85,7 +85,7 @@ public class ShopProtectionListener extends Utils implements Listener {
 					Shop shop = Shop.loadShop((new ShopChest(b.getLocation())).getShopSign());
 					if (shop != null) {
 
-						if (shop.getInventory() != null)
+						if (shop.getStorage() != null)
 							shop.getChestAsSC().resetName();
 
 						shop.remove();
@@ -102,7 +102,7 @@ public class ShopProtectionListener extends Utils implements Listener {
 					Shop shop = Shop.loadShop((Sign) b.getState());
 					if (shop != null) {
 
-						if (shop.getInventory() != null)
+						if (shop.getStorage() != null)
 							shop.getChestAsSC().resetName();
 
 						shop.remove();

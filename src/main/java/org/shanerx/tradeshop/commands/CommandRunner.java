@@ -155,6 +155,183 @@ public class CommandRunner extends Utils {
 	}
 
 	/**
+	 * Lists products with their index
+	 */
+	public void listProduct() {
+		Shop shop = findShop();
+
+		if (shop == null)
+			return;
+
+		StringBuilder sb = new StringBuilder();
+		int counter = 0;
+
+		for (ItemStack itm : shop.getProduct()) {
+			sb.append("&b[");
+			sb.append("&f");
+			sb.append(counter);
+			sb.append("&b]    &2- &f");
+			if (itm.hasItemMeta() && itm.getItemMeta().hasDisplayName())
+				sb.append(itm.getItemMeta().getDisplayName());
+			else
+				sb.append(itm.getType().toString());
+			sb.append("\n");
+
+			counter++;
+		}
+
+		sendMessage(Message.SHOP_ITEM_LIST.getPrefixed().replaceAll("%type%", "products").replaceAll("%list%", sb.toString()));
+	}
+
+	/**
+	 * Lists costs with their index
+	 */
+	public void listCost() {
+		Shop shop = findShop();
+
+		if (shop == null)
+			return;
+
+		StringBuilder sb = new StringBuilder();
+		int counter = 0;
+
+		for (ItemStack itm : shop.getCost()) {
+			sb.append("&b[");
+			sb.append("&f");
+			sb.append(counter);
+			sb.append("&b]    &2- &f");
+			if (itm.hasItemMeta() && itm.getItemMeta().hasDisplayName())
+				sb.append(itm.getItemMeta().getDisplayName());
+			else
+				sb.append(itm.getType().toString());
+			sb.append("\n");
+
+			counter++;
+		}
+
+		sendMessage(Message.SHOP_ITEM_LIST.getPrefixed().replaceAll("%type%", "products").replaceAll("%list%", sb.toString()));
+	}
+
+	/**
+	 * Removes product at index
+	 */
+	public void removeProduct() {
+		Shop shop = findShop();
+
+		if (shop == null)
+			return;
+
+		int index = 0;
+
+		if (isInt(command.getArgAt(1))) {
+			index = Integer.parseInt(command.getArgAt(1));
+		} else {
+			sendMessage(Message.INVALID_ARGUMENTS.getPrefixed());
+			return;
+		}
+
+		if (!(shop.getOwner().getUUID().equals(pSender.getUniqueId()) || shop.getManagersUUID().contains(pSender.getUniqueId()))) {
+			sendMessage(Message.NO_SHOP_PERMISSION.getPrefixed());
+			return;
+		}
+
+		if (shop.removeProduct(index))
+			sendMessage(Message.ITEM_REMOVED.getPrefixed());
+		else
+			sendMessage(Message.ITEM_NOT_REMOVED.getPrefixed());
+	}
+
+	/**
+	 * Removes cost at index
+	 */
+	public void removeCost() {
+		Shop shop = findShop();
+
+		if (shop == null)
+			return;
+
+		int index = 0;
+
+		if (isInt(command.getArgAt(1))) {
+			index = Integer.parseInt(command.getArgAt(1));
+		} else {
+			sendMessage(Message.INVALID_ARGUMENTS.getPrefixed());
+			return;
+		}
+
+		if (!(shop.getOwner().getUUID().equals(pSender.getUniqueId()) || shop.getManagersUUID().contains(pSender.getUniqueId()))) {
+			sendMessage(Message.NO_SHOP_PERMISSION.getPrefixed());
+			return;
+		}
+
+		if (shop.removeCost(index))
+			sendMessage(Message.ITEM_REMOVED.getPrefixed());
+		else
+			sendMessage(Message.ITEM_NOT_REMOVED.getPrefixed());
+	}
+
+	/**
+	 * Sets a product to a Shop
+	 * <p>
+	 * With no variables sent will use the amount and data of the held item for product
+	 * </p>
+	 * <p>
+	 * If the player uses a int in the first variable they can change the amount for the item they are holding
+	 * </p>
+	 * <p>
+	 * With 2 variables used the player can use an amount and material to set the sign instead of a held item
+	 * </p>
+	 */
+	public void setProduct() {
+		Shop shop = findShop();
+
+		if (shop == null)
+			return;
+
+		int amount = 0;
+		Material mat = null;
+
+		if (command.hasArgAt(1) && isInt(command.getArgAt(1))) {
+			amount = Integer.parseInt(command.getArgAt(1));
+		}
+
+		if (command.hasArgAt(2) && Material.getMaterial(command.getArgAt(2).toUpperCase()) != null) {
+			mat = Material.getMaterial(command.getArgAt(2).toUpperCase());
+		}
+
+		if (!(shop.getOwner().getUUID().equals(pSender.getUniqueId()) || shop.getManagersUUID().contains(pSender.getUniqueId()))) {
+			sendMessage(Message.NO_SHOP_PERMISSION.getPrefixed());
+			return;
+		}
+
+		ItemStack itemInHand;
+
+		if (mat == null) {
+			itemInHand = pSender.getInventory().getItemInMainHand().clone();
+		} else {
+			itemInHand = new ItemStack(mat, 1);
+		}
+
+		if (itemInHand.getType() == Material.AIR) {
+			sendMessage(Message.HELD_EMPTY.getPrefixed());
+			return;
+		}
+
+		if (!isValidType(itemInHand.getType())) {
+			sendMessage(Message.ILLEGAL_ITEM.getPrefixed());
+			return;
+		}
+
+		if (amount > 0) {
+			itemInHand.setAmount(amount);
+		}
+
+		shop.setProduct(itemInHand);
+
+		sendMessage(Message.ITEM_ADDED.getPrefixed());
+	}
+
+	/**
 	 * Adds a product to a Shop
 	 * <p>
 	 * With no variables sent will use the amount and data of the held item for product
@@ -201,7 +378,7 @@ public class CommandRunner extends Utils {
 			return;
 		}
 
-		if (!isValidType(itemInHand.getType().toString())) {
+		if (!isValidType(itemInHand.getType())) {
 			sendMessage(Message.ILLEGAL_ITEM.getPrefixed());
 			return;
 		}
@@ -210,7 +387,68 @@ public class CommandRunner extends Utils {
 			itemInHand.setAmount(amount);
 		}
 
-		shop.setProduct(itemInHand);
+		shop.addProduct(itemInHand);
+
+		sendMessage(Message.ITEM_ADDED.getPrefixed());
+	}
+
+	/**
+	 * Sets the item to the shop
+	 * <p>
+	 * With no variables sent will use the amount and data of the held item for cost
+	 * </p>
+	 * <p>
+	 * If the player uses a int in the first variable they can change the amount for the item they are holding
+	 * </p>
+	 * <p>
+	 * With 2 variables used the player can use an amount and material to set the sign instead of a held item
+	 * </p>
+	 */
+	public void setCost() {
+		Shop shop = findShop();
+
+		if (shop == null)
+			return;
+
+		int amount = 0;
+		Material mat = null;
+
+		if (command.hasArgAt(1) && isInt(command.getArgAt(1))) {
+			amount = Integer.parseInt(command.getArgAt(1));
+		}
+
+		if (command.hasArgAt(2) && Material.getMaterial(command.getArgAt(2).toUpperCase()) != null) {
+			mat = Material.getMaterial(command.getArgAt(2).toUpperCase());
+		}
+
+		if (!(shop.getOwner().getUUID().equals(pSender.getUniqueId()) || shop.getManagersUUID().contains(pSender.getUniqueId()))) {
+			sendMessage(Message.NO_SHOP_PERMISSION.getPrefixed());
+			return;
+		}
+
+		ItemStack itemInHand;
+
+		if (mat == null) {
+			itemInHand = pSender.getInventory().getItemInMainHand().clone();
+		} else {
+			itemInHand = new ItemStack(mat, 1);
+		}
+
+		if (itemInHand.getType() == Material.AIR) {
+			sendMessage(Message.HELD_EMPTY.getPrefixed());
+			return;
+		}
+
+		if (!isValidType(itemInHand.getType())) {
+			sendMessage(Message.ILLEGAL_ITEM.getPrefixed());
+			return;
+		}
+
+		if (amount > 0) {
+			itemInHand.setAmount(amount);
+		}
+
+		shop.setCost(itemInHand);
 
 		sendMessage(Message.ITEM_ADDED.getPrefixed());
 	}
@@ -262,7 +500,7 @@ public class CommandRunner extends Utils {
 			return;
 		}
 
-		if (!isValidType(itemInHand.getType().toString())) {
+		if (!isValidType(itemInHand.getType())) {
 			sendMessage(Message.ILLEGAL_ITEM.getPrefixed());
 			return;
 		}
@@ -271,7 +509,7 @@ public class CommandRunner extends Utils {
 			itemInHand.setAmount(amount);
 		}
 
-		shop.setCost(itemInHand);
+		shop.addCost(itemInHand);
 
 		sendMessage(Message.ITEM_ADDED.getPrefixed());
 	}
@@ -354,24 +592,34 @@ public class CommandRunner extends Utils {
 		if (shop == null)
 			return;
 
-		Inventory shopContents = Bukkit.createInventory(null, 18, colorize(Bukkit.getOfflinePlayer(shop.getOwner().getUUID()).getName() + "'s Shop                                 "));
+		int productRows = (int) Math.ceil(shop.getProduct().size() / 3.0),
+				costRows = (int) Math.ceil(shop.getCost().size() / 3.0),
+				invSize = (Math.max(productRows, costRows) + 1) * 9;
 
-		ItemStack costLabel = new ItemStack(Material.GREEN_STAINED_GLASS_PANE, 1),
-				productLabel = new ItemStack(Material.YELLOW_STAINED_GLASS_PANE, 1),
-				blankLabel = new ItemStack(Material.LIGHT_GRAY_STAINED_GLASS_PANE, 1);
+		Inventory shopContents = Bukkit.createInventory(null, invSize, colorize(Bukkit.getOfflinePlayer(shop.getOwner().getUUID()).getName() + "'s Shop                                 "));
+
+		ItemStack costLabel = new ItemStack(Material.GOLD_NUGGET, 1),
+				productLabel = new ItemStack(Material.GRASS_BLOCK, 1),
+				emptySlotLabel = new ItemStack(Material.GRAY_STAINED_GLASS_PANE, 1),
+				costBorderLabel = new ItemStack(Material.LIME_STAINED_GLASS_PANE, 1),
+				productBorderLabel = new ItemStack(Material.LIGHT_BLUE_STAINED_GLASS_PANE, 1),
+				centerDividerLabel = new ItemStack(Material.BLACK_STAINED_GLASS_PANE, 1);
 
 		ItemMeta costMeta = costLabel.getItemMeta(),
 				productMeta = productLabel.getItemMeta(),
-				blankMeta = blankLabel.getItemMeta();
+				emptySlotMeta = emptySlotLabel.getItemMeta(),
+				costBorderMeta = costBorderLabel.getItemMeta(),
+				productBorderMeta = productBorderLabel.getItemMeta(),
+				centerDividerMeta = centerDividerLabel.getItemMeta();
 
 		ArrayList<String> costLore = new ArrayList<>();
 		costLore.add("This is the item");
-		costLore.add("you give to make");
-		costLore.add("the trade.");
+		costLore.add("that you give to");
+		costLore.add("make the trade.");
 
 		ArrayList<String> productLore = new ArrayList<>();
 		productLore.add("This is the item");
-		productLore.add("the you receive");
+		productLore.add("that you receive");
 		productLore.add("from the trade.");
 
 		costMeta.setDisplayName("Cost");
@@ -380,30 +628,73 @@ public class CommandRunner extends Utils {
 		productMeta.setDisplayName("Product");
 		productMeta.setLore(productLore);
 
-		blankMeta.setDisplayName(" ");
+		emptySlotMeta.setDisplayName(" ");
+		costBorderMeta.setDisplayName(" ");
+		productBorderMeta.setDisplayName(" ");
+		centerDividerMeta.setDisplayName(" ");
 
 		costLabel.setItemMeta(costMeta);
 		productLabel.setItemMeta(productMeta);
-		blankLabel.setItemMeta(blankMeta);
+		emptySlotLabel.setItemMeta(emptySlotMeta);
+		costBorderLabel.setItemMeta(costBorderMeta);
+		productBorderLabel.setItemMeta(productBorderMeta);
+		centerDividerLabel.setItemMeta(centerDividerMeta);
 
-		shopContents.setItem(2, costLabel);
-		shopContents.setItem(11, shop.getProduct());
-		shopContents.setItem(6, productLabel);
-		shopContents.setItem(15, shop.getCost());
-		shopContents.setItem(0, blankLabel);
-		shopContents.setItem(1, blankLabel);
-		shopContents.setItem(3, blankLabel);
-		shopContents.setItem(4, blankLabel);
-		shopContents.setItem(5, blankLabel);
-		shopContents.setItem(7, blankLabel);
-		shopContents.setItem(8, blankLabel);
-		shopContents.setItem(9, blankLabel);
-		shopContents.setItem(10, blankLabel);
-		shopContents.setItem(12, blankLabel);
-		shopContents.setItem(13, blankLabel);
-		shopContents.setItem(14, blankLabel);
-		shopContents.setItem(16, blankLabel);
-		shopContents.setItem(17, blankLabel);
+		shopContents.setItem(1, costBorderLabel);
+		shopContents.setItem(2, costBorderLabel);
+		shopContents.setItem(3, costLabel);
+
+		shopContents.setItem(5, productLabel);
+		shopContents.setItem(6, productBorderLabel);
+		shopContents.setItem(7, productBorderLabel);
+
+		int counter = 4;
+		while (counter < invSize) {
+			shopContents.setItem(counter, centerDividerLabel);
+			counter += 9;
+		}
+
+		counter = 0;
+		while (counter < invSize) {
+			shopContents.setItem(counter, costBorderLabel);
+			counter += 9;
+		}
+
+		counter = 8;
+		while (counter < invSize) {
+			shopContents.setItem(counter, productBorderLabel);
+			counter += 9;
+		}
+
+		counter = 12;
+		int counter2 = 0;
+		for (ItemStack iS : shop.getCost()) {
+			shopContents.setItem(counter, iS);
+			if (counter2 == 2) {
+				counter2 = 0;
+				counter += 11;
+			} else {
+				counter2++;
+				counter--;
+			}
+		}
+
+		counter = 14;
+		counter2 = 0;
+		for (ItemStack iS : shop.getProduct()) {
+			shopContents.setItem(counter, iS);
+			if (counter2 == 2) {
+				counter2 = 0;
+				counter += 7;
+			} else {
+				counter2++;
+				counter++;
+			}
+		}
+
+		while (shopContents.firstEmpty() != -1) {
+			shopContents.setItem(shopContents.firstEmpty(), emptySlotLabel);
+		}
 
 		pSender.openInventory(shopContents);
 	}

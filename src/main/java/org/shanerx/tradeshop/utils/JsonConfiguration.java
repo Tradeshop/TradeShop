@@ -25,6 +25,7 @@
 
 package org.shanerx.tradeshop.utils;
 
+import com.google.common.collect.Lists;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
@@ -51,13 +52,14 @@ public class JsonConfiguration extends Utils implements Serializable {
 	private File file;
 	private File filePath;
 	private JsonObject jsonObj;
-	private int configType = -1;
-	private Gson gson = new GsonBuilder().enableComplexMapKeySerialization().setPrettyPrinting().serializeNulls().create();
+	private int configType;
+	private Gson gson;
 
 	public JsonConfiguration(Chunk c) {
+		gson = new GsonBuilder().setPrettyPrinting().serializeNulls().create();
 		configType = 0;
 		ShopChunk chunk = new ShopChunk(c);
-		this.pluginFolder = this.plugin.getDataFolder().getAbsolutePath();
+		this.pluginFolder = plugin.getDataFolder().getAbsolutePath();
 		this.path = this.pluginFolder + File.separator + "Data" + File.separator + chunk.getWorld().getName();
 		this.file = new File(path + File.separator + chunk.serialize() + ".json");
 		this.filePath = new File(path);
@@ -74,8 +76,9 @@ public class JsonConfiguration extends Utils implements Serializable {
 	}
 
 	public JsonConfiguration(UUID uuid) {
+		gson = new GsonBuilder().enableComplexMapKeySerialization().setPrettyPrinting().serializeNulls().create();
 		configType = 1;
-		this.pluginFolder = this.plugin.getDataFolder().getAbsolutePath();
+		this.pluginFolder = plugin.getDataFolder().getAbsolutePath();
 		this.path = this.pluginFolder + File.separator + "Data" + File.separator + "Players";
 		this.file = new File(path + File.separator + uuid.toString() + ".json");
 		this.filePath = new File(path);
@@ -152,9 +155,7 @@ public class JsonConfiguration extends Utils implements Serializable {
 		if (configType != 0)
 			return;
 
-		String sl = shop.getShopLocationAsSL().serialize();
-		JsonElement obj = gson.toJsonTree(shop);
-		jsonObj.add(sl, obj);
+		jsonObj.add(shop.getShopLocationAsSL().serialize(), gson.toJsonTree(shop));
 
 		saveContents(gson.toJson(jsonObj));
 	}
@@ -178,6 +179,19 @@ public class JsonConfiguration extends Utils implements Serializable {
 		Shop shop;
 
 		if (jsonObj.has(loc.serialize())) {
+			if (jsonObj.getAsJsonObject(loc.serialize()).getAsJsonPrimitive("productB64") != null) {
+				String str = jsonObj.getAsJsonObject(loc.serialize()).get("productB64").getAsString();
+				jsonObj.getAsJsonObject(loc.serialize()).remove("productB64");
+				jsonObj.getAsJsonObject(loc.serialize()).add("productListB64", gson.toJsonTree(Lists.newArrayList(str)));
+				saveContents(gson.toJson(jsonObj));
+			}
+
+			if (jsonObj.getAsJsonObject(loc.serialize()).getAsJsonPrimitive("costB64") != null) {
+				String str = jsonObj.getAsJsonObject(loc.serialize()).get("costB64").getAsString();
+				jsonObj.getAsJsonObject(loc.serialize()).remove("costB64");
+				jsonObj.getAsJsonObject(loc.serialize()).add("costListB64", gson.toJsonTree(Lists.newArrayList(str)));
+				saveContents(gson.toJson(jsonObj));
+			}
 			shop = gson.fromJson(jsonObj.get(loc.serialize()), Shop.class);
 		} else {
 			return null;

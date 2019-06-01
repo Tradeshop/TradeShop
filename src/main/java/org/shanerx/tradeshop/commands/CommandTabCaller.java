@@ -70,32 +70,20 @@ public class CommandTabCaller implements TabCompleter {
 			switch (command) {
 				case HELP:
 					return tabCompleter.help();
-				case BUGS:
-					return tabCompleter.bugs();
-				case SETUP:
-					return tabCompleter.setup();
-				case RELOAD:
-					return tabCompleter.reload();
-				case ADDPRODUCT:
-					return tabCompleter.addProduct();
-				case ADDCOST:
-					return tabCompleter.addCost();
-				case OPEN:
-					return tabCompleter.open();
-				case CLOSE:
-					return tabCompleter.close();
-				case SWITCH:
-					return tabCompleter.switchShop();
-				case WHAT:
-					return tabCompleter.what();
-				case WHO:
-					return tabCompleter.who();
-				case ADDMANAGER:
-					return tabCompleter.addManager();
-				case REMOVEUSER:
-					return tabCompleter.removeUser();
-				case ADDMEMBER:
-					return tabCompleter.addMember();
+				case ADD_PRODUCT:
+					return tabCompleter.addSet();
+				case ADD_COST:
+					return tabCompleter.addSet();
+				case SET_COST:
+					return tabCompleter.addSet();
+				case SET_PRODUCT:
+					return tabCompleter.addSet();
+				case ADD_MANAGER:
+					return tabCompleter.fillServerPlayer();
+				case REMOVE_USER:
+					return tabCompleter.fillShopPlayer();
+				case ADD_MEMBER:
+					return tabCompleter.fillServerPlayer();
 				default:
 					return Collections.EMPTY_LIST;
 			}

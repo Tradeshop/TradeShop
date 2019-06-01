@@ -82,7 +82,10 @@ public enum Message {
 	PLUGIN_BEHIND,
 	MULTI_UPDATE,
 	MULTI_AMOUNT,
-	TOO_MANY_CHESTS;
+	TOO_MANY_CHESTS,
+	SHOP_ITEM_LIST,
+	ITEM_REMOVED,
+	ITEM_NOT_REMOVED;
 
 	@Override
 	public String toString() {
@@ -123,11 +126,13 @@ public enum Message {
 		addMessage("insufficient-items", "&cYou do not have &e {AMOUNT} {ITEM}&c!");
 		addMessage("shop-full-amount", "&cThe shop does not have &e{AMOUNT} &cof a single type of &e{ITEM}&c!");
 		addMessage("full-amount", "&cYou must have &e{AMOUNT} &cof a single type of &e{ITEM}&c!");
-		addMessage("shop-empty", "&cThis TradeShop does not have &e {AMOUNT} {ITEM}&c!");
+		addMessage("shop-empty", "&cThis TradeShop is currently &emissing &citems to complete the trade!");
 		addMessage("shop-full", "&cThis TradeShop is full, please contact the owner to get it emptied!");
 		addMessage("player-full", "&cYour inventory is full, please make room before trading items!");
 		addMessage("confirm-trade", "&eTrade &6 {AMOUNT1} {ITEM1} &e for &6 {AMOUNT2} {ITEM2} &e?");
-		addMessage("item-added", "&aItem successfully added to sign.");
+		addMessage("item-added", "&aItem successfully added to shop.");
+		addMessage("item-removed", "&aItem successfully removed to shop.");
+		addMessage("item-not-removed", "&cItem could not be removed from shop.");
 		addMessage("held-empty", "&eYou are currently holding nothing.");
 		addMessage("player-only-command", "&eThis command is only available to players.");
 		addMessage("missing-shop", "&cThere is not currently a shop here, please tell the owner or come back later!");
@@ -154,6 +159,7 @@ public enum Message {
 		addMessage("multi-update", "&aTrade multiplier has been updated to %amount%.");
 		addMessage("multi-amount", "&aYour trade multiplier is %amount%.");
 		addMessage("too-many-chests", "&cThere are too many shops in this chunk, you can not add another one.");
+		addMessage("shop-item-list", "&aThe shops %type%:\n%list%");
 
 		save();
 	}

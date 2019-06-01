@@ -112,10 +112,10 @@ public class CommandCaller implements CommandExecutor {
             case RELOAD:
                 cmdRnnr.reload();
                 break;
-            case ADDPRODUCT:
+			case ADD_PRODUCT:
                 cmdRnnr.addProduct();
                 break;
-            case ADDCOST:
+			case ADD_COST:
                 cmdRnnr.addCost();
                 break;
             case OPEN:
@@ -133,18 +133,36 @@ public class CommandCaller implements CommandExecutor {
             case WHO:
                 cmdRnnr.who();
                 break;
-            case ADDMANAGER:
+			case ADD_MANAGER:
                 cmdRnnr.addManager();
                 break;
-			case REMOVEUSER:
+			case REMOVE_USER:
 				cmdRnnr.removeUser();
                 break;
-            case ADDMEMBER:
+			case ADD_MEMBER:
                 cmdRnnr.addMember();
                 break;
             case MULTI:
                 cmdRnnr.multi();
                 break;
+			case SET_PRODUCT:
+				cmdRnnr.setProduct();
+				break;
+			case SET_COST:
+				cmdRnnr.setCost();
+				break;
+			case LIST_PRODUCT:
+				cmdRnnr.listProduct();
+				break;
+			case LIST_COST:
+				cmdRnnr.listCost();
+				break;
+			case REMOVE_PRODUCT:
+				cmdRnnr.removeProduct();
+				break;
+			case REMOVE_COST:
+				cmdRnnr.removeCost();
+				break;
         }
 
         return true;
@@ -171,7 +189,7 @@ public class CommandCaller implements CommandExecutor {
      * @return true if permission is NONE or sender has permission
      */
     public boolean checkPerm(TradeCommand exec) {
-        if (!cmdPass.getSender().hasPermission(exec.getPermission()) && !exec.getPermission().equals(Permissions.NONE)) {
+		if (!cmdPass.getSender().hasPermission(exec.getPermission()) && !exec.getPermission().equals(Permissions.NONE.getValue())) {
             cmdPass.getSender().sendMessage(Message.NO_COMMAND_PERMISSION.getPrefixed());
             return false;
         }

@@ -45,6 +45,7 @@ import org.shanerx.tradeshop.objects.ShopLocation;
 import org.shanerx.tradeshop.utils.JsonConfiguration;
 import org.shanerx.tradeshop.utils.Utils;
 
+import java.util.List;
 import java.util.Map;
 
 @SuppressWarnings("unused")
@@ -59,193 +60,219 @@ public class ShopTradeListener extends Utils implements Listener {
 		Sign s;
 		BlockState chestState;
 
+		if (ShopType.isShop(e.getClickedBlock())) {
+			s = (Sign) e.getClickedBlock().getState();
+		} else {
+			return;
+		}
+
+		JsonConfiguration json = new JsonConfiguration(s.getChunk());
+		shop = json.loadShop(new ShopLocation(s.getLocation()));
+
+		if (!shop.getShopType().equals(ShopType.ITRADE) && shop.getUsersUUID().contains(buyer.getUniqueId())) {
+			buyer.sendMessage(Message.SELF_OWNED.getPrefixed());
+			return;
+		}
+
+		if (!shop.isOpen()) {
+			buyer.sendMessage(Message.SHOP_CLOSED.getPrefixed());
+			return;
+		}
+
+		chestState = shop.getStorage();
+		if (!shop.getShopType().equals(ShopType.ITRADE) && chestState == null) {
+			buyer.sendMessage(Message.MISSING_CHEST.getPrefixed());
+			shop.setClosed();
+			return;
+		}
+
+		Inventory chestInventory;
+
+		try {
+			chestInventory = ((InventoryHolder) chestState).getInventory();
+		} catch (NullPointerException npe) {
+			chestInventory = null;
+		}
+
+		Inventory playerInventory = buyer.getInventory();
+		List<ItemStack> product = shop.getProduct();
+		List<ItemStack> cost = shop.getCost();
+
+		int multiplier = 1;
+
+		e.setCancelled(true);
+
+		if (buyer.isSneaking() && Setting.ALLOW_MULTI_TRADE.getBoolean()) {
+			JsonConfiguration pJson = new JsonConfiguration(buyer.getUniqueId());
+			Map<String, Integer> data = pJson.loadPlayer();
+			multiplier = data.get("multi");
+
+		}
+
+		String productName, costName;
+		int amountCost = 0, amountProd = 0;
+
+		if (!(shop.areProductsValid() && shop.areCostsValid())) {
+			buyer.sendMessage(Message.ILLEGAL_ITEM.getPrefixed());
+			return;
+		}
+
+		if (product.size() == 1) {
+			if (product.get(0).hasItemMeta() && product.get(0).getItemMeta().hasDisplayName())
+				productName = product.get(0).getItemMeta().getDisplayName();
+			else productName = product.get(0).getType().toString();
+
+			amountProd = product.get(0).getAmount();
+		} else {
+			productName = "Various";
+			for (ItemStack iS : product) {
+				amountProd += iS.getAmount();
+			}
+		}
+		if (cost.size() == 1) {
+			if (cost.get(0).hasItemMeta() && cost.get(0).getItemMeta().hasDisplayName())
+				costName = cost.get(0).getItemMeta().getDisplayName();
+			else costName = cost.get(0).getType().toString();
+
+			amountCost = cost.get(0).getAmount();
+		} else {
+			costName = "Various";
+			for (ItemStack iS : cost) {
+				amountCost += iS.getAmount();
+			}
+		}
+
 		if (e.getAction() == Action.RIGHT_CLICK_BLOCK) {
 
-			if (ShopType.isShop(e.getClickedBlock())) {
-				s = (Sign) e.getClickedBlock().getState();
-			} else {
-				return;
-			}
-
-			JsonConfiguration json = new JsonConfiguration(s.getChunk());
-			shop = json.loadShop(new ShopLocation(s.getLocation()));
-
-			if (!shop.getShopType().equals(ShopType.ITRADE) && shop.getUsersUUID().contains(buyer.getUniqueId())) {
-				buyer.sendMessage(Message.SELF_OWNED.getPrefixed());
-				return;
-			}
-
-			if (!shop.isOpen()) {
-				buyer.sendMessage(Message.SHOP_CLOSED.getPrefixed());
-				return;
-			}
-
-			chestState = shop.getInventory();
-			if (!shop.getShopType().equals(ShopType.ITRADE) && chestState == null) {
-				buyer.sendMessage(Message.MISSING_CHEST.getPrefixed());
-				shop.setClosed();
-				return;
-			}
-
-			Inventory chestInventory;
-
-			try {
-				chestInventory = ((InventoryHolder) chestState).getInventory();
-			} catch (NullPointerException npe) {
-				chestInventory = null;
-			}
-
-			Inventory playerInventory = buyer.getInventory();
-
-			int amountProd = shop.getProductAmt();
-			int amountCost = shop.getCostAmt();
-
-			e.setCancelled(true);
-
-			if (buyer.isSneaking()) {
-				if (Setting.ALLOW_MULTI_TRADE.getBoolean()) {
-					JsonConfiguration pJson = new JsonConfiguration(buyer.getUniqueId());
-					Map<String, Integer> data = pJson.loadPlayer();
-					amountProd *= data.get("multi");
-					amountCost *= data.get("multi");
-				}
-			}
-
-			String productName, costName;
-			ItemStack product = shop.getProduct(), cost = shop.getCost();
-
-			if (!(isValidType(product.getType().toString()) && isValidType(cost.getType().toString()))) {
-				buyer.sendMessage(Message.ILLEGAL_ITEM.getPrefixed());
-				return;
-			}
-
-			if (product.hasItemMeta() && product.getItemMeta().hasDisplayName())
-				productName = product.getItemMeta().getDisplayName();
-			else productName = product.getType().toString();
-
-			if (cost.hasItemMeta() && cost.getItemMeta().hasDisplayName())
-				costName = cost.getItemMeta().getDisplayName();
-			else costName = cost.getType().toString();
-
-			if (!containsAtLeast(playerInventory, cost, amountCost)) {
+			if (!checkInventory(playerInventory, cost, multiplier)) {
 				buyer.sendMessage(Message.INSUFFICIENT_ITEMS.getPrefixed()
 						.replace("{ITEM}", costName.toLowerCase()).replace("{AMOUNT}", String.valueOf(amountCost)));
 				return;
 			}
 
-			if (!canExchange(playerInventory, cost, product)) {
+			if (!canExchangeAll(playerInventory, cost, product, multiplier)) {
 				buyer.sendMessage(Message.PLAYER_FULL.getPrefixed()
 						.replace("{ITEM}", costName.toLowerCase()).replace("{AMOUNT}", String.valueOf(amountCost)));
 				return;
 			}
 
 			if (chestInventory != null) {
-				if (!containsAtLeast(chestInventory, product, amountProd)) {
+				if (!checkInventory(chestInventory, product, multiplier)) {
 					buyer.sendMessage(Message.SHOP_EMPTY.getPrefixed()
 							.replace("{ITEM}", productName.toLowerCase())
 							.replace("{AMOUNT}", String.valueOf(amountProd)));
 
-					if (!containsAtLeast(chestInventory, product, shop.getProductAmt()))
+					if (!checkInventory(chestInventory, product, 1))
 						shop.setClosed();
 
 					return;
 				}
 
 
-				if (!canExchange(chestInventory, product, cost)) {
+				if (!canExchangeAll(chestInventory, product, cost, multiplier)) {
 					buyer.sendMessage(Message.SHOP_FULL.getPrefixed()
 							.replace("{ITEM}", productName.toLowerCase()).replace("{AMOUNT}", String.valueOf(amountProd)));
 					return;
 				}
 			}
 
-			int count = amountProd, removed;
-
+			int count, removed;
 			if (!shop.getShopType().equals(ShopType.ITRADE)) {
-				while (count > 0) {
-					boolean resetItem = false;
-					ItemStack temp = chestInventory.getItem(chestInventory.first(product.getType())),
-							dupitm1 = product.clone();
+				for (ItemStack iS : product) {
+					count = iS.getAmount();
+					while (count > 0) {
+						boolean resetItem = false;
+						ItemStack temp = chestInventory.getItem(chestInventory.first(iS.getType())),
+								dupitm1 = iS.clone();
 
-					if (count > product.getMaxStackSize()) {
-						removed = product.getMaxStackSize();
-					} else {
-						removed = count;
+						if (count > iS.getMaxStackSize()) {
+							removed = iS.getMaxStackSize();
+						} else {
+							removed = count;
+						}
+
+						if (removed > temp.getAmount()) {
+							removed = temp.getAmount();
+						}
+
+						iS.setAmount(removed);
+						if (!iS.hasItemMeta() && temp.hasItemMeta()) {
+							iS.setItemMeta(temp.getItemMeta());
+							iS.setData(temp.getData());
+							resetItem = true;
+						}
+
+						chestInventory.removeItem(iS);
+						playerInventory.addItem(iS);
+
+						if (resetItem) {
+							iS = dupitm1;
+						}
+
+						count -= removed;
 					}
-
-					if (removed > temp.getAmount()) {
-						removed = temp.getAmount();
-					}
-
-					product.setAmount(removed);
-					if (!product.hasItemMeta() && temp.hasItemMeta()) {
-						product.setItemMeta(temp.getItemMeta());
-						product.setData(temp.getData());
-						resetItem = true;
-					}
-
-					chestInventory.removeItem(product);
-					playerInventory.addItem(product);
-
-					if (resetItem) {
-						product = dupitm1;
-					}
-
-					count -= removed;
 				}
 
-				count = amountCost;
-				while (count > 0) {
-					boolean resetItem = false;
-					ItemStack temp = playerInventory.getItem(playerInventory.first(cost.getType())),
-							dupitm1 = cost.clone();
-					if (count > cost.getMaxStackSize())
-						removed = cost.getMaxStackSize();
-					else
-						removed = count;
+				for (ItemStack iS : cost) {
+					count = iS.getAmount();
+					while (count > 0) {
+						boolean resetItem = false;
+						ItemStack temp = playerInventory.getItem(playerInventory.first(iS.getType())),
+								dupitm1 = iS.clone();
+						if (count > iS.getMaxStackSize())
+							removed = iS.getMaxStackSize();
+						else
+							removed = count;
 
-					if (removed > temp.getAmount())
-						removed = temp.getAmount();
+						if (removed > temp.getAmount())
+							removed = temp.getAmount();
 
-					cost.setAmount(removed);
-					if (!cost.hasItemMeta() && temp.hasItemMeta()) {
-						cost.setItemMeta(temp.getItemMeta());
-						cost.setData(temp.getData());
-						resetItem = true;
+						iS.setAmount(removed);
+						if (!iS.hasItemMeta() && temp.hasItemMeta()) {
+							iS.setItemMeta(temp.getItemMeta());
+							iS.setData(temp.getData());
+							resetItem = true;
+						}
+
+						playerInventory.removeItem(iS);
+						chestInventory.addItem(iS);
+
+						if (resetItem) {
+							iS = dupitm1;
+						}
+
+						count -= removed;
 					}
-
-					playerInventory.removeItem(cost);
-					chestInventory.addItem(cost);
-
-					if (resetItem) {
-						cost = dupitm1;
-					}
-
-					count -= removed;
 				}
 			} else {
-				while (count > 0) {
-					if (count > product.getMaxStackSize()) {
-						removed = product.getMaxStackSize();
-					} else {
-						removed = count;
-					}
 
-					product.setAmount(removed);
-					playerInventory.addItem(product);
-					count -= removed;
+				for (ItemStack iS : product) {
+					count = iS.getAmount();
+					while (count > 0) {
+						if (count > iS.getMaxStackSize()) {
+							removed = iS.getMaxStackSize();
+						} else {
+							removed = count;
+						}
+
+						iS.setAmount(removed);
+						playerInventory.addItem(iS);
+						count -= removed;
+					}
 				}
 
-				count = amountCost;
-				while (count > 0) {
-					if (count > cost.getMaxStackSize())
-						removed = cost.getMaxStackSize();
-					else
-						removed = count;
+				for (ItemStack iS : cost) {
+					count = iS.getAmount();
+					while (count > 0) {
+						if (count > iS.getMaxStackSize())
+							removed = iS.getMaxStackSize();
+						else
+							removed = count;
 
-					cost.setAmount(removed);
-					playerInventory.removeItem(cost);
-					count -= removed;
+						iS.setAmount(removed);
+						playerInventory.removeItem(iS);
+						count -= removed;
+					}
 				}
 			}
 
@@ -260,157 +287,106 @@ public class ShopTradeListener extends Utils implements Listener {
 
 		} else if (e.getAction() == Action.LEFT_CLICK_BLOCK) {
 
-			if (!ShopType.isShop(e.getClickedBlock())) {
-				return;
-			}
-
-			s = (Sign) e.getClickedBlock().getState();
-			shop = Shop.loadShop(s);
-
-			if (ShopType.getType(s) != ShopType.BITRADE) {
-				return;
-			}
-
-			chestState = shop.getInventory();
-			if (chestState == null) {
-				buyer.sendMessage(Message.MISSING_SHOP.getPrefixed());
-				return;
-			}
-
-			if (shop.getUsersUUID().contains(buyer.getUniqueId())) {
-				if (buyer.getUniqueId().equals(shop.getOwner().getUUID())) {
-					return;
-				}
-
-				buyer.sendMessage(Message.SELF_OWNED.getPrefixed());
-				e.setCancelled(true);
-				return;
-			}
-
-			e.setCancelled(true);
-
-			Inventory chestInventory = ((InventoryHolder) chestState).getInventory();
-			Inventory playerInventory = buyer.getInventory();
-
-			int amountProd = shop.getProduct().getAmount();
-			int amountCost = shop.getCost().getAmount();
-
-			if (buyer.isSneaking()) {
-				if (Setting.ALLOW_MULTI_TRADE.getBoolean()) {
-					JsonConfiguration pJson = new JsonConfiguration(buyer.getUniqueId());
-					Map<String, Integer> data = pJson.loadPlayer();
-					amountProd *= data.get("multi");
-					amountCost *= data.get("multi");
-				}
-			}
-
-			String productName, costName;
-			ItemStack product = shop.getProduct(), cost = shop.getCost();
-
-			if (product == null || cost == null) {
-				failedTrade(e, Message.BUY_FAILED_SIGN);
-				return;
-			} else if (plugin.getListManager().isBlacklisted(product.getType()) || plugin.getListManager().isBlacklisted(cost.getType())) {
-				failedTrade(e, Message.ILLEGAL_ITEM);
-				return;
-			}
-
-			if (product.hasItemMeta() && product.getItemMeta().hasDisplayName()) {
-				productName = product.getItemMeta().getDisplayName();
-			} else {
-                productName = product.getType().toString();
-			}
-
-			if (cost.hasItemMeta() && cost.getItemMeta().hasDisplayName()) {
-				costName = cost.getItemMeta().getDisplayName();
-			} else {
-                costName = cost.getType().toString();
-			}
-
-			if (!containsAtLeast(playerInventory, product, amountProd)) {
+			if (!checkInventory(playerInventory, cost, multiplier)) {
 				buyer.sendMessage(Message.INSUFFICIENT_ITEMS.getPrefixed()
-						.replace("{ITEM}", productName.toLowerCase()).replace("{AMOUNT}", String.valueOf(amountProd)));
-				return;
-			}
-
-			if (!containsAtLeast(chestInventory, cost, amountCost)) {
-				buyer.sendMessage(Message.SHOP_EMPTY.getPrefixed()
 						.replace("{ITEM}", costName.toLowerCase()).replace("{AMOUNT}", String.valueOf(amountCost)));
 				return;
 			}
 
-			if (!canExchange(chestInventory, cost, product)) {
-				buyer.sendMessage(Message.SHOP_FULL.getPrefixed()
-						.replace("{ITEM}", costName.toLowerCase()).replace("{AMOUNT}", String.valueOf(cost)));
-				return;
-			}
-
-			if (!canExchange(playerInventory, product, cost)) {
+			if (!canExchangeAll(playerInventory, cost, product, multiplier)) {
 				buyer.sendMessage(Message.PLAYER_FULL.getPrefixed()
-						.replace("{ITEM}", productName.toLowerCase()).replace("{AMOUNT}", String.valueOf(amountProd)));
+						.replace("{ITEM}", costName.toLowerCase()).replace("{AMOUNT}", String.valueOf(amountCost)));
 				return;
 			}
 
-			int count = amountProd, removed;
-			while (count > 0) {
-				boolean resetItem = false;
-				ItemStack temp = playerInventory.getItem(playerInventory.first(product.getType())),
-						dupitm1 = product.clone();
-				if (count > product.getMaxStackSize()) {
-					removed = product.getMaxStackSize();
-				} else {
-					removed = count;
+			if (chestInventory != null) {
+				if (!checkInventory(chestInventory, product, multiplier)) {
+					buyer.sendMessage(Message.SHOP_EMPTY.getPrefixed()
+							.replace("{ITEM}", productName.toLowerCase())
+							.replace("{AMOUNT}", String.valueOf(amountProd)));
+
+					if (!checkInventory(chestInventory, product, 1))
+						shop.setClosed();
+
+					return;
 				}
 
-				if (removed > temp.getAmount()) {
-					removed = temp.getAmount();
+
+				if (!canExchangeAll(chestInventory, product, cost, multiplier)) {
+					buyer.sendMessage(Message.SHOP_FULL.getPrefixed()
+							.replace("{ITEM}", productName.toLowerCase()).replace("{AMOUNT}", String.valueOf(amountProd)));
+					return;
 				}
-
-				product.setAmount(removed);
-				if (!product.hasItemMeta() && temp.hasItemMeta()) {
-					product.setItemMeta(temp.getItemMeta());
-					product.setData(temp.getData());
-					resetItem = true;
-				}
-
-				playerInventory.removeItem(product);
-				chestInventory.addItem(product);
-
-				if (resetItem) {
-					product = dupitm1;
-				}
-
-				count -= removed;
 			}
 
-			count = amountCost;
-			while (count > 0) {
-				boolean resetItem = false;
-				ItemStack temp = chestInventory.getItem(chestInventory.first(cost.getType())),
-						dupitm1 = cost.clone();
-				if (count > cost.getMaxStackSize())
-					removed = cost.getMaxStackSize();
-				else
-					removed = count;
+			int count, removed;
+			if (!shop.getShopType().equals(ShopType.ITRADE)) {
+				for (ItemStack iS : product) {
+					count = iS.getAmount();
+					while (count > 0) {
+						boolean resetItem = false;
+						ItemStack temp = chestInventory.getItem(chestInventory.first(iS.getType())),
+								dupitm1 = iS.clone();
 
-				if (removed > temp.getAmount())
-					removed = temp.getAmount();
+						if (count > iS.getMaxStackSize()) {
+							removed = iS.getMaxStackSize();
+						} else {
+							removed = count;
+						}
 
-				cost.setAmount(removed);
-				if (!cost.hasItemMeta() && temp.hasItemMeta()) {
-					cost.setItemMeta(temp.getItemMeta());
-					cost.setData(temp.getData());
-					resetItem = true;
+						if (removed > temp.getAmount()) {
+							removed = temp.getAmount();
+						}
+
+						iS.setAmount(removed);
+						if (!iS.hasItemMeta() && temp.hasItemMeta()) {
+							iS.setItemMeta(temp.getItemMeta());
+							iS.setData(temp.getData());
+							resetItem = true;
+						}
+
+						playerInventory.removeItem(iS);
+						chestInventory.addItem(iS);
+
+						if (resetItem) {
+							iS = dupitm1;
+						}
+
+						count -= removed;
+					}
 				}
 
-				chestInventory.removeItem(cost);
-				playerInventory.addItem(cost);
+				for (ItemStack iS : cost) {
+					count = iS.getAmount();
+					while (count > 0) {
+						boolean resetItem = false;
+						ItemStack temp = playerInventory.getItem(playerInventory.first(iS.getType())),
+								dupitm1 = iS.clone();
+						if (count > iS.getMaxStackSize())
+							removed = iS.getMaxStackSize();
+						else
+							removed = count;
 
-				if (resetItem) {
-					cost = dupitm1;
+						if (removed > temp.getAmount())
+							removed = temp.getAmount();
+
+						iS.setAmount(removed);
+						if (!iS.hasItemMeta() && temp.hasItemMeta()) {
+							iS.setItemMeta(temp.getItemMeta());
+							iS.setData(temp.getData());
+							resetItem = true;
+						}
+
+						chestInventory.removeItem(iS);
+						playerInventory.addItem(iS);
+
+						if (resetItem) {
+							iS = dupitm1;
+						}
+
+						count -= removed;
+					}
 				}
-
-				count -= removed;
 			}
 
             buyer.sendMessage(Message.ON_TRADE.getPrefixed()

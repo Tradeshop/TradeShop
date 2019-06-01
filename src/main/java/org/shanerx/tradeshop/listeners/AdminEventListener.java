@@ -63,8 +63,8 @@ public class AdminEventListener extends Utils implements Listener {
 
 			if (player.hasPermission(Permissions.ADMIN.getPerm()) || event.getPlayer().getUniqueId().equals(shop.getOwner().getUUID())) {
 
-				if (shop.getInventory() != null)
-					new ShopChest(shop.getInventory().getLocation()).resetName();
+				if (shop.getStorage() != null)
+					new ShopChest(shop.getStorage().getLocation()).resetName();
 
 				shop.remove();
 				return;
@@ -100,7 +100,7 @@ public class AdminEventListener extends Utils implements Listener {
 			if (event.getPlayer().getUniqueId().equals(shop.getOwner().getUUID())) {
 				if (!ShopChest.isDoubleChest(block)) {
 					new ShopChest(shop.getInventoryLocation()).resetName();
-					shop.removeInventory();
+					shop.removeStorage();
 					shop.setClosed();
 					shop.saveShop();
 				} else {
