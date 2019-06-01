@@ -447,29 +447,7 @@ public class Shop implements Serializable {
 		cost.clear();
 		costListB64.clear();
 
-		int amount = newItem.getAmount();
-		List<ItemStack> items = new ArrayList<>();
-		while (amount > 0) {
-			if (newItem.getMaxStackSize() < amount) {
-				ItemStack itm = newItem.clone();
-				itm.setAmount(newItem.getMaxStackSize());
-				items.add(itm);
-				amount -= newItem.getMaxStackSize();
-			} else {
-				ItemStack itm = newItem.clone();
-				itm.setAmount(amount);
-				items.add(itm);
-				amount -= amount;
-			}
-		}
-
-		for (ItemStack iS : items) {
-			cost.add(iS);
-			costListB64.add(ItemSerializer.itemStackArrayToBase64(iS));
-		}
-
-		saveShop();
-		updateSign();
+		addCost(newItem);
 	}
 
 	/**
@@ -588,29 +566,7 @@ public class Shop implements Serializable {
 		product.clear();
 		productListB64.clear();
 
-		int amount = newItem.getAmount();
-		List<ItemStack> items = new ArrayList<>();
-		while (amount > 0) {
-			if (newItem.getMaxStackSize() < amount) {
-				ItemStack itm = newItem.clone();
-				itm.setAmount(newItem.getMaxStackSize());
-				items.add(itm);
-				amount -= newItem.getMaxStackSize();
-			} else {
-				ItemStack itm = newItem.clone();
-				itm.setAmount(amount);
-				items.add(itm);
-				amount -= amount;
-			}
-		}
-
-		for (ItemStack iS : items) {
-			product.add(iS);
-			productListB64.add(ItemSerializer.itemStackArrayToBase64(iS));
-		}
-
-		saveShop();
-		updateSign();
+		addProduct(newItem);
 	}
 
 	/**
@@ -703,6 +659,7 @@ public class Shop implements Serializable {
 		shopLoc.stringToWorld();
 		if (!shopType.isITrade() && chestLoc != null)
 			chestLoc.stringToWorld();
+		updateSign();
 	}
 
 	/**

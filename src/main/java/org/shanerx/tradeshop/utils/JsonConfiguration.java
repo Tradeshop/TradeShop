@@ -33,6 +33,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.reflect.TypeToken;
 import org.bukkit.Chunk;
+import org.bukkit.inventory.ItemStack;
 import org.shanerx.tradeshop.objects.Shop;
 import org.shanerx.tradeshop.objects.ShopChunk;
 import org.shanerx.tradeshop.objects.ShopLocation;
@@ -41,8 +42,11 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -175,21 +179,21 @@ public class JsonConfiguration extends Utils implements Serializable {
 		if (configType != 0)
 			return null;
 
-		Gson gson = new Gson();
+		Gson gson = new GsonBuilder().setPrettyPrinting().serializeNulls().create();
 		Shop shop;
 
 		if (jsonObj.has(loc.serialize())) {
 			if (jsonObj.getAsJsonObject(loc.serialize()).getAsJsonPrimitive("productB64") != null) {
 				String str = jsonObj.getAsJsonObject(loc.serialize()).get("productB64").getAsString();
 				jsonObj.getAsJsonObject(loc.serialize()).remove("productB64");
-				jsonObj.getAsJsonObject(loc.serialize()).add("productListB64", gson.toJsonTree(Lists.newArrayList(str)));
+				jsonObj.getAsJsonObject(loc.serialize()).add("productListB64", gson.toJsonTree(b64OverstackFixer(str)));
 				saveContents(gson.toJson(jsonObj));
 			}
 
 			if (jsonObj.getAsJsonObject(loc.serialize()).getAsJsonPrimitive("costB64") != null) {
 				String str = jsonObj.getAsJsonObject(loc.serialize()).get("costB64").getAsString();
 				jsonObj.getAsJsonObject(loc.serialize()).remove("costB64");
-				jsonObj.getAsJsonObject(loc.serialize()).add("costListB64", gson.toJsonTree(Lists.newArrayList(str)));
+				jsonObj.getAsJsonObject(loc.serialize()).add("costListB64", gson.toJsonTree(b64OverstackFixer(str)));
 				saveContents(gson.toJson(jsonObj));
 			}
 			shop = gson.fromJson(jsonObj.get(loc.serialize()), Shop.class);
@@ -203,5 +207,42 @@ public class JsonConfiguration extends Utils implements Serializable {
 
 	public int getShopCount() {
 		return jsonObj.size();
+	}
+
+	private List<String> b64OverstackFixer(String oldB64) {
+		ItemStack oldStack = null;
+		if (oldB64.length() > 0) {
+			try {
+				oldStack = ItemSerializer.itemStackArrayFromBase64(oldB64);
+			} catch (IOException ex) {
+				ex.printStackTrace();
+			}
+		}
+
+		if (oldStack == null)
+			return null;
+
+		if (!(oldStack.getAmount() > oldStack.getMaxStackSize())) {
+			return Lists.newArrayList(ItemSerializer.itemStackArrayToBase64(oldStack));
+		} else {
+			List<String> newStacks = new ArrayList<>();
+			int amount = oldStack.getAmount();
+
+			while (amount > 0) {
+				if (oldStack.getMaxStackSize() < amount) {
+					ItemStack itm = oldStack.clone();
+					itm.setAmount(oldStack.getMaxStackSize());
+					newStacks.add(ItemSerializer.itemStackArrayToBase64(itm));
+					amount -= oldStack.getMaxStackSize();
+				} else {
+					ItemStack itm = oldStack.clone();
+					itm.setAmount(amount);
+					newStacks.add(ItemSerializer.itemStackArrayToBase64(itm));
+					amount -= amount;
+				}
+			}
+
+			return newStacks;
+		}
 	}
 }

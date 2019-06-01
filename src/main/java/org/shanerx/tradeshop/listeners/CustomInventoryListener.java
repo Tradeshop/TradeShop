@@ -29,7 +29,6 @@ import org.bukkit.ChatColor;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
 import org.shanerx.tradeshop.utils.Utils;
 
@@ -41,7 +40,7 @@ public class CustomInventoryListener extends Utils implements Listener {
 		Inventory inventory = event.getInventory();
 
 		if (ChatColor.stripColor(event.getView().getTitle()).endsWith("Shop                                 ")) {
-			if (!(event.getClickedInventory() == null && event.getClickedInventory().getType().equals(InventoryType.PLAYER)))
+			if (event.getClickedInventory() != null)
 				event.setCancelled(true);
 		}
 	}
