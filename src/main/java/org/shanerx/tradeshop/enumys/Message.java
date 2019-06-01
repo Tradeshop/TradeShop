@@ -85,7 +85,8 @@ public enum Message {
 	TOO_MANY_CHESTS,
 	SHOP_ITEM_LIST,
 	ITEM_REMOVED,
-	ITEM_NOT_REMOVED;
+	ITEM_NOT_REMOVED,
+	TOO_MANY_ITEMS;
 
 	@Override
 	public String toString() {
@@ -160,6 +161,7 @@ public enum Message {
 		addMessage("multi-amount", "&aYour trade multiplier is %amount%.");
 		addMessage("too-many-chests", "&cThere are too many shops in this chunk, you can not add another one.");
 		addMessage("shop-item-list", "&aThe shops %type%:\n%list%");
+		addMessage("too-many-items", "&cThis trade can not take any more %side%!");
 
 		save();
 	}

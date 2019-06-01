@@ -326,6 +326,11 @@ public class CommandRunner extends Utils {
 			itemInHand.setAmount(amount);
 		}
 
+		if (Math.ceil((double) itemInHand.getAmount() / (double) itemInHand.getMaxStackSize()) > Setting.MAX_ITEMS_PER_TRADE_SIDE.getInt()) {
+			sendMessage(Message.TOO_MANY_ITEMS.getPrefixed().replaceAll("%side%", "products"));
+			return;
+		}
+
 		shop.setProduct(itemInHand);
 
 		sendMessage(Message.ITEM_ADDED.getPrefixed());
@@ -385,6 +390,11 @@ public class CommandRunner extends Utils {
 
 		if (amount > 0) {
 			itemInHand.setAmount(amount);
+		}
+
+		if (shop.getProduct().size() + Math.ceil((double) itemInHand.getAmount() / (double) itemInHand.getMaxStackSize()) > Setting.MAX_ITEMS_PER_TRADE_SIDE.getInt()) {
+			sendMessage(Message.TOO_MANY_ITEMS.getPrefixed().replaceAll("%side%", "products"));
+			return;
 		}
 
 		shop.addProduct(itemInHand);
@@ -448,6 +458,11 @@ public class CommandRunner extends Utils {
 			itemInHand.setAmount(amount);
 		}
 
+		if (Math.ceil((double) itemInHand.getAmount() / (double) itemInHand.getMaxStackSize()) > Setting.MAX_ITEMS_PER_TRADE_SIDE.getInt()) {
+			sendMessage(Message.TOO_MANY_ITEMS.getPrefixed().replaceAll("%side%", "costs"));
+			return;
+		}
+
 		shop.setCost(itemInHand);
 
 		sendMessage(Message.ITEM_ADDED.getPrefixed());
@@ -507,6 +522,11 @@ public class CommandRunner extends Utils {
 
 		if (amount > 0) {
 			itemInHand.setAmount(amount);
+		}
+
+		if (shop.getCost().size() + Math.ceil((double) itemInHand.getAmount() / (double) itemInHand.getMaxStackSize()) > Setting.MAX_ITEMS_PER_TRADE_SIDE.getInt()) {
+			sendMessage(Message.TOO_MANY_ITEMS.getPrefixed().replaceAll("%side%", "costs"));
+			return;
 		}
 
 		shop.addCost(itemInHand);

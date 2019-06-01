@@ -659,7 +659,8 @@ public class Shop implements Serializable {
 		shopLoc.stringToWorld();
 		if (!shopType.isITrade() && chestLoc != null)
 			chestLoc.stringToWorld();
-		updateSign();
+		if (getShopSign() != null)
+			updateSign();
 	}
 
 	/**

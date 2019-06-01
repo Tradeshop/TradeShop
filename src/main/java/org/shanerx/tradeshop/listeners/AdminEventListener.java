@@ -61,6 +61,9 @@ public class AdminEventListener extends Utils implements Listener {
 		if (ShopType.isShop(block)) {
 			Shop shop = Shop.loadShop((Sign) block.getState());
 
+			if (shop == null)
+				return;
+
 			if (player.hasPermission(Permissions.ADMIN.getPerm()) || event.getPlayer().getUniqueId().equals(shop.getOwner().getUUID())) {
 
 				if (shop.getStorage() != null)

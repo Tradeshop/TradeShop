@@ -63,7 +63,8 @@ public enum Setting {
 
 	ALLOW_METRICS("allow-metrics"),
 	ENABLE_DEBUG("enable-debug"),
-	MAX_SHOPS_PER_CHUNK("max-shops-per-chunk");
+	MAX_SHOPS_PER_CHUNK("max-shops-per-chunk"),
+	MAX_ITEMS_PER_TRADE_SIDE("max-items-per-trade-side");
 
 	String path;
 
@@ -126,6 +127,7 @@ public enum Setting {
 		addSetting(SHOP_OPEN_STATUS.path, "Open");
 		addSetting(SHOP_CLOSED_STATUS.path, "Closed");
 		addSetting(MAX_SHOPS_PER_CHUNK.path, 128);
+		addSetting(MAX_ITEMS_PER_TRADE_SIDE.path, 6);
 		addSetting(ALLOW_METRICS.path, true);
 		addSetting(ENABLE_DEBUG.path, false);
 

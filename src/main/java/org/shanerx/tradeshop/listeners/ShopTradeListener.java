@@ -69,6 +69,9 @@ public class ShopTradeListener extends Utils implements Listener {
 		JsonConfiguration json = new JsonConfiguration(s.getChunk());
 		shop = json.loadShop(new ShopLocation(s.getLocation()));
 
+		if (shop == null)
+			return;
+
 		if (!shop.getShopType().equals(ShopType.ITRADE) && shop.getUsersUUID().contains(buyer.getUniqueId())) {
 			buyer.sendMessage(Message.SELF_OWNED.getPrefixed());
 			return;
