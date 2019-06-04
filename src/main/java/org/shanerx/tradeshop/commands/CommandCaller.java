@@ -66,20 +66,20 @@ public class CommandCaller implements CommandExecutor {
         }
 
         if (command == null) {
-	        CustomCommandHandler handler = CustomCommandHandler.getInstance();
-	        String subcmd = cmdPass.getArgAt(0);
+            CustomCommandHandler handler = CustomCommandHandler.getInstance();
+            String subcmd = cmdPass.getArgAt(0);
 
-	        if (!handler.isAvailable(subcmd)) {
-		        TradeCommand exec = handler.getExecutable(subcmd);
-		        if (checkPerm(exec)) {
-		        	if(!exec.run(args)) {
-				        sender.sendMessage(Message.INVALID_ARGUMENTS.getPrefixed());
-			        }
-		        }
-		        return true;
-	        }
+            if (!handler.isAvailable(subcmd)) {
+                TradeCommand exec = handler.getExecutable(subcmd);
+                if (checkPerm(exec)) {
+                    if (!exec.run(args)) {
+                        sender.sendMessage(Message.INVALID_ARGUMENTS.getPrefixed());
+                    }
+                }
+                return true;
+            }
 
-	        sender.sendMessage(Message.INVALID_ARGUMENTS.getPrefixed());
+            sender.sendMessage(Message.INVALID_ARGUMENTS.getPrefixed());
             return true;
         }
 
@@ -112,10 +112,10 @@ public class CommandCaller implements CommandExecutor {
             case RELOAD:
                 cmdRnnr.reload();
                 break;
-			case ADD_PRODUCT:
+            case ADD_PRODUCT:
                 cmdRnnr.addProduct();
                 break;
-			case ADD_COST:
+            case ADD_COST:
                 cmdRnnr.addCost();
                 break;
             case OPEN:
@@ -133,36 +133,36 @@ public class CommandCaller implements CommandExecutor {
             case WHO:
                 cmdRnnr.who();
                 break;
-			case ADD_MANAGER:
+            case ADD_MANAGER:
                 cmdRnnr.addManager();
                 break;
-			case REMOVE_USER:
-				cmdRnnr.removeUser();
+            case REMOVE_USER:
+                cmdRnnr.removeUser();
                 break;
-			case ADD_MEMBER:
+            case ADD_MEMBER:
                 cmdRnnr.addMember();
                 break;
             case MULTI:
                 cmdRnnr.multi();
                 break;
-			case SET_PRODUCT:
-				cmdRnnr.setProduct();
-				break;
-			case SET_COST:
-				cmdRnnr.setCost();
-				break;
-			case LIST_PRODUCT:
-				cmdRnnr.listProduct();
-				break;
-			case LIST_COST:
-				cmdRnnr.listCost();
-				break;
-			case REMOVE_PRODUCT:
-				cmdRnnr.removeProduct();
-				break;
-			case REMOVE_COST:
-				cmdRnnr.removeCost();
-				break;
+            case SET_PRODUCT:
+                cmdRnnr.setProduct();
+                break;
+            case SET_COST:
+                cmdRnnr.setCost();
+                break;
+            case LIST_PRODUCT:
+                cmdRnnr.listProduct();
+                break;
+            case LIST_COST:
+                cmdRnnr.listCost();
+                break;
+            case REMOVE_PRODUCT:
+                cmdRnnr.removeProduct();
+                break;
+            case REMOVE_COST:
+                cmdRnnr.removeCost();
+                break;
         }
 
         return true;
@@ -189,7 +189,7 @@ public class CommandCaller implements CommandExecutor {
      * @return true if permission is NONE or sender has permission
      */
     public boolean checkPerm(TradeCommand exec) {
-		if (!cmdPass.getSender().hasPermission(exec.getPermission()) && !exec.getPermission().equals(Permissions.NONE.getValue())) {
+        if (!cmdPass.getSender().hasPermission(exec.getPermission()) && !exec.getPermission().equals(Permissions.NONE.getValue())) {
             cmdPass.getSender().sendMessage(Message.NO_COMMAND_PERMISSION.getPrefixed());
             return false;
         }
