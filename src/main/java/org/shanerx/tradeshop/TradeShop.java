@@ -104,7 +104,7 @@ public class TradeShop extends JavaPlugin {
 		pm.registerEvents(new CustomInventoryListener(), this);
 		pm.registerEvents(new AddonListener(this), this);
 
-        getCommand("tradeshop").setExecutor(new CommandCaller(this));
+		getCommand("tradeshop").setExecutor(new CommandCaller(this));
 		getCommand("tradeshop").setTabCompleter(new CommandTabCaller(this));
 
 		signs = new ShopSign();

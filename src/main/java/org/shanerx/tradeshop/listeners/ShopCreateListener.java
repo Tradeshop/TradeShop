@@ -153,9 +153,9 @@ public class ShopCreateListener extends Utils implements Listener {
 
 		ItemStack item = new ItemStack(Material.matchMaterial(info[1]), Integer.parseInt(info[0]));
 
-        if (plugin.getListManager().isBlacklisted(item.getType()))
+		if (plugin.getListManager().isBlacklisted(item.getType()))
 			return null;
 
-        return item;
+		return item;
 	}
 }

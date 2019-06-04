@@ -88,20 +88,10 @@ public enum Message {
 	ITEM_NOT_REMOVED,
 	TOO_MANY_ITEMS;
 
-	@Override
-	public String toString() {
-		return colour(config.getString(name().toLowerCase().replace("_", "-"))
-				.replace("%header%", Setting.TRADESHOP_HEADER.getString()));
-	}
-
-	public String getPrefixed() {
-		return colour(PREFIX + toString());
-	}
-
+	private static final char COLOUR_CHAR = '&';
 	private static TradeShop plugin = (TradeShop) Bukkit.getPluginManager().getPlugin("TradeShop");
 	private static File file = new File(plugin.getDataFolder(), "messages.yml");
 	private static FileConfiguration config = YamlConfiguration.loadConfiguration(file);
-	private static final char COLOUR_CHAR = '&';
 	protected final String PREFIX = "&a[&eTradeShop&a] ";
 
 	public static void setDefaults() {
@@ -204,5 +194,15 @@ public enum Message {
 
 	public static String colour(String x) {
 		return ChatColor.translateAlternateColorCodes(COLOUR_CHAR, x);
+	}
+
+	@Override
+	public String toString() {
+		return colour(config.getString(name().toLowerCase().replace("_", "-"))
+				.replace("%header%", Setting.TRADESHOP_HEADER.getString()));
+	}
+
+	public String getPrefixed() {
+		return colour(PREFIX + toString());
 	}
 }

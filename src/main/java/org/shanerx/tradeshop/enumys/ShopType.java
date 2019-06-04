@@ -44,24 +44,14 @@ public enum ShopType implements Serializable {
 
 	BITRADE(Setting.BITRADESHOP_HEADER.getString(), Permissions.CREATEBI);
 
-	private String key;
 	private transient static TradeShop plugin = (TradeShop) Bukkit.getPluginManager().getPlugin("TradeShop");
+	private String key;
 	private transient Permissions perm;
 
 	ShopType(String key, Permissions perm) {
 		this.key = key;
 		this.perm = perm;
 	}
-
-	@Override
-	public String toString() {
-		return key;
-	}
-
-	public String toHeader() {
-		return "[" + key + "]";
-	}
-
 
 	public static boolean isShop(Sign s) {
 		return getType(s) != null;
@@ -75,25 +65,34 @@ public enum ShopType implements Serializable {
 		return false;
 	}
 
-    public static ShopType getType(Sign s) {
-        String header = ChatColor.stripColor(s.getLine(0));
+	public static ShopType getType(Sign s) {
+		String header = ChatColor.stripColor(s.getLine(0));
 
 		if (header.equalsIgnoreCase(TRADE.toHeader())) {
-            return TRADE;
+			return TRADE;
 
 		} else if (header.equalsIgnoreCase(ITRADE.toHeader())) {
-            return ITRADE;
+			return ITRADE;
 
 		} else if (header.equalsIgnoreCase(BITRADE.toHeader())) {
-            return BITRADE;
-        }
+			return BITRADE;
+		}
 
-        return null;
-    }
+		return null;
+	}
 
 	public static ShopRole deserialize(String serialized) {
 		ShopRole shopRole = new Gson().fromJson(serialized, ShopRole.class);
 		return shopRole;
+	}
+
+	@Override
+	public String toString() {
+		return key;
+	}
+
+	public String toHeader() {
+		return "[" + key + "]";
 	}
 
 	public boolean checkPerm(Player pl) {

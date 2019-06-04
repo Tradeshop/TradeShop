@@ -55,7 +55,7 @@ import java.util.stream.Collectors;
 @SuppressWarnings("unused")
 public class Shop implements Serializable {
 
-    private ShopUser owner;
+	private ShopUser owner;
 	private List<UUID> managers, members;
 	private ShopType shopType;
 	private ShopLocation shopLoc, chestLoc;
@@ -64,6 +64,7 @@ public class Shop implements Serializable {
 	private transient Inventory storageInv;
 	private transient Utils utils;
 	private List<String> productListB64, costListB64;
+	private ShopStatus status = ShopStatus.CLOSED;
 
 	/**
 	 * Creates a Shop object
@@ -105,8 +106,8 @@ public class Shop implements Serializable {
 	 * Creates a Shop object
 	 *
 	 * @param locations Location of shop sign and chest as Tuple, left = Sign location, right = inventory location
-	 * @param owner Owner of the shop as a ShopUser
-	 * @param shopType Type of the shop as ShopType
+	 * @param owner     Owner of the shop as a ShopUser
+	 * @param shopType  Type of the shop as ShopType
 	 */
 	public Shop(Tuple<Location, Location> locations, ShopType shopType, ShopUser owner) {
 		shopLoc = new ShopLocation(locations.getLeft());
@@ -123,8 +124,6 @@ public class Shop implements Serializable {
 
 		fixAfterLoad();
 	}
-
-	private ShopStatus status = ShopStatus.CLOSED;
 
 	/**
 	 * Creates a Shop object
@@ -170,14 +169,6 @@ public class Shop implements Serializable {
 		return new JsonConfiguration(loc.getLocation().getChunk()).loadShop(loc);
 	}
 
-	public List<String> getProductListB64() {
-		return productListB64;
-	}
-
-	public List<String> getCostListB64() {
-		return costListB64;
-	}
-
 	/**
 	 * Retrieves the Shop object based on a serialized ShopLocation of the sign
 	 *
@@ -198,6 +189,14 @@ public class Shop implements Serializable {
 		return loadShop(new ShopLocation(s.getLocation()));
 	}
 
+	public List<String> getProductListB64() {
+		return productListB64;
+	}
+
+	public List<String> getCostListB64() {
+		return costListB64;
+	}
+
 	/**
 	 * Returns the shops owner
 	 *
@@ -208,6 +207,15 @@ public class Shop implements Serializable {
 	}
 
 	/**
+	 * Sets the owner (don't know if this will ever be used)
+	 *
+	 * @param owner The new owner of the shop
+	 */
+	public void setOwner(ShopUser owner) {
+		this.owner = owner;
+	}
+
+	/**
 	 * Sets the storageInventory
 	 */
 	public void setStorageInventory() {
@@ -215,15 +223,6 @@ public class Shop implements Serializable {
 			storageInv = ((Container) getStorage()).getInventory();
 		else
 			storageInv = null;
-	}
-
-	/**
-	 * Sets the owner (don't know if this will ever be used)
-	 *
-	 * @param owner The new owner of the shop
-	 */
-	public void setOwner(ShopUser owner) {
-		this.owner = owner;
 	}
 
 	/**
@@ -336,10 +335,10 @@ public class Shop implements Serializable {
 	public boolean removeUser(UUID oldUser) {
 		if (getManagersUUID().contains(oldUser)) {
 			managers.remove(oldUser);
-            saveShop();
+			saveShop();
 			updateSign();
-            return true;
-        }
+			return true;
+		}
 
 		if (getMembersUUID().contains(oldUser)) {
 			members.remove(oldUser);
@@ -348,7 +347,7 @@ public class Shop implements Serializable {
 			return true;
 		}
 
-        return false;
+		return false;
 	}
 
 	/**
@@ -364,7 +363,7 @@ public class Shop implements Serializable {
 			return true;
 		}
 		return false;
-    }
+	}
 
 	/**
 	 * Returns a list of managers uuid
@@ -738,7 +737,7 @@ public class Shop implements Serializable {
 						cost.get(0).getType().toString());
 
 				s.setLine(2, sb.toString().substring(0, (sb.length() < 15) ? sb.length() : 15));
-			} else if(cost.size() == 0) {
+			} else if (cost.size() == 0) {
 				s.setLine(2, "");
 			} else {
 				s.setLine(2, "Use 'what' cmd");
@@ -771,7 +770,7 @@ public class Shop implements Serializable {
 
 			signEvent.setLine(1, sb.toString().substring(0, (sb.length() < 15) ? sb.length() : 15));
 
-		} else if(product.size() == 0) {
+		} else if (product.size() == 0) {
 			signEvent.setLine(1, "");
 		} else {
 			signEvent.setLine(1, "Use 'what' cmd");
@@ -788,7 +787,7 @@ public class Shop implements Serializable {
 					cost.get(0).getType().toString());
 
 			signEvent.setLine(2, sb.toString().substring(0, (sb.length() < 15) ? sb.length() : 15));
-		} else if (cost.size() == 0){
+		} else if (cost.size() == 0) {
 			signEvent.setLine(2, "");
 		} else {
 			signEvent.setLine(2, "Use 'what' cmd");

@@ -36,25 +36,25 @@ public class BukkitVersion {
 	private final String VERSION = Bukkit.getBukkitVersion();
 	private Map<String, Integer> verMap;
 
-    public BukkitVersion() {
+	public BukkitVersion() {
 		verMap = getVerMap();
-    }
+	}
 
-    public String toString() {
+	public String toString() {
 		return getMajor() + "." + getMinor() + "." + getPatch();
-    }
+	}
 
-    public String getFullVersion() {
+	public String getFullVersion() {
 		return VERSION;
-    }
+	}
 
 	public int getMajor() {
 		return verMap.get("major");
-    }
+	}
 
 	public int getMinor() {
 		return verMap.get("minor");
-    }
+	}
 
 	public int getPatch() {
 		return verMap.get("patch");
@@ -68,7 +68,7 @@ public class BukkitVersion {
 		}
 
 		return false;
-    }
+	}
 
 	public boolean isBelow(int major, int minor, int patch) {
 		if (getMajor() < major) {
@@ -92,7 +92,7 @@ public class BukkitVersion {
 		}
 
 		return false;
-    }
+	}
 
 	public boolean isAbove(int major, int minor, int patch) {
 		if (getMajor() > major) {

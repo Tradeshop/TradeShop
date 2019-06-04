@@ -64,7 +64,7 @@ public class ListManager {
 
 	public boolean isBlacklisted(Material mat) {
 		return blacklist.contains(mat);
-    }
+	}
 
 	public boolean isDirection(BlockFace face) {
 		return directions.contains(face);
@@ -80,9 +80,9 @@ public class ListManager {
 		updateMaterials();
 	}
 
-    public void clearManager() {
-        inventories.clear();
-        blacklist.clear();
+	public void clearManager() {
+		inventories.clear();
+		blacklist.clear();
 		directions.clear();
 	}
 

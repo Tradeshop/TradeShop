@@ -73,6 +73,27 @@ public class ShopChest extends Utils {
 				((Nameable) checking.getState()).getCustomName().contains("$ ^Sign:l_");
 	}
 
+	public static Block getOtherHalfOfDoubleChest(Block chest) {
+		if (chest.getType() != Material.CHEST || chest.getType() != Material.TRAPPED_CHEST) {
+			return null;
+		}
+		ArrayList<BlockFace> flatFaces = new ArrayList<>(Arrays.asList(BlockFace.NORTH, BlockFace.EAST, BlockFace.SOUTH, BlockFace.WEST));
+
+		for (BlockFace face : flatFaces) {
+			Block adjoining = chest.getRelative(face);
+
+			if (adjoining.getType() == chest.getType()) {
+				return adjoining;
+			}
+		}
+
+		return null;
+	}
+
+	public static boolean isDoubleChest(Block chest) {
+		return getOtherHalfOfDoubleChest(chest) != null;
+	}
+
 	private void getBlock() {
 		if (loc.getBlock() != null && plugin.getListManager().getInventories().contains(loc.getBlock().getType())) {
 			chest = loc.getBlock();
@@ -209,26 +230,5 @@ public class ShopChest extends Utils {
 		}
 
 		return null;
-	}
-
-	public static Block getOtherHalfOfDoubleChest(Block chest) {
-		if (chest.getType() != Material.CHEST || chest.getType() != Material.TRAPPED_CHEST) {
-			return null;
-		}
-		ArrayList<BlockFace> flatFaces = new ArrayList<>(Arrays.asList(BlockFace.NORTH, BlockFace.EAST, BlockFace.SOUTH, BlockFace.WEST));
-
-		for (BlockFace face : flatFaces) {
-			Block adjoining = chest.getRelative(face);
-
-			if (adjoining.getType() == chest.getType()) {
-				return adjoining;
-			}
-		}
-
-		return null;
-	}
-
-	public static boolean isDoubleChest(Block chest) {
-		return getOtherHalfOfDoubleChest(chest) != null;
 	}
 }

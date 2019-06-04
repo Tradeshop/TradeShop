@@ -32,8 +32,8 @@ public enum ShopStatus {
 	OPEN("&a"),
 	CLOSED("&c");
 
-	private String colour;
 	private static final char COLOUR_CHAR = '&';
+	private String colour;
 
 	ShopStatus(String colour) {
 		this.colour = colour;

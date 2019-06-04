@@ -28,17 +28,17 @@ package org.shanerx.tradeshop.framework;
 import org.bukkit.plugin.Plugin;
 
 public interface TradeCommand {
-    String getCmd();
+	String getCmd();
 
-    Plugin getPlugin();
+	Plugin getPlugin();
 
-    String getUsage();
+	String getUsage();
 
-    String getDescription();
+	String getDescription();
 
-    String getAliases();
+	String getAliases();
 
-    String getPermission();
+	String getPermission();
 
-    boolean run(String[] args);
+	boolean run(String[] args);
 }

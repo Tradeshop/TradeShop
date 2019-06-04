@@ -66,38 +66,13 @@ public enum Setting {
 	MAX_SHOPS_PER_CHUNK("max-shops-per-chunk"),
 	MAX_ITEMS_PER_TRADE_SIDE("max-items-per-trade-side");
 
+	private static TradeShop plugin = (TradeShop) Bukkit.getPluginManager().getPlugin("TradeShop");
+	private static File file = new File(plugin.getDataFolder(), "config.yml");
+	private static FileConfiguration config = YamlConfiguration.loadConfiguration(file);
 	String path;
 
 	Setting(String path) {
 		this.path = path;
-	}
-
-	public String toPath() {
-		return path;
-	}
-
-	public Object getSetting() {
-		return config.get(toPath());
-	}
-
-	public String getString() {
-		return config.getString(toPath());
-	}
-
-	public List<String> getStringList() {
-		return config.getStringList(toPath());
-	}
-
-	public int getInt() {
-		return config.getInt(toPath());
-	}
-
-	public double getDouble() {
-		return config.getDouble(toPath());
-	}
-
-	public boolean getBoolean() {
-		return config.getBoolean(toPath());
 	}
 
 	public static ArrayList<String> getItemBlackList() {
@@ -111,10 +86,6 @@ public enum Setting {
 	public static Setting findSetting(String search) {
 		return valueOf(search.toUpperCase().replace("-", "_"));
 	}
-
-	private static TradeShop plugin = (TradeShop) Bukkit.getPluginManager().getPlugin("TradeShop");
-	private static File file = new File(plugin.getDataFolder(), "config.yml");
-	private static FileConfiguration config = YamlConfiguration.loadConfiguration(file);
 
 	private static void setDefaults() {
 		addSetting(CHECK_UPDATES.path, true);
@@ -180,5 +151,33 @@ public enum Setting {
 
 	public static FileConfiguration getConfig() {
 		return config;
+	}
+
+	public String toPath() {
+		return path;
+	}
+
+	public Object getSetting() {
+		return config.get(toPath());
+	}
+
+	public String getString() {
+		return config.getString(toPath());
+	}
+
+	public List<String> getStringList() {
+		return config.getStringList(toPath());
+	}
+
+	public int getInt() {
+		return config.getInt(toPath());
+	}
+
+	public double getDouble() {
+		return config.getDouble(toPath());
+	}
+
+	public boolean getBoolean() {
+		return config.getBoolean(toPath());
 	}
 }

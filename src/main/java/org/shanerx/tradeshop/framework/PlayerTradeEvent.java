@@ -39,21 +39,20 @@ import java.util.List;
 public class PlayerTradeEvent extends PlayerInteractEvent {
 
 	private static final HandlerList handlers = new HandlerList();
+	private Shop shop;
+	private ItemStack item;
 
-	@Override
-	public HandlerList getHandlers() {
-		return handlers;
+	public PlayerTradeEvent(Player who, List<ItemStack> cost, List<ItemStack> product, Shop shop, Block clickedBlock, BlockFace clickedFace) {
+		super(who, Action.RIGHT_CLICK_BLOCK, null, shop.getShopSign().getBlock(), clickedFace);
 	}
 
 	public static HandlerList getHandlerList() {
 		return handlers;
 	}
 
-	private Shop shop;
-	private ItemStack item;
-
-	public PlayerTradeEvent(Player who, List<ItemStack> cost, List<ItemStack> product, Shop shop, Block clickedBlock, BlockFace clickedFace) {
-		super(who, Action.RIGHT_CLICK_BLOCK, null, shop.getShopSign().getBlock(), clickedFace);
+	@Override
+	public HandlerList getHandlers() {
+		return handlers;
 	}
 
 	public Shop getShop() {

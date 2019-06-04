@@ -465,7 +465,7 @@ public class CommandRunner extends Utils {
 	public void addCost() {
 		Shop shop = findShop();
 
-		if(shop == null)
+		if (shop == null)
 			return;
 
 		int amount = 0;
@@ -760,7 +760,7 @@ public class CommandRunner extends Utils {
 	public void addManager() {
 		Shop shop = findShop();
 
-		if(shop == null)
+		if (shop == null)
 			return;
 
 		if (!shop.getOwner().getUUID().equals(pSender.getUniqueId())) {
@@ -790,7 +790,7 @@ public class CommandRunner extends Utils {
 	public void removeUser() {
 		Shop shop = findShop();
 
-		if(shop == null)
+		if (shop == null)
 			return;
 
 		if (!shop.getOwner().getUUID().equals(pSender.getUniqueId())) {
@@ -818,7 +818,7 @@ public class CommandRunner extends Utils {
 	public void addMember() {
 		Shop shop = findShop();
 
-		if(shop == null)
+		if (shop == null)
 			return;
 
 		if (!shop.getOwner().getUUID().equals(pSender.getUniqueId())) {

@@ -279,12 +279,12 @@ public class ShopTradeListener extends Utils implements Listener {
 				}
 			}
 
-            buyer.sendMessage(Message.ON_TRADE.getPrefixed()
-                    .replace("{AMOUNT1}", String.valueOf(amountProd))
-                    .replace("{AMOUNT2}", String.valueOf(amountCost))
-                    .replace("{ITEM1}", productName.toLowerCase())
-                    .replace("{ITEM2}", costName.toLowerCase())
-                    .replace("{SELLER}", shop.getOwner().getPlayer().getName()));
+			buyer.sendMessage(Message.ON_TRADE.getPrefixed()
+					.replace("{AMOUNT1}", String.valueOf(amountProd))
+					.replace("{AMOUNT2}", String.valueOf(amountCost))
+					.replace("{ITEM1}", productName.toLowerCase())
+					.replace("{ITEM2}", costName.toLowerCase())
+					.replace("{SELLER}", shop.getOwner().getPlayer().getName()));
 
 			Bukkit.getPluginManager().callEvent(new PlayerTradeEvent(e.getPlayer(), cost, product, shop, e.getClickedBlock(), e.getBlockFace()));
 
@@ -392,12 +392,12 @@ public class ShopTradeListener extends Utils implements Listener {
 				}
 			}
 
-            buyer.sendMessage(Message.ON_TRADE.getPrefixed()
-                    .replace("{AMOUNT2}", String.valueOf(amountCost))
-                    .replace("{AMOUNT1}", String.valueOf(amountProd))
-                    .replace("{ITEM2}", costName.toLowerCase())
-                    .replace("{ITEM1}", productName.toLowerCase())
-                    .replace("{SELLER}", shop.getOwner().getPlayer().getName()));
+			buyer.sendMessage(Message.ON_TRADE.getPrefixed()
+					.replace("{AMOUNT2}", String.valueOf(amountCost))
+					.replace("{AMOUNT1}", String.valueOf(amountProd))
+					.replace("{ITEM2}", costName.toLowerCase())
+					.replace("{ITEM1}", productName.toLowerCase())
+					.replace("{SELLER}", shop.getOwner().getPlayer().getName()));
 
 			Bukkit.getPluginManager().callEvent(new PlayerTradeEvent(e.getPlayer(), cost, product, shop, e.getClickedBlock(), e.getBlockFace()));
 		}

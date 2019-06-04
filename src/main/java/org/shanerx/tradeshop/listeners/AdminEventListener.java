@@ -155,7 +155,7 @@ public class AdminEventListener extends Utils implements Listener {
 		if (!plugin.getListManager().getInventories().contains(block.getType()))
 			return;
 
-        if (!ShopChest.isDoubleChest(block)) {
+		if (!ShopChest.isDoubleChest(block)) {
 			Sign shopSign = findShopSign(block);
 
 			if (shopSign == null)
