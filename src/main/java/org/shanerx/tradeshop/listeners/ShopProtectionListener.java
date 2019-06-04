@@ -82,7 +82,7 @@ public class ShopProtectionListener extends Utils implements Listener {
 				Shop shop = Shop.loadShop((new ShopChest(b.getLocation())).getShopSign());
 				if (shop != null) {
 
-					if (!Setting.findSetting(shop.getShopType() + "SHOP_EXPLODE".toUpperCase()).getBoolean())
+					if (!Setting.findSetting((shop.getShopType() + "SHOP_EXPLODE").toUpperCase()).getBoolean())
 						i.remove();
 					else if (shop != null) {
 						if (shop.getStorage() != null)
@@ -93,7 +93,7 @@ public class ShopProtectionListener extends Utils implements Listener {
 				}
 
 			} else if (ShopType.isShop(b)) {
-				if (!Setting.findSetting(ShopType.getType((Sign) b.getState()).toString() + "SHOP_EXPLODE".toUpperCase()).getBoolean()) {
+				if (!Setting.findSetting((ShopType.getType((Sign) b.getState()).toString() + "SHOP_EXPLODE").toUpperCase()).getBoolean()) {
 					i.remove();
 
 					org.bukkit.material.Sign s = (org.bukkit.material.Sign) b.getState().getData();
