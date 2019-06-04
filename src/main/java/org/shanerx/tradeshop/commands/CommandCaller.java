@@ -175,7 +175,7 @@ public class CommandCaller implements CommandExecutor {
      * @return true if permission is NONE or sender has permission
      */
     public boolean checkPerm() {
-        if (!cmdPass.getSender().hasPermission(command.getPerm().getPerm()) && !command.getPerm().equals(Permissions.NONE)) {
+		if (!(cmdPass.getSender().hasPermission(command.getPerm().getPerm()) && command.getPerm().equals(Permissions.NONE))) {
             cmdPass.getSender().sendMessage(Message.NO_COMMAND_PERMISSION.getPrefixed());
             return false;
         }

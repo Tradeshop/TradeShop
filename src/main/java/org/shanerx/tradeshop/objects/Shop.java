@@ -575,16 +575,16 @@ public class Shop implements Serializable {
 	 * @param index index of item to remove
 	 */
 	public boolean removeProduct(int index) {
-		try {
+		if (product.size() > index) {
 			product.remove(index);
 			productListB64.remove(index);
 
 			saveShop();
 			updateSign();
 			return true;
-		} catch (IndexOutOfBoundsException ex) {
-			return false;
 		}
+
+		return false;
 	}
 
 	/**

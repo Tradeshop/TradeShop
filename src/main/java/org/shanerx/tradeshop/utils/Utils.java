@@ -62,9 +62,9 @@ public class Utils {
 	protected TradeShop plugin = (TradeShop) Bukkit.getPluginManager().getPlugin("TradeShop");
 
 	protected PluginDescriptionFile pdf = plugin.getDescription();
-	protected String PREFIX = "&a[&eTradeShop&a] ";
-	private UUID KOPUUID = UUID.fromString("daf79be7-bc1d-47d3-9896-f97b8d4cea7d");
-	private UUID LORIUUID = UUID.fromString("e296bc43-2972-4111-9843-48fc32302fd4");
+	protected final String PREFIX = "&a[&eTradeShop&a] ";
+	private final UUID KOPUUID = UUID.fromString("daf79be7-bc1d-47d3-9896-f97b8d4cea7d");
+	private final UUID LORIUUID = UUID.fromString("e296bc43-2972-4111-9843-48fc32302fd4");
 
 	public Utils() {
 	}

@@ -138,8 +138,11 @@ public class ShopChest extends Utils {
 				((Nameable) bs).setCustomName(((Nameable) bs).getCustomName().split(sectionSeparator)[0]);
 
 				if (isDoubleChest(chest)) {
-					((Nameable) getOtherHalfOfDoubleChest(chest).getState()).setCustomName(
-							((Nameable) getOtherHalfOfDoubleChest(chest).getState()).getCustomName().split(sectionSeparator)[0]);
+					BlockState dblSide = getOtherHalfOfDoubleChest(chest).getState();
+					((Nameable) dblSide).setCustomName(
+							((Nameable) dblSide).getCustomName().split(sectionSeparator)[0]);
+
+					dblSide.update();
 				}
 
 				bs.update();
@@ -153,7 +156,10 @@ public class ShopChest extends Utils {
 			((Nameable) bs).setCustomName(getName());
 
 			if (isDoubleChest(chest)) {
-				((Nameable) getOtherHalfOfDoubleChest(chest).getState()).setCustomName(getName());
+				BlockState dblSide = getOtherHalfOfDoubleChest(chest).getState();
+				((Nameable) dblSide).setCustomName(getName());
+
+				dblSide.update();
 			}
 
 			bs.update();

@@ -79,17 +79,17 @@ public class ShopProtectionListener extends Utils implements Listener {
 			if (plugin.getListManager().isInventory(b.getType()) &&
 					((Nameable) b.getState()).getCustomName() != null &&
 					((Nameable) b.getState()).getCustomName().contains("$ ^Sign:l_")) {
-				if (Shop.loadShop((new ShopChest(b.getLocation())).getShopSign()) != null && !Setting.findSetting(Shop.loadShop((new ShopChest(b.getLocation())).getShopSign()).getShopType() + "SHOP_EXPLODE".toUpperCase()).getBoolean())
-					i.remove();
-				else {
-					Shop shop = Shop.loadShop((new ShopChest(b.getLocation())).getShopSign());
-					if (shop != null) {
+				Shop shop = Shop.loadShop((new ShopChest(b.getLocation())).getShopSign());
+				if (shop != null) {
 
+					if (!Setting.findSetting(shop.getShopType() + "SHOP_EXPLODE".toUpperCase()).getBoolean())
+						i.remove();
+					else if (shop != null) {
 						if (shop.getStorage() != null)
 							shop.getChestAsSC().resetName();
-
 						shop.remove();
 					}
+
 				}
 
 			} else if (ShopType.isShop(b)) {

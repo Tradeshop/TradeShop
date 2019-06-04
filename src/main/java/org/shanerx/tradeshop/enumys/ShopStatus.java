@@ -33,7 +33,7 @@ public enum ShopStatus {
 	CLOSED("&c");
 
 	private String colour;
-	private transient static final char COLOUR_CHAR = '&';
+	private static final char COLOUR_CHAR = '&';
 
 	ShopStatus(String colour) {
 		this.colour = colour;

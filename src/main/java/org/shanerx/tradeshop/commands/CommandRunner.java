@@ -167,16 +167,7 @@ public class CommandRunner extends Utils {
 		int counter = 0;
 
 		for (ItemStack itm : shop.getProduct()) {
-			sb.append("&b[");
-			sb.append("&f");
-			sb.append(counter);
-			sb.append("&b]    &2- &f");
-			if (itm.hasItemMeta() && itm.getItemMeta().hasDisplayName())
-				sb.append(itm.getItemMeta().getDisplayName());
-			else
-				sb.append(itm.getType().toString());
-			sb.append("\n");
-
+			sb.append(String.format("&b[&f%d&b]    &2- &f%s\n", counter, itm.hasItemMeta() && itm.getItemMeta().hasDisplayName() ? itm.getItemMeta().getDisplayName() : itm.getType().toString()));
 			counter++;
 		}
 
@@ -196,16 +187,7 @@ public class CommandRunner extends Utils {
 		int counter = 0;
 
 		for (ItemStack itm : shop.getCost()) {
-			sb.append("&b[");
-			sb.append("&f");
-			sb.append(counter);
-			sb.append("&b]    &2- &f");
-			if (itm.hasItemMeta() && itm.getItemMeta().hasDisplayName())
-				sb.append(itm.getItemMeta().getDisplayName());
-			else
-				sb.append(itm.getType().toString());
-			sb.append("\n");
-
+			sb.append(String.format("&b[&f%d&b]    &2- &f%s\n", counter, itm.hasItemMeta() && itm.getItemMeta().hasDisplayName() ? itm.getItemMeta().getDisplayName() : itm.getType().toString()));
 			counter++;
 		}
 
