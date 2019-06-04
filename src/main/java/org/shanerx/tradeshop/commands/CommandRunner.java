@@ -95,7 +95,7 @@ public class CommandRunner extends Utils {
 				.append("\n\n&b/tradeshop &f &f Display help message\n");
 
 		for (Commands c : Commands.values()) {
-			if (c.checkPerm(pSender)) {
+			if (c.checkPerm(command.getSender())) {
 				sb.append(Message.colour(String.format("&b/ts %s  &f %s\n", c.getFirstName(), c.getDescription())));
 			}
 		}

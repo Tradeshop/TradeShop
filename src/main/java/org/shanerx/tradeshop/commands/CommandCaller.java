@@ -32,7 +32,6 @@ import org.bukkit.entity.Player;
 import org.shanerx.tradeshop.TradeShop;
 import org.shanerx.tradeshop.enumys.Commands;
 import org.shanerx.tradeshop.enumys.Message;
-import org.shanerx.tradeshop.enumys.Permissions;
 import org.shanerx.tradeshop.framework.CustomCommandHandler;
 import org.shanerx.tradeshop.framework.TradeCommand;
 
@@ -175,7 +174,7 @@ public class CommandCaller implements CommandExecutor {
      * @return true if permission is NONE or sender has permission
      */
     public boolean checkPerm() {
-		if (!(cmdPass.getSender().hasPermission(command.getPerm().getPerm()) || command.getPerm().equals(Permissions.NONE))) {
+		if (!command.checkPerm(cmdPass.getSender())) {
             cmdPass.getSender().sendMessage(Message.NO_COMMAND_PERMISSION.getPrefixed());
             return false;
         }
@@ -189,7 +188,7 @@ public class CommandCaller implements CommandExecutor {
      * @return true if permission is NONE or sender has permission
      */
     public boolean checkPerm(TradeCommand exec) {
-		if (!(cmdPass.getSender().hasPermission(exec.getPermission()) || exec.getPermission().equals(Permissions.NONE))) {
+		if (!(cmdPass.getSender().hasPermission(exec.getPermission()) || exec.getPermission().equalsIgnoreCase("None"))) {
             cmdPass.getSender().sendMessage(Message.NO_COMMAND_PERMISSION.getPrefixed());
             return false;
         }
