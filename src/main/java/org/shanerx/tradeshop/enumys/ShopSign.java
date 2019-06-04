@@ -42,9 +42,8 @@ public class ShopSign extends Utils {
 		for (Signs type : Signs.values()) {
 			boolean pass = true;
 			debug(type.toString());
-			debug("MaxVer 0 :" + type.getMaxVer().get(0));
-			debug("MaxVer 1 :" + type.getMaxVer().get(1));
-			debug("MaxVer 2 :" + type.getMaxVer().get(2));
+			debug(String.format("MinVer: %s", type.getMinVersionAsString()));
+			debug(String.format("MaxVer: %s", type.getMaxVersionAsString()));
 
 			if (type.hasMinVersion() && version.isBelow(type.getMinVer().get(0), type.getMinVer().get(1), type.getMinVer().get(2))) {
 				pass = false;
@@ -118,6 +117,14 @@ public class ShopSign extends Utils {
 
 		public List<Integer> getMaxVer() {
 			return maxVer;
+		}
+
+		public String getMinVersionAsString() {
+			return hasMinVersion() ? getMinVer().get(0) + "." + getMinVer().get(1) + "." + getMinVer().get(2) : "None";
+		}
+
+		public String getMaxVersionAsString() {
+			return hasMaxVersion() ? getMaxVer().get(0) + "." + getMaxVer().get(1) + "." + getMaxVer().get(2) : "None";
 		}
 
 	}

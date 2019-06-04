@@ -328,7 +328,7 @@ public class Utils {
 
 		for (BlockFace face : faces) {
 			Block relative = sign.getRelative(face);
-			if (relative != null && invs.contains(relative.getType())) {
+			if (invs.contains(relative.getType())) {
 				return relative;
 			}
 		}
