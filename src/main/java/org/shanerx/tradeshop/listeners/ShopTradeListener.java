@@ -224,6 +224,8 @@ public class ShopTradeListener extends Utils implements Listener {
 								dupitm1 = iS.clone();
 						if (count > iS.getMaxStackSize())
 							removed = iS.getMaxStackSize();
+						else if (count + temp.getAmount() > iS.getMaxStackSize())
+							removed = iS.getMaxStackSize() - temp.getAmount();
 						else
 							removed = count;
 
@@ -252,11 +254,12 @@ public class ShopTradeListener extends Utils implements Listener {
 				for (ItemStack iS : product) {
 					count = iS.getAmount();
 					while (count > 0) {
-						if (count > iS.getMaxStackSize()) {
+						if (count > iS.getMaxStackSize())
 							removed = iS.getMaxStackSize();
-						} else {
+						else if (count + playerInventory.getItem(playerInventory.first(iS.getType())).getAmount() > iS.getMaxStackSize())
+							removed = iS.getMaxStackSize() - iS.getAmount();
+						else
 							removed = count;
-						}
 
 						iS.setAmount(removed);
 						playerInventory.addItem(iS);
@@ -284,7 +287,7 @@ public class ShopTradeListener extends Utils implements Listener {
 					.replace("{AMOUNT2}", String.valueOf(amountCost))
 					.replace("{ITEM1}", productName.toLowerCase())
 					.replace("{ITEM2}", costName.toLowerCase())
-					.replace("{SELLER}", shop.getOwner().getPlayer().getName()));
+					.replace("{SELLER}", !shop.getShopType().isITrade() ? shop.getOwner().getPlayer().getName() : Setting.ITRADESHOP_OWNER.getString()));
 
 			Bukkit.getPluginManager().callEvent(new PlayerTradeEvent(e.getPlayer(), cost, product, shop, e.getClickedBlock(), e.getBlockFace()));
 
@@ -397,7 +400,7 @@ public class ShopTradeListener extends Utils implements Listener {
 					.replace("{AMOUNT1}", String.valueOf(amountProd))
 					.replace("{ITEM2}", costName.toLowerCase())
 					.replace("{ITEM1}", productName.toLowerCase())
-					.replace("{SELLER}", shop.getOwner().getPlayer().getName()));
+					.replace("{SELLER}", !shop.getShopType().isITrade() ? shop.getOwner().getPlayer().getName() : Setting.ITRADESHOP_OWNER.getString()));
 
 			Bukkit.getPluginManager().callEvent(new PlayerTradeEvent(e.getPlayer(), cost, product, shop, e.getClickedBlock(), e.getBlockFace()));
 		}

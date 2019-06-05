@@ -844,7 +844,7 @@ public class Shop implements Serializable {
 	public boolean setOpen() {
 		boolean ret;
 
-		if (!isMissingItems() && chestLoc != null) {
+		if (!isMissingItems() && (chestLoc != null || shopType.equals(ShopType.ITRADE))) {
 			status = ShopStatus.OPEN;
 			ret = true;
 		} else {

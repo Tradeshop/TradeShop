@@ -67,6 +67,7 @@ public class ShopCreateListener extends Utils implements Listener {
 
 		if (!shopType.checkPerm(p)) {
 			failedSign(event, shopType, Message.NO_TS_CREATE_PERMISSION);
+			return;
 		}
 
 		if (!checkShopChest(shopSign.getBlock()) && !shopType.isITrade()) {

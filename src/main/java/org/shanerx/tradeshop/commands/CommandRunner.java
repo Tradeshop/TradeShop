@@ -38,6 +38,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.shanerx.tradeshop.TradeShop;
 import org.shanerx.tradeshop.enumys.Commands;
 import org.shanerx.tradeshop.enumys.Message;
+import org.shanerx.tradeshop.enumys.Permissions;
 import org.shanerx.tradeshop.enumys.Setting;
 import org.shanerx.tradeshop.enumys.ShopType;
 import org.shanerx.tradeshop.framework.CustomCommandHandler;
@@ -525,7 +526,9 @@ public class CommandRunner extends Utils {
 		if (shop == null)
 			return;
 
-		if (!(shop.getOwner().getUUID().equals(pSender.getUniqueId()) || shop.getManagersUUID().contains(pSender.getUniqueId()))) {
+		if (!(shop.getOwner().getUUID().equals(pSender.getUniqueId()) ||
+				shop.getManagersUUID().contains(pSender.getUniqueId()) ||
+				pSender.hasPermission(Permissions.ADMIN.getPerm()))) {
 			sendMessage(Message.NO_EDIT.getPrefixed());
 			return;
 		}
@@ -554,7 +557,9 @@ public class CommandRunner extends Utils {
 		if (shop == null)
 			return;
 
-		if (!(shop.getOwner().getUUID().equals(pSender.getUniqueId()) || shop.getManagersUUID().contains(pSender.getUniqueId()))) {
+		if (!(shop.getOwner().getUUID().equals(pSender.getUniqueId()) ||
+				shop.getManagersUUID().contains(pSender.getUniqueId()) ||
+				pSender.hasPermission(Permissions.ADMIN.getPerm()))) {
 			sendMessage(Message.NO_EDIT.getPrefixed());
 			return;
 		}
