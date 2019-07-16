@@ -425,12 +425,11 @@ public class Utils {
 			if (containsAtLeast(clone.getContents(), iS, iS.getAmount() * multiplier)) {
 				int count = iS.getAmount() * multiplier, removed;
 				while (count > 0) {
-					boolean resetItem = false;
 					ItemStack temp = clone.getItem(clone.first(iS.getType())),
 							dupitm1 = iS.clone();
 
-					if (count > iS.getMaxStackSize()) {
-						removed = iS.getMaxStackSize();
+					if (count > dupitm1.getMaxStackSize()) {
+						removed = dupitm1.getMaxStackSize();
 					} else {
 						removed = count;
 					}
@@ -439,18 +438,13 @@ public class Utils {
 						removed = temp.getAmount();
 					}
 
-					iS.setAmount(removed);
-					if (!iS.hasItemMeta() && temp.hasItemMeta()) {
-						iS.setItemMeta(temp.getItemMeta());
-						iS.setData(temp.getData());
-						resetItem = true;
+					dupitm1.setAmount(removed);
+					if (!dupitm1.hasItemMeta() && temp.hasItemMeta()) {
+						dupitm1.setItemMeta(temp.getItemMeta());
+						dupitm1.setData(temp.getData());
 					}
 
-					clone.removeItem(iS);
-
-					if (resetItem) {
-						iS = dupitm1;
-					}
+					clone.removeItem(dupitm1);
 
 					count -= removed;
 				}
