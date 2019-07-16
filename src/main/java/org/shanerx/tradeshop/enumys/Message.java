@@ -95,6 +95,8 @@ public enum Message {
 	protected final String PREFIX = "&a[&eTradeShop&a] ";
 
 	public static void setDefaults() {
+		config = YamlConfiguration.loadConfiguration(file);
+
 		addMessage("invalid-arguments", "&eTry &6/tradeshop help &eto display help!");
 		addMessage("no-command-permission", "&aYou do not have permission to execute this command");
 		addMessage("setup-help", "\n&2Setting up a TradeShop is easy! Just make sure to follow these steps:"
@@ -184,8 +186,8 @@ public enum Message {
 			plugin.getServer().getPluginManager().disablePlugin(plugin);
 		}
 
-		config = YamlConfiguration.loadConfiguration(file);
 		setDefaults();
+		config = YamlConfiguration.loadConfiguration(file);
 	}
 
 	public static FileConfiguration getConfig() {

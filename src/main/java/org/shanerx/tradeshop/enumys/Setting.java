@@ -88,6 +88,8 @@ public enum Setting {
 	}
 
 	private static void setDefaults() {
+		config = YamlConfiguration.loadConfiguration(file);
+
 		addSetting(CHECK_UPDATES.path, true);
 		addSetting(ALLOWED_SHOPS.path, new String[]{"CHEST", "TRAPPED_CHEST", "SHULKER"});
 		addSetting(ALLOWED_DIRECTIONS.path, new String[]{"DOWN", "WEST", "SOUTH", "EAST", "NORTH", "UP"});
@@ -145,8 +147,8 @@ public enum Setting {
 			plugin.getServer().getPluginManager().disablePlugin(plugin);
 		}
 
-		config = YamlConfiguration.loadConfiguration(file);
 		setDefaults();
+		config = YamlConfiguration.loadConfiguration(file);
 	}
 
 	public static FileConfiguration getConfig() {
