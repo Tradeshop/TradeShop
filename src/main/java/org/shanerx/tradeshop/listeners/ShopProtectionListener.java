@@ -27,7 +27,10 @@ package org.shanerx.tradeshop.listeners;
 
 import org.bukkit.Nameable;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 import org.bukkit.block.Sign;
+import org.bukkit.block.data.BlockData;
+import org.bukkit.block.data.Directional;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -71,20 +74,17 @@ public class ShopProtectionListener extends Utils implements Listener {
 		}
 	}
 
-	@EventHandler(priority = EventPriority.HIGH)
+	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onEntityExplodeItem(EntityExplodeEvent event) {
 		List<Block> toRemove = new ArrayList<>();
 		for (Iterator<Block> i = event.blockList().iterator(); i.hasNext(); ) {
 			Block b = i.next();
-			if (plugin.getListManager().isInventory(b.getType()) &&
-					((Nameable) b.getState()).getCustomName() != null &&
-					((Nameable) b.getState()).getCustomName().contains("$ ^Sign:l_")) {
+			if (ShopChest.isShopChest(b)) {
 				Shop shop = Shop.loadShop((new ShopChest(b.getLocation())).getShopSign());
 				if (shop != null) {
-
-					if (!Setting.findSetting((shop.getShopType() + "SHOP_EXPLODE").toUpperCase()).getBoolean())
+					if (!Setting.findSetting((shop.getShopType().toString() + "SHOP_EXPLODE").toUpperCase()).getBoolean())
 						i.remove();
-					else if (shop != null) {
+					else {
 						if (shop.getStorage() != null)
 							shop.getChestAsSC().resetName();
 						shop.remove();
@@ -93,11 +93,19 @@ public class ShopProtectionListener extends Utils implements Listener {
 				}
 
 			} else if (ShopType.isShop(b)) {
-				if (!Setting.findSetting((ShopType.getType((Sign) b.getState()).toString() + "SHOP_EXPLODE").toUpperCase()).getBoolean()) {
+				if (!Setting.findSetting(ShopType.getType((Sign) b.getState()).toString() + "SHOP_EXPLODE".toUpperCase()).getBoolean()) {
 					i.remove();
 
-					org.bukkit.material.Sign s = (org.bukkit.material.Sign) b.getState().getData();
-					toRemove.add(b.getRelative(s.getAttachedFace()));
+					if (plugin.getVersion().isBelow(1, 14)) {
+						org.bukkit.material.Sign s = (org.bukkit.material.Sign) b.getState().getData();
+						toRemove.add(b.getRelative(s.getAttachedFace()));
+					} else if (b.getType().toString().contains("WALL_SIGN")) {
+						BlockData data = b.getBlockData();
+						if (data instanceof Directional)
+							toRemove.add(b.getRelative(((Directional) data).getFacing().getOppositeFace()));
+					} else {
+						toRemove.add(b.getRelative(BlockFace.DOWN));
+					}
 				} else {
 					Shop shop = Shop.loadShop((Sign) b.getState());
 					if (shop != null) {
