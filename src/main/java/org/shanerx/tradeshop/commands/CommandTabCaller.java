@@ -57,12 +57,12 @@ public class CommandTabCaller implements TabCompleter {
 		if (command != null) {
 
 			if (!checkPerm()) {
-				return null;
+				return Collections.EMPTY_LIST;
 			}
 
 			if (command.needsPlayer() && !(sender instanceof Player)) {
 				sender.sendMessage(Message.PLAYER_ONLY_COMMAND.getPrefixed());
-				return null;
+				return Collections.EMPTY_LIST;
 			}
 
 			tabCompleter = new CommandTabCompleter(plugin, cmdPass);
@@ -109,11 +109,6 @@ public class CommandTabCaller implements TabCompleter {
 	 * @return true if permission is NONE or sender has permission
 	 */
 	public boolean checkPerm() {
-		if (!cmdPass.getSender().hasPermission(command.getPerm().getPerm()) && !command.getPerm().equals(Permissions.NONE)) {
-			cmdPass.getSender().sendMessage(Message.NO_COMMAND_PERMISSION.getPrefixed());
-			return false;
-		}
-
-		return true;
+		return cmdPass.getSender().hasPermission(command.getPerm().getPerm()) || command.getPerm().equals(Permissions.NONE);
 	}
 }
