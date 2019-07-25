@@ -36,11 +36,7 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.shanerx.tradeshop.TradeShop;
-import org.shanerx.tradeshop.enumys.Commands;
-import org.shanerx.tradeshop.enumys.Message;
-import org.shanerx.tradeshop.enumys.Permissions;
-import org.shanerx.tradeshop.enumys.Setting;
-import org.shanerx.tradeshop.enumys.ShopType;
+import org.shanerx.tradeshop.enumys.*;
 import org.shanerx.tradeshop.framework.CustomCommandHandler;
 import org.shanerx.tradeshop.framework.TradeCommand;
 import org.shanerx.tradeshop.objects.Shop;
@@ -603,7 +599,7 @@ public class CommandRunner extends Utils {
 				costRows = (int) Math.ceil(shop.getCost().size() / 3.0),
 				invSize = (Math.max(productRows, costRows) + 1) * 9;
 
-		Inventory shopContents = Bukkit.createInventory(null, invSize, colorize(Bukkit.getOfflinePlayer(shop.getOwner().getUUID()).getName() + "'s Shop                                 "));
+		Inventory shopContents = Bukkit.createInventory(null, invSize, colorize(shop.getShopType() == ShopType.ITRADE ? Setting.ITRADESHOP_OWNER.getString() : Bukkit.getOfflinePlayer(shop.getOwner().getUUID()).getName() + "'s Shop                                 "));
 
 		ItemStack costLabel = new ItemStack(Material.GOLD_NUGGET, 1),
 				productLabel = new ItemStack(Material.GRASS_BLOCK, 1),

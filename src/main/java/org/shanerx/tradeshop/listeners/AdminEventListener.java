@@ -53,23 +53,29 @@ public class AdminEventListener extends Utils implements Listener {
 		plugin = instance;
 	}
 
-	@EventHandler(priority = EventPriority.HIGH)
+	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onBlockBreak(BlockBreakEvent event) {
 		Player player = event.getPlayer();
 		Block block = event.getBlock();
+		debug("0");
 
 		if (ShopType.isShop(block)) {
 			Shop shop = Shop.loadShop((Sign) block.getState());
-
+			debug("1");
 			if (shop == null)
 				return;
+			debug("2");
 
-			if (player.hasPermission(Permissions.ADMIN.getPerm()) || event.getPlayer().getUniqueId().equals(shop.getOwner().getUUID())) {
+			if (player.hasPermission(Permissions.ADMIN.getPerm()) || player.getUniqueId().equals(shop.getOwner().getUUID())) {
+				debug("3");
 
-				if (shop.getStorage() != null)
+				if (shop.getStorage() != null) {
 					new ShopChest(shop.getStorage().getLocation()).resetName();
+					debug("4");
+				}
 
 				shop.remove();
+				debug("5");
 				return;
 			}
 			event.setCancelled(true);

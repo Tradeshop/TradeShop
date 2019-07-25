@@ -217,7 +217,7 @@ public class ShopTradeListener extends Utils implements Listener {
 
 			Bukkit.getPluginManager().callEvent(new PlayerTradeEvent(e.getPlayer(), cost, product, shop, e.getClickedBlock(), e.getBlockFace()));
 
-		} else if (e.getAction() == Action.LEFT_CLICK_BLOCK) {
+		} else if (e.getAction() == Action.LEFT_CLICK_BLOCK && shop.getShopType() == ShopType.BITRADE) {
 
 			if (!checkInventory(playerInventory, cost, multiplier)) {
 				buyer.sendMessage(Message.INSUFFICIENT_ITEMS.getPrefixed()
