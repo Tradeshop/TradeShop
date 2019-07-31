@@ -59,7 +59,7 @@ public enum ShopType implements Serializable {
 
 	public static boolean isShop(Block b) {
 		if (b != null && plugin.getSigns().getSignTypes().contains(b.getType())) {
-			return isShop((Sign) b.getState());
+			return getType((Sign) b.getState()) != null;
 		}
 
 		return false;

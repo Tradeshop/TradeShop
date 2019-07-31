@@ -103,8 +103,6 @@ public class ShopTradeListener extends Utils implements Listener {
 
 		int multiplier = 1;
 
-		e.setCancelled(true);
-
 		if (buyer.isSneaking() && Setting.ALLOW_MULTI_TRADE.getBoolean()) {
 			JsonConfiguration pJson = new JsonConfiguration(buyer.getUniqueId());
 			Map<String, Integer> data = pJson.loadPlayer();
@@ -147,6 +145,7 @@ public class ShopTradeListener extends Utils implements Listener {
 
 		if (e.getAction() == Action.RIGHT_CLICK_BLOCK) {
 
+            e.setCancelled(true);
 
 			if (!checkInventory(playerInventory, cost, multiplier)) {
 				buyer.sendMessage(Message.INSUFFICIENT_ITEMS.getPrefixed()
@@ -219,6 +218,8 @@ public class ShopTradeListener extends Utils implements Listener {
 
 		} else if (e.getAction() == Action.LEFT_CLICK_BLOCK && shop.getShopType() == ShopType.BITRADE) {
 
+            e.setCancelled(true);
+
 			if (!checkInventory(playerInventory, cost, multiplier)) {
 				buyer.sendMessage(Message.INSUFFICIENT_ITEMS.getPrefixed()
 						.replace("{ITEM}", costName.toLowerCase()).replace("{AMOUNT}", String.valueOf(amountCost)));
@@ -275,10 +276,6 @@ public class ShopTradeListener extends Utils implements Listener {
 	private void tradeItems(ItemStack item, Inventory fromInventory, Inventory toInventory, int multiplier) {
 		int count = item.getAmount() * multiplier, traded, maxStack;
 		boolean isTrade;
-		debug("---- Start ----");
-		debug("count: " + count);
-		debug("itmAmt: " + item.getAmount());
-		debug("multiplier: " + multiplier);
 
 		isTrade = fromInventory != null && toInventory != null;
 
@@ -288,24 +285,17 @@ public class ShopTradeListener extends Utils implements Listener {
 				ItemStack temp = fromInventory.getItem(fromInventory.first(item.getType())),
 						dupitm1 = item.clone();
 				maxStack = dupitm1.getMaxStackSize();
-				debug("count: " + count);
-				debug("maxstack: " + maxStack);
 
 				if (count > maxStack)
 					traded = temp.getAmount() < maxStack ? temp.getAmount() : maxStack;
 				else
 					traded = temp.getAmount() < count ? temp.getAmount() : count;
 
-				debug("traded: " + traded);
-				debug("count: " + count);
-
 				dupitm1.setAmount(traded);
 				if (!dupitm1.hasItemMeta() && temp.hasItemMeta()) {
 					dupitm1.setItemMeta(temp.getItemMeta());
 					dupitm1.setData(temp.getData());
 				}
-
-				debug("itmAmt: " + dupitm1.getAmount());
 
 				fromInventory.removeItem(dupitm1);
 				toInventory.addItem(dupitm1);
