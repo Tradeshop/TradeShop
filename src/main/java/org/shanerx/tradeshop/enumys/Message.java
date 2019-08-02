@@ -49,7 +49,7 @@ public enum Message {
 	INSUFFICIENT_ITEMS,
 	INVALID_ARGUMENTS,
 	INVALID_SIGN,
-	MISSING_INFO,
+	MISSING_CHEST,
 	MISSING_ITEM,
 	MISSING_SHOP,
 	NO_CHEST,
@@ -78,25 +78,25 @@ public enum Message {
 	EXISTING_SHOP,
 	SHOP_TYPE_SWITCHED,
 	WHO_MESSAGE,
-	INVALID_SUBCOMMAND;
+	INVALID_SUBCOMMAND,
+	PLUGIN_BEHIND,
+	MULTI_UPDATE,
+	MULTI_AMOUNT,
+	TOO_MANY_CHESTS,
+	SHOP_ITEM_LIST,
+	ITEM_REMOVED,
+	ITEM_NOT_REMOVED,
+	TOO_MANY_ITEMS;
 
-	@Override
-	public String toString() {
-		return colour(config.getString(name().toLowerCase().replace("_", "-"))
-				.replace("%header%", Setting.TRADESHOP_HEADER.getString()));
-	}
-
-	public String getPrefixed() {
-		return colour(PREFIX + toString());
-	}
-
+	private static final char COLOUR_CHAR = '&';
 	private static TradeShop plugin = (TradeShop) Bukkit.getPluginManager().getPlugin("TradeShop");
 	private static File file = new File(plugin.getDataFolder(), "messages.yml");
 	private static FileConfiguration config = YamlConfiguration.loadConfiguration(file);
-	private static final char COLOUR_CHAR = '&';
 	protected final String PREFIX = "&a[&eTradeShop&a] ";
 
 	public static void setDefaults() {
+		config = YamlConfiguration.loadConfiguration(file);
+
 		addMessage("invalid-arguments", "&eTry &6/tradeshop help &eto display help!");
 		addMessage("no-command-permission", "&aYou do not have permission to execute this command");
 		addMessage("setup-help", "\n&2Setting up a TradeShop is easy! Just make sure to follow these steps:"
@@ -119,11 +119,13 @@ public enum Message {
 		addMessage("insufficient-items", "&cYou do not have &e {AMOUNT} {ITEM}&c!");
 		addMessage("shop-full-amount", "&cThe shop does not have &e{AMOUNT} &cof a single type of &e{ITEM}&c!");
 		addMessage("full-amount", "&cYou must have &e{AMOUNT} &cof a single type of &e{ITEM}&c!");
-		addMessage("shop-empty", "&cThis TradeShop does not have &e {AMOUNT} {ITEM}&c!");
+		addMessage("shop-empty", "&cThis TradeShop is currently &emissing &citems to complete the trade!");
 		addMessage("shop-full", "&cThis TradeShop is full, please contact the owner to get it emptied!");
 		addMessage("player-full", "&cYour inventory is full, please make room before trading items!");
 		addMessage("confirm-trade", "&eTrade &6 {AMOUNT1} {ITEM1} &e for &6 {AMOUNT2} {ITEM2} &e?");
-		addMessage("item-added", "&aItem successfully added to sign.");
+		addMessage("item-added", "&aItem successfully added to shop.");
+		addMessage("item-removed", "&aItem successfully removed to shop.");
+		addMessage("item-not-removed", "&cItem could not be removed from shop.");
 		addMessage("held-empty", "&eYou are currently holding nothing.");
 		addMessage("player-only-command", "&eThis command is only available to players.");
 		addMessage("missing-shop", "&cThere is not currently a shop here, please tell the owner or come back later!");
@@ -135,7 +137,7 @@ public enum Message {
 		addMessage("no-shop-permission", "&cYou do not have permission to edit that shop.");
 		addMessage("illegal-item", "&cYou cannot use one or more of those items in shops.");
 		addMessage("missing-item", "&cYour sign is missing an item for trade.");
-		addMessage("missing-info", "&cYour sign is missing necessary information.");
+		addMessage("missing-chest", "&cYour shop is missing a chest.");
 		addMessage("amount-not-num", "&cYou should have an amount before each item.");
 		addMessage("shop-closed", "&cThis shop is currently closed.");
 		addMessage("buy-failed-sign", "&cThis shop sign does not seem to be formatted correctly, please notify the owner.");
@@ -145,7 +147,13 @@ public enum Message {
 		addMessage("player-not-found", "&cThat player could not be found.");
 		addMessage("existing-shop", "&cYou may only have 1 shop per inventory block.");
 		addMessage("shop-type-switched", "&aShop type has been switched to %newtype%.");
-		addMessage("invalid-subcommand", "&cInvalid subcommand. Cannot display usage.");
+		addMessage("invalid-subcommand", "&cInvalid sub-command. Cannot display usage.");
+		addMessage("plugin-behind", "&cThe server is running an old version of TradeShop, please update the plugin.");
+		addMessage("multi-update", "&aTrade multiplier has been updated to %amount%.");
+		addMessage("multi-amount", "&aYour trade multiplier is %amount%.");
+		addMessage("too-many-chests", "&cThere are too many shops in this chunk, you can not add another one.");
+		addMessage("shop-item-list", "&aThe shops %type%:\n%list%");
+		addMessage("too-many-items", "&cThis trade can not take any more %side%!");
 
 		save();
 	}
@@ -178,8 +186,8 @@ public enum Message {
 			plugin.getServer().getPluginManager().disablePlugin(plugin);
 		}
 
-		config = YamlConfiguration.loadConfiguration(file);
 		setDefaults();
+		config = YamlConfiguration.loadConfiguration(file);
 	}
 
 	public static FileConfiguration getConfig() {
@@ -188,5 +196,15 @@ public enum Message {
 
 	public static String colour(String x) {
 		return ChatColor.translateAlternateColorCodes(COLOUR_CHAR, x);
+	}
+
+	@Override
+	public String toString() {
+		return colour(config.getString(name().toLowerCase().replace("_", "-"))
+				.replace("%header%", Setting.TRADESHOP_HEADER.getString()));
+	}
+
+	public String getPrefixed() {
+		return colour(PREFIX + toString());
 	}
 }

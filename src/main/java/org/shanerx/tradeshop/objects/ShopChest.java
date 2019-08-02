@@ -1,24 +1,26 @@
 /*
- *                 Copyright (c) 2016-2019
- *         SparklingComet @ http://shanerx.org
- *      KillerOfPie @ http://killerofpie.github.io
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ *                         Copyright (c) 2016-2019
+ *                SparklingComet @ http://shanerx.org
+ *               KillerOfPie @ http://killerofpie.github.io
  *
- *              http://www.apache.org/licenses/LICENSE-2.0
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ *                http://www.apache.org/licenses/LICENSE-2.0
  *
- * NOTICE: All modifications made by others to the source code belong
- * to the respective contributor. No contributor should be held liable for
- * any damages of any kind, whether be material or moral, which were
- * caused by their contribution(s) to the project. See the full License for more information.
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ *
+ *  NOTICE: All modifications made by others to the source code belong
+ *  to the respective contributor. No contributor should be held liable for
+ *  any damages of any kind, whether be material or moral, which were
+ *  caused by their contribution(s) to the project. See the full License for more information.
+ *
  */
 
 package org.shanerx.tradeshop.objects;
@@ -30,6 +32,7 @@ import org.bukkit.Nameable;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
+import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
@@ -68,6 +71,27 @@ public class ShopChest extends Utils {
 				plugin.getListManager().getInventories().contains(checking.getType()) &&
 				((Nameable) checking.getState()).getCustomName() != null &&
 				((Nameable) checking.getState()).getCustomName().contains("$ ^Sign:l_");
+	}
+
+	public static Block getOtherHalfOfDoubleChest(Block chest) {
+		if (chest.getType() != Material.CHEST || chest.getType() != Material.TRAPPED_CHEST) {
+			return null;
+		}
+		ArrayList<BlockFace> flatFaces = new ArrayList<>(Arrays.asList(BlockFace.NORTH, BlockFace.EAST, BlockFace.SOUTH, BlockFace.WEST));
+
+		for (BlockFace face : flatFaces) {
+			Block adjoining = chest.getRelative(face);
+
+			if (adjoining.getType() == chest.getType()) {
+				return adjoining;
+			}
+		}
+
+		return null;
+	}
+
+	public static boolean isDoubleChest(Block chest) {
+		return getOtherHalfOfDoubleChest(chest) != null;
 	}
 
 	private void getBlock() {
@@ -128,29 +152,45 @@ public class ShopChest extends Utils {
 	}
 
 	public void resetName() {
-		BlockState bs = chest.getState();
-		if (bs instanceof InventoryHolder && bs instanceof Nameable && ((Nameable) bs).getCustomName() != null
-				&& ((Nameable) bs).getCustomName().contains(sectionSeparator)) {
+		if (chest != null) {
+			BlockState bs = chest.getState();
+			if (bs instanceof Nameable && ((Nameable) bs).getCustomName() != null
+					&& ((Nameable) bs).getCustomName().contains("$ ^Sign:l_")) {
+				((Nameable) bs).setCustomName(((Nameable) bs).getCustomName().split(sectionSeparator)[0]);
 
-			((Nameable) bs).setCustomName(((Nameable) chest.getState()).getCustomName().split(sectionSeparator)[0]);
+				if (isDoubleChest(chest)) {
+					BlockState dblSide = getOtherHalfOfDoubleChest(chest).getState();
+					((Nameable) dblSide).setCustomName(
+							((Nameable) dblSide).getCustomName().split(sectionSeparator)[0]);
+
+					dblSide.update();
+				}
+
+				bs.update();
+			}
+		}
+	}
+
+	public void setName() {
+		BlockState bs = chest.getState();
+		if (bs instanceof Nameable) {
+			((Nameable) bs).setCustomName(getName());
 
 			if (isDoubleChest(chest)) {
-				((Nameable) getOtherHalfOfDoubleChest(chest).getState()).setCustomName(
-						((Nameable) getOtherHalfOfDoubleChest(chest).getState()).getCustomName().split(sectionSeparator)[0]);
+				BlockState dblSide = getOtherHalfOfDoubleChest(chest).getState();
+				((Nameable) dblSide).setCustomName(getName());
+
+				dblSide.update();
 			}
 
 			bs.update();
 		}
 	}
 
-	public void setName() {
-		BlockState bs = chest.getState();
-		if (bs instanceof InventoryHolder && bs instanceof Nameable) {
+	public void setEventName(BlockPlaceEvent event) {
+		BlockState bs = event.getBlockPlaced().getState();
+		if (bs instanceof Nameable) {
 			((Nameable) bs).setCustomName(getName());
-
-			if (isDoubleChest(chest)) {
-				((Nameable) getOtherHalfOfDoubleChest(chest).getState()).setCustomName(getName());
-			}
 
 			bs.update();
 		}
@@ -180,28 +220,15 @@ public class ShopChest extends Utils {
 		return owner != null;
 	}
 
-	public boolean hasShop() {
+	public boolean hasShopSign() {
 		return shopSign != null;
 	}
 
-	public static Block getOtherHalfOfDoubleChest(Block chest) {
-		if (chest.getType() != Material.CHEST || chest.getType() != Material.TRAPPED_CHEST) {
-			return null;
-		}
-		ArrayList<BlockFace> flatFaces = new ArrayList<>(Arrays.asList(BlockFace.NORTH, BlockFace.EAST, BlockFace.SOUTH, BlockFace.WEST));
-
-		for (BlockFace face : flatFaces) {
-			Block adjoining = chest.getRelative(face);
-
-			if (adjoining.getType() == chest.getType()) {
-				return adjoining;
-			}
+	public Shop getShop() {
+		if (hasShopSign()) {
+			Shop shop = Shop.loadShop(getShopSign());
 		}
 
 		return null;
-	}
-
-	public static boolean isDoubleChest(Block chest) {
-		return getOtherHalfOfDoubleChest(chest) != null;
 	}
 }

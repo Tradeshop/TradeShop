@@ -54,6 +54,12 @@ public class ShopUser implements Serializable {
 		this.role = role;
 	}
 
+	public static ShopUser deserialize(String serialized) {
+		ShopUser shopUser = new Gson().fromJson(serialized, ShopUser.class);
+		shopUser.player = Bukkit.getOfflinePlayer(UUID.fromString(shopUser.playerUUID));
+		return shopUser;
+	}
+
 	public OfflinePlayer getPlayer() {
 		fix();
 		return player;
@@ -82,11 +88,5 @@ public class ShopUser implements Serializable {
 
 	public String serialize() {
 		return new Gson().toJson(this);
-	}
-
-	public static ShopUser deserialize(String serialized) {
-		ShopUser shopUser = new Gson().fromJson(serialized, ShopUser.class);
-		shopUser.player = Bukkit.getOfflinePlayer(UUID.fromString(shopUser.playerUUID));
-		return shopUser;
 	}
 }

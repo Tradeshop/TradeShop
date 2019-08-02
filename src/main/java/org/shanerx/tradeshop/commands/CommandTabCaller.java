@@ -57,12 +57,12 @@ public class CommandTabCaller implements TabCompleter {
 		if (command != null) {
 
 			if (!checkPerm()) {
-				return null;
+				return Collections.EMPTY_LIST;
 			}
 
 			if (command.needsPlayer() && !(sender instanceof Player)) {
 				sender.sendMessage(Message.PLAYER_ONLY_COMMAND.getPrefixed());
-				return null;
+				return Collections.EMPTY_LIST;
 			}
 
 			tabCompleter = new CommandTabCompleter(plugin, cmdPass);
@@ -70,32 +70,20 @@ public class CommandTabCaller implements TabCompleter {
 			switch (command) {
 				case HELP:
 					return tabCompleter.help();
-				case BUGS:
-					return tabCompleter.bugs();
-				case SETUP:
-					return tabCompleter.setup();
-				case RELOAD:
-					return tabCompleter.reload();
-				case ADDPRODUCT:
-					return tabCompleter.addProduct();
-				case ADDCOST:
-					return tabCompleter.addCost();
-				case OPEN:
-					return tabCompleter.open();
-				case CLOSE:
-					return tabCompleter.close();
-				case SWITCH:
-					return tabCompleter.switchShop();
-				case WHAT:
-					return tabCompleter.what();
-				case WHO:
-					return tabCompleter.who();
-				case ADDMANAGER:
-					return tabCompleter.addManager();
-				case REMOVEUSER:
-					return tabCompleter.removeUser();
-				case ADDMEMBER:
-					return tabCompleter.addMember();
+				case ADD_PRODUCT:
+					return tabCompleter.addSet();
+				case ADD_COST:
+					return tabCompleter.addSet();
+				case SET_COST:
+					return tabCompleter.addSet();
+				case SET_PRODUCT:
+					return tabCompleter.addSet();
+				case ADD_MANAGER:
+					return tabCompleter.fillServerPlayer();
+				case REMOVE_USER:
+					return tabCompleter.fillShopPlayer();
+				case ADD_MEMBER:
+					return tabCompleter.fillServerPlayer();
 				default:
 					return Collections.EMPTY_LIST;
 			}
@@ -121,11 +109,6 @@ public class CommandTabCaller implements TabCompleter {
 	 * @return true if permission is NONE or sender has permission
 	 */
 	public boolean checkPerm() {
-		if (!cmdPass.getSender().hasPermission(command.getPerm().getPerm()) && !command.getPerm().equals(Permissions.NONE)) {
-			cmdPass.getSender().sendMessage(Message.NO_COMMAND_PERMISSION.getPrefixed());
-			return false;
-		}
-
-		return true;
+		return cmdPass.getSender().hasPermission(command.getPerm().getPerm()) || command.getPerm().equals(Permissions.NONE);
 	}
 }

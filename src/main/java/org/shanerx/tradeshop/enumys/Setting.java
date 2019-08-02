@@ -1,24 +1,26 @@
 /*
- *                 Copyright (c) 2016-2019
- *         SparklingComet @ http://shanerx.org
- *      KillerOfPie @ http://killerofpie.github.io
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ *                         Copyright (c) 2016-2019
+ *                SparklingComet @ http://shanerx.org
+ *               KillerOfPie @ http://killerofpie.github.io
  *
- *              http://www.apache.org/licenses/LICENSE-2.0
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ *                http://www.apache.org/licenses/LICENSE-2.0
  *
- * NOTICE: All modifications made by others to the source code belong
- * to the respective contributor. No contributor should be held liable for
- * any damages of any kind, whether be material or moral, which were
- * caused by their contribution(s) to the project. See the full License for more information.
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ *
+ *  NOTICE: All modifications made by others to the source code belong
+ *  to the respective contributor. No contributor should be held liable for
+ *  any damages of any kind, whether be material or moral, which were
+ *  caused by their contribution(s) to the project. See the full License for more information.
+ *
  */
 
 package org.shanerx.tradeshop.enumys;
@@ -40,54 +42,37 @@ public enum Setting {
 	ALLOWED_SHOPS("allowed-shops"),
 	ALLOWED_DIRECTIONS("allowed-directions"),
 	ITRADESHOP_OWNER("itradeshop.owner"),
-	ALLOW_DOUBLE_TRADE("allow-double-trade"),
-	ALLOW_QUAD_TRADE("allow-quad-trade"),
+	ALLOW_MULTI_TRADE("allow-multi-trade"),
 	MAX_EDIT_DISTANCE("max-edit-distance"),
 	MAX_SHOP_USERS("max-shop-users"),
 	ILLEGAL_ITEMS("illegal-items"),
+
 	TRADESHOP_HEADER("tradeshop.header"),
 	ITRADESHOP_HEADER("itradeshop.header"),
 	BITRADESHOP_HEADER("bitradeshop.header"),
+
 	TRADESHOP_EXPLODE("tradeshop.allow-explode"),
 	ITRADESHOP_EXPLODE("itradeshop.allow-explode"),
 	BITRADESHOP_EXPLODE("bitradeshop.allow-explode"),
+
+	TRADESHOP_HOPPER_EXPORT("tradeshop.allow-hopper-export"),
+	BITRADESHOP_HOPPER_EXPORT("bitradeshop.allow-hopper-export"),
+
 	SHOP_OPEN_STATUS("shop-open-status"),
 	SHOP_CLOSED_STATUS("shop-closed-status"),
-	ALLOW_METRICS("allow-metrics"),
-	ENABLE_DEBUG("enable-debug");
 
+	ALLOW_METRICS("allow-metrics"),
+	ENABLE_DEBUG("enable-debug"),
+	MAX_SHOPS_PER_CHUNK("max-shops-per-chunk"),
+	MAX_ITEMS_PER_TRADE_SIDE("max-items-per-trade-side");
+
+	private static TradeShop plugin = (TradeShop) Bukkit.getPluginManager().getPlugin("TradeShop");
+	private static File file = new File(plugin.getDataFolder(), "config.yml");
+	private static FileConfiguration config = YamlConfiguration.loadConfiguration(file);
 	String path;
 
 	Setting(String path) {
 		this.path = path;
-	}
-
-	public String toPath() {
-		return path;
-	}
-
-	public Object getSetting() {
-		return config.get(toPath());
-	}
-
-	public String getString() {
-		return config.getString(toPath());
-	}
-
-	public List<String> getStringList() {
-		return config.getStringList(toPath());
-	}
-
-	public int getInt() {
-		return config.getInt(toPath());
-	}
-
-	public double getDouble() {
-		return config.getDouble(toPath());
-	}
-
-	public boolean getBoolean() {
-		return config.getBoolean(toPath());
 	}
 
 	public static ArrayList<String> getItemBlackList() {
@@ -102,26 +87,26 @@ public enum Setting {
 		return valueOf(search.toUpperCase().replace("-", "_"));
 	}
 
-	private static TradeShop plugin = (TradeShop) Bukkit.getPluginManager().getPlugin("TradeShop");
-	private static File file = new File(plugin.getDataFolder(), "config.yml");
-	private static FileConfiguration config = YamlConfiguration.loadConfiguration(file);
-
 	private static void setDefaults() {
+		config = YamlConfiguration.loadConfiguration(file);
+
 		addSetting(CHECK_UPDATES.path, true);
 		addSetting(ALLOWED_SHOPS.path, new String[]{"CHEST", "TRAPPED_CHEST", "SHULKER"});
 		addSetting(ALLOWED_DIRECTIONS.path, new String[]{"DOWN", "WEST", "SOUTH", "EAST", "NORTH", "UP"});
-		addSetting(ALLOW_DOUBLE_TRADE.path, true);
-		addSetting(ALLOW_QUAD_TRADE.path, true);
+		addSetting(ALLOW_MULTI_TRADE.path, true);
 		addSetting(MAX_EDIT_DISTANCE.path, 4);
 		addSetting(MAX_SHOP_USERS.path, 5);
 		addSetting(ILLEGAL_ITEMS.path, new String[]{"Air", "Void_Air", "Cave_Air", "Bedrock", "Command_Block"});
 		addSetting(SHOP_OPEN_STATUS.path, "Open");
 		addSetting(SHOP_CLOSED_STATUS.path, "Closed");
+		addSetting(MAX_SHOPS_PER_CHUNK.path, 128);
+		addSetting(MAX_ITEMS_PER_TRADE_SIDE.path, 6);
 		addSetting(ALLOW_METRICS.path, true);
 		addSetting(ENABLE_DEBUG.path, false);
 
 		addSetting(TRADESHOP_HEADER.path, "Trade");
 		addSetting(TRADESHOP_EXPLODE.path, false);
+		addSetting(TRADESHOP_HOPPER_EXPORT.path, false);
 
 		addSetting(ITRADESHOP_HEADER.path, "iTrade");
 		addSetting(ITRADESHOP_OWNER.path, "Server Shop");
@@ -129,6 +114,7 @@ public enum Setting {
 
 		addSetting(BITRADESHOP_HEADER.path, "BiTrade");
 		addSetting(BITRADESHOP_EXPLODE.path, false);
+		addSetting(BITRADESHOP_HOPPER_EXPORT.path, false);
 
 		save();
 	}
@@ -161,11 +147,39 @@ public enum Setting {
 			plugin.getServer().getPluginManager().disablePlugin(plugin);
 		}
 
-		config = YamlConfiguration.loadConfiguration(file);
 		setDefaults();
+		config = YamlConfiguration.loadConfiguration(file);
 	}
 
 	public static FileConfiguration getConfig() {
 		return config;
+	}
+
+	public String toPath() {
+		return path;
+	}
+
+	public Object getSetting() {
+		return config.get(toPath());
+	}
+
+	public String getString() {
+		return config.getString(toPath());
+	}
+
+	public List<String> getStringList() {
+		return config.getStringList(toPath());
+	}
+
+	public int getInt() {
+		return config.getInt(toPath());
+	}
+
+	public double getDouble() {
+		return config.getDouble(toPath());
+	}
+
+	public boolean getBoolean() {
+		return config.getBoolean(toPath());
 	}
 }

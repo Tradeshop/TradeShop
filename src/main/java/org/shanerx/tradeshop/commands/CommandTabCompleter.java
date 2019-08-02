@@ -25,7 +25,6 @@
 
 package org.shanerx.tradeshop.commands;
 
-import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
@@ -70,67 +69,16 @@ public class CommandTabCompleter extends Utils {
 		return Collections.EMPTY_LIST;
 	}
 
-	public List<String> bugs() {
-		return Collections.EMPTY_LIST;
-	}
-
-	public List<String> setup() {
-		return Collections.EMPTY_LIST;
-	}
-
-	public List<String> reload() {
-		return Collections.EMPTY_LIST;
-	}
-
-	public List<String> addProduct() {
+	public List<String> addSet() {
 		if (command.argsSize() == 2) {
 			return Arrays.asList("1", "2", "4", "8", "16", "32", "64", "96", "128");
 		} else if (command.argsSize() == 3) {
-			List<String> materials = new ArrayList<>();
-
-			for (Material mat : Material.values())
-				materials.add(mat.toString());
-
-			return materials;
+			return partialGameMats(command.getArgAt(2));
 		}
 		return Collections.EMPTY_LIST;
 	}
 
-	public List<String> addCost() {
-		if (command.argsSize() == 2) {
-			return Arrays.asList("1", "2", "4", "8", "16", "32", "64", "96", "128");
-		} else if (command.argsSize() == 3) {
-			List<String> materials = new ArrayList<>();
-
-			for (Material mat : Material.values())
-				materials.add(mat.toString());
-
-			return materials;
-		}
-		return Collections.EMPTY_LIST;
-	}
-
-	public List<String> open() {
-		return Collections.EMPTY_LIST;
-	}
-
-	public List<String> close() {
-		return Collections.EMPTY_LIST;
-	}
-
-	public List<String> switchShop() {
-		return Collections.EMPTY_LIST;
-	}
-
-	public List<String> what() {
-		return Collections.EMPTY_LIST;
-	}
-
-	public List<String> who() {
-		return Collections.EMPTY_LIST;
-	}
-
-	public List<String> addManager() {
+	public List<String> fillServerPlayer() {
 		if (command.argsSize() == 2) {
 			return null;
 		}
@@ -138,7 +86,7 @@ public class CommandTabCompleter extends Utils {
 		return Collections.EMPTY_LIST;
 	}
 
-	public List<String> removeUser() {
+	public List<String> fillShopPlayer() {
 		if (command.argsSize() == 2) {
 			Block b = pSender.getTargetBlock(null, Setting.MAX_EDIT_DISTANCE.getInt());
 			Sign s;
@@ -158,11 +106,14 @@ public class CommandTabCompleter extends Utils {
 		return Collections.EMPTY_LIST;
 	}
 
-	public List<String> addMember() {
-		if (command.argsSize() == 2) {
-			return null;
+	private List<String> partialGameMats(String request) {
+		List<String> toReturn = new ArrayList<>();
+		for (String str : plugin.getListManager().getGameMats()) {
+			if (str.toLowerCase().contains(request.toLowerCase())) {
+				toReturn.add(str);
+			}
 		}
 
-		return Collections.EMPTY_LIST;
+		return toReturn;
 	}
 }
