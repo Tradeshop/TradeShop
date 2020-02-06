@@ -25,6 +25,7 @@
 
 package org.shanerx.tradeshop.listeners;
 
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -38,6 +39,7 @@ import org.shanerx.tradeshop.enumys.Message;
 import org.shanerx.tradeshop.enumys.Setting;
 import org.shanerx.tradeshop.enumys.ShopRole;
 import org.shanerx.tradeshop.enumys.ShopType;
+import org.shanerx.tradeshop.framework.events.PlayerShopCreateEvent;
 import org.shanerx.tradeshop.objects.Shop;
 import org.shanerx.tradeshop.objects.ShopChest;
 import org.shanerx.tradeshop.objects.ShopUser;
@@ -130,7 +132,11 @@ public class ShopCreateListener extends Utils implements Listener {
 		} else {
 			event.setLine(0, ChatColor.DARK_GREEN + shopType.toHeader());
 		}
-
+		
+		PlayerShopCreateEvent shopCreateEvent = new PlayerShopCreateEvent(p, shop);
+		Bukkit.getPluginManager().callEvent(shopCreateEvent);
+		if (shopCreateEvent.isCancelled()) return;
+		
 		shop.updateSign(event);
 		shop.removeEvent();
 		shop.saveShop();

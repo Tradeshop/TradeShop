@@ -189,9 +189,7 @@ public class ShopTradeListener extends Utils implements Listener {
 			
 			PlayerTradeEvent event = new PlayerTradeEvent(e.getPlayer(), cost, product, shop, e.getClickedBlock(), e.getBlockFace());
 			Bukkit.getPluginManager().callEvent(event);
-			if (event.isCancelled()) {
-				return;
-			}
+			if (event.isCancelled()) return;
 			
 			int count, traded, maxStack;
 			if (!shop.getShopType().equals(ShopType.ITRADE)) {
@@ -259,9 +257,7 @@ public class ShopTradeListener extends Utils implements Listener {
 			
 			PlayerTradeEvent event = new PlayerTradeEvent(e.getPlayer(), cost, product, shop, e.getClickedBlock(), e.getBlockFace());
 			Bukkit.getPluginManager().callEvent(event);
-			if (event.isCancelled()) {
-				return;
-			}
+			if (event.isCancelled()) return;
 			
 			if (!shop.getShopType().equals(ShopType.ITRADE)) {
 				for (ItemStack iS : product) {

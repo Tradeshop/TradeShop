@@ -5,7 +5,7 @@ api-version: 1.13
 load: POSTWORLD
 
 authors: [Lori00, KillerOfPie]
-description: A new powerful trading plugin.
+description: A new powerful economy trading plugin based on sign-chest shops.
 website: https://www.spigotmc.org/resources/tradeshop.32762/
 
 commands:
