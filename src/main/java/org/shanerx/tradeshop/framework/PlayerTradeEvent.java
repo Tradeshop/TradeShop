@@ -28,6 +28,7 @@ package org.shanerx.tradeshop.framework;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
+import org.bukkit.event.Cancellable;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
@@ -36,14 +37,21 @@ import org.shanerx.tradeshop.objects.Shop;
 
 import java.util.List;
 
-public class PlayerTradeEvent extends PlayerInteractEvent {
+public class PlayerTradeEvent extends PlayerInteractEvent implements Cancellable {
 
 	private static final HandlerList handlers = new HandlerList();
 	private Shop shop;
-	private ItemStack item;
+	private List<ItemStack> product;
+	private List<ItemStack> cost;
+	private Block clickedBlock;
+	private boolean cancelled;
 
 	public PlayerTradeEvent(Player who, List<ItemStack> cost, List<ItemStack> product, Shop shop, Block clickedBlock, BlockFace clickedFace) {
 		super(who, Action.RIGHT_CLICK_BLOCK, null, shop.getShopSign().getBlock(), clickedFace);
+		this.shop = shop;
+		this.product = product;
+		this.cost = cost;
+		this.clickedBlock = clickedBlock;
 	}
 
 	public static HandlerList getHandlerList() {
@@ -58,8 +66,28 @@ public class PlayerTradeEvent extends PlayerInteractEvent {
 	public Shop getShop() {
 		return shop;
 	}
-
-	public ItemStack getItem() {
-		return item;
+	
+	@Override
+	public Block getClickedBlock() {
+		return clickedBlock;
+	}
+	
+	public List<ItemStack> getProduct() {
+		return product;
+	}
+	
+	public List<ItemStack> getCost() {
+		return cost;
+	}
+	
+	// Event API: Cancellable
+	@Override
+	public boolean isCancelled() {
+		return cancelled;
+	}
+	
+	@Override
+	public void setCancelled(boolean cancelled) {
+		this.cancelled = cancelled;
 	}
 }
