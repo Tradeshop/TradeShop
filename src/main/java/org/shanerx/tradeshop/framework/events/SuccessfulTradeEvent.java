@@ -1,4 +1,4 @@
-package org.shanerx.tradeshop.framework;
+package org.shanerx.tradeshop.framework.events;
 
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;

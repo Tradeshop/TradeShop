@@ -39,6 +39,8 @@ import org.shanerx.tradeshop.TradeShop;
 import org.shanerx.tradeshop.enumys.*;
 import org.shanerx.tradeshop.framework.CustomCommandHandler;
 import org.shanerx.tradeshop.framework.TradeCommand;
+import org.shanerx.tradeshop.framework.events.PlayerShopCloseEvent;
+import org.shanerx.tradeshop.framework.events.PlayerShopOpenEvent;
 import org.shanerx.tradeshop.objects.Shop;
 import org.shanerx.tradeshop.objects.ShopChest;
 import org.shanerx.tradeshop.objects.ShopUser;
@@ -533,7 +535,10 @@ public class CommandRunner extends Utils {
 			sendMessage(Message.MISSING_ITEM.getPrefixed());
 			return;
 		}
-
+		
+		PlayerShopOpenEvent event = new PlayerShopOpenEvent(pSender, shop);
+		if (event.isCancelled()) return;
+		
 		boolean opened = shop.setOpen();
 		shop.saveShop();
 
@@ -559,6 +564,9 @@ public class CommandRunner extends Utils {
 			sendMessage(Message.NO_EDIT.getPrefixed());
 			return;
 		}
+		
+		PlayerShopCloseEvent event = new PlayerShopCloseEvent(pSender, shop);
+		if (event.isCancelled()) return;
 
 		shop.setClosed();
 		shop.saveShop();

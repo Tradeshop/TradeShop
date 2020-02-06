@@ -39,7 +39,7 @@ import org.bukkit.inventory.ItemStack;
 import org.shanerx.tradeshop.enumys.Message;
 import org.shanerx.tradeshop.enumys.Setting;
 import org.shanerx.tradeshop.enumys.ShopType;
-import org.shanerx.tradeshop.framework.PlayerTradeEvent;
+import org.shanerx.tradeshop.framework.events.PlayerTradeEvent;
 import org.shanerx.tradeshop.objects.Shop;
 import org.shanerx.tradeshop.objects.ShopLocation;
 import org.shanerx.tradeshop.utils.JsonConfiguration;
