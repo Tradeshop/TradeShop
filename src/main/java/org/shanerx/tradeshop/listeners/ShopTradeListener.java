@@ -40,6 +40,7 @@ import org.shanerx.tradeshop.enumys.Message;
 import org.shanerx.tradeshop.enumys.Setting;
 import org.shanerx.tradeshop.enumys.ShopType;
 import org.shanerx.tradeshop.framework.events.PlayerTradeEvent;
+import org.shanerx.tradeshop.framework.events.SuccessfulTradeEvent;
 import org.shanerx.tradeshop.objects.Shop;
 import org.shanerx.tradeshop.objects.ShopLocation;
 import org.shanerx.tradeshop.utils.JsonConfiguration;
@@ -277,7 +278,7 @@ public class ShopTradeListener extends Utils implements Listener {
 					.replace("{SELLER}", !shop.getShopType().isITrade() ? shop.getOwner().getPlayer().getName() : Setting.ITRADESHOP_OWNER.getString()));
 		}
 		
-		Bukkit.getPluginManager().callEvent(new PlayerTradeEvent(e.getPlayer(), cost, product, shop, e.getClickedBlock(), e.getBlockFace()));
+		Bukkit.getPluginManager().callEvent(new SuccessfulTradeEvent(e.getPlayer(), cost, product, shop, e.getClickedBlock(), e.getBlockFace()));
 	}
 
 	private void tradeItems(ItemStack item, Inventory fromInventory, Inventory toInventory, int multiplier) {
