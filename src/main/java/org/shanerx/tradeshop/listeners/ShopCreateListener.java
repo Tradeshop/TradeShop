@@ -135,7 +135,10 @@ public class ShopCreateListener extends Utils implements Listener {
 		
 		PlayerShopCreateEvent shopCreateEvent = new PlayerShopCreateEvent(p, shop);
 		Bukkit.getPluginManager().callEvent(shopCreateEvent);
-		if (shopCreateEvent.isCancelled()) return;
+		if (shopCreateEvent.isCancelled()) {
+			event.setCancelled(true);
+			return;
+		}
 		
 		shop.updateSign(event);
 		shop.removeEvent();
