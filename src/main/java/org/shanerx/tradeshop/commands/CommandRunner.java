@@ -38,13 +38,16 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.shanerx.tradeshop.TradeShop;
 import org.shanerx.tradeshop.enumys.*;
 import org.shanerx.tradeshop.framework.CustomCommandHandler;
+import org.shanerx.tradeshop.framework.ShopChange;
 import org.shanerx.tradeshop.framework.TradeCommand;
+import org.shanerx.tradeshop.framework.events.PlayerShopChangeEvent;
 import org.shanerx.tradeshop.framework.events.PlayerShopCloseEvent;
 import org.shanerx.tradeshop.framework.events.PlayerShopOpenEvent;
 import org.shanerx.tradeshop.objects.Shop;
 import org.shanerx.tradeshop.objects.ShopChest;
 import org.shanerx.tradeshop.objects.ShopUser;
 import org.shanerx.tradeshop.utils.JsonConfiguration;
+import org.shanerx.tradeshop.utils.ObjectHolder;
 import org.shanerx.tradeshop.utils.Utils;
 
 import java.util.ArrayList;
@@ -215,7 +218,11 @@ public class CommandRunner extends Utils {
 			sendMessage(Message.NO_SHOP_PERMISSION.getPrefixed());
 			return;
 		}
-
+		
+		PlayerShopChangeEvent changeEvent = new PlayerShopChangeEvent(pSender, shop, ShopChange.REMOVE_PRODUCT, new ObjectHolder<Integer>(index));
+		Bukkit.getPluginManager().callEvent(changeEvent);
+		if (changeEvent.isCancelled()) return;
+		
 		if (shop.removeProduct(index))
 			sendMessage(Message.ITEM_REMOVED.getPrefixed());
 		else
@@ -244,7 +251,11 @@ public class CommandRunner extends Utils {
 			sendMessage(Message.NO_SHOP_PERMISSION.getPrefixed());
 			return;
 		}
-
+		
+		PlayerShopChangeEvent changeEvent = new PlayerShopChangeEvent(pSender, shop, ShopChange.REMOVE_COST, new ObjectHolder<Integer>(index));
+		Bukkit.getPluginManager().callEvent(changeEvent);
+		if (changeEvent.isCancelled()) return;
+		
 		if (shop.removeCost(index))
 			sendMessage(Message.ITEM_REMOVED.getPrefixed());
 		else
@@ -311,7 +322,11 @@ public class CommandRunner extends Utils {
 			sendMessage(Message.TOO_MANY_ITEMS.getPrefixed().replaceAll("%side%", "products"));
 			return;
 		}
-
+		
+		PlayerShopChangeEvent changeEvent = new PlayerShopChangeEvent(pSender, shop, ShopChange.SET_PRODUCT, new ObjectHolder<ItemStack>(itemInHand));
+		Bukkit.getPluginManager().callEvent(changeEvent);
+		if (changeEvent.isCancelled()) return;
+		
 		shop.setProduct(itemInHand);
 
 		sendMessage(Message.ITEM_ADDED.getPrefixed());
@@ -377,7 +392,11 @@ public class CommandRunner extends Utils {
 			sendMessage(Message.TOO_MANY_ITEMS.getPrefixed().replaceAll("%side%", "products"));
 			return;
 		}
-
+		
+		PlayerShopChangeEvent changeEvent = new PlayerShopChangeEvent(pSender, shop, ShopChange.ADD_PRODUCT, new ObjectHolder<ItemStack>(itemInHand));
+		Bukkit.getPluginManager().callEvent(changeEvent);
+		if (changeEvent.isCancelled()) return;
+		
 		shop.addProduct(itemInHand);
 
 		sendMessage(Message.ITEM_ADDED.getPrefixed());
@@ -443,7 +462,11 @@ public class CommandRunner extends Utils {
 			sendMessage(Message.TOO_MANY_ITEMS.getPrefixed().replaceAll("%side%", "costs"));
 			return;
 		}
-
+		
+		PlayerShopChangeEvent changeEvent = new PlayerShopChangeEvent(pSender, shop, ShopChange.SET_COST, new ObjectHolder<ItemStack>(itemInHand));
+		Bukkit.getPluginManager().callEvent(changeEvent);
+		if (changeEvent.isCancelled()) return;
+		
 		shop.setCost(itemInHand);
 
 		sendMessage(Message.ITEM_ADDED.getPrefixed());
@@ -509,7 +532,11 @@ public class CommandRunner extends Utils {
 			sendMessage(Message.TOO_MANY_ITEMS.getPrefixed().replaceAll("%side%", "costs"));
 			return;
 		}
-
+		
+		PlayerShopChangeEvent changeEvent = new PlayerShopChangeEvent(pSender, shop, ShopChange.ADD_COST, new ObjectHolder<ItemStack>(itemInHand));
+		Bukkit.getPluginManager().callEvent(changeEvent);
+		if (changeEvent.isCancelled()) return;
+		
 		shop.addCost(itemInHand);
 
 		sendMessage(Message.ITEM_ADDED.getPrefixed());
@@ -787,7 +814,11 @@ public class CommandRunner extends Utils {
 			sendMessage(Message.UNSUCCESSFUL_SHOP_MEMBERS.getPrefixed());
 			return;
 		}
-
+		
+		PlayerShopChangeEvent changeEvent = new PlayerShopChangeEvent(pSender, shop, ShopChange.ADD_MANAGER, new ObjectHolder<OfflinePlayer>(target));
+		Bukkit.getPluginManager().callEvent(changeEvent);
+		if (changeEvent.isCancelled()) return;
+		
 		shop.addManager(target.getUniqueId());
 
 		sendMessage(Message.UPDATED_SHOP_MEMBERS.getPrefixed());
@@ -812,12 +843,16 @@ public class CommandRunner extends Utils {
 			sendMessage(Message.PLAYER_NOT_FOUND.getPrefixed());
 			return;
 		}
-
+		
+		PlayerShopChangeEvent changeEvent = new PlayerShopChangeEvent(pSender, shop, ShopChange.REMOVE_USER, new ObjectHolder<OfflinePlayer>(target));
+		Bukkit.getPluginManager().callEvent(changeEvent);
+		if (changeEvent.isCancelled()) return;
+		
 		if (!shop.removeUser(target.getUniqueId())) {
 			sendMessage(Message.UNSUCCESSFUL_SHOP_MEMBERS.getPrefixed());
 			return;
 		}
-
+		
 		sendMessage(Message.UPDATED_SHOP_MEMBERS.getPrefixed());
 	}
 
@@ -846,7 +881,11 @@ public class CommandRunner extends Utils {
 			sendMessage(Message.UNSUCCESSFUL_SHOP_MEMBERS.getPrefixed());
 			return;
 		}
-
+		
+		PlayerShopChangeEvent changeEvent = new PlayerShopChangeEvent(pSender, shop, ShopChange.ADD_MEMBER, new ObjectHolder<OfflinePlayer>(target));
+		Bukkit.getPluginManager().callEvent(changeEvent);
+		if (changeEvent.isCancelled()) return;
+		
 		shop.addMember(target.getUniqueId());
 
 		sendMessage(Message.UPDATED_SHOP_MEMBERS.getPrefixed());

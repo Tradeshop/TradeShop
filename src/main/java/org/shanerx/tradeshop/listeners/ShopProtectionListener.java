@@ -49,6 +49,7 @@ import org.shanerx.tradeshop.enumys.Message;
 import org.shanerx.tradeshop.enumys.Permissions;
 import org.shanerx.tradeshop.enumys.Setting;
 import org.shanerx.tradeshop.enumys.ShopType;
+import org.shanerx.tradeshop.framework.events.HopperShopAccessEvent;
 import org.shanerx.tradeshop.framework.events.PlayerShopDestroyEvent;
 import org.shanerx.tradeshop.framework.events.PlayerShopInventoryOpenEvent;
 import org.shanerx.tradeshop.framework.events.PlayerShopOpenEvent;
@@ -81,8 +82,10 @@ public class ShopProtectionListener extends Utils implements Listener {
 
 		if (fromContainer.getCustomName() != null && fromContainer.getCustomName().contains("$ ^Sign:l_")) {
 			Shop shop = Shop.loadShop(ShopLocation.deserialize(fromContainer.getCustomName().split("\\$ \\^")[1].split(":")[1]));
-
-			event.setCancelled(!Setting.findSetting(shop.getShopType().toString() + "SHOP_HOPPER_EXPORT").getBoolean());
+			boolean isForbidden = !Setting.findSetting(shop.getShopType().toString() + "SHOP_HOPPER_EXPORT").getBoolean();
+			HopperShopAccessEvent hopperEvent = new HopperShopAccessEvent(shop, event.getSource(), event.getDestination(), event.getItem(), isForbidden);
+			Bukkit.getPluginManager().callEvent(hopperEvent);
+			event.setCancelled(!hopperEvent.isForbidden());
 		}
 	}
 
