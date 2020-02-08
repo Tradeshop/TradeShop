@@ -16,7 +16,7 @@ jobs:
     - name: Build with Maven
       run: mvn -B package --file pom.xml
     - name: Upload artifact
-    - uses: actions/upload-artifact@v1.0.0
+      uses: actions/upload-artifact@v1.0.0
       with:
         name: Build with Maven
         path: /home/runner/work/TradeShop/TradeShop/target/
