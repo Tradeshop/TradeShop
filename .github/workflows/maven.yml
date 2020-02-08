@@ -13,10 +13,10 @@ jobs:
       uses: actions/setup-java@v1
       with:
         java-version: 1.8
+    - name: Package with Maven
+      run: mvn deploy -e -X -Dregistry=https://maven.pkg.github.com/Tradeshop/TradeShop -Dtoken=GH_TOKEN
     - name: Build with Maven
       run: mvn -B package --file pom.xml
-    - name: Package with Maven
-      run: mvn deploy -e -X -Dregistry=https://maven.pkg.github.com/Tradeshop -Dtoken=github.token
     - name: Upload artifact
       uses: actions/upload-artifact@v1.0.0
       with:
