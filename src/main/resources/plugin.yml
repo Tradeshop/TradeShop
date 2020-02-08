@@ -6,7 +6,7 @@ load: POSTWORLD
 
 authors: [Lori00, KillerOfPie]
 description: A new powerful economy trading plugin based on sign-chest shops.
-website: https://www.spigotmc.org/resources/tradeshop.32762/
+website: https://tradeshop.github.io, https://www.spigotmc.org/resources/tradeshop.32762/
 
 commands:
   tradeshop:

@@ -1,5 +1,8 @@
 package org.shanerx.tradeshop.framework;
 
+/**
+ * This enum's entries represent the possible changes the {@link org.shanerx.tradeshop.framework.events.PlayerShopChangeEvent} is fired upon.
+ */
 public enum ShopChange {
 	
 	ADD_MANAGER,
