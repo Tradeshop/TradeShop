@@ -124,7 +124,7 @@
       <repository>
         <id>github</id>
         <name>Tradeshop</name>
-        <url>https://maven.pkg.github.com/Tradeshop/Tradeshop</url>
+        <url>https://maven.pkg.github.com/Tradeshop/TradeShop</url>
       </repository>
     </distributionManagement>
 </project>
