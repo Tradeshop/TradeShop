@@ -15,7 +15,10 @@ jobs:
         java-version: 1.8
     - name: Build with Maven
       run: mvn -B package --file pom.xml
+    - name: Package with Maven
+      run: mvn deploy -Dregistry=https://maven.pkg.github.com/Tradeshop -Dtoken=${{ secrets.GITHUB_TOKEN }}
     - name: Upload artifact
       uses: actions/upload-artifact@v1.0.0
       with:
-        path: /home/runner/work/TradeShop/TradeShop/target/
+        name:  Tradeshop Build
+        path: '/home/runner/work/TradeShop/TradeShop/target/*.jar'
