@@ -16,4 +16,4 @@ jobs:
     - name: Build with Maven
       run: mvn -B package --file pom.xml
     - name: Deploy with Maven
-      run: mvn deploy
+      run: mvn deploy -Dregistry=https://maven.pkg.github.com/Tradeshop -Dtoken=f2b141c95394b7a0c7487edfa5fb2ba16316d8ed
