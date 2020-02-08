@@ -16,7 +16,7 @@ jobs:
     - name: Build with Maven
       run: mvn -B package --file pom.xml
     - name: Package with Maven
-      run: mvn deploy -e -X -Dregistry=https://maven.pkg.github.com/Tradeshop -Dtoken=GITHUB_TOKEN
+      run: mvn deploy -e -X -Dregistry=https://maven.pkg.github.com/Tradeshop -Dtoken=github.token
     - name: Upload artifact
       uses: actions/upload-artifact@v1.0.0
       with:
