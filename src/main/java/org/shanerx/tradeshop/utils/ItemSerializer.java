@@ -49,7 +49,7 @@ public class ItemSerializer {
 	 *
 	 * @param item to turn into a Base64 String.
 	 * @return Base64 string of the items.
-	 * @throws IllegalStateException
+	 * @throws IllegalStateException if ItemStack cannot be saved
 	 */
 	public static String itemStackArrayToBase64(ItemStack item) throws IllegalStateException {
 		try {
@@ -72,7 +72,7 @@ public class ItemSerializer {
 	 *
 	 * @param data Base64 string to convert to ItemStack array.
 	 * @return ItemStack array created from the Base64 string.
-	 * @throws IOException
+	 * @throws IOException if class type could not be decoded
 	 */
 	public static ItemStack itemStackArrayFromBase64(String data) throws IOException {
 		try {
