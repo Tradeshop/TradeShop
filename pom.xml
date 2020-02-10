@@ -86,12 +86,12 @@
                 <artifactId>maven-javadoc-plugin</artifactId>
                 <version>3.1.1</version>
                 <configuration>
-                    <excludePackageNames>org.shanerx.tradeshop.commands</excludePackageNames>
                     <sourceFileExcludes>
                         <exclude>TradeShop.java</exclude>
                         <exclude>ShopSign.java</exclude>
                         <exclude>TradeCommand.java</exclude>
                         <exclude>CustomCommandHandler.java</exclude>
+                        <exclude>org.shanerx.tradeshop.commands.*</exclude>
                     </sourceFileExcludes>
                 </configuration>
                 <executions>
