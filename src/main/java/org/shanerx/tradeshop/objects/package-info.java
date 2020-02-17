@@ -23,43 +23,14 @@
  *
  */
 
-package org.shanerx.tradeshop.framework;
-
-import org.bukkit.block.Block;
-import org.bukkit.block.BlockFace;
-import org.bukkit.entity.Player;
-import org.bukkit.event.HandlerList;
-import org.bukkit.event.block.Action;
-import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.inventory.ItemStack;
-import org.shanerx.tradeshop.objects.Shop;
-
-import java.util.List;
-
-public class PlayerTradeEvent extends PlayerInteractEvent {
-
-	private static final HandlerList handlers = new HandlerList();
-	private Shop shop;
-	private ItemStack item;
-
-	public PlayerTradeEvent(Player who, List<ItemStack> cost, List<ItemStack> product, Shop shop, Block clickedBlock, BlockFace clickedFace) {
-		super(who, Action.RIGHT_CLICK_BLOCK, null, shop.getShopSign().getBlock(), clickedFace);
-	}
-
-	public static HandlerList getHandlerList() {
-		return handlers;
-	}
-
-	@Override
-	public HandlerList getHandlers() {
-		return handlers;
-	}
-
-	public Shop getShop() {
-		return shop;
-	}
-
-	public ItemStack getItem() {
-		return item;
-	}
-}
+/**
+ * This class contains all the classes of the core of the plugin.
+ * The reason we are adding them to the docs are that the custom event framework
+ * makes use of the {@link org.shanerx.tradeshop.objects.Shop} class,
+ * and should only be used for read purposes, ie. accessing getters.
+ *
+ *
+ * NOTE: DO NOT ATTEMPT TO CHANGE THE PLUGIN'S INTERNAL DATA, NOT EVEN WITH SETTER METHODS,
+ * IF YOU DO NOT POSSESS AN UNDERSTANDING OF THE INTERNAL WORKINGS OF THE PLUGIN!
+ */
+package org.shanerx.tradeshop.objects;

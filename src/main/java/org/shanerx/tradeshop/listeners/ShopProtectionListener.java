@@ -25,6 +25,7 @@
 
 package org.shanerx.tradeshop.listeners;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Nameable;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -48,6 +49,10 @@ import org.shanerx.tradeshop.enumys.Message;
 import org.shanerx.tradeshop.enumys.Permissions;
 import org.shanerx.tradeshop.enumys.Setting;
 import org.shanerx.tradeshop.enumys.ShopType;
+import org.shanerx.tradeshop.framework.events.HopperShopAccessEvent;
+import org.shanerx.tradeshop.framework.events.PlayerShopDestroyEvent;
+import org.shanerx.tradeshop.framework.events.PlayerShopInventoryOpenEvent;
+import org.shanerx.tradeshop.framework.events.PlayerShopOpenEvent;
 import org.shanerx.tradeshop.objects.Shop;
 import org.shanerx.tradeshop.objects.ShopChest;
 import org.shanerx.tradeshop.objects.ShopLocation;
@@ -77,8 +82,10 @@ public class ShopProtectionListener extends Utils implements Listener {
 
 		if (fromContainer.getCustomName() != null && fromContainer.getCustomName().contains("$ ^Sign:l_")) {
 			Shop shop = Shop.loadShop(ShopLocation.deserialize(fromContainer.getCustomName().split("\\$ \\^")[1].split(":")[1]));
-
-			event.setCancelled(!Setting.findSetting(shop.getShopType().toString() + "SHOP_HOPPER_EXPORT").getBoolean());
+			boolean isForbidden = !Setting.findSetting(shop.getShopType().toString() + "SHOP_HOPPER_EXPORT").getBoolean();
+			HopperShopAccessEvent hopperEvent = new HopperShopAccessEvent(shop, event.getSource(), event.getDestination(), event.getItem(), isForbidden);
+			Bukkit.getPluginManager().callEvent(hopperEvent);
+			event.setCancelled(!hopperEvent.isForbidden());
 		}
 	}
 
@@ -141,7 +148,14 @@ public class ShopProtectionListener extends Utils implements Listener {
                 return;
 
             if (player.hasPermission(Permissions.ADMIN.getPerm()) || player.getUniqueId().equals(shop.getOwner().getUUID())) {
-
+	
+	            PlayerShopDestroyEvent destroyEvent = new PlayerShopDestroyEvent(player, shop);
+	            Bukkit.getPluginManager().callEvent(destroyEvent);
+	            if (destroyEvent.isCancelled()) {
+	            	event.setCancelled(true);
+		            return;
+	            }
+	            
                 if (shop.getStorage() != null) {
                     new ShopChest(shop.getStorage().getLocation()).resetName();
                 }
@@ -178,6 +192,13 @@ public class ShopProtectionListener extends Utils implements Listener {
             Shop shop = Shop.loadShop(s);
 
             if (event.getPlayer().getUniqueId().equals(shop.getOwner().getUUID())) {
+	            PlayerShopDestroyEvent destroyEvent = new PlayerShopDestroyEvent(player, shop);
+	            Bukkit.getPluginManager().callEvent(destroyEvent);
+	            if (destroyEvent.isCancelled()) {
+		            event.setCancelled(true);
+		            return;
+	            }
+	            
                 if (!ShopChest.isDoubleChest(block)) {
                     new ShopChest(shop.getInventoryLocation()).resetName();
                     shop.removeStorage();
@@ -215,14 +236,22 @@ public class ShopProtectionListener extends Utils implements Listener {
         if (s == null) {
             return;
         }
-
-        if (!e.getPlayer().hasPermission(Permissions.ADMIN.getPerm()) && ShopType.isShop(s.getBlock())) {
+        
+        if (ShopType.isShop(s.getBlock())) {
             Shop shop = Shop.loadShop(s);
-            if (!shop.getUsersUUID().contains(e.getPlayer().getUniqueId())) {
+            if (!e.getPlayer().hasPermission(Permissions.ADMIN.getPerm()) && !shop.getUsersUUID().contains(e.getPlayer().getUniqueId())) {
                 e.getPlayer().sendMessage(Message.NO_TS_OPEN.getPrefixed());
                 e.setCancelled(true);
+                return;
             }
+            
+	        PlayerShopInventoryOpenEvent openEvent = new PlayerShopInventoryOpenEvent(
+			        e.getPlayer(), shop, e.getAction(), e.getItem(), e.getClickedBlock(), e.getBlockFace());
+	        Bukkit.getPluginManager().callEvent(openEvent);
+            if (openEvent.isCancelled()) e.setCancelled(true);
         }
+	
+
     }
 
     @EventHandler(priority = EventPriority.HIGH)

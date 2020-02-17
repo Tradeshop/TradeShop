@@ -184,7 +184,8 @@ public class CommandCaller implements CommandExecutor {
 	/**
 	 * Checks if the sender has the required permission
 	 *
-	 * @return true if permission is NONE or sender has permission
+     * @param exec Command attempting to be run
+     * @return true if permission is NONE or sender has permission
 	 */
 	public boolean checkPerm(TradeCommand exec) {
 		if (!(cmdPass.getSender().hasPermission(exec.getPermission()) || exec.getPermission().equalsIgnoreCase("None"))) {

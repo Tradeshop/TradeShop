@@ -66,16 +66,6 @@ public class CustomCommandHandler {
 		return !(isNativeCommand(subCmd) || addonCmds.containsKey(subCmd.toLowerCase()));
 	}
 
-	public void registerCommand(TradeCommand subCmd) {
-		if (!plugin.getAddonManager().isRegistered(subCmd.getPlugin())) {
-			throw new IllegalStateException("Error: Access forbidden: unhooked addon attempting to register commands!");
-		} else if (!isAvailable(subCmd.getCmd())) {
-			throw new IllegalArgumentException("Error: A subcommand with this name already exists!");
-		}
-
-		addonCmds.put(subCmd.getCmd().toLowerCase(), subCmd);
-	}
-
 	public TradeCommand getExecutable(String subCmd) {
 		return addonCmds.get(subCmd.toLowerCase());
 	}

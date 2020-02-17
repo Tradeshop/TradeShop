@@ -39,7 +39,8 @@ import org.bukkit.inventory.ItemStack;
 import org.shanerx.tradeshop.enumys.Message;
 import org.shanerx.tradeshop.enumys.Setting;
 import org.shanerx.tradeshop.enumys.ShopType;
-import org.shanerx.tradeshop.framework.PlayerTradeEvent;
+import org.shanerx.tradeshop.framework.events.PlayerTradeEvent;
+import org.shanerx.tradeshop.framework.events.SuccessfulTradeEvent;
 import org.shanerx.tradeshop.objects.Shop;
 import org.shanerx.tradeshop.objects.ShopLocation;
 import org.shanerx.tradeshop.utils.JsonConfiguration;
@@ -186,7 +187,11 @@ public class ShopTradeListener extends Utils implements Listener {
 			shop = json.loadShop(new ShopLocation(s.getLocation()));
 			product = shop.getProduct();
 			cost = shop.getCost();
-
+			
+			PlayerTradeEvent event = new PlayerTradeEvent(e.getPlayer(), cost, product, shop, e.getClickedBlock(), e.getBlockFace());
+			Bukkit.getPluginManager().callEvent(event);
+			if (event.isCancelled()) return;
+			
 			int count, traded, maxStack;
 			if (!shop.getShopType().equals(ShopType.ITRADE)) {
 				for (ItemStack iS : product) {
@@ -214,7 +219,6 @@ public class ShopTradeListener extends Utils implements Listener {
 					.replace("{ITEM2}", costName.toLowerCase())
 					.replace("{SELLER}", !shop.getShopType().isITrade() ? shop.getOwner().getPlayer().getName() : Setting.ITRADESHOP_OWNER.getString()));
 
-			Bukkit.getPluginManager().callEvent(new PlayerTradeEvent(e.getPlayer(), cost, product, shop, e.getClickedBlock(), e.getBlockFace()));
 
 		} else if (e.getAction() == Action.LEFT_CLICK_BLOCK && shop.getShopType() == ShopType.BITRADE) {
 
@@ -251,7 +255,11 @@ public class ShopTradeListener extends Utils implements Listener {
 					return;
 				}
 			}
-
+			
+			PlayerTradeEvent event = new PlayerTradeEvent(e.getPlayer(), cost, product, shop, e.getClickedBlock(), e.getBlockFace());
+			Bukkit.getPluginManager().callEvent(event);
+			if (event.isCancelled()) return;
+			
 			if (!shop.getShopType().equals(ShopType.ITRADE)) {
 				for (ItemStack iS : product) {
 					tradeItems(iS, playerInventory, chestInventory, multiplier);
@@ -268,9 +276,9 @@ public class ShopTradeListener extends Utils implements Listener {
 					.replace("{ITEM2}", costName.toLowerCase())
 					.replace("{ITEM1}", productName.toLowerCase())
 					.replace("{SELLER}", !shop.getShopType().isITrade() ? shop.getOwner().getPlayer().getName() : Setting.ITRADESHOP_OWNER.getString()));
-
-			Bukkit.getPluginManager().callEvent(new PlayerTradeEvent(e.getPlayer(), cost, product, shop, e.getClickedBlock(), e.getBlockFace()));
 		}
+		
+		Bukkit.getPluginManager().callEvent(new SuccessfulTradeEvent(e.getPlayer(), cost, product, shop, e.getClickedBlock(), e.getBlockFace()));
 	}
 
 	private void tradeItems(ItemStack item, Inventory fromInventory, Inventory toInventory, int multiplier) {

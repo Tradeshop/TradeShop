@@ -45,11 +45,7 @@ import org.shanerx.tradeshop.utils.Utils;
 
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @SuppressWarnings("unused")
@@ -149,6 +145,8 @@ public class Shop implements Serializable {
 
 	/**
 	 * Deserializes the object to Json using Gson
+	 *
+	 * @param serialized Shop GSON to be deserialized
 	 *
 	 * @return Shop object from file
 	 */
@@ -484,6 +482,8 @@ public class Shop implements Serializable {
 	 * Removes the cost item at the index
 	 *
 	 * @param index index of item to remove
+	 *
+	 * @return true if Cost is removed
 	 */
 	public boolean removeCost(int index) {
 		try {
@@ -572,6 +572,8 @@ public class Shop implements Serializable {
 	 * Removes the product item at the index
 	 *
 	 * @param index index of item to remove
+	 *
+	 * @return true if Product is removed
 	 */
 	public boolean removeProduct(int index) {
 		if (product.size() > index) {
@@ -750,6 +752,8 @@ public class Shop implements Serializable {
 
 	/**
 	 * Updates the text on the shops sign
+	 *
+	 * @param signEvent SignEvent to update the sign for
 	 */
 	public void updateSign(SignChangeEvent signEvent) {
 		if (!isMissingItems()) {

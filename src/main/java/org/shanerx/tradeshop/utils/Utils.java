@@ -43,12 +43,7 @@ import org.shanerx.tradeshop.enumys.Message;
 import org.shanerx.tradeshop.enumys.Setting;
 import org.shanerx.tradeshop.enumys.ShopType;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.logging.Level;
 
 
@@ -251,6 +246,7 @@ public class Utils {
 	 *
 	 * @param inv  the Inventory object
 	 * @param item the item to be checked
+	 * @param amount the amount attempting to be traded
 	 * @return true if the condition is met.
 	 */
 	public boolean containsAtLeast(ItemStack[] inv, ItemStack item, int amount) {

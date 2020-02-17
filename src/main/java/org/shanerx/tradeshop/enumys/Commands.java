@@ -128,7 +128,7 @@ public enum Commands {
 	/**
 	 * Returns list of all usable names for the command
 	 *
-	 * @return List<String> containing names
+	 * @return String List containing names
 	 */
 	public List<String> getNames() {
 		return names;
@@ -136,6 +136,8 @@ public enum Commands {
 
 	/**
 	 * Returns true if the sent string is contained within a command or its aliases
+	 *
+	 * @param cmd String to test for partial command match
 	 *
 	 * @return true if the sent string is contained within a command or its aliases
 	 */
@@ -152,7 +154,7 @@ public enum Commands {
 	/**
 	 * Returns list of all usable names for the command
 	 *
-	 * @return List<String> containing names
+	 * @return String List containing names
 	 */
 	public String getFirstName() {
 		return names.get(0);
