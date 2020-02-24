@@ -91,7 +91,7 @@ public class CommandTabCompleter extends Utils {
 			Block b = pSender.getTargetBlock(null, Setting.MAX_EDIT_DISTANCE.getInt());
 			Sign s;
 
-			if (plugin.getListManager().isInventory(b.getType())) {
+            if (plugin.getListManager().isInventory(b)) {
 				s = findShopSign(b);
 			} else if (ShopType.isShop(b)) {
 				s = (Sign) b.getState();

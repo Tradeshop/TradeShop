@@ -922,7 +922,7 @@ public class CommandRunner extends Utils {
 	 * @return null if Shop is not found, Shop object if it is
 	 */
 	private Shop findShop() {
-		Block b = pSender.getTargetBlock(null, Setting.MAX_EDIT_DISTANCE.getInt());
+		Block b = pSender.getTargetBlockExact(Setting.MAX_EDIT_DISTANCE.getInt());
 
 		try {
 			if (b.getType() == Material.AIR)
@@ -931,7 +931,7 @@ public class CommandRunner extends Utils {
 			if (ShopType.isShop(b)) {
 				return Shop.loadShop((Sign) b.getState());
 
-			} else if (plugin.getListManager().isInventory(b.getType()) &&
+			} else if (plugin.getListManager().isInventory(b) &&
 					((Nameable) b.getState()).getCustomName().contains("$ ^Sign:l_")) {
 
 				ShopChest shopChest = new ShopChest(b.getLocation());

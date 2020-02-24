@@ -26,7 +26,9 @@
 package org.shanerx.tradeshop.objects;
 
 import org.bukkit.Material;
+import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
+import org.bukkit.block.Container;
 import org.shanerx.tradeshop.enumys.Setting;
 
 import java.util.ArrayList;
@@ -37,20 +39,20 @@ public class ListManager {
 
 	private ArrayList<Material> blacklist = new ArrayList<>();
 	private ArrayList<BlockFace> directions = new ArrayList<>();
-	private ArrayList<Material> inventories = new ArrayList<>();
+    private ArrayList<String> inventories = new ArrayList<>();
 	private ArrayList<String> gameMats = new ArrayList<>();
 
 
 	public ListManager() {
 		reload();
-		setMaterialList();
+        setGameMatList();
 	}
 
 	public ArrayList<BlockFace> getDirections() {
 		return directions;
 	}
 
-	public ArrayList<Material> getInventories() {
+    public ArrayList<String> getInventories() {
 		return inventories;
 	}
 
@@ -70,14 +72,17 @@ public class ListManager {
 		return directions.contains(face);
 	}
 
-	public boolean isInventory(Material mat) {
-		return inventories.contains(mat);
+    public boolean isInventory(Block block) {
+        if (!(block instanceof Container))
+            return false;
+
+        return inventories.contains(block.getClass().getSimpleName().replaceAll("[\\[\\]]", "").toLowerCase());
 	}
 
 	public void reload() {
 		updateBlacklist();
 		updateDirections();
-		updateMaterials();
+        updateInventoryMats();
 	}
 
 	public void clearManager() {
@@ -95,7 +100,7 @@ public class ListManager {
 		}
 	}
 
-	private void setMaterialList() {
+    private void setGameMatList() {
 		for (Material mat : Material.values()) {
 			gameMats.add(mat.toString());
 		}
@@ -111,34 +116,10 @@ public class ListManager {
 		}
 	}
 
-	private void updateMaterials() {
+    private void updateInventoryMats() {
 		inventories.clear();
-		ArrayList<Material> allowed = new ArrayList<>(Arrays.asList(Material.CHEST, Material.TRAPPED_CHEST, Material.DROPPER, Material.HOPPER, Material.DISPENSER));
 
-		for (String str : Setting.ALLOWED_SHOPS.getStringList()) {
-			if (str.equalsIgnoreCase("shulker")) {
-				inventories.add(Material.SHULKER_BOX);
-				inventories.add(Material.WHITE_SHULKER_BOX);
-				inventories.add(Material.ORANGE_SHULKER_BOX);
-				inventories.add(Material.MAGENTA_SHULKER_BOX);
-				inventories.add(Material.LIGHT_BLUE_SHULKER_BOX);
-				inventories.add(Material.YELLOW_SHULKER_BOX);
-				inventories.add(Material.LIME_SHULKER_BOX);
-				inventories.add(Material.PINK_SHULKER_BOX);
-				inventories.add(Material.GRAY_SHULKER_BOX);
-				inventories.add(Material.LIGHT_GRAY_SHULKER_BOX);
-				inventories.add(Material.CYAN_SHULKER_BOX);
-				inventories.add(Material.PURPLE_SHULKER_BOX);
-				inventories.add(Material.BLUE_SHULKER_BOX);
-				inventories.add(Material.BROWN_SHULKER_BOX);
-				inventories.add(Material.GREEN_SHULKER_BOX);
-				inventories.add(Material.RED_SHULKER_BOX);
-				inventories.add(Material.BLACK_SHULKER_BOX);
-			} else {
-				if (allowed.contains(Material.valueOf(str)))
-					inventories.add(Material.valueOf(str));
-
-			}
-		}
+        for (String str : Setting.ALLOWED_SHOPS.getStringList())
+            inventories.add(str.toLowerCase());
 	}
 }

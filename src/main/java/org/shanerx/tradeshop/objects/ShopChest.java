@@ -68,7 +68,7 @@ public class ShopChest extends Utils {
 
 	public static boolean isShopChest(Block checking) {
 		return checking != null &&
-				plugin.getListManager().getInventories().contains(checking.getType()) &&
+				plugin.getListManager().isInventory(checking) &&
 				((Nameable) checking.getState()).getCustomName() != null &&
 				((Nameable) checking.getState()).getCustomName().contains("$ ^Sign:l_");
 	}
@@ -95,7 +95,7 @@ public class ShopChest extends Utils {
 	}
 
 	private void getBlock() {
-		if (loc.getBlock() != null && plugin.getListManager().getInventories().contains(loc.getBlock().getType())) {
+		if (loc.getBlock() != null && plugin.getListManager().isInventory(loc.getBlock())) {
 			chest = loc.getBlock();
 		}
 	}

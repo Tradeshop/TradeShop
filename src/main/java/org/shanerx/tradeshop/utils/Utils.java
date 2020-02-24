@@ -318,12 +318,9 @@ public class Utils {
 	 * @return the shop's inventory holder block.
 	 */
 	public Block findShopChest(Block sign) {
-		ArrayList<Material> invs = plugin.getListManager().getInventories();
-		ArrayList<BlockFace> faces = plugin.getListManager().getDirections();
-
-		for (BlockFace face : faces) {
+        for (BlockFace face : plugin.getListManager().getDirections()) {
 			Block relative = sign.getRelative(face);
-			if (invs.contains(relative.getType())) {
+            if (plugin.getListManager().isInventory(relative)) {
 				return relative;
 			}
 		}
