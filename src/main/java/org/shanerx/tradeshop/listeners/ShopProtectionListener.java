@@ -79,7 +79,7 @@ public class ShopProtectionListener extends Utils implements Listener {
 			return;
 		}
 
-        Nameable fromContainer = (Nameable) invBlock;
+        Nameable fromContainer = (Nameable) invBlock.getState();
 
 		if (fromContainer.getCustomName() != null && fromContainer.getCustomName().contains("$ ^Sign:l_")) {
 			Shop shop = Shop.loadShop(ShopLocation.deserialize(fromContainer.getCustomName().split("\\$ \\^")[1].split(":")[1]));
