@@ -33,6 +33,7 @@ import org.shanerx.tradeshop.commands.CommandTabCaller;
 import org.shanerx.tradeshop.enumys.Message;
 import org.shanerx.tradeshop.enumys.Setting;
 import org.shanerx.tradeshop.enumys.ShopSign;
+import org.shanerx.tradeshop.enumys.ShopStorage;
 import org.shanerx.tradeshop.listeners.*;
 import org.shanerx.tradeshop.objects.ListManager;
 import org.shanerx.tradeshop.utils.BukkitVersion;
@@ -43,6 +44,8 @@ public class TradeShop extends JavaPlugin {
 	private ListManager lists;
 	private BukkitVersion version;
 	private ShopSign signs;
+
+    private ShopStorage storages;
 
 	private Metrics metrics;
 
@@ -57,6 +60,10 @@ public class TradeShop extends JavaPlugin {
 	public ShopSign getSigns() {
 		return signs;
 	}
+
+    public ShopStorage getStorages() {
+        return storages;
+    }
 
 	public Updater getUpdater() {
 		return new Updater(getDescription());
@@ -81,6 +88,9 @@ public class TradeShop extends JavaPlugin {
 		Message.reload();
 		Setting.reload();
 
+        signs = new ShopSign();
+        storages = new ShopStorage();
+
 		lists = new ListManager();
 
 		PluginManager pm = getServer().getPluginManager();
@@ -92,8 +102,6 @@ public class TradeShop extends JavaPlugin {
 
 		getCommand("tradeshop").setExecutor(new CommandCaller(this));
 		getCommand("tradeshop").setTabCompleter(new CommandTabCaller(this));
-
-		signs = new ShopSign();
 
 		boolean checkUpdates = Setting.CHECK_UPDATES.getBoolean();
 

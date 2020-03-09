@@ -28,19 +28,21 @@ package org.shanerx.tradeshop.objects;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
-import org.bukkit.block.Container;
 import org.shanerx.tradeshop.enumys.Setting;
+import org.shanerx.tradeshop.enumys.ShopStorage;
+import org.shanerx.tradeshop.utils.Utils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 
 @SuppressWarnings("unused")
-public class ListManager {
+public class ListManager extends Utils {
 
 	private ArrayList<Material> blacklist = new ArrayList<>();
 	private ArrayList<BlockFace> directions = new ArrayList<>();
-    private ArrayList<String> inventories = new ArrayList<>();
+    private ArrayList<ShopStorage.Storages> inventories = new ArrayList<>();
 	private ArrayList<String> gameMats = new ArrayList<>();
+    private ArrayList<String> addOnMats = new ArrayList<>();
 
 
 	public ListManager() {
@@ -52,7 +54,7 @@ public class ListManager {
 		return directions;
 	}
 
-    public ArrayList<String> getInventories() {
+    public ArrayList<ShopStorage.Storages> getInventories() {
 		return inventories;
 	}
 
@@ -73,26 +75,47 @@ public class ListManager {
 	}
 
     public boolean isInventory(Block block) {
-        if (!(block instanceof Container))
-            return false;
+        //Get blocks Material and strip all non-alpha chars
+        Material blockMaterial = block.getType();
+        Boolean found = false;
 
-        return inventories.contains(block.getClass().getSimpleName().replaceAll("[\\[\\]]", "").toLowerCase());
+        debug("isInventory Block Material: " + blockMaterial.name());
+
+        //For each ShopStorage.Storages in inventories, check if their block list contains the block material. end loop if true.
+        for (ShopStorage.Storages storage : inventories) {
+            if (storage.getTypeMaterials().contains(blockMaterial)) {
+                found = true;
+                break;
+            }
+        }
+
+        debug("isInventory Block Material found: " + found);
+        return found;
 	}
 
 	public void reload() {
+        //Reloads any lists that need reloading
 		updateBlacklist();
 		updateDirections();
         updateInventoryMats();
+        setGameMatList();
 	}
 
 	public void clearManager() {
+        // Clears all lists, Only use if plugin is shutting down
 		inventories.clear();
 		blacklist.clear();
 		directions.clear();
+        addOnMats.clear();
+        gameMats.clear();
 	}
 
 	private void updateBlacklist() {
+        //Clears list before regenerating
 		blacklist.clear();
+
+        //Gets the Material object for each sting in the config Blacklist and adds it to the Blacklist
+        //If the string is not a Material, ignores it
 		for (String str : Setting.ILLEGAL_ITEMS.getStringList()) {
 			Material mat = Material.matchMaterial(str);
 			if (mat != null)
@@ -101,9 +124,17 @@ public class ListManager {
 	}
 
     private void setGameMatList() {
+        gameMats.clear();
+
+        //Adds each Material from Minecraft to a list for command tab complete
 		for (Material mat : Material.values()) {
 			gameMats.add(mat.toString());
 		}
+
+        //Adds any strings that have been added the the AddOnMats list to the autocomplete list
+        for (String str : addOnMats) {
+            gameMats.add(str);
+        }
 	}
 
 	private void updateDirections() {
@@ -117,9 +148,25 @@ public class ListManager {
 	}
 
     private void updateInventoryMats() {
+        //Clears the list before updating
 		inventories.clear();
 
-        for (String str : Setting.ALLOWED_SHOPS.getStringList())
-            inventories.add(str.toLowerCase());
+        log("Inventory Materials from Config:");
+        log("Config String | Status | Matching Type");
+
+        //For each String in the Allowed shops config setting, check if it is a valid inventory and add the ShopStorage.Storages object to the list
+        for (String str : Setting.ALLOWED_SHOPS.getStringList()) {
+            String logMsg = "- " + str;
+            String storageName = plugin.getStorages().isValidInventory(str);
+            if (storageName.length() > 0) {
+                ShopStorage.Storages storage = plugin.getStorages().getValidInventory(storageName);
+                inventories.add(storage);
+                logMsg += " | Valid | " + storage.name();
+            } else {
+                logMsg += " | InValid";
+            }
+
+            log(logMsg);
+        }
 	}
 }

@@ -344,6 +344,10 @@ public class Utils {
 		}
 	}
 
+	public void log(String text) {
+		Bukkit.getLogger().log(Level.INFO, text);
+	}
+
 	/**
 	 * Returns true if inventory has enough cost to make trade
 	 *
