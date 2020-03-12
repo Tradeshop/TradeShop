@@ -28,7 +28,7 @@ public class PlayerShopDestroyEvent extends PlayerEvent implements Cancellable {
 	
 	@Override
 	public HandlerList getHandlers() {
-		return null;
+		return handlers;
 	}
 	
 	/**
