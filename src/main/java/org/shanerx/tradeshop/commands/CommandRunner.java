@@ -37,9 +37,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.shanerx.tradeshop.TradeShop;
 import org.shanerx.tradeshop.enumys.*;
-import org.shanerx.tradeshop.framework.CustomCommandHandler;
 import org.shanerx.tradeshop.framework.ShopChange;
-import org.shanerx.tradeshop.framework.TradeCommand;
 import org.shanerx.tradeshop.framework.events.PlayerShopChangeEvent;
 import org.shanerx.tradeshop.framework.events.PlayerShopCloseEvent;
 import org.shanerx.tradeshop.framework.events.PlayerShopOpenEvent;
@@ -102,34 +100,17 @@ public class CommandRunner extends Utils {
 			}
 		}
 
-		Iterator<String> iter = CustomCommandHandler.getInstance().iter();
-		while (iter.hasNext()) {
-			String cmdName = iter.next();
-			TradeCommand cmd = CustomCommandHandler.getInstance().getExecutable(cmdName);
-			if (pSender.hasPermission(cmd.getPermission())) {
-				sb.append(Message.colour(String.format("&b/%s  &f %s\n", cmdName, cmd.getDescription())));
-			}
-		}
-
 		sb.append("\n ");
 		sendMessage(colorize(sb.toString()));
 	}
 
 	public void usage(String subcmd) {
-		CustomCommandHandler handler = CustomCommandHandler.getInstance();
-
-		if (handler.isAvailable(subcmd)) {
-			sendMessage(Message.INVALID_SUBCOMMAND.getPrefixed());
-			return;
-		} else if (handler.isNativeCommand(subcmd)) {
-			Commands cmd = Commands.getType(subcmd);
-			sendMessage(Message.colour(String.format("&6Showing help for &c%s&r\n&bUsage:&e %s \n&bAliases: %s\n&bDescription:&e %s", subcmd, cmd.getUsage(), cmd.getAliases(), cmd.getDescription())));
+		Commands cmd = Commands.getType(subcmd);
+		if (cmd == null) {
+			sendMessage(Message.colour(String.format("&4Cannot find usages for &c%s&r", subcmd)));
 			return;
 		}
-
-		TradeCommand cmd = handler.getExecutable(subcmd);
-		sendMessage(Message.colour(String.format("&6Showing help for &c%s&r\n&bUsage:&e %s \n&bAliases: %s\n&bDescription:&e %s\n &f[%s]", subcmd, cmd.getUsage(), cmd.getAliases(), cmd.getDescription(), cmd.getPlugin().getName())));
-		return;
+		sendMessage(Message.colour(String.format("&6Showing help for &c%s&r\n&bUsage:&e %s \n&bAliases: %s\n&bDescription:&e %s", subcmd, cmd.getUsage(), cmd.getAliases(), cmd.getDescription())));
 	}
 
 	/**
