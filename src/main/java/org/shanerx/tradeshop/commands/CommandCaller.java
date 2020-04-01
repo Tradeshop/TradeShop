@@ -32,8 +32,6 @@ import org.bukkit.entity.Player;
 import org.shanerx.tradeshop.TradeShop;
 import org.shanerx.tradeshop.enumys.Commands;
 import org.shanerx.tradeshop.enumys.Message;
-import org.shanerx.tradeshop.framework.CustomCommandHandler;
-import org.shanerx.tradeshop.framework.TradeCommand;
 
 /**
  * This class is used for calling command methods from CommandRunner
@@ -57,28 +55,10 @@ public class CommandCaller implements CommandExecutor {
 		command = Commands.getType(cmdPass.getArgAt(0));
 
 
-		if (!cmdPass.hasArgs()) {
+		if (!cmdPass.hasArgs() || command == null) {
 			sender.sendMessage(Message.INVALID_ARGUMENTS.getPrefixed());
 			return true;
 
-		}
-
-		if (command == null) {
-			CustomCommandHandler handler = CustomCommandHandler.getInstance();
-			String subcmd = cmdPass.getArgAt(0);
-
-			if (!handler.isAvailable(subcmd)) {
-				TradeCommand exec = handler.getExecutable(subcmd);
-				if (checkPerm(exec)) {
-					if (!exec.run(args)) {
-						sender.sendMessage(Message.INVALID_ARGUMENTS.getPrefixed());
-					}
-				}
-				return true;
-			}
-
-			sender.sendMessage(Message.INVALID_ARGUMENTS.getPrefixed());
-			return true;
 		}
 
 		if (!checkPerm()) {
@@ -174,21 +154,6 @@ public class CommandCaller implements CommandExecutor {
 	 */
 	public boolean checkPerm() {
 		if (!command.checkPerm(cmdPass.getSender())) {
-			cmdPass.getSender().sendMessage(Message.NO_COMMAND_PERMISSION.getPrefixed());
-			return false;
-		}
-
-		return true;
-	}
-
-	/**
-	 * Checks if the sender has the required permission
-	 *
-     * @param exec Command attempting to be run
-     * @return true if permission is NONE or sender has permission
-	 */
-	public boolean checkPerm(TradeCommand exec) {
-		if (!(cmdPass.getSender().hasPermission(exec.getPermission()) || exec.getPermission().equalsIgnoreCase("None"))) {
 			cmdPass.getSender().sendMessage(Message.NO_COMMAND_PERMISSION.getPrefixed());
 			return false;
 		}

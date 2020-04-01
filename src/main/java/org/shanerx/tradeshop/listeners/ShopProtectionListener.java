@@ -52,7 +52,6 @@ import org.shanerx.tradeshop.enumys.ShopType;
 import org.shanerx.tradeshop.framework.events.HopperShopAccessEvent;
 import org.shanerx.tradeshop.framework.events.PlayerShopDestroyEvent;
 import org.shanerx.tradeshop.framework.events.PlayerShopInventoryOpenEvent;
-import org.shanerx.tradeshop.framework.events.PlayerShopOpenEvent;
 import org.shanerx.tradeshop.objects.Shop;
 import org.shanerx.tradeshop.objects.ShopChest;
 import org.shanerx.tradeshop.objects.ShopLocation;
@@ -73,12 +72,14 @@ public class ShopProtectionListener extends Utils implements Listener {
 	@EventHandler(priority = EventPriority.HIGH)
 	public void onInventoryMoveItem(InventoryMoveItemEvent event) {
 
+        Block invBlock = event.getSource().getLocation().getBlock();
+
 		if (!(event.getInitiator().getType().equals(InventoryType.HOPPER) &&
-				plugin.getListManager().isInventory(event.getSource().getLocation().getBlock().getType()))) {
+                plugin.getListManager().isInventory(invBlock))) {
 			return;
 		}
 
-		Nameable fromContainer = (Nameable) event.getSource().getLocation().getBlock().getState();
+        Nameable fromContainer = (Nameable) invBlock.getState();
 
 		if (fromContainer.getCustomName() != null && fromContainer.getCustomName().contains("$ ^Sign:l_")) {
 			Shop shop = Shop.loadShop(ShopLocation.deserialize(fromContainer.getCustomName().split("\\$ \\^")[1].split(":")[1]));
@@ -166,12 +167,10 @@ public class ShopProtectionListener extends Utils implements Listener {
             event.setCancelled(true);
             player.sendMessage(Message.NO_TS_DESTROY.getPrefixed());
 
-        } else if (plugin.getListManager().isInventory(block.getType())) {
+        } else if (plugin.getListManager().isInventory(block)) {
             BlockState bs = block.getState();
-            if (!(bs instanceof Nameable && ((Nameable) bs).getCustomName() != null
-                    && ((Nameable) bs).getCustomName().contains("$ ^Sign:l_"))) {
+            if (!ShopChest.isShopChest(bs.getBlock()))
                 return;
-            }
 
             if (player.hasPermission(Permissions.ADMIN.getPerm())) {
                 new ShopChest(block.getLocation()).resetName();
@@ -227,7 +226,7 @@ public class ShopProtectionListener extends Utils implements Listener {
         if (e.getAction() != Action.RIGHT_CLICK_BLOCK) {
             return;
 
-        } else if (!plugin.getListManager().isInventory(block.getType())) {
+        } else if (!plugin.getListManager().isInventory(block)) {
             return;
         }
 
@@ -258,7 +257,7 @@ public class ShopProtectionListener extends Utils implements Listener {
     public void onBlockPlace(BlockPlaceEvent event) {
         Block block = event.getBlock();
 
-        if (!plugin.getListManager().getInventories().contains(block.getType()))
+        if (!plugin.getListManager().isInventory(block))
             return;
 
         if (!ShopChest.isDoubleChest(block)) {
