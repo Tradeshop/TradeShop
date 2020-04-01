@@ -1,5 +1,7 @@
 # TradeShop
 
+[![](https://jitpack.io/v/Tradeshop/TradeShop.svg)](https://jitpack.io/#Tradeshop/TradeShop)
+
 > https://tradeshop.github.io/
 
 ## Description

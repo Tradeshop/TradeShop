@@ -17,7 +17,7 @@ import java.util.List;
  * This makes it possible to cancel the event moments before the trade takes place, by using {@link org.bukkit.event.Cancellable}.
  */
 public class SuccessfulTradeEvent extends PlayerInteractEvent {
-	
+
 	private static final HandlerList handlers = new HandlerList();
 	private Shop shop;
 	private List<ItemStack> product;

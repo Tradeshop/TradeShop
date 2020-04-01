@@ -31,7 +31,7 @@
 
     <groupId>org.shanerx</groupId>
     <artifactId>tradeshop</artifactId>
-    <version>2.2.0</version>
+    <version>2.2.0-BETA</version>
     <name>TradeShop</name>
     <url>http://maven.apache.org</url>
 
@@ -81,7 +81,7 @@
                     </execution>
                 </executions>
             </plugin>
-            <plugin>
+            <!--<plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
                 <version>3.1.1</version>
@@ -92,7 +92,9 @@
                         <exclude>TradeCommand.java</exclude>
                         <exclude>CustomCommandHandler.java</exclude>
                         <exclude>org.shanerx.tradeshop.commands.*</exclude>
+                        <exclude>org.shanerx.tradeshop.listeners.*</exclude>
                     </sourceFileExcludes>
+                    <javadocExecutable>${java.home}/bin/javadoc</javadocExecutable>
                 </configuration>
                 <executions>
                     <execution>
@@ -102,7 +104,7 @@
                         </goals>
                     </execution>
                 </executions>
-            </plugin>
+            </plugin>-->
         </plugins>
 
         <resources>
@@ -110,8 +112,6 @@
                 <directory>src/main/resources</directory>
             </resource>
         </resources>
-
-
     </build>
 
     <repositories>
