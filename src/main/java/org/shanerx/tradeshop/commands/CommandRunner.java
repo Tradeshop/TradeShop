@@ -49,7 +49,6 @@ import org.shanerx.tradeshop.utils.ObjectHolder;
 import org.shanerx.tradeshop.utils.Utils;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.Map;
 
 public class CommandRunner extends Utils {
@@ -913,6 +912,7 @@ public class CommandRunner extends Utils {
 				return Shop.loadShop((Sign) b.getState());
 
 			} else if (plugin.getListManager().isInventory(b) &&
+                    ((Nameable) b.getState()).getCustomName() != null &&
 					((Nameable) b.getState()).getCustomName().contains("$ ^Sign:l_")) {
 
 				ShopChest shopChest = new ShopChest(b.getLocation());
