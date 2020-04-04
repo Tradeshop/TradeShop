@@ -194,22 +194,21 @@ public class ShopTradeListener extends Utils implements Listener {
 			
 			int count, traded, maxStack;
 			if (!shop.getShopType().equals(ShopType.ITRADE)) {
-				for (ItemStack iS : product) {
-					tradeItems(iS, chestInventory, playerInventory, multiplier);
-				}
-
 				for (ItemStack iS : cost) {
 					tradeItems(iS, playerInventory, chestInventory, multiplier);
 				}
-			} else {
 
 				for (ItemStack iS : product) {
-					tradeItems(iS, null, playerInventory, multiplier);
+                    tradeItems(iS, chestInventory, playerInventory, multiplier);
 				}
-
+            } else {
 				for (ItemStack iS : cost) {
 					tradeItems(iS, playerInventory, null, multiplier);
 				}
+
+                for (ItemStack iS : product) {
+                    tradeItems(iS, null, playerInventory, multiplier);
+                }
 			}
 
 			buyer.sendMessage(Message.ON_TRADE.getPrefixed()
@@ -261,13 +260,13 @@ public class ShopTradeListener extends Utils implements Listener {
 			if (event.isCancelled()) return;
 			
 			if (!shop.getShopType().equals(ShopType.ITRADE)) {
-				for (ItemStack iS : product) {
-					tradeItems(iS, playerInventory, chestInventory, multiplier);
-				}
-
 				for (ItemStack iS : cost) {
 					tradeItems(iS, chestInventory, playerInventory, multiplier);
 				}
+
+                for (ItemStack iS : product) {
+                    tradeItems(iS, playerInventory, chestInventory, multiplier);
+                }
 			}
 
 			buyer.sendMessage(Message.ON_TRADE.getPrefixed()
