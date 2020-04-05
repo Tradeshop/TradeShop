@@ -1,5 +1,6 @@
 # TradeShop
 
+![Java CI with Maven](https://github.com/Tradeshop/TradeShop/workflows/Java%20CI%20with%20Maven/badge.svg)
 [![](https://jitpack.io/v/Tradeshop/TradeShop.svg)](https://jitpack.io/#Tradeshop/TradeShop)
 
 > https://tradeshop.github.io/
