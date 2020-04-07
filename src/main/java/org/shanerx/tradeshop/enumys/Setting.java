@@ -65,6 +65,7 @@ public enum Setting {
 
 	ALLOW_METRICS("allow-metrics"),
 	ENABLE_DEBUG("enable-debug"),
+    MESSAGE_PREFIX("message-prefix"),
 	MAX_SHOPS_PER_CHUNK("max-shops-per-chunk"),
 	MAX_ITEMS_PER_TRADE_SIDE("max-items-per-trade-side");
 
@@ -106,6 +107,7 @@ public enum Setting {
 		addSetting(ALLOW_METRICS.path, true);
         addSetting(ENABLE_DEBUG.path, 0);
         addSetting(CONFIG_VERSION.path, 0);
+        addSetting(MESSAGE_PREFIX.path, "&a[&eTradeShop&a]");
 
 		addSetting(TRADESHOP_HEADER.path, "Trade");
 		addSetting(TRADESHOP_EXPLODE.path, false);
@@ -162,7 +164,7 @@ public enum Setting {
 
         // 2.2.2 Changed enable debug from true/false to integer
         // Value will be turned into binary representation where each bit represents a set of debug code or level
-        if (config.isBoolean(ENABLE_DEBUG.path)) {
+        if (!config.isInt(ENABLE_DEBUG.path)) {
             ENABLE_DEBUG.clearSetting();
             changes = true;
         }
@@ -189,7 +191,7 @@ public enum Setting {
 	}
 
     public void setSetting(Object obj) {
-        config.set(toPath(), obj.toString());
+        config.set(toPath(), obj);
     }
 
     public void clearSetting() {

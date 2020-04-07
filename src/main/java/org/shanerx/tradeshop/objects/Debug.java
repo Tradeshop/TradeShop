@@ -29,6 +29,8 @@ import org.bukkit.Bukkit;
 import org.shanerx.tradeshop.enumys.DebugLevels;
 import org.shanerx.tradeshop.enumys.Setting;
 
+import java.util.logging.Level;
+
 public class Debug {
 
     protected final String PREFIX = "[TradeShop Debug] ";
@@ -40,8 +42,19 @@ public class Debug {
     }
 
     public void reload() {
-        decimalDebugLevel = Setting.ENABLE_DEBUG.getInt();
-        binaryDebugLevel = new StringBuilder(Integer.toBinaryString(decimalDebugLevel)).reverse().toString();
+        decimalDebugLevel = Math.abs(Setting.ENABLE_DEBUG.getInt());
+        StringBuilder sb = new StringBuilder(Integer.toBinaryString(decimalDebugLevel));
+        while (sb.length() < DebugLevels.levels())
+            sb.insert(0, 0);
+
+        binaryDebugLevel = sb.reverse().toString();
+
+
+        if (decimalDebugLevel > 0) {
+            Bukkit.getLogger().log(Level.INFO, PREFIX + "Debugging enabled!");
+            Bukkit.getLogger().log(Level.INFO, PREFIX + "Decimal Debug level: " + decimalDebugLevel);
+            Bukkit.getLogger().log(Level.INFO, PREFIX + "Debug levels: " + binaryDebugLevel);
+        }
     }
 
     public void log(String message, DebugLevels level) {

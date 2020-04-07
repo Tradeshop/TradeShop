@@ -46,48 +46,49 @@ import org.shanerx.tradeshop.utils.JsonConfiguration;
 import org.shanerx.tradeshop.utils.Utils;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 @SuppressWarnings("unused")
 public class ShopTradeListener extends Utils implements Listener {
 
-	@SuppressWarnings("deprecation")
-	@EventHandler
-	public void onBlockInteract(PlayerInteractEvent e) {
+    @SuppressWarnings("deprecation")
+    @EventHandler
+    public void onBlockInteract(PlayerInteractEvent e) {
 
-		Player buyer = e.getPlayer();
-		Shop shop;
-		Sign s;
-		BlockState chestState;
+        Player buyer = e.getPlayer();
+        Shop shop;
+        Sign s;
+        BlockState chestState;
 
-		if (ShopType.isShop(e.getClickedBlock())) {
-			s = (Sign) e.getClickedBlock().getState();
-		} else {
-			return;
-		}
+        if (ShopType.isShop(e.getClickedBlock())) {
+            s = (Sign) e.getClickedBlock().getState();
+        } else {
+            return;
+        }
 
-		JsonConfiguration json = new JsonConfiguration(s.getChunk());
-		shop = json.loadShop(new ShopLocation(s.getLocation()));
+        JsonConfiguration json = new JsonConfiguration(s.getChunk());
+        shop = json.loadShop(new ShopLocation(s.getLocation()));
 
-		if (shop == null)
-			return;
+        if (shop == null)
+            return;
 
-		if (!shop.getShopType().equals(ShopType.ITRADE) && shop.getUsersUUID().contains(buyer.getUniqueId())) {
-			buyer.sendMessage(Message.SELF_OWNED.getPrefixed());
-			return;
-		}
+        if (!shop.getShopType().equals(ShopType.ITRADE) && shop.getUsersUUID().contains(buyer.getUniqueId())) {
+            buyer.sendMessage(Message.SELF_OWNED.getPrefixed());
+            return;
+        }
 
-		if (!shop.isOpen()) {
-			buyer.sendMessage(Message.SHOP_CLOSED.getPrefixed());
-			return;
-		}
+        if (!shop.isOpen()) {
+            buyer.sendMessage(Message.SHOP_CLOSED.getPrefixed());
+            return;
+        }
 
-		chestState = shop.getStorage();
-		if (!shop.getShopType().equals(ShopType.ITRADE) && chestState == null) {
-			buyer.sendMessage(Message.MISSING_CHEST.getPrefixed());
-			shop.setClosed();
-			return;
-		}
+        chestState = shop.getStorage();
+        if (!shop.getShopType().equals(ShopType.ITRADE) && chestState == null) {
+            buyer.sendMessage(Message.MISSING_CHEST.getPrefixed());
+            shop.setClosed();
+            return;
+        }
 
         if (!(shop.areProductsValid() && shop.areCostsValid())) {
             buyer.sendMessage(Message.ILLEGAL_ITEM.getPrefixed());
@@ -102,7 +103,7 @@ public class ShopTradeListener extends Utils implements Listener {
             String tempName = item.hasItemMeta() && item.getItemMeta().hasDisplayName() ? item.getItemMeta().getDisplayName() : item.getType().toString();
             costName = costName.isEmpty() ? tempName : "Various";
             amountCost += item.getAmount();
-		}
+        }
 
         for (ItemStack item : shop.getProduct()) { //Shop cost list
             //If item has custom name set to tempName, else set material name
@@ -111,12 +112,12 @@ public class ShopTradeListener extends Utils implements Listener {
             amountProduct += item.getAmount();
         }
 
-		if (buyer.isSneaking() && Setting.ALLOW_MULTI_TRADE.getBoolean()) {
-			JsonConfiguration pJson = new JsonConfiguration(buyer.getUniqueId());
-			Map<String, Integer> data = pJson.loadPlayer();
-			multiplier = data.get("multi");
+        if (buyer.isSneaking() && Setting.ALLOW_MULTI_TRADE.getBoolean()) {
+            JsonConfiguration pJson = new JsonConfiguration(buyer.getUniqueId());
+            Map<String, Integer> data = pJson.loadPlayer();
+            multiplier = data.get("multi");
 
-		}
+        }
 
         PlayerTradeEvent event = new PlayerTradeEvent(e.getPlayer(), shop.getCost(), shop.getProduct(), shop, e.getClickedBlock(), e.getBlockFace());
         Bukkit.getPluginManager().callEvent(event);
@@ -128,15 +129,15 @@ public class ShopTradeListener extends Utils implements Listener {
         if (!canExchangeAll(buyer.getInventory(), shop.getCost(), shop.getProduct(), multiplier)) {
             buyer.sendMessage(Message.PLAYER_FULL.getPrefixed()
                     .replace("{ITEM}", costName.toLowerCase()).replace("{AMOUNT}", String.valueOf(amountCost)));
-			return;
-		}
+            return;
+        }
 
         if (tradeAllItems(shop, multiplier, e.getAction(), buyer)) {
-			buyer.sendMessage(Message.ON_TRADE.getPrefixed()
+            buyer.sendMessage(Message.ON_TRADE.getPrefixed()
                     .replace("{AMOUNT1}", String.valueOf(amountProduct))
-					.replace("{AMOUNT2}", String.valueOf(amountCost))
-					.replace("{ITEM1}", productName.toLowerCase())
-					.replace("{ITEM2}", costName.toLowerCase())
+                    .replace("{AMOUNT2}", String.valueOf(amountCost))
+                    .replace("{ITEM1}", productName.toLowerCase())
+                    .replace("{ITEM2}", costName.toLowerCase())
                     .replace("{SELLER}", shop.getShopType().isITrade() ? Setting.ITRADESHOP_OWNER.getString() : shop.getOwner().getPlayer().getName()));
 
             Bukkit.getPluginManager().callEvent(new SuccessfulTradeEvent(e.getPlayer(), shop.getCost(), shop.getProduct(), shop, e.getClickedBlock(), e.getBlockFace()));
@@ -146,33 +147,18 @@ public class ShopTradeListener extends Utils implements Listener {
     private boolean tradeAllItems(Shop shop, int multiplier, Action action, Player buyer) {
         ArrayList<ItemStack> costItems = new ArrayList<>(), productItems = new ArrayList<>();
         Inventory shopInventory = shop.getChestAsSC().getInventory();
-        Inventory playerInventory = shop.getChestAsSC().getInventory();
+        Inventory playerInventory = buyer.getInventory();
 
         if (shop.getShopType() == ShopType.ITRADE) { //ITrade trade
-            for (ItemStack item : shop.getCost()) {
 
-                int count = item.getAmount() * multiplier, maxStack = item.getMaxStackSize(), traded = 0;
-                while (count > 0) {
-                    boolean resetItem = false;
-                    ItemStack temp = playerInventory.getItem(playerInventory.first(item.getType())),
-                            dupitm1 = item.clone();
-                    maxStack = dupitm1.getMaxStackSize();
-
-                    if (count > maxStack)
-                        traded = temp.getAmount() < maxStack ? temp.getAmount() : maxStack;
-                    else
-                        traded = temp.getAmount() < count ? temp.getAmount() : count;
-
-                    dupitm1.setAmount(traded);
-                    if (!dupitm1.hasItemMeta() && temp.hasItemMeta()) {
-                        dupitm1.setItemMeta(temp.getItemMeta());
-                        dupitm1.setData(temp.getData());
-                    }
-
-                    costItems.add(dupitm1);
-
-                    count -= traded;
-                }
+            //Method to find Cost items in player inventory and add to cost array
+            costItems = getItems(playerInventory, shop.getCost(), multiplier);
+            if (costItems.get(0) == null) {
+                ItemStack item = costItems.get(1);
+                buyer.sendMessage(Message.INSUFFICIENT_ITEMS.getPrefixed()
+                        .replace("{ITEM}", item.hasItemMeta() && item.getItemMeta().hasDisplayName() ? item.getItemMeta().getDisplayName() : item.getType().toString())
+                        .replace("{AMOUNT}", String.valueOf(item.getAmount())));
+                return false;
             }
 
             for (ItemStack item : costItems) {
@@ -184,64 +170,24 @@ public class ShopTradeListener extends Utils implements Listener {
             }
         } else if (shop.getShopType() == ShopType.BITRADE && action == Action.LEFT_CLICK_BLOCK) { //BiTrade Reversed Trade
 
-            //For loop to remove cost items from player inventory and add to costItem Array
-            for (ItemStack item : shop.getProduct()) { //Product is Cost
-                int count = item.getAmount() * multiplier, maxStack = item.getMaxStackSize(), traded = 0;
-				while (count > 0) {
-					boolean resetItem = false;
-                    ItemStack temp = playerInventory.getItem(playerInventory.first(item.getType())),
-							dupitm1 = item.clone();
-					maxStack = dupitm1.getMaxStackSize();
+            //Method to find Cost items in player inventory and add to cost array
+            costItems = getItems(playerInventory, shop.getProduct(), multiplier); //Reverse BiTrade, Product is Cost
+            if (costItems.get(0) == null) {
+                ItemStack item = costItems.get(1);
+                buyer.sendMessage(Message.INSUFFICIENT_ITEMS.getPrefixed()
+                        .replace("{ITEM}", item.hasItemMeta() && item.getItemMeta().hasDisplayName() ? item.getItemMeta().getDisplayName() : item.getType().toString())
+                        .replace("{AMOUNT}", String.valueOf(item.getAmount())));
+                return false;
+            }
 
-					if (count > maxStack)
-                        traded = temp.getAmount() < maxStack ? temp.getAmount() : maxStack;
-					else
-                        traded = temp.getAmount() < count ? temp.getAmount() : count;
-
-					dupitm1.setAmount(traded);
-					if (!dupitm1.hasItemMeta() && temp.hasItemMeta()) {
-						dupitm1.setItemMeta(temp.getItemMeta());
-						dupitm1.setData(temp.getData());
-					}
-
-                    costItems.add(dupitm1);
-
-					count -= traded;
-				}
-			}
-
-            //For loop to remove product items from shop inventory and add to product array
-            for (ItemStack item : shop.getCost()) { //Cost is Product
-                int count = item.getAmount() * multiplier, maxStack = item.getMaxStackSize(), traded = 0;
-
-                if (!checkInventory(shopInventory, item, multiplier)) {
-                    buyer.sendMessage(Message.INSUFFICIENT_ITEMS.getPrefixed()
-                            .replace("{ITEM}", item.hasItemMeta() && item.getItemMeta().hasDisplayName() ? item.getItemMeta().getDisplayName() : item.getType().toString())
-                            .replace("{AMOUNT}", String.valueOf(count)));
-                    return false;
-                }
-
-                while (count > 0) {
-                    boolean resetItem = false;
-                    ItemStack temp = shopInventory.getItem(shopInventory.first(item.getType())),
-                            dupitm1 = item.clone();
-                    maxStack = dupitm1.getMaxStackSize();
-
-                    if (count > maxStack)
-                        traded = temp.getAmount() < maxStack ? temp.getAmount() : maxStack;
-                    else
-                        traded = temp.getAmount() < count ? temp.getAmount() : count;
-
-                    dupitm1.setAmount(traded);
-                    if (!dupitm1.hasItemMeta() && temp.hasItemMeta()) {
-                        dupitm1.setItemMeta(temp.getItemMeta());
-                        dupitm1.setData(temp.getData());
-                    }
-
-                    productItems.add(dupitm1);
-
-                    count -= traded;
-                }
+            //Method to find Product items in shop inventory and add to product array
+            productItems = getItems(shopInventory, shop.getCost(), multiplier); //Reverse BiTrade, Cost is Product
+            if (productItems.get(0) == null) {
+                ItemStack item = productItems.get(1);
+                buyer.sendMessage(Message.SHOP_INSUFFICIENT_ITEMS.getPrefixed()
+                        .replace("{ITEM}", item.hasItemMeta() && item.getItemMeta().hasDisplayName() ? item.getItemMeta().getDisplayName() : item.getType().toString())
+                        .replace("{AMOUNT}", String.valueOf(item.getAmount())));
+                return false;
             }
 
             //For loop to remove cost items from player inventory
@@ -265,65 +211,26 @@ public class ShopTradeListener extends Utils implements Listener {
             }
         } else { // Normal Trade
 
-            //For loop to remove cost items from player inventory and add to costItem Array
-            for (ItemStack item : shop.getCost()) { //Cost list from shop
-                int count = item.getAmount() * multiplier, maxStack = item.getMaxStackSize(), traded = 0;
-                while (count > 0) {
-                    boolean resetItem = false;
-                    ItemStack temp = playerInventory.getItem(playerInventory.first(item.getType())),
-                            dupitm1 = item.clone();
-                    maxStack = dupitm1.getMaxStackSize();
-
-                    if (count > maxStack)
-                        traded = temp.getAmount() < maxStack ? temp.getAmount() : maxStack;
-                    else
-                        traded = temp.getAmount() < count ? temp.getAmount() : count;
-
-                    dupitm1.setAmount(traded);
-                    if (!dupitm1.hasItemMeta() && temp.hasItemMeta()) {
-                        dupitm1.setItemMeta(temp.getItemMeta());
-                        dupitm1.setData(temp.getData());
-                    }
-
-                    costItems.add(dupitm1);
-
-                    count -= traded;
-                }
+            //Method to find Cost items in player inventory and add to cost array
+            costItems = getItems(playerInventory, shop.getCost(), multiplier);
+            if (costItems.get(0) == null) {
+                ItemStack item = costItems.get(1);
+                buyer.sendMessage(Message.INSUFFICIENT_ITEMS.getPrefixed()
+                        .replace("{ITEM}", item.hasItemMeta() && item.getItemMeta().hasDisplayName() ? item.getItemMeta().getDisplayName() : item.getType().toString())
+                        .replace("{AMOUNT}", String.valueOf(item.getAmount())));
+                return false;
             }
 
-            //For loop to remove product items from shop inventory and add to product array
-            for (ItemStack item : shop.getProduct()) { //Product list from shop
-                int count = item.getAmount() * multiplier, maxStack = item.getMaxStackSize(), traded = 0;
-
-                if (!checkInventory(shopInventory, item, multiplier)) {
-                    buyer.sendMessage(Message.INSUFFICIENT_ITEMS.getPrefixed()
-                            .replace("{ITEM}", item.hasItemMeta() && item.getItemMeta().hasDisplayName() ? item.getItemMeta().getDisplayName() : item.getType().toString())
-                            .replace("{AMOUNT}", String.valueOf(count)));
-                    return false;
-                }
-
-                while (count > 0) {
-                    boolean resetItem = false;
-                    ItemStack temp = shopInventory.getItem(shopInventory.first(item.getType())),
-                            dupitm1 = item.clone();
-                    maxStack = dupitm1.getMaxStackSize();
-
-                    if (count > maxStack)
-                        traded = temp.getAmount() < maxStack ? temp.getAmount() : maxStack;
-                    else
-                        traded = temp.getAmount() < count ? temp.getAmount() : count;
-
-                    dupitm1.setAmount(traded);
-                    if (!dupitm1.hasItemMeta() && temp.hasItemMeta()) {
-                        dupitm1.setItemMeta(temp.getItemMeta());
-                        dupitm1.setData(temp.getData());
-                    }
-
-                    productItems.add(dupitm1);
-
-                    count -= traded;
-                }
+            //Method to find Product items in shop inventory and add to product array
+            productItems = getItems(shopInventory, shop.getProduct(), multiplier);
+            if (productItems.get(0) == null) {
+                ItemStack item = productItems.get(1);
+                buyer.sendMessage(Message.SHOP_INSUFFICIENT_ITEMS.getPrefixed()
+                        .replace("{ITEM}", item.hasItemMeta() && item.getItemMeta().hasDisplayName() ? item.getItemMeta().getDisplayName() : item.getType().toString())
+                        .replace("{AMOUNT}", String.valueOf(item.getAmount())));
+                return false;
             }
+
 
             //For loop to remove cost items from player inventory
             for (ItemStack item : costItems) {
@@ -349,5 +256,51 @@ public class ShopTradeListener extends Utils implements Listener {
         }
 
         return true; //Successfully completed trade
-	}
+    }
+
+    //Returns an arraylist of the itemstacks to be removed/added, if it could not get enough of an item, will return index 0 as null and index 1 as item it could not get enough of
+    private ArrayList<ItemStack> getItems(Inventory inventory, List<ItemStack> items, int multiplier) {
+        Inventory clone = Bukkit.createInventory(null, inventory.getStorageContents().length);
+        ArrayList<ItemStack> ret = new ArrayList<ItemStack>();
+
+        for (ItemStack item : items) { //Cost list from shop
+            int count = item.getAmount() * multiplier, maxStack = item.getMaxStackSize(), traded = 0;
+
+            while (count > 0) {
+                boolean resetItem = false;
+                int inventoryLoc = clone.first(item.getType());
+
+                if (inventoryLoc == -1)
+                    break;
+                ItemStack temp = clone.getItem(inventoryLoc),
+                        dupitm1 = item.clone();
+                maxStack = dupitm1.getMaxStackSize();
+
+                if (count > maxStack)
+                    traded = temp.getAmount() < maxStack ? temp.getAmount() : maxStack;
+                else
+                    traded = temp.getAmount() < count ? temp.getAmount() : count;
+
+                dupitm1.setAmount(traded);
+                if (!dupitm1.hasItemMeta() && temp.hasItemMeta()) {
+                    dupitm1.setItemMeta(temp.getItemMeta());
+                    dupitm1.setData(temp.getData());
+                }
+
+                clone.removeItem(dupitm1);
+                ret.add(dupitm1);
+
+                count -= traded;
+            }
+
+            if (count != 0) {
+                ret.clear();
+                ret.add(0, null);
+                ret.add(1, item);
+                ret.get(1).setAmount(item.getAmount() * multiplier);
+            }
+        }
+
+        return ret;
+    }
 }

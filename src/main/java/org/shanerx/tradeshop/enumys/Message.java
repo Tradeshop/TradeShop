@@ -86,13 +86,14 @@ public enum Message {
 	SHOP_ITEM_LIST,
 	ITEM_REMOVED,
 	ITEM_NOT_REMOVED,
-	TOO_MANY_ITEMS;
+    TOO_MANY_ITEMS,
+    SHOP_INSUFFICIENT_ITEMS;
 
 	private static final char COLOUR_CHAR = '&';
 	private static TradeShop plugin = (TradeShop) Bukkit.getPluginManager().getPlugin("TradeShop");
 	private static File file = new File(plugin.getDataFolder(), "messages.yml");
 	private static FileConfiguration config = YamlConfiguration.loadConfiguration(file);
-	protected final String PREFIX = "&a[&eTradeShop&a] ";
+    private static String PREFIX = Setting.MESSAGE_PREFIX.getString() + " ";
 
 	public static void setDefaults() {
 		config = YamlConfiguration.loadConfiguration(file);
@@ -117,6 +118,7 @@ public enum Message {
 		addMessage("empty-ts-on-setup", "&cTradeShop empty, please remember to fill it!");
 		addMessage("on-trade", "&aYou have traded your&e {AMOUNT2} {ITEM2} &a for &e {AMOUNT1} {ITEM1} &awith {SELLER}");
 		addMessage("insufficient-items", "&cYou do not have &e {AMOUNT} {ITEM}&c!");
+        addMessage("shop-insufficient-items", "&cThis shop does not have &e {AMOUNT} {ITEM}&c!");
 		addMessage("shop-full-amount", "&cThe shop does not have &e{AMOUNT} &cof a single type of &e{ITEM}&c!");
 		addMessage("full-amount", "&cYou must have &e{AMOUNT} &cof a single type of &e{ITEM}&c!");
 		addMessage("shop-empty", "&cThis TradeShop is currently &emissing &citems to complete the trade!");
@@ -188,6 +190,8 @@ public enum Message {
 
 		setDefaults();
 		config = YamlConfiguration.loadConfiguration(file);
+
+        PREFIX = Setting.MESSAGE_PREFIX.getString();
 	}
 
 	public static FileConfiguration getConfig() {

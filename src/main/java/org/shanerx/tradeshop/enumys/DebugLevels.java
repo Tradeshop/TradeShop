@@ -52,4 +52,8 @@ public enum DebugLevels {
         return logLevel;
     }
 
+    public static int levels() {
+        return values().length - 1 > 32 ? 32 : values().length - 1;
+    }
+
 }
