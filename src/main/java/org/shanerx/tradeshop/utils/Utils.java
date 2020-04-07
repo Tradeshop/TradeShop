@@ -354,50 +354,69 @@ public class Utils {
 	 * @return true if shop has enough cost to make trade
 	 */
 	public Boolean checkInventory(Inventory inv, List<ItemStack> itemList, int multiplier) {
-		Inventory clone = Bukkit.createInventory(null, inv.getStorageContents().length);
-		clone.setContents(inv.getStorageContents().clone());
-		if (multiplier < 1)
-			multiplier = 1;
-
+        boolean ret = true;
 		for (ItemStack iS : itemList) {
-			if (containsAtLeast(clone.getContents(), iS, iS.getAmount() * multiplier)) {
-				int count = iS.getAmount() * multiplier, removed;
-				while (count > 0) {
-					boolean resetItem = false;
-					ItemStack temp = clone.getItem(clone.first(iS.getType())),
-							dupitm1 = iS.clone();
-
-					if (count > iS.getMaxStackSize()) {
-						removed = iS.getMaxStackSize();
-					} else {
-						removed = count;
-					}
-
-					if (removed > temp.getAmount()) {
-						removed = temp.getAmount();
-					}
-
-					iS.setAmount(removed);
-					if (!iS.hasItemMeta() && temp.hasItemMeta()) {
-						iS.setItemMeta(temp.getItemMeta());
-						iS.setData(temp.getData());
-						resetItem = true;
-					}
-
-					clone.removeItem(iS);
-
-					if (resetItem) {
-						iS = dupitm1;
-					}
-
-					count -= removed;
-				}
-			} else
-				return false;
+            ret = checkInventory(inv, iS, multiplier) != ret && ret;
 		}
 
-		return true;
-	}
+        return ret;
+    }
+
+    /**
+     * Returns true if inventory contains the amount of items * multiplier
+     *
+     * @param inv        inventory to check
+     * @param item       ItemStack to check
+     * @param multiplier multiplier to use for check
+     * @return true if shop has enough cost to make trade
+     */
+    public Boolean checkInventory(Inventory inv, ItemStack item, int multiplier) {
+        Inventory clone = Bukkit.createInventory(null, inv.getStorageContents().length);
+        clone.setContents(inv.getStorageContents().clone());
+        if (multiplier < 1)
+            multiplier = 1;
+
+        int count = item.getAmount() * multiplier, removed;
+        while (count > 0) {
+            boolean resetItem = false;
+            int inventoryLoc = clone.first(item.getType());
+
+            if (inventoryLoc == -1)
+                break;
+
+            ItemStack temp = clone.getItem(inventoryLoc),
+                    dupitm1 = item.clone();
+
+            if (count > item.getMaxStackSize()) {
+                removed = item.getMaxStackSize();
+            } else {
+                removed = count;
+            }
+
+            if (removed > temp.getAmount()) {
+                removed = temp.getAmount();
+            }
+
+            item.setAmount(removed);
+            if (!item.hasItemMeta() && temp.hasItemMeta()) {
+                item.setItemMeta(temp.getItemMeta());
+                item.setData(temp.getData());
+                resetItem = true;
+            }
+
+            clone.removeItem(item);
+
+            if (resetItem) {
+                item = dupitm1;
+            }
+
+            count -= removed;
+        }
+
+        return count == 0;
+    }
+	
+	
 
 	/**
 	 * Checks whether a trade can take place.
