@@ -28,6 +28,7 @@ package org.shanerx.tradeshop.objects;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
+import org.shanerx.tradeshop.enumys.DebugLevels;
 import org.shanerx.tradeshop.enumys.Setting;
 import org.shanerx.tradeshop.enumys.ShopStorage;
 import org.shanerx.tradeshop.utils.Utils;
@@ -79,7 +80,7 @@ public class ListManager extends Utils {
         Material blockMaterial = block.getType();
         Boolean found = false;
 
-        debug("isInventory Block Material: " + blockMaterial.name());
+		debugger.log("isInventory Block Material: " + blockMaterial.name(), DebugLevels.LIST_MANAGER);
 
         //For each ShopStorage.Storages in inventories, check if their block list contains the block material. end loop if true.
         for (ShopStorage.Storages storage : inventories) {
@@ -89,7 +90,7 @@ public class ListManager extends Utils {
             }
         }
 
-        debug("isInventory Block Material found: " + found);
+		debugger.log("isInventory Block Material found: " + found, DebugLevels.LIST_MANAGER);
         return found;
 	}
 

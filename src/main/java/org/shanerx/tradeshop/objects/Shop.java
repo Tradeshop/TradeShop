@@ -1002,4 +1002,6 @@ public class Shop implements Serializable {
 		setStorageInventory();
 		return utils.checkInventory(storageInv, cost, multiplier);
 	}
+
+
 }

@@ -1,5 +1,5 @@
 name: TradeShop
-version: 2.2.1-BETA
+version: 2.2.2-BETA
 main: org.shanerx.tradeshop.TradeShop
 api-version: 1.13
 load: POSTWORLD

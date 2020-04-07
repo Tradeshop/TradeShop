@@ -45,10 +45,7 @@ import org.bukkit.event.inventory.InventoryMoveItemEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.shanerx.tradeshop.TradeShop;
-import org.shanerx.tradeshop.enumys.Message;
-import org.shanerx.tradeshop.enumys.Permissions;
-import org.shanerx.tradeshop.enumys.Setting;
-import org.shanerx.tradeshop.enumys.ShopType;
+import org.shanerx.tradeshop.enumys.*;
 import org.shanerx.tradeshop.framework.events.HopperShopAccessEvent;
 import org.shanerx.tradeshop.framework.events.PlayerShopDestroyEvent;
 import org.shanerx.tradeshop.framework.events.PlayerShopInventoryOpenEvent;
@@ -72,21 +69,30 @@ public class ShopProtectionListener extends Utils implements Listener {
 	@EventHandler(priority = EventPriority.HIGH)
 	public void onInventoryMoveItem(InventoryMoveItemEvent event) {
 
-        Block invBlock = event.getSource().getLocation().getBlock();
+        if (event instanceof HopperShopAccessEvent)
+            return;
 
-		if (!(event.getInitiator().getType().equals(InventoryType.HOPPER) &&
-                plugin.getListManager().isInventory(invBlock))) {
-			return;
-		}
+        if (!(event.getInitiator().getType().equals(InventoryType.HOPPER) &&
+                plugin.getListManager().isInventory(event.getSource().getLocation().getBlock()))) {
+            return;
+        }
+
+        Block invBlock = event.getSource().getLocation().getBlock();
 
         Nameable fromContainer = (Nameable) invBlock.getState();
 
 		if (fromContainer.getCustomName() != null && fromContainer.getCustomName().contains("$ ^Sign:l_")) {
 			Shop shop = Shop.loadShop(ShopLocation.deserialize(fromContainer.getCustomName().split("\\$ \\^")[1].split(":")[1]));
-			boolean isForbidden = !Setting.findSetting(shop.getShopType().toString() + "SHOP_HOPPER_EXPORT").getBoolean();
+            debugger.log("ShopProtectionListener: Shop Location as SL > " + shop.getInventoryLocationAsSL().serialize(), DebugLevels.PROTECTION);
+            boolean isForbidden = !Setting.findSetting(shop.getShopType().name() + "SHOP_HOPPER_EXPORT").getBoolean();
+            debugger.log("ShopProtectionListener: isForbidden > " + isForbidden, DebugLevels.PROTECTION);
+            debugger.log("ShopProtectionListener: checked hopper setting > " + shop.getShopType().name() + "SHOP_HOPPER_EXPORT", DebugLevels.PROTECTION);
 			HopperShopAccessEvent hopperEvent = new HopperShopAccessEvent(shop, event.getSource(), event.getDestination(), event.getItem(), isForbidden);
 			Bukkit.getPluginManager().callEvent(hopperEvent);
-			event.setCancelled(!hopperEvent.isForbidden());
+            debugger.log("ShopProtectionListener: HopperEvent thrown! ", DebugLevels.PROTECTION);
+            event.setCancelled(hopperEvent.isForbidden());
+            debugger.log("ShopProtectionListener: HopperEvent isCancelled: " + hopperEvent.isForbidden(), DebugLevels.PROTECTION);
+            debugger.log("ShopProtectionListener: HopperEvent isCancelled: " + isForbidden, DebugLevels.PROTECTION);
 		}
 	}
 
@@ -98,7 +104,7 @@ public class ShopProtectionListener extends Utils implements Listener {
 			if (ShopChest.isShopChest(b)) {
 				Shop shop = Shop.loadShop((new ShopChest(b.getLocation())).getShopSign());
 				if (shop != null) {
-					if (!Setting.findSetting((shop.getShopType().toString() + "SHOP_EXPLODE").toUpperCase()).getBoolean())
+                    if (!Setting.findSetting((shop.getShopType().name() + "SHOP_EXPLODE").toUpperCase()).getBoolean())
 						i.remove();
 					else {
 						if (shop.getStorage() != null)
@@ -109,7 +115,7 @@ public class ShopProtectionListener extends Utils implements Listener {
 				}
 
 			} else if (ShopType.isShop(b)) {
-				if (!Setting.findSetting(ShopType.getType((Sign) b.getState()).toString() + "SHOP_EXPLODE".toUpperCase()).getBoolean()) {
+                if (!Setting.findSetting(ShopType.getType((Sign) b.getState()).name() + "SHOP_EXPLODE".toUpperCase()).getBoolean()) {
 					i.remove();
 
 					if (plugin.getVersion().isBelow(1, 14)) {

@@ -43,18 +43,20 @@ public class ShopStorage extends Utils {
     public ShopStorage() {
         for (Storages type : Storages.values()) {
 
-            debug(type.toString());
-            debug(String.format("- MinVer: %s", type.getMinVersionAsString()));
-            debug(String.format("- MaxVer: %s", type.getMaxVersionAsString()));
-            debug(String.format("- Weight: %s", type.getWeight()));
+            debugger.log(type.toString(), DebugLevels.STARTUP);
+            debugger.log(String.format("- MinVer: %s", type.getMinVersionAsString()), DebugLevels.STARTUP);
+            debugger.log(String.format("- MaxVer: %s", type.getMaxVersionAsString()), DebugLevels.STARTUP);
+            debugger.log(String.format("- Weight: %s", type.getWeight()), DebugLevels.STARTUP);
+
+            boolean added = false;
 
             if ((type.hasMinVersion() && !version.isBelow(type.getMinVer().get(0), type.getMinVer().get(1), type.getMinVer().get(2))) ||
                     (type.hasMaxVersion() && !version.isAbove(type.getMaxVer().get(0), type.getMaxVer().get(1), type.getMaxVer().get(2)))) {
                 storageTypes.put(type.getStrippedName(), type);
-                debug(String.format("- Added: %s", true));
-            } else {
-                debug(String.format("- Added: %s", false));
+                added = true;
             }
+
+            debugger.log(String.format("- Added: %s", added), DebugLevels.STARTUP);
         }
     }
 

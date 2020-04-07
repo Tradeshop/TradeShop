@@ -35,6 +35,7 @@ import org.shanerx.tradeshop.enumys.Setting;
 import org.shanerx.tradeshop.enumys.ShopSign;
 import org.shanerx.tradeshop.enumys.ShopStorage;
 import org.shanerx.tradeshop.listeners.*;
+import org.shanerx.tradeshop.objects.Debug;
 import org.shanerx.tradeshop.objects.ListManager;
 import org.shanerx.tradeshop.utils.BukkitVersion;
 import org.shanerx.tradeshop.utils.Updater;
@@ -48,6 +49,8 @@ public class TradeShop extends JavaPlugin {
     private ShopStorage storages;
 
 	private Metrics metrics;
+
+	private Debug debugger;
 
 	public ListManager getListManager() {
 		return lists;
@@ -69,6 +72,10 @@ public class TradeShop extends JavaPlugin {
 		return new Updater(getDescription());
 	}
 
+	public Debug getDebugger() {
+		return debugger;
+	}
+
 	@Override
 	public void onEnable() {
 		version = new BukkitVersion();
@@ -88,9 +95,9 @@ public class TradeShop extends JavaPlugin {
 		Message.reload();
 		Setting.reload();
 
+		debugger = new Debug();
         signs = new ShopSign();
         storages = new ShopStorage();
-
 		lists = new ListManager();
 
 		PluginManager pm = getServer().getPluginManager();

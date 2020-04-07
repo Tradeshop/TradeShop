@@ -39,6 +39,8 @@ import java.util.logging.Level;
 public enum Setting {
 
 	CHECK_UPDATES("check-updates"),
+    NO_PERM_MODE("no-perm-mode"),
+    CONFIG_VERSION("config-version"),
 	ALLOWED_SHOPS("allowed-shops"),
 	ALLOWED_DIRECTIONS("allowed-directions"),
 	ITRADESHOP_OWNER("itradeshop.owner"),
@@ -102,7 +104,8 @@ public enum Setting {
 		addSetting(MAX_SHOPS_PER_CHUNK.path, 128);
 		addSetting(MAX_ITEMS_PER_TRADE_SIDE.path, 6);
 		addSetting(ALLOW_METRICS.path, true);
-		addSetting(ENABLE_DEBUG.path, false);
+        addSetting(ENABLE_DEBUG.path, 0);
+        addSetting(CONFIG_VERSION.path, 0);
 
 		addSetting(TRADESHOP_HEADER.path, "Trade");
 		addSetting(TRADESHOP_EXPLODE.path, false);
@@ -147,9 +150,35 @@ public enum Setting {
 			plugin.getServer().getPluginManager().disablePlugin(plugin);
 		}
 
+        fixUp();
+
 		setDefaults();
 		config = YamlConfiguration.loadConfiguration(file);
 	}
+
+    // Method to fix any values that have changed with updates
+    private static void fixUp() {
+        boolean changes = false;
+
+        // 2.2.2 Changed enable debug from true/false to integer
+        // Value will be turned into binary representation where each bit represents a set of debug code or level
+        if (config.isBoolean(ENABLE_DEBUG.path)) {
+            ENABLE_DEBUG.clearSetting();
+            changes = true;
+        }
+
+        //Changes if CONFIG_VERSION is below 1, then sets config version to 1.0
+        if (CONFIG_VERSION.getDouble() < 1.0) {
+            ENABLE_DEBUG.clearSetting();
+
+            CONFIG_VERSION.setSetting(1.0);
+            changes = true;
+        }
+
+
+        if (changes)
+            save();
+    }
 
 	public static FileConfiguration getConfig() {
 		return config;
@@ -158,6 +187,14 @@ public enum Setting {
 	public String toPath() {
 		return path;
 	}
+
+    public void setSetting(Object obj) {
+        config.set(toPath(), obj.toString());
+    }
+
+    public void clearSetting() {
+        config.set(toPath(), null);
+    }
 
 	public Object getSetting() {
 		return config.get(toPath());

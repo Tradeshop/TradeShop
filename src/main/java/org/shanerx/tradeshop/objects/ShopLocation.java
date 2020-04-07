@@ -57,7 +57,7 @@ public class ShopLocation implements Serializable {
 	public static ShopLocation deserialize(String loc) {
 		if (loc.startsWith("l")) {
 			String[] locA = loc.split("_"); //Keep same as div
-			World world = Bukkit.getWorld(locA[1]);
+            World world = Bukkit.getWorld(locA[1].replace("-", "_"));
 			double x = Double.parseDouble(locA[2]), y = Double.parseDouble(locA[3]), z = Double.parseDouble(locA[4]);
 
 			return new ShopLocation(world, x, y, z);
@@ -67,7 +67,7 @@ public class ShopLocation implements Serializable {
 	}
 
 	public String serialize() {
-		return "l" + div + world.getName() + div + x + div + y + div + z;
+        return "l" + div + world.getName().replace("_", "-") + div + x + div + y + div + z;
 	}
 
 	public World getWorld() {

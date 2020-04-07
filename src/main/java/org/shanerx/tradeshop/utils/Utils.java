@@ -40,8 +40,8 @@ import org.bukkit.material.MaterialData;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.shanerx.tradeshop.TradeShop;
 import org.shanerx.tradeshop.enumys.Message;
-import org.shanerx.tradeshop.enumys.Setting;
 import org.shanerx.tradeshop.enumys.ShopType;
+import org.shanerx.tradeshop.objects.Debug;
 
 import java.util.*;
 import java.util.logging.Level;
@@ -60,7 +60,10 @@ public class Utils {
 	protected TradeShop plugin = (TradeShop) Bukkit.getPluginManager().getPlugin("TradeShop");
 	protected PluginDescriptionFile pdf = plugin.getDescription();
 
+	public Debug debugger;
+
 	public Utils() {
+		debugger = plugin.getDebugger();
 	}
 
 	public UUID[] getMakers() {
@@ -336,12 +339,6 @@ public class Utils {
 	 */
 	public boolean checkShopChest(Block sign) {
 		return findShopChest(sign) != null;
-	}
-
-	public void debug(String text) {
-		if (Setting.ENABLE_DEBUG.getBoolean()) {
-			Bukkit.getLogger().log(Level.WARNING, text);
-		}
 	}
 
 	public void log(String text) {
