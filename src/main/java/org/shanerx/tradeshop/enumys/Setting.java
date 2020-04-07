@@ -38,44 +38,45 @@ import java.util.logging.Level;
 
 public enum Setting {
 
-	CHECK_UPDATES("check-updates"),
-    NO_PERM_MODE("no-perm-mode"),
-    CONFIG_VERSION("config-version"),
-	ALLOWED_SHOPS("allowed-shops"),
-	ALLOWED_DIRECTIONS("allowed-directions"),
-	ITRADESHOP_OWNER("itradeshop.owner"),
-	ALLOW_MULTI_TRADE("allow-multi-trade"),
-	MAX_EDIT_DISTANCE("max-edit-distance"),
-	MAX_SHOP_USERS("max-shop-users"),
-	ILLEGAL_ITEMS("illegal-items"),
+    CHECK_UPDATES("check-updates", true),
+    CONFIG_VERSION("config-version", 1.0),
+    ALLOWED_SHOPS("allowed-shops", new String[]{"CHEST", "TRAPPED_CHEST", "SHULKER"}),
+    ALLOWED_DIRECTIONS("allowed-directions", new String[]{"DOWN", "WEST", "SOUTH", "EAST", "NORTH", "UP"}),
+    ITRADESHOP_OWNER("itradeshop.owner", "Server Shop"),
+    ALLOW_MULTI_TRADE("allow-multi-trade", true),
+    MAX_EDIT_DISTANCE("max-edit-distance", 4),
+    MAX_SHOP_USERS("max-shop-users", 5),
+    ILLEGAL_ITEMS("illegal-items", new String[]{"Air", "Void_Air", "Cave_Air", "Bedrock", "Command_Block"}),
 
-	TRADESHOP_HEADER("tradeshop.header"),
-	ITRADESHOP_HEADER("itradeshop.header"),
-	BITRADESHOP_HEADER("bitradeshop.header"),
+    TRADESHOP_HEADER("tradeshop.header", "Trade"),
+    ITRADESHOP_HEADER("itradeshop.header", "iTrade"),
+    BITRADESHOP_HEADER("bitradeshop.header", "BiTrade"),
 
-	TRADESHOP_EXPLODE("tradeshop.allow-explode"),
-	ITRADESHOP_EXPLODE("itradeshop.allow-explode"),
-	BITRADESHOP_EXPLODE("bitradeshop.allow-explode"),
+    TRADESHOP_EXPLODE("tradeshop.allow-explode", false),
+    ITRADESHOP_EXPLODE("itradeshop.allow-explode", false),
+    BITRADESHOP_EXPLODE("bitradeshop.allow-explode", false),
 
-	TRADESHOP_HOPPER_EXPORT("tradeshop.allow-hopper-export"),
-	BITRADESHOP_HOPPER_EXPORT("bitradeshop.allow-hopper-export"),
+    TRADESHOP_HOPPER_EXPORT("tradeshop.allow-hopper-export", false),
+    BITRADESHOP_HOPPER_EXPORT("bitradeshop.allow-hopper-export", false),
 
-	SHOP_OPEN_STATUS("shop-open-status"),
-	SHOP_CLOSED_STATUS("shop-closed-status"),
+    SHOP_OPEN_STATUS("shop-open-status", "Open"),
+    SHOP_CLOSED_STATUS("shop-closed-status", "Closed"),
 
-	ALLOW_METRICS("allow-metrics"),
-	ENABLE_DEBUG("enable-debug"),
-    MESSAGE_PREFIX("message-prefix"),
-	MAX_SHOPS_PER_CHUNK("max-shops-per-chunk"),
-	MAX_ITEMS_PER_TRADE_SIDE("max-items-per-trade-side");
+    ALLOW_METRICS("allow-metrics", true),
+    ENABLE_DEBUG("enable-debug", 0),
+    MESSAGE_PREFIX("message-prefix", "&a[&eTradeShop&a]"),
+    MAX_SHOPS_PER_CHUNK("max-shops-per-chunk", 128),
+    MAX_ITEMS_PER_TRADE_SIDE("max-items-per-trade-side", 6);
 
 	private static TradeShop plugin = (TradeShop) Bukkit.getPluginManager().getPlugin("TradeShop");
 	private static File file = new File(plugin.getDataFolder(), "config.yml");
 	private static FileConfiguration config = YamlConfiguration.loadConfiguration(file);
-	String path;
+    private String path;
+    private Object defaultValue;
 
-	Setting(String path) {
+    Setting(String path, Object defaultValue) {
 		this.path = path;
+        this.defaultValue = defaultValue;
 	}
 
 	public static ArrayList<String> getItemBlackList() {
@@ -93,33 +94,9 @@ public enum Setting {
 	private static void setDefaults() {
 		config = YamlConfiguration.loadConfiguration(file);
 
-		addSetting(CHECK_UPDATES.path, true);
-		addSetting(ALLOWED_SHOPS.path, new String[]{"CHEST", "TRAPPED_CHEST", "SHULKER"});
-		addSetting(ALLOWED_DIRECTIONS.path, new String[]{"DOWN", "WEST", "SOUTH", "EAST", "NORTH", "UP"});
-		addSetting(ALLOW_MULTI_TRADE.path, true);
-		addSetting(MAX_EDIT_DISTANCE.path, 4);
-		addSetting(MAX_SHOP_USERS.path, 5);
-		addSetting(ILLEGAL_ITEMS.path, new String[]{"Air", "Void_Air", "Cave_Air", "Bedrock", "Command_Block"});
-		addSetting(SHOP_OPEN_STATUS.path, "Open");
-		addSetting(SHOP_CLOSED_STATUS.path, "Closed");
-		addSetting(MAX_SHOPS_PER_CHUNK.path, 128);
-		addSetting(MAX_ITEMS_PER_TRADE_SIDE.path, 6);
-		addSetting(ALLOW_METRICS.path, true);
-        addSetting(ENABLE_DEBUG.path, 0);
-        addSetting(CONFIG_VERSION.path, 0);
-        addSetting(MESSAGE_PREFIX.path, "&a[&eTradeShop&a]");
-
-		addSetting(TRADESHOP_HEADER.path, "Trade");
-		addSetting(TRADESHOP_EXPLODE.path, false);
-		addSetting(TRADESHOP_HOPPER_EXPORT.path, false);
-
-		addSetting(ITRADESHOP_HEADER.path, "iTrade");
-		addSetting(ITRADESHOP_OWNER.path, "Server Shop");
-		addSetting(ITRADESHOP_EXPLODE.path, false);
-
-		addSetting(BITRADESHOP_HEADER.path, "BiTrade");
-		addSetting(BITRADESHOP_EXPLODE.path, false);
-		addSetting(BITRADESHOP_HOPPER_EXPORT.path, false);
+        for (Setting set : Setting.values()) {
+            addSetting(set.path, set.defaultValue);
+        }
 
 		save();
 	}
@@ -163,7 +140,6 @@ public enum Setting {
         boolean changes = false;
 
         // 2.2.2 Changed enable debug from true/false to integer
-        // Value will be turned into binary representation where each bit represents a set of debug code or level
         if (!config.isInt(ENABLE_DEBUG.path)) {
             ENABLE_DEBUG.clearSetting();
             changes = true;
