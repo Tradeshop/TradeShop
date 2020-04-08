@@ -110,9 +110,7 @@ public class TradeShop extends JavaPlugin {
 		getCommand("tradeshop").setExecutor(new CommandCaller(this));
 		getCommand("tradeshop").setTabCompleter(new CommandTabCaller(this));
 
-		boolean checkUpdates = Setting.CHECK_UPDATES.getBoolean();
-
-		if (checkUpdates) {
+        if (Setting.CHECK_UPDATES.getBoolean()) {
 			new Thread(() -> new Updater(getDescription()).checkCurrentVersion()).start();
 		}
 
