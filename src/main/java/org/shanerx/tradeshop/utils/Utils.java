@@ -31,6 +31,7 @@ import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.Sign;
+import org.bukkit.event.block.Action;
 import org.bukkit.event.block.SignChangeEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.Inventory;
@@ -40,9 +41,11 @@ import org.bukkit.material.MaterialData;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.shanerx.tradeshop.TradeShop;
 import org.shanerx.tradeshop.enumys.DebugLevels;
+import org.shanerx.tradeshop.enumys.ExchangeStatus;
 import org.shanerx.tradeshop.enumys.Message;
 import org.shanerx.tradeshop.enumys.ShopType;
 import org.shanerx.tradeshop.objects.Debug;
+import org.shanerx.tradeshop.objects.Shop;
 
 import java.util.*;
 import java.util.logging.Level;
@@ -422,59 +425,98 @@ public class Utils {
 	/**
 	 * Checks whether a trade can take place.
 	 *
-	 * @param inv        the Inventory object representing the inventory that is subject to the transaction.
+     * @param shop       the Shop object the player is trading with
+     * @param playerInv  the Inventory object representing the inventory that is subject to the transaction.
 	 * @param itmOut     the ItemStack List that is being given away
 	 * @param itmIn      the ItemStack List that is being received
 	 * @param multiplier the multiplier for the trade
-	 * @return true if the exchange may take place.
+     * @return 0 if both inventories have enough room, 1 if player is too full, and -1 if the shop is too full
 	 */
-	public boolean canExchangeAll(Inventory inv, List<ItemStack> itmOut, List<ItemStack> itmIn, int multiplier) {
-		Inventory clone = Bukkit.createInventory(null, inv.getStorageContents().length);
-		clone.setContents(inv.getStorageContents().clone());
+    public ExchangeStatus canExchangeAll(Shop shop, Inventory playerInv, int multiplier, Action action) {
+        Inventory playerInventory = Bukkit.createInventory(null, playerInv.getStorageContents().length);
+        playerInventory.setContents(playerInv.getStorageContents().clone());
 
-		if (multiplier < 1)
-			multiplier = 1;
+        Inventory shopInv = shop.getChestAsSC().getInventory();
+        Inventory shopInventory = Bukkit.createInventory(null, shopInv.getStorageContents().length);
+        shopInventory.setContents(shopInv.getStorageContents().clone());
 
-		for (ItemStack iS : itmOut) {
-			if (containsAtLeast(clone.getContents(), iS, iS.getAmount() * multiplier)) {
-				int count = iS.getAmount() * multiplier, removed;
-				while (count > 0) {
-					ItemStack temp = clone.getItem(clone.first(iS.getType())),
-							dupitm1 = iS.clone();
+        ArrayList<ItemStack> costItems = new ArrayList<>(), productItems = new ArrayList<>();
 
-					if (count > dupitm1.getMaxStackSize()) {
-						removed = dupitm1.getMaxStackSize();
-					} else {
-						removed = count;
-					}
+        if (shop.getShopType() == ShopType.ITRADE) { //ITrade trade
 
-					if (removed > temp.getAmount()) {
-						removed = temp.getAmount();
-					}
+            //Method to find Cost items in player inventory and add to cost array
+            costItems = getItems(playerInventory, shop.getCost(), multiplier);
+            if (costItems.get(0) == null) {
+                return ExchangeStatus.PLAYER_NO_COST;
+            }
 
-					dupitm1.setAmount(removed);
-					if (!dupitm1.hasItemMeta() && temp.hasItemMeta()) {
-						dupitm1.setItemMeta(temp.getItemMeta());
-						dupitm1.setData(temp.getData());
-					}
+            for (ItemStack item : costItems) {
+                playerInventory.removeItem(item);
+            }
 
-					clone.removeItem(dupitm1);
+            for (ItemStack item : shop.getProduct()) {
+                if (playerInventory.addItem(item).isEmpty()) {
+                    return ExchangeStatus.PLAYER_NO_SPACE;
+                }
+            }
 
-					count -= removed;
-				}
-			} else
-				return false;
-		}
+            return ExchangeStatus.SUCCESS; //Successfully completed trade
+        } else if (shop.getShopType() == ShopType.BITRADE && action == Action.LEFT_CLICK_BLOCK) { //BiTrade Reversed Trade
 
-		for (ItemStack iS : itmIn) {
-			iS.setAmount(iS.getAmount() * multiplier);
-			Map<Integer, ItemStack> returnedItems = clone.addItem(iS);
+            //Method to find Cost items in player inventory and add to cost array
+            costItems = getItems(playerInventory, shop.getProduct(), multiplier); //Reverse BiTrade, Product is Cost
+            if (costItems.get(0) == null) {
+                return ExchangeStatus.PLAYER_NO_COST;
+            }
 
-			if (!returnedItems.isEmpty())
-				return false;
-		}
+            //Method to find Product items in shop inventory and add to product array
+            productItems = getItems(shopInventory, shop.getCost(), multiplier); //Reverse BiTrade, Cost is Product
+            if (productItems.get(0) == null) {
+                shop.updateStatus();
+                return ExchangeStatus.SHOP_NO_PRODUCT;
+            }
+        } else { // Normal Trade
 
-		return true;
+            //Method to find Cost items in player inventory and add to cost array
+            costItems = getItems(playerInventory, shop.getCost(), multiplier);
+            if (costItems.get(0) == null) {
+                return ExchangeStatus.PLAYER_NO_COST;
+            }
+
+            //Method to find Product items in shop inventory and add to product array
+            productItems = getItems(shopInventory, shop.getProduct(), multiplier);
+            if (productItems.get(0) == null) {
+                shop.updateStatus();
+                return ExchangeStatus.SHOP_NO_PRODUCT;
+            }
+
+        }
+
+        //For loop to remove cost items from player inventory
+        for (ItemStack item : costItems) {
+            playerInventory.removeItem(item);
+        }
+
+        //For loop to remove product items from shop inventory
+        for (ItemStack item : productItems) {
+            shopInventory.removeItem(item);
+        }
+
+        //For loop to put cost items in shop inventory
+        for (ItemStack item : costItems) {
+            if (!shopInventory.addItem(item).isEmpty()) {
+                return ExchangeStatus.SHOP_NO_SPACE;
+            }
+        }
+
+        //For loop to put product items in player inventory
+        for (ItemStack item : productItems) {
+            if (!playerInventory.addItem(item).isEmpty()) {
+                return ExchangeStatus.PLAYER_NO_SPACE;
+            }
+        }
+
+        return ExchangeStatus.SUCCESS; //Successfully completed trade
 	}
 
     //Returns an arraylist of the itemstacks to be removed/added, if it could not get enough of an item, will return index 0 as null and index 1 as item it could not get enough of

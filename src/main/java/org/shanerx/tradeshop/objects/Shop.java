@@ -860,13 +860,15 @@ public class Shop implements Serializable {
      * Automatically updates a shops status if it is not CLOSED
      */
     public void updateStatus() {
-        if (!isMissingItems() && (chestLoc != null || shopType.equals(ShopType.ITRADE))) {
-            if (getChestAsSC().hasStock(product))
-                setStatus(ShopStatus.OPEN);
-            else
-                setStatus(ShopStatus.OUT_OF_STOCK);
-        } else {
-            setStatus(ShopStatus.INCOMPLETE);
+        if (!status.equals(ShopStatus.CLOSED)) {
+            if (!isMissingItems() && (chestLoc != null || shopType.equals(ShopType.ITRADE))) {
+                if (getChestAsSC().hasStock(product))
+                    setStatus(ShopStatus.OPEN);
+                else
+                    setStatus(ShopStatus.OUT_OF_STOCK);
+            } else {
+                setStatus(ShopStatus.INCOMPLETE);
+            }
         }
 
         saveShop();

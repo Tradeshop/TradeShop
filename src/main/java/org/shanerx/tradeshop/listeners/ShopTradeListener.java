@@ -125,13 +125,24 @@ public class ShopTradeListener extends Utils implements Listener {
         e.setCancelled(true);
         shop = json.loadShop(new ShopLocation(s.getLocation()));
 
-        /* Commented out as it was showing an inventory full message when it shouldnt, not sure if this is even needed anymore
-        if (!canExchangeAll(buyer.getInventory(), shop.getCost(), shop.getProduct(), multiplier)) {
-            buyer.sendMessage(Message.PLAYER_FULL.getPrefixed()
-                    .replace("{ITEM}", costName.toLowerCase()).replace("{AMOUNT}", String.valueOf(amountCost)));
-            return;
+        switch (canExchangeAll(shop, buyer.getInventory(), multiplier, e.getAction())) {
+            case SHOP_NO_PRODUCT:
+                buyer.sendMessage(Message.SHOP_EMPTY.getPrefixed()
+                        .replace("{ITEM}", costName.toLowerCase()).replace("{AMOUNT}", String.valueOf(amountCost)));
+                return;
+            case PLAYER_NO_COST:
+                buyer.sendMessage(Message.INSUFFICIENT_ITEMS.getPrefixed()
+                        .replace("{ITEM}", costName.toLowerCase()).replace("{AMOUNT}", String.valueOf(amountCost)));
+                return;
+            case SHOP_NO_SPACE:
+                buyer.sendMessage(Message.SHOP_FULL.getPrefixed()
+                        .replace("{ITEM}", costName.toLowerCase()).replace("{AMOUNT}", String.valueOf(amountCost)));
+                return;
+            case PLAYER_NO_SPACE:
+                buyer.sendMessage(Message.PLAYER_FULL.getPrefixed()
+                        .replace("{ITEM}", costName.toLowerCase()).replace("{AMOUNT}", String.valueOf(amountCost)));
+                return;
         }
-        */
 
         if (tradeAllItems(shop, multiplier, e.getAction(), buyer)) {
             buyer.sendMessage(Message.ON_TRADE.getPrefixed()
@@ -230,13 +241,11 @@ public class ShopTradeListener extends Utils implements Listener {
 
         //For loop to put cost items in shop inventory
         for (ItemStack item : costItems) {
-            item.setAmount(item.getAmount() * multiplier);
             shopInventory.addItem(item);
         }
 
         //For loop to put product items in player inventory
         for (ItemStack item : productItems) {
-            item.setAmount(item.getAmount() * multiplier);
             playerInventory.addItem(item);
         }
 
