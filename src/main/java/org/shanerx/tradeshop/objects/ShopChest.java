@@ -41,6 +41,7 @@ import org.shanerx.tradeshop.utils.Utils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.UUID;
 
 public class ShopChest extends Utils {
@@ -112,6 +113,10 @@ public class ShopChest extends Utils {
 
 		return null;
 	}
+
+    public boolean hasStock(List<ItemStack> product) {
+        return getItems(getInventory(), product, 1).get(0) != null;
+    }
 
 	public void loadFromName() {
 		if (chest != null &&

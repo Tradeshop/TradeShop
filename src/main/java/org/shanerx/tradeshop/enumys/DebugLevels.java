@@ -32,12 +32,14 @@ public enum DebugLevels {
     DISABLED(0, Level.INFO),
     LIST_MANAGER(1, Level.WARNING),
     STARTUP(2, Level.INFO),
-    PROTECTION(3, Level.WARNING);
+    PROTECTION(3, Level.WARNING),
+    TRADE(4, Level.WARNING);
 
     //position is what value to check for this level in the binary string -1.
     //
     int position;
     Level logLevel;
+    private static int max = 0;
 
     DebugLevels(int position, Level logLevel) {
         this.position = position;
@@ -54,6 +56,16 @@ public enum DebugLevels {
 
     public static int levels() {
         return values().length - 1 > 32 ? 32 : values().length - 1;
+    }
+
+    public static int maxValue() {
+        if (max <= 1) {
+            for (DebugLevels lvl : values()) {
+                max += Math.pow(2, lvl.position - 1);
+            }
+        }
+
+        return max;
     }
 
 }

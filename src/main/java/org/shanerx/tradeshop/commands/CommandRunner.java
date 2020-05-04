@@ -575,7 +575,7 @@ public class CommandRunner extends Utils {
 		PlayerShopCloseEvent event = new PlayerShopCloseEvent(pSender, shop);
 		if (event.isCancelled()) return;
 
-		shop.setClosed();
+        shop.setStatus(ShopStatus.CLOSED);
 		shop.saveShop();
 		shop.updateSign();
 

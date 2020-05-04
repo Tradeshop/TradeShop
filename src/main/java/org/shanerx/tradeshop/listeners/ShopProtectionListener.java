@@ -207,7 +207,7 @@ public class ShopProtectionListener extends Utils implements Listener {
                 if (!ShopChest.isDoubleChest(block)) {
                     new ShopChest(shop.getInventoryLocation()).resetName();
                     shop.removeStorage();
-                    shop.setClosed();
+                    shop.updateStatus();
                     shop.saveShop();
                 } else {
                     if (bs instanceof Nameable && ((Nameable) bs).getCustomName() != null

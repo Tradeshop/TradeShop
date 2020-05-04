@@ -59,12 +59,14 @@ public enum Setting {
     TRADESHOP_HOPPER_EXPORT("tradeshop.allow-hopper-export", false),
     BITRADESHOP_HOPPER_EXPORT("bitradeshop.allow-hopper-export", false),
 
-    SHOP_OPEN_STATUS("shop-open-status", "Open"),
-    SHOP_CLOSED_STATUS("shop-closed-status", "Closed"),
+    SHOP_OPEN_STATUS("shop-open-status", "&a<Open>"),
+    SHOP_CLOSED_STATUS("shop-closed-status", "&c<Closed>"),
+    SHOP_INCOMPLETE_STATUS("shop-incomplete-status", "&c<Incomplete>"),
+    SHOP_OUTOFSTOCK_STATUS("shop-outofstock-status", "&c<Out Of Stock>"),
 
     ALLOW_METRICS("allow-metrics", true),
     ENABLE_DEBUG("enable-debug", 0),
-    MESSAGE_PREFIX("message-prefix", "&a[&eTradeShop&a]"),
+    MESSAGE_PREFIX("message-prefix", "&a[&eTradeShop&a] "),
     MAX_SHOPS_PER_CHUNK("max-shops-per-chunk", 128),
     MAX_ITEMS_PER_TRADE_SIDE("max-items-per-trade-side", 6);
 

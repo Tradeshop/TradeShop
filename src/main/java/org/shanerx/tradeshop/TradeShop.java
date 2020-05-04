@@ -92,8 +92,8 @@ public class TradeShop extends JavaPlugin {
 			return;
 		}
 
-		Message.reload();
 		Setting.reload();
+		Message.reload();
 
 		debugger = new Debug();
         signs = new ShopSign();

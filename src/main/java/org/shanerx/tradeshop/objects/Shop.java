@@ -60,7 +60,7 @@ public class Shop implements Serializable {
 	private transient Inventory storageInv;
 	private transient Utils utils;
 	private List<String> productListB64, costListB64;
-	private ShopStatus status = ShopStatus.CLOSED;
+    private ShopStatus status = ShopStatus.INCOMPLETE;
 
 	/**
 	 * Creates a Shop object
@@ -848,18 +848,30 @@ public class Shop implements Serializable {
 	public boolean setOpen() {
 		boolean ret;
 
-		if (!isMissingItems() && (chestLoc != null || shopType.equals(ShopType.ITRADE))) {
-			status = ShopStatus.OPEN;
-			ret = true;
-		} else {
-			status = ShopStatus.CLOSED;
-			ret = false;
-		}
+        setStatus(ShopStatus.OPEN);
+        updateStatus();
 
 		saveShop();
 		updateSign();
-		return ret;
-	}
+        return status.equals(ShopStatus.OPEN);
+    }
+
+    /**
+     * Automatically updates a shops status if it is not CLOSED
+     */
+    public void updateStatus() {
+        if (!isMissingItems() && (chestLoc != null || shopType.equals(ShopType.ITRADE))) {
+            if (getChestAsSC().hasStock(product))
+                setStatus(ShopStatus.OPEN);
+            else
+                setStatus(ShopStatus.OUT_OF_STOCK);
+        } else {
+            setStatus(ShopStatus.INCOMPLETE);
+        }
+
+        saveShop();
+        updateSign();
+    }
 
 	/**
 	 * Checks if shop has necessary items to make a trade
@@ -873,8 +885,8 @@ public class Shop implements Serializable {
 	/**
 	 * Sets the shops status to closed
 	 */
-	public void setClosed() {
-		status = ShopStatus.CLOSED;
+    public void setStatus(ShopStatus newStatus) {
+        status = newStatus;
 		saveShop();
 		updateSign();
 	}
@@ -893,8 +905,8 @@ public class Shop implements Serializable {
 	 *
 	 * @return true if open
 	 */
-	public boolean isOpen() {
-		return status == ShopStatus.OPEN;
+    public boolean isTradeable() {
+        return status.isTradingAllowed();
 	}
 
 	/**

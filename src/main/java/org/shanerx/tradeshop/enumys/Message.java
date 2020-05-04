@@ -35,7 +35,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.logging.Level;
 
-@SuppressWarnings("unused")
 public enum Message {
 
 	AMOUNT_NOT_NUM,

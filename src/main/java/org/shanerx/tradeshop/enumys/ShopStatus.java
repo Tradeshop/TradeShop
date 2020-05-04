@@ -29,14 +29,20 @@ import org.bukkit.ChatColor;
 
 public enum ShopStatus {
 
-	OPEN("&a"),
-	CLOSED("&c");
+    OPEN("&a<Open>", Setting.SHOP_OPEN_STATUS, true),
+    CLOSED("&c<Closed>", Setting.SHOP_CLOSED_STATUS, false),
+    INCOMPLETE("&c<Incomplete>", Setting.SHOP_INCOMPLETE_STATUS, false),
+    OUT_OF_STOCK("&c<Out Of Stock>", Setting.SHOP_OUTOFSTOCK_STATUS, false);
 
 	private static final char COLOUR_CHAR = '&';
-	private String colour;
+    private String label;
+    private boolean tradingAllowed;
+    private Setting labelEnum;
 
-	ShopStatus(String colour) {
-		this.colour = colour;
+    ShopStatus(String label, Setting labelEnum, boolean tradingAllowed) {
+        this.label = label;
+        this.labelEnum = labelEnum;
+        this.tradingAllowed = tradingAllowed;
 	}
 
 	public static String colorize(String x) {
@@ -45,10 +51,15 @@ public enum ShopStatus {
 
 	@Override
 	public String toString() {
-		return colorize(Setting.findSetting("shop-" + name().toLowerCase() + "-status").getString());
+        return name();
 	}
 
 	public String getLine() {
-		return colorize(colour + "<" + Setting.findSetting("shop-" + name().toLowerCase() + "-status").getString() + colour + ">");
-	}
+        return colorize(labelEnum.getString().isEmpty() ? label : labelEnum.getString());
+    }
+
+    public boolean isTradingAllowed() {
+        return tradingAllowed;
+    }
+
 }

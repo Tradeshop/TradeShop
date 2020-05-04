@@ -39,6 +39,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.material.MaterialData;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.shanerx.tradeshop.TradeShop;
+import org.shanerx.tradeshop.enumys.DebugLevels;
 import org.shanerx.tradeshop.enumys.Message;
 import org.shanerx.tradeshop.enumys.ShopType;
 import org.shanerx.tradeshop.objects.Debug;
@@ -475,4 +476,60 @@ public class Utils {
 
 		return true;
 	}
+
+    //Returns an arraylist of the itemstacks to be removed/added, if it could not get enough of an item, will return index 0 as null and index 1 as item it could not get enough of
+    public ArrayList<ItemStack> getItems(Inventory inventory, List<ItemStack> items, int multiplier) {
+        Inventory clone = Bukkit.createInventory(null, inventory.getStorageContents().length);
+        clone.setContents(inventory.getStorageContents());
+        ArrayList<ItemStack> ret = new ArrayList<ItemStack>();
+        debugger.log("ShopTradeListener > Inventory Type Being Searched: " + inventory.getType().name(), DebugLevels.TRADE);
+
+        for (ItemStack item : items) {
+            int count = item.getAmount() * multiplier, maxStack, traded;
+
+            debugger.log("ShopTradeListener > Item Material Being Searched for: " + item.getType().name(), DebugLevels.TRADE);
+            debugger.log("ShopTradeListener > Item count: " + count, DebugLevels.TRADE);
+
+            while (count > 0) {
+                boolean resetItem = false;
+                int inventoryLoc = clone.first(item.getType());
+                debugger.log("ShopTradeListener > Item inventory location: " + inventoryLoc, DebugLevels.TRADE);
+
+                if (inventoryLoc == -1)
+                    break;
+                ItemStack temp = clone.getItem(inventoryLoc),
+                        dupitm1 = item.clone();
+                maxStack = dupitm1.getMaxStackSize();
+
+                if (count > maxStack)
+                    traded = temp.getAmount() < maxStack ? temp.getAmount() : maxStack;
+                else
+                    traded = temp.getAmount() < count ? temp.getAmount() : count;
+
+                dupitm1.setAmount(traded);
+                if (!dupitm1.hasItemMeta() && temp.hasItemMeta()) {
+                    dupitm1.setItemMeta(temp.getItemMeta());
+                    dupitm1.setData(temp.getData());
+                }
+
+                clone.removeItem(dupitm1);
+                ret.add(dupitm1);
+                debugger.log("ShopTradeListener > Item traded: " + traded, DebugLevels.TRADE);
+
+                count -= traded;
+
+                debugger.log("ShopTradeListener > Item new count: " + count, DebugLevels.TRADE);
+            }
+
+            if (count > 0) {
+                debugger.log("ShopTradeListener > Count > 0: " + count, DebugLevels.TRADE);
+                ret.clear();
+                ret.add(0, null);
+                ret.add(1, item);
+                ret.get(1).setAmount(item.getAmount() * multiplier);
+            }
+        }
+
+        return ret;
+    }
 }

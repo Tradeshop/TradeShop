@@ -42,7 +42,10 @@ public class Debug {
     }
 
     public void reload() {
-        decimalDebugLevel = Math.abs(Setting.ENABLE_DEBUG.getInt());
+        decimalDebugLevel = Setting.ENABLE_DEBUG.getInt();
+        if (decimalDebugLevel < 0) {
+            decimalDebugLevel = DebugLevels.maxValue();
+        }
         StringBuilder sb = new StringBuilder(Integer.toBinaryString(decimalDebugLevel));
         while (sb.length() < DebugLevels.levels())
             sb.insert(0, 0);
