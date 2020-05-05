@@ -44,7 +44,7 @@ public class ShopRestockListener extends Utils implements Listener {
     //If it is a shopchest, this updates the sign when the inventory is closed
     @EventHandler(priority = EventPriority.HIGH)
     public void onInventoryClose(InventoryCloseEvent event) {
-        if (ShopChest.isShopChest(event.getInventory().getLocation().getBlock())) {
+        if (event.getInventory().getLocation().getBlock() != null && ShopChest.isShopChest(event.getInventory().getLocation().getBlock())) {
             new ShopChest(event.getInventory().getLocation()).getShop().updateStatus();
         }
 
