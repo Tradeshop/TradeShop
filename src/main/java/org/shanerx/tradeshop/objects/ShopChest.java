@@ -231,7 +231,7 @@ public class ShopChest extends Utils {
 
 	public Shop getShop() {
 		if (hasShopSign()) {
-			Shop shop = Shop.loadShop(getShopSign());
+            return Shop.loadShop(getShopSign());
 		}
 
 		return null;

@@ -30,7 +30,6 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.shanerx.tradeshop.TradeShop;
-import org.shanerx.tradeshop.objects.Shop;
 import org.shanerx.tradeshop.objects.ShopChest;
 import org.shanerx.tradeshop.utils.Utils;
 
@@ -46,10 +45,7 @@ public class ShopRestockListener extends Utils implements Listener {
     @EventHandler(priority = EventPriority.HIGH)
     public void onInventoryClose(InventoryCloseEvent event) {
         if (ShopChest.isShopChest(event.getInventory().getLocation().getBlock())) {
-            ShopChest sc = new ShopChest(event.getInventory().getLocation());
-            sc.loadFromName();
-            Shop shop = sc.getShop();
-            shop.updateStatus();
+            new ShopChest(event.getInventory().getLocation()).getShop().updateStatus();
         }
 
     }
