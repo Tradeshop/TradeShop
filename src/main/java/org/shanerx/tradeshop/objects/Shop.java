@@ -745,6 +745,9 @@ public class Shop implements Serializable {
 				s.setLine(2, "Use 'what' cmd");
 			}
 
+			updateStatus();
+
+			saveShop();
 			s.setLine(3, status.getLine());
 			s.update();
 		}
@@ -797,6 +800,9 @@ public class Shop implements Serializable {
 			signEvent.setLine(2, "Use 'what' cmd");
 		}
 
+		updateStatus();
+
+		saveShop();
 		signEvent.setLine(3, status.getLine());
 	}
 
@@ -870,9 +876,6 @@ public class Shop implements Serializable {
                 setStatus(ShopStatus.INCOMPLETE);
             }
         }
-
-        saveShop();
-        updateSign();
     }
 
 	/**
@@ -881,7 +884,7 @@ public class Shop implements Serializable {
 	 * @return true if items are missing
 	 */
 	public boolean isMissingItems() {
-		return product == null || cost == null;
+		return !(product.size() > 0 && cost.size() > 0);
 	}
 
 	/**
@@ -889,8 +892,6 @@ public class Shop implements Serializable {
 	 */
     public void setStatus(ShopStatus newStatus) {
         status = newStatus;
-		saveShop();
-		updateSign();
 	}
 
 	/**

@@ -26,6 +26,7 @@
 package org.shanerx.tradeshop;
 
 import org.bstats.bukkit.Metrics;
+import org.bukkit.NamespacedKey;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.shanerx.tradeshop.commands.CommandCaller;
@@ -41,6 +42,18 @@ import org.shanerx.tradeshop.utils.BukkitVersion;
 import org.shanerx.tradeshop.utils.Updater;
 
 public class TradeShop extends JavaPlugin {
+
+
+	private NamespacedKey storageKey = new NamespacedKey(this, "tradeshop-storage-data");
+	private NamespacedKey signKey = new NamespacedKey(this, "tradeshop-sign-data");
+
+	public NamespacedKey getStorageKey() {
+		return storageKey;
+	}
+
+	public NamespacedKey getSignKey() {
+		return signKey;
+	}
 
 	private ListManager lists;
 	private BukkitVersion version;

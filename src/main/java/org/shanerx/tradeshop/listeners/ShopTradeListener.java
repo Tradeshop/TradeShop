@@ -30,6 +30,7 @@ import org.bukkit.block.BlockState;
 import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
@@ -52,7 +53,7 @@ import java.util.Map;
 public class ShopTradeListener extends Utils implements Listener {
 
     @SuppressWarnings("deprecation")
-    @EventHandler
+    @EventHandler(priority = EventPriority.HIGH)
     public void onBlockInteract(PlayerInteractEvent e) {
 
         Player buyer = e.getPlayer();
@@ -154,6 +155,8 @@ public class ShopTradeListener extends Utils implements Listener {
 
             Bukkit.getPluginManager().callEvent(new SuccessfulTradeEvent(e.getPlayer(), shop.getCost(), shop.getProduct(), shop, e.getClickedBlock(), e.getBlockFace()));
         }
+
+        shop.updateSign();
     }
 
     private boolean tradeAllItems(Shop shop, int multiplier, Action action, Player buyer) {
@@ -161,7 +164,7 @@ public class ShopTradeListener extends Utils implements Listener {
         Inventory shopInventory = shop.getChestAsSC().getInventory();
         Inventory playerInventory = buyer.getInventory();
 
-        if (shop.getShopType() == ShopType.ITRADE) { //ITrade trade
+        if (shop.getShopType() == ShopType.ITRADE && action.equals(Action.RIGHT_CLICK_BLOCK)) { //ITrade trade
 
             //Method to find Cost items in player inventory and add to cost array
             costItems = getItems(playerInventory, shop.getCost(), multiplier);
@@ -204,7 +207,7 @@ public class ShopTradeListener extends Utils implements Listener {
                         .replace("{AMOUNT}", String.valueOf(item.getAmount())));
                 return false;
             }
-        } else { // Normal Trade
+        } else if (action.equals(Action.RIGHT_CLICK_BLOCK)) { // Normal Trade
 
             //Method to find Cost items in player inventory and add to cost array
             costItems = getItems(playerInventory, shop.getCost(), multiplier);
@@ -229,26 +232,30 @@ public class ShopTradeListener extends Utils implements Listener {
 
         }
 
-        //For loop to remove cost items from player inventory
-        for (ItemStack item : costItems) {
-            playerInventory.removeItem(item);
-        }
+        if (costItems.size() > 0) {
+            //For loop to remove cost items from player inventory
+            for (ItemStack item : costItems) {
+                playerInventory.removeItem(item);
+            }
 
-        //For loop to remove product items from shop inventory
-        for (ItemStack item : productItems) {
-            shopInventory.removeItem(item);
-        }
+            //For loop to remove product items from shop inventory
+            for (ItemStack item : productItems) {
+                shopInventory.removeItem(item);
+            }
 
-        //For loop to put cost items in shop inventory
-        for (ItemStack item : costItems) {
-            shopInventory.addItem(item);
-        }
+            //For loop to put cost items in shop inventory
+            for (ItemStack item : costItems) {
+                shopInventory.addItem(item);
+            }
 
-        //For loop to put product items in player inventory
-        for (ItemStack item : productItems) {
-            playerInventory.addItem(item);
-        }
+            //For loop to put product items in player inventory
+            for (ItemStack item : productItems) {
+                playerInventory.addItem(item);
+            }
 
-        return true; //Successfully completed trade
+            return true; //Successfully completed trade
+        } else {
+            return false;
+        }
     }
 }
