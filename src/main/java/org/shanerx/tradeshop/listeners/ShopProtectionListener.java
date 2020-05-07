@@ -248,9 +248,13 @@ public class ShopProtectionListener extends Utils implements Listener {
         if (shop.getShopType().isITrade())
             return;
 
-        new ShopChest(block, shop.getOwner().getUUID(), shopSign.getLocation()).setEventName(event);
-        shop.setInventoryLocation(block.getLocation());
-        shop.saveShop();
+        if (shop.getUsersUUID().contains(event.getPlayer().getUniqueId())) {
+            new ShopChest(block, shop.getOwner().getUUID(), shopSign.getLocation()).setEventName(event);
+            shop.setInventoryLocation(block.getLocation());
+            shop.saveShop();
+        } else {
+            event.setCancelled(true);
+        }
         return;
     }
 }
