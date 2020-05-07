@@ -55,6 +55,7 @@ public class ShopChest extends Utils {
 	public ShopChest(Location chestLoc) {
 		this.loc = chestLoc;
 
+
 		getBlock();
 		loadFromName();
 	}
@@ -137,7 +138,12 @@ public class ShopChest extends Utils {
 
 	private void getBlock() {
 		if (loc.getBlock() != null && plugin.getListManager().isInventory(loc.getBlock())) {
-			chest = loc.getBlock();
+            Block block = loc.getBlock();
+            if (isDoubleChest(block)) {
+                chest = getDoubleChest(block).getInventory().getLocation().getBlock();
+            } else {
+                chest = block;
+            }
 		}
 	}
 
