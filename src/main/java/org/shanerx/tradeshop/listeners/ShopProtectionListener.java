@@ -50,7 +50,6 @@ import org.shanerx.tradeshop.framework.events.PlayerShopDestroyEvent;
 import org.shanerx.tradeshop.framework.events.PlayerShopInventoryOpenEvent;
 import org.shanerx.tradeshop.objects.Shop;
 import org.shanerx.tradeshop.objects.ShopChest;
-import org.shanerx.tradeshop.objects.ShopLocation;
 import org.shanerx.tradeshop.utils.Utils;
 
 import java.util.ArrayList;
@@ -80,8 +79,8 @@ public class ShopProtectionListener extends Utils implements Listener {
 
         Nameable fromContainer = (Nameable) invBlock.getState();
 
-		if (fromContainer.getCustomName() != null && fromContainer.getCustomName().contains("$ ^Sign:l_")) {
-			Shop shop = Shop.loadShop(ShopLocation.deserialize(fromContainer.getCustomName().split("\\$ \\^")[1].split(":")[1]));
+        if (ShopChest.isShopChest(invBlock)) {
+            Shop shop = new ShopChest(invBlock.getLocation()).getShop();
             debugger.log("ShopProtectionListener: Shop Location as SL > " + shop.getInventoryLocationAsSL().serialize(), DebugLevels.PROTECTION);
             boolean isForbidden = !Setting.findSetting(shop.getShopType().name() + "SHOP_HOPPER_EXPORT").getBoolean();
             debugger.log("ShopProtectionListener: isForbidden > " + isForbidden, DebugLevels.PROTECTION);
