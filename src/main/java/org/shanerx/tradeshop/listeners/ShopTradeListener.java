@@ -49,11 +49,9 @@ import org.shanerx.tradeshop.utils.Utils;
 import java.util.ArrayList;
 import java.util.Map;
 
-@SuppressWarnings("unused")
 public class ShopTradeListener extends Utils implements Listener {
 
-    @SuppressWarnings("deprecation")
-    @EventHandler(priority = EventPriority.HIGH)
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onBlockInteract(PlayerInteractEvent e) {
 
         Player buyer = e.getPlayer();
@@ -70,8 +68,13 @@ public class ShopTradeListener extends Utils implements Listener {
         JsonConfiguration json = new JsonConfiguration(s.getChunk());
         shop = json.loadShop(new ShopLocation(s.getLocation()));
 
-        if (shop == null)
+        if (shop == null) {
+            s.setLine(0, "");
+            s.setLine(1, "");
+            s.setLine(2, "");
+            s.setLine(3, "");
             return;
+        }
 
         if (!shop.getShopType().equals(ShopType.ITRADE) && shop.getUsersUUID().contains(buyer.getUniqueId())) {
             buyer.sendMessage(Message.SELF_OWNED.getPrefixed());

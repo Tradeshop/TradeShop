@@ -27,6 +27,7 @@ package org.shanerx.tradeshop.listeners;
 
 import org.bukkit.ChatColor;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
@@ -34,7 +35,7 @@ import org.shanerx.tradeshop.utils.Utils;
 
 public class CustomInventoryListener extends Utils implements Listener {
 
-	@EventHandler
+    @EventHandler(priority = EventPriority.HIGHEST)
 	public void onInventoryClick(InventoryClickEvent event) {
 
 		Inventory inventory = event.getInventory();

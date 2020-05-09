@@ -32,6 +32,7 @@ import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.SignChangeEvent;
 import org.bukkit.inventory.ItemStack;
@@ -50,8 +51,7 @@ import org.shanerx.tradeshop.utils.Utils;
 @SuppressWarnings("unused")
 public class ShopCreateListener extends Utils implements Listener {
 
-	@SuppressWarnings("deprecation")
-	@EventHandler
+	@EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
 	public void onSignChange(SignChangeEvent event) {
 
 		Sign shopSign = (Sign) event.getBlock().getState();

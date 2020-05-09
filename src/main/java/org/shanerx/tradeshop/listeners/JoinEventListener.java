@@ -49,7 +49,7 @@ public class JoinEventListener extends Utils implements Listener {
 		plugin = instance;
 	}
 
-	@EventHandler(priority = EventPriority.HIGH)
+	@EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
 	public void onJoin(PlayerJoinEvent event) {
 		Player player = event.getPlayer();
 		JsonConfiguration json = new JsonConfiguration(player.getUniqueId());

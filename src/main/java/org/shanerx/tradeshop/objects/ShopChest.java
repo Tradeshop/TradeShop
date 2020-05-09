@@ -152,16 +152,21 @@ public class ShopChest extends Utils {
 	}
 
 	public Inventory getInventory() {
-		BlockState bs = chest.getState();
-		if (bs instanceof InventoryHolder) {
-			return ((InventoryHolder) bs).getInventory();
-		}
+        try {
+            return ((InventoryHolder) chest.getState()).getInventory();
+        } catch (ClassCastException | NullPointerException ex) {
+        }
 
 		return null;
 	}
 
     public boolean hasStock(List<ItemStack> product) {
-        return product.size() >= 1 && getItems(getInventory(), product, 1).get(0) != null;
+        try {
+            return product.size() >= 1 && getItems(getInventory(), product, 1).get(0) != null;
+        } catch (NullPointerException ex) {
+        }
+
+        return false;
     }
 
 	public void loadFromName() {

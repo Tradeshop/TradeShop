@@ -64,7 +64,7 @@ public class ShopProtectionListener extends Utils implements Listener {
 		plugin = instance;
 	}
 
-	@EventHandler(priority = EventPriority.HIGH)
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
 	public void onInventoryMoveItem(InventoryMoveItemEvent event) {
 
         if (event instanceof HopperShopAccessEvent)
@@ -94,7 +94,7 @@ public class ShopProtectionListener extends Utils implements Listener {
 		}
 	}
 
-	@EventHandler(priority = EventPriority.HIGHEST)
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
 	public void onEntityExplodeItem(EntityExplodeEvent event) {
 		List<Block> toRemove = new ArrayList<>();
 		for (Iterator<Block> i = event.blockList().iterator(); i.hasNext(); ) {
@@ -142,7 +142,7 @@ public class ShopProtectionListener extends Utils implements Listener {
 		event.blockList().removeAll(toRemove);
 	}
 
-    @EventHandler(priority = EventPriority.HIGHEST)
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onBlockBreak(BlockBreakEvent event) {
         Player player = event.getPlayer();
         Block block = event.getBlock();
@@ -197,7 +197,7 @@ public class ShopProtectionListener extends Utils implements Listener {
         }
     }
 
-    @EventHandler(priority = EventPriority.HIGH)
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onChestOpen(PlayerInteractEvent e) {
         Block block = e.getClickedBlock();
 
@@ -230,7 +230,7 @@ public class ShopProtectionListener extends Utils implements Listener {
         }
     }
 
-    @EventHandler(priority = EventPriority.HIGH)
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onBlockPlace(BlockPlaceEvent event) {
         Block block = event.getBlock();
 
