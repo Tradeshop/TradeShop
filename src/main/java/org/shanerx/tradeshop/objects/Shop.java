@@ -282,7 +282,11 @@ public class Shop implements Serializable {
 	 * @return Shop storage as ShopChest
 	 */
 	public ShopChest getChestAsSC() {
-		return new ShopChest(chestLoc.getLocation());
+        try {
+            return new ShopChest(chestLoc.getLocation());
+        } catch (NullPointerException ex) {
+            return null;
+        }
 	}
 
 	/**
@@ -868,7 +872,7 @@ public class Shop implements Serializable {
     public void updateStatus() {
         if (!status.equals(ShopStatus.CLOSED)) {
             if (!isMissingItems() && (chestLoc != null || shopType.equals(ShopType.ITRADE))) {
-                if (getChestAsSC().hasStock(product))
+                if (getChestAsSC() != null && getChestAsSC().hasStock(product))
                     setStatus(ShopStatus.OPEN);
                 else
                     setStatus(ShopStatus.OUT_OF_STOCK);
