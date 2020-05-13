@@ -27,7 +27,6 @@ package org.shanerx.tradeshop.commands;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.Nameable;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
@@ -545,14 +544,23 @@ public class CommandRunner extends Utils {
 		
 		PlayerShopOpenEvent event = new PlayerShopOpenEvent(pSender, shop);
 		if (event.isCancelled()) return;
-		
-		boolean opened = shop.setOpen();
+
+        ShopStatus status = shop.setOpen();
 		shop.saveShop();
 
-		if (opened) {
-			sendMessage(Message.CHANGE_OPEN.getPrefixed());
-		} else {
-			sendMessage(Message.MISSING_CHEST.getPrefixed());
+        switch (status) {
+            case OPEN:
+                sendMessage(Message.CHANGE_OPEN.getPrefixed());
+                break;
+            case INCOMPLETE:
+                if (shop.isMissingItems())
+                    sendMessage(Message.MISSING_ITEM.getPrefixed());
+                else if (shop.getChestAsSC() == null)
+                    sendMessage(Message.MISSING_CHEST.getPrefixed());
+                break;
+            case OUT_OF_STOCK:
+                sendMessage(Message.SHOP_EMPTY.getPrefixed());
+                break;
 		}
 	}
 
@@ -905,21 +913,18 @@ public class CommandRunner extends Utils {
 		Block b = pSender.getTargetBlockExact(Setting.MAX_EDIT_DISTANCE.getInt());
 
 		try {
-			if (b.getType() == Material.AIR)
+            if (b == null)
 				throw new NoSuchFieldException();
 
 			if (ShopType.isShop(b)) {
 				return Shop.loadShop((Sign) b.getState());
 
-			} else if (plugin.getListManager().isInventory(b) &&
-                    ((Nameable) b.getState()).getCustomName() != null &&
-					((Nameable) b.getState()).getCustomName().contains("$ ^Sign:l_")) {
-
+            } else if (ShopChest.isShopChest(b)) {
 				ShopChest shopChest = new ShopChest(b.getLocation());
 				return Shop.loadShop(shopChest.getShopSign());
 			} else
 				throw new NoSuchFieldException();
-		} catch (NoSuchFieldException nsfE) {
+        } catch (NoSuchFieldException ex) {
 			sendMessage(Message.NO_SIGHTED_SHOP.getPrefixed());
 			return null;
 		}

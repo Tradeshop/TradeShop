@@ -73,6 +73,7 @@ public class ShopTradeListener extends Utils implements Listener {
             s.setLine(1, "");
             s.setLine(2, "");
             s.setLine(3, "");
+            s.update();
             return;
         }
 

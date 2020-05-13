@@ -44,8 +44,8 @@ import org.shanerx.tradeshop.utils.Updater;
 public class TradeShop extends JavaPlugin {
 
 
-	private NamespacedKey storageKey = new NamespacedKey(this, "tradeshop-storage-data");
-	private NamespacedKey signKey = new NamespacedKey(this, "tradeshop-sign-data");
+    private final NamespacedKey storageKey = new NamespacedKey(this, "tradeshop-storage-data");
+    private final NamespacedKey signKey = new NamespacedKey(this, "tradeshop-sign-data");
 
 	public NamespacedKey getStorageKey() {
 		return storageKey;

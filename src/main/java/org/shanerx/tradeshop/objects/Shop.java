@@ -855,15 +855,13 @@ public class Shop implements Serializable {
 	 *
 	 * @return true if shop opened
 	 */
-	public boolean setOpen() {
-		boolean ret;
-
+    public ShopStatus setOpen() {
         setStatus(ShopStatus.OPEN);
         updateStatus();
 
 		saveShop();
 		updateSign();
-        return status.equals(ShopStatus.OPEN);
+        return status;
     }
 
     /**
@@ -872,7 +870,7 @@ public class Shop implements Serializable {
     public void updateStatus() {
         if (!status.equals(ShopStatus.CLOSED)) {
             if (!isMissingItems() && (chestLoc != null || shopType.equals(ShopType.ITRADE))) {
-                if (getChestAsSC() != null && getChestAsSC().hasStock(product))
+                if (shopType.equals(ShopType.ITRADE) || (getChestAsSC() != null && getChestAsSC().hasStock(product)))
                     setStatus(ShopStatus.OPEN);
                 else
                     setStatus(ShopStatus.OUT_OF_STOCK);
@@ -888,7 +886,7 @@ public class Shop implements Serializable {
 	 * @return true if items are missing
 	 */
 	public boolean isMissingItems() {
-		return !(product.size() > 0 && cost.size() > 0);
+        return shopType.equals(ShopType.ITRADE) ? !(cost.size() > 0) : !(product.size() > 0 && cost.size() > 0);
 	}
 
 	/**
