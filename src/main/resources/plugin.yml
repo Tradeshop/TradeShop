@@ -1,12 +1,12 @@
 name: TradeShop
-version: 2.2.2-BETA
+version: ${project.version}
 main: org.shanerx.tradeshop.TradeShop
-api-version: 1.15
+api-version: 1.14
 load: POSTWORLD
 
 authors: [Lori00, KillerOfPie]
-description: A powerful trading plugin based on sign-chest shops.
-website: https://tradeshop.github.io, https://www.spigotmc.org/resources/tradeshop.32762/
+description: ${project.description}
+website: ${project.url}
 
 commands:
   tradeshop:
