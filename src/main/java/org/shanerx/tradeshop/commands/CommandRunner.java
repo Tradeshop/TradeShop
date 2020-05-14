@@ -145,7 +145,7 @@ public class CommandRunner extends Utils {
 			return;
 
 		StringBuilder sb = new StringBuilder();
-		int counter = 0;
+		int counter = 1;
 
 		for (ItemStack itm : shop.getProduct()) {
 			sb.append(String.format("&b[&f%d&b]    &2- &f%s\n", counter, itm.hasItemMeta() && itm.getItemMeta().hasDisplayName() ? itm.getItemMeta().getDisplayName() : itm.getType().toString()));
@@ -165,7 +165,7 @@ public class CommandRunner extends Utils {
 			return;
 
 		StringBuilder sb = new StringBuilder();
-		int counter = 0;
+		int counter = 1;
 
 		for (ItemStack itm : shop.getCost()) {
 			sb.append(String.format("&b[&f%d&b]    &2- &f%s\n", counter, itm.hasItemMeta() && itm.getItemMeta().hasDisplayName() ? itm.getItemMeta().getDisplayName() : itm.getType().toString()));
@@ -187,7 +187,7 @@ public class CommandRunner extends Utils {
 		int index = 0;
 
 		if (isInt(command.getArgAt(1))) {
-			index = Integer.parseInt(command.getArgAt(1));
+			index = Integer.parseInt(command.getArgAt(1)) - 1;
 		} else {
 			sendMessage(Message.INVALID_ARGUMENTS.getPrefixed());
 			return;
@@ -217,10 +217,10 @@ public class CommandRunner extends Utils {
 		if (shop == null)
 			return;
 
-		int index = 0;
+		int index;
 
 		if (isInt(command.getArgAt(1))) {
-			index = Integer.parseInt(command.getArgAt(1));
+			index = Integer.parseInt(command.getArgAt(1)) - 1;
 		} else {
 			sendMessage(Message.INVALID_ARGUMENTS.getPrefixed());
 			return;

@@ -886,7 +886,7 @@ public class Shop implements Serializable {
 	 * @return true if items are missing
 	 */
 	public boolean isMissingItems() {
-        return shopType.equals(ShopType.ITRADE) ? !(cost.size() > 0) : !(product.size() > 0 && cost.size() > 0);
+		return shopType.equals(ShopType.ITRADE) ? !(product.size() > 0) : !(product.size() > 0 && cost.size() > 0);
 	}
 
 	/**

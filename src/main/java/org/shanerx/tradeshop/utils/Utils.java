@@ -427,10 +427,9 @@ public class Utils {
 	 *
      * @param shop       the Shop object the player is trading with
      * @param playerInv  the Inventory object representing the inventory that is subject to the transaction.
-	 * @param itmOut     the ItemStack List that is being given away
-	 * @param itmIn      the ItemStack List that is being received
 	 * @param multiplier the multiplier for the trade
-     * @return 0 if both inventories have enough room, 1 if player is too full, and -1 if the shop is too full
+	 * @param action     the action from the event
+	 * @return 0 if both inventories have enough room, 1 if player is too full, and -1 if the shop is too full
 	 */
     public ExchangeStatus canExchangeAll(Shop shop, Inventory playerInv, int multiplier, Action action) {
         Inventory playerInventory = Bukkit.createInventory(null, playerInv.getStorageContents().length);
@@ -440,22 +439,25 @@ public class Utils {
         Inventory shopInventory = Bukkit.createInventory(null, shopInv.getStorageContents().length);
         shopInventory.setContents(shopInv.getStorageContents().clone());
 
-        ArrayList<ItemStack> costItems = new ArrayList<>(), productItems = new ArrayList<>();
+		ArrayList<ItemStack> costItems, productItems;
 
         if (shop.getShopType() == ShopType.ITRADE) { //ITrade trade
 
             //Method to find Cost items in player inventory and add to cost array
             costItems = getItems(playerInventory, shop.getCost(), multiplier);
-            if (costItems.get(0) == null) {
-                return ExchangeStatus.PLAYER_NO_COST;
-            }
 
-            for (ItemStack item : costItems) {
-                playerInventory.removeItem(item);
-            }
+			if (costItems != null) {
+				if (costItems.get(0) == null) {
+					return ExchangeStatus.PLAYER_NO_COST;
+				}
+
+				for (ItemStack item : costItems) {
+					playerInventory.removeItem(item);
+				}
+			}
 
             for (ItemStack item : shop.getProduct()) {
-                if (playerInventory.addItem(item).isEmpty()) {
+				if (!playerInventory.addItem(item).isEmpty()) {
                     return ExchangeStatus.PLAYER_NO_SPACE;
                 }
             }
