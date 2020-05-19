@@ -54,6 +54,9 @@ public class ShopCreateListener extends Utils implements Listener {
 	@EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
 	public void onSignChange(SignChangeEvent event) {
 
+		if (event.isCancelled())
+			return;
+
 		Sign shopSign = (Sign) event.getBlock().getState();
 		shopSign.setLine(0, event.getLine(0));
 		shopSign.setLine(1, event.getLine(1));

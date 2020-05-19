@@ -1,3 +1,28 @@
+/*
+ *
+ *                         Copyright (c) 2016-2019
+ *                SparklingComet @ http://shanerx.org
+ *               KillerOfPie @ http://killerofpie.github.io
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *                http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ *
+ *  NOTICE: All modifications made by others to the source code belong
+ *  to the respective contributor. No contributor should be held liable for
+ *  any damages of any kind, whether be material or moral, which were
+ *  caused by their contribution(s) to the project. See the full License for more information.
+ *
+ */
+
 package org.shanerx.tradeshop.framework.events;
 
 import org.bukkit.entity.Player;
@@ -13,7 +38,7 @@ import org.shanerx.tradeshop.objects.Shop;
 public class PlayerShopDestroyEvent extends PlayerEvent implements Cancellable {
 	
 	private static final HandlerList handlers = new HandlerList();
-	private boolean cancelled;
+    private boolean cancelled, destroyBlock;
 	private Shop shop;
 	
 	/**
@@ -48,6 +73,24 @@ public class PlayerShopDestroyEvent extends PlayerEvent implements Cancellable {
 	public void setCancelled(boolean cancelled) {
 		this.cancelled = cancelled;
 	}
+
+    /**
+     * Returns whether or not the BlockBreakEvent should been cancelled.
+     *
+     * @return true if the BlockBreakEvent is being cancelled.
+     */
+    public boolean destroyBlock() {
+        return destroyBlock;
+    }
+
+    /**
+     * Choose whether or not to cancel the BlockBreakEvent.
+     *
+     * @param destroyBlock true if the BlockBreakEvent should be cancelled.
+     */
+    public void setDestroyBlock(boolean destroyBlock) {
+        this.destroyBlock = destroyBlock;
+    }
 	
 	/**
 	 * Returns the {@link Shop} object representing the player shop this event is about.

@@ -49,8 +49,9 @@ public class JoinEventListener extends Utils implements Listener {
 		plugin = instance;
 	}
 
-	@EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+	@EventHandler(priority = EventPriority.HIGH)
 	public void onJoin(PlayerJoinEvent event) {
+
 		Player player = event.getPlayer();
 		JsonConfiguration json = new JsonConfiguration(player.getUniqueId());
 		Map<String, Integer> data = json.loadPlayer();

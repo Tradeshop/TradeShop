@@ -29,6 +29,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
+import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -53,6 +54,9 @@ public class ShopTradeListener extends Utils implements Listener {
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onBlockInteract(PlayerInteractEvent e) {
+
+        if (e.useInteractedBlock().equals(Event.Result.DENY) || e.isCancelled())
+            return;
 
         Player buyer = e.getPlayer();
         Shop shop;

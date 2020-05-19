@@ -164,6 +164,7 @@ public class Updater {
 	public enum BuildType {
 
 		DEV,
+        TEST,
 		BETA,
 		STABLE,
 		FINAL

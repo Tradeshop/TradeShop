@@ -67,6 +67,9 @@ public class ShopProtectionListener extends Utils implements Listener {
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
 	public void onInventoryMoveItem(InventoryMoveItemEvent event) {
 
+        if (event.isCancelled())
+            return;
+
         if (event instanceof HopperShopAccessEvent)
             return;
 
@@ -96,6 +99,10 @@ public class ShopProtectionListener extends Utils implements Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
 	public void onEntityExplodeItem(EntityExplodeEvent event) {
+
+        if (event.isCancelled())
+            return;
+
 		List<Block> toRemove = new ArrayList<>();
 		for (Iterator<Block> i = event.blockList().iterator(); i.hasNext(); ) {
 			Block b = i.next();
@@ -144,6 +151,10 @@ public class ShopProtectionListener extends Utils implements Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onBlockBreak(BlockBreakEvent event) {
+
+        if (event.isCancelled())
+            return;
+
         Player player = event.getPlayer();
         Block block = event.getBlock();
         Shop shop = null;
@@ -156,7 +167,7 @@ public class ShopProtectionListener extends Utils implements Listener {
                 PlayerShopDestroyEvent destroyEvent = new PlayerShopDestroyEvent(player, shop);
                 Bukkit.getPluginManager().callEvent(destroyEvent);
                 if (destroyEvent.isCancelled()) {
-                    event.setCancelled(true);
+                    event.setCancelled(destroyEvent.destroyBlock());
                     return;
                 }
 
@@ -176,7 +187,7 @@ public class ShopProtectionListener extends Utils implements Listener {
                 PlayerShopDestroyEvent destroyEvent = new PlayerShopDestroyEvent(player, shop);
                 Bukkit.getPluginManager().callEvent(destroyEvent);
                 if (destroyEvent.isCancelled()) {
-                    event.setCancelled(true);
+                    event.setCancelled(destroyEvent.destroyBlock());
                     return;
                 }
 
@@ -199,6 +210,10 @@ public class ShopProtectionListener extends Utils implements Listener {
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onChestOpen(PlayerInteractEvent e) {
+
+        if (e.isCancelled())
+            return;
+
         Block block = e.getClickedBlock();
 
         if (e.getAction() != Action.RIGHT_CLICK_BLOCK) {
@@ -232,6 +247,10 @@ public class ShopProtectionListener extends Utils implements Listener {
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onBlockPlace(BlockPlaceEvent event) {
+
+        if (event.isCancelled())
+            return;
+
         Block block = event.getBlock();
 
         if (!plugin.getListManager().isInventory(block))
