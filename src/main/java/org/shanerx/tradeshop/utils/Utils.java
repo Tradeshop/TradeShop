@@ -25,17 +25,20 @@
 
 package org.shanerx.tradeshop.utils;
 
+import com.google.common.collect.Lists;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
+import org.bukkit.block.ShulkerBox;
 import org.bukkit.block.Sign;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.SignChangeEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.BlockStateMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.material.MaterialData;
 import org.bukkit.plugin.PluginDescriptionFile;
@@ -526,47 +529,67 @@ public class Utils {
         Inventory clone = Bukkit.createInventory(null, inventory.getStorageContents().length);
         clone.setContents(inventory.getStorageContents());
         ArrayList<ItemStack> ret = new ArrayList<ItemStack>();
+        int totalCount = 0, currentCount = 0;
         debugger.log("ShopTradeListener > Inventory Type Being Searched: " + inventory.getType().name(), DebugLevels.TRADE);
 
         for (ItemStack item : items) {
-            int count = item.getAmount() * multiplier, maxStack, traded;
+            totalCount += item.getAmount() * 2;
+            if (item.getType().name().endsWith("SHULKER_BOX")) {
+                for (ItemStack itm : clone.getStorageContents()) {
+                    if (!itm.getType().name().endsWith("SHULKER_BOX"))
+                        break;
 
-            debugger.log("ShopTradeListener > Item Material Being Searched for: " + item.getType().name(), DebugLevels.TRADE);
-            debugger.log("ShopTradeListener > Item count: " + count, DebugLevels.TRADE);
+                    if (compareShulkers(itm, item)) {
+                        clone.removeItem(itm);
+                        ret.add(itm);
+                        currentCount++;
+                        break;
+                    }
+                }
+            } else {
+                int count = item.getAmount() * multiplier, maxStack, traded;
 
-            while (count > 0) {
-                boolean resetItem = false;
-                int inventoryLoc = clone.first(item.getType());
-                debugger.log("ShopTradeListener > Item inventory location: " + inventoryLoc, DebugLevels.TRADE);
+                debugger.log("ShopTradeListener > Item Material Being Searched for: " + item.getType().name(), DebugLevels.TRADE);
+                debugger.log("ShopTradeListener > Item count: " + count, DebugLevels.TRADE);
 
-                if (inventoryLoc == -1)
-                    break;
-                ItemStack temp = clone.getItem(inventoryLoc),
-                        dupitm1 = item.clone();
-                maxStack = dupitm1.getMaxStackSize();
+                while (count > 0) {
+                    boolean resetItem = false;
+                    int inventoryLoc = clone.first(item.getType());
+                    debugger.log("ShopTradeListener > Item inventory location: " + inventoryLoc, DebugLevels.TRADE);
 
-                if (count > maxStack)
-                    traded = temp.getAmount() < maxStack ? temp.getAmount() : maxStack;
-                else
-                    traded = temp.getAmount() < count ? temp.getAmount() : count;
+                    if (inventoryLoc == -1)
+                        break;
+                    ItemStack temp = clone.getItem(inventoryLoc),
+                            dupitm1 = item.clone();
+                    maxStack = dupitm1.getMaxStackSize();
 
-                dupitm1.setAmount(traded);
-                if (!dupitm1.hasItemMeta() && temp.hasItemMeta()) {
-                    dupitm1.setItemMeta(temp.getItemMeta());
-                    dupitm1.setData(temp.getData());
+                    if (count > maxStack)
+                        traded = temp.getAmount() < maxStack ? temp.getAmount() : maxStack;
+                    else
+                        traded = temp.getAmount() < count ? temp.getAmount() : count;
+
+                    dupitm1.setAmount(traded);
+                    if (!dupitm1.hasItemMeta() && temp.hasItemMeta()) {
+                        dupitm1.setItemMeta(temp.getItemMeta());
+                        dupitm1.setData(temp.getData());
+                    }
+
+                    clone.removeItem(dupitm1);
+                    ret.add(dupitm1);
+                    debugger.log("ShopTradeListener > Item traded: " + traded, DebugLevels.TRADE);
+
+                    count -= traded;
+
+                    debugger.log("ShopTradeListener > Item new count: " + count, DebugLevels.TRADE);
                 }
 
-                clone.removeItem(dupitm1);
-                ret.add(dupitm1);
-                debugger.log("ShopTradeListener > Item traded: " + traded, DebugLevels.TRADE);
 
-                count -= traded;
-
-                debugger.log("ShopTradeListener > Item new count: " + count, DebugLevels.TRADE);
+                currentCount += count;
             }
 
-            if (count > 0) {
-                debugger.log("ShopTradeListener > Count > 0: " + count, DebugLevels.TRADE);
+            if (currentCount < totalCount) {
+                debugger.log("ShopTradeListener > TotalCount: " + totalCount, DebugLevels.TRADE);
+                debugger.log("ShopTradeListener > CurrentCount: " + currentCount, DebugLevels.TRADE);
                 ret.clear();
                 ret.add(0, null);
                 ret.add(1, item);
@@ -575,5 +598,24 @@ public class Utils {
         }
 
         return ret;
+    }
+
+    public boolean compareShulkers(ItemStack item1, ItemStack item2) {
+        if (item1 == null || item2 == null)
+            return false;
+
+        try {
+            ArrayList<ItemStack> contents1 = Lists.newArrayList(((ShulkerBox) ((BlockStateMeta) item1.getItemMeta()).getBlockState()).getInventory().getContents());
+            ShulkerBox shulker2 = (ShulkerBox) ((BlockStateMeta) item2.getItemMeta()).getBlockState();
+
+            for (ItemStack itm : shulker2.getInventory().getContents()) {
+                contents1.remove(itm);
+            }
+
+            return contents1.isEmpty();
+
+        } catch (ClassCastException ex) {
+            return false;
+        }
     }
 }
