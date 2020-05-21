@@ -435,8 +435,8 @@ public class Utils {
 	 * @return 0 if both inventories have enough room, 1 if player is too full, and -1 if the shop is too full
 	 */
     public ExchangeStatus canExchangeAll(Shop shop, Inventory playerInv, int multiplier, Action action) {
-        Inventory playerInventory = Bukkit.createInventory(null, playerInv.getStorageContents().length);
-        playerInventory.setContents(playerInv.getStorageContents().clone());
+        Inventory playerInventory = Bukkit.createInventory(null, playerInv.getContents().length);
+        playerInventory.setContents(playerInv.getContents().clone());
 
         Inventory shopInv = shop.getChestAsSC().getInventory();
         Inventory shopInventory = Bukkit.createInventory(null, shopInv.getStorageContents().length);

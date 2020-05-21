@@ -216,32 +216,25 @@ public class ShopProtectionListener extends Utils implements Listener {
 
         Block block = e.getClickedBlock();
 
-        if (e.getAction() != Action.RIGHT_CLICK_BLOCK) {
-            return;
-
-        } else if (!plugin.getListManager().isInventory(block)) {
+        if (!(e.getAction() == Action.RIGHT_CLICK_BLOCK && plugin.getListManager().isInventory(block))) {
             return;
         }
 
         ShopChest.resetOldName(block);
 
-        Sign s = findShopSign(block);
-        if (s == null) {
-            return;
-        }
+        if (ShopChest.isShopChest(block)) {
+            Shop shop = new ShopChest(block.getLocation()).getShop();
+            PlayerShopInventoryOpenEvent openEvent = new PlayerShopInventoryOpenEvent(e.getPlayer(), shop, e.getAction(), e.getItem(), e.getClickedBlock(), e.getBlockFace());
 
-        if (ShopType.isShop(s.getBlock())) {
-            Shop shop = Shop.loadShop(s);
             if (!e.getPlayer().hasPermission(Permissions.ADMIN.getPerm()) && !shop.getUsersUUID().contains(e.getPlayer().getUniqueId())) {
-                e.getPlayer().sendMessage(Message.NO_TS_OPEN.getPrefixed());
-                e.setCancelled(true);
-                return;
+                openEvent.setCancelled(true);
             }
 
-            PlayerShopInventoryOpenEvent openEvent = new PlayerShopInventoryOpenEvent(
-                    e.getPlayer(), shop, e.getAction(), e.getItem(), e.getClickedBlock(), e.getBlockFace());
             Bukkit.getPluginManager().callEvent(openEvent);
-            if (openEvent.isCancelled()) e.setCancelled(true);
+            e.setCancelled(openEvent.isCancelled());
+            if (e.isCancelled()) {
+                e.getPlayer().sendMessage(Message.NO_TS_OPEN.getPrefixed());
+            }
         }
     }
 
@@ -267,9 +260,11 @@ public class ShopProtectionListener extends Utils implements Listener {
             return;
 
         if (shop.getUsersUUID().contains(event.getPlayer().getUniqueId())) {
-            new ShopChest(block, shop.getOwner().getUUID(), shopSign.getLocation()).setEventName(event);
-            shop.setInventoryLocation(block.getLocation());
-            shop.saveShop();
+            if (!shop.hasStorage()) {
+                new ShopChest(block, shop.getOwner().getUUID(), shopSign.getLocation()).setEventName(event);
+                shop.setInventoryLocation(block.getLocation());
+                shop.saveShop();
+            }
         } else {
             event.setCancelled(true);
         }
