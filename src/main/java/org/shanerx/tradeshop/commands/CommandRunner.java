@@ -910,8 +910,12 @@ public class CommandRunner extends Utils {
 	 * @return null if Shop is not found, Shop object if it is
 	 */
 	private Shop findShop() {
-		Block b = pSender.getTargetBlockExact(Setting.MAX_EDIT_DISTANCE.getInt());
+		if (pSender == null) {
+			sendMessage(Message.PLAYER_ONLY_COMMAND.getPrefixed());
+			return null;
+		}
 
+		Block b = pSender.getTargetBlockExact(Setting.MAX_EDIT_DISTANCE.getInt());
 		try {
             if (b == null)
 				throw new NoSuchFieldException();

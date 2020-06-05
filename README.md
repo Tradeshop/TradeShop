@@ -22,5 +22,5 @@ You may download the latest version from the [plugin's resource page on SpigotMC
 ## Discussion
 Please post reviews on the [SpigotMC resource page](https://www.spigotmc.org/resources/32762/). Suggestions and bug reports may be sent through a the [GitHub issues tab](https://github.com/SparklingComet/TradeShop/issues).
 
-# Commands & Permissions
-A full list of commands can be found [here](https://github.com/ShanerX/TradeShop/wiki/Commands), and Permissions list can be found [here](https://github.com/ShanerX/TradeShop/wiki/Permissions).
+## Commands & Permissions
+A full list of commands can be found [here](https://github.com/ShanerX/TradeShop/wiki/Commands), and Permissions list can be found [here](https://github.com/ShanerX/TradeShop/wiki/Permissions). You may also want to take a look at the [wiki](https://github.com/SparklingComet/TradeShop/wiki/) for more information on general trade mechanics, shop types and plugin configuration.
