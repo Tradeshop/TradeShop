@@ -709,9 +709,9 @@ public class Shop implements Serializable {
 			Sign s = getShopSign();
 
 			if (!isMissingItems()) {
-                s.setLine(0, Setting.SHOP_GOOD_COLOUR + shopType.toHeader());
+                s.setLine(0, Setting.SHOP_GOOD_COLOUR.getString() + shopType.toHeader());
 			} else {
-                s.setLine(0, Setting.SHOP_INCOMPLETE_COLOUR + shopType.toHeader());
+                s.setLine(0, Setting.SHOP_INCOMPLETE_COLOUR.getString() + shopType.toHeader());
 			}
 
 			if (product.size() == 1) {
@@ -764,9 +764,9 @@ public class Shop implements Serializable {
 	 */
 	public void updateSign(SignChangeEvent signEvent) {
 		if (!isMissingItems()) {
-            signEvent.setLine(0, utils.colorize(Setting.SHOP_GOOD_COLOUR + shopType.toHeader()));
+            signEvent.setLine(0, utils.colorize(Setting.SHOP_GOOD_COLOUR.getString() + shopType.toHeader()));
 		} else {
-            signEvent.setLine(0, utils.colorize(Setting.SHOP_INCOMPLETE_COLOUR + shopType.toHeader()));
+            signEvent.setLine(0, utils.colorize(Setting.SHOP_INCOMPLETE_COLOUR.getString() + shopType.toHeader()));
 		}
 
 		if (product.size() == 1) {
