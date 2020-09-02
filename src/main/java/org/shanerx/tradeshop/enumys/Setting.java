@@ -64,6 +64,10 @@ public enum Setting {
     SHOP_INCOMPLETE_STATUS("shop-incomplete-status", "&c<Incomplete>"),
     SHOP_OUTOFSTOCK_STATUS("shop-outofstock-status", "&c<Out Of Stock>"),
 
+    SHOP_GOOD_COLOUR("shop-good-colour", "&2"),
+    SHOP_INCOMPLETE_COLOUR("shop-incomplete-colour", "&7"),
+    SHOP_BAD_COLOUR("shop-bad-colour", "&4"),
+
     ALLOW_METRICS("allow-metrics", true),
     ENABLE_DEBUG("enable-debug", 0),
     MESSAGE_PREFIX("message-prefix", "&a[&eTradeShop&a] "),

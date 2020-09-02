@@ -26,7 +26,6 @@
 package org.shanerx.tradeshop.objects;
 
 import com.google.gson.Gson;
-import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
@@ -35,6 +34,7 @@ import org.bukkit.block.Sign;
 import org.bukkit.event.block.SignChangeEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.shanerx.tradeshop.enumys.Setting;
 import org.shanerx.tradeshop.enumys.ShopRole;
 import org.shanerx.tradeshop.enumys.ShopStatus;
 import org.shanerx.tradeshop.enumys.ShopType;
@@ -709,9 +709,9 @@ public class Shop implements Serializable {
 			Sign s = getShopSign();
 
 			if (!isMissingItems()) {
-				s.setLine(0, ChatColor.DARK_GREEN + shopType.toHeader());
+                s.setLine(0, Setting.SHOP_GOOD_COLOUR + shopType.toHeader());
 			} else {
-				s.setLine(0, ChatColor.GRAY + shopType.toHeader());
+                s.setLine(0, Setting.SHOP_INCOMPLETE_COLOUR + shopType.toHeader());
 			}
 
 			if (product.size() == 1) {
@@ -729,7 +729,7 @@ public class Shop implements Serializable {
 			} else if (product.size() == 0) {
 				s.setLine(1, "");
 			} else {
-				s.setLine(1, "Use 'what' cmd");
+                s.setLine(1, "Use 'ts what' cmd");
 			}
 
 			if (cost.size() == 1) {
@@ -746,7 +746,7 @@ public class Shop implements Serializable {
 			} else if (cost.size() == 0) {
 				s.setLine(2, "");
 			} else {
-				s.setLine(2, "Use 'what' cmd");
+                s.setLine(2, "Use 'ts what' cmd");
 			}
 
 			updateStatus();
@@ -764,9 +764,9 @@ public class Shop implements Serializable {
 	 */
 	public void updateSign(SignChangeEvent signEvent) {
 		if (!isMissingItems()) {
-			signEvent.setLine(0, ChatColor.DARK_GREEN + shopType.toHeader());
+            signEvent.setLine(0, utils.colorize(Setting.SHOP_GOOD_COLOUR + shopType.toHeader()));
 		} else {
-			signEvent.setLine(0, ChatColor.GRAY + shopType.toHeader());
+            signEvent.setLine(0, utils.colorize(Setting.SHOP_INCOMPLETE_COLOUR + shopType.toHeader()));
 		}
 
 		if (product.size() == 1) {
@@ -784,7 +784,7 @@ public class Shop implements Serializable {
 		} else if (product.size() == 0) {
 			signEvent.setLine(1, "");
 		} else {
-			signEvent.setLine(1, "Use 'what' cmd");
+            signEvent.setLine(1, "Use 'ts what' cmd");
 		}
 
 		if (cost.size() == 1) {
@@ -801,7 +801,7 @@ public class Shop implements Serializable {
 		} else if (cost.size() == 0) {
 			signEvent.setLine(2, "");
 		} else {
-			signEvent.setLine(2, "Use 'what' cmd");
+            signEvent.setLine(2, "Use 'ts what' cmd");
 		}
 
 		updateStatus();

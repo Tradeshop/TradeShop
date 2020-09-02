@@ -70,13 +70,17 @@ public class ShopSign extends Utils {
 		JUNGLE_SIGN("1.14.0", ""),
 		ACACIA_SIGN("1.14.0", ""),
 		DARK_OAK_SIGN("1.14.0", ""),
+        CRIMSON_SIGN("1.16.0", ""),
+        WARPED_SIGN("1.16.0", ""),
 		WALL_SIGN("", "1.13.2"),
 		OAK_WALL_SIGN("1.14.0", ""),
 		SPRUCE_WALL_SIGN("1.14.0", ""),
 		BIRCH_WALL_SIGN("1.14.0", ""),
 		JUNGLE_WALL_SIGN("1.14.0", ""),
 		ACACIA_WALL_SIGN("1.14.0", ""),
-		DARK_OAK_WALL_SIGN("1.14.0", "");
+        DARK_OAK_WALL_SIGN("1.14.0", ""),
+        CRIMSON_WALL_SIGN("1.16.0", ""),
+        WARPED_WALL_SIGN("1.16.0", "");
 
 		private List<Integer> minVer = Arrays.asList(new Integer[3]), maxVer = Arrays.asList(new Integer[3]);
 		private boolean hasMin = true, hasMax = true;
