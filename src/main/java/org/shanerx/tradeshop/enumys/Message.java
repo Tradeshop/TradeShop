@@ -39,13 +39,13 @@ public enum Message {
 
     AMOUNT_NOT_NUM("&cYou should have an amount before each item."),
     BUY_FAILED_SIGN("&cThis shop sign does not seem to be formatted correctly, please notify the owner."),
-    CONFIRM_TRADE("&eTrade &6 {AMOUNT1} {ITEM1} &e for &6 {AMOUNT2} {ITEM2} &e?"),
+    CONFIRM_TRADE("&eTrade &6{AMOUNT1} {ITEM1} &efor &6{AMOUNT2} {ITEM2} &e?"),
     EMPTY_TS_ON_SETUP("&cTradeShop empty, please remember to fill it!"),
     FULL_AMOUNT("&cYou must have &e{AMOUNT} &cof a single type of &e{ITEM}&c!"),
     HELD_EMPTY("&eYou are currently holding nothing."),
     ITEM_ADDED("&aItem successfully added to shop."),
     ILLEGAL_ITEM("&cYou cannot use one or more of those items in shops."),
-    INSUFFICIENT_ITEMS("&cYou do not have &e {AMOUNT} {ITEM}&c!"),
+    INSUFFICIENT_ITEMS("&cYou do not have &e{AMOUNT} {ITEM}&c!"),
     INVALID_ARGUMENTS("&eTry &6/tradeshop help &eto display help!"),
     INVALID_SIGN("&cInvalid sign format!"),
     MISSING_CHEST("&cYour shop is missing a chest."),
@@ -58,7 +58,7 @@ public enum Message {
     NO_TS_DESTROY("&cYou may not destroy that TradeShop"),
     NO_TS_OPEN("&cThat TradeShop does not belong to you"),
     NO_SHOP_PERMISSION("&cYou do not have permission to edit that shop."),
-    ON_TRADE("&aYou have traded your&e {AMOUNT2} {ITEM2} &a for &e {AMOUNT1} {ITEM1} &awith {SELLER}"),
+    ON_TRADE("&aYou have traded your &e{AMOUNT2} {ITEM2} &afor &e{AMOUNT1} {ITEM1} &awith {SELLER}"),
     PLAYER_FULL("&cYour inventory is full, please make room before trading items!"),
     PLAYER_NOT_FOUND("&cThat player could not be found."),
     PLAYER_ONLY_COMMAND("&eThis command is only available to players."),
@@ -94,7 +94,7 @@ public enum Message {
     ITEM_REMOVED("&aItem successfully removed to shop."),
     ITEM_NOT_REMOVED("&cItem could not be removed from shop."),
     TOO_MANY_ITEMS("&cThis trade can not take any more %side%!"),
-    SHOP_INSUFFICIENT_ITEMS("&cThis shop does not have &e {AMOUNT} {ITEM}&c!");
+    SHOP_INSUFFICIENT_ITEMS("&cThis shop does not have &e{AMOUNT} {ITEM}&c!");
 
 	private static final char COLOUR_CHAR = '&';
 	private static TradeShop plugin = (TradeShop) Bukkit.getPluginManager().getPlugin("TradeShop");

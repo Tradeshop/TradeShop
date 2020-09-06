@@ -622,7 +622,7 @@ public class CommandRunner extends Utils {
 				costRows = (int) Math.ceil(shop.getCost().size() / 3.0),
 				invSize = (Math.max(productRows, costRows) + 1) * 9;
 
-		Inventory shopContents = Bukkit.createInventory(null, invSize, colorize(shop.getShopType() == ShopType.ITRADE ? Setting.ITRADESHOP_OWNER.getString() : Bukkit.getOfflinePlayer(shop.getOwner().getUUID()).getName() + "'s Shop                                 "));
+        Inventory shopContents = Bukkit.createInventory(null, invSize, colorize(shop.getShopType() == ShopType.ITRADE ? Setting.ITRADESHOP_OWNER.getString() : Bukkit.getOfflinePlayer(shop.getOwner().getUUID()).getName() + "'s " + getCustomInvEndsWith()));
 
 		ItemStack costLabel = new ItemStack(Material.GOLD_NUGGET, 1),
 				productLabel = new ItemStack(Material.GRASS_BLOCK, 1),

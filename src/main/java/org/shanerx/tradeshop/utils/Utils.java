@@ -66,11 +66,16 @@ public class Utils {
 	private final UUID LORIUUID = UUID.fromString("e296bc43-2972-4111-9843-48fc32302fd4");
 	protected TradeShop plugin = (TradeShop) Bukkit.getPluginManager().getPlugin("TradeShop");
 	protected PluginDescriptionFile pdf = plugin.getDescription();
+	private final String CustomInvEndsWith = "Shop                                 ";
 
 	public Debug debugger;
 
 	public Utils() {
 		debugger = plugin.getDebugger();
+	}
+
+	public String getCustomInvEndsWith() {
+		return CustomInvEndsWith;
 	}
 
 	public UUID[] getMakers() {
@@ -436,7 +441,7 @@ public class Utils {
 	 */
     public ExchangeStatus canExchangeAll(Shop shop, Inventory playerInv, int multiplier, Action action) {
 		Inventory playerInventory = Bukkit.createInventory(null, playerInv.getStorageContents().length);
-        playerInventory.setContents(playerInv.getContents().clone());
+		playerInventory.setContents(playerInv.getStorageContents().clone());
 
         Inventory shopInv = shop.getChestAsSC().getInventory();
         Inventory shopInventory = Bukkit.createInventory(null, shopInv.getStorageContents().length);
@@ -531,7 +536,7 @@ public class Utils {
         ArrayList<ItemStack> ret = new ArrayList<ItemStack>();
         int totalCount = 0, currentCount = 0;
         debugger.log("ShopTradeListener > Inventory Type Being Searched: " + inventory.getType().name(), DebugLevels.TRADE);
-        debugger.log("ShopTradeListener > Inventory Location Being Searched: " + inventory.getLocation().toString(), DebugLevels.TRADE);
+		debugger.log("ShopTradeListener > Inventory Location Being Searched: " + (inventory.getLocation() != null ? inventory.getLocation().toString() : "null"), DebugLevels.TRADE);
 
         for (ItemStack item : items) {
             totalCount += item.getAmount();
