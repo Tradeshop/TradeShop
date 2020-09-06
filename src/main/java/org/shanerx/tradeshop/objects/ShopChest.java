@@ -55,7 +55,7 @@ public class ShopChest extends Utils {
 	public ShopChest(Location chestLoc) {
 		this.loc = chestLoc;
 
-        getBlock();
+		getBlock();
 		loadFromName();
 	}
 

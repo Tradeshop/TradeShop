@@ -67,7 +67,7 @@ public enum Message {
             + "\n \nStep 1: &ePlace down a chest."
             + "\n&2Step 2: &ePlace a sign on top of or around the chest."
             + "\n&2Step 3: &eWrite the following on the sign"
-            + "\n&6[%header%]"
+            + "\n&6     [%header%]"
             + "\n&6&o-- Leave Blank --"
             + "\n&6&o-- Leave Blank --"
             + "\n&6&o-- Leave Blank --"

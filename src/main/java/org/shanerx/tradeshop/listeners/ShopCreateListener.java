@@ -123,10 +123,10 @@ public class ShopCreateListener extends Utils implements Listener {
 		ItemStack product = lineCheck(event.getLine(1)),
 				cost = lineCheck(event.getLine(2));
 
-        if (product != null && shop.getProduct().size() == 0)
+		if (product != null && shop.getProduct().isEmpty())
 			shop.setProduct(product);
 
-        if (cost != null && shop.getCost().size() == 0)
+		if (cost != null && shop.getCost().isEmpty())
 			shop.setCost(cost);
 		
 		PlayerShopCreateEvent shopCreateEvent = new PlayerShopCreateEvent(p, shop);
