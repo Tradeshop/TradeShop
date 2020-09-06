@@ -33,7 +33,8 @@ public enum DebugLevels {
     LIST_MANAGER(1, Level.WARNING),
     STARTUP(2, Level.INFO),
     PROTECTION(3, Level.WARNING),
-    TRADE(4, Level.WARNING);
+    TRADE(4, Level.WARNING),
+    INVENTORY_CLOSE_NPE(5, Level.WARNING);
 
     //position is what value to check for this level in the binary string -1.
     //

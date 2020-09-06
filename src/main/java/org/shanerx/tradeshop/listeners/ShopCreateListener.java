@@ -26,7 +26,6 @@
 package org.shanerx.tradeshop.listeners;
 
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
@@ -124,17 +123,11 @@ public class ShopCreateListener extends Utils implements Listener {
 		ItemStack product = lineCheck(event.getLine(1)),
 				cost = lineCheck(event.getLine(2));
 
-		if (product != null)
+        if (product != null && shop.getProduct().size() == 0)
 			shop.setProduct(product);
 
-		if (cost != null)
+        if (cost != null && shop.getCost().size() == 0)
 			shop.setCost(cost);
-
-		if (shop.isMissingItems()) {
-			event.setLine(0, ChatColor.GRAY + shopType.toHeader());
-		} else {
-			event.setLine(0, ChatColor.DARK_GREEN + shopType.toHeader());
-		}
 		
 		PlayerShopCreateEvent shopCreateEvent = new PlayerShopCreateEvent(p, shop);
 		Bukkit.getPluginManager().callEvent(shopCreateEvent);

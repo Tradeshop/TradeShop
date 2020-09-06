@@ -531,9 +531,10 @@ public class Utils {
         ArrayList<ItemStack> ret = new ArrayList<ItemStack>();
         int totalCount = 0, currentCount = 0;
         debugger.log("ShopTradeListener > Inventory Type Being Searched: " + inventory.getType().name(), DebugLevels.TRADE);
+        debugger.log("ShopTradeListener > Inventory Location Being Searched: " + inventory.getLocation().toString(), DebugLevels.TRADE);
 
         for (ItemStack item : items) {
-            totalCount += item.getAmount() * 2;
+            totalCount += item.getAmount();
             if (item.getType().name().endsWith("SHULKER_BOX")) {
                 for (ItemStack itm : clone.getStorageContents()) {
                     if (!itm.getType().name().endsWith("SHULKER_BOX"))
@@ -579,12 +580,10 @@ public class Utils {
                     debugger.log("ShopTradeListener > Item traded: " + traded, DebugLevels.TRADE);
 
                     count -= traded;
+                    currentCount += traded;
 
                     debugger.log("ShopTradeListener > Item new count: " + count, DebugLevels.TRADE);
                 }
-
-
-                currentCount += count;
             }
 
             if (currentCount < totalCount) {

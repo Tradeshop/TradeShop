@@ -55,8 +55,7 @@ public class ShopChest extends Utils {
 	public ShopChest(Location chestLoc) {
 		this.loc = chestLoc;
 
-
-		getBlock();
+        getBlock();
 		loadFromName();
 	}
 
@@ -71,10 +70,10 @@ public class ShopChest extends Utils {
         try {
             if (isDoubleChest(checking)) {
                 DoubleChest dbl = getDoubleChest(checking);
-                return ((Container) dbl.getLeftSide().getInventory().getLocation().getBlock()).getPersistentDataContainer().has(plugin.getStorageKey(), PersistentDataType.STRING) ||
-                        ((Container) dbl.getRightSide().getInventory().getLocation().getBlock()).getPersistentDataContainer().has(plugin.getStorageKey(), PersistentDataType.STRING);
+                return ((Container) dbl.getLeftSide().getInventory().getLocation().getBlock()).getPersistentDataContainer().has(plugin.getSignKey(), PersistentDataType.STRING) ||
+                        ((Container) dbl.getRightSide().getInventory().getLocation().getBlock()).getPersistentDataContainer().has(plugin.getSignKey(), PersistentDataType.STRING);
             }
-            return ((Container) checking.getState()).getPersistentDataContainer().has(plugin.getStorageKey(), PersistentDataType.STRING);
+            return ((Container) checking.getState()).getPersistentDataContainer().has(plugin.getSignKey(), PersistentDataType.STRING);
         } catch (NullPointerException | ClassCastException ex) {
         }
         return false;
@@ -115,11 +114,6 @@ public class ShopChest extends Utils {
         }
 	}
 
-
-	/*
-		Begin Old Chest name Removal
-	*/
-
     public static DoubleChest getDoubleChest(Block chest) {
         try {
             return (DoubleChest) chest.getState();
@@ -127,10 +121,6 @@ public class ShopChest extends Utils {
             return null;
         }
     }
-
-	/*
-		End Old Chest name Removal
-	*/
 
 	public static boolean isDoubleChest(Block chest) {
         return getDoubleChest(chest) != null;
@@ -162,7 +152,7 @@ public class ShopChest extends Utils {
 
     public boolean hasStock(List<ItemStack> product) {
         try {
-            return product.size() >= 1 && getItems(getInventory(), product, 1).get(0) != null;
+            return product.size() > 0 && getItems(getInventory(), product, 1).get(0) != null;
         } catch (NullPointerException ex) {
         }
 
@@ -171,7 +161,7 @@ public class ShopChest extends Utils {
 
 	public void loadFromName() {
         if (isShopChest(chest)) {
-            String[] name = ((Container) chest.getState()).getPersistentDataContainer().get(plugin.getStorageKey(), PersistentDataType.STRING).split(sectionSeparator);
+            String[] name = ((Container) chest.getState()).getPersistentDataContainer().get(plugin.getSignKey(), PersistentDataType.STRING).split(sectionSeparator);
 			shopSign = ShopLocation.deserialize(name[1].split(titleSeparator)[1]);
 			owner = UUID.fromString(name[2].split(titleSeparator)[1]);
 		}
@@ -225,13 +215,13 @@ public class ShopChest extends Utils {
 
     public void setName(Block toSet) {
         Container container = (Container) chest.getState();
-        container.getPersistentDataContainer().set(plugin.getStorageKey(), PersistentDataType.STRING, getName());
+        container.getPersistentDataContainer().set(plugin.getSignKey(), PersistentDataType.STRING, getName());
         container.update();
 
 /*
 		if (isDoubleChest(chest)) {
 			Container container2 = (Container)getOtherHalfOfDoubleChest(chest).getState();
-			container2.getPersistentDataContainer().set(plugin.getStorageKey(), PersistentDataType.STRING, getName());
+			container2.getPersistentDataContainer().set(plugin.getSignKey(), PersistentDataType.STRING, getName());
 			container2.update();
 		}
 */
