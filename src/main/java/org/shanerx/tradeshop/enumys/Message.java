@@ -25,45 +25,50 @@
 
 package org.shanerx.tradeshop.enumys;
 
+import com.google.common.base.Charsets;
+import com.google.common.collect.Sets;
+import com.google.common.io.Files;
+import org.apache.commons.lang.Validate;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.shanerx.tradeshop.TradeShop;
+import org.yaml.snakeyaml.Yaml;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
+import java.util.Set;
 import java.util.logging.Level;
 
 public enum Message {
 
-    AMOUNT_NOT_NUM("&cYou should have an amount before each item."),
-    BUY_FAILED_SIGN("&cThis shop sign does not seem to be formatted correctly, please notify the owner."),
-    CONFIRM_TRADE("&eTrade &6{AMOUNT1} {ITEM1} &efor &6{AMOUNT2} {ITEM2} &e?"),
-    EMPTY_TS_ON_SETUP("&cTradeShop empty, please remember to fill it!"),
-    FULL_AMOUNT("&cYou must have &e{AMOUNT} &cof a single type of &e{ITEM}&c!"),
-    HELD_EMPTY("&eYou are currently holding nothing."),
-    ITEM_ADDED("&aItem successfully added to shop."),
-    ILLEGAL_ITEM("&cYou cannot use one or more of those items in shops."),
-    INSUFFICIENT_ITEMS("&cYou do not have &e{AMOUNT} {ITEM}&c!"),
-    INVALID_ARGUMENTS("&eTry &6/tradeshop help &eto display help!"),
-    INVALID_SIGN("&cInvalid sign format!"),
-    MISSING_CHEST("&cYour shop is missing a chest."),
-    MISSING_ITEM("&cYour sign is missing an item for trade."),
-    MISSING_SHOP("&cThere is not currently a shop here, please tell the owner or come back later!"),
-    NO_CHEST("&cYou need to put a chest under the sign!"),
-    NO_COMMAND_PERMISSION("&aYou do not have permission to execute this command"),
-    NO_SIGHTED_SHOP("&cNo shop in range!"),
-    NO_TS_CREATE_PERMISSION("&cYou don't have permission to create TradeShops!"),
-    NO_TS_DESTROY("&cYou may not destroy that TradeShop"),
-    NO_TS_OPEN("&cThat TradeShop does not belong to you"),
-    NO_SHOP_PERMISSION("&cYou do not have permission to edit that shop."),
-    ON_TRADE("&aYou have traded your &e{AMOUNT2} {ITEM2} &afor &e{AMOUNT1} {ITEM1} &awith {SELLER}"),
-    PLAYER_FULL("&cYour inventory is full, please make room before trading items!"),
-    PLAYER_NOT_FOUND("&cThat player could not be found."),
-    PLAYER_ONLY_COMMAND("&eThis command is only available to players."),
-    SELF_OWNED("&cYou cannot buy from a shop in which you are a user."),
-    SETUP_HELP("\n&2Setting up a TradeShop is easy! Just make sure to follow these steps:"
+    AMOUNT_NOT_NUM(MessageSectionKeys.NONE, "&cYou should have an amount before each item."),
+    BUY_FAILED_SIGN(MessageSectionKeys.NONE, "&cThis shop sign does not seem to be formatted correctly, please notify the owner."),
+    CONFIRM_TRADE(MessageSectionKeys.NONE, "&eTrade &6{AMOUNT1} {ITEM1} &efor &6{AMOUNT2} {ITEM2} &e?"),
+    EMPTY_TS_ON_SETUP(MessageSectionKeys.NONE, "&cTradeShop empty, please remember to fill it!"),
+    FULL_AMOUNT(MessageSectionKeys.NONE, "&cYou must have &e{AMOUNT} &cof a single type of &e{ITEM}&c!"),
+    HELD_EMPTY(MessageSectionKeys.NONE, "&eYou are currently holding nothing."),
+    ITEM_ADDED(MessageSectionKeys.NONE, "&aItem successfully added to shop."),
+    ILLEGAL_ITEM(MessageSectionKeys.NONE, "&cYou cannot use one or more of those items in shops."),
+    INSUFFICIENT_ITEMS(MessageSectionKeys.NONE, "&cYou do not have &e{AMOUNT} {ITEM}&c!"),
+    INVALID_ARGUMENTS(MessageSectionKeys.NONE, "&eTry &6/tradeshop help &eto display help!"),
+    INVALID_SIGN(MessageSectionKeys.NONE, "&cInvalid sign format!"),
+    MISSING_CHEST(MessageSectionKeys.NONE, "&cYour shop is missing a chest."),
+    MISSING_ITEM(MessageSectionKeys.NONE, "&cYour sign is missing an item for trade."),
+    MISSING_SHOP(MessageSectionKeys.NONE, "&cThere is not currently a shop here, please tell the owner or come back later!"),
+    NO_CHEST(MessageSectionKeys.NONE, "&cYou need to put a chest under the sign!"),
+    NO_COMMAND_PERMISSION(MessageSectionKeys.NONE, "&aYou do not have permission to execute this command"),
+    NO_SIGHTED_SHOP(MessageSectionKeys.NONE, "&cNo shop in range!"),
+    NO_TS_CREATE_PERMISSION(MessageSectionKeys.NONE, "&cYou don't have permission to create TradeShops!"),
+    NO_TS_DESTROY(MessageSectionKeys.NONE, "&cYou may not destroy that TradeShop"),
+    NO_TS_OPEN(MessageSectionKeys.NONE, "&cThat TradeShop does not belong to you"),
+    NO_SHOP_PERMISSION(MessageSectionKeys.NONE, "&cYou do not have permission to edit that shop."),
+    ON_TRADE(MessageSectionKeys.NONE, "&aYou have traded your &e{AMOUNT2} {ITEM2} &afor &e{AMOUNT1} {ITEM1} &awith {SELLER}"),
+    PLAYER_FULL(MessageSectionKeys.NONE, "&cYour inventory is full, please make room before trading items!"),
+    PLAYER_NOT_FOUND(MessageSectionKeys.NONE, "&cThat player could not be found."),
+    PLAYER_ONLY_COMMAND(MessageSectionKeys.NONE, "&eThis command is only available to players."),
+    SELF_OWNED(MessageSectionKeys.NONE, "&cYou cannot buy from a shop in which you are a user."),
+    SETUP_HELP(MessageSectionKeys.NONE, "\n&2Setting up a TradeShop is easy! Just make sure to follow these steps:"
             + "\n \nStep 1: &ePlace down a chest."
             + "\n&2Step 2: &ePlace a sign on top of or around the chest."
             + "\n&2Step 3: &eWrite the following on the sign"
@@ -72,30 +77,30 @@ public enum Message {
             + "\n&6&o-- Leave Blank --"
             + "\n&6&o-- Leave Blank --"
             + "\n&2Step 4: &eUse the addCost and addProduct commands to add items to your shop"),
-    SHOP_EMPTY("&cThis TradeShop is currently &emissing &citems to complete the trade!"),
-    SHOP_FULL("&cThis TradeShop is full, please contact the owner to get it emptied!"),
-    SHOP_CLOSED("&cThis shop is currently closed."),
-    SHOP_FULL_AMOUNT("&cThe shop does not have &e{AMOUNT} &cof a single type of &e{ITEM}&c!"),
-    SUCCESSFUL_SETUP("&aYou have successfully setup a TradeShop!"),
-    UNSUCCESSFUL_SHOP_MEMBERS("&aThat player is either already on the shop, or you have reached the maximum number of users!"),
-    UPDATED_SHOP_MEMBERS("&aShop owners and members have been updated!"),
-    NO_EDIT("&cYou do not have permission to edit this shop."),
-    CHANGE_CLOSED("&cThe shop is now &l&bCLOSED&r&a."),
-    CHANGE_OPEN("&aThe shop is now &l&bOPEN&r&a."),
-    EXISTING_SHOP("&cYou may only have 1 shop per inventory block."),
-    SHOP_TYPE_SWITCHED("&aShop type has been switched to %newtype%."),
-    WHO_MESSAGE("&6Shop users are:\n&2Owner: &e{OWNER}\n&2Managers: &e{MANAGERS}\n&2Members: &e{MEMBERS}"),
-    INVALID_SUBCOMMAND("&cInvalid sub-command. Cannot display usage."),
-    PLUGIN_BEHIND("&cThe server is running an old version of TradeShop, please update the plugin."),
-    MULTI_UPDATE("&aTrade multiplier has been updated to %amount%."),
-    MULTI_AMOUNT("&aYour trade multiplier is %amount%."),
-    TOO_MANY_CHESTS("&cThere are too many shops in this chunk, you can not add another one."),
-    SHOP_ITEM_LIST("&aThe shops %type%:\n%list%"),
-    ITEM_REMOVED("&aItem successfully removed to shop."),
-    ITEM_NOT_REMOVED("&cItem could not be removed from shop."),
-    TOO_MANY_ITEMS("&cThis trade can not take any more %side%!"),
-    FEATURE_DISABLED("&cThis feature has been disabled on this server!"),
-    SHOP_INSUFFICIENT_ITEMS("&cThis shop does not have &e{AMOUNT} {ITEM}&c!");
+    SHOP_EMPTY(MessageSectionKeys.NONE, "&cThis TradeShop is currently &emissing &citems to complete the trade!"),
+    SHOP_FULL(MessageSectionKeys.NONE, "&cThis TradeShop is full, please contact the owner to get it emptied!"),
+    SHOP_CLOSED(MessageSectionKeys.NONE, "&cThis shop is currently closed."),
+    SHOP_FULL_AMOUNT(MessageSectionKeys.NONE, "&cThe shop does not have &e{AMOUNT} &cof a single type of &e{ITEM}&c!"),
+    SUCCESSFUL_SETUP(MessageSectionKeys.NONE, "&aYou have successfully setup a TradeShop!"),
+    UNSUCCESSFUL_SHOP_MEMBERS(MessageSectionKeys.NONE, "&aThat player is either already on the shop, or you have reached the maximum number of users!"),
+    UPDATED_SHOP_MEMBERS(MessageSectionKeys.NONE, "&aShop owners and members have been updated!"),
+    NO_EDIT(MessageSectionKeys.NONE, "&cYou do not have permission to edit this shop."),
+    CHANGE_CLOSED(MessageSectionKeys.NONE, "&cThe shop is now &l&bCLOSED&r&a."),
+    CHANGE_OPEN(MessageSectionKeys.NONE, "&aThe shop is now &l&bOPEN&r&a."),
+    EXISTING_SHOP(MessageSectionKeys.NONE, "&cYou may only have 1 shop per inventory block."),
+    SHOP_TYPE_SWITCHED(MessageSectionKeys.NONE, "&aShop type has been switched to %newtype%."),
+    WHO_MESSAGE(MessageSectionKeys.NONE, "&6Shop users are:\n&2Owner: &e{OWNER}\n&2Managers: &e{MANAGERS}\n&2Members: &e{MEMBERS}"),
+    INVALID_SUBCOMMAND(MessageSectionKeys.NONE, "&cInvalid sub-command. Cannot display usage."),
+    PLUGIN_BEHIND(MessageSectionKeys.NONE, "&cThe server is running an old version of TradeShop, please update the plugin."),
+    MULTI_UPDATE(MessageSectionKeys.NONE, "&aTrade multiplier has been updated to %amount%."),
+    MULTI_AMOUNT(MessageSectionKeys.NONE, "&aYour trade multiplier is %amount%."),
+    TOO_MANY_CHESTS(MessageSectionKeys.NONE, "&cThere are too many shops in this chunk, you can not add another one."),
+    SHOP_ITEM_LIST(MessageSectionKeys.NONE, "&aThe shops %type%:\n%list%"),
+    ITEM_REMOVED(MessageSectionKeys.NONE, "&aItem successfully removed to shop."),
+    ITEM_NOT_REMOVED(MessageSectionKeys.NONE, "&cItem could not be removed from shop."),
+    TOO_MANY_ITEMS(MessageSectionKeys.NONE, "&cThis trade can not take any more %side%!"),
+    FEATURE_DISABLED(MessageSectionKeys.NONE, "&cThis feature has been disabled on this server!"),
+    SHOP_INSUFFICIENT_ITEMS(MessageSectionKeys.NONE, "&cThis shop does not have &e{AMOUNT} {ITEM}&c!");
 
 	private static final char COLOUR_CHAR = '&';
 	private static TradeShop plugin = (TradeShop) Bukkit.getPluginManager().getPlugin("TradeShop");
@@ -103,10 +108,26 @@ public enum Message {
 	private static FileConfiguration config = YamlConfiguration.loadConfiguration(file);
     private static String PREFIX = Setting.MESSAGE_PREFIX.getString() + " ";
 
-    private String defaultValue;
+    private String defaultValue, preComment = "", postComment = "";
+    private MessageSectionKeys sectionKey;
 
-    Message(String defaultValue) {
+
+    Message(MessageSectionKeys sectionKey, String defaultValue) {
+        this.sectionKey = sectionKey;
         this.defaultValue = defaultValue;
+    }
+
+    Message(MessageSectionKeys sectionKey, String defaultValue, String preComment) {
+        this.sectionKey = sectionKey;
+        this.defaultValue = defaultValue;
+        this.preComment = preComment;
+    }
+
+    Message(MessageSectionKeys sectionKey, String defaultValue, String preComment, String postComment) {
+        this.sectionKey = sectionKey;
+        this.defaultValue = defaultValue;
+        this.preComment = preComment;
+        this.postComment = postComment;
     }
 
 	public static void setDefaults() {
@@ -121,14 +142,48 @@ public enum Message {
 		save();
 	}
 
-	private static void save() {
-		if (config != null)
-			try {
-				config.save(file);
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-	}
+    private static void save() {
+        Validate.notNull(file, "File cannot be null");
+
+        if (config != null)
+            try {
+                Files.createParentDirs(file);
+
+                StringBuilder data = new StringBuilder();
+
+                data.append("###########################\n").append("#    TradeShop Messages   #\n").append("###########################\n");
+                Set<MessageSectionKeys> messageSectionKeys = Sets.newHashSet(MessageSectionKeys.values());
+
+                for (Message message : values()) {
+                    if (messageSectionKeys.contains(message.sectionKey)) {
+                        data.append(message.sectionKey.getFormattedHeader());
+                        messageSectionKeys.remove(message.sectionKey);
+                    }
+
+                    if (!message.preComment.isEmpty()) {
+                        data.append("# ").append(message.preComment).append("\n");
+                    }
+
+                    data.append(message.sectionKey.getValueLead()).append(message.getPath()).append(": ").append(new Yaml().dump(message.getMessage()));
+
+                    if (!message.postComment.isEmpty()) {
+                        data.append(message.postComment).append("\n");
+                    }
+                }
+
+                Writer writer = new OutputStreamWriter(new FileOutputStream(file), Charsets.UTF_8);
+
+                try {
+                    writer.write(data.toString());
+                } finally {
+                    writer.close();
+                }
+
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+    }
 
 	public static void reload() {
 		try {
@@ -154,7 +209,7 @@ public enum Message {
 	}
 
     public String getPath() {
-        return name().toLowerCase().replace("_", "-");
+        return sectionKey.getKey() + name().toLowerCase().replace("_", "-");
     }
 
     public String getMessage() {
@@ -169,4 +224,67 @@ public enum Message {
 	public String getPrefixed() {
 		return colour(PREFIX + toString());
 	}
+}
+
+enum MessageSectionKeys {
+
+    NONE("", "");
+
+    private String key, sectionHeader, value_lead = "";
+    private MessageSectionKeys parent;
+
+    MessageSectionKeys(String key, String sectionHeader) {
+        this.key = key;
+        this.sectionHeader = sectionHeader;
+        if (!key.isEmpty())
+            this.value_lead = "  ";
+    }
+
+    MessageSectionKeys(MessageSectionKeys parent, String key, String sectionHeader) {
+        this.key = key;
+        this.sectionHeader = sectionHeader;
+        this.parent = parent;
+        if (!key.isEmpty())
+            this.value_lead = parent.value_lead + "  ";
+    }
+
+    public String getKey() {
+        return !key.isEmpty() ? (parent != null ? parent.getKey() + "." + key + "." : key + ".") : "";
+    }
+
+    public String getValueLead() {
+        return value_lead;
+    }
+
+    public String getFormattedHeader() {
+        if (!sectionHeader.isEmpty() && !key.isEmpty()) {
+            StringBuilder header = new StringBuilder();
+            header.append("|    ").append(sectionHeader).append("    |");
+
+            int line1Length = header.length();
+
+            header.insert(0, "# ").append("\n").append("# ");
+
+            while (line1Length > 0) {
+                header.append("^");
+                line1Length--;
+            }
+
+            header.append("\n").append(getFileText()).append(":\n");
+
+            return header.toString();
+        } else if (sectionHeader.isEmpty() && !key.isEmpty()) {
+            StringBuilder header = new StringBuilder();
+
+            header.append(getFileText()).append(":\n");
+
+            return header.toString();
+        }
+
+        return "";
+    }
+
+    public String getFileText() {
+        return parent != null ? parent.value_lead + key : key;
+    }
 }

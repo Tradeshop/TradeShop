@@ -43,58 +43,58 @@ import java.util.logging.Level;
 
 public enum Setting {
 
-    CONFIG_VERSION(SectionKeys.NONE, "config-version", 1.1, "", "\n"),
+    CONFIG_VERSION(SettingSectionKeys.NONE, "config-version", 1.1, "", "\n"),
 
     // System Options
-    ENABLE_DEBUG(SectionKeys.SYSTEM_OPTIONS, "enable-debug", 0),
-    CHECK_UPDATES(SectionKeys.SYSTEM_OPTIONS, "check-updates", true),
-    ALLOW_METRICS(SectionKeys.SYSTEM_OPTIONS, "allow-metrics", true, "", "\n"),
+    ENABLE_DEBUG(SettingSectionKeys.SYSTEM_OPTIONS, "enable-debug", 0),
+    CHECK_UPDATES(SettingSectionKeys.SYSTEM_OPTIONS, "check-updates", true),
+    ALLOW_METRICS(SettingSectionKeys.SYSTEM_OPTIONS, "allow-metrics", true, "", "\n"),
 
     // Language Options
-    MESSAGE_PREFIX(SectionKeys.LANGUAGE_OPTIONS, "message-prefix", "&a[&eTradeShop&a] ", "", "\n"),
+    MESSAGE_PREFIX(SettingSectionKeys.LANGUAGE_OPTIONS, "message-prefix", "&a[&eTradeShop&a] ", "", "\n"),
 
-    SHOP_GOOD_COLOUR(SectionKeys.LANGUAGE_OPTIONS, "shop-good-colour", "&2", "Header Colours, if the codes are showing in the header, set to \"\""),
-    SHOP_INCOMPLETE_COLOUR(SectionKeys.LANGUAGE_OPTIONS, "shop-incomplete-colour", "&7"),
-    SHOP_BAD_COLOUR(SectionKeys.LANGUAGE_OPTIONS, "shop-bad-colour", "&4", "", "\n"),
+    SHOP_GOOD_COLOUR(SettingSectionKeys.LANGUAGE_OPTIONS, "shop-good-colour", "&2", "Header Colours, if the codes are showing in the header, set to \"\""),
+    SHOP_INCOMPLETE_COLOUR(SettingSectionKeys.LANGUAGE_OPTIONS, "shop-incomplete-colour", "&7"),
+    SHOP_BAD_COLOUR(SettingSectionKeys.LANGUAGE_OPTIONS, "shop-bad-colour", "&4", "", "\n"),
 
-    SHOP_OPEN_STATUS(SectionKeys.LANGUAGE_OPTIONS, "shop-open-status", "&a<Open>", "Status Text, What will be shown in the bottom line of shop sign for each status"),
-    SHOP_CLOSED_STATUS(SectionKeys.LANGUAGE_OPTIONS, "shop-closed-status", "&c<Closed>"),
-    SHOP_INCOMPLETE_STATUS(SectionKeys.LANGUAGE_OPTIONS, "shop-incomplete-status", "&c<Incomplete>"),
-    SHOP_OUTOFSTOCK_STATUS(SectionKeys.LANGUAGE_OPTIONS, "shop-outofstock-status", "&c<Out Of Stock>", "", "\n"),
+    SHOP_OPEN_STATUS(SettingSectionKeys.LANGUAGE_OPTIONS, "shop-open-status", "&a<Open>", "Status Text, What will be shown in the bottom line of shop sign for each status"),
+    SHOP_CLOSED_STATUS(SettingSectionKeys.LANGUAGE_OPTIONS, "shop-closed-status", "&c<Closed>"),
+    SHOP_INCOMPLETE_STATUS(SettingSectionKeys.LANGUAGE_OPTIONS, "shop-incomplete-status", "&c<Incomplete>"),
+    SHOP_OUTOFSTOCK_STATUS(SettingSectionKeys.LANGUAGE_OPTIONS, "shop-outofstock-status", "&c<Out Of Stock>", "", "\n"),
 
     // Global Options
-    ALLOWED_DIRECTIONS(SectionKeys.GLOBAL_OPTIONS, "allowed-directions", new String[]{"DOWN", "WEST", "SOUTH", "EAST", "NORTH", "UP"}),
-    ALLOWED_SHOPS(SectionKeys.GLOBAL_OPTIONS, "allowed-shops", new String[]{"CHEST", "TRAPPED_CHEST", "SHULKER"}),
-    MAX_EDIT_DISTANCE(SectionKeys.GLOBAL_OPTIONS, "max-edit-distance", 4),
-    ILLEGAL_ITEMS(SectionKeys.GLOBAL_OPTIONS, "illegal-items", new String[]{"Air", "Void_Air", "Cave_Air", "Bedrock", "Command_Block"}, "", "\n"),
+    ALLOWED_DIRECTIONS(SettingSectionKeys.GLOBAL_OPTIONS, "allowed-directions", new String[]{"DOWN", "WEST", "SOUTH", "EAST", "NORTH", "UP"}),
+    ALLOWED_SHOPS(SettingSectionKeys.GLOBAL_OPTIONS, "allowed-shops", new String[]{"CHEST", "TRAPPED_CHEST", "SHULKER"}),
+    MAX_EDIT_DISTANCE(SettingSectionKeys.GLOBAL_OPTIONS, "max-edit-distance", 4),
+    ILLEGAL_ITEMS(SettingSectionKeys.GLOBAL_OPTIONS, "illegal-items", new String[]{"Air", "Void_Air", "Cave_Air", "Bedrock", "Command_Block"}, "", "\n"),
 
     // ^ Multi Trade
-    ALLOW_MULTI_TRADE(SectionKeys.GLOBAL_MULTI_TRADE, "enable", true),
-    MULTI_TRADE_DEFAULT(SectionKeys.GLOBAL_MULTI_TRADE, "default-multi", 2),
-    MULTI_TRADE_MAX(SectionKeys.GLOBAL_MULTI_TRADE, "max-multi", 6, "", "\n"),
+    ALLOW_MULTI_TRADE(SettingSectionKeys.GLOBAL_MULTI_TRADE, "enable", true),
+    MULTI_TRADE_DEFAULT(SettingSectionKeys.GLOBAL_MULTI_TRADE, "default-multi", 2),
+    MULTI_TRADE_MAX(SettingSectionKeys.GLOBAL_MULTI_TRADE, "max-multi", 6, "", "\n"),
 
     // Shop Options
-    MAX_SHOP_USERS(SectionKeys.SHOP_OPTIONS, "max-shop-users", 5),
-    MAX_SHOPS_PER_CHUNK(SectionKeys.SHOP_OPTIONS, "max-shops-per-chunk", 128),
-    MAX_ITEMS_PER_TRADE_SIDE(SectionKeys.SHOP_OPTIONS, "max-items-per-trade-side", 6, "", "\n"),
+    MAX_SHOP_USERS(SettingSectionKeys.SHOP_OPTIONS, "max-shop-users", 5),
+    MAX_SHOPS_PER_CHUNK(SettingSectionKeys.SHOP_OPTIONS, "max-shops-per-chunk", 128),
+    MAX_ITEMS_PER_TRADE_SIDE(SettingSectionKeys.SHOP_OPTIONS, "max-items-per-trade-side", 6, "", "\n"),
 
 
     // Trade Shop Options
-    TRADESHOP_HEADER(SectionKeys.TRADE_SHOP_OPTIONS, "header", "Trade"),
-    TRADESHOP_EXPLODE(SectionKeys.TRADE_SHOP_OPTIONS, "allow-explode", false),
-    TRADESHOP_HOPPER_EXPORT(SectionKeys.TRADE_SHOP_OPTIONS, "allow-hopper-export", false, "", "\n"),
+    TRADESHOP_HEADER(SettingSectionKeys.TRADE_SHOP_OPTIONS, "header", "Trade"),
+    TRADESHOP_EXPLODE(SettingSectionKeys.TRADE_SHOP_OPTIONS, "allow-explode", false),
+    TRADESHOP_HOPPER_EXPORT(SettingSectionKeys.TRADE_SHOP_OPTIONS, "allow-hopper-export", false, "", "\n"),
 
 
     // ITrade Shop Options
-    ITRADESHOP_OWNER(SectionKeys.ITRADE_SHOP_OPTIONS, "owner", "Server Shop"),
-    ITRADESHOP_HEADER(SectionKeys.ITRADE_SHOP_OPTIONS, "header", "iTrade"),
-    ITRADESHOP_EXPLODE(SectionKeys.ITRADE_SHOP_OPTIONS, "allow-explode", false, "", "\n"),
+    ITRADESHOP_OWNER(SettingSectionKeys.ITRADE_SHOP_OPTIONS, "owner", "Server Shop"),
+    ITRADESHOP_HEADER(SettingSectionKeys.ITRADE_SHOP_OPTIONS, "header", "iTrade"),
+    ITRADESHOP_EXPLODE(SettingSectionKeys.ITRADE_SHOP_OPTIONS, "allow-explode", false, "", "\n"),
 
 
     // BiTrade Shop Options
-    BITRADESHOP_HEADER(SectionKeys.BITRADE_SHOP_OPTIONS, "header", "BiTrade"),
-    BITRADESHOP_EXPLODE(SectionKeys.BITRADE_SHOP_OPTIONS, "allow-explode", false),
-    BITRADESHOP_HOPPER_EXPORT(SectionKeys.BITRADE_SHOP_OPTIONS, "allow-hopper-export", false);
+    BITRADESHOP_HEADER(SettingSectionKeys.BITRADE_SHOP_OPTIONS, "header", "BiTrade"),
+    BITRADESHOP_EXPLODE(SettingSectionKeys.BITRADE_SHOP_OPTIONS, "allow-explode", false),
+    BITRADESHOP_HOPPER_EXPORT(SettingSectionKeys.BITRADE_SHOP_OPTIONS, "allow-hopper-export", false);
 
 
 	private static TradeShop plugin = (TradeShop) Bukkit.getPluginManager().getPlugin("TradeShop");
@@ -102,16 +102,16 @@ public enum Setting {
 	private static FileConfiguration config = YamlConfiguration.loadConfiguration(file);
     private String key, path, preComment = "", postComment = "";
     private Object defaultValue;
-    private SectionKeys sectionKey;
+    private SettingSectionKeys sectionKey;
 
-    Setting(SectionKeys sectionKey, String path, Object defaultValue) {
+    Setting(SettingSectionKeys sectionKey, String path, Object defaultValue) {
         this.sectionKey = sectionKey;
         this.key = path;
         this.path = sectionKey.getKey() + path;
         this.defaultValue = defaultValue;
     }
 
-    Setting(SectionKeys sectionKey, String path, Object defaultValue, String preComment) {
+    Setting(SettingSectionKeys sectionKey, String path, Object defaultValue, String preComment) {
         this.sectionKey = sectionKey;
         this.key = path;
         this.path = sectionKey.getKey() + path;
@@ -119,7 +119,7 @@ public enum Setting {
         this.preComment = preComment;
     }
 
-    Setting(SectionKeys sectionKey, String path, Object defaultValue, String preComment, String postComment) {
+    Setting(SettingSectionKeys sectionKey, String path, Object defaultValue, String preComment, String postComment) {
         this.sectionKey = sectionKey;
         this.key = path;
         this.path = sectionKey.getKey() + path;
@@ -166,12 +166,12 @@ public enum Setting {
                 StringBuilder data = new StringBuilder();
 
                 data.append("##########################\n").append("#    TradeShop Config    #\n").append("##########################\n");
-                Set<SectionKeys> sectionKeys = Sets.newHashSet(SectionKeys.values());
+                Set<SettingSectionKeys> settingSectionKeys = Sets.newHashSet(SettingSectionKeys.values());
 
                 for (Setting setting : values()) {
-                    if (sectionKeys.contains(setting.sectionKey)) {
+                    if (settingSectionKeys.contains(setting.sectionKey)) {
                         data.append(setting.sectionKey.getFormattedHeader());
-                        sectionKeys.remove(setting.sectionKey);
+                        settingSectionKeys.remove(setting.sectionKey);
                     }
 
                     if (!setting.preComment.isEmpty()) {
@@ -339,7 +339,7 @@ public enum Setting {
 	}
 }
 
-enum SectionKeys {
+enum SettingSectionKeys {
 
     NONE("", ""),
     SYSTEM_OPTIONS("system-options", "System Options"),
@@ -352,16 +352,16 @@ enum SectionKeys {
     BITRADE_SHOP_OPTIONS("bitrade-shop-options", "BiTrade Shop Options");
 
     private String key, sectionHeader, value_lead = "";
-    private SectionKeys parent;
+    private SettingSectionKeys parent;
 
-    SectionKeys(String key, String sectionHeader) {
+    SettingSectionKeys(String key, String sectionHeader) {
         this.key = key;
         this.sectionHeader = sectionHeader;
         if (!key.isEmpty())
             this.value_lead = "  ";
     }
 
-    SectionKeys(SectionKeys parent, String key, String sectionHeader) {
+    SettingSectionKeys(SettingSectionKeys parent, String key, String sectionHeader) {
         this.key = key;
         this.sectionHeader = sectionHeader;
         this.parent = parent;
@@ -370,7 +370,7 @@ enum SectionKeys {
     }
 
     public String getKey() {
-        return parent != null ? parent.getKey() + "." + key + "." : key + ".";
+        return !key.isEmpty() ? (parent != null ? parent.getKey() + "." + key + "." : key + ".") : "";
     }
 
     public String getValueLead() {
