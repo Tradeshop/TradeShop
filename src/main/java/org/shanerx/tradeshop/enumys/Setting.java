@@ -76,7 +76,8 @@ public enum Setting {
     // Shop Options
     MAX_SHOP_USERS(SettingSectionKeys.SHOP_OPTIONS, "max-shop-users", 5, "Maximum users a shop can have (must be a whole number)"),
     MAX_SHOPS_PER_CHUNK(SettingSectionKeys.SHOP_OPTIONS, "max-shops-per-chunk", 128, "Maximum shops that can exist in a single chunk (must be a whole number)"),
-    MAX_ITEMS_PER_TRADE_SIDE(SettingSectionKeys.SHOP_OPTIONS, "max-items-per-trade-side", 6, "Maximum amount of item stacks per side of trade (must be a whole number)", "\n"),
+    MAX_ITEMS_PER_TRADE_SIDE(SettingSectionKeys.SHOP_OPTIONS, "max-items-per-trade-side", 6, "Maximum amount of item stacks per side of trade (must be a whole number)"),
+    ALLOW_USER_PURCHASING(SettingSectionKeys.SHOP_OPTIONS, "allow-user-purchasing", false, "Can players purchase from a shop in which they are a user of (true/false)", "\n"),
 
 
     // Trade Shop Options

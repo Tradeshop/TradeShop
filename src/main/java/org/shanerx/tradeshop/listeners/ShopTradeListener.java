@@ -81,7 +81,7 @@ public class ShopTradeListener extends Utils implements Listener {
             return;
         }
 
-        if (!shop.getShopType().equals(ShopType.ITRADE) && shop.getUsersUUID().contains(buyer.getUniqueId())) {
+        if (!shop.getShopType().equals(ShopType.ITRADE) && shop.getUsersUUID().contains(buyer.getUniqueId()) && !Setting.ALLOW_USER_PURCHASING.getBoolean()) {
             buyer.sendMessage(Message.SELF_OWNED.getPrefixed());
             return;
         }
