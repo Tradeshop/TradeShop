@@ -94,6 +94,7 @@ public enum Message {
     ITEM_REMOVED("&aItem successfully removed to shop."),
     ITEM_NOT_REMOVED("&cItem could not be removed from shop."),
     TOO_MANY_ITEMS("&cThis trade can not take any more %side%!"),
+    FEATURE_DISABLED("&cThis feature has been disabled on this server!"),
     SHOP_INSUFFICIENT_ITEMS("&cThis shop does not have &e{AMOUNT} {ITEM}&c!");
 
 	private static final char COLOUR_CHAR = '&';

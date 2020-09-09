@@ -847,8 +847,8 @@ public class CommandRunner extends Utils {
 	/**
 	 * Adds the specified player to the shop as a member
 	 */
-	public void addMember() {
-		Shop shop = findShop();
+    public void addMember() {
+        Shop shop = findShop();
 
 		if (shop == null)
 			return;
@@ -883,19 +883,26 @@ public class CommandRunner extends Utils {
 	 * Changes the players trade multiplier for current login
 	 */
 	public void multi() {
+        if (!Setting.ALLOW_MULTI_TRADE.getBoolean()) {
+            sendMessage(Message.FEATURE_DISABLED.getPrefixed());
+            return;
+        }
+
 		JsonConfiguration json = new JsonConfiguration(pSender.getUniqueId());
 		Map<String, Integer> data = json.loadPlayer();
 
 		if (command.argsSize() == 1) {
 			sendMessage(Message.MULTI_AMOUNT.getPrefixed().replaceAll("%amount%", String.valueOf(data.get("multi"))));
 		} else {
-			int amount = 2;
+            int amount = Setting.MULTI_TRADE_DEFAULT.getInt();
 
 			if (isInt(command.getArgAt(1)))
 				amount = Integer.parseInt(command.getArgAt(1));
 
-			if (amount < 2)
-				amount = 2;
+            if (amount < Setting.MULTI_TRADE_DEFAULT.getInt())
+                amount = Setting.MULTI_TRADE_DEFAULT.getInt();
+            else if (amount > Setting.MULTI_TRADE_MAX.getInt())
+                amount = Setting.MULTI_TRADE_MAX.getInt();
 
 			data.put("multi", amount);
 			json.savePlayer(data);

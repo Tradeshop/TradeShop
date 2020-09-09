@@ -1,0 +1,68 @@
+##########################
+#    TradeShop Config    #
+##########################
+config-version:
+
+# |     System Options    |
+# ^^^^^^^^^^^^^^^^^^^^^^^^^
+system-options:
+  enable-debug:
+  check-updates:
+  allow-metrics:
+
+# |     Language Options    |
+# ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+language-options:
+  message-prefix:
+
+  # Header Colours, if the codes are showing in the header, set to ""
+  shop-good-colour:
+  shop-incomplete-colour:
+  shop-bad-colour:
+
+  # Status Text, What will be shown in the bottom line of shop sign for each status
+  shop-open-status:
+  shop-closed-status:
+  shop-incomplete-status:
+  shop-outofstock-status:
+
+# |     Global Options    |
+# ^^^^^^^^^^^^^^^^^^^^^^^^^
+global-options:
+  allowed-directions:
+  allowed-shops:
+  max-edit-distance:
+  illegal-items:
+
+  multi-trade:
+    enable:
+    default-value:
+    max-value:
+
+# |     Shop Options    |
+# ^^^^^^^^^^^^^^^^^^^^^^^
+shop-options:
+  max-shop-users:
+  max-shops-per-chunk:
+  max-items-per-trade-side:
+
+# |     Trade Shop Options    |
+# ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+trade-shop-options:
+  header:
+  allow-explode:
+  allow-hopper-export:
+
+# |     ITrade Shop Options    |
+# ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+itrade-shop-options:
+  owner:
+  header:
+  allow-explode:
+
+# |     BiTrade Shop Options    |
+# ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+bitrade-shop-options:
+  header:
+  allow-explode:
+  allow-hopper-export:
