@@ -899,8 +899,8 @@ public class CommandRunner extends Utils {
 			if (isInt(command.getArgAt(1)))
 				amount = Integer.parseInt(command.getArgAt(1));
 
-            if (amount < Setting.MULTI_TRADE_DEFAULT.getInt())
-                amount = Setting.MULTI_TRADE_DEFAULT.getInt();
+			if (amount < 2)
+				amount = 2;
             else if (amount > Setting.MULTI_TRADE_MAX.getInt())
                 amount = Setting.MULTI_TRADE_MAX.getInt();
 
