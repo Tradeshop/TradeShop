@@ -46,6 +46,7 @@ public class TradeShop extends JavaPlugin {
 
     private final NamespacedKey storageKey = new NamespacedKey(this, "tradeshop-storage-data");
     private final NamespacedKey signKey = new NamespacedKey(this, "tradeshop-sign-data");
+    private final int bStatsPluginID = 1690;
 
 	public NamespacedKey getStorageKey() {
 		return storageKey;
@@ -129,7 +130,7 @@ public class TradeShop extends JavaPlugin {
 		}
 
 		if (Setting.ALLOW_METRICS.getBoolean()) {
-			metrics = new Metrics(this);
+            metrics = new Metrics(this, bStatsPluginID);
 			getLogger().info("Metrics successfully initialized!");
 
 		} else {

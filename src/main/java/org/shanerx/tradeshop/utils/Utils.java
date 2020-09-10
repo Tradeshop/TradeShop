@@ -46,6 +46,7 @@ import org.shanerx.tradeshop.TradeShop;
 import org.shanerx.tradeshop.enumys.*;
 import org.shanerx.tradeshop.objects.Debug;
 import org.shanerx.tradeshop.objects.Shop;
+import org.shanerx.tradeshop.objects.ShopItemStack;
 
 import java.util.*;
 import java.util.logging.Level;
@@ -362,67 +363,8 @@ public class Utils {
 	 * @param multiplier multiplier to use for check
 	 * @return true if shop has enough cost to make trade
 	 */
-	public Boolean checkInventory(Inventory inv, List<ItemStack> itemList, int multiplier) {
-        boolean ret = true;
-		for (ItemStack iS : itemList) {
-            ret = checkInventory(inv, iS, multiplier) != ret && ret;
-		}
-
-        return ret;
-    }
-
-    /**
-     * Returns true if inventory contains the amount of items * multiplier
-     *
-     * @param inv        inventory to check
-     * @param item       ItemStack to check
-     * @param multiplier multiplier to use for check
-     * @return true if shop has enough cost to make trade
-     */
-    public Boolean checkInventory(Inventory inv, ItemStack item, int multiplier) {
-        Inventory clone = Bukkit.createInventory(null, inv.getStorageContents().length);
-        clone.setContents(inv.getStorageContents().clone());
-        if (multiplier < 1)
-            multiplier = 1;
-
-        int count = item.getAmount() * multiplier, removed;
-        while (count > 0) {
-            boolean resetItem = false;
-            int inventoryLoc = clone.first(item.getType());
-
-            if (inventoryLoc == -1)
-                break;
-
-            ItemStack temp = clone.getItem(inventoryLoc),
-                    dupitm1 = item.clone();
-
-            if (count > item.getMaxStackSize()) {
-                removed = item.getMaxStackSize();
-            } else {
-                removed = count;
-            }
-
-            if (removed > temp.getAmount()) {
-                removed = temp.getAmount();
-            }
-
-            item.setAmount(removed);
-            if (!item.hasItemMeta() && temp.hasItemMeta()) {
-                item.setItemMeta(temp.getItemMeta());
-                item.setData(temp.getData());
-                resetItem = true;
-            }
-
-            clone.removeItem(item);
-
-            if (resetItem) {
-                item = dupitm1;
-            }
-
-            count -= removed;
-        }
-
-        return count == 0;
+	public Boolean checkInventory(Inventory inv, List<ShopItemStack> itemList, int multiplier) {
+		return getItems(inv, itemList, multiplier).get(0) != null;
     }
 	
 	
@@ -434,7 +376,7 @@ public class Utils {
      * @param playerInv  the Inventory object representing the inventory that is subject to the transaction.
 	 * @param multiplier the multiplier for the trade
 	 * @param action     the action from the event
-	 * @return 0 if both inventories have enough room, 1 if player is too full, and -1 if the shop is too full
+	 * @return Exchange status with appropriate response
 	 */
     public ExchangeStatus canExchangeAll(Shop shop, Inventory playerInv, int multiplier, Action action) {
 		Inventory playerInventory = Bukkit.createInventory(null, playerInv.getStorageContents().length);
@@ -461,8 +403,8 @@ public class Utils {
 				}
 			}
 
-            for (ItemStack item : shop.getProduct()) {
-				if (!playerInventory.addItem(item).isEmpty()) {
+			for (ShopItemStack item : shop.getProduct()) {
+				if (!playerInventory.addItem(item.getItemStack()).isEmpty()) {
                     return ExchangeStatus.PLAYER_NO_SPACE;
                 }
             }
@@ -527,7 +469,7 @@ public class Utils {
 	}
 
     //Returns an arraylist of the itemstacks to be removed/added, if it could not get enough of an item, will return index 0 as null and index 1 as item it could not get enough of
-    public ArrayList<ItemStack> getItems(Inventory inventory, List<ItemStack> items, int multiplier) {
+	public ArrayList<ItemStack> getItems(Inventory inventory, List<ShopItemStack> items, int multiplier) {
         Inventory clone = Bukkit.createInventory(null, inventory.getStorageContents().length);
         clone.setContents(inventory.getStorageContents());
         ArrayList<ItemStack> ret = new ArrayList<ItemStack>();
@@ -535,14 +477,14 @@ public class Utils {
         debugger.log("ShopTradeListener > Inventory Type Being Searched: " + inventory.getType().name(), DebugLevels.TRADE);
 		debugger.log("ShopTradeListener > Inventory Location Being Searched: " + (inventory.getLocation() != null ? inventory.getLocation().toString() : "null"), DebugLevels.TRADE);
 
-        for (ItemStack item : items) {
-            totalCount += item.getAmount();
-            if (item.getType().name().endsWith("SHULKER_BOX")) {
+		for (ShopItemStack item : items) {
+			totalCount += item.getItemStack().getAmount();
+			if (item.getItemStack().getType().name().endsWith("SHULKER_BOX")) {
                 for (ItemStack itm : clone.getStorageContents()) {
                     if (!itm.getType().name().endsWith("SHULKER_BOX"))
                         break;
 
-                    if (compareShulkers(itm, item)) {
+					if (compareShulkers(itm, item.getItemStack())) {
                         clone.removeItem(itm);
                         ret.add(itm);
                         currentCount++;
@@ -550,41 +492,36 @@ public class Utils {
                     }
                 }
             } else {
-                int count = item.getAmount() * multiplier, maxStack, traded;
+				int count = item.getItemStack().getAmount() * multiplier, maxStack, traded;
 
-                debugger.log("ShopTradeListener > Item Material Being Searched for: " + item.getType().name(), DebugLevels.TRADE);
+				debugger.log("ShopTradeListener > Item Material Being Searched for: " + item.getItemStack().getType().name(), DebugLevels.TRADE);
                 debugger.log("ShopTradeListener > Item count: " + count, DebugLevels.TRADE);
 
                 while (count > 0) {
-                    boolean resetItem = false;
-                    int inventoryLoc = clone.first(item.getType());
+					int inventoryLoc = clone.first(item.getItemStack().getType());
                     debugger.log("ShopTradeListener > Item inventory location: " + inventoryLoc, DebugLevels.TRADE);
 
                     if (inventoryLoc == -1)
                         break;
-                    ItemStack temp = clone.getItem(inventoryLoc),
-                            dupitm1 = item.clone();
-                    maxStack = dupitm1.getMaxStackSize();
+					ItemStack temp = clone.getItem(inventoryLoc);
+					maxStack = item.getItemStack().getMaxStackSize();
 
-                    if (count > maxStack)
-                        traded = temp.getAmount() < maxStack ? temp.getAmount() : maxStack;
-                    else
-                        traded = temp.getAmount() < count ? temp.getAmount() : count;
+					if (item.isSimilar(temp)) {
 
-                    dupitm1.setAmount(traded);
-                    if (!dupitm1.hasItemMeta() && temp.hasItemMeta()) {
-                        dupitm1.setItemMeta(temp.getItemMeta());
-                        dupitm1.setData(temp.getData());
-                    }
+						if (count > maxStack)
+							traded = temp.getAmount() < maxStack ? temp.getAmount() : maxStack;
+						else
+							traded = temp.getAmount() < count ? temp.getAmount() : count;
 
-                    clone.removeItem(dupitm1);
-                    ret.add(dupitm1);
-                    debugger.log("ShopTradeListener > Item traded: " + traded, DebugLevels.TRADE);
+						clone.removeItem(temp);
+						ret.add(temp);
+						debugger.log("ShopTradeListener > Item traded: " + traded, DebugLevels.TRADE);
 
-                    count -= traded;
-                    currentCount += traded;
+						count -= traded;
+						currentCount += traded;
 
-                    debugger.log("ShopTradeListener > Item new count: " + count, DebugLevels.TRADE);
+						debugger.log("ShopTradeListener > Item new count: " + count, DebugLevels.TRADE);
+					}
                 }
             }
 
@@ -593,8 +530,8 @@ public class Utils {
                 debugger.log("ShopTradeListener > CurrentCount: " + currentCount, DebugLevels.TRADE);
                 ret.clear();
                 ret.add(0, null);
-                ret.add(1, item);
-                ret.get(1).setAmount(item.getAmount() * multiplier);
+				ret.add(1, item.getItemStack());
+				ret.get(1).setAmount(item.getItemStack().getAmount() * multiplier);
             }
         }
 

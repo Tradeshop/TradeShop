@@ -42,6 +42,7 @@ import org.shanerx.tradeshop.framework.events.PlayerShopCloseEvent;
 import org.shanerx.tradeshop.framework.events.PlayerShopOpenEvent;
 import org.shanerx.tradeshop.objects.Shop;
 import org.shanerx.tradeshop.objects.ShopChest;
+import org.shanerx.tradeshop.objects.ShopItemStack;
 import org.shanerx.tradeshop.objects.ShopUser;
 import org.shanerx.tradeshop.utils.JsonConfiguration;
 import org.shanerx.tradeshop.utils.ObjectHolder;
@@ -147,8 +148,8 @@ public class CommandRunner extends Utils {
 		StringBuilder sb = new StringBuilder();
 		int counter = 1;
 
-		for (ItemStack itm : shop.getProduct()) {
-			sb.append(String.format("&b[&f%d&b]    &2- &f%s\n", counter, itm.hasItemMeta() && itm.getItemMeta().hasDisplayName() ? itm.getItemMeta().getDisplayName() : itm.getType().toString()));
+        for (ShopItemStack itm : shop.getProduct()) {
+            sb.append(String.format("&b[&f%d&b]    &2- &f%s\n", counter, itm.getItemStack().hasItemMeta() && itm.getItemStack().getItemMeta().hasDisplayName() ? itm.getItemStack().getItemMeta().getDisplayName() : itm.getItemStack().getType().toString()));
 			counter++;
 		}
 
@@ -167,8 +168,8 @@ public class CommandRunner extends Utils {
 		StringBuilder sb = new StringBuilder();
 		int counter = 1;
 
-		for (ItemStack itm : shop.getCost()) {
-			sb.append(String.format("&b[&f%d&b]    &2- &f%s\n", counter, itm.hasItemMeta() && itm.getItemMeta().hasDisplayName() ? itm.getItemMeta().getDisplayName() : itm.getType().toString()));
+        for (ShopItemStack itm : shop.getCost()) {
+            sb.append(String.format("&b[&f%d&b]    &2- &f%s\n", counter, itm.getItemStack().hasItemMeta() && itm.getItemStack().getItemMeta().hasDisplayName() ? itm.getItemStack().getItemMeta().getDisplayName() : itm.getItemStack().getType().toString()));
 			counter++;
 		}
 
@@ -694,8 +695,8 @@ public class CommandRunner extends Utils {
 
 		counter = 12;
 		int counter2 = 0;
-		for (ItemStack iS : shop.getCost()) {
-			shopContents.setItem(counter, iS);
+        for (ShopItemStack iS : shop.getCost()) {
+            shopContents.setItem(counter, iS.getItemStack());
 			if (counter2 == 2) {
 				counter2 = 0;
 				counter += 11;
@@ -707,8 +708,8 @@ public class CommandRunner extends Utils {
 
 		counter = 14;
 		counter2 = 0;
-		for (ItemStack iS : shop.getProduct()) {
-			shopContents.setItem(counter, iS);
+        for (ShopItemStack iS : shop.getProduct()) {
+            shopContents.setItem(counter, iS.getItemStack());
 			if (counter2 == 2) {
 				counter2 = 0;
 				counter += 7;

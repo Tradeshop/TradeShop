@@ -43,6 +43,7 @@ import org.shanerx.tradeshop.enumys.ShopType;
 import org.shanerx.tradeshop.framework.events.PlayerTradeEvent;
 import org.shanerx.tradeshop.framework.events.SuccessfulTradeEvent;
 import org.shanerx.tradeshop.objects.Shop;
+import org.shanerx.tradeshop.objects.ShopItemStack;
 import org.shanerx.tradeshop.objects.ShopLocation;
 import org.shanerx.tradeshop.utils.JsonConfiguration;
 import org.shanerx.tradeshop.utils.Utils;
@@ -106,18 +107,18 @@ public class ShopTradeListener extends Utils implements Listener {
         String productName = "", costName = "";
         int amountCost = 0, amountProduct = 0, multiplier = 1;
 
-        for (ItemStack item : shop.getCost()) { //Shop cost list
+        for (ShopItemStack item : shop.getCost()) { //Shop cost list
             //If item has custom name set to tempName, else set material name
-            String tempName = item.hasItemMeta() && item.getItemMeta().hasDisplayName() ? item.getItemMeta().getDisplayName() : item.getType().toString();
-            costName = costName.isEmpty() ? tempName : "Various";
-            amountCost += item.getAmount();
+            String tempName = item.getItemStack().hasItemMeta() && item.getItemStack().getItemMeta().hasDisplayName() ? item.getItemStack().getItemMeta().getDisplayName() : item.getItemStack().getType().toString();
+            costName = costName.isEmpty() ? tempName : Message.VARIOUS_ITEM_TYPE.toString();
+            amountCost += item.getItemStack().getAmount();
         }
 
-        for (ItemStack item : shop.getProduct()) { //Shop product list
+        for (ShopItemStack item : shop.getProduct()) { //Shop product list
             //If item has custom name set to tempName, else set material name
-            String tempName = item.hasItemMeta() && item.getItemMeta().hasDisplayName() ? item.getItemMeta().getDisplayName() : item.getType().toString();
-            productName = productName.isEmpty() ? tempName : "Various";
-            amountProduct += item.getAmount();
+            String tempName = item.getItemStack().hasItemMeta() && item.getItemStack().getItemMeta().hasDisplayName() ? item.getItemStack().getItemMeta().getDisplayName() : item.getItemStack().getType().toString();
+            productName = productName.isEmpty() ? tempName : Message.VARIOUS_ITEM_TYPE.toString();
+            amountProduct += item.getItemStack().getAmount();
         }
 
         if (buyer.isSneaking() && Setting.ALLOW_MULTI_TRADE.getBoolean()) {
@@ -188,8 +189,8 @@ public class ShopTradeListener extends Utils implements Listener {
                 playerInventory.removeItem(item);
             }
 
-            for (ItemStack item : shop.getProduct()) {
-                playerInventory.addItem(item);
+            for (ShopItemStack item : shop.getProduct()) {
+                playerInventory.addItem(item.getItemStack());
             }
 
             return true; //Successfully completed trade

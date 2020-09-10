@@ -98,7 +98,8 @@ public class Updater {
 					log.log(Level.WARNING, "[Updater] +------------------------------------------------+");
 					log.log(Level.WARNING, "[Updater] You are running an outdated version of the plugin!");
 					log.log(Level.WARNING, "[Updater] Most recent stable version: " + inputLine);
-                    log.log(Level.WARNING, "[Updater] Please update asap from: ");
+                    log.log(Level.WARNING, "[Updater] Current version: " + getVersion());
+                    log.log(Level.WARNING, "[Updater] Please update from: ");
                     log.log(Level.WARNING, "[Updater] https://www.spigotmc.org/resources/tradeshop.32762/");
 					log.log(Level.WARNING, "[Updater] +------------------------------------------------+");
 					in.close();
@@ -107,6 +108,7 @@ public class Updater {
 					log.log(Level.WARNING, "[Updater] +-----------------------------------------------------+");
 					log.log(Level.WARNING, "[Updater] You are running a developmental version of the plugin!");
 					log.log(Level.WARNING, "[Updater] Most recent stable version: " + inputLine);
+                    log.log(Level.WARNING, "[Updater] Current version: " + getVersion());
 					log.log(Level.WARNING, "[Updater] Please notice that the build may contain critical bugs!");
 					log.log(Level.WARNING, "[Updater] +-----------------------------------------------------+");
 					in.close();
@@ -121,6 +123,9 @@ public class Updater {
 			e.printStackTrace();
 			log.log(Level.WARNING, "[Updater] +----------------------------------------------------+");
 			log.log(Level.WARNING, "[Updater] Could not establish a connection to check for updates!");
+            log.log(Level.WARNING, "[Updater] Current version: " + getVersion());
+            log.log(Level.WARNING, "[Updater] Please check for new updates from: ");
+            log.log(Level.WARNING, "[Updater] https://www.spigotmc.org/resources/tradeshop.32762/");
 			log.log(Level.WARNING, "[Updater] +----------------------------------------------------+");
 		}
 		return RelationalStatus.UNKNOWN;

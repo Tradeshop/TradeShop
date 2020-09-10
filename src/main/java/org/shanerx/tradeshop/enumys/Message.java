@@ -100,7 +100,8 @@ public enum Message {
     TOO_MANY_ITEMS(MessageSectionKeys.NONE, "&cThis trade can not take any more %side%!"),
     UNSUCCESSFUL_SHOP_MEMBERS(MessageSectionKeys.NONE, "&aThat player is either already on the shop, or you have reached the maximum number of users!", "Text to display when shop users could not be updated"),
     UPDATED_SHOP_MEMBERS(MessageSectionKeys.NONE, "&aShop owners and members have been updated!", "Text to display when shop users have been updated successfully"),
-    WHO_MESSAGE(MessageSectionKeys.NONE, "&6Shop users are:\n&2Owner: &e{OWNER}\n&2Managers: &e{MANAGERS}\n&2Members: &e{MEMBERS}", "Text to display when players use the who command");
+    WHO_MESSAGE(MessageSectionKeys.NONE, "&6Shop users are:\n&2Owner: &e{OWNER}\n&2Managers: &e{MANAGERS}\n&2Members: &e{MEMBERS}", "Text to display when players use the who command"),
+    VARIOUS_ITEM_TYPE(MessageSectionKeys.NONE, "Various", "Text to display when a message uses an Item Type and the Type varies");
 
     private static final char COLOUR_CHAR = '&';
     private static TradeShop plugin = (TradeShop) Bukkit.getPluginManager().getPlugin("TradeShop");
