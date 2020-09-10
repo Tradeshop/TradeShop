@@ -150,7 +150,7 @@ public class ShopChest extends Utils {
 		return null;
 	}
 
-    public boolean hasStock(List<ItemStack> product) {
+    public boolean hasStock(List<ShopItemStack> product) {
         try {
             return product.size() > 0 && getItems(getInventory(), product, 1).get(0) != null;
         } catch (NullPointerException ex) {
