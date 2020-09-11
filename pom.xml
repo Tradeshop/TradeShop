@@ -83,6 +83,10 @@
                             <pattern>org.bstats</pattern>
                             <shadedPattern>org.shanerx.tradeshop</shadedPattern>
                         </relocation>
+                        <relocation>
+                            <pattern>de.themoep</pattern>
+                            <shadedPattern>io.github.apfelcreme.Pipes.libs</shadedPattern>
+                        </relocation>
                     </relocations>
                 </configuration>
                 <executions>
@@ -131,6 +135,11 @@
             <id>CodeMC</id>
             <url>https://repo.codemc.org/repository/maven-public</url>
         </repository>
+
+        <repository>
+            <id>minebench-repo</id>
+            <url>https://repo.minebench.de/</url>
+        </repository>
     </repositories>
 
     <dependencies>
@@ -145,6 +154,14 @@
             <groupId>org.bstats</groupId>
             <artifactId>bstats-bukkit</artifactId>
             <version>1.7</version>
+            <scope>compile</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>de.themoep</groupId>
+            <artifactId>inventorygui</artifactId>
+            <!--The following version may not be the latest. Check it before using.-->
+            <version>1.4.2-SNAPSHOT</version>
             <scope>compile</scope>
         </dependency>
     </dependencies>

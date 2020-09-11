@@ -382,9 +382,18 @@ public class Utils {
 		Inventory playerInventory = Bukkit.createInventory(null, playerInv.getStorageContents().length);
 		playerInventory.setContents(playerInv.getStorageContents().clone());
 
-        Inventory shopInv = shop.getChestAsSC().getInventory();
-        Inventory shopInventory = Bukkit.createInventory(null, shopInv.getStorageContents().length);
-        shopInventory.setContents(shopInv.getStorageContents().clone());
+        if (shop.getShopType() != ShopType.BITRADE && action == Action.LEFT_CLICK_BLOCK) {
+            return ExchangeStatus.NOT_TRADE;
+        }
+
+        Inventory shopInv = null;
+        Inventory shopInventory = null;
+
+        if (shop.getShopType() != ShopType.ITRADE) {
+            shopInv = shop.getChestAsSC().getInventory();
+            shopInventory = Bukkit.createInventory(null, shopInv.getStorageContents().length);
+            shopInventory.setContents(shopInv.getStorageContents().clone());
+        }
 
 		ArrayList<ItemStack> costItems, productItems;
 

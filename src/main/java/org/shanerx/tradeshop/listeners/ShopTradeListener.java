@@ -82,6 +82,11 @@ public class ShopTradeListener extends Utils implements Listener {
             return;
         }
 
+
+        if (shop.getShopType() != ShopType.BITRADE && e.getAction() == Action.LEFT_CLICK_BLOCK) {
+            return;
+        }
+
         if (!shop.getShopType().equals(ShopType.ITRADE) && shop.getUsersUUID().contains(buyer.getUniqueId()) && !Setting.ALLOW_USER_PURCHASING.getBoolean()) {
             buyer.sendMessage(Message.SELF_OWNED.getPrefixed());
             return;
@@ -151,6 +156,9 @@ public class ShopTradeListener extends Utils implements Listener {
             case PLAYER_NO_SPACE:
                 buyer.sendMessage(Message.PLAYER_FULL.getPrefixed()
                         .replace("{ITEM}", costName.toLowerCase()).replace("{AMOUNT}", String.valueOf(amountCost)));
+                return;
+            case NOT_TRADE:
+                e.setCancelled(false);
                 return;
         }
 
