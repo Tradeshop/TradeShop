@@ -537,17 +537,11 @@ public class CommandRunner extends Utils {
 			sendMessage(Message.NO_EDIT.getPrefixed());
 			return;
 		}
-
-		if (shop.isMissingItems()) {
-			sendMessage(Message.MISSING_ITEM.getPrefixed());
-			return;
-		}
 		
 		PlayerShopOpenEvent event = new PlayerShopOpenEvent(pSender, shop);
 		if (event.isCancelled()) return;
 
         ShopStatus status = shop.setOpen();
-		shop.saveShop();
 
         switch (status) {
             case OPEN:

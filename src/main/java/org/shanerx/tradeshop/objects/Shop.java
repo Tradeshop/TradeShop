@@ -160,7 +160,7 @@ public class Shop implements Serializable {
 	 * @return Shop object from file
 	 */
 	public static Shop loadShop(String serializedShopLocation) {
-		return loadShop(ShopLocation.deserialize(serializedShopLocation));
+        return loadShop(Objects.requireNonNull(ShopLocation.deserialize(serializedShopLocation)));
 	}
 
 	/**
@@ -679,115 +679,85 @@ public class Shop implements Serializable {
 		else {
 			Sign s = getShopSign();
 
-			if (!isMissingItems()) {
-                s.setLine(0, utils.colorize(Setting.SHOP_GOOD_COLOUR.getString() + shopType.toHeader()));
-			} else {
-                s.setLine(0, utils.colorize(Setting.SHOP_INCOMPLETE_COLOUR.getString() + shopType.toHeader()));
+            String[] signLines = updateSignLines();
+
+            for (int i = 0; i < 4; i++) {
+                s.setLine(i, signLines[i]);
 			}
 
-			if (product.size() == 1) {
-				StringBuilder sb = new StringBuilder();
-
-                ItemStack item = product.get(0).getItemStack();
-
-                sb.append(item.getAmount());
-				sb.append(" ");
-
-                sb.append((item.hasItemMeta() && item.getItemMeta().hasDisplayName()) ?
-                        item.getItemMeta().getDisplayName() :
-                        item.getType().toString());
-
-				s.setLine(1, sb.toString().substring(0, (sb.length() < 15) ? sb.length() : 15));
-
-			} else if (product.size() == 0) {
-				s.setLine(1, "");
-			} else {
-                s.setLine(1, Setting.MULTIPLE_ITEMS_ON_SIGN.getString());
-			}
-
-			if (cost.size() == 1) {
-				StringBuilder sb = new StringBuilder();
-
-                ItemStack item = cost.get(0).getItemStack();
-
-                sb.append(item.getAmount());
-				sb.append(" ");
-
-                sb.append((item.hasItemMeta() && item.getItemMeta().hasDisplayName()) ?
-                        item.getItemMeta().getDisplayName() :
-                        item.getType().toString());
-
-				s.setLine(2, sb.toString().substring(0, (sb.length() < 15) ? sb.length() : 15));
-			} else if (cost.size() == 0) {
-				s.setLine(2, "");
-			} else {
-                s.setLine(2, Setting.MULTIPLE_ITEMS_ON_SIGN.getString());
-			}
-
-			updateStatus();
-
-			saveShop();
-			s.setLine(3, status.getLine());
 			s.update();
 		}
 	}
 
 	/**
-	 * Updates the text on the shops sign
+     * Updates the text on the shops sign during SignChangeEvent
 	 *
 	 * @param signEvent SignEvent to update the sign for
 	 */
 	public void updateSign(SignChangeEvent signEvent) {
-		if (!isMissingItems()) {
-            signEvent.setLine(0, utils.colorize(Setting.SHOP_GOOD_COLOUR.getString() + shopType.toHeader()));
-		} else {
-            signEvent.setLine(0, utils.colorize(Setting.SHOP_INCOMPLETE_COLOUR.getString() + shopType.toHeader()));
+        String[] signLines = updateSignLines();
+
+        for (int i = 0; i < 4; i++) {
+            signEvent.setLine(i, signLines[i]);
 		}
-
-		if (product.size() == 1) {
-			StringBuilder sb = new StringBuilder();
-
-            ItemStack item = product.get(0).getItemStack();
-
-            sb.append(item.getAmount());
-			sb.append(" ");
-
-            sb.append((item.hasItemMeta() && item.getItemMeta().hasDisplayName()) ?
-                    item.getItemMeta().getDisplayName() :
-                    item.getType().toString());
-
-			signEvent.setLine(1, sb.toString().substring(0, (sb.length() < 15) ? sb.length() : 15));
-
-		} else if (product.size() == 0) {
-			signEvent.setLine(1, "");
-		} else {
-            signEvent.setLine(1, Setting.MULTIPLE_ITEMS_ON_SIGN.getString());
-		}
-
-		if (cost.size() == 1) {
-			StringBuilder sb = new StringBuilder();
-
-            ItemStack item = cost.get(0).getItemStack();
-
-            sb.append(item.getAmount());
-			sb.append(" ");
-
-            sb.append((item.hasItemMeta() && item.getItemMeta().hasDisplayName()) ?
-                    item.getItemMeta().getDisplayName() :
-                    item.getType().toString());
-
-			signEvent.setLine(2, sb.toString().substring(0, (sb.length() < 15) ? sb.length() : 15));
-		} else if (cost.size() == 0) {
-			signEvent.setLine(2, "");
-		} else {
-            signEvent.setLine(2, Setting.MULTIPLE_ITEMS_ON_SIGN.getString());
-		}
-
-		updateStatus();
-
-		saveShop();
-		signEvent.setLine(3, status.getLine());
 	}
+
+    /**
+     * Updates the text for the shop signs
+     *
+     * @return String array containing updated sign lines to be set
+     */
+    private String[] updateSignLines() {
+        String[] signLines = new String[4];
+
+        if (isMissingItems()) {
+            signLines[0] = utils.colorize(Setting.SHOP_INCOMPLETE_COLOUR.getString() + shopType.toHeader());
+        } else {
+            signLines[0] = utils.colorize(Setting.SHOP_GOOD_COLOUR.getString() + shopType.toHeader());
+        }
+
+        if (product.size() == 1) {
+            StringBuilder sb = new StringBuilder();
+
+            ShopItemStack item = product.get(0);
+
+            sb.append(item.getItemStack().getAmount());
+            sb.append(" ");
+
+            sb.append(item.getItemName());
+
+            signLines[1] = sb.toString().substring(0, Math.min(sb.length(), 15));
+
+        } else if (product.isEmpty()) {
+            signLines[1] = "";
+        } else {
+            signLines[1] = Setting.MULTIPLE_ITEMS_ON_SIGN.getString();
+        }
+
+        if (cost.size() == 1) {
+            StringBuilder sb = new StringBuilder();
+
+            ShopItemStack item = cost.get(0);
+
+            sb.append(item.getItemStack().getAmount());
+            sb.append(" ");
+
+            sb.append(item.getItemName());
+
+            signLines[2] = sb.toString().substring(0, Math.min(sb.length(), 15));
+        } else if (cost.isEmpty()) {
+            signLines[2] = "";
+        } else {
+            signLines[2] = Setting.MULTIPLE_ITEMS_ON_SIGN.getString();
+        }
+
+        updateStatus();
+        saveShop();
+
+        signLines[3] = status.getLine();
+
+        return signLines;
+    }
 
 	/**
 	 * Returns the shops inventory as a BlockState
@@ -865,7 +835,7 @@ public class Shop implements Serializable {
 	 * @return true if items are missing
 	 */
 	public boolean isMissingItems() {
-		return shopType.equals(ShopType.ITRADE) ? !(product.size() > 0) : !(product.size() > 0 && cost.size() > 0);
+        return shopType.equals(ShopType.ITRADE) ? !product.isEmpty() : !(product.isEmpty() && cost.isEmpty());
 	}
 
 	/**
@@ -998,6 +968,4 @@ public class Shop implements Serializable {
 		setStorageInventory();
 		return utils.checkInventory(storageInv, cost, multiplier);
 	}
-
-
 }

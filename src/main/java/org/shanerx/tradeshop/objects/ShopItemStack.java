@@ -25,6 +25,7 @@
 
 package org.shanerx.tradeshop.objects;
 
+import com.google.gson.Gson;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -243,6 +244,20 @@ public class ShopItemStack implements Serializable {
 
     public ItemStack getItemStack() {
         return itemStack;
+    }
+
+    public static ShopItemStack deserialize(String serialized) {
+        return new Gson().fromJson(serialized, ShopItemStack.class);
+    }
+
+    public String getItemName() {
+        return itemStack.hasItemMeta() && itemStack.getItemMeta().hasDisplayName() ?
+                itemStack.getItemMeta().getDisplayName() :
+                itemStack.getType().toString();
+    }
+
+    public String serialize() {
+        return new Gson().toJson(this);
     }
 
 
