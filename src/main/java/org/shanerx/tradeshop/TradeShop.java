@@ -119,7 +119,7 @@ public class TradeShop extends JavaPlugin {
 		pm.registerEvents(new ShopProtectionListener(this), this);
 		pm.registerEvents(new ShopCreateListener(), this);
 		pm.registerEvents(new ShopTradeListener(), this);
-		pm.registerEvents(new CustomInventoryListener(), this);
+        //pm.registerEvents(new CustomInventoryListener(), this); TODO Remove if new items work
         pm.registerEvents(new ShopRestockListener(this), this);
 
 		getCommand("tradeshop").setExecutor(new CommandCaller(this));

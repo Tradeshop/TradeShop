@@ -76,6 +76,7 @@
                     <artifactSet>
                         <includes>
                             <include>org.bstats:*</include>
+                            <pattern>de.themoep:*</pattern>
                         </includes>
                     </artifactSet>
                     <relocations>
@@ -146,7 +147,7 @@
         <dependency>
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot-api</artifactId>
-            <version>1.16.2-R0.1-SNAPSHOT</version>
+            <version>1.15-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
 

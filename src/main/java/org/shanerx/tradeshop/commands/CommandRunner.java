@@ -25,15 +25,15 @@
 
 package org.shanerx.tradeshop.commands;
 
+import de.themoep.inventorygui.InventoryGui;
+import de.themoep.inventorygui.StaticGuiElement;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 import org.shanerx.tradeshop.TradeShop;
 import org.shanerx.tradeshop.enumys.*;
 import org.shanerx.tradeshop.framework.ShopChange;
@@ -49,6 +49,7 @@ import org.shanerx.tradeshop.utils.ObjectHolder;
 import org.shanerx.tradeshop.utils.Utils;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 public class CommandRunner extends Utils {
@@ -613,11 +614,62 @@ public class CommandRunner extends Utils {
 		if (shop == null)
 			return;
 
+		/* TODO: remove if new code is good
 		int productRows = (int) Math.ceil(shop.getProduct().size() / 3.0),
 				costRows = (int) Math.ceil(shop.getCost().size() / 3.0),
 				invSize = (Math.max(productRows, costRows) + 1) * 9;
 
-        Inventory shopContents = Bukkit.createInventory(null, invSize, colorize(shop.getShopType() == ShopType.ITRADE ? Setting.ITRADESHOP_OWNER.getString() : Bukkit.getOfflinePlayer(shop.getOwner().getUUID()).getName() + "'s " + getCustomInvEndsWith()));
+		 */
+
+		List<String> guiSetup = new ArrayList<>();
+		guiSetup.add("141125333");
+		for (int i = 1; i < Math.max((int) (Math.ceil(shop.getProduct().size() / 3.0)), (int) (Math.ceil(shop.getCost().size() / 3.0))) + 1; i++) {
+			guiSetup.add("1   2   3");
+		}
+
+		for (int i = 0, col = 5; i < shop.getProduct().size(); i++) {
+			int row = (i / 3) + 1;
+			guiSetup.set(row, guiSetup.get(row).substring(0, col) + ((char) (i + 97)) + guiSetup.get(row).substring(col + 1));
+			col = col + 1 < 8 ? col + 1 : 5;
+		}
+
+		for (int i = 0, col = 1; i < shop.getCost().size(); i++) {
+			int row = (i / 3) + 1;
+			guiSetup.set(row, guiSetup.get(row).substring(0, col) + ((char) (i + 65)) + guiSetup.get(row).substring(col + 1));
+			col = col + 1 < 4 ? col + 1 : 1;
+		}
+
+		guiSetup.forEach(item -> debugger.log(item, DebugLevels.INVENTORY_CLOSE_NPE));
+
+		InventoryGui gui = new InventoryGui(plugin, colorize(shop.getShopType() == ShopType.ITRADE ?
+				Setting.ITRADESHOP_OWNER.getString() :
+				Bukkit.getOfflinePlayer(shop.getOwner().getUUID()).getName() + "'s"),
+				guiSetup.toArray(new String[0]));
+
+		gui.setFiller(new ItemStack(Material.GRAY_STAINED_GLASS, 1));
+		gui.addElement(new StaticGuiElement('1', new ItemStack(Material.LIME_STAINED_GLASS_PANE),
+				" ", " "));
+		gui.addElement(new StaticGuiElement('2', new ItemStack(Material.BLACK_STAINED_GLASS_PANE),
+				" ", " "));
+		gui.addElement(new StaticGuiElement('3', new ItemStack(Material.LIGHT_BLUE_STAINED_GLASS_PANE),
+				" ", " "));
+		gui.addElement(new StaticGuiElement('4', new ItemStack(Material.GOLD_NUGGET),
+				"Cost", "This is the item", "that you give to", "make the trade."));
+		gui.addElement(new StaticGuiElement('5', new ItemStack(Material.GRASS_BLOCK),
+				"Product", "This is the item", "that you receive", "from the trade."));
+
+		for (int i = 0; i < shop.getCost().size(); i++) {
+			gui.addElement(new StaticGuiElement((char) (i + 65), shop.getCost().get(i).getItemStack())); // TODO: use GuiStateElement to allow removal of items from the shop
+		}
+
+		for (int i = 0; i < shop.getProduct().size(); i++) {
+			gui.addElement(new StaticGuiElement((char) (i + 97), shop.getProduct().get(i).getItemStack())); // TODO: use GuiStateElement to allow removal of items from the shop
+		}
+
+		gui.show(pSender);
+
+		/* TODO Remove if above new code works
+		Inventory shopContents = Bukkit.createInventory(null, invSize, colorize(shop.getShopType() == ShopType.ITRADE ? Setting.ITRADESHOP_OWNER.getString() : Bukkit.getOfflinePlayer(shop.getOwner().getUUID()).getName() + "'s " + getCustomInvEndsWith()));
 
 		ItemStack costLabel = new ItemStack(Material.GOLD_NUGGET, 1),
 				productLabel = new ItemStack(Material.GRASS_BLOCK, 1),
@@ -717,7 +769,7 @@ public class CommandRunner extends Utils {
 			shopContents.setItem(shopContents.firstEmpty(), emptySlotLabel);
 		}
 
-		pSender.openInventory(shopContents);
+		pSender.openInventory(shopContents);*/
 	}
 
 	/**
@@ -926,11 +978,12 @@ public class CommandRunner extends Utils {
 				return Shop.loadShop((Sign) b.getState());
 
             } else if (ShopChest.isShopChest(b)) {
-				ShopChest shopChest = new ShopChest(b.getLocation());
-				return Shop.loadShop(shopChest.getShopSign());
+				return Shop.loadShop(new ShopChest(b.getLocation()).getShopSign());
+
 			} else
 				throw new NoSuchFieldException();
-        } catch (NoSuchFieldException ex) {
+
+		} catch (NoSuchFieldException ex) {
 			sendMessage(Message.NO_SIGHTED_SHOP.getPrefixed());
 			return null;
 		}

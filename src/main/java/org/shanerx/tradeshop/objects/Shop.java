@@ -57,7 +57,6 @@ public class Shop implements Serializable {
 	private transient SignChangeEvent signChangeEvent;
 	private transient Inventory storageInv;
 	private transient Utils utils;
-	private List<String> productListB64, costListB64;
     private ShopStatus status = ShopStatus.INCOMPLETE;
 
 	/**
@@ -79,8 +78,6 @@ public class Shop implements Serializable {
 
 		product = new ArrayList<>();
 		cost = new ArrayList<>();
-		productListB64 = new ArrayList<>();
-		costListB64 = new ArrayList<>();
 
         product.add(new ShopItemStack(items.getLeft()));
         cost.add(new ShopItemStack(items.getRight()));
@@ -171,14 +168,6 @@ public class Shop implements Serializable {
 	 */
 	public static Shop loadShop(Sign s) {
 		return loadShop(new ShopLocation(s.getLocation()));
-	}
-
-	public List<String> getProductListB64() {
-		return productListB64;
-	}
-
-	public List<String> getCostListB64() {
-		return costListB64;
 	}
 
 	/**
@@ -432,7 +421,6 @@ public class Shop implements Serializable {
 	 */
 	public void setCost(ItemStack newItem) {
 		cost.clear();
-		costListB64.clear();
 
 		addCost(newItem);
 	}
@@ -546,7 +534,6 @@ public class Shop implements Serializable {
 	 */
 	public void setProduct(ItemStack newItem) {
 		product.clear();
-		productListB64.clear();
 
 		addProduct(newItem);
 	}
@@ -561,7 +548,6 @@ public class Shop implements Serializable {
 	public boolean removeProduct(int index) {
 		if (product.size() > index) {
 			product.remove(index);
-			productListB64.remove(index);
 
 			saveShop();
 			updateSign();
@@ -578,34 +564,6 @@ public class Shop implements Serializable {
 	 */
 	public String serialize() {
 		return new Gson().toJson(this);
-	}
-
-	/**
-	 * Converts Base64 String to itemstack values
-	 */
-	public void itemsFromB64() {
-		if (product == null)
-			product = new ArrayList<>();
-		if (productListB64 == null)
-			productListB64 = new ArrayList<>();
-		if (cost == null)
-			cost = new ArrayList<>();
-		if (costListB64 == null)
-			costListB64 = new ArrayList<>();
-
-		product.clear();
-		for (String B64 : productListB64) {
-			if (B64.length() > 0) {
-                product.add(new ShopItemStack(B64));
-			}
-		}
-
-		cost.clear();
-		for (String B64 : costListB64) {
-			if (B64.length() > 0) {
-                cost.add(new ShopItemStack(B64));
-			}
-		}
 	}
 
 	/**
@@ -631,7 +589,6 @@ public class Shop implements Serializable {
 	 */
 	public void fixAfterLoad() {
 		utils = new Utils();
-		itemsFromB64();
 		shopLoc.stringToWorld();
 		if (!shopType.isITrade() && chestLoc != null)
 			chestLoc.stringToWorld();
@@ -716,7 +673,9 @@ public class Shop implements Serializable {
             signLines[0] = utils.colorize(Setting.SHOP_GOOD_COLOUR.getString() + shopType.toHeader());
         }
 
-        if (product.size() == 1) {
+		if (product.isEmpty()) {
+			signLines[1] = "";
+		} else if (product.size() == 1) {
             StringBuilder sb = new StringBuilder();
 
             ShopItemStack item = product.get(0);
@@ -728,13 +687,13 @@ public class Shop implements Serializable {
 
             signLines[1] = sb.toString().substring(0, Math.min(sb.length(), 15));
 
-        } else if (product.isEmpty()) {
-            signLines[1] = "";
         } else {
             signLines[1] = Setting.MULTIPLE_ITEMS_ON_SIGN.getString();
         }
 
-        if (cost.size() == 1) {
+		if (cost.isEmpty()) {
+			signLines[2] = "";
+		} else if (cost.size() == 1) {
             StringBuilder sb = new StringBuilder();
 
             ShopItemStack item = cost.get(0);
@@ -745,8 +704,6 @@ public class Shop implements Serializable {
             sb.append(item.getItemName());
 
             signLines[2] = sb.toString().substring(0, Math.min(sb.length(), 15));
-        } else if (cost.isEmpty()) {
-            signLines[2] = "";
         } else {
             signLines[2] = Setting.MULTIPLE_ITEMS_ON_SIGN.getString();
         }
@@ -835,7 +792,7 @@ public class Shop implements Serializable {
 	 * @return true if items are missing
 	 */
 	public boolean isMissingItems() {
-        return shopType.equals(ShopType.ITRADE) ? !product.isEmpty() : !(product.isEmpty() && cost.isEmpty());
+		return shopType.equals(ShopType.ITRADE) ? product.isEmpty() : product.isEmpty() || cost.isEmpty();
 	}
 
 	/**

@@ -26,29 +26,17 @@
 package org.shanerx.tradeshop.utils;
 
 import com.google.common.collect.Lists;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
+import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
 import org.bukkit.Chunk;
 import org.bukkit.inventory.ItemStack;
 import org.shanerx.tradeshop.objects.Shop;
 import org.shanerx.tradeshop.objects.ShopChunk;
+import org.shanerx.tradeshop.objects.ShopItemStack;
 import org.shanerx.tradeshop.objects.ShopLocation;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.io.*;
+import java.util.*;
 
 public class JsonConfiguration extends Utils implements Serializable {
 	private String pluginFolder;
@@ -196,7 +184,29 @@ public class JsonConfiguration extends Utils implements Serializable {
 				jsonObj.getAsJsonObject(loc.serialize()).add("costListB64", gson.toJsonTree(b64OverstackFixer(str)));
 				saveContents(gson.toJson(jsonObj));
 			}
+
+			List<String> productList = new ArrayList<>(), costList = new ArrayList<>();
+
+			if (jsonObj.getAsJsonObject(loc.serialize()).getAsJsonArray("productListB64") != null) {
+				jsonObj.getAsJsonObject(loc.serialize()).getAsJsonArray("productListB64").forEach(item -> productList.add(item.getAsString()));
+				jsonObj.getAsJsonObject(loc.serialize()).remove("productListB64");
+			}
+
+			if (jsonObj.getAsJsonObject(loc.serialize()).getAsJsonArray("costListB64") != null) {
+				jsonObj.getAsJsonObject(loc.serialize()).getAsJsonArray("costListB64").forEach(item -> costList.add(item.getAsString()));
+				jsonObj.getAsJsonObject(loc.serialize()).remove("costListB64");
+			}
+
+
 			shop = gson.fromJson(jsonObj.get(loc.serialize()), Shop.class);
+
+			if (!productList.isEmpty())
+				productList.forEach(item -> shop.addProduct(new ShopItemStack(item).getItemStack()));
+
+			if (!costList.isEmpty())
+				costList.forEach(item -> shop.addCost(new ShopItemStack(item).getItemStack()));
+
+
 		} else {
 			return null;
 		}

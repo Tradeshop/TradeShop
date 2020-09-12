@@ -515,12 +515,12 @@ public class Utils {
 					ItemStack temp = clone.getItem(inventoryLoc);
 					maxStack = item.getItemStack().getMaxStackSize();
 
-					if (item.isSimilar(temp)) {
+					if (temp != null && item.isSimilar(temp)) {
 
 						if (count > maxStack)
-							traded = temp.getAmount() < maxStack ? temp.getAmount() : maxStack;
+							traded = Math.min(temp.getAmount(), maxStack);
 						else
-							traded = temp.getAmount() < count ? temp.getAmount() : count;
+							traded = Math.min(temp.getAmount(), count);
 
 						clone.removeItem(temp);
 						ret.add(temp);
