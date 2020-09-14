@@ -151,12 +151,7 @@ public class ShopChest extends Utils {
 	}
 
     public boolean hasStock(List<ShopItemStack> product) {
-        try {
-            return product.size() > 0 && getItems(getInventory(), product, 1).get(0) != null;
-        } catch (NullPointerException ex) {
-        }
-
-        return false;
+		return product.size() > 0 && getItems(getInventory(), product, 1).get(0) != null;
     }
 
 	public void loadFromName() {

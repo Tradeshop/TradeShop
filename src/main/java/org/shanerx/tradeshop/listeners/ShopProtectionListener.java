@@ -200,6 +200,7 @@ public class ShopProtectionListener extends Utils implements Listener {
                     shop.updateSign();
                 }
 
+                shop.saveShop();
                 return;
             }
 

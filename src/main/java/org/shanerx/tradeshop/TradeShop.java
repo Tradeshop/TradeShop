@@ -48,14 +48,6 @@ public class TradeShop extends JavaPlugin {
     private final NamespacedKey signKey = new NamespacedKey(this, "tradeshop-sign-data");
     private final int bStatsPluginID = 1690;
 
-	public NamespacedKey getStorageKey() {
-		return storageKey;
-	}
-
-	public NamespacedKey getSignKey() {
-		return signKey;
-	}
-
 	private ListManager lists;
 	private BukkitVersion version;
 	private ShopSign signs;
@@ -65,30 +57,6 @@ public class TradeShop extends JavaPlugin {
 	private Metrics metrics;
 
 	private Debug debugger;
-
-	public ListManager getListManager() {
-		return lists;
-	}
-
-	public BukkitVersion getVersion() {
-		return version;
-	}
-
-	public ShopSign getSigns() {
-		return signs;
-	}
-
-    public ShopStorage getStorages() {
-        return storages;
-    }
-
-	public Updater getUpdater() {
-		return new Updater(getDescription());
-	}
-
-	public Debug getDebugger() {
-		return debugger;
-	}
 
 	@Override
 	public void onEnable() {
@@ -119,7 +87,6 @@ public class TradeShop extends JavaPlugin {
 		pm.registerEvents(new ShopProtectionListener(this), this);
 		pm.registerEvents(new ShopCreateListener(), this);
 		pm.registerEvents(new ShopTradeListener(), this);
-        //pm.registerEvents(new CustomInventoryListener(), this); TODO Remove if new items work
         pm.registerEvents(new ShopRestockListener(this), this);
 
 		getCommand("tradeshop").setExecutor(new CommandCaller(this));
@@ -138,4 +105,36 @@ public class TradeShop extends JavaPlugin {
 		}
 
 	}
+
+    public NamespacedKey getStorageKey() {
+        return storageKey;
+    }
+
+    public NamespacedKey getSignKey() {
+        return signKey;
+    }
+
+    public ListManager getListManager() {
+        return lists;
+    }
+
+    public BukkitVersion getVersion() {
+        return version;
+    }
+
+    public ShopSign getSigns() {
+        return signs;
+    }
+
+    public ShopStorage getStorages() {
+        return storages;
+    }
+
+    public Updater getUpdater() {
+        return new Updater(getDescription());
+    }
+
+    public Debug getDebugger() {
+        return debugger;
+    }
 }

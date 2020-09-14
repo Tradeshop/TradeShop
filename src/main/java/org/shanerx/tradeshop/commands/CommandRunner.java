@@ -134,6 +134,7 @@ public class CommandRunner extends Utils {
 		plugin.getListManager().reload();
 		Message.reload();
 		Setting.reload();
+        plugin.getDebugger().reload();
 		sendMessage(getPrefix() + "&6The configuration files have been reloaded!");
 	}
 
@@ -580,8 +581,8 @@ public class CommandRunner extends Utils {
 		if (event.isCancelled()) return;
 
         shop.setStatus(ShopStatus.CLOSED);
+        shop.updateSign();
 		shop.saveShop();
-		shop.updateSign();
 
 		sendMessage(Message.CHANGE_CLOSED.getPrefixed());
 	}
@@ -613,13 +614,6 @@ public class CommandRunner extends Utils {
 
 		if (shop == null)
 			return;
-
-		/* TODO: remove if new code is good
-		int productRows = (int) Math.ceil(shop.getProduct().size() / 3.0),
-				costRows = (int) Math.ceil(shop.getCost().size() / 3.0),
-				invSize = (Math.max(productRows, costRows) + 1) * 9;
-
-		 */
 
 		List<String> guiSetup = new ArrayList<>();
 		guiSetup.add("141125333");
@@ -667,109 +661,6 @@ public class CommandRunner extends Utils {
 		}
 
 		gui.show(pSender);
-
-		/* TODO Remove if above new code works
-		Inventory shopContents = Bukkit.createInventory(null, invSize, colorize(shop.getShopType() == ShopType.ITRADE ? Setting.ITRADESHOP_OWNER.getString() : Bukkit.getOfflinePlayer(shop.getOwner().getUUID()).getName() + "'s " + getCustomInvEndsWith()));
-
-		ItemStack costLabel = new ItemStack(Material.GOLD_NUGGET, 1),
-				productLabel = new ItemStack(Material.GRASS_BLOCK, 1),
-				emptySlotLabel = new ItemStack(Material.GRAY_STAINED_GLASS_PANE, 1),
-				costBorderLabel = new ItemStack(Material.LIME_STAINED_GLASS_PANE, 1),
-				productBorderLabel = new ItemStack(Material.LIGHT_BLUE_STAINED_GLASS_PANE, 1),
-				centerDividerLabel = new ItemStack(Material.BLACK_STAINED_GLASS_PANE, 1);
-
-		ItemMeta costMeta = costLabel.getItemMeta(),
-				productMeta = productLabel.getItemMeta(),
-				emptySlotMeta = emptySlotLabel.getItemMeta(),
-				costBorderMeta = costBorderLabel.getItemMeta(),
-				productBorderMeta = productBorderLabel.getItemMeta(),
-				centerDividerMeta = centerDividerLabel.getItemMeta();
-
-		ArrayList<String> costLore = new ArrayList<>();
-		costLore.add("This is the item");
-		costLore.add("that you give to");
-		costLore.add("make the trade.");
-
-		ArrayList<String> productLore = new ArrayList<>();
-		productLore.add("This is the item");
-		productLore.add("that you receive");
-		productLore.add("from the trade.");
-
-		costMeta.setDisplayName("Cost");
-		costMeta.setLore(costLore);
-
-		productMeta.setDisplayName("Product");
-		productMeta.setLore(productLore);
-
-		emptySlotMeta.setDisplayName(" ");
-		costBorderMeta.setDisplayName(" ");
-		productBorderMeta.setDisplayName(" ");
-		centerDividerMeta.setDisplayName(" ");
-
-		costLabel.setItemMeta(costMeta);
-		productLabel.setItemMeta(productMeta);
-		emptySlotLabel.setItemMeta(emptySlotMeta);
-		costBorderLabel.setItemMeta(costBorderMeta);
-		productBorderLabel.setItemMeta(productBorderMeta);
-		centerDividerLabel.setItemMeta(centerDividerMeta);
-
-		shopContents.setItem(1, costBorderLabel);
-		shopContents.setItem(2, costBorderLabel);
-		shopContents.setItem(3, costLabel);
-
-		shopContents.setItem(5, productLabel);
-		shopContents.setItem(6, productBorderLabel);
-		shopContents.setItem(7, productBorderLabel);
-
-		int counter = 4;
-		while (counter < invSize) {
-			shopContents.setItem(counter, centerDividerLabel);
-			counter += 9;
-		}
-
-		counter = 0;
-		while (counter < invSize) {
-			shopContents.setItem(counter, costBorderLabel);
-			counter += 9;
-		}
-
-		counter = 8;
-		while (counter < invSize) {
-			shopContents.setItem(counter, productBorderLabel);
-			counter += 9;
-		}
-
-		counter = 12;
-		int counter2 = 0;
-        for (ShopItemStack iS : shop.getCost()) {
-            shopContents.setItem(counter, iS.getItemStack());
-			if (counter2 == 2) {
-				counter2 = 0;
-				counter += 11;
-			} else {
-				counter2++;
-				counter--;
-			}
-		}
-
-		counter = 14;
-		counter2 = 0;
-        for (ShopItemStack iS : shop.getProduct()) {
-            shopContents.setItem(counter, iS.getItemStack());
-			if (counter2 == 2) {
-				counter2 = 0;
-				counter += 7;
-			} else {
-				counter2++;
-				counter++;
-			}
-		}
-
-		while (shopContents.firstEmpty() != -1) {
-			shopContents.setItem(shopContents.firstEmpty(), emptySlotLabel);
-		}
-
-		pSender.openInventory(shopContents);*/
 	}
 
 	/**

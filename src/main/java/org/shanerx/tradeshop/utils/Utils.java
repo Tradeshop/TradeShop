@@ -64,16 +64,11 @@ public class Utils {
 	private final UUID LORIUUID = UUID.fromString("e296bc43-2972-4111-9843-48fc32302fd4");
 	protected TradeShop plugin = (TradeShop) Bukkit.getPluginManager().getPlugin("TradeShop");
 	protected PluginDescriptionFile pdf = plugin.getDescription();
-	private final String CustomInvEndsWith = "Shop                                 ";
 
 	public Debug debugger;
 
 	public Utils() {
 		debugger = plugin.getDebugger();
-	}
-
-	public String getCustomInvEndsWith() {
-		return CustomInvEndsWith;
 	}
 
 	public UUID[] getMakers() {
@@ -487,7 +482,7 @@ public class Utils {
 		debugger.log("ShopTradeListener > Inventory Location Being Searched: " + (inventory.getLocation() != null ? inventory.getLocation().toString() : "null"), DebugLevels.TRADE);
 
 		for (ShopItemStack item : items) {
-			totalCount += item.getItemStack().getAmount();
+            totalCount += item.getItemStack().getAmount() * multiplier;
 			if (item.getItemStack().getType().name().endsWith("SHULKER_BOX")) {
                 for (ItemStack itm : clone.getStorageContents()) {
                     if (!itm.getType().name().endsWith("SHULKER_BOX"))
@@ -501,36 +496,37 @@ public class Utils {
                     }
                 }
             } else {
-				int count = item.getItemStack().getAmount() * multiplier, maxStack, traded;
+                int count = item.getItemStack().getAmount() * multiplier, traded;
 
 				debugger.log("ShopTradeListener > Item Material Being Searched for: " + item.getItemStack().getType().name(), DebugLevels.TRADE);
                 debugger.log("ShopTradeListener > Item count: " + count, DebugLevels.TRADE);
 
-                while (count > 0) {
-					int inventoryLoc = clone.first(item.getItemStack().getType());
-                    debugger.log("ShopTradeListener > Item inventory location: " + inventoryLoc, DebugLevels.TRADE);
+                for (ItemStack storageItem : clone.getStorageContents()) {
+                    // Skips empty slots
+                    if (storageItem != null) {
 
-                    if (inventoryLoc == -1)
-                        break;
-					ItemStack temp = clone.getItem(inventoryLoc);
-					maxStack = item.getItemStack().getMaxStackSize();
+                        debugger.log("ShopTradeListener > Type of Item: " + storageItem.getType(), DebugLevels.TRADE);
+                        debugger.log("ShopTradeListener > Amount of Item: " + storageItem.getAmount(), DebugLevels.TRADE);
 
-					if (temp != null && item.isSimilar(temp)) {
+                        boolean isSimilar = item.isSimilar(storageItem);
+                        debugger.log("ShopTradeListener > Location Similar: " + isSimilar, DebugLevels.TRADE);
 
-						if (count > maxStack)
-							traded = Math.min(temp.getAmount(), maxStack);
-						else
-							traded = Math.min(temp.getAmount(), count);
+                        if (isSimilar) {
 
-						clone.removeItem(temp);
-						ret.add(temp);
-						debugger.log("ShopTradeListener > Item traded: " + traded, DebugLevels.TRADE);
+                            traded = Math.min(Math.min(storageItem.getAmount(), item.getItemStack().getMaxStackSize()), count);
 
-						count -= traded;
-						currentCount += traded;
+                            storageItem.setAmount(traded);
 
-						debugger.log("ShopTradeListener > Item new count: " + count, DebugLevels.TRADE);
-					}
+                            clone.removeItem(storageItem);
+                            ret.add(storageItem);
+                            debugger.log("ShopTradeListener > Item traded: " + traded, DebugLevels.TRADE);
+
+                            count -= traded;
+                            currentCount += traded;
+
+                            debugger.log("ShopTradeListener > Item new count: " + count, DebugLevels.TRADE);
+                        }
+                    }
                 }
             }
 

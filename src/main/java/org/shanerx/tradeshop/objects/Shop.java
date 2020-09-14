@@ -709,7 +709,6 @@ public class Shop implements Serializable {
         }
 
         updateStatus();
-        saveShop();
 
         signLines[3] = status.getLine();
 

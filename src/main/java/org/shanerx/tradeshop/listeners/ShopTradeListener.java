@@ -174,6 +174,7 @@ public class ShopTradeListener extends Utils implements Listener {
         }
 
         shop.updateSign();
+        shop.saveShop();
     }
 
     private boolean tradeAllItems(Shop shop, int multiplier, Action action, Player buyer) {
@@ -189,7 +190,7 @@ public class ShopTradeListener extends Utils implements Listener {
                 ItemStack item = costItems.get(1);
                 buyer.sendMessage(Message.INSUFFICIENT_ITEMS.getPrefixed()
                         .replace("{ITEM}", item.hasItemMeta() && item.getItemMeta().hasDisplayName() ? item.getItemMeta().getDisplayName() : item.getType().toString())
-                        .replace("{AMOUNT}", String.valueOf(item.getAmount())));
+                        .replace("{AMOUNT}", String.valueOf(item.getAmount() * multiplier)));
                 return false;
             }
 
@@ -210,7 +211,7 @@ public class ShopTradeListener extends Utils implements Listener {
                 ItemStack item = costItems.get(1);
                 buyer.sendMessage(Message.INSUFFICIENT_ITEMS.getPrefixed()
                         .replace("{ITEM}", item.hasItemMeta() && item.getItemMeta().hasDisplayName() ? item.getItemMeta().getDisplayName() : item.getType().toString())
-                        .replace("{AMOUNT}", String.valueOf(item.getAmount())));
+                        .replace("{AMOUNT}", String.valueOf(item.getAmount() * multiplier)));
                 return false;
             }
 
@@ -221,7 +222,7 @@ public class ShopTradeListener extends Utils implements Listener {
                 shop.updateStatus();
                 buyer.sendMessage(Message.SHOP_INSUFFICIENT_ITEMS.getPrefixed()
                         .replace("{ITEM}", item.hasItemMeta() && item.getItemMeta().hasDisplayName() ? item.getItemMeta().getDisplayName() : item.getType().toString())
-                        .replace("{AMOUNT}", String.valueOf(item.getAmount())));
+                        .replace("{AMOUNT}", String.valueOf(item.getAmount() * multiplier)));
                 return false;
             }
         } else if (action.equals(Action.RIGHT_CLICK_BLOCK)) { // Normal Trade
@@ -232,7 +233,7 @@ public class ShopTradeListener extends Utils implements Listener {
                 ItemStack item = costItems.get(1);
                 buyer.sendMessage(Message.INSUFFICIENT_ITEMS.getPrefixed()
                         .replace("{ITEM}", item.hasItemMeta() && item.getItemMeta().hasDisplayName() ? item.getItemMeta().getDisplayName() : item.getType().toString())
-                        .replace("{AMOUNT}", String.valueOf(item.getAmount())));
+                        .replace("{AMOUNT}", String.valueOf(item.getAmount() * multiplier)));
                 return false;
             }
 
@@ -243,7 +244,7 @@ public class ShopTradeListener extends Utils implements Listener {
                 shop.updateStatus();
                 buyer.sendMessage(Message.SHOP_INSUFFICIENT_ITEMS.getPrefixed()
                         .replace("{ITEM}", item.hasItemMeta() && item.getItemMeta().hasDisplayName() ? item.getItemMeta().getDisplayName() : item.getType().toString())
-                        .replace("{AMOUNT}", String.valueOf(item.getAmount())));
+                        .replace("{AMOUNT}", String.valueOf(item.getAmount() * multiplier)));
                 return false;
             }
 
