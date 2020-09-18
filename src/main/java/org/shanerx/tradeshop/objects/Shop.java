@@ -431,6 +431,8 @@ public class Shop implements Serializable {
 	 * @param newItem ItemStack to be added
 	 */
 	public void addCost(ItemStack newItem) {
+		if (cost == null) cost = new ArrayList<>();
+
 		int amount = newItem.getAmount();
 		List<ItemStack> items = new ArrayList<>();
 		while (amount > 0) {
@@ -496,6 +498,8 @@ public class Shop implements Serializable {
 	 * @param newItem ItemStack to be added
 	 */
 	public void addProduct(ItemStack newItem) {
+		if (product == null) product = new ArrayList<>();
+
 		int amount = newItem.getAmount();
 		List<ItemStack> items = new ArrayList<>();
 		while (amount > 0) {

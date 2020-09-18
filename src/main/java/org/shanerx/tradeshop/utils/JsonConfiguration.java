@@ -187,12 +187,12 @@ public class JsonConfiguration extends Utils implements Serializable {
 
 			List<String> productList = new ArrayList<>(), costList = new ArrayList<>();
 
-			if (jsonObj.getAsJsonObject(loc.serialize()).getAsJsonArray("productListB64") != null) {
+			if (jsonObj.getAsJsonObject(loc.serialize()).has("productListB64")) {
 				jsonObj.getAsJsonObject(loc.serialize()).getAsJsonArray("productListB64").forEach(item -> productList.add(item.getAsString()));
 				jsonObj.getAsJsonObject(loc.serialize()).remove("productListB64");
 			}
 
-			if (jsonObj.getAsJsonObject(loc.serialize()).getAsJsonArray("costListB64") != null) {
+			if (jsonObj.getAsJsonObject(loc.serialize()).has("costListB64")) {
 				jsonObj.getAsJsonObject(loc.serialize()).getAsJsonArray("costListB64").forEach(item -> costList.add(item.getAsString()));
 				jsonObj.getAsJsonObject(loc.serialize()).remove("costListB64");
 			}

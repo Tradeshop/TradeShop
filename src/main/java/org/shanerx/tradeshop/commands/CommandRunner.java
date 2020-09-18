@@ -640,7 +640,7 @@ public class CommandRunner extends Utils {
 				Bukkit.getOfflinePlayer(shop.getOwner().getUUID()).getName() + "'s"),
 				guiSetup.toArray(new String[0]));
 
-		gui.setFiller(new ItemStack(Material.GRAY_STAINED_GLASS, 1));
+		gui.setFiller(new ItemStack(Material.LIGHT_GRAY_STAINED_GLASS_PANE, 1));
 		gui.addElement(new StaticGuiElement('1', new ItemStack(Material.LIME_STAINED_GLASS_PANE),
 				" ", " "));
 		gui.addElement(new StaticGuiElement('2', new ItemStack(Material.BLACK_STAINED_GLASS_PANE),
