@@ -185,28 +185,24 @@ public class JsonConfiguration extends Utils implements Serializable {
 				saveContents(gson.toJson(jsonObj));
 			}
 
-			List<String> productList = new ArrayList<>(), costList = new ArrayList<>();
+
 
 			if (jsonObj.getAsJsonObject(loc.serialize()).has("productListB64")) {
-				jsonObj.getAsJsonObject(loc.serialize()).getAsJsonArray("productListB64").forEach(item -> productList.add(item.getAsString()));
+				List<ShopItemStack> productList = new ArrayList<>();
+				gson.fromJson(jsonObj.getAsJsonObject(loc.serialize()).get("productListB64"), List.class).forEach(item -> productList.add(new ShopItemStack(item.toString())));
 				jsonObj.getAsJsonObject(loc.serialize()).remove("productListB64");
+				jsonObj.getAsJsonObject(loc.serialize()).add("product", gson.toJsonTree(productList));
 			}
 
 			if (jsonObj.getAsJsonObject(loc.serialize()).has("costListB64")) {
-				jsonObj.getAsJsonObject(loc.serialize()).getAsJsonArray("costListB64").forEach(item -> costList.add(item.getAsString()));
+				List<ShopItemStack> costList = new ArrayList<>();
+				gson.fromJson(jsonObj.getAsJsonObject(loc.serialize()).get("costListB64"), List.class).forEach(item -> costList.add(new ShopItemStack(item.toString())));
 				jsonObj.getAsJsonObject(loc.serialize()).remove("costListB64");
+				jsonObj.getAsJsonObject(loc.serialize()).add("cost", gson.toJsonTree(costList));
 			}
 
 
 			shop = gson.fromJson(jsonObj.get(loc.serialize()), Shop.class);
-
-			if (!productList.isEmpty())
-				productList.forEach(item -> shop.addProduct(new ShopItemStack(item).getItemStack()));
-
-			if (!costList.isEmpty())
-				costList.forEach(item -> shop.addCost(new ShopItemStack(item).getItemStack()));
-
-
 		} else {
 			return null;
 		}
