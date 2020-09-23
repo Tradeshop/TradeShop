@@ -527,6 +527,8 @@ public class Utils {
                             debugger.log("ShopTradeListener > Item new count: " + count, DebugLevels.TRADE);
                         }
                     }
+
+					if (currentCount >= totalCount) break;
                 }
             }
 
