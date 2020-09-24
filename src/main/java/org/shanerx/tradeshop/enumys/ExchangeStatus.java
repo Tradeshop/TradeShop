@@ -31,5 +31,6 @@ public enum ExchangeStatus {
     PLAYER_NO_SPACE,
     SUCCESS,
     SHOP_NO_PRODUCT,
-    SHOP_NO_SPACE
+    SHOP_NO_SPACE,
+    NOT_TRADE
 }

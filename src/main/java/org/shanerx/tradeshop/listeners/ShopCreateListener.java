@@ -26,12 +26,12 @@
 package org.shanerx.tradeshop.listeners;
 
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.SignChangeEvent;
 import org.bukkit.inventory.ItemStack;
@@ -50,9 +50,11 @@ import org.shanerx.tradeshop.utils.Utils;
 @SuppressWarnings("unused")
 public class ShopCreateListener extends Utils implements Listener {
 
-	@SuppressWarnings("deprecation")
-	@EventHandler
+	@EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
 	public void onSignChange(SignChangeEvent event) {
+
+		if (event.isCancelled())
+			return;
 
 		Sign shopSign = (Sign) event.getBlock().getState();
 		shopSign.setLine(0, event.getLine(0));
@@ -121,17 +123,11 @@ public class ShopCreateListener extends Utils implements Listener {
 		ItemStack product = lineCheck(event.getLine(1)),
 				cost = lineCheck(event.getLine(2));
 
-		if (product != null)
+		if (product != null && shop.getProduct().isEmpty())
 			shop.setProduct(product);
 
-		if (cost != null)
+		if (cost != null && shop.getCost().isEmpty())
 			shop.setCost(cost);
-
-		if (shop.isMissingItems()) {
-			event.setLine(0, ChatColor.GRAY + shopType.toHeader());
-		} else {
-			event.setLine(0, ChatColor.DARK_GREEN + shopType.toHeader());
-		}
 		
 		PlayerShopCreateEvent shopCreateEvent = new PlayerShopCreateEvent(p, shop);
 		Bukkit.getPluginManager().callEvent(shopCreateEvent);

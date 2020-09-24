@@ -33,7 +33,7 @@ import java.util.logging.Level;
 
 public class Debug {
 
-    protected final String PREFIX = "[TradeShop Debug] ";
+    private final String PREFIX = "[TradeShop Debug%level%] ";
     private int decimalDebugLevel;
     private String binaryDebugLevel;
 
@@ -54,15 +54,15 @@ public class Debug {
 
 
         if (decimalDebugLevel > 0) {
-            Bukkit.getLogger().log(Level.INFO, PREFIX + "Debugging enabled!");
-            Bukkit.getLogger().log(Level.INFO, PREFIX + "Decimal Debug level: " + decimalDebugLevel);
-            Bukkit.getLogger().log(Level.INFO, PREFIX + "Debug levels: " + binaryDebugLevel);
+            Bukkit.getLogger().log(Level.INFO, PREFIX.replace("%level%", "") + "Debugging enabled!");
+            Bukkit.getLogger().log(Level.INFO, PREFIX.replace("%level%", "") + "Decimal Debug level: " + decimalDebugLevel);
+            Bukkit.getLogger().log(Level.INFO, PREFIX.replace("%level%", "") + "Debug levels: " + binaryDebugLevel);
         }
     }
 
     public void log(String message, DebugLevels level) {
         if (level.getPosition() - 1 != -1 && binaryDebugLevel.charAt(level.getPosition() - 1) == '1') {
-            Bukkit.getLogger().log(level.getLogLevel(), PREFIX + message);
+            Bukkit.getLogger().log(level.getLogLevel(), PREFIX.replace("%level%", level.getPrefix()) + message);
         }
     }
 }

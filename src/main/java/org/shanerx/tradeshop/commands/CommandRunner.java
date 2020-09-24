@@ -25,16 +25,15 @@
 
 package org.shanerx.tradeshop.commands;
 
+import de.themoep.inventorygui.InventoryGui;
+import de.themoep.inventorygui.StaticGuiElement;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.Nameable;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 import org.shanerx.tradeshop.TradeShop;
 import org.shanerx.tradeshop.enumys.*;
 import org.shanerx.tradeshop.framework.ShopChange;
@@ -43,12 +42,14 @@ import org.shanerx.tradeshop.framework.events.PlayerShopCloseEvent;
 import org.shanerx.tradeshop.framework.events.PlayerShopOpenEvent;
 import org.shanerx.tradeshop.objects.Shop;
 import org.shanerx.tradeshop.objects.ShopChest;
+import org.shanerx.tradeshop.objects.ShopItemStack;
 import org.shanerx.tradeshop.objects.ShopUser;
 import org.shanerx.tradeshop.utils.JsonConfiguration;
 import org.shanerx.tradeshop.utils.ObjectHolder;
 import org.shanerx.tradeshop.utils.Utils;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 public class CommandRunner extends Utils {
@@ -133,6 +134,7 @@ public class CommandRunner extends Utils {
 		plugin.getListManager().reload();
 		Message.reload();
 		Setting.reload();
+        plugin.getDebugger().reload();
 		sendMessage(getPrefix() + "&6The configuration files have been reloaded!");
 	}
 
@@ -146,10 +148,10 @@ public class CommandRunner extends Utils {
 			return;
 
 		StringBuilder sb = new StringBuilder();
-		int counter = 0;
+		int counter = 1;
 
-		for (ItemStack itm : shop.getProduct()) {
-			sb.append(String.format("&b[&f%d&b]    &2- &f%s\n", counter, itm.hasItemMeta() && itm.getItemMeta().hasDisplayName() ? itm.getItemMeta().getDisplayName() : itm.getType().toString()));
+        for (ShopItemStack itm : shop.getProduct()) {
+            sb.append(String.format("&b[&f%d&b]    &2- &f%s\n", counter, itm.getItemStack().hasItemMeta() && itm.getItemStack().getItemMeta().hasDisplayName() ? itm.getItemStack().getItemMeta().getDisplayName() : itm.getItemStack().getType().toString()));
 			counter++;
 		}
 
@@ -166,10 +168,10 @@ public class CommandRunner extends Utils {
 			return;
 
 		StringBuilder sb = new StringBuilder();
-		int counter = 0;
+		int counter = 1;
 
-		for (ItemStack itm : shop.getCost()) {
-			sb.append(String.format("&b[&f%d&b]    &2- &f%s\n", counter, itm.hasItemMeta() && itm.getItemMeta().hasDisplayName() ? itm.getItemMeta().getDisplayName() : itm.getType().toString()));
+        for (ShopItemStack itm : shop.getCost()) {
+            sb.append(String.format("&b[&f%d&b]    &2- &f%s\n", counter, itm.getItemStack().hasItemMeta() && itm.getItemStack().getItemMeta().hasDisplayName() ? itm.getItemStack().getItemMeta().getDisplayName() : itm.getItemStack().getType().toString()));
 			counter++;
 		}
 
@@ -188,7 +190,7 @@ public class CommandRunner extends Utils {
 		int index = 0;
 
 		if (isInt(command.getArgAt(1))) {
-			index = Integer.parseInt(command.getArgAt(1));
+			index = Integer.parseInt(command.getArgAt(1)) - 1;
 		} else {
 			sendMessage(Message.INVALID_ARGUMENTS.getPrefixed());
 			return;
@@ -218,10 +220,10 @@ public class CommandRunner extends Utils {
 		if (shop == null)
 			return;
 
-		int index = 0;
+		int index;
 
 		if (isInt(command.getArgAt(1))) {
-			index = Integer.parseInt(command.getArgAt(1));
+			index = Integer.parseInt(command.getArgAt(1)) - 1;
 		} else {
 			sendMessage(Message.INVALID_ARGUMENTS.getPrefixed());
 			return;
@@ -537,22 +539,25 @@ public class CommandRunner extends Utils {
 			sendMessage(Message.NO_EDIT.getPrefixed());
 			return;
 		}
-
-		if (shop.isMissingItems()) {
-			sendMessage(Message.MISSING_ITEM.getPrefixed());
-			return;
-		}
 		
 		PlayerShopOpenEvent event = new PlayerShopOpenEvent(pSender, shop);
 		if (event.isCancelled()) return;
-		
-		boolean opened = shop.setOpen();
-		shop.saveShop();
 
-		if (opened) {
-			sendMessage(Message.CHANGE_OPEN.getPrefixed());
-		} else {
-			sendMessage(Message.MISSING_CHEST.getPrefixed());
+        ShopStatus status = shop.setOpen();
+
+        switch (status) {
+            case OPEN:
+                sendMessage(Message.CHANGE_OPEN.getPrefixed());
+                break;
+            case INCOMPLETE:
+                if (shop.isMissingItems())
+                    sendMessage(Message.MISSING_ITEM.getPrefixed());
+                else if (shop.getChestAsSC() == null)
+                    sendMessage(Message.MISSING_CHEST.getPrefixed());
+                break;
+            case OUT_OF_STOCK:
+                sendMessage(Message.SHOP_EMPTY.getPrefixed());
+                break;
 		}
 	}
 
@@ -576,8 +581,8 @@ public class CommandRunner extends Utils {
 		if (event.isCancelled()) return;
 
         shop.setStatus(ShopStatus.CLOSED);
+        shop.updateSign();
 		shop.saveShop();
-		shop.updateSign();
 
 		sendMessage(Message.CHANGE_CLOSED.getPrefixed());
 	}
@@ -610,111 +615,52 @@ public class CommandRunner extends Utils {
 		if (shop == null)
 			return;
 
-		int productRows = (int) Math.ceil(shop.getProduct().size() / 3.0),
-				costRows = (int) Math.ceil(shop.getCost().size() / 3.0),
-				invSize = (Math.max(productRows, costRows) + 1) * 9;
-
-		Inventory shopContents = Bukkit.createInventory(null, invSize, colorize(shop.getShopType() == ShopType.ITRADE ? Setting.ITRADESHOP_OWNER.getString() : Bukkit.getOfflinePlayer(shop.getOwner().getUUID()).getName() + "'s Shop                                 "));
-
-		ItemStack costLabel = new ItemStack(Material.GOLD_NUGGET, 1),
-				productLabel = new ItemStack(Material.GRASS_BLOCK, 1),
-				emptySlotLabel = new ItemStack(Material.GRAY_STAINED_GLASS_PANE, 1),
-				costBorderLabel = new ItemStack(Material.LIME_STAINED_GLASS_PANE, 1),
-				productBorderLabel = new ItemStack(Material.LIGHT_BLUE_STAINED_GLASS_PANE, 1),
-				centerDividerLabel = new ItemStack(Material.BLACK_STAINED_GLASS_PANE, 1);
-
-		ItemMeta costMeta = costLabel.getItemMeta(),
-				productMeta = productLabel.getItemMeta(),
-				emptySlotMeta = emptySlotLabel.getItemMeta(),
-				costBorderMeta = costBorderLabel.getItemMeta(),
-				productBorderMeta = productBorderLabel.getItemMeta(),
-				centerDividerMeta = centerDividerLabel.getItemMeta();
-
-		ArrayList<String> costLore = new ArrayList<>();
-		costLore.add("This is the item");
-		costLore.add("that you give to");
-		costLore.add("make the trade.");
-
-		ArrayList<String> productLore = new ArrayList<>();
-		productLore.add("This is the item");
-		productLore.add("that you receive");
-		productLore.add("from the trade.");
-
-		costMeta.setDisplayName("Cost");
-		costMeta.setLore(costLore);
-
-		productMeta.setDisplayName("Product");
-		productMeta.setLore(productLore);
-
-		emptySlotMeta.setDisplayName(" ");
-		costBorderMeta.setDisplayName(" ");
-		productBorderMeta.setDisplayName(" ");
-		centerDividerMeta.setDisplayName(" ");
-
-		costLabel.setItemMeta(costMeta);
-		productLabel.setItemMeta(productMeta);
-		emptySlotLabel.setItemMeta(emptySlotMeta);
-		costBorderLabel.setItemMeta(costBorderMeta);
-		productBorderLabel.setItemMeta(productBorderMeta);
-		centerDividerLabel.setItemMeta(centerDividerMeta);
-
-		shopContents.setItem(1, costBorderLabel);
-		shopContents.setItem(2, costBorderLabel);
-		shopContents.setItem(3, costLabel);
-
-		shopContents.setItem(5, productLabel);
-		shopContents.setItem(6, productBorderLabel);
-		shopContents.setItem(7, productBorderLabel);
-
-		int counter = 4;
-		while (counter < invSize) {
-			shopContents.setItem(counter, centerDividerLabel);
-			counter += 9;
+		List<String> guiSetup = new ArrayList<>();
+		guiSetup.add("141125333");
+		for (int i = 1; i < Math.max((int) (Math.ceil(shop.getProduct().size() / 3.0)), (int) (Math.ceil(shop.getCost().size() / 3.0))) + 1; i++) {
+			guiSetup.add("1   2   3");
 		}
 
-		counter = 0;
-		while (counter < invSize) {
-			shopContents.setItem(counter, costBorderLabel);
-			counter += 9;
+		for (int i = 0, col = 5; i < shop.getProduct().size(); i++) {
+			int row = (i / 3) + 1;
+			guiSetup.set(row, guiSetup.get(row).substring(0, col) + ((char) (i + 97)) + guiSetup.get(row).substring(col + 1));
+			col = col + 1 < 8 ? col + 1 : 5;
 		}
 
-		counter = 8;
-		while (counter < invSize) {
-			shopContents.setItem(counter, productBorderLabel);
-			counter += 9;
+		for (int i = 0, col = 1; i < shop.getCost().size(); i++) {
+			int row = (i / 3) + 1;
+			guiSetup.set(row, guiSetup.get(row).substring(0, col) + ((char) (i + 65)) + guiSetup.get(row).substring(col + 1));
+			col = col + 1 < 4 ? col + 1 : 1;
 		}
 
-		counter = 12;
-		int counter2 = 0;
-		for (ItemStack iS : shop.getCost()) {
-			shopContents.setItem(counter, iS);
-			if (counter2 == 2) {
-				counter2 = 0;
-				counter += 11;
-			} else {
-				counter2++;
-				counter--;
-			}
+		guiSetup.forEach(item -> debugger.log(item, DebugLevels.INVENTORY_CLOSE_NPE));
+
+		InventoryGui gui = new InventoryGui(plugin, colorize(shop.getShopType() == ShopType.ITRADE ?
+				Setting.ITRADESHOP_OWNER.getString() :
+				Bukkit.getOfflinePlayer(shop.getOwner().getUUID()).getName() + "'s"),
+				guiSetup.toArray(new String[0]));
+
+		gui.setFiller(new ItemStack(Material.LIGHT_GRAY_STAINED_GLASS_PANE, 1));
+		gui.addElement(new StaticGuiElement('1', new ItemStack(Material.LIME_STAINED_GLASS_PANE),
+				" ", " "));
+		gui.addElement(new StaticGuiElement('2', new ItemStack(Material.BLACK_STAINED_GLASS_PANE),
+				" ", " "));
+		gui.addElement(new StaticGuiElement('3', new ItemStack(Material.LIGHT_BLUE_STAINED_GLASS_PANE),
+				" ", " "));
+		gui.addElement(new StaticGuiElement('4', new ItemStack(Material.GOLD_NUGGET),
+				"Cost", "This is the item", "that you give to", "make the trade."));
+		gui.addElement(new StaticGuiElement('5', new ItemStack(Material.GRASS_BLOCK),
+				"Product", "This is the item", "that you receive", "from the trade."));
+
+		for (int i = 0; i < shop.getCost().size(); i++) {
+			gui.addElement(new StaticGuiElement((char) (i + 65), shop.getCost().get(i).getItemStack())); // TODO: use GuiStateElement to allow removal of items from the shop
 		}
 
-		counter = 14;
-		counter2 = 0;
-		for (ItemStack iS : shop.getProduct()) {
-			shopContents.setItem(counter, iS);
-			if (counter2 == 2) {
-				counter2 = 0;
-				counter += 7;
-			} else {
-				counter2++;
-				counter++;
-			}
+		for (int i = 0; i < shop.getProduct().size(); i++) {
+			gui.addElement(new StaticGuiElement((char) (i + 97), shop.getProduct().get(i).getItemStack())); // TODO: use GuiStateElement to allow removal of items from the shop
 		}
 
-		while (shopContents.firstEmpty() != -1) {
-			shopContents.setItem(shopContents.firstEmpty(), emptySlotLabel);
-		}
-
-		pSender.openInventory(shopContents);
+		gui.show(pSender);
 	}
 
 	/**
@@ -839,8 +785,8 @@ public class CommandRunner extends Utils {
 	/**
 	 * Adds the specified player to the shop as a member
 	 */
-	public void addMember() {
-		Shop shop = findShop();
+    public void addMember() {
+        Shop shop = findShop();
 
 		if (shop == null)
 			return;
@@ -875,19 +821,26 @@ public class CommandRunner extends Utils {
 	 * Changes the players trade multiplier for current login
 	 */
 	public void multi() {
+        if (!Setting.ALLOW_MULTI_TRADE.getBoolean()) {
+            sendMessage(Message.FEATURE_DISABLED.getPrefixed());
+            return;
+        }
+
 		JsonConfiguration json = new JsonConfiguration(pSender.getUniqueId());
 		Map<String, Integer> data = json.loadPlayer();
 
 		if (command.argsSize() == 1) {
 			sendMessage(Message.MULTI_AMOUNT.getPrefixed().replaceAll("%amount%", String.valueOf(data.get("multi"))));
 		} else {
-			int amount = 2;
+            int amount = Setting.MULTI_TRADE_DEFAULT.getInt();
 
 			if (isInt(command.getArgAt(1)))
 				amount = Integer.parseInt(command.getArgAt(1));
 
 			if (amount < 2)
 				amount = 2;
+            else if (amount > Setting.MULTI_TRADE_MAX.getInt())
+                amount = Setting.MULTI_TRADE_MAX.getInt();
 
 			data.put("multi", amount);
 			json.savePlayer(data);
@@ -902,24 +855,26 @@ public class CommandRunner extends Utils {
 	 * @return null if Shop is not found, Shop object if it is
 	 */
 	private Shop findShop() {
-		Block b = pSender.getTargetBlockExact(Setting.MAX_EDIT_DISTANCE.getInt());
+		if (pSender == null) {
+			sendMessage(Message.PLAYER_ONLY_COMMAND.getPrefixed());
+			return null;
+		}
 
+		Block b = pSender.getTargetBlockExact(Setting.MAX_EDIT_DISTANCE.getInt());
 		try {
-			if (b.getType() == Material.AIR)
+            if (b == null)
 				throw new NoSuchFieldException();
 
 			if (ShopType.isShop(b)) {
 				return Shop.loadShop((Sign) b.getState());
 
-			} else if (plugin.getListManager().isInventory(b) &&
-                    ((Nameable) b.getState()).getCustomName() != null &&
-					((Nameable) b.getState()).getCustomName().contains("$ ^Sign:l_")) {
+            } else if (ShopChest.isShopChest(b)) {
+				return Shop.loadShop(new ShopChest(b.getLocation()).getShopSign());
 
-				ShopChest shopChest = new ShopChest(b.getLocation());
-				return Shop.loadShop(shopChest.getShopSign());
 			} else
 				throw new NoSuchFieldException();
-		} catch (NoSuchFieldException nsfE) {
+
+		} catch (NoSuchFieldException ex) {
 			sendMessage(Message.NO_SIGHTED_SHOP.getPrefixed());
 			return null;
 		}

@@ -26,6 +26,7 @@
 package org.shanerx.tradeshop;
 
 import org.bstats.bukkit.Metrics;
+import org.bukkit.NamespacedKey;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.shanerx.tradeshop.commands.CommandCaller;
@@ -42,6 +43,11 @@ import org.shanerx.tradeshop.utils.Updater;
 
 public class TradeShop extends JavaPlugin {
 
+
+    private final NamespacedKey storageKey = new NamespacedKey(this, "tradeshop-storage-data");
+    private final NamespacedKey signKey = new NamespacedKey(this, "tradeshop-sign-data");
+    private final int bStatsPluginID = 1690;
+
 	private ListManager lists;
 	private BukkitVersion version;
 	private ShopSign signs;
@@ -51,30 +57,6 @@ public class TradeShop extends JavaPlugin {
 	private Metrics metrics;
 
 	private Debug debugger;
-
-	public ListManager getListManager() {
-		return lists;
-	}
-
-	public BukkitVersion getVersion() {
-		return version;
-	}
-
-	public ShopSign getSigns() {
-		return signs;
-	}
-
-    public ShopStorage getStorages() {
-        return storages;
-    }
-
-	public Updater getUpdater() {
-		return new Updater(getDescription());
-	}
-
-	public Debug getDebugger() {
-		return debugger;
-	}
 
 	@Override
 	public void onEnable() {
@@ -105,7 +87,6 @@ public class TradeShop extends JavaPlugin {
 		pm.registerEvents(new ShopProtectionListener(this), this);
 		pm.registerEvents(new ShopCreateListener(), this);
 		pm.registerEvents(new ShopTradeListener(), this);
-		pm.registerEvents(new CustomInventoryListener(), this);
         pm.registerEvents(new ShopRestockListener(this), this);
 
 		getCommand("tradeshop").setExecutor(new CommandCaller(this));
@@ -116,7 +97,7 @@ public class TradeShop extends JavaPlugin {
 		}
 
 		if (Setting.ALLOW_METRICS.getBoolean()) {
-			metrics = new Metrics(this);
+            metrics = new Metrics(this, bStatsPluginID);
 			getLogger().info("Metrics successfully initialized!");
 
 		} else {
@@ -124,4 +105,36 @@ public class TradeShop extends JavaPlugin {
 		}
 
 	}
+
+    public NamespacedKey getStorageKey() {
+        return storageKey;
+    }
+
+    public NamespacedKey getSignKey() {
+        return signKey;
+    }
+
+    public ListManager getListManager() {
+        return lists;
+    }
+
+    public BukkitVersion getVersion() {
+        return version;
+    }
+
+    public ShopSign getSigns() {
+        return signs;
+    }
+
+    public ShopStorage getStorages() {
+        return storages;
+    }
+
+    public Updater getUpdater() {
+        return new Updater(getDescription());
+    }
+
+    public Debug getDebugger() {
+        return debugger;
+    }
 }

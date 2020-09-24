@@ -26,29 +26,17 @@
 package org.shanerx.tradeshop.utils;
 
 import com.google.common.collect.Lists;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
+import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
 import org.bukkit.Chunk;
 import org.bukkit.inventory.ItemStack;
 import org.shanerx.tradeshop.objects.Shop;
 import org.shanerx.tradeshop.objects.ShopChunk;
+import org.shanerx.tradeshop.objects.ShopItemStack;
 import org.shanerx.tradeshop.objects.ShopLocation;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.io.*;
+import java.util.*;
 
 public class JsonConfiguration extends Utils implements Serializable {
 	private String pluginFolder;
@@ -196,6 +184,24 @@ public class JsonConfiguration extends Utils implements Serializable {
 				jsonObj.getAsJsonObject(loc.serialize()).add("costListB64", gson.toJsonTree(b64OverstackFixer(str)));
 				saveContents(gson.toJson(jsonObj));
 			}
+
+
+
+			if (jsonObj.getAsJsonObject(loc.serialize()).has("productListB64")) {
+				List<ShopItemStack> productList = new ArrayList<>();
+				gson.fromJson(jsonObj.getAsJsonObject(loc.serialize()).get("productListB64"), List.class).forEach(item -> productList.add(new ShopItemStack(item.toString())));
+				jsonObj.getAsJsonObject(loc.serialize()).remove("productListB64");
+				jsonObj.getAsJsonObject(loc.serialize()).add("product", gson.toJsonTree(productList));
+			}
+
+			if (jsonObj.getAsJsonObject(loc.serialize()).has("costListB64")) {
+				List<ShopItemStack> costList = new ArrayList<>();
+				gson.fromJson(jsonObj.getAsJsonObject(loc.serialize()).get("costListB64"), List.class).forEach(item -> costList.add(new ShopItemStack(item.toString())));
+				jsonObj.getAsJsonObject(loc.serialize()).remove("costListB64");
+				jsonObj.getAsJsonObject(loc.serialize()).add("cost", gson.toJsonTree(costList));
+			}
+
+
 			shop = gson.fromJson(jsonObj.get(loc.serialize()), Shop.class);
 		} else {
 			return null;

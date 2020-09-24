@@ -1,0 +1,80 @@
+###########################
+#    TradeShop Messages   #
+###########################
+change-closed: '&cThe shop is now &l&bCLOSED&r&a.'
+change-open: '&aThe shop is now &l&bOPEN&r&a.'
+# Text to display when a player places a TradeSign above an empty chest:
+empty-ts-on-setup: '&cTradeShop empty, please remember to fill it!'
+existing-shop: '&cYou may only have 1 shop per inventory block.'
+feature-disabled: '&cThis feature has been disabled on this server!'
+# Text to display when the player is not holding anything
+held-empty: '&eYou are currently holding nothing.'
+# Text to display when a shop failed creation due to an illegal item
+illegal-item: '&cYou cannot use one or more of those items in shops.'
+# Text to display when the player does not have enough items:
+insufficient-items: '&cYou do not have &e{AMOUNT} {ITEM}&c!'
+# Text to display when invalid arguments are submitted through the "/tradeshop" command:
+invalid-arguments: '&eTry &6/tradeshop help &eto display help!'
+item-added: '&aItem successfully added to shop.'
+item-not-removed: '&cItem could not be removed from shop.'
+item-removed: '&aItem successfully removed to shop.'
+missing-chest: '&cYour shop is missing a chest.'
+# Text to display when a shop sign failed creation due to missing an item
+missing-item: '&cYour sign is missing an item for trade.'
+multi-amount: '&aYour trade multiplier is %amount%.'
+multi-update: '&aTrade multiplier has been updated to %amount%.'
+# Text to display when a player attempts to place a sign without placing the chest first:
+no-chest: '&cYou need to put a chest under the sign!'
+# Text to display when a player attempts to run administrator commands:
+no-command-permission: '&aYou do not have permission to execute this command'
+no-edit: '&cYou do not have permission to edit this shop.'
+no-shop-permission: '&cYou do not have permission to edit that shop.'
+# Text to display when a player is too far from a shop
+no-sighted-shop: '&cNo shop in range!'
+# Text to display when a player attempts to setup a shoptype they are not allowed to create:
+no-ts-create-permission: '&cYou don''t have permission to create TradeShops!'
+# Text to display when a player attempts to destroy a shop they do not own:
+no-ts-destroy: '&cYou may not destroy that TradeShop'
+# Text to display when a player attempts to open a shop they do not own nor have been granted access to (1.6):
+no-ts-open: '&cThat TradeShop does not belong to you'
+# Text to display upon a successful trade:
+on-trade: '&aYou have traded your &e{AMOUNT2} {ITEM2} &afor &e{AMOUNT1} {ITEM1} &awith {SELLER}'
+# Text to display when the players inventory is too full to recieve the trade:
+player-full: '&cYour inventory is full, please make room before trading items!'
+player-not-found: '&cThat player could not be found.'
+# Text to display when console tries to use a player only command
+player-only-command: '&eThis command is only available to players.'
+plugin-behind: '&cThe server is running an old version of TradeShop, please update the plugin.'
+# Text to display when a player tries to buy form a shop in which they are a user
+self-owned: '&cYou cannot buy from a shop in which you are a user.'
+# Text to display on "/tradeshop setup":
+setup-help: "\n&2Setting up a TradeShop is easy! Just make sure to follow these steps:\n \nStep\
+  \ 1: &ePlace down a chest.\n&2Step 2: &ePlace a sign on top of or around the chest.\n\
+  &2Step 3: &eWrite the following on the sign\n&6     [%header%]\n&6&o-- Leave Blank\
+  \ --\n&6&o-- Leave Blank --\n&6&o-- Leave Blank --\n&2Step 4: &eUse the addCost\
+  \ and addProduct commands to add items to your shop"
+shop-closed: '&cThis shop is currently closed.'
+# Text to display when the shop does not have enough stock:
+shop-empty: '&cThis TradeShop is currently &emissing &citems to complete the trade!'
+# Text to display when the shop storage is full:
+shop-full: '&cThis TradeShop is full, please contact the owner to get it emptied!'
+shop-insufficient-items: '&cThis shop does not have &e{AMOUNT} {ITEM}&c!'
+shop-item-list: |-
+  &aThe shops %type%:
+  %list%
+shop-type-switched: '&aShop type has been switched to %newtype%.'
+# Text to display when a player successfully creates a TradeShop:
+successful-setup: '&aYou have successfully setup a TradeShop!'
+too-many-chests: '&cThere are too many shops in this chunk, you can not add another one.'
+too-many-items: '&cThis trade can not take any more %side%!'
+# Text to display when shop users could not be updated
+unsuccessful-shop-members: '&aThat player is either already on the shop, or you have reached the maximum number
+  of users!'
+# Text to display when shop users have been updated successfully
+updated-shop-members: '&aShop owners and members have been updated!'
+# Text to display when players use the who command
+who-message: |-
+  &6Shop users are:
+  &2Owner: &e{OWNER}
+  &2Managers: &e{MANAGERS}
+  &2Members: &e{MEMBERS}

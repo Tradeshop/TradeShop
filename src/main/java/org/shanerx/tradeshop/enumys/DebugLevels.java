@@ -33,7 +33,9 @@ public enum DebugLevels {
     LIST_MANAGER(1, Level.WARNING),
     STARTUP(2, Level.INFO),
     PROTECTION(3, Level.WARNING),
-    TRADE(4, Level.WARNING);
+    TRADE(4, Level.WARNING),
+    INVENTORY_CLOSE_NPE(5, Level.WARNING),
+    ITEM_COMPARE(6, Level.WARNING);
 
     //position is what value to check for this level in the binary string -1.
     //
@@ -66,6 +68,10 @@ public enum DebugLevels {
         }
 
         return max;
+    }
+
+    public String getPrefix() {
+        return " - " + name();
     }
 
 }

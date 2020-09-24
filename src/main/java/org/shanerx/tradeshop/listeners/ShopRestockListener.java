@@ -30,6 +30,7 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.shanerx.tradeshop.TradeShop;
+import org.shanerx.tradeshop.objects.Shop;
 import org.shanerx.tradeshop.objects.ShopChest;
 import org.shanerx.tradeshop.utils.Utils;
 
@@ -42,12 +43,15 @@ public class ShopRestockListener extends Utils implements Listener {
     }
 
     //If it is a shopchest, this updates the sign when the inventory is closed
+
+    //Doesn't update double chests closing --Bug, unsure how to fix
     @EventHandler(priority = EventPriority.HIGH)
     public void onInventoryClose(InventoryCloseEvent event) {
-        if (event.getInventory().getLocation().getBlock() != null && ShopChest.isShopChest(event.getInventory().getLocation().getBlock())) {
-            new ShopChest(event.getInventory().getLocation()).getShop().updateStatus();
+        if (ShopChest.isShopChest(event.getInventory())) {
+            Shop shop = new ShopChest(event.getInventory().getLocation()).getShop();
+            shop.updateSign();
+            shop.saveShop();
         }
-
     }
 }
 

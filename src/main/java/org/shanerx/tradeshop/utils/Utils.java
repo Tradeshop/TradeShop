@@ -25,27 +25,28 @@
 
 package org.shanerx.tradeshop.utils;
 
+import com.google.common.collect.Lists;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
+import org.bukkit.block.ShulkerBox;
 import org.bukkit.block.Sign;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.SignChangeEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.BlockStateMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.material.MaterialData;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.shanerx.tradeshop.TradeShop;
-import org.shanerx.tradeshop.enumys.DebugLevels;
-import org.shanerx.tradeshop.enumys.ExchangeStatus;
-import org.shanerx.tradeshop.enumys.Message;
-import org.shanerx.tradeshop.enumys.ShopType;
+import org.shanerx.tradeshop.enumys.*;
 import org.shanerx.tradeshop.objects.Debug;
 import org.shanerx.tradeshop.objects.Shop;
+import org.shanerx.tradeshop.objects.ShopItemStack;
 
 import java.util.*;
 import java.util.logging.Level;
@@ -208,7 +209,7 @@ public class Utils {
 	 * @param shop Shoptype enum to get header
 	 */
 	public void failedSignReset(SignChangeEvent e, ShopType shop) {
-		e.setLine(0, ChatColor.DARK_RED + shop.toString());
+		e.setLine(0, colorize(Setting.SHOP_BAD_COLOUR + shop.toString()));
 		e.setLine(1, "");
 		e.setLine(2, "");
 		e.setLine(3, "");
@@ -357,67 +358,8 @@ public class Utils {
 	 * @param multiplier multiplier to use for check
 	 * @return true if shop has enough cost to make trade
 	 */
-	public Boolean checkInventory(Inventory inv, List<ItemStack> itemList, int multiplier) {
-        boolean ret = true;
-		for (ItemStack iS : itemList) {
-            ret = checkInventory(inv, iS, multiplier) != ret && ret;
-		}
-
-        return ret;
-    }
-
-    /**
-     * Returns true if inventory contains the amount of items * multiplier
-     *
-     * @param inv        inventory to check
-     * @param item       ItemStack to check
-     * @param multiplier multiplier to use for check
-     * @return true if shop has enough cost to make trade
-     */
-    public Boolean checkInventory(Inventory inv, ItemStack item, int multiplier) {
-        Inventory clone = Bukkit.createInventory(null, inv.getStorageContents().length);
-        clone.setContents(inv.getStorageContents().clone());
-        if (multiplier < 1)
-            multiplier = 1;
-
-        int count = item.getAmount() * multiplier, removed;
-        while (count > 0) {
-            boolean resetItem = false;
-            int inventoryLoc = clone.first(item.getType());
-
-            if (inventoryLoc == -1)
-                break;
-
-            ItemStack temp = clone.getItem(inventoryLoc),
-                    dupitm1 = item.clone();
-
-            if (count > item.getMaxStackSize()) {
-                removed = item.getMaxStackSize();
-            } else {
-                removed = count;
-            }
-
-            if (removed > temp.getAmount()) {
-                removed = temp.getAmount();
-            }
-
-            item.setAmount(removed);
-            if (!item.hasItemMeta() && temp.hasItemMeta()) {
-                item.setItemMeta(temp.getItemMeta());
-                item.setData(temp.getData());
-                resetItem = true;
-            }
-
-            clone.removeItem(item);
-
-            if (resetItem) {
-                item = dupitm1;
-            }
-
-            count -= removed;
-        }
-
-        return count == 0;
+	public Boolean checkInventory(Inventory inv, List<ShopItemStack> itemList, int multiplier) {
+		return getItems(inv, itemList, multiplier).get(0) != null;
     }
 	
 	
@@ -427,35 +369,46 @@ public class Utils {
 	 *
      * @param shop       the Shop object the player is trading with
      * @param playerInv  the Inventory object representing the inventory that is subject to the transaction.
-	 * @param itmOut     the ItemStack List that is being given away
-	 * @param itmIn      the ItemStack List that is being received
 	 * @param multiplier the multiplier for the trade
-     * @return 0 if both inventories have enough room, 1 if player is too full, and -1 if the shop is too full
+	 * @param action     the action from the event
+	 * @return Exchange status with appropriate response
 	 */
     public ExchangeStatus canExchangeAll(Shop shop, Inventory playerInv, int multiplier, Action action) {
-        Inventory playerInventory = Bukkit.createInventory(null, playerInv.getStorageContents().length);
-        playerInventory.setContents(playerInv.getStorageContents().clone());
+		Inventory playerInventory = Bukkit.createInventory(null, playerInv.getStorageContents().length);
+		playerInventory.setContents(playerInv.getStorageContents().clone());
 
-        Inventory shopInv = shop.getChestAsSC().getInventory();
-        Inventory shopInventory = Bukkit.createInventory(null, shopInv.getStorageContents().length);
-        shopInventory.setContents(shopInv.getStorageContents().clone());
+        if (shop.getShopType() != ShopType.BITRADE && action == Action.LEFT_CLICK_BLOCK) {
+            return ExchangeStatus.NOT_TRADE;
+        }
 
-        ArrayList<ItemStack> costItems = new ArrayList<>(), productItems = new ArrayList<>();
+        Inventory shopInv = null;
+        Inventory shopInventory = null;
+
+        if (shop.getShopType() != ShopType.ITRADE) {
+            shopInv = shop.getChestAsSC().getInventory();
+            shopInventory = Bukkit.createInventory(null, shopInv.getStorageContents().length);
+            shopInventory.setContents(shopInv.getStorageContents().clone());
+        }
+
+		ArrayList<ItemStack> costItems, productItems;
 
         if (shop.getShopType() == ShopType.ITRADE) { //ITrade trade
 
             //Method to find Cost items in player inventory and add to cost array
             costItems = getItems(playerInventory, shop.getCost(), multiplier);
-            if (costItems.get(0) == null) {
-                return ExchangeStatus.PLAYER_NO_COST;
-            }
 
-            for (ItemStack item : costItems) {
-                playerInventory.removeItem(item);
-            }
+			if (costItems != null) {
+				if (costItems.get(0) == null) {
+					return ExchangeStatus.PLAYER_NO_COST;
+				}
 
-            for (ItemStack item : shop.getProduct()) {
-                if (playerInventory.addItem(item).isEmpty()) {
+				for (ItemStack item : costItems) {
+					playerInventory.removeItem(item);
+				}
+			}
+
+			for (ShopItemStack item : shop.getProduct()) {
+				if (!playerInventory.addItem(item.getItemStack()).isEmpty()) {
                     return ExchangeStatus.PLAYER_NO_SPACE;
                 }
             }
@@ -520,58 +473,94 @@ public class Utils {
 	}
 
     //Returns an arraylist of the itemstacks to be removed/added, if it could not get enough of an item, will return index 0 as null and index 1 as item it could not get enough of
-    public ArrayList<ItemStack> getItems(Inventory inventory, List<ItemStack> items, int multiplier) {
+	public ArrayList<ItemStack> getItems(Inventory inventory, List<ShopItemStack> items, int multiplier) {
         Inventory clone = Bukkit.createInventory(null, inventory.getStorageContents().length);
         clone.setContents(inventory.getStorageContents());
         ArrayList<ItemStack> ret = new ArrayList<ItemStack>();
+        int totalCount = 0, currentCount = 0;
         debugger.log("ShopTradeListener > Inventory Type Being Searched: " + inventory.getType().name(), DebugLevels.TRADE);
+		debugger.log("ShopTradeListener > Inventory Location Being Searched: " + (inventory.getLocation() != null ? inventory.getLocation().toString() : "null"), DebugLevels.TRADE);
 
-        for (ItemStack item : items) {
-            int count = item.getAmount() * multiplier, maxStack, traded;
+		for (ShopItemStack item : items) {
+            totalCount += item.getItemStack().getAmount() * multiplier;
+			if (item.getItemStack().getType().name().endsWith("SHULKER_BOX")) {
+                for (ItemStack itm : clone.getStorageContents()) {
+                    if (!itm.getType().name().endsWith("SHULKER_BOX"))
+                        break;
 
-            debugger.log("ShopTradeListener > Item Material Being Searched for: " + item.getType().name(), DebugLevels.TRADE);
-            debugger.log("ShopTradeListener > Item count: " + count, DebugLevels.TRADE);
-
-            while (count > 0) {
-                boolean resetItem = false;
-                int inventoryLoc = clone.first(item.getType());
-                debugger.log("ShopTradeListener > Item inventory location: " + inventoryLoc, DebugLevels.TRADE);
-
-                if (inventoryLoc == -1)
-                    break;
-                ItemStack temp = clone.getItem(inventoryLoc),
-                        dupitm1 = item.clone();
-                maxStack = dupitm1.getMaxStackSize();
-
-                if (count > maxStack)
-                    traded = temp.getAmount() < maxStack ? temp.getAmount() : maxStack;
-                else
-                    traded = temp.getAmount() < count ? temp.getAmount() : count;
-
-                dupitm1.setAmount(traded);
-                if (!dupitm1.hasItemMeta() && temp.hasItemMeta()) {
-                    dupitm1.setItemMeta(temp.getItemMeta());
-                    dupitm1.setData(temp.getData());
+					if (compareShulkers(itm, item.getItemStack())) {
+                        clone.removeItem(itm);
+                        ret.add(itm);
+                        currentCount++;
+                        break;
+                    }
                 }
+            } else {
+                int count = item.getItemStack().getAmount() * multiplier, traded;
 
-                clone.removeItem(dupitm1);
-                ret.add(dupitm1);
-                debugger.log("ShopTradeListener > Item traded: " + traded, DebugLevels.TRADE);
+				debugger.log("ShopTradeListener > Item Material Being Searched for: " + item.getItemStack().getType().name(), DebugLevels.TRADE);
+                debugger.log("ShopTradeListener > Item count: " + count, DebugLevels.TRADE);
 
-                count -= traded;
+                for (ItemStack storageItem : clone.getStorageContents()) {
+                    // Skips empty slots
+                    if (storageItem != null) {
 
-                debugger.log("ShopTradeListener > Item new count: " + count, DebugLevels.TRADE);
+                        debugger.log("ShopTradeListener > Type of Item: " + storageItem.getType(), DebugLevels.TRADE);
+                        debugger.log("ShopTradeListener > Amount of Item: " + storageItem.getAmount(), DebugLevels.TRADE);
+
+                        boolean isSimilar = item.isSimilar(storageItem);
+                        debugger.log("ShopTradeListener > Location Similar: " + isSimilar, DebugLevels.TRADE);
+
+                        if (isSimilar) {
+
+                            traded = Math.min(Math.min(storageItem.getAmount(), item.getItemStack().getMaxStackSize()), count);
+
+                            storageItem.setAmount(traded);
+
+                            clone.removeItem(storageItem);
+                            ret.add(storageItem);
+                            debugger.log("ShopTradeListener > Item traded: " + traded, DebugLevels.TRADE);
+
+                            count -= traded;
+                            currentCount += traded;
+
+                            debugger.log("ShopTradeListener > Item new count: " + count, DebugLevels.TRADE);
+                        }
+                    }
+
+					if (currentCount >= totalCount) break;
+                }
             }
 
-            if (count > 0) {
-                debugger.log("ShopTradeListener > Count > 0: " + count, DebugLevels.TRADE);
+            if (currentCount < totalCount) {
+                debugger.log("ShopTradeListener > TotalCount: " + totalCount, DebugLevels.TRADE);
+                debugger.log("ShopTradeListener > CurrentCount: " + currentCount, DebugLevels.TRADE);
                 ret.clear();
                 ret.add(0, null);
-                ret.add(1, item);
-                ret.get(1).setAmount(item.getAmount() * multiplier);
+				ret.add(1, item.getItemStack());
+				ret.get(1).setAmount(item.getItemStack().getAmount() * multiplier);
             }
         }
 
         return ret;
+    }
+
+    public boolean compareShulkers(ItemStack item1, ItemStack item2) {
+        if (item1 == null || item2 == null)
+            return false;
+
+        try {
+            ArrayList<ItemStack> contents1 = Lists.newArrayList(((ShulkerBox) ((BlockStateMeta) item1.getItemMeta()).getBlockState()).getInventory().getContents());
+            ShulkerBox shulker2 = (ShulkerBox) ((BlockStateMeta) item2.getItemMeta()).getBlockState();
+
+            for (ItemStack itm : shulker2.getInventory().getContents()) {
+                contents1.remove(itm);
+            }
+
+            return contents1.isEmpty();
+
+        } catch (ClassCastException ex) {
+            return false;
+        }
     }
 }

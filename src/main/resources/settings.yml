@@ -1,0 +1,110 @@
+##########################
+#    TradeShop Config    #
+##########################
+config-version: 1.1
+
+
+# |    System Options    |
+# ^^^^^^^^^^^^^^^^^^^^^^^^
+system-options:
+  # What debug code should be run. this will add significant amounts of spam to the console/log, generally not used unless requested by Devs (must be a whole number)
+  enable-debug: 0
+  # Should we check for updates when the server starts
+  check-updates: true
+  # Allow us to connect anonymous metrics so we can see how our plugin is being used to better develop it
+  allow-metrics: true
+
+
+# |    Language Options    |
+# ^^^^^^^^^^^^^^^^^^^^^^^^^^
+language-options:
+  # The prefix the displays before all plugin messages
+  message-prefix: '&a[&eTradeShop&a] '
+
+
+  # Header Colours, if the codes are showing in the header, set to ""
+  # Color for successfully created and stocked signs
+  shop-good-colour: '&2'
+  # Color for shops that are missing data to make trades
+  shop-incomplete-colour: '&7'
+  # Color for shops that were not successfully created
+  shop-bad-colour: '&4'
+
+
+  # Status Text, What will be shown in the bottom line of shop sign for each status
+  # Open
+  shop-open-status: '&a<Open>'
+  # Closed
+  shop-closed-status: '&c<Closed>'
+  # Incomplete
+  shop-incomplete-status: '&c<Incomplete>'
+  # Out of Stock
+  shop-outofstock-status: '&c<Out Of Stock>'
+
+
+# |    Global Options    |
+# ^^^^^^^^^^^^^^^^^^^^^^^^
+global-options:
+  # Directions an allowed shop can be from a sign. Allowed directions are:
+  # Up, Down, North, East, South, West
+  allowed-directions: [DOWN, WEST, SOUTH, EAST, NORTH, UP]
+  # Inventories to allow for shops. Allowed blocks are:
+  # Chest, Trapped_Chest, Dropper, Hopper, Dispenser, Shulker, ...
+  allowed-shops: [CHEST, TRAPPED_CHEST, SHULKER]
+  # Max distance a player can be from a shop to edit it (must be a whole number)
+  max-edit-distance: 4
+  # Material types that cannot be used in trades
+  illegal-items: [Air, Void_Air, Cave_Air, Bedrock, Command_Block]
+
+
+  multi-trade:
+    # Should we allow multi trades with shift + click (true/false)
+    enable: true
+    # Default multiplier for trades using shift + click (must be a whole number)
+    default-multi: 2
+    # Maximum amount a player can set their multiplier to, reset upon leaving (must be a whole number)
+    max-multi: 6
+
+
+# |    Shop Options    |
+# ^^^^^^^^^^^^^^^^^^^^^^
+shop-options:
+  # Maximum users a shop can have (must be a whole number)
+  max-shop-users: 5
+  # Maximum shops that can exist in a single chunk (must be a whole number)
+  max-shops-per-chunk: 128
+  # Maximum amount of item stacks per side of trade (must be a whole number)
+  max-items-per-trade-side: 6
+
+
+# |    Trade Shop Options    |
+# ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+trade-shop-options:
+  # The header that appears at the top of the shop signs, this is also what the player types to create the sign
+  header: Trade
+  # Can explosions damage the shop sign/storage (true/false)
+  allow-explode: false
+  # Can hoppers pull items from the shop storage (true/false)
+  allow-hopper-export: false
+
+
+# |    ITrade Shop Options    |
+# ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+itrade-shop-options:
+  # Name to put on the bottom of iTrade signs
+  owner: Server Shop
+  # The header that appears at the top of the shop signs, this is also what the player types to create the sign
+  header: iTrade
+  # Can explosions damage the shop sign (true/false)
+  allow-explode: false
+
+
+# |    BiTrade Shop Options    |
+# ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+bitrade-shop-options:
+  # The header that appears at the top of the shop signs, this is also what the player types to create the sign
+  header: BiTrade
+  # Can explosions damage the shop sign/storage (true/false)
+  allow-explode: false
+  # Can hoppers pull items from the shop storage (true/false)
+  allow-hopper-export: false

@@ -29,7 +29,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.Nameable;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
-import org.bukkit.block.BlockState;
 import org.bukkit.block.Sign;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.block.data.Directional;
@@ -51,7 +50,6 @@ import org.shanerx.tradeshop.framework.events.PlayerShopDestroyEvent;
 import org.shanerx.tradeshop.framework.events.PlayerShopInventoryOpenEvent;
 import org.shanerx.tradeshop.objects.Shop;
 import org.shanerx.tradeshop.objects.ShopChest;
-import org.shanerx.tradeshop.objects.ShopLocation;
 import org.shanerx.tradeshop.utils.Utils;
 
 import java.util.ArrayList;
@@ -66,8 +64,11 @@ public class ShopProtectionListener extends Utils implements Listener {
 		plugin = instance;
 	}
 
-	@EventHandler(priority = EventPriority.HIGH)
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
 	public void onInventoryMoveItem(InventoryMoveItemEvent event) {
+
+        if (event.isCancelled())
+            return;
 
         if (event instanceof HopperShopAccessEvent)
             return;
@@ -81,8 +82,8 @@ public class ShopProtectionListener extends Utils implements Listener {
 
         Nameable fromContainer = (Nameable) invBlock.getState();
 
-		if (fromContainer.getCustomName() != null && fromContainer.getCustomName().contains("$ ^Sign:l_")) {
-			Shop shop = Shop.loadShop(ShopLocation.deserialize(fromContainer.getCustomName().split("\\$ \\^")[1].split(":")[1]));
+        if (ShopChest.isShopChest(invBlock)) {
+            Shop shop = new ShopChest(invBlock.getLocation()).getShop();
             debugger.log("ShopProtectionListener: Shop Location as SL > " + shop.getInventoryLocationAsSL().serialize(), DebugLevels.PROTECTION);
             boolean isForbidden = !Setting.findSetting(shop.getShopType().name() + "SHOP_HOPPER_EXPORT").getBoolean();
             debugger.log("ShopProtectionListener: isForbidden > " + isForbidden, DebugLevels.PROTECTION);
@@ -96,8 +97,12 @@ public class ShopProtectionListener extends Utils implements Listener {
 		}
 	}
 
-	@EventHandler(priority = EventPriority.HIGHEST)
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
 	public void onEntityExplodeItem(EntityExplodeEvent event) {
+
+        if (event.isCancelled())
+            return;
+
 		List<Block> toRemove = new ArrayList<>();
 		for (Iterator<Block> i = event.blockList().iterator(); i.hasNext(); ) {
 			Block b = i.next();
@@ -144,79 +149,58 @@ public class ShopProtectionListener extends Utils implements Listener {
 		event.blockList().removeAll(toRemove);
 	}
 
-    @EventHandler(priority = EventPriority.HIGHEST)
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onBlockBreak(BlockBreakEvent event) {
+
+        if (event.isCancelled())
+            return;
+
         Player player = event.getPlayer();
         Block block = event.getBlock();
+        Shop shop = null;
 
         if (ShopType.isShop(block)) {
-            Shop shop = Shop.loadShop((Sign) block.getState());
+            shop = Shop.loadShop((Sign) block.getState());
             if (shop == null)
                 return;
-
             if (player.hasPermission(Permissions.ADMIN.getPerm()) || player.getUniqueId().equals(shop.getOwner().getUUID())) {
-	
-	            PlayerShopDestroyEvent destroyEvent = new PlayerShopDestroyEvent(player, shop);
-	            Bukkit.getPluginManager().callEvent(destroyEvent);
-	            if (destroyEvent.isCancelled()) {
-	            	event.setCancelled(true);
-		            return;
-	            }
-	            
-                if (shop.getStorage() != null) {
-                    new ShopChest(shop.getStorage().getLocation()).resetName();
+                PlayerShopDestroyEvent destroyEvent = new PlayerShopDestroyEvent(player, shop);
+                Bukkit.getPluginManager().callEvent(destroyEvent);
+                if (destroyEvent.isCancelled()) {
+                    event.setCancelled(destroyEvent.destroyBlock());
+                    return;
                 }
 
+                shop.getChestAsSC().resetName();
                 shop.remove();
                 return;
             }
+
             event.setCancelled(true);
             player.sendMessage(Message.NO_TS_DESTROY.getPrefixed());
 
-        } else if (plugin.getListManager().isInventory(block)) {
-            BlockState bs = block.getState();
-            if (!ShopChest.isShopChest(bs.getBlock()))
+        } else if (ShopChest.isShopChest(block)) {
+            shop = new ShopChest(block.getLocation()).getShop();
+            if (shop == null)
                 return;
-
-            if (player.hasPermission(Permissions.ADMIN.getPerm())) {
-                new ShopChest(block.getLocation()).resetName();
-                return;
-            }
-
-            Sign s = findShopSign(block);
-            if (s == null) {
-                new ShopChest(block.getLocation()).resetName();
-                return;
-            }
-
-            if (!ShopType.isShop(s)) {
-                new ShopChest(block.getLocation()).resetName();
-                return;
-            }
-
-            Shop shop = Shop.loadShop(s);
-
-            if (event.getPlayer().getUniqueId().equals(shop.getOwner().getUUID())) {
-	            PlayerShopDestroyEvent destroyEvent = new PlayerShopDestroyEvent(player, shop);
-	            Bukkit.getPluginManager().callEvent(destroyEvent);
-	            if (destroyEvent.isCancelled()) {
-		            event.setCancelled(true);
-		            return;
-	            }
-	            
-                if (!ShopChest.isDoubleChest(block)) {
-                    new ShopChest(shop.getInventoryLocation()).resetName();
-                    shop.removeStorage();
-                    shop.updateStatus();
-                    shop.saveShop();
-                } else {
-                    if (bs instanceof Nameable && ((Nameable) bs).getCustomName() != null
-                            && ((Nameable) bs).getCustomName().contains("$ ^Sign:l_")) {
-                        ((Nameable) bs).setCustomName(((Nameable) bs).getCustomName().split("\\$ \\^")[0]);
-
-                        bs.update();
-                    }
+            if (player.hasPermission(Permissions.ADMIN.getPerm()) || player.getUniqueId().equals(shop.getOwner().getUUID())) {
+                PlayerShopDestroyEvent destroyEvent = new PlayerShopDestroyEvent(player, shop);
+                Bukkit.getPluginManager().callEvent(destroyEvent);
+                if (destroyEvent.isCancelled()) {
+                    event.setCancelled(destroyEvent.destroyBlock());
+                    return;
                 }
+
+                shop.getChestAsSC().resetName();
+                shop.removeStorage();
+
+                if (shop.getShopSign() == null) {
+                    shop.remove();
+                } else {
+                    shop.updateSign();
+                }
+
+                shop.saveShop();
                 return;
             }
 
@@ -225,80 +209,66 @@ public class ShopProtectionListener extends Utils implements Listener {
         }
     }
 
-    @EventHandler(priority = EventPriority.HIGH)
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onChestOpen(PlayerInteractEvent e) {
+
+        if (e.isCancelled())
+            return;
+
         Block block = e.getClickedBlock();
 
-        if (e.getAction() != Action.RIGHT_CLICK_BLOCK) {
-            return;
-
-        } else if (!plugin.getListManager().isInventory(block)) {
+        if (!(e.getAction() == Action.RIGHT_CLICK_BLOCK && plugin.getListManager().isInventory(block))) {
             return;
         }
 
+        ShopChest.resetOldName(block);
 
-        Sign s = findShopSign(block);
-        if (s == null) {
-            return;
-        }
-        
-        if (ShopType.isShop(s.getBlock())) {
-            Shop shop = Shop.loadShop(s);
+        if (ShopChest.isShopChest(block)) {
+            Shop shop = new ShopChest(block.getLocation()).getShop();
+            PlayerShopInventoryOpenEvent openEvent = new PlayerShopInventoryOpenEvent(e.getPlayer(), shop, e.getAction(), e.getItem(), e.getClickedBlock(), e.getBlockFace());
+
             if (!e.getPlayer().hasPermission(Permissions.ADMIN.getPerm()) && !shop.getUsersUUID().contains(e.getPlayer().getUniqueId())) {
-                e.getPlayer().sendMessage(Message.NO_TS_OPEN.getPrefixed());
-                e.setCancelled(true);
-                return;
+                openEvent.setCancelled(true);
             }
-            
-	        PlayerShopInventoryOpenEvent openEvent = new PlayerShopInventoryOpenEvent(
-			        e.getPlayer(), shop, e.getAction(), e.getItem(), e.getClickedBlock(), e.getBlockFace());
-	        Bukkit.getPluginManager().callEvent(openEvent);
-            if (openEvent.isCancelled()) e.setCancelled(true);
-        }
-	
 
+            Bukkit.getPluginManager().callEvent(openEvent);
+            e.setCancelled(openEvent.isCancelled());
+            if (e.isCancelled()) {
+                e.getPlayer().sendMessage(Message.NO_TS_OPEN.getPrefixed());
+            }
+        }
     }
 
-    @EventHandler(priority = EventPriority.HIGH)
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onBlockPlace(BlockPlaceEvent event) {
+
+        if (event.isCancelled())
+            return;
+
         Block block = event.getBlock();
 
         if (!plugin.getListManager().isInventory(block))
             return;
 
-        if (!ShopChest.isDoubleChest(block)) {
-            Sign shopSign = findShopSign(block);
+        Sign shopSign = findShopSign(block);
 
-            if (shopSign == null)
-                return;
+        if (shopSign == null)
+            return;
 
-            Shop shop = Shop.loadShop(shopSign);
+        Shop shop = Shop.loadShop(shopSign);
 
-            if (shop.getShopType().isITrade())
-                return;
+        if (shop.getShopType().isITrade())
+            return;
 
-            new ShopChest(block, shop.getOwner().getUUID(), shopSign.getLocation()).setEventName(event);
-            shop.setInventoryLocation(block.getLocation());
-            shop.saveShop();
-
+        if (shop.getUsersUUID().contains(event.getPlayer().getUniqueId())) {
+            if (!shop.hasStorage()) {
+                new ShopChest(block, shop.getOwner().getUUID(), shopSign.getLocation()).setEventName(event);
+                shop.setInventoryLocation(block.getLocation());
+                shop.saveShop();
+            }
         } else {
-            Block otherhalf = ShopChest.getOtherHalfOfDoubleChest(block);
-            Player p = event.getPlayer();
-
-            if (!ShopChest.isShopChest(otherhalf)) {
-                return;
-            }
-
-            ShopChest shopOtherHalf = new ShopChest(otherhalf.getLocation());
-
-            if (shopOtherHalf.hasOwner() && !shopOtherHalf.getOwner().equals(p.getUniqueId())) {
-                event.setCancelled(true);
-                return;
-            }
-
-            new ShopChest(block, shopOtherHalf.getOwner(), shopOtherHalf.getShopSign().getLocation()).setEventName(event);
+            event.setCancelled(true);
         }
         return;
     }
 }
-

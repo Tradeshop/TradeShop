@@ -26,7 +26,6 @@
 package org.shanerx.tradeshop.objects;
 
 import com.google.gson.Gson;
-import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
@@ -35,15 +34,14 @@ import org.bukkit.block.Sign;
 import org.bukkit.event.block.SignChangeEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.shanerx.tradeshop.enumys.Setting;
 import org.shanerx.tradeshop.enumys.ShopRole;
 import org.shanerx.tradeshop.enumys.ShopStatus;
 import org.shanerx.tradeshop.enumys.ShopType;
-import org.shanerx.tradeshop.utils.ItemSerializer;
 import org.shanerx.tradeshop.utils.JsonConfiguration;
 import org.shanerx.tradeshop.utils.Tuple;
 import org.shanerx.tradeshop.utils.Utils;
 
-import java.io.IOException;
 import java.io.Serializable;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -55,11 +53,10 @@ public class Shop implements Serializable {
 	private List<UUID> managers, members;
 	private ShopType shopType;
 	private ShopLocation shopLoc, chestLoc;
-	private transient List<ItemStack> product, cost;
+    private List<ShopItemStack> product, cost;
 	private transient SignChangeEvent signChangeEvent;
 	private transient Inventory storageInv;
 	private transient Utils utils;
-	private List<String> productListB64, costListB64;
     private ShopStatus status = ShopStatus.INCOMPLETE;
 
 	/**
@@ -81,19 +78,9 @@ public class Shop implements Serializable {
 
 		product = new ArrayList<>();
 		cost = new ArrayList<>();
-		productListB64 = new ArrayList<>();
-		costListB64 = new ArrayList<>();
 
-		product.add(items.getLeft());
-		cost.add(items.getRight());
-
-		for (ItemStack iS : product) {
-			productListB64.add(ItemSerializer.itemStackArrayToBase64(iS));
-		}
-
-		for (ItemStack iS : cost) {
-			costListB64.add(ItemSerializer.itemStackArrayToBase64(iS));
-		}
+        product.add(new ShopItemStack(items.getLeft()));
+        cost.add(new ShopItemStack(items.getRight()));
 
 		fixAfterLoad();
 	}
@@ -113,8 +100,6 @@ public class Shop implements Serializable {
 		managers = Collections.emptyList();
 		members = Collections.emptyList();
 
-		productListB64 = new ArrayList<>();
-		costListB64 = new ArrayList<>();
 		product = new ArrayList<>();
 		cost = new ArrayList<>();
 
@@ -135,8 +120,6 @@ public class Shop implements Serializable {
 		managers = Collections.emptyList();
 		members = Collections.emptyList();
 
-		productListB64 = new ArrayList<>();
-		costListB64 = new ArrayList<>();
 		product = new ArrayList<>();
 		cost = new ArrayList<>();
 
@@ -174,7 +157,7 @@ public class Shop implements Serializable {
 	 * @return Shop object from file
 	 */
 	public static Shop loadShop(String serializedShopLocation) {
-		return loadShop(ShopLocation.deserialize(serializedShopLocation));
+        return loadShop(Objects.requireNonNull(ShopLocation.deserialize(serializedShopLocation)));
 	}
 
 	/**
@@ -185,14 +168,6 @@ public class Shop implements Serializable {
 	 */
 	public static Shop loadShop(Sign s) {
 		return loadShop(new ShopLocation(s.getLocation()));
-	}
-
-	public List<String> getProductListB64() {
-		return productListB64;
-	}
-
-	public List<String> getCostListB64() {
-		return costListB64;
 	}
 
 	/**
@@ -282,7 +257,11 @@ public class Shop implements Serializable {
 	 * @return Shop storage as ShopChest
 	 */
 	public ShopChest getChestAsSC() {
-		return new ShopChest(chestLoc.getLocation());
+        try {
+            return new ShopChest(chestLoc.getLocation());
+        } catch (NullPointerException ex) {
+            return null;
+        }
 	}
 
 	/**
@@ -405,7 +384,7 @@ public class Shop implements Serializable {
 	 * @return Location of the shops sign
 	 */
 	public Location getShopLocation() {
-		return shopLoc.getLocation();
+        return getShopLocationAsSL().getLocation();
 	}
 
 	/**
@@ -431,7 +410,7 @@ public class Shop implements Serializable {
 	 *
 	 * @return Cost ItemStack List
 	 */
-	public List<ItemStack> getCost() {
+    public List<ShopItemStack> getCost() {
 		return cost;
 	}
 
@@ -442,7 +421,6 @@ public class Shop implements Serializable {
 	 */
 	public void setCost(ItemStack newItem) {
 		cost.clear();
-		costListB64.clear();
 
 		addCost(newItem);
 	}
@@ -469,10 +447,7 @@ public class Shop implements Serializable {
 			}
 		}
 
-		for (ItemStack iS : items) {
-			cost.add(iS);
-			costListB64.add(ItemSerializer.itemStackArrayToBase64(iS));
-		}
+        items.forEach((ItemStack iS) -> cost.add(new ShopItemStack(iS)));
 
 		saveShop();
 		updateSign();
@@ -488,7 +463,6 @@ public class Shop implements Serializable {
 	public boolean removeCost(int index) {
 		try {
 			cost.remove(index);
-			costListB64.remove(index);
 
 			saveShop();
 			updateSign();
@@ -538,10 +512,7 @@ public class Shop implements Serializable {
 			}
 		}
 
-		for (ItemStack iS : items) {
-			product.add(iS);
-			productListB64.add(ItemSerializer.itemStackArrayToBase64(iS));
-		}
+        items.forEach((ItemStack iS) -> product.add(new ShopItemStack(iS)));
 
 		saveShop();
 		updateSign();
@@ -552,7 +523,7 @@ public class Shop implements Serializable {
 	 *
 	 * @return Product ItemStack List
 	 */
-	public List<ItemStack> getProduct() {
+    public List<ShopItemStack> getProduct() {
 		return product;
 	}
 
@@ -563,7 +534,6 @@ public class Shop implements Serializable {
 	 */
 	public void setProduct(ItemStack newItem) {
 		product.clear();
-		productListB64.clear();
 
 		addProduct(newItem);
 	}
@@ -578,7 +548,6 @@ public class Shop implements Serializable {
 	public boolean removeProduct(int index) {
 		if (product.size() > index) {
 			product.remove(index);
-			productListB64.remove(index);
 
 			saveShop();
 			updateSign();
@@ -595,42 +564,6 @@ public class Shop implements Serializable {
 	 */
 	public String serialize() {
 		return new Gson().toJson(this);
-	}
-
-	/**
-	 * Converts Base64 String to itemstack values
-	 */
-	public void itemsFromB64() {
-		if (product == null)
-			product = new ArrayList<>();
-		if (productListB64 == null)
-			productListB64 = new ArrayList<>();
-		if (cost == null)
-			cost = new ArrayList<>();
-		if (costListB64 == null)
-			costListB64 = new ArrayList<>();
-
-		product.clear();
-		for (String B64 : productListB64) {
-			if (B64.length() > 0) {
-				try {
-					product.add(ItemSerializer.itemStackArrayFromBase64(B64));
-				} catch (IOException ex) {
-					ex.printStackTrace();
-				}
-			}
-		}
-
-		cost.clear();
-		for (String B64 : costListB64) {
-			if (B64.length() > 0) {
-				try {
-					cost.add(ItemSerializer.itemStackArrayFromBase64(B64));
-				} catch (IOException ex) {
-					ex.printStackTrace();
-				}
-			}
-		}
 	}
 
 	/**
@@ -656,7 +589,6 @@ public class Shop implements Serializable {
 	 */
 	public void fixAfterLoad() {
 		utils = new Utils();
-		itemsFromB64();
 		shopLoc.stringToWorld();
 		if (!shopType.isITrade() && chestLoc != null)
 			chestLoc.stringToWorld();
@@ -704,101 +636,84 @@ public class Shop implements Serializable {
 		else {
 			Sign s = getShopSign();
 
-			if (!isMissingItems()) {
-				s.setLine(0, ChatColor.DARK_GREEN + shopType.toHeader());
-			} else {
-				s.setLine(0, ChatColor.GRAY + shopType.toHeader());
+            String[] signLines = updateSignLines();
+
+            for (int i = 0; i < 4; i++) {
+                s.setLine(i, signLines[i]);
 			}
 
-			if (product.size() == 1) {
-				StringBuilder sb = new StringBuilder();
-
-				sb.append(product.get(0).getAmount());
-				sb.append(" ");
-
-				sb.append((product.get(0).hasItemMeta() && product.get(0).getItemMeta().hasDisplayName()) ?
-						product.get(0).getItemMeta().getDisplayName() :
-						product.get(0).getType().toString());
-
-				s.setLine(1, sb.toString().substring(0, (sb.length() < 15) ? sb.length() : 15));
-
-			} else if (product.size() == 0) {
-				s.setLine(1, "");
-			} else {
-				s.setLine(1, "Use 'what' cmd");
-			}
-
-			if (cost.size() == 1) {
-				StringBuilder sb = new StringBuilder();
-
-				sb.append(cost.get(0).getAmount());
-				sb.append(" ");
-
-				sb.append((cost.get(0).hasItemMeta() && cost.get(0).getItemMeta().hasDisplayName()) ?
-						cost.get(0).getItemMeta().getDisplayName() :
-						cost.get(0).getType().toString());
-
-				s.setLine(2, sb.toString().substring(0, (sb.length() < 15) ? sb.length() : 15));
-			} else if (cost.size() == 0) {
-				s.setLine(2, "");
-			} else {
-				s.setLine(2, "Use 'what' cmd");
-			}
-
-			s.setLine(3, status.getLine());
 			s.update();
 		}
 	}
 
 	/**
-	 * Updates the text on the shops sign
+     * Updates the text on the shops sign during SignChangeEvent
 	 *
 	 * @param signEvent SignEvent to update the sign for
 	 */
 	public void updateSign(SignChangeEvent signEvent) {
-		if (!isMissingItems()) {
-			signEvent.setLine(0, ChatColor.DARK_GREEN + shopType.toHeader());
-		} else {
-			signEvent.setLine(0, ChatColor.GRAY + shopType.toHeader());
+        String[] signLines = updateSignLines();
+
+        for (int i = 0; i < 4; i++) {
+            signEvent.setLine(i, signLines[i]);
 		}
-
-		if (product.size() == 1) {
-			StringBuilder sb = new StringBuilder();
-
-			sb.append(product.get(0).getAmount());
-			sb.append(" ");
-
-			sb.append((product.get(0).hasItemMeta() && product.get(0).getItemMeta().hasDisplayName()) ?
-					product.get(0).getItemMeta().getDisplayName() :
-					product.get(0).getType().toString());
-
-			signEvent.setLine(1, sb.toString().substring(0, (sb.length() < 15) ? sb.length() : 15));
-
-		} else if (product.size() == 0) {
-			signEvent.setLine(1, "");
-		} else {
-			signEvent.setLine(1, "Use 'what' cmd");
-		}
-
-		if (cost.size() == 1) {
-			StringBuilder sb = new StringBuilder();
-
-			sb.append(cost.get(0).getAmount());
-			sb.append(" ");
-
-			sb.append((cost.get(0).hasItemMeta() && cost.get(0).getItemMeta().hasDisplayName()) ?
-					cost.get(0).getItemMeta().getDisplayName() :
-					cost.get(0).getType().toString());
-
-			signEvent.setLine(2, sb.toString().substring(0, (sb.length() < 15) ? sb.length() : 15));
-		} else if (cost.size() == 0) {
-			signEvent.setLine(2, "");
-		} else {
-			signEvent.setLine(2, "Use 'what' cmd");
-		}
-
-		signEvent.setLine(3, status.getLine());
 	}
+
+    /**
+     * Updates the text for the shop signs
+     *
+     * @return String array containing updated sign lines to be set
+     */
+    private String[] updateSignLines() {
+        String[] signLines = new String[4];
+
+        if (isMissingItems()) {
+            signLines[0] = utils.colorize(Setting.SHOP_INCOMPLETE_COLOUR.getString() + shopType.toHeader());
+        } else {
+            signLines[0] = utils.colorize(Setting.SHOP_GOOD_COLOUR.getString() + shopType.toHeader());
+        }
+
+		if (product.isEmpty()) {
+			signLines[1] = "";
+		} else if (product.size() == 1) {
+            StringBuilder sb = new StringBuilder();
+
+            ShopItemStack item = product.get(0);
+
+            sb.append(item.getItemStack().getAmount());
+            sb.append(" ");
+
+            sb.append(item.getItemName());
+
+            signLines[1] = sb.toString().substring(0, Math.min(sb.length(), 15));
+
+        } else {
+            signLines[1] = Setting.MULTIPLE_ITEMS_ON_SIGN.getString();
+        }
+
+		if (cost.isEmpty()) {
+			signLines[2] = "";
+		} else if (cost.size() == 1) {
+            StringBuilder sb = new StringBuilder();
+
+            ShopItemStack item = cost.get(0);
+
+            sb.append(item.getItemStack().getAmount());
+            sb.append(" ");
+
+            sb.append(item.getItemName());
+
+            signLines[2] = sb.toString().substring(0, Math.min(sb.length(), 15));
+        } else {
+            signLines[2] = Setting.MULTIPLE_ITEMS_ON_SIGN.getString();
+        }
+
+        updateStatus();
+
+        signLines[3] = status.getLine();
+
+        return signLines;
+    }
 
 	/**
 	 * Returns the shops inventory as a BlockState
@@ -845,15 +760,13 @@ public class Shop implements Serializable {
 	 *
 	 * @return true if shop opened
 	 */
-	public boolean setOpen() {
-		boolean ret;
-
+    public ShopStatus setOpen() {
         setStatus(ShopStatus.OPEN);
         updateStatus();
 
 		saveShop();
 		updateSign();
-        return status.equals(ShopStatus.OPEN);
+        return status;
     }
 
     /**
@@ -862,7 +775,7 @@ public class Shop implements Serializable {
     public void updateStatus() {
         if (!status.equals(ShopStatus.CLOSED)) {
             if (!isMissingItems() && (chestLoc != null || shopType.equals(ShopType.ITRADE))) {
-                if (getChestAsSC().hasStock(product))
+                if (shopType.equals(ShopType.ITRADE) || (getChestAsSC() != null && getChestAsSC().hasStock(product)))
                     setStatus(ShopStatus.OPEN);
                 else
                     setStatus(ShopStatus.OUT_OF_STOCK);
@@ -870,9 +783,6 @@ public class Shop implements Serializable {
                 setStatus(ShopStatus.INCOMPLETE);
             }
         }
-
-        saveShop();
-        updateSign();
     }
 
 	/**
@@ -881,7 +791,7 @@ public class Shop implements Serializable {
 	 * @return true if items are missing
 	 */
 	public boolean isMissingItems() {
-		return product == null || cost == null;
+		return shopType.equals(ShopType.ITRADE) ? product.isEmpty() : product.isEmpty() || cost.isEmpty();
 	}
 
 	/**
@@ -889,8 +799,6 @@ public class Shop implements Serializable {
 	 */
     public void setStatus(ShopStatus newStatus) {
         status = newStatus;
-		saveShop();
-		updateSign();
 	}
 
 	/**
@@ -973,8 +881,8 @@ public class Shop implements Serializable {
 	 * @return true if all costs are valid
 	 */
 	public boolean areCostsValid() {
-		for (ItemStack iS : cost) {
-			if (!utils.isValidType(iS.getType()))
+        for (ShopItemStack iS : cost) {
+            if (!utils.isValidType(iS.getItemStack().getType()))
 				return false;
 		}
 
@@ -987,8 +895,8 @@ public class Shop implements Serializable {
 	 * @return true if all products are valid
 	 */
 	public boolean areProductsValid() {
-		for (ItemStack iS : product) {
-			if (!utils.isValidType(iS.getType()))
+        for (ShopItemStack iS : product) {
+            if (!utils.isValidType(iS.getItemStack().getType()))
 				return false;
 		}
 
@@ -1016,6 +924,4 @@ public class Shop implements Serializable {
 		setStorageInventory();
 		return utils.checkInventory(storageInv, cost, multiplier);
 	}
-
-
 }
