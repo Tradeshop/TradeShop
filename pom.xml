@@ -31,7 +31,7 @@
 
     <groupId>org.shanerx</groupId>
     <artifactId>tradeshop</artifactId>
-    <version>2.2.2-DEV</version>
+    <version>2.2.2-STABLE</version>
     <packaging>jar</packaging>
     <name>TradeShop</name>
     <url>https://tradeshop.github.io/</url>
