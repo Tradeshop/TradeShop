@@ -25,53 +25,23 @@
 
 package org.shanerx.tradeshop.enumys;
 
-import java.util.logging.Level;
+public enum PlayerData {
+    TYPE("type", 0),
+    MULTI("multi", Setting.MULTI_TRADE_DEFAULT.getInt());
 
-public enum DebugLevels {
+    String path;
+    int defaultValue;
 
-    DISABLED(0, Level.INFO),
-    LIST_MANAGER(1, Level.WARNING),
-    STARTUP(2, Level.INFO),
-    PROTECTION(3, Level.WARNING),
-    TRADE(4, Level.WARNING),
-    INVENTORY_CLOSE_NPE(5, Level.WARNING),
-    ITEM_COMPARE(6, Level.WARNING);
-
-    //position is what value to check for this level in the binary string -1.
-    //
-    int position;
-    Level logLevel;
-    private static int max = 0;
-
-    DebugLevels(int position, Level logLevel) {
-        this.position = position;
-        this.logLevel = logLevel;
+    PlayerData(String path, int defaultValue) {
+        this.path = path;
+        this.defaultValue = defaultValue;
     }
 
-    public int getPosition() {
-        return position;
+    public String getPath() {
+        return path;
     }
 
-    public Level getLogLevel() {
-        return logLevel;
+    public int getDefaultValue() {
+        return defaultValue;
     }
-
-    public static int levels() {
-        return Math.min(values().length - 1, 32);
-    }
-
-    public static int maxValue() {
-        if (max <= 1) {
-            for (DebugLevels lvl : values()) {
-                max += Math.pow(2, lvl.position - 1);
-            }
-        }
-
-        return max;
-    }
-
-    public String getPrefix() {
-        return " - " + name();
-    }
-
 }
