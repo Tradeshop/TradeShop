@@ -43,7 +43,6 @@ import org.shanerx.tradeshop.framework.events.PlayerShopCreateEvent;
 import org.shanerx.tradeshop.objects.Shop;
 import org.shanerx.tradeshop.objects.ShopChest;
 import org.shanerx.tradeshop.objects.ShopUser;
-import org.shanerx.tradeshop.utils.JsonConfiguration;
 import org.shanerx.tradeshop.utils.Tuple;
 import org.shanerx.tradeshop.utils.Utils;
 
@@ -79,9 +78,7 @@ public class ShopCreateListener extends Utils implements Listener {
 			return;
 		}
 
-		JsonConfiguration chunk = new JsonConfiguration(shopSign.getChunk());
-
-		if (Setting.MAX_SHOPS_PER_CHUNK.getInt() <= chunk.getShopCount() + 1) {
+		if (Setting.MAX_SHOPS_PER_CHUNK.getInt() <= plugin.getDataStorage().getShopCountInChunk(shopSign.getChunk()) + 1) {
 			failedSign(event, shopType, Message.TOO_MANY_CHESTS);
 			return;
 		}

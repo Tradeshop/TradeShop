@@ -40,17 +40,12 @@ import org.shanerx.tradeshop.framework.ShopChange;
 import org.shanerx.tradeshop.framework.events.PlayerShopChangeEvent;
 import org.shanerx.tradeshop.framework.events.PlayerShopCloseEvent;
 import org.shanerx.tradeshop.framework.events.PlayerShopOpenEvent;
-import org.shanerx.tradeshop.objects.Shop;
-import org.shanerx.tradeshop.objects.ShopChest;
-import org.shanerx.tradeshop.objects.ShopItemStack;
-import org.shanerx.tradeshop.objects.ShopUser;
-import org.shanerx.tradeshop.utils.JsonConfiguration;
+import org.shanerx.tradeshop.objects.*;
 import org.shanerx.tradeshop.utils.ObjectHolder;
 import org.shanerx.tradeshop.utils.Utils;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 public class CommandRunner extends Utils {
 
@@ -826,11 +821,10 @@ public class CommandRunner extends Utils {
             return;
         }
 
-		JsonConfiguration json = new JsonConfiguration(pSender.getUniqueId());
-		Map<String, Integer> data = json.loadPlayer();
+        PlayerSetting playerSetting = plugin.getDataStorage().loadPlayer(pSender.getUniqueId());
 
 		if (command.argsSize() == 1) {
-			sendMessage(Message.MULTI_AMOUNT.getPrefixed().replaceAll("%amount%", String.valueOf(data.get("multi"))));
+            sendMessage(Message.MULTI_AMOUNT.getPrefixed().replaceAll("%amount%", String.valueOf(playerSetting.getObject(PlayerData.MULTI))));
 		} else {
             int amount = Setting.MULTI_TRADE_DEFAULT.getInt();
 
@@ -842,8 +836,8 @@ public class CommandRunner extends Utils {
             else if (amount > Setting.MULTI_TRADE_MAX.getInt())
                 amount = Setting.MULTI_TRADE_MAX.getInt();
 
-			data.put("multi", amount);
-			json.savePlayer(data);
+            playerSetting.setObject(PlayerData.MULTI, amount);
+            plugin.getDataStorage().savePlayer(playerSetting);
 
 			sendMessage(Message.MULTI_UPDATE.getPrefixed().replaceAll("%amount%", String.valueOf(amount)));
 		}
