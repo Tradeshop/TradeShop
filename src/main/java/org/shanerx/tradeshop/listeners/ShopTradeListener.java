@@ -38,6 +38,7 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.shanerx.tradeshop.enumys.Message;
+import org.shanerx.tradeshop.enumys.PlayerData;
 import org.shanerx.tradeshop.enumys.Setting;
 import org.shanerx.tradeshop.enumys.ShopType;
 import org.shanerx.tradeshop.framework.events.PlayerTradeEvent;
@@ -45,11 +46,9 @@ import org.shanerx.tradeshop.framework.events.SuccessfulTradeEvent;
 import org.shanerx.tradeshop.objects.Shop;
 import org.shanerx.tradeshop.objects.ShopItemStack;
 import org.shanerx.tradeshop.objects.ShopLocation;
-import org.shanerx.tradeshop.utils.JsonConfiguration;
 import org.shanerx.tradeshop.utils.Utils;
 
 import java.util.ArrayList;
-import java.util.Map;
 
 public class ShopTradeListener extends Utils implements Listener {
 
@@ -70,8 +69,7 @@ public class ShopTradeListener extends Utils implements Listener {
             return;
         }
 
-        JsonConfiguration json = new JsonConfiguration(s.getChunk());
-        shop = json.loadShop(new ShopLocation(s.getLocation()));
+        shop = plugin.getDataStorage().loadShopFromSign(new ShopLocation(s.getLocation()));
 
         if (shop == null) {
             s.setLine(0, "");
@@ -127,9 +125,7 @@ public class ShopTradeListener extends Utils implements Listener {
         }
 
         if (buyer.isSneaking() && Setting.ALLOW_MULTI_TRADE.getBoolean()) {
-            JsonConfiguration pJson = new JsonConfiguration(buyer.getUniqueId());
-            Map<String, Integer> data = pJson.loadPlayer();
-            multiplier = data.get("multi");
+            multiplier = plugin.getDataStorage().loadPlayer(buyer.getUniqueId()).getObject(PlayerData.MULTI);
 
         }
 
@@ -138,7 +134,7 @@ public class ShopTradeListener extends Utils implements Listener {
         if (event.isCancelled()) return;
 
         e.setCancelled(true);
-        shop = json.loadShop(new ShopLocation(s.getLocation()));
+        shop = plugin.getDataStorage().loadShopFromSign(new ShopLocation(s.getLocation()));
 
         switch (canExchangeAll(shop, buyer.getInventory(), multiplier, e.getAction())) {
             case SHOP_NO_PRODUCT:

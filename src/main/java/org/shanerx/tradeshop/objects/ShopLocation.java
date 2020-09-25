@@ -26,6 +26,7 @@
 package org.shanerx.tradeshop.objects;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.World;
 
@@ -94,6 +95,10 @@ public class ShopLocation implements Serializable {
 
 	public double getZ() {
 		return z;
+	}
+
+	public Chunk getChunk() {
+		return getLocation().getChunk();
 	}
 
 	public Location getLocation() {

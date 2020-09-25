@@ -38,7 +38,6 @@ import org.shanerx.tradeshop.enumys.Setting;
 import org.shanerx.tradeshop.enumys.ShopRole;
 import org.shanerx.tradeshop.enumys.ShopStatus;
 import org.shanerx.tradeshop.enumys.ShopType;
-import org.shanerx.tradeshop.utils.JsonConfiguration;
 import org.shanerx.tradeshop.utils.Tuple;
 import org.shanerx.tradeshop.utils.Utils;
 
@@ -147,7 +146,7 @@ public class Shop implements Serializable {
 	 * @return The shop from file
 	 */
 	public static Shop loadShop(ShopLocation loc) {
-		return new JsonConfiguration(loc.getLocation().getChunk()).loadShop(loc);
+		return new Utils().plugin.getDataStorage().loadShopFromSign(loc);
 	}
 
 	/**
@@ -609,7 +608,7 @@ public class Shop implements Serializable {
 	 * Saves the shop too file
 	 */
 	public void saveShop() {
-		new JsonConfiguration(shopLoc.getLocation().getChunk()).saveShop(this);
+		new Utils().plugin.getDataStorage().saveShop(this);
 	}
 
 	/**
@@ -805,9 +804,7 @@ public class Shop implements Serializable {
 	 * Removes this shop from file
 	 */
 	public void remove() {
-		JsonConfiguration json = new JsonConfiguration(shopLoc.getLocation().getChunk());
-
-		json.removeShop(shopLoc);
+		new Utils().plugin.getDataStorage().removeShop(this);
 	}
 
 	/**

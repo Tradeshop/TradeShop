@@ -23,7 +23,7 @@
  *
  */
 
-package org.shanerx.tradeshop.utils;
+package org.shanerx.tradeshop.utils.data;
 
 import com.google.common.collect.Lists;
 import com.google.gson.*;
@@ -34,6 +34,7 @@ import org.shanerx.tradeshop.objects.Shop;
 import org.shanerx.tradeshop.objects.ShopChunk;
 import org.shanerx.tradeshop.objects.ShopItemStack;
 import org.shanerx.tradeshop.objects.ShopLocation;
+import org.shanerx.tradeshop.utils.Utils;
 
 import java.io.*;
 import java.util.*;
@@ -174,18 +175,16 @@ public class JsonConfiguration extends Utils implements Serializable {
 			if (jsonObj.getAsJsonObject(loc.serialize()).getAsJsonPrimitive("productB64") != null) {
 				String str = jsonObj.getAsJsonObject(loc.serialize()).get("productB64").getAsString();
 				jsonObj.getAsJsonObject(loc.serialize()).remove("productB64");
-				jsonObj.getAsJsonObject(loc.serialize()).add("productListB64", gson.toJsonTree(b64OverstackFixer(str)));
+				jsonObj.getAsJsonObject(loc.serialize()).add("product", gson.toJsonTree(b64OverstackFixer(str)));
 				saveContents(gson.toJson(jsonObj));
 			}
 
 			if (jsonObj.getAsJsonObject(loc.serialize()).getAsJsonPrimitive("costB64") != null) {
 				String str = jsonObj.getAsJsonObject(loc.serialize()).get("costB64").getAsString();
 				jsonObj.getAsJsonObject(loc.serialize()).remove("costB64");
-				jsonObj.getAsJsonObject(loc.serialize()).add("costListB64", gson.toJsonTree(b64OverstackFixer(str)));
+				jsonObj.getAsJsonObject(loc.serialize()).add("cost", gson.toJsonTree(b64OverstackFixer(str)));
 				saveContents(gson.toJson(jsonObj));
 			}
-
-
 
 			if (jsonObj.getAsJsonObject(loc.serialize()).has("productListB64")) {
 				List<ShopItemStack> productList = new ArrayList<>();
@@ -215,35 +214,28 @@ public class JsonConfiguration extends Utils implements Serializable {
 		return jsonObj.size();
 	}
 
-	private List<String> b64OverstackFixer(String oldB64) {
-		ItemStack oldStack = null;
-		if (oldB64.length() > 0) {
-			try {
-				oldStack = ItemSerializer.itemStackArrayFromBase64(oldB64);
-			} catch (IOException ex) {
-				ex.printStackTrace();
-			}
-		}
+	private List<ShopItemStack> b64OverstackFixer(String oldB64) {
+		ShopItemStack oldStack = new ShopItemStack(oldB64);
 
-		if (oldStack == null)
+		if (oldStack.hasBase64())
 			return null;
 
-		if (!(oldStack.getAmount() > oldStack.getMaxStackSize())) {
-			return Lists.newArrayList(ItemSerializer.itemStackArrayToBase64(oldStack));
+		if (!(oldStack.getItemStack().getAmount() > oldStack.getItemStack().getMaxStackSize())) {
+			return Lists.newArrayList(oldStack);
 		} else {
-			List<String> newStacks = new ArrayList<>();
-			int amount = oldStack.getAmount();
+			List<ShopItemStack> newStacks = new ArrayList<>();
+			int amount = oldStack.getItemStack().getAmount();
 
 			while (amount > 0) {
-				if (oldStack.getMaxStackSize() < amount) {
-					ItemStack itm = oldStack.clone();
-					itm.setAmount(oldStack.getMaxStackSize());
-					newStacks.add(ItemSerializer.itemStackArrayToBase64(itm));
-					amount -= oldStack.getMaxStackSize();
+				if (oldStack.getItemStack().getMaxStackSize() < amount) {
+					ItemStack itm = oldStack.getItemStack().clone();
+					itm.setAmount(oldStack.getItemStack().getMaxStackSize());
+					newStacks.add(new ShopItemStack(itm));
+					amount -= oldStack.getItemStack().getMaxStackSize();
 				} else {
-					ItemStack itm = oldStack.clone();
+					ItemStack itm = oldStack.getItemStack().clone();
 					itm.setAmount(amount);
-					newStacks.add(ItemSerializer.itemStackArrayToBase64(itm));
+					newStacks.add(new ShopItemStack(itm));
 					amount -= amount;
 				}
 			}

@@ -33,14 +33,9 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.shanerx.tradeshop.TradeShop;
 import org.shanerx.tradeshop.enumys.Message;
 import org.shanerx.tradeshop.enumys.Permissions;
-import org.shanerx.tradeshop.enumys.Setting;
 import org.shanerx.tradeshop.utils.BukkitVersion;
-import org.shanerx.tradeshop.utils.JsonConfiguration;
 import org.shanerx.tradeshop.utils.Updater;
 import org.shanerx.tradeshop.utils.Utils;
-
-import java.util.HashMap;
-import java.util.Map;
 
 public class JoinEventListener extends Utils implements Listener {
 
@@ -54,18 +49,7 @@ public class JoinEventListener extends Utils implements Listener {
 	public void onJoin(PlayerJoinEvent event) {
 
 		Player player = event.getPlayer();
-		JsonConfiguration json = new JsonConfiguration(player.getUniqueId());
-		Map<String, Integer> data = json.loadPlayer();
-
-		if (data == null)
-			data = new HashMap<>();
-
-		if (!data.containsKey("type"))
-			data.put("type", 0);
-
-        data.put("multi", Setting.MULTI_TRADE_DEFAULT.getInt());
-
-		json.savePlayer(data);
+		plugin.getDataStorage().savePlayer(plugin.getDataStorage().loadPlayer(player.getUniqueId()));
 
 		if (player.hasPermission(Permissions.ADMIN.getPerm())) {
 			BukkitVersion ver = new BukkitVersion();

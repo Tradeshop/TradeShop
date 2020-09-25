@@ -161,6 +161,10 @@ public class ShopItemStack implements Serializable {
         return itemStackB64;
     }
 
+    public boolean hasBase64() {
+        return itemStackB64 != null && !itemStackB64.isEmpty();
+    }
+
     public boolean isCompareBookAuthor() {
         return compareBookAuthor;
     }

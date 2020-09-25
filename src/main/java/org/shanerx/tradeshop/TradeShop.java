@@ -40,6 +40,8 @@ import org.shanerx.tradeshop.objects.Debug;
 import org.shanerx.tradeshop.objects.ListManager;
 import org.shanerx.tradeshop.utils.BukkitVersion;
 import org.shanerx.tradeshop.utils.Updater;
+import org.shanerx.tradeshop.utils.data.DataStorage;
+import org.shanerx.tradeshop.utils.data.DataType;
 
 public class TradeShop extends JavaPlugin {
 
@@ -49,9 +51,10 @@ public class TradeShop extends JavaPlugin {
     private final int bStatsPluginID = 1690;
 
 	private ListManager lists;
+	private DataStorage dataStorage;
+
 	private BukkitVersion version;
 	private ShopSign signs;
-
     private ShopStorage storages;
 
 	private Metrics metrics;
@@ -81,6 +84,7 @@ public class TradeShop extends JavaPlugin {
         signs = new ShopSign();
         storages = new ShopStorage();
 		lists = new ListManager();
+		dataStorage = new DataStorage(DataType.valueOf(Setting.DATA_STORAGE_TYPE.getString().toUpperCase()));
 
 		PluginManager pm = getServer().getPluginManager();
 		pm.registerEvents(new JoinEventListener(this), this);
@@ -137,4 +141,8 @@ public class TradeShop extends JavaPlugin {
     public Debug getDebugger() {
         return debugger;
     }
+
+	public DataStorage getDataStorage() {
+		return dataStorage;
+	}
 }
