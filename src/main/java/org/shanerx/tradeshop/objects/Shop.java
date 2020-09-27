@@ -55,7 +55,7 @@ public class Shop implements Serializable {
     private List<ShopItemStack> product, cost;
 	private transient SignChangeEvent signChangeEvent;
 	private transient Inventory storageInv;
-	private transient Utils utils;
+	private transient Utils utils = new Utils();
     private ShopStatus status = ShopStatus.INCOMPLETE;
 
 	/**
@@ -71,6 +71,7 @@ public class Shop implements Serializable {
 		shopLoc = new ShopLocation(locations.getLeft());
 		this.owner = owner;
 		chestLoc = new ShopLocation(locations.getRight());
+		utils.plugin.getDataStorage().addChestLinkage(chestLoc, shopLoc);
 		this.shopType = shopType;
 		managers = players.getLeft();
 		members = players.getRight();
@@ -95,6 +96,7 @@ public class Shop implements Serializable {
 		shopLoc = new ShopLocation(locations.getLeft());
 		this.owner = owner;
 		chestLoc = new ShopLocation(locations.getRight());
+		utils.plugin.getDataStorage().addChestLinkage(chestLoc, shopLoc);
 		this.shopType = shopType;
 		managers = Collections.emptyList();
 		members = Collections.emptyList();
@@ -391,6 +393,7 @@ public class Shop implements Serializable {
 	 */
 	public void setInventoryLocation(Location newLoc) {
 		chestLoc = new ShopLocation(newLoc);
+		utils.plugin.getDataStorage().addChestLinkage(chestLoc, shopLoc);
 	}
 
 	/**
@@ -603,7 +606,8 @@ public class Shop implements Serializable {
 	 * Fixes values that cannot be serialized after loading
 	 */
 	public void fixAfterLoad() {
-		utils = new Utils();
+		if (utils == null)
+			utils = new Utils();
 		shopLoc.stringToWorld();
 		if (!shopType.isITrade() && chestLoc != null)
 			chestLoc.stringToWorld();
@@ -624,7 +628,7 @@ public class Shop implements Serializable {
 	 * Saves the shop too file
 	 */
 	public void saveShop() {
-		new Utils().plugin.getDataStorage().saveShop(this);
+		utils.plugin.getDataStorage().saveShop(this);
         updateUserFiles();
 	}
 
@@ -749,6 +753,7 @@ public class Shop implements Serializable {
 	 */
 	public void removeStorage() {
 		if (hasStorage()) {
+			utils.plugin.getDataStorage().removeChestLinkage(chestLoc);
 			chestLoc = null;
 		}
 	}
@@ -822,7 +827,8 @@ public class Shop implements Serializable {
 	 */
     public void remove() {
         purgeFromUserFiles();
-        new Utils().plugin.getDataStorage().removeShop(this);
+		removeStorage();
+		utils.plugin.getDataStorage().removeShop(this);
     }
 
 	/**
