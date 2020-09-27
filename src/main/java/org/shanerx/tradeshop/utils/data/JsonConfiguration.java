@@ -34,6 +34,7 @@ import com.google.common.collect.Sets;
 import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
 import org.bukkit.Chunk;
+import org.bukkit.World;
 import org.bukkit.inventory.ItemStack;
 import org.shanerx.tradeshop.objects.*;
 import org.shanerx.tradeshop.utils.Utils;
@@ -96,6 +97,25 @@ public class JsonConfiguration extends Utils implements Serializable {
 		this.pluginFolder = plugin.getDataFolder().getAbsolutePath();
 		this.path = this.pluginFolder + File.separator + "Data" + File.separator + "Players";
 		this.file = new File(path + File.separator + uuid.toString() + ".json");
+		this.filePath = new File(path);
+		this.filePath.mkdirs();
+		if (!this.file.exists()) {
+			try {
+				this.file.createNewFile();
+			} catch (Exception exception) {
+				throw new RuntimeException(exception);
+			}
+		}
+
+		loadContents();
+	}
+
+	public JsonConfiguration(World world) {
+		gson = new GsonBuilder().setPrettyPrinting().serializeNulls().create();
+		configType = 2;
+		this.pluginFolder = plugin.getDataFolder().getAbsolutePath();
+		this.path = this.pluginFolder + File.separator + "Data" + File.separator + world.getName();
+		this.file = new File(path + File.separator + "chest_linkage.json");
 		this.filePath = new File(path);
 		this.filePath.mkdirs();
 		if (!this.file.exists()) {
@@ -246,6 +266,24 @@ public class JsonConfiguration extends Utils implements Serializable {
 
 	public int getShopCount() {
 		return jsonObj.size();
+	}
+
+	public Map<String, String> loadChestLinkage() {
+		if (configType != 2)
+			return null;
+
+		Gson gson = new Gson();
+		return gson.fromJson(jsonObj.get("linkage_data"), new TypeToken<Map<String, String>>() {
+		}.getType());
+	}
+
+	public void saveChestLinkage(Map<String, String> linkageData) {
+		if (configType != 2)
+			return;
+
+		jsonObj.add("linkage_data", gson.toJsonTree(linkageData));
+
+		saveContents(gson.toJson(jsonObj));
 	}
 
 	private List<ShopItemStack> b64OverstackFixer(String oldB64) {

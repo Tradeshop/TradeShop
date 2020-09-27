@@ -28,23 +28,19 @@ package org.shanerx.tradeshop.utils.data;
 import org.bukkit.Chunk;
 import org.bukkit.World;
 import org.shanerx.tradeshop.enumys.DebugLevels;
-import org.shanerx.tradeshop.objects.PlayerSetting;
-import org.shanerx.tradeshop.objects.Shop;
-import org.shanerx.tradeshop.objects.ShopChunk;
-import org.shanerx.tradeshop.objects.ShopLocation;
+import org.shanerx.tradeshop.objects.*;
 import org.shanerx.tradeshop.utils.Utils;
 
 import java.io.File;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 
 public class DataStorage extends Utils {
 
-    private DataType dataType;
+    private transient DataType dataType;
+    private transient Map<World, Map<String, String>> chestLinkage = new HashMap<>();
 
     public DataStorage(DataType dataType) {
-        this.dataType = dataType;
-        debugger.log("Data storage set to: " + dataType.name(), DebugLevels.DISABLED);
+        reload(dataType);
     }
 
     public void reload(DataType dataType) {
@@ -65,7 +61,7 @@ public class DataStorage extends Utils {
     public Shop loadShopFromStorage(ShopLocation chest) {
         switch (dataType) {
             case FLATFILE:
-                return null; //TODO decide if/how we want to handle this since flatfile won't support chest lookup without some changes
+                return loadShopFromSign(getChestLinkage(chest));
             case SQLITE:
                 return null; //TODO add SQLITE support
         }
@@ -152,6 +148,81 @@ public class DataStorage extends Utils {
                 //TODO add SQLITE support
                 break;
         }
+    }
+
+    private boolean loadChestLinkage(World world) {
+        if (dataType != DataType.FLATFILE)
+            return false;
+
+        Map<String, String> loadedLinkage = new JsonConfiguration(world).loadChestLinkage();
+
+        if (loadedLinkage != null) {
+            chestLinkage.put(world, loadedLinkage);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public ShopLocation getChestLinkage(ShopLocation chestLocation) {
+        switch (dataType) {
+            case FLATFILE:
+                if (loadChestLinkage(chestLocation.getWorld())
+                        && chestLinkage.containsKey(chestLocation.getWorld())
+                        && chestLinkage.get(chestLocation.getWorld()).containsKey(chestLocation.serialize())) {
+                    return ShopLocation.deserialize(chestLinkage.get(chestLocation.getWorld()).get(chestLocation.serialize()));
+                } else {
+                    ShopChest shopChest = new ShopChest(chestLocation.getLocation());
+                    if (shopChest.hasShopSign()) {
+                        if (!chestLinkage.containsKey(chestLocation.getWorld())) {
+                            chestLinkage.putIfAbsent(chestLocation.getWorld(),
+                                    Collections.singletonMap(chestLocation.serialize(), shopChest.getShopSign().serialize()));
+                        } else {
+                            if (chestLinkage.get(chestLocation.getWorld()).containsKey(chestLocation.serialize())) {
+                                chestLinkage.get(chestLocation.getWorld()).replace(chestLocation.serialize(), shopChest.getShopSign().serialize());
+                            } else {
+                                chestLinkage.get(chestLocation.getWorld()).put(chestLocation.serialize(), shopChest.getShopSign().serialize());
+                            }
+                        }
+                        saveChestLinkages();
+                    }
+                    return shopChest.getShopSign();
+                }
+            case SQLITE:
+                //TODO add SQLITE support
+                break;
+        }
+
+        return null;
+    }
+
+    public void removeChestLinkage(ShopLocation chestLocation) {
+        if (getChestLinkage(chestLocation) != null) {
+            chestLinkage.get(chestLocation.getWorld()).remove(chestLocation.serialize());
+            new JsonConfiguration(chestLocation.getWorld()).saveChestLinkage(chestLinkage.get(chestLocation.getWorld()));
+        }
+    }
+
+    public void addChestLinkage(ShopLocation chestLocation, ShopLocation shopLocation) {
+        if (chestLinkage.containsKey(chestLocation.getWorld())) {
+            if (chestLinkage.get(chestLocation.getWorld()).containsKey(chestLocation.serialize()))
+                chestLinkage.get(chestLocation.getWorld()).replace(chestLocation.serialize(), shopLocation.serialize());
+            else
+                chestLinkage.get(chestLocation.getWorld()).put(chestLocation.serialize(), shopLocation.serialize());
+        } else {
+            chestLinkage.put(chestLocation.getWorld(), Collections.singletonMap(chestLocation.serialize(), shopLocation.serialize()));
+        }
+        saveChestLinkages();
+    }
+
+    public void saveChestLinkages() {
+        for (World world : chestLinkage.keySet()) {
+            new JsonConfiguration(world).saveChestLinkage(chestLinkage.get(world));
+        }
+    }
+
+    public void clearChestLinkages() {
+        chestLinkage.clear();
     }
 
 
