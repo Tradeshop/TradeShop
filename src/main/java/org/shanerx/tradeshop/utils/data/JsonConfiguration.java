@@ -26,19 +26,23 @@
 package org.shanerx.tradeshop.utils.data;
 
 import com.google.common.collect.Lists;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.google.common.collect.Sets;
 import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
 import org.bukkit.Chunk;
 import org.bukkit.inventory.ItemStack;
-import org.shanerx.tradeshop.objects.Shop;
-import org.shanerx.tradeshop.objects.ShopChunk;
-import org.shanerx.tradeshop.objects.ShopItemStack;
-import org.shanerx.tradeshop.objects.ShopLocation;
+import org.shanerx.tradeshop.objects.*;
 import org.shanerx.tradeshop.utils.Utils;
 
 import java.io.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 public class JsonConfiguration extends Utils implements Serializable {
 	private final String pluginFolder;
@@ -48,6 +52,8 @@ public class JsonConfiguration extends Utils implements Serializable {
 	private JsonObject jsonObj;
 	private final int configType;
 	private final Gson gson;
+
+	private transient UUID playerUUID;
 
 	public JsonConfiguration(Chunk c) {
 		gson = new GsonBuilder().setPrettyPrinting().serializeNulls().create();
@@ -84,8 +90,9 @@ public class JsonConfiguration extends Utils implements Serializable {
 	}
 
 	public JsonConfiguration(UUID uuid) {
-		gson = new GsonBuilder().enableComplexMapKeySerialization().setPrettyPrinting().serializeNulls().create();
+		gson = new GsonBuilder().setPrettyPrinting().serializeNulls().create();
 		configType = 1;
+		playerUUID = uuid;
 		this.pluginFolder = plugin.getDataFolder().getAbsolutePath();
 		this.path = this.pluginFolder + File.separator + "Data" + File.separator + "Players";
 		this.file = new File(path + File.separator + uuid.toString() + ".json");
@@ -135,12 +142,11 @@ public class JsonConfiguration extends Utils implements Serializable {
 		loadContents();
 	}
 
-	public void savePlayer(Map<String, Integer> data) {
+	public void savePlayer(PlayerSetting playerSetting) {
 		if (configType != 1)
 			return;
 
-		JsonElement obj = gson.toJsonTree(data);
-		jsonObj.add("data", obj);
+		jsonObj.add(playerSetting.getUuid().toString(), gson.toJsonTree(playerSetting));
 
 		saveContents(gson.toJson(jsonObj));
 	}
@@ -152,21 +158,24 @@ public class JsonConfiguration extends Utils implements Serializable {
 		file.delete();
 	}
 
-	public Map<String, Integer> loadPlayer() {
+	public PlayerSetting loadPlayer() {
 		if (configType != 1)
 			return null;
 
-		Gson gson = new Gson();
-		Map<String, Integer> data;
+		Gson gson = new GsonBuilder().setPrettyPrinting().serializeNulls().create();
+		PlayerSetting playerSetting;
 
 		if (jsonObj.has("data")) {
-			data = gson.fromJson(jsonObj.get("data"), new TypeToken<Map<String, Integer>>() {
-			}.getType());
+			playerSetting = new PlayerSetting(playerUUID, gson.fromJson(jsonObj.get("data"), new TypeToken<Map<String, Integer>>() {
+			}.getType()));
+			jsonObj.remove("data");
+			saveContents(gson.toJson(jsonObj));
 		} else {
-			data = new HashMap<>();
+			playerSetting = gson.fromJson(jsonObj.get(playerUUID.toString()), PlayerSetting.class);
 		}
 
-		return data;
+		playerSetting.load();
+		return playerSetting;
 	}
 
 	public void saveShop(Shop shop) {

@@ -25,45 +25,110 @@
 
 package org.shanerx.tradeshop.objects;
 
-import org.shanerx.tradeshop.enumys.PlayerData;
+import com.google.common.collect.Sets;
+import com.google.gson.Gson;
+import org.shanerx.tradeshop.enumys.Setting;
 
+import java.io.Serializable;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
-public class PlayerSetting {
+public class PlayerSetting implements Serializable {
 
     private transient UUID uuid;
-    private transient Map<String, Integer> data;
+    private String uuidString;
+
+    private int type = 0, multi = Setting.MULTI_TRADE_DEFAULT.getInt();
+
+    private Set<String> ownedShops, staffShops;
 
     public PlayerSetting(UUID playerUUID, Map<String, Integer> data) {
         this.uuid = playerUUID;
-        this.data = data;
-        for (PlayerData key : PlayerData.values()) {
-            if (!data.containsKey(key.getPath()))
-                data.putIfAbsent(key.getPath(), key.getDefaultValue());
-            else
-                data.replace(key.getPath(), key.getDefaultValue());
-        }
+        this.uuidString = uuid.toString();
+
+        if (data.containsKey("type")) type = data.get("type");
+        if (data.containsKey("multi")) multi = data.get("multi");
+
+        ownedShops = Sets.newHashSet();
+        staffShops = Sets.newHashSet();
+
+        load();
     }
 
-    public Integer getObject(PlayerData key) {
-        Integer value = data.get(key.getPath());
-        return value != null ? value : key.getDefaultValue();
+    public PlayerSetting(UUID playerUUID) {
+        this.uuid = playerUUID;
+        this.uuidString = uuid.toString();
+
+        ownedShops = Sets.newHashSet();
+        staffShops = Sets.newHashSet();
+
+        load();
     }
 
-    public void setObject(PlayerData key, Integer value) {
-        if (!data.containsKey(key.getPath()))
-            data.putIfAbsent(key.getPath(), value);
+    public static PlayerSetting deserialize(String serialized) {
+        PlayerSetting playerSetting = new Gson().fromJson(serialized, PlayerSetting.class);
+        playerSetting.load();
+        return playerSetting;
+    }
+
+    public int getType() {
+        return type;
+    }
+
+    public void setType(int type) {
+        this.type = type;
+    }
+
+    public int getMulti() {
+        return multi;
+    }
+
+    public void setMulti(int multi) {
+        this.multi = multi;
+    }
+
+    public Set<String> getOwnedShops() {
+        return ownedShops;
+    }
+
+    public void addShop(Shop shop) {
+        if (shop.getOwner().getUUID().equals(uuid) &&
+                !ownedShops.contains(shop.getShopLocationAsSL().serialize()))
+            ownedShops.add(shop.getShopLocationAsSL().serialize());
+        else if (shop.getUsersUUID().contains(uuid) &&
+                !ownedShops.contains(shop.getShopLocationAsSL().serialize()))
+            staffShops.add(shop.getShopLocationAsSL().serialize());
+    }
+
+    public void removeShop(Shop shop) {
+        ownedShops.remove(shop.getShopLocationAsSL().serialize());
+        staffShops.remove(shop.getShopLocationAsSL().serialize());
+    }
+
+    public void updateShops(Shop shop) {
+        if (!shop.getUsersUUID().contains(uuid))
+            removeShop(shop);
         else
-            data.replace(key.getPath(), value);
+            addShop(shop);
+
     }
 
     public UUID getUuid() {
         return uuid;
     }
 
-    public Map<String, Integer> getData() {
-        return data;
+    public Set<String> getStaffShops() {
+        return staffShops;
+    }
+
+    public void load() {
+        if (uuid == null) uuid = UUID.fromString(uuidString);
+        if (multi > Setting.MULTI_TRADE_MAX.getInt()) multi = Setting.MULTI_TRADE_MAX.getInt();
+    }
+
+    public String serialize() {
+        return new Gson().toJson(this);
     }
 }
 
