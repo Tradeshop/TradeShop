@@ -43,6 +43,7 @@ import org.shanerx.tradeshop.framework.events.PlayerShopOpenEvent;
 import org.shanerx.tradeshop.objects.*;
 import org.shanerx.tradeshop.utils.ObjectHolder;
 import org.shanerx.tradeshop.utils.Utils;
+import org.shanerx.tradeshop.utils.data.DataType;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -130,6 +131,14 @@ public class CommandRunner extends Utils {
 		Message.reload();
 		Setting.reload();
         plugin.getDebugger().reload();
+        try {
+            plugin.getDataStorage().reload(DataType.valueOf(Setting.DATA_STORAGE_TYPE.getString().toUpperCase()));
+        } catch (IllegalArgumentException iae) {
+            debugger.log("Config value for data storage set to an invalid value: " + Setting.DATA_STORAGE_TYPE.getString(), DebugLevels.DATA_ERROR);
+            debugger.log("TradeShop will now disable...", DebugLevels.DATA_ERROR);
+            plugin.getServer().getPluginManager().disablePlugin(plugin);
+            return;
+        }
 		sendMessage(getPrefix() + "&6The configuration files have been reloaded!");
 	}
 
