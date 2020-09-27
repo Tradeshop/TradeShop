@@ -47,6 +47,11 @@ public class DataStorage extends Utils {
         debugger.log("Data storage set to: " + dataType.name(), DebugLevels.DISABLED);
     }
 
+    public void reload(DataType dataType) {
+        this.dataType = dataType;
+        debugger.log("Data storage set to: " + dataType.name(), DebugLevels.DISABLED);
+    }
+
     public Shop loadShopFromSign(ShopLocation sign) {
         switch (dataType) {
             case FLATFILE:
