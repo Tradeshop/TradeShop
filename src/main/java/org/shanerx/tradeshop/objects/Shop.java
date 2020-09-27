@@ -34,6 +34,7 @@ import org.bukkit.block.Sign;
 import org.bukkit.event.block.SignChangeEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.shanerx.tradeshop.TradeShop;
 import org.shanerx.tradeshop.enumys.Setting;
 import org.shanerx.tradeshop.enumys.ShopRole;
 import org.shanerx.tradeshop.enumys.ShopStatus;
@@ -45,7 +46,6 @@ import java.io.Serializable;
 import java.util.*;
 import java.util.stream.Collectors;
 
-@SuppressWarnings("unused")
 public class Shop implements Serializable {
 
 	private ShopUser owner;
@@ -152,16 +152,6 @@ public class Shop implements Serializable {
 	}
 
 	/**
-	 * Retrieves the Shop object based on a serialized ShopLocation of the sign
-	 *
-	 * @param serializedShopLocation ShopLocation in serialized string
-	 * @return Shop object from file
-	 */
-	public static Shop loadShop(String serializedShopLocation) {
-        return loadShop(Objects.requireNonNull(ShopLocation.deserialize(serializedShopLocation)));
-	}
-
-	/**
 	 * Loads the shop from file
 	 *
 	 * @param s Shop sign to load from
@@ -249,6 +239,7 @@ public class Shop implements Serializable {
 		users.add(owner);
 		users.addAll(getManagers());
 		users.addAll(getMembers());
+
 		return users;
 	}
 
@@ -304,29 +295,53 @@ public class Shop implements Serializable {
 		return false;
 	}
 
+    /**
+     * Updates the saved player data for all users
+     */
+    private void updateUserFiles() {
+        TradeShop plugin = new Utils().plugin;
+        for (UUID user : getUsersUUID()) {
+            PlayerSetting playerSetting = plugin.getDataStorage().loadPlayer(user);
+            playerSetting.updateShops(this);
+            plugin.getDataStorage().savePlayer(playerSetting);
+        }
+    }
+
+    /**
+     * Removes this shop from all users
+     */
+    private void purgeFromUserFiles() {
+        TradeShop plugin = new Utils().plugin;
+        for (UUID user : getUsersUUID()) {
+            PlayerSetting playerSetting = plugin.getDataStorage().loadPlayer(user);
+            playerSetting.removeShop(this);
+            plugin.getDataStorage().savePlayer(playerSetting);
+        }
+    }
+
 	/**
 	 * Removes a user from the shop
 	 *
 	 * @param oldUser the UUID of the player to be removed
 	 * @return true if user was removed
 	 */
-	public boolean removeUser(UUID oldUser) {
-		if (getManagersUUID().contains(oldUser)) {
-			managers.remove(oldUser);
-			saveShop();
-			updateSign();
-			return true;
-		}
+    public boolean removeUser(UUID oldUser) {
+        boolean ret = false;
+        if (getManagersUUID().contains(oldUser)) {
+            managers.remove(oldUser);
+            ret = true;
+        }
 
-		if (getMembersUUID().contains(oldUser)) {
-			members.remove(oldUser);
-			saveShop();
-			updateSign();
-			return true;
-		}
+        if (getMembersUUID().contains(oldUser)) {
+            members.remove(oldUser);
+            ret = true;
+        }
 
-		return false;
-	}
+        saveShop();
+        updateSign();
+
+        return ret;
+    }
 
 	/**
 	 * Adds a member to the shop
@@ -340,6 +355,7 @@ public class Shop implements Serializable {
 			saveShop();
 			return true;
 		}
+
 		return false;
 	}
 
@@ -611,6 +627,7 @@ public class Shop implements Serializable {
 	 */
 	public void saveShop() {
 		new Utils().plugin.getDataStorage().saveShop(this);
+        updateUserFiles();
 	}
 
 	/**
@@ -806,9 +823,10 @@ public class Shop implements Serializable {
 	/**
 	 * Removes this shop from file
 	 */
-	public void remove() {
-		new Utils().plugin.getDataStorage().removeShop(this);
-	}
+    public void remove() {
+        purgeFromUserFiles();
+        new Utils().plugin.getDataStorage().removeShop(this);
+    }
 
 	/**
 	 * Checks if shop is open

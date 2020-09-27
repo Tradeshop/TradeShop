@@ -780,8 +780,8 @@ public class CommandRunner extends Utils {
 	/**
 	 * Adds the specified player to the shop as a member
 	 */
-    public void addMember() {
-        Shop shop = findShop();
+	public void addMember() {
+		Shop shop = findShop();
 
 		if (shop == null)
 			return;
@@ -802,11 +802,11 @@ public class CommandRunner extends Utils {
 			sendMessage(Message.UNSUCCESSFUL_SHOP_MEMBERS.getPrefixed());
 			return;
 		}
-		
+
 		PlayerShopChangeEvent changeEvent = new PlayerShopChangeEvent(pSender, shop, ShopChange.ADD_MEMBER, new ObjectHolder<OfflinePlayer>(target));
 		Bukkit.getPluginManager().callEvent(changeEvent);
 		if (changeEvent.isCancelled()) return;
-		
+
 		shop.addMember(target.getUniqueId());
 
 		sendMessage(Message.UPDATED_SHOP_MEMBERS.getPrefixed());
@@ -824,7 +824,7 @@ public class CommandRunner extends Utils {
         PlayerSetting playerSetting = plugin.getDataStorage().loadPlayer(pSender.getUniqueId());
 
 		if (command.argsSize() == 1) {
-            sendMessage(Message.MULTI_AMOUNT.getPrefixed().replaceAll("%amount%", String.valueOf(playerSetting.getObject(PlayerData.MULTI))));
+			sendMessage(Message.MULTI_AMOUNT.getPrefixed().replaceAll("%amount%", String.valueOf(playerSetting.getMulti())));
 		} else {
             int amount = Setting.MULTI_TRADE_DEFAULT.getInt();
 
@@ -836,7 +836,7 @@ public class CommandRunner extends Utils {
             else if (amount > Setting.MULTI_TRADE_MAX.getInt())
                 amount = Setting.MULTI_TRADE_MAX.getInt();
 
-            playerSetting.setObject(PlayerData.MULTI, amount);
+			playerSetting.setMulti(amount);
             plugin.getDataStorage().savePlayer(playerSetting);
 
 			sendMessage(Message.MULTI_UPDATE.getPrefixed().replaceAll("%amount%", String.valueOf(amount)));

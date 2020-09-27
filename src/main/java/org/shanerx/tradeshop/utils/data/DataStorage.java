@@ -115,19 +115,22 @@ public class DataStorage extends Utils {
     }
 
     public PlayerSetting loadPlayer(UUID uuid) {
+        PlayerSetting playerSetting = null;
         switch (dataType) {
             case FLATFILE:
-                return new PlayerSetting(uuid, new JsonConfiguration(uuid).loadPlayer());
+                playerSetting = new JsonConfiguration(uuid).loadPlayer();
+                break;
             case SQLITE:
-                return null; //TODO add SQLITE support
+                //TODO add SQLITE support
+                break;
         }
-        return null;
+        return playerSetting != null ? playerSetting : new PlayerSetting(uuid);
     }
 
     public void savePlayer(PlayerSetting playerSetting) {
         switch (dataType) {
             case FLATFILE:
-                new JsonConfiguration(playerSetting.getUuid()).savePlayer(playerSetting.getData());
+                new JsonConfiguration(playerSetting.getUuid()).savePlayer(playerSetting);
                 break;
             case SQLITE:
                 //TODO add SQLITE support

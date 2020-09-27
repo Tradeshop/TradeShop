@@ -33,6 +33,7 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.shanerx.tradeshop.TradeShop;
 import org.shanerx.tradeshop.enumys.Message;
 import org.shanerx.tradeshop.enumys.Permissions;
+import org.shanerx.tradeshop.objects.PlayerSetting;
 import org.shanerx.tradeshop.utils.BukkitVersion;
 import org.shanerx.tradeshop.utils.Updater;
 import org.shanerx.tradeshop.utils.Utils;
@@ -49,7 +50,8 @@ public class JoinEventListener extends Utils implements Listener {
 	public void onJoin(PlayerJoinEvent event) {
 
 		Player player = event.getPlayer();
-		plugin.getDataStorage().savePlayer(plugin.getDataStorage().loadPlayer(player.getUniqueId()));
+		PlayerSetting playerSetting = plugin.getDataStorage().loadPlayer(player.getUniqueId());
+		plugin.getDataStorage().savePlayer(playerSetting != null ? playerSetting : new PlayerSetting(player.getUniqueId()));
 
 		if (player.hasPermission(Permissions.ADMIN.getPerm())) {
 			BukkitVersion ver = new BukkitVersion();
