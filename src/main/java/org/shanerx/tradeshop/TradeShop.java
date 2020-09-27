@@ -45,7 +45,9 @@ public class TradeShop extends JavaPlugin {
 
     private final NamespacedKey storageKey = new NamespacedKey(this, "tradeshop-storage-data");
     private final NamespacedKey signKey = new NamespacedKey(this, "tradeshop-sign-data");
+
     private final int bStatsPluginID = 1690;
+	private Metrics metrics;
 
 	private ListManager lists;
 	private DataStorage dataStorage;
@@ -53,8 +55,6 @@ public class TradeShop extends JavaPlugin {
 	private BukkitVersion version;
 	private ShopSign signs;
     private ShopStorage storages;
-
-	private Metrics metrics;
 
 	private Debug debugger;
 
@@ -78,9 +78,6 @@ public class TradeShop extends JavaPlugin {
 		Message.reload();
 
 		debugger = new Debug();
-        signs = new ShopSign();
-        storages = new ShopStorage();
-		lists = new ListManager();
 
 		try {
 			dataStorage = new DataStorage(DataType.valueOf(Setting.DATA_STORAGE_TYPE.getString().toUpperCase()));
@@ -90,6 +87,10 @@ public class TradeShop extends JavaPlugin {
 			getServer().getPluginManager().disablePlugin(this);
 			return;
 		}
+
+		signs = new ShopSign();
+		storages = new ShopStorage();
+		lists = new ListManager();
 
 		PluginManager pm = getServer().getPluginManager();
 		pm.registerEvents(new JoinEventListener(this), this);
@@ -113,6 +114,13 @@ public class TradeShop extends JavaPlugin {
 			getLogger().warning("Metrics are disabled! Please consider enabling them to support the authors!");
 		}
 
+	}
+
+	@Override
+	public void onDisable() {
+		dataStorage.saveChestLinkages();
+
+		getListManager().clearManager();
 	}
 
     public NamespacedKey getStorageKey() {

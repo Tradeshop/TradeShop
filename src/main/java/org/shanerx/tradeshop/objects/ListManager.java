@@ -109,6 +109,7 @@ public class ListManager extends Utils {
 		directions.clear();
         addOnMats.clear();
         gameMats.clear();
+		plugin.getDataStorage().clearChestLinkages();
 	}
 
 	private void updateBlacklist() {

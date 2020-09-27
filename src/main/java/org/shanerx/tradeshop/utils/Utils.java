@@ -47,6 +47,7 @@ import org.shanerx.tradeshop.enumys.*;
 import org.shanerx.tradeshop.objects.Debug;
 import org.shanerx.tradeshop.objects.Shop;
 import org.shanerx.tradeshop.objects.ShopItemStack;
+import org.shanerx.tradeshop.objects.ShopLocation;
 
 import java.util.*;
 import java.util.logging.Level;
@@ -288,6 +289,10 @@ public class Utils {
 	 * @return the sign.
 	 */
 	public Sign findShopSign(Block chest) {
+		ShopLocation potentialLocation = plugin.getDataStorage().getChestLinkage(new ShopLocation(chest.getLocation()));
+		if (potentialLocation != null && ShopType.isShop(potentialLocation.getLocation().getBlock()))
+			return (Sign) potentialLocation.getLocation().getBlock().getState();
+
 		ArrayList<BlockFace> faces = plugin.getListManager().getDirections();
 		Collections.reverse(faces);
 		ArrayList<BlockFace> flatFaces = new ArrayList<>(Arrays.asList(BlockFace.NORTH, BlockFace.EAST, BlockFace.SOUTH, BlockFace.WEST));

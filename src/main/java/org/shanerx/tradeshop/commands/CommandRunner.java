@@ -872,6 +872,9 @@ public class CommandRunner extends Utils {
 				return Shop.loadShop((Sign) b.getState());
 
             } else if (ShopChest.isShopChest(b)) {
+				if (plugin.getDataStorage().getChestLinkage(new ShopLocation(b.getLocation())) != null)
+					return plugin.getDataStorage().loadShopFromStorage(new ShopLocation(b.getLocation()));
+
 				return Shop.loadShop(new ShopChest(b.getLocation()).getShopSign());
 
 			} else
