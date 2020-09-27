@@ -38,7 +38,6 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.shanerx.tradeshop.enumys.Message;
-import org.shanerx.tradeshop.enumys.PlayerData;
 import org.shanerx.tradeshop.enumys.Setting;
 import org.shanerx.tradeshop.enumys.ShopType;
 import org.shanerx.tradeshop.framework.events.PlayerTradeEvent;
@@ -125,7 +124,7 @@ public class ShopTradeListener extends Utils implements Listener {
         }
 
         if (buyer.isSneaking() && Setting.ALLOW_MULTI_TRADE.getBoolean()) {
-            multiplier = plugin.getDataStorage().loadPlayer(buyer.getUniqueId()).getObject(PlayerData.MULTI);
+            multiplier = plugin.getDataStorage().loadPlayer(buyer.getUniqueId()).getMulti();
 
         }
 

@@ -132,7 +132,7 @@ public class ShopCreateListener extends Utils implements Listener {
 			event.setCancelled(true);
 			return;
 		}
-		
+
 		shop.updateSign(event);
 		shop.removeEvent();
 		shop.saveShop();
