@@ -31,10 +31,7 @@ import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.shanerx.tradeshop.commands.CommandCaller;
 import org.shanerx.tradeshop.commands.CommandTabCaller;
-import org.shanerx.tradeshop.enumys.Message;
-import org.shanerx.tradeshop.enumys.Setting;
-import org.shanerx.tradeshop.enumys.ShopSign;
-import org.shanerx.tradeshop.enumys.ShopStorage;
+import org.shanerx.tradeshop.enumys.*;
 import org.shanerx.tradeshop.listeners.*;
 import org.shanerx.tradeshop.objects.Debug;
 import org.shanerx.tradeshop.objects.ListManager;
@@ -84,7 +81,15 @@ public class TradeShop extends JavaPlugin {
         signs = new ShopSign();
         storages = new ShopStorage();
 		lists = new ListManager();
-		dataStorage = new DataStorage(DataType.valueOf(Setting.DATA_STORAGE_TYPE.getString().toUpperCase()));
+
+		try {
+			dataStorage = new DataStorage(DataType.valueOf(Setting.DATA_STORAGE_TYPE.getString().toUpperCase()));
+		} catch (IllegalArgumentException iae) {
+			debugger.log("Config value for data storage set to an invalid value: " + Setting.DATA_STORAGE_TYPE.getString(), DebugLevels.DATA_ERROR);
+			debugger.log("TradeShop will now disable...", DebugLevels.DATA_ERROR);
+			getServer().getPluginManager().disablePlugin(this);
+			return;
+		}
 
 		PluginManager pm = getServer().getPluginManager();
 		pm.registerEvents(new JoinEventListener(this), this);

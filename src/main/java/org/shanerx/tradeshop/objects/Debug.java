@@ -65,6 +65,8 @@ public class Debug {
             Bukkit.getLogger().log(level.getLogLevel(), PREFIX.replace("%level%", level.getPrefix()) + message);
         } else if (level == DebugLevels.DISABLED) {
             Bukkit.getLogger().log(level.getLogLevel(), PREFIX.replace(" Debug%level%", "") + message);
+        } else if (level.getPosition() < 0) {
+            Bukkit.getLogger().log(level.getLogLevel(), PREFIX.replace("%level%", level.getPrefix()) + message);
         }
     }
 }
