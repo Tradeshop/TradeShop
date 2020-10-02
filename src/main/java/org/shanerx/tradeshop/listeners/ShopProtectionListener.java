@@ -217,7 +217,7 @@ public class ShopProtectionListener extends Utils implements Listener {
 
         Block block = e.getClickedBlock();
 
-        if (!(e.getAction() == Action.RIGHT_CLICK_BLOCK && plugin.getListManager().isInventory(block))) {
+        if (e.getAction() != Action.RIGHT_CLICK_BLOCK || !plugin.getListManager().isInventory(block)) {
             return;
         }
 
