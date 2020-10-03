@@ -36,7 +36,7 @@ import org.shanerx.tradeshop.utils.Utils;
 
 public class ShopRestockListener extends Utils implements Listener {
 
-    private TradeShop plugin;
+    private final TradeShop plugin;
 
     public ShopRestockListener(TradeShop instance) {
         plugin = instance;
@@ -49,8 +49,10 @@ public class ShopRestockListener extends Utils implements Listener {
     public void onInventoryClose(InventoryCloseEvent event) {
         if (ShopChest.isShopChest(event.getInventory())) {
             Shop shop = new ShopChest(event.getInventory().getLocation()).getShop();
-            shop.updateSign();
-            shop.saveShop();
+            if (shop != null) {
+                shop.updateSign();
+                shop.saveShop();
+            }
         }
     }
 }
