@@ -485,8 +485,8 @@ public class Utils {
             totalCount += item.getItemStack().getAmount() * multiplier;
 			if (item.getItemStack().getType().name().endsWith("SHULKER_BOX")) {
                 for (ItemStack itm : clone.getStorageContents()) {
-                    if (!itm.getType().name().endsWith("SHULKER_BOX"))
-                        break;
+                    if (itm == null || !itm.getType().name().endsWith("SHULKER_BOX"))
+						break;
 
 					if (compareShulkers(itm, item.getItemStack())) {
                         clone.removeItem(itm);
