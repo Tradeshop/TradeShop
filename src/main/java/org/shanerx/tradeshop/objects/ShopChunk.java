@@ -33,7 +33,7 @@ import java.io.Serializable;
 
 public class ShopChunk implements Serializable {
 
-	final private String div = "::";
+	final private String div = ";;";
 	private final World world;
 	private final int x;
 	private final int z;
@@ -55,7 +55,7 @@ public class ShopChunk implements Serializable {
 
 	public static Chunk deserialize(String loc) {
 		if (loc.startsWith("c")) {
-			String[] locA = loc.contains("::") ? loc.split("::") : loc.split("_"); //Keep same as div
+			String[] locA = loc.contains(";;") ? loc.split(";;") : loc.split("_"); //Keep same as div
 			World world = Bukkit.getWorld(locA[1]);
 			if (world == null)
 				world = Bukkit.getWorld(locA[1].replace("-", "_"));
