@@ -45,12 +45,13 @@ import java.util.UUID;
 
 public class ShopChest extends Utils {
 
-	private transient static TradeShop plugin = (TradeShop) Bukkit.getPluginManager().getPlugin("TradeShop");
+	private final transient static TradeShop plugin = (TradeShop) Bukkit.getPluginManager().getPlugin("TradeShop");
 	private ShopLocation shopSign;
-	private Location loc;
+	private final Location loc;
 	private Block chest;
 	private UUID owner;
-	private String sectionSeparator = "\\$ \\^", titleSeparator = ";;";
+	private final String sectionSeparator = "\\$ \\^";
+	private final String titleSeparator = ";;";
 
 	public ShopChest(Location chestLoc) {
 		this.loc = chestLoc;
@@ -175,7 +176,7 @@ public class ShopChest extends Utils {
 	public void loadFromName() {
         if (isShopChest(chest)) {
 			String[] name = ((Container) chest.getState()).getPersistentDataContainer().get(plugin.getSignKey(), PersistentDataType.STRING)
-					.replaceAll("n:", "n" + titleSeparator).replaceAll("r:", "r" + titleSeparator)
+					.replaceAll("Sign:", "Sign" + titleSeparator).replaceAll("Owner:", "Owner" + titleSeparator)
 					.split(sectionSeparator);
 			Map<String, String> chestData = new HashMap<>();
 			for (String s : name) {

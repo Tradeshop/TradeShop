@@ -58,20 +58,22 @@ import java.util.List;
 
 public class ShopProtectionListener extends Utils implements Listener {
 
-	private TradeShop plugin;
+    private final TradeShop plugin;
 
-	public ShopProtectionListener(TradeShop instance) {
-		plugin = instance;
-	}
+    public ShopProtectionListener(TradeShop instance) {
+        plugin = instance;
+    }
 
-    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
-	public void onInventoryMoveItem(InventoryMoveItemEvent event) {
+    @EventHandler(priority = EventPriority.HIGH)
+    public void onInventoryMoveItem(InventoryMoveItemEvent event) {
 
-        if (event.isCancelled())
+        if (event.isCancelled()) {
             return;
+        }
 
-        if (event instanceof HopperShopAccessEvent)
+        if (event instanceof HopperShopAccessEvent) {
             return;
+        }
 
         if (!(event.getInitiator().getType().equals(InventoryType.HOPPER) &&
                 plugin.getListManager().isInventory(event.getSource().getLocation().getBlock()))) {
