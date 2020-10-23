@@ -179,7 +179,7 @@ public class ShopTradeListener extends Utils implements Listener {
 
     private boolean tradeAllItems(Shop shop, int multiplier, Action action, Player buyer) {
         ArrayList<ItemStack> costItems = new ArrayList<>(), productItems = new ArrayList<>();
-        Inventory shopInventory = shop.getChestAsSC().getInventory();
+        Inventory shopInventory = shop.hasStorage() ? shop.getChestAsSC().getInventory() : null;
         Inventory playerInventory = buyer.getInventory();
 
         if (shop.getShopType() == ShopType.ITRADE && action.equals(Action.RIGHT_CLICK_BLOCK)) { //ITrade trade

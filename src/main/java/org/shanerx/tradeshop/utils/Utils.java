@@ -485,16 +485,18 @@ public class Utils {
             totalCount += item.getItemStack().getAmount() * multiplier;
 			if (item.getItemStack().getType().name().endsWith("SHULKER_BOX")) {
                 for (ItemStack itm : clone.getStorageContents()) {
-                    if (!itm.getType().name().endsWith("SHULKER_BOX"))
-                        break;
+					if (itm != null && itm.getType().name().endsWith("SHULKER_BOX")) {
+						StringBuilder contents = new StringBuilder();
+						Arrays.stream(clone.getContents()).forEach(a -> contents.append(a != null ? a.getType().toString() : "Empty").append("|"));
 
-					if (compareShulkers(itm, item.getItemStack())) {
-                        clone.removeItem(itm);
-                        ret.add(itm);
-                        currentCount++;
-                        break;
-                    }
-                }
+						debugger.log("ShopTradeListener > clone Contents: " + contents.toString(), DebugLevels.TRADE);
+						if (compareShulkers(itm, item.getItemStack())) {
+							clone.removeItem(itm);
+							ret.add(itm);
+							currentCount++;
+						}
+					}
+				}
             } else {
                 int count = item.getItemStack().getAmount() * multiplier, traded;
 

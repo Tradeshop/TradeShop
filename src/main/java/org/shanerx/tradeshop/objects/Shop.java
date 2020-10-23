@@ -52,12 +52,14 @@ public class Shop implements Serializable {
 	private ShopUser owner;
 	private List<UUID> managers, members;
 	private ShopType shopType;
-	private ShopLocation shopLoc, chestLoc;
-    private List<ShopItemStack> product, cost;
+	private final ShopLocation shopLoc;
+	private final List<ShopItemStack> product;
+	private final List<ShopItemStack> cost;
+	private ShopLocation chestLoc;
 	private transient SignChangeEvent signChangeEvent;
 	private transient Inventory storageInv;
 	private transient Utils utils;
-    private ShopStatus status = ShopStatus.INCOMPLETE;
+	private ShopStatus status = ShopStatus.INCOMPLETE;
 
 	/**
 	 * Creates a Shop object
@@ -639,7 +641,8 @@ public class Shop implements Serializable {
             String[] signLines = updateSignLines();
 
             for (int i = 0; i < 4; i++) {
-                s.setLine(i, signLines[i]);
+				if (signLines[i] != null && s != null)
+					s.setLine(i, signLines[i]);
 			}
 
 			s.update();
@@ -676,16 +679,16 @@ public class Shop implements Serializable {
 		if (product.isEmpty()) {
 			signLines[1] = "";
 		} else if (product.size() == 1) {
-            StringBuilder sb = new StringBuilder();
+			StringBuilder sb = new StringBuilder();
 
-            ShopItemStack item = product.get(0);
+			ShopItemStack item = product.get(0);
 
-            sb.append(item.getItemStack().getAmount());
-            sb.append(" ");
+			sb.append(item.getItemStack().getAmount());
+			sb.append(" ");
 
-            sb.append(item.getItemName());
+			sb.append(item.getItemName());
 
-            signLines[1] = sb.toString().substring(0, Math.min(sb.length(), 15));
+			signLines[1] = sb.substring(0, Math.min(sb.length(), 15));
 
         } else {
             signLines[1] = Setting.MULTIPLE_ITEMS_ON_SIGN.getString();
@@ -694,16 +697,16 @@ public class Shop implements Serializable {
 		if (cost.isEmpty()) {
 			signLines[2] = "";
 		} else if (cost.size() == 1) {
-            StringBuilder sb = new StringBuilder();
+			StringBuilder sb = new StringBuilder();
 
-            ShopItemStack item = cost.get(0);
+			ShopItemStack item = cost.get(0);
 
-            sb.append(item.getItemStack().getAmount());
-            sb.append(" ");
+			sb.append(item.getItemStack().getAmount());
+			sb.append(" ");
 
-            sb.append(item.getItemName());
+			sb.append(item.getItemName());
 
-            signLines[2] = sb.toString().substring(0, Math.min(sb.length(), 15));
+			signLines[2] = sb.substring(0, Math.min(sb.length(), 15));
         } else {
             signLines[2] = Setting.MULTIPLE_ITEMS_ON_SIGN.getString();
         }

@@ -33,6 +33,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.util.io.BukkitObjectInputStream;
 import org.bukkit.util.io.BukkitObjectOutputStream;
 import org.shanerx.tradeshop.enumys.DebugLevels;
+import org.shanerx.tradeshop.utils.Utils;
 import org.yaml.snakeyaml.external.biz.base64Coder.Base64Coder;
 
 import java.io.ByteArrayInputStream;
@@ -178,7 +179,7 @@ public class ShopItemStack implements Serializable {
     }
 
     public boolean isSimilar(ItemStack toCompare) {
-        debugger = new Debug();
+        debugger = new Utils().debugger;
 
         // Return False if either item is null
         if (itemStack == null || toCompare == null) {

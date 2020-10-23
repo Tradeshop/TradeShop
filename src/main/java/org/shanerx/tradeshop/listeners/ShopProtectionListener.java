@@ -58,43 +58,48 @@ import java.util.List;
 
 public class ShopProtectionListener extends Utils implements Listener {
 
-	private TradeShop plugin;
+    private final TradeShop plugin;
 
-	public ShopProtectionListener(TradeShop instance) {
-		plugin = instance;
-	}
+    public ShopProtectionListener(TradeShop instance) {
+        plugin = instance;
+    }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
-	public void onInventoryMoveItem(InventoryMoveItemEvent event) {
+    public void onInventoryMoveItem(InventoryMoveItemEvent event) {
 
-        if (event.isCancelled())
-            return;
+        try {
+            if (event.isCancelled()) {
+                return;
+            }
 
-        if (event instanceof HopperShopAccessEvent)
-            return;
+            if (event instanceof HopperShopAccessEvent) {
+                return;
+            }
 
-        if (!(event.getInitiator().getType().equals(InventoryType.HOPPER) &&
-                plugin.getListManager().isInventory(event.getSource().getLocation().getBlock()))) {
-            return;
-        }
+            if (!(event.getInitiator().getType().equals(InventoryType.HOPPER) &&
+                    plugin.getListManager().isInventory(event.getSource().getLocation().getBlock()))) {
+                return;
+            }
 
-        Block invBlock = event.getSource().getLocation().getBlock();
+            Block invBlock = event.getSource().getLocation().getBlock();
 
-        Nameable fromContainer = (Nameable) invBlock.getState();
+            Nameable fromContainer = (Nameable) invBlock.getState();
 
-        if (ShopChest.isShopChest(invBlock)) {
-            Shop shop = new ShopChest(invBlock.getLocation()).getShop();
-            debugger.log("ShopProtectionListener: Shop Location as SL > " + shop.getInventoryLocationAsSL().serialize(), DebugLevels.PROTECTION);
-            boolean isForbidden = !Setting.findSetting(shop.getShopType().name() + "SHOP_HOPPER_EXPORT").getBoolean();
-            debugger.log("ShopProtectionListener: isForbidden > " + isForbidden, DebugLevels.PROTECTION);
-            debugger.log("ShopProtectionListener: checked hopper setting > " + shop.getShopType().name() + "SHOP_HOPPER_EXPORT", DebugLevels.PROTECTION);
-			HopperShopAccessEvent hopperEvent = new HopperShopAccessEvent(shop, event.getSource(), event.getDestination(), event.getItem(), isForbidden);
-			Bukkit.getPluginManager().callEvent(hopperEvent);
-            debugger.log("ShopProtectionListener: HopperEvent thrown! ", DebugLevels.PROTECTION);
-            event.setCancelled(hopperEvent.isForbidden());
-            debugger.log("ShopProtectionListener: HopperEvent isCancelled: " + hopperEvent.isForbidden(), DebugLevels.PROTECTION);
-            debugger.log("ShopProtectionListener: HopperEvent isCancelled: " + isForbidden, DebugLevels.PROTECTION);
-		}
+            if (ShopChest.isShopChest(invBlock)) {
+                Shop shop = new ShopChest(invBlock.getLocation()).getShop();
+                debugger.log("ShopProtectionListener: Shop Location as SL > " + shop.getInventoryLocationAsSL().serialize(), DebugLevels.PROTECTION);
+                boolean isForbidden = !Setting.findSetting(shop.getShopType().name() + "SHOP_HOPPER_EXPORT").getBoolean();
+                debugger.log("ShopProtectionListener: isForbidden > " + isForbidden, DebugLevels.PROTECTION);
+                debugger.log("ShopProtectionListener: checked hopper setting > " + shop.getShopType().name() + "SHOP_HOPPER_EXPORT", DebugLevels.PROTECTION);
+                HopperShopAccessEvent hopperEvent = new HopperShopAccessEvent(shop, event.getSource(), event.getDestination(), event.getItem(), isForbidden);
+                Bukkit.getPluginManager().callEvent(hopperEvent);
+                debugger.log("ShopProtectionListener: HopperEvent thrown! ", DebugLevels.PROTECTION);
+                event.setCancelled(hopperEvent.isForbidden());
+                debugger.log("ShopProtectionListener: HopperEvent isCancelled: " + hopperEvent.isForbidden(), DebugLevels.PROTECTION);
+                debugger.log("ShopProtectionListener: HopperEvent isForbidden: " + isForbidden, DebugLevels.PROTECTION);
+            }
+        } catch (NullPointerException ignored) {
+        } // Fix for random NPE triggering from this event that shows no stack trace
 	}
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
@@ -217,7 +222,7 @@ public class ShopProtectionListener extends Utils implements Listener {
 
         Block block = e.getClickedBlock();
 
-        if (!(e.getAction() == Action.RIGHT_CLICK_BLOCK && plugin.getListManager().isInventory(block))) {
+        if (e.getAction() != Action.RIGHT_CLICK_BLOCK || !plugin.getListManager().isInventory(block)) {
             return;
         }
 

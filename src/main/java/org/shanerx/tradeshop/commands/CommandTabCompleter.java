@@ -42,8 +42,8 @@ import java.util.List;
 
 public class CommandTabCompleter extends Utils {
 
-	private TradeShop plugin;
-	private CommandPass command;
+	private final TradeShop plugin;
+	private final CommandPass command;
 	private Player pSender;
 
 	public CommandTabCompleter(TradeShop instance, CommandPass command) {
@@ -71,7 +71,7 @@ public class CommandTabCompleter extends Utils {
 
 	public List<String> addSet() {
 		if (command.argsSize() == 2) {
-			return Arrays.asList("1", "2", "4", "8", "16", "32", "64", "96", "128");
+			return Arrays.asList("1", "2", "4", "8", "16", "32", "64", "80", "96", "128");
 		} else if (command.argsSize() == 3) {
 			return partialGameMats(command.getArgAt(2));
 		}

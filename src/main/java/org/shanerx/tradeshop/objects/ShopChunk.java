@@ -33,10 +33,11 @@ import java.io.Serializable;
 
 public class ShopChunk implements Serializable {
 
-	final private String div = "_";
-	private World world;
-	private int x, z;
-	private Chunk chunk;
+	final private String div = ";;";
+	private final World world;
+	private final int x;
+	private final int z;
+	private final Chunk chunk;
 
 	public ShopChunk(World w, int x, int z) {
 		this.world = w;
@@ -54,9 +55,11 @@ public class ShopChunk implements Serializable {
 
 	public static Chunk deserialize(String loc) {
 		if (loc.startsWith("c")) {
-			String[] locA = loc.split("_");//Keep same as div
-            World world = Bukkit.getWorld(locA[1].replace("-", "_"));
-			int x = Integer.parseInt(locA[2]), z = Integer.parseInt(locA[3]);
+			String[] locA = loc.contains(";;") ? loc.split(";;") : loc.split("_"); //Keep same as div
+			World world = Bukkit.getWorld(locA[1]);
+			if (world == null)
+				world = Bukkit.getWorld(locA[1].replace("-", "_"));
+			int x = Integer.parseInt(locA[2]), z = Integer.parseInt(locA[4]);
 
 			return world.getChunkAt(x, z);
 		}
@@ -65,7 +68,7 @@ public class ShopChunk implements Serializable {
 	}
 
 	public String serialize() {
-        return "c" + div + world.getName().replace("_", "-") + div + x + div + z;
+		return "c" + div + world.getName() + div + x + div + z;
 	}
 
 	public World getWorld() {
