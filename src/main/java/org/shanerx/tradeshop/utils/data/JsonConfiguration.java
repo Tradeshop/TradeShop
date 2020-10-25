@@ -30,8 +30,6 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.google.common.collect.Sets;
-import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
 import org.bukkit.Chunk;
 import org.bukkit.World;
@@ -46,13 +44,13 @@ import java.util.Map;
 import java.util.UUID;
 
 public class JsonConfiguration extends Utils implements Serializable {
-	private final String pluginFolder;
-	private final String path;
+	private String pluginFolder;
+	private String path;
 	private File file;
-	private final File filePath;
+	private File filePath;
 	private JsonObject jsonObj;
-	private final int configType;
-	private final Gson gson;
+	private int configType;
+	private Gson gson;
 
 	private transient UUID playerUUID;
 
@@ -66,28 +64,14 @@ public class JsonConfiguration extends Utils implements Serializable {
 		this.filePath = new File(path);
 		this.filePath.mkdirs();
 		if (!this.file.exists()) {
-			// If could not find file try with old separators
-			if (new File(path + File.separator + chunk.serialize().replace(";;", "_") + ".json").exists())
-				this.file = new File(path + File.separator + chunk.serialize().replace(";;", "_") + ".json");
-
 			try {
-				new File(path + File.separator + chunk.serialize() + ".json").createNewFile();
+				this.file.createNewFile();
 			} catch (Exception exception) {
 				throw new RuntimeException(exception);
 			}
 		}
 
 		loadContents();
-		if (!file.getName().contains(chunk.serialize())) {
-			this.file = new File(path + File.separator + chunk.serialize() + ".json");
-			saveContents(gson.toJson(jsonObj));
-
-			try {
-				new File(path + File.separator + chunk.serialize().replace(";;", "_") + ".json").delete();
-			} catch (SecurityException | NullPointerException ignored) {
-
-			}
-		}
 	}
 
 	public JsonConfiguration(UUID uuid) {
@@ -137,16 +121,6 @@ public class JsonConfiguration extends Utils implements Serializable {
 		} catch (IllegalStateException e) {
 			jsonObj = new JsonObject();
 		}
-
-		if (configType == 0) {
-			for (Map.Entry<String, JsonElement> entry : Sets.newHashSet(jsonObj.entrySet())) {
-				if (entry.getKey().contains("l_")) {
-					jsonObj.add(ShopLocation.deserialize(entry.getKey()).serialize(), entry.getValue());
-					jsonObj.remove(entry.getKey());
-				}
-			}
-		}
-
 	}
 
 	private void saveContents(String str) {
