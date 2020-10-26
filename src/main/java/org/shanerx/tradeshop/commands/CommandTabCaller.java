@@ -28,11 +28,9 @@ package org.shanerx.tradeshop.commands;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
-import org.bukkit.entity.Player;
 import org.shanerx.tradeshop.TradeShop;
 import org.shanerx.tradeshop.enumys.Commands;
 import org.shanerx.tradeshop.enumys.Message;
-import org.shanerx.tradeshop.enumys.Permissions;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -40,7 +38,7 @@ import java.util.List;
 
 public class CommandTabCaller implements TabCompleter {
 
-	private TradeShop plugin;
+	private final TradeShop plugin;
 	private CommandPass cmdPass;
 	private Commands command;
 	private CommandTabCompleter tabCompleter;
@@ -56,13 +54,12 @@ public class CommandTabCaller implements TabCompleter {
 
 		if (command != null) {
 
-			if (!checkPerm()) {
-				return Collections.EMPTY_LIST;
-			}
-
-			if (command.needsPlayer() && !(sender instanceof Player)) {
-				sender.sendMessage(Message.PLAYER_ONLY_COMMAND.getPrefixed());
-				return Collections.EMPTY_LIST;
+			switch (command.checkPerm(sender)) {
+				case NO_PERM:
+					return Collections.EMPTY_LIST;
+				case PLAYER_ONLY:
+					sender.sendMessage(Message.PLAYER_ONLY_COMMAND.getPrefixed());
+					return Collections.EMPTY_LIST;
 			}
 
 			tabCompleter = new CommandTabCompleter(plugin, cmdPass);
@@ -71,18 +68,15 @@ public class CommandTabCaller implements TabCompleter {
 				case HELP:
 					return tabCompleter.help();
 				case ADD_PRODUCT:
-					return tabCompleter.addSet();
 				case ADD_COST:
-					return tabCompleter.addSet();
 				case SET_COST:
-					return tabCompleter.addSet();
 				case SET_PRODUCT:
 					return tabCompleter.addSet();
-				case ADD_MANAGER:
-					return tabCompleter.fillServerPlayer();
 				case REMOVE_USER:
 					return tabCompleter.fillShopPlayer();
+				case ADD_MANAGER:
 				case ADD_MEMBER:
+				case PLAYER_LEVEL:
 					return tabCompleter.fillServerPlayer();
 				default:
 					return Collections.EMPTY_LIST;
@@ -100,15 +94,5 @@ public class CommandTabCaller implements TabCompleter {
 
 			return Collections.EMPTY_LIST;
 		}
-	}
-
-
-	/**
-	 * Checks if the sender has the required permission
-	 *
-	 * @return true if permission is NONE or sender has permission
-	 */
-	public boolean checkPerm() {
-		return cmdPass.getSender().hasPermission(command.getPerm().getPerm()) || command.getPerm().equals(Permissions.NONE);
 	}
 }

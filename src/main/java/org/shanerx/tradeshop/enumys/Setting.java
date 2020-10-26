@@ -49,7 +49,8 @@ public enum Setting {
     DATA_STORAGE_TYPE(SettingSectionKeys.SYSTEM_OPTIONS, "data-storage-type", "FLATFILE", "How would you like your servers data stored? (FLATFILE, SQLITE)"),
     ENABLE_DEBUG(SettingSectionKeys.SYSTEM_OPTIONS, "enable-debug", 0, "What debug code should be run. this will add significant amounts of spam to the console/log, generally not used unless requested by Devs (must be a whole number)"),
     CHECK_UPDATES(SettingSectionKeys.SYSTEM_OPTIONS, "check-updates", true, "Should we check for updates when the server starts"),
-    ALLOW_METRICS(SettingSectionKeys.SYSTEM_OPTIONS, "allow-metrics", true, "Allow us to connect anonymous metrics so we can see how our plugin is being used to better develop it", "\n"),
+    ALLOW_METRICS(SettingSectionKeys.SYSTEM_OPTIONS, "allow-metrics", true, "Allow us to connect anonymous metrics so we can see how our plugin is being used to better develop it"),
+    USE_INTERNAL_PERMISSIONS(SettingSectionKeys.SYSTEM_OPTIONS, "use-internal-permissions", false, "Should our internal permission system be used? (Only enable if you aren't using a permission plugin)", "\n"),
 
     // Language Options
     MESSAGE_PREFIX(SettingSectionKeys.LANGUAGE_OPTIONS, "message-prefix", "&a[&eTradeShop&a] ", "The prefix the displays before all plugin messages", "\n"),
@@ -100,12 +101,15 @@ public enum Setting {
     BITRADESHOP_HOPPER_EXPORT(SettingSectionKeys.BITRADE_SHOP_OPTIONS, "allow-hopper-export", false, "Can hoppers pull items from the shop storage (true/false)");
 
 
-	private static TradeShop plugin = (TradeShop) Bukkit.getPluginManager().getPlugin("TradeShop");
-	private static File file = new File(plugin.getDataFolder(), "config.yml");
-	private static FileConfiguration config = YamlConfiguration.loadConfiguration(file);
-    private String key, path, preComment = "", postComment = "";
-    private Object defaultValue;
-    private SettingSectionKeys sectionKey;
+    private static final TradeShop plugin = (TradeShop) Bukkit.getPluginManager().getPlugin("TradeShop");
+    private static final File file = new File(plugin.getDataFolder(), "config.yml");
+    private static FileConfiguration config = YamlConfiguration.loadConfiguration(file);
+    private final String key;
+    private final String path;
+    private final Object defaultValue;
+    private final SettingSectionKeys sectionKey;
+    private String preComment = "";
+    private String postComment = "";
 
     Setting(SettingSectionKeys sectionKey, String path, Object defaultValue) {
         this.sectionKey = sectionKey;
@@ -209,17 +213,19 @@ public enum Setting {
 			}
 			if (!file.exists()) {
 				file.createNewFile();
-			}
-		} catch (IOException e) {
-			plugin.getLogger().log(Level.SEVERE, "Could not create Config file! Disabling plugin!", e);
-			plugin.getServer().getPluginManager().disablePlugin(plugin);
-		}
+            }
+        } catch (IOException e) {
+            plugin.getLogger().log(Level.SEVERE, "Could not create Config file! Disabling plugin!", e);
+            plugin.getServer().getPluginManager().disablePlugin(plugin);
+        }
 
         fixUp();
 
-		setDefaults();
-		config = YamlConfiguration.loadConfiguration(file);
-	}
+        setDefaults();
+        config = YamlConfiguration.loadConfiguration(file);
+
+        plugin.setUseInternalPerms(USE_INTERNAL_PERMISSIONS.getBoolean());
+    }
 
     // Method to fix any values that have changed with updates
     private static void fixUp() {
@@ -354,7 +360,9 @@ enum SettingSectionKeys {
     ITRADE_SHOP_OPTIONS("itrade-shop-options", "ITrade Shop Options"),
     BITRADE_SHOP_OPTIONS("bitrade-shop-options", "BiTrade Shop Options");
 
-    private String key, sectionHeader, value_lead = "";
+    private final String key;
+    private final String sectionHeader;
+    private String value_lead = "";
     private SettingSectionKeys parent;
 
     SettingSectionKeys(String key, String sectionHeader) {

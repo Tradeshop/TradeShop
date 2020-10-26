@@ -27,6 +27,7 @@ package org.shanerx.tradeshop.enumys;
 
 import com.google.common.collect.Lists;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 
 import java.util.List;
 
@@ -42,6 +43,7 @@ public enum Commands {
 	HELP(Lists.newArrayList("help", "?"), Permissions.HELP, 1, 2, false, "Display help message", "/tradeshop $cmd$ [command]"),
 	SETUP(Lists.newArrayList("setup", "start", "create", "make"), Permissions.HELP, 1, 1, false, "Display shop setup tutorial", "/tradeshop $cmd$"),
 	BUGS(Lists.newArrayList("bugs", "bug"), Permissions.NONE, 1, 1, false, "Report bugs to the developers", "/tradeshop $cmd$"),
+	PLAYER_LEVEL(Lists.newArrayList("playerlevel", "pl"), Permissions.MANAGE_PLUGIN, 2, 3, false, "If Internal Permissions is enable this allows the getting and setting of player permission levels.", "/tradeshop $cmd$ <name> <newlevel>"),
 	ADD_MANAGER(Lists.newArrayList("addManager"), Permissions.NONE, 2, 2, true, "Add manager to shop", "/tradeshop $cmd$ <name>"),
 	REMOVE_USER(Lists.newArrayList("removeUser", "removeManager", "removeMember"), Permissions.NONE, 2, 2, true, "Remove user from shop", "/tradeshop $cmd$ <name>"),
 	ADD_MEMBER(Lists.newArrayList("addMember"), Permissions.NONE, 2, 2, true, "Add member to shop", "/tradeshop $cmd$ <name>"),
@@ -64,37 +66,38 @@ public enum Commands {
 	/**
 	 * Name of the permission
 	 **/
-	private String name;
+	private final String name;
 
 	/**
 	 * All names that can be used to call the command
 	 **/
-	private List<String> names;
+	private final List<String> names;
 
 	/**
 	 * Minimum and Maximum arguments required for the command
 	 **/
-	private int minArgs, maxArgs;
+	private final int minArgs;
+	private final int maxArgs;
 
 	/**
 	 * Permission required for the command
 	 **/
-	private Permissions perm;
+	private final Permissions perm;
 
 	/**
 	 * Whether the command requires a player to run
 	 **/
-	private boolean needsPlayer;
+	private final boolean needsPlayer;
 
 	/**
 	 * Description for command
 	 */
-	private String description;
+	private final String description;
 
 	/**
 	 * Command usage
 	 */
-	private String usage;
+	private final String usage;
 
 	Commands(List<String> names, Permissions perm, int minArgs, int maxArgs, boolean needsPlayer, String description, String usage) {
 		this.names = names;
@@ -257,7 +260,15 @@ public enum Commands {
 	 * @param sender sender to check perm for
 	 * @return true is player has perm
 	 */
-	public boolean checkPerm(CommandSender sender) {
-		return getPerm().equals(Permissions.NONE) || sender.hasPermission(getPerm().getPerm());
+	public PermStatus checkPerm(CommandSender sender) {
+		if (sender instanceof Player) {
+			if (!Permissions.hasPermission((Player) sender, getPerm()))
+				return PermStatus.NO_PERM;
+		} else {
+			if (needsPlayer())
+				return PermStatus.PLAYER_ONLY;
+		}
+
+		return PermStatus.GOOD;
 	}
 }

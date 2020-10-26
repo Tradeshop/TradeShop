@@ -40,7 +40,7 @@ import org.shanerx.tradeshop.utils.Utils;
 
 public class JoinEventListener extends Utils implements Listener {
 
-	private TradeShop plugin;
+	private final TradeShop plugin;
 
 	public JoinEventListener(TradeShop instance) {
 		plugin = instance;
@@ -53,7 +53,7 @@ public class JoinEventListener extends Utils implements Listener {
 		PlayerSetting playerSetting = plugin.getDataStorage().loadPlayer(player.getUniqueId());
 		plugin.getDataStorage().savePlayer(playerSetting != null ? playerSetting : new PlayerSetting(player.getUniqueId()));
 
-		if (player.hasPermission(Permissions.ADMIN.getPerm())) {
+		if (Permissions.hasPermission(player, Permissions.ADMIN)) {
 			BukkitVersion ver = new BukkitVersion();
 			if (plugin.getUpdater().compareVersions((short) ver.getMajor(), (short) ver.getMinor(), (short) ver.getPatch()).equals(Updater.RelationalStatus.BEHIND))
 				player.sendMessage(Message.PLUGIN_BEHIND.getPrefixed());

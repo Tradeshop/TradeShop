@@ -43,18 +43,20 @@ import org.shanerx.tradeshop.utils.data.DataType;
 public class TradeShop extends JavaPlugin {
 
 
-    private final NamespacedKey storageKey = new NamespacedKey(this, "tradeshop-storage-data");
-    private final NamespacedKey signKey = new NamespacedKey(this, "tradeshop-sign-data");
+	private final NamespacedKey storageKey = new NamespacedKey(this, "tradeshop-storage-data");
+	private final NamespacedKey signKey = new NamespacedKey(this, "tradeshop-sign-data");
 
-    private final int bStatsPluginID = 1690;
+	private final int bStatsPluginID = 1690;
 	private Metrics metrics;
+
+	private boolean useInternalPerms = false;
 
 	private ListManager lists;
 	private DataStorage dataStorage;
 
 	private BukkitVersion version;
 	private ShopSign signs;
-    private ShopStorage storages;
+	private ShopStorage storages;
 
 	private Debug debugger;
 
@@ -123,15 +125,23 @@ public class TradeShop extends JavaPlugin {
 		getListManager().clearManager();
 	}
 
-    public NamespacedKey getStorageKey() {
-        return storageKey;
-    }
+	public boolean useInternalPerms() {
+		return useInternalPerms;
+	}
 
-    public NamespacedKey getSignKey() {
-        return signKey;
-    }
+	public void setUseInternalPerms(boolean useInternalPerms) {
+		this.useInternalPerms = useInternalPerms;
+	}
 
-    public ListManager getListManager() {
+	public NamespacedKey getStorageKey() {
+		return storageKey;
+	}
+
+	public NamespacedKey getSignKey() {
+		return signKey;
+	}
+
+	public ListManager getListManager() {
         return lists;
     }
 

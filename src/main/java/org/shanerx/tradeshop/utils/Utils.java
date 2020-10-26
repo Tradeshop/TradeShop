@@ -491,6 +491,8 @@ public class Utils {
 			if (item.getItemStack().getType().name().endsWith("SHULKER_BOX")) {
                 for (ItemStack itm : clone.getStorageContents()) {
 					if (itm != null && itm.getType().name().endsWith("SHULKER_BOX")) {
+						debugger.log("ShopTradeListener > Type of Item: " + itm.getType(), DebugLevels.TRADE);
+						debugger.log("ShopTradeListener > Amount of Item: " + itm.getAmount(), DebugLevels.TRADE);
 						StringBuilder contents = new StringBuilder();
 						Arrays.stream(clone.getContents()).forEach(a -> contents.append(a != null ? a.getType().toString() : "Empty").append("|"));
 
@@ -500,7 +502,11 @@ public class Utils {
 							ret.add(itm);
 							currentCount++;
 						}
+
+						debugger.log("ShopTradeListener > CurrentCount: " + currentCount, DebugLevels.TRADE);
 					}
+
+					if (currentCount >= totalCount) break;
 				}
             } else {
                 int count = item.getItemStack().getAmount() * multiplier, traded;

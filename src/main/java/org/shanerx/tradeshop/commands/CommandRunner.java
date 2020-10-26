@@ -50,8 +50,8 @@ import java.util.List;
 
 public class CommandRunner extends Utils {
 
-	private TradeShop plugin;
-	private CommandPass command;
+	private final TradeShop plugin;
+	private final CommandPass command;
 	private Player pSender;
 
 	public CommandRunner(TradeShop instance, CommandPass command) {
@@ -91,7 +91,7 @@ public class CommandRunner extends Utils {
 				.append("\n\n&b/tradeshop &f &f Display help message\n");
 
 		for (Commands c : Commands.values()) {
-			if (c.checkPerm(command.getSender())) {
+			if (c.checkPerm(command.getSender()) == PermStatus.GOOD) {
 				sb.append(Message.colour(String.format("&b/ts %s  &f %s\n", c.getFirstName(), c.getDescription())));
 			}
 		}
@@ -539,7 +539,7 @@ public class CommandRunner extends Utils {
 
 		if (!(shop.getOwner().getUUID().equals(pSender.getUniqueId()) ||
 				shop.getManagersUUID().contains(pSender.getUniqueId()) ||
-				pSender.hasPermission(Permissions.ADMIN.getPerm()))) {
+				Permissions.hasPermission(pSender, Permissions.ADMIN))) {
 			sendMessage(Message.NO_EDIT.getPrefixed());
 			return;
 		}
@@ -576,7 +576,7 @@ public class CommandRunner extends Utils {
 
 		if (!(shop.getOwner().getUUID().equals(pSender.getUniqueId()) ||
 				shop.getManagersUUID().contains(pSender.getUniqueId()) ||
-				pSender.hasPermission(Permissions.ADMIN.getPerm()))) {
+				Permissions.hasPermission(pSender, Permissions.ADMIN))) {
 			sendMessage(Message.NO_EDIT.getPrefixed());
 			return;
 		}
@@ -842,13 +842,42 @@ public class CommandRunner extends Utils {
 
 			if (amount < 2)
 				amount = 2;
-            else if (amount > Setting.MULTI_TRADE_MAX.getInt())
-                amount = Setting.MULTI_TRADE_MAX.getInt();
+			else if (amount > Setting.MULTI_TRADE_MAX.getInt())
+				amount = Setting.MULTI_TRADE_MAX.getInt();
 
 			playerSetting.setMulti(amount);
-            plugin.getDataStorage().savePlayer(playerSetting);
+			plugin.getDataStorage().savePlayer(playerSetting);
 
 			sendMessage(Message.MULTI_UPDATE.getPrefixed().replaceAll("%amount%", String.valueOf(amount)));
+		}
+	}
+
+	/*
+	 * Changes/Sets the players permission level if internal permissions is enabled
+	 */
+	public void playerLevel() {
+		if (Bukkit.getOfflinePlayer(command.getArgAt(1)).hasPlayedBefore()) {
+			PlayerSetting playerSetting = plugin.getDataStorage().loadPlayer(Bukkit.getOfflinePlayer(command.getArgAt(1)).getUniqueId());
+			if (command.argsSize() == 2) {
+				sendMessage(Message.VIEW_PLAYER_LEVEL.getMessage()
+						.replace("%player%", Bukkit.getOfflinePlayer(command.getArgAt(1)).getName())
+						.replace("%level%", playerSetting.getType() + ""));
+			} else {
+				if (isInt(command.getArgAt(2))) {
+					int newLevel = Integer.parseInt(command.getArgAt(2));
+
+					playerSetting.setType(newLevel);
+					plugin.getDataStorage().savePlayer(playerSetting);
+
+					sendMessage(Message.SET_PLAYER_LEVEL.getMessage()
+							.replace("%player%", Bukkit.getOfflinePlayer(command.getArgAt(1)).getName())
+							.replace("%level%", playerSetting.getType() + ""));
+				} else {
+					sendMessage(Message.INVALID_ARGUMENTS.getMessage());
+				}
+			}
+		} else {
+			sendMessage(Message.PLAYER_NOT_FOUND.getMessage());
 		}
 	}
 
