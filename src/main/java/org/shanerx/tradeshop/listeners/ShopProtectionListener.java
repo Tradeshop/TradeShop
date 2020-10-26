@@ -168,7 +168,7 @@ public class ShopProtectionListener extends Utils implements Listener {
             shop = Shop.loadShop((Sign) block.getState());
             if (shop == null)
                 return;
-            if (player.hasPermission(Permissions.ADMIN.getPerm()) || player.getUniqueId().equals(shop.getOwner().getUUID())) {
+            if (Permissions.hasPermission(player, Permissions.ADMIN) || player.getUniqueId().equals(shop.getOwner().getUUID())) {
                 PlayerShopDestroyEvent destroyEvent = new PlayerShopDestroyEvent(player, shop);
                 Bukkit.getPluginManager().callEvent(destroyEvent);
                 if (destroyEvent.isCancelled()) {
@@ -188,7 +188,7 @@ public class ShopProtectionListener extends Utils implements Listener {
             shop = new ShopChest(block.getLocation()).getShop();
             if (shop == null)
                 return;
-            if (player.hasPermission(Permissions.ADMIN.getPerm()) || player.getUniqueId().equals(shop.getOwner().getUUID())) {
+            if (Permissions.hasPermission(player, Permissions.ADMIN) || player.getUniqueId().equals(shop.getOwner().getUUID())) {
                 PlayerShopDestroyEvent destroyEvent = new PlayerShopDestroyEvent(player, shop);
                 Bukkit.getPluginManager().callEvent(destroyEvent);
                 if (destroyEvent.isCancelled()) {
@@ -232,7 +232,7 @@ public class ShopProtectionListener extends Utils implements Listener {
             Shop shop = new ShopChest(block.getLocation()).getShop();
             PlayerShopInventoryOpenEvent openEvent = new PlayerShopInventoryOpenEvent(e.getPlayer(), shop, e.getAction(), e.getItem(), e.getClickedBlock(), e.getBlockFace());
 
-            if (!e.getPlayer().hasPermission(Permissions.ADMIN.getPerm()) && !shop.getUsersUUID().contains(e.getPlayer().getUniqueId())) {
+            if (!Permissions.hasPermission(e.getPlayer(), Permissions.ADMIN) && !shop.getUsersUUID().contains(e.getPlayer().getUniqueId())) {
                 openEvent.setCancelled(true);
             }
 

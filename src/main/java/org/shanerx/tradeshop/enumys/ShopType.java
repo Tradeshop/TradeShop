@@ -44,9 +44,9 @@ public enum ShopType implements Serializable {
 
 	BITRADE(Setting.BITRADESHOP_HEADER.getString(), Permissions.CREATEBI);
 
-	private transient static TradeShop plugin = (TradeShop) Bukkit.getPluginManager().getPlugin("TradeShop");
-	private String key;
-	private transient Permissions perm;
+	private final transient static TradeShop plugin = (TradeShop) Bukkit.getPluginManager().getPlugin("TradeShop");
+	private final String key;
+	private final transient Permissions perm;
 
 	ShopType(String key, Permissions perm) {
 		this.key = key;
@@ -96,7 +96,7 @@ public enum ShopType implements Serializable {
 	}
 
 	public boolean checkPerm(Player pl) {
-		return pl.hasPermission(perm.getPerm());
+		return Permissions.hasPermission(pl, perm);
 	}
 
 	public String serialize() {
