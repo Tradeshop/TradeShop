@@ -36,15 +36,13 @@ public enum ShopRole {
 	MEMBER(false, false, true, false),
 	SHOPPER(false, false, false, true);
 
-	private String roleName;
-	private transient boolean destroy, edit, open, shop;
+	private final transient boolean destroy, edit, open, shop;
 
 	ShopRole(boolean destroy, boolean edit, boolean open, boolean shop) {
 		this.destroy = destroy;
 		this.edit = edit;
 		this.open = open;
 		this.shop = shop;
-		roleName = name();
 	}
 
 	public boolean canDestroy() {

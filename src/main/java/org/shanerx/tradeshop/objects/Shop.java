@@ -51,12 +51,14 @@ public class Shop implements Serializable {
 	private ShopUser owner;
 	private List<UUID> managers, members;
 	private ShopType shopType;
-	private ShopLocation shopLoc, chestLoc;
-    private List<ShopItemStack> product, cost;
+	private final ShopLocation shopLoc;
+	private final List<ShopItemStack> product;
+	private final List<ShopItemStack> cost;
+	private ShopLocation chestLoc;
 	private transient SignChangeEvent signChangeEvent;
 	private transient Inventory storageInv;
 	private transient Utils utils = new Utils();
-    private ShopStatus status = ShopStatus.INCOMPLETE;
+	private ShopStatus status = ShopStatus.INCOMPLETE;
 
 	/**
 	 * Creates a Shop object
@@ -945,5 +947,23 @@ public class Shop implements Serializable {
 	public Boolean checkCost(int multiplier) {
 		setStorageInventory();
 		return utils.checkInventory(storageInv, cost, multiplier);
+	}
+
+	/**
+	 * Returns the ShopRole of the supplied UUID
+	 *
+	 * @param uuidToCheck uuid to check for role of
+	 * @return the ShopRole of the supplied UUID
+	 */
+	public ShopRole checkRole(UUID uuidToCheck) {
+		if (owner.getUUID().equals(uuidToCheck)) {
+			return ShopRole.OWNER;
+		} else if (managers.contains(uuidToCheck)) {
+			return ShopRole.MANAGER;
+		} else if (members.contains(uuidToCheck)) {
+			return ShopRole.MEMBER;
+		} else {
+			return ShopRole.SHOPPER;
+		}
 	}
 }
