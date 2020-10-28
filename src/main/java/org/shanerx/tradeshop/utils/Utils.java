@@ -209,7 +209,7 @@ public class Utils {
 	 * @param shop Shoptype enum to get header
 	 */
 	public void failedSignReset(SignChangeEvent e, ShopType shop) {
-		e.setLine(0, colorize(Setting.SHOP_BAD_COLOUR + shop.toString()));
+		e.setLine(0, colorize(Setting.SHOP_BAD_COLOUR.getString() + shop.toString()));
 		e.setLine(1, "");
 		e.setLine(2, "");
 		e.setLine(3, "");
@@ -495,7 +495,11 @@ public class Utils {
 							ret.add(itm);
 							currentCount++;
 						}
+
+						debugger.log("ShopTradeListener > CurrentCount: " + currentCount, DebugLevels.TRADE);
 					}
+
+					if (currentCount >= totalCount) break;
 				}
             } else {
                 int count = item.getItemStack().getAmount() * multiplier, traded;
@@ -548,20 +552,21 @@ public class Utils {
     }
 
     public boolean compareShulkers(ItemStack item1, ItemStack item2) {
+
         if (item1 == null || item2 == null)
             return false;
 
         try {
-            ArrayList<ItemStack> contents1 = Lists.newArrayList(((ShulkerBox) ((BlockStateMeta) item1.getItemMeta()).getBlockState()).getInventory().getContents());
-            ShulkerBox shulker2 = (ShulkerBox) ((BlockStateMeta) item2.getItemMeta()).getBlockState();
+			ArrayList<ItemStack> contents1 = Lists.newArrayList(((ShulkerBox) ((BlockStateMeta) item1.clone().getItemMeta()).getBlockState()).getInventory().getContents());
+			ShulkerBox shulker2 = (ShulkerBox) ((BlockStateMeta) item2.clone().getItemMeta()).getBlockState();
 
-            for (ItemStack itm : shulker2.getInventory().getContents()) {
-                contents1.remove(itm);
-            }
+			for (ItemStack itm : shulker2.getInventory().getContents()) {
+				contents1.remove(itm);
+			}
 
-            return contents1.isEmpty();
+			return contents1.isEmpty();
 
-        } catch (ClassCastException ex) {
+		} catch (ClassCastException ex) {
             return false;
         }
     }
