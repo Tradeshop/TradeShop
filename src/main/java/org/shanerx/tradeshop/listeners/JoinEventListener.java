@@ -33,10 +33,7 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.shanerx.tradeshop.TradeShop;
 import org.shanerx.tradeshop.enumys.Message;
 import org.shanerx.tradeshop.enumys.Permissions;
-import org.shanerx.tradeshop.enumys.ShopRole;
 import org.shanerx.tradeshop.objects.PlayerSetting;
-import org.shanerx.tradeshop.objects.Shop;
-import org.shanerx.tradeshop.objects.ShopLocation;
 import org.shanerx.tradeshop.utils.BukkitVersion;
 import org.shanerx.tradeshop.utils.Updater;
 import org.shanerx.tradeshop.utils.Utils;
@@ -66,32 +63,7 @@ public class JoinEventListener extends Utils implements Listener {
 				player.sendMessage(Message.PLUGIN_BEHIND.getPrefixed());
 		}
 
-		StringBuilder sb = new StringBuilder();
-		sb.append("%eInventory status of your shops: \n");
-		sb.append("&eShop Role &f| &eLocation &f| &eInventory Status\n&b");
-		if (playerSetting.getOwnedShops().size() > 0) {
-			playerSetting.getOwnedShops().forEach(s -> {
-				Shop shop = plugin.getDataStorage().loadShopFromSign(ShopLocation.deserialize(s));
-				if (shop.checkRole(player.getUniqueId()) != ShopRole.SHOPPER) {
-					sb.append(shop.checkRole(player.getUniqueId()).toString()).append(" &f|&d ");
-					sb.append(s).append(" &f| ");
-					sb.append(shop.getStatus().getLine()).append("\n&b");
-				}
-			});
-		}
-		if (playerSetting.getStaffShops().size() > 0) {
-			playerSetting.getOwnedShops().forEach(s -> {
-				Shop shop = plugin.getDataStorage().loadShopFromSign(ShopLocation.deserialize(s));
-				if (shop.checkRole(player.getUniqueId()) != ShopRole.SHOPPER) {
-					sb.append(shop.checkRole(player.getUniqueId()).toString()).append(" &f|&d ");
-					sb.append(s).append(" &f| ");
-					sb.append(shop.getStatus().getLine()).append("\n&b");
-				}
-			});
-		}
-
-		sb.deleteCharAt(sb.lastIndexOf("\n"));
-		player.sendMessage(colorize(sb.toString()));
+		player.sendMessage(playerSetting.getInvolvedStatusesString());
 	}
 }
 

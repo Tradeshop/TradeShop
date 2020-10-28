@@ -852,7 +852,7 @@ public class CommandRunner extends Utils {
 		}
 	}
 
-	/*
+	/**
 	 * Changes/Sets the players permission level if internal permissions is enabled
 	 */
 	public void playerLevel() {
@@ -878,6 +878,26 @@ public class CommandRunner extends Utils {
 			}
 		} else {
 			sendMessage(Message.PLAYER_NOT_FOUND.getMessage());
+		}
+	}
+
+	/**
+	 * Changes/Sets the players permission level if internal permissions is enabled
+	 */
+	public void status() {
+		if (command.hasArgAt(1)) {
+			if (!Permissions.hasPermission(pSender, Permissions.ADMIN)) {
+				Message.NO_COMMAND_PERMISSION.sendMessage(pSender);
+				return;
+			}
+			if (Bukkit.getOfflinePlayer(command.getArgAt(1)).hasPlayedBefore()) {
+				plugin.getDataStorage().loadPlayer(Bukkit.getOfflinePlayer(command.getArgAt(1)).getUniqueId())
+						.getInvolvedStatusesInventory().show(pSender.getPlayer());
+			} else {
+				sendMessage(Message.PLAYER_NOT_FOUND.getMessage());
+			}
+		} else {
+			plugin.getDataStorage().loadPlayer(pSender.getUniqueId()).getInvolvedStatusesInventory().show(pSender.getPlayer());
 		}
 	}
 
