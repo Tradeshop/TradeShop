@@ -385,7 +385,7 @@ public class Shop implements Serializable {
 	 * @return inventory location as Location
 	 */
 	public Location getInventoryLocation() {
-		return chestLoc.getLocation();
+		return chestLoc != null ? chestLoc.getLocation() : null;
 	}
 
 	/**

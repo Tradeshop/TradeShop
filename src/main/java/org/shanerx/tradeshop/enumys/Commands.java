@@ -45,7 +45,7 @@ public enum Commands {
 	BUGS(Lists.newArrayList("bugs", "bug"), Permissions.NONE, 1, 1, false, "Report bugs to the developers", "/tradeshop $cmd$"),
 	PLAYER_LEVEL(Lists.newArrayList("playerlevel", "pl"), Permissions.MANAGE_PLUGIN, 2, 3, false, "If Internal Permissions is enable this allows the getting and setting of player permission levels.", "/tradeshop $cmd$ <name> <newlevel>"),
 	ADD_MANAGER(Lists.newArrayList("addManager"), Permissions.NONE, 2, 2, true, "Add manager to shop", "/tradeshop $cmd$ <name>"),
-	REMOVE_USER(Lists.newArrayList("removeUser", "removeManager", "removeMember"), Permissions.NONE, 2, 2, true, "Remove user from shop", "/tradeshop $cmd$ <name>"),
+	REMOVE_USER(Lists.newArrayList("removeUser", "removeManager", "removeMember"), Permissions.NONE, 2, 2, true, "Remove user from shop", "/tradeshop $cmd$ <Name>"),
 	ADD_MEMBER(Lists.newArrayList("addMember"), Permissions.NONE, 2, 2, true, "Add member to shop", "/tradeshop $cmd$ <name>"),
 	ADD_PRODUCT(Lists.newArrayList("addProduct"), Permissions.NONE, 1, 3, true, "Add product to shop", "/tradeshop $cmd$ [Amount] [Material]"),
 	ADD_COST(Lists.newArrayList("addCost"), Permissions.NONE, 1, 3, true, "Add cost to shop", "/tradeshop $cmd$ [Amount] [Material]"),
@@ -59,9 +59,10 @@ public enum Commands {
 	CLOSE(Lists.newArrayList("close"), Permissions.NONE, 1, 1, true, "Close shop", "/tradeshop $cmd$"),
 	WHO(Lists.newArrayList("who"), Permissions.INFO, 1, 1, true, "Shop members of shop", "/tradeshop $cmd$"),
 	WHAT(Lists.newArrayList("what", "peek", "shop", "view"), Permissions.INFO, 1, 1, true, "Peek at shop inventory", "/tradeshop $cmd$"),
-	RELOAD(Lists.newArrayList("reload"), Permissions.ADMIN, 1, 1, false, "Reload configuration files", "/tradeshop $cmd$"),
+	RELOAD(Lists.newArrayList("reload"), Permissions.MANAGE_PLUGIN, 1, 1, false, "Reload configuration files", "/tradeshop $cmd$"),
 	SWITCH(Lists.newArrayList("switch"), Permissions.EDIT, 1, 1, true, "Switch shop type", "/tradeshop $cmd$"),
-	MULTI(Lists.newArrayList("multi", "multiply", "many"), Permissions.NONE, 1, 2, true, "Changes trade multiplier for this login", "/tradeshop $cmd$ <Amount>");
+	MULTI(Lists.newArrayList("multi", "multiply", "many"), Permissions.NONE, 1, 2, true, "Changes trade multiplier for this login", "/tradeshop $cmd$ <Amount>"),
+	STATUS(Lists.newArrayList("status", "stats", "s"), Permissions.INFO, 1, 2, true, "Displays the status of all shops the player has a relation to", "/tradeshop $cmd$ [Name]");
 
 	/**
 	 * Name of the permission

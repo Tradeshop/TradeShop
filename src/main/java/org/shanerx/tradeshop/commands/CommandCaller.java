@@ -142,6 +142,9 @@ public class CommandCaller implements CommandExecutor {
 			case PLAYER_LEVEL:
 				cmdRnnr.playerLevel();
 				break;
+			case STATUS:
+				cmdRnnr.status();
+				break;
 		}
 
 		return true;

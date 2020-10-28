@@ -31,12 +31,16 @@ import com.google.common.io.Files;
 import org.apache.commons.lang.Validate;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.entity.Player;
 import org.shanerx.tradeshop.TradeShop;
 import org.yaml.snakeyaml.Yaml;
 
 import java.io.*;
+import java.util.Collections;
+import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 
@@ -231,6 +235,41 @@ public enum Message {
 
     public String getPrefixed() {
         return colour(PREFIX + toString());
+    }
+
+    public void sendMessage(Player player, Map<String, String> replacements) {
+        String message = getPrefixed();
+        replacements.forEach(message::replaceAll);
+
+        if (getMessage().startsWith("#json ")) {
+            message.replaceFirst("#json ", "");
+            player.sendRawMessage(colour(message));
+        } else {
+            player.sendMessage(colour(message));
+        }
+    }
+
+    public void sendMessage(Player player) {
+        sendMessage(player, Collections.emptyMap());
+    }
+
+    public void sendMessage(CommandSender sender) {
+        sendMessage(sender, Collections.emptyMap());
+    }
+
+    public void sendMessage(CommandSender sender, Map<String, String> replacements) {
+        if (sender instanceof Player) {
+            sendMessage((Player) sender, replacements);
+            return;
+        }
+        String message = getPrefixed();
+        replacements.forEach(message::replaceAll);
+
+        if (getMessage().startsWith("#json ")) {
+            message.replaceFirst("#json ", "");
+        }
+
+        sender.sendMessage(colour(message));
     }
 }
 
