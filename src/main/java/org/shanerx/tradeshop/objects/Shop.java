@@ -26,6 +26,7 @@
 package org.shanerx.tradeshop.objects;
 
 import com.google.gson.Gson;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
@@ -59,6 +60,8 @@ public class Shop implements Serializable {
 	private transient Inventory storageInv;
 	private transient Utils utils = new Utils();
 	private ShopStatus status = ShopStatus.INCOMPLETE;
+
+	private int availableTrades = 0;
 
 	/**
 	 * Creates a Shop object
@@ -510,6 +513,16 @@ public class Shop implements Serializable {
 		return cost.size() > 0;
 	}
 
+
+	/**
+	 * Returns the amount of trades the shop could do when last accessed
+	 *
+	 * @return amount of trades the shop can do
+	 */
+	public int getAvailableTrades() {
+		return availableTrades;
+	}
+
 	/**
 	 * Adds more product items
 	 *
@@ -630,6 +643,7 @@ public class Shop implements Serializable {
 	 * Saves the shop too file
 	 */
 	public void saveShop() {
+		updateFullTradeCount();
 		utils.plugin.getDataStorage().saveShop(this);
         updateUserFiles();
 	}
@@ -965,5 +979,47 @@ public class Shop implements Serializable {
 		} else {
 			return ShopRole.SHOPPER;
 		}
+	}
+
+	/**
+	 * Updates the number of trades the shop can make
+	 */
+	public void updateFullTradeCount() {
+		Utils utils = new Utils();
+		if (!hasStorage() || !hasProduct())
+			availableTrades = 0;
+
+		Inventory shopInventory = hasStorage() ? getChestAsSC().getInventory() : null;
+
+		Inventory clone = Bukkit.createInventory(null, shopInventory.getStorageContents().length);
+		clone.setContents(shopInventory.getStorageContents());
+		int totalCount = 0, currentCount = 0;
+
+		for (ShopItemStack item : getProduct()) {
+			totalCount += item.getItemStack().getAmount();
+			if (item.getItemStack().getType().name().endsWith("SHULKER_BOX")) {
+				for (ItemStack itm : clone.getStorageContents()) {
+					if (itm != null && itm.getType().name().endsWith("SHULKER_BOX")) {
+						if (utils.compareShulkers(itm, item.getItemStack())) {
+							clone.removeItem(itm);
+							currentCount++;
+						}
+					}
+				}
+			} else {
+				int traded;
+				for (ItemStack storageItem : clone.getStorageContents()) {
+					if (storageItem != null && item.isSimilar(storageItem)) {
+						traded = Math.min(storageItem.getAmount(), item.getItemStack().getMaxStackSize());
+
+						storageItem.setAmount(traded);
+						clone.removeItem(storageItem);
+						currentCount += traded;
+					}
+				}
+			}
+		}
+
+		availableTrades = currentCount < totalCount ? 0 : currentCount / totalCount;
 	}
 }

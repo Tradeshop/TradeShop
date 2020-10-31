@@ -145,13 +145,14 @@ public class PlayerSetting implements Serializable {
     public String getInvolvedStatusesString() {
         StringBuilder sb = new StringBuilder();
         sb.append("&eStatus of your shops: \n");
-        sb.append("&eShop Role &f| &eType &f| &eLocation &f| &eInventory Status\n&b");
+        sb.append("&eShop Role &f| &eType &f| &eAvailable Trades &f| &eLocation &f| &eInventory Status\n&b");
         if (getOwnedShops().size() > 0) {
             getOwnedShops().forEach(s -> {
                 Shop shop = utils.plugin.getDataStorage().loadShopFromSign(ShopLocation.deserialize(s));
                 if (shop.checkRole(uuid) != ShopRole.SHOPPER) {
                     sb.append(shop.checkRole(uuid).toString()).append(" &f|&a ");
-                    sb.append(shop.getShopType().toString()).append(" &f|&d ");
+                    sb.append(shop.getShopType().toString()).append(" &f|&b ");
+                    sb.append(shop.getAvailableTrades()).append(" &f|&d ");
                     sb.append(s).append(" &f| ");
                     sb.append(shop.getStatus().getLine()).append("\n&b");
                 }
@@ -162,7 +163,8 @@ public class PlayerSetting implements Serializable {
                 Shop shop = utils.plugin.getDataStorage().loadShopFromSign(ShopLocation.deserialize(s));
                 if (shop.checkRole(uuid) != ShopRole.SHOPPER) {
                     sb.append(shop.checkRole(uuid).toString()).append(" &f|&a ");
-                    sb.append(shop.getShopType().toString()).append(" &f|&d ");
+                    sb.append(shop.getShopType().toString()).append(" &f|&b ");
+                    sb.append(shop.getAvailableTrades()).append(" &f|&d ");
                     sb.append(s).append(" &f| ");
                     sb.append(shop.getStatus().getLine()).append("\n&b");
                 }
@@ -184,9 +186,14 @@ public class PlayerSetting implements Serializable {
                             new ItemStack(shop.getInventoryLocation() != null ?
                                     shop.getInventoryLocation().getBlock().getType() :
                                     Material.getMaterial(shop.getShopLocation().getBlock().getType().toString().replaceAll("WALL_", ""))),
+                            Math.min(shop.getAvailableTrades(), 64),
+                            click -> {
+                                return true; //Prevents clicking the item from doing anything, required parameter when using amount
+                            },
                             utils.colorize("&d" + s),
                             utils.colorize("&a" + shop.getShopType().toString()),
                             utils.colorize("&b" + shop.checkRole(uuid).toString()),
+                            utils.colorize("&bAvailable Trades: " + shop.getAvailableTrades()),
                             utils.colorize(shop.getStatus().getLine())));
                 }
             });
@@ -199,9 +206,14 @@ public class PlayerSetting implements Serializable {
                             new ItemStack(shop.getInventoryLocation() != null ?
                                     shop.getInventoryLocation().getBlock().getType() :
                                     Material.getMaterial(shop.getShopLocation().getBlock().getType().toString().replaceAll("WALL_", ""))),
+                            Math.min(shop.getAvailableTrades(), 64),
+                            click -> {
+                                return true; //Prevents clicking the item from doing anything, required parameter when using amount
+                            },
                             utils.colorize("&d" + s),
                             utils.colorize("&a" + shop.getShopType().toString()),
                             utils.colorize("&b" + shop.checkRole(uuid).toString()),
+                            utils.colorize("&bAvailable Trades: " + shop.getAvailableTrades()),
                             utils.colorize(shop.getStatus().getLine())));
                 }
             });
@@ -221,7 +233,7 @@ public class PlayerSetting implements Serializable {
         gui.addElement(new GuiPageElement('l', new ItemStack(Material.ARROW), GuiPageElement.PageAction.LAST, "Go to last page (%pages%)"));
 
         //Blank Item
-        gui.setFiller(new ItemStack(Material.GRAY_STAINED_GLASS, 1));
+        gui.setFiller(new ItemStack(Material.LIGHT_GRAY_STAINED_GLASS_PANE, 1));
 
         return gui;
     }
