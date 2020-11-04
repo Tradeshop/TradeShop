@@ -441,6 +441,11 @@ public class CommandRunner extends Utils {
 			return;
 		}
 
+		if (itemInHand.getType().toString().endsWith("SHULKER_BOX") && shop.getInventoryLocation().getBlock().getType().toString().endsWith("SHULKER_BOX")) {
+			sendMessage(Message.NO_SHULKER_COST.getPrefixed());
+			return;
+		}
+
 		if (amount > 0) {
 			itemInHand.setAmount(amount);
 		}
@@ -508,6 +513,11 @@ public class CommandRunner extends Utils {
 
 		if (!isValidType(itemInHand.getType())) {
 			sendMessage(Message.ILLEGAL_ITEM.getPrefixed());
+			return;
+		}
+
+		if (itemInHand.getType().toString().endsWith("SHULKER_BOX") && shop.getInventoryLocation().getBlock().getType().toString().endsWith("SHULKER_BOX")) {
+			sendMessage(Message.NO_SHULKER_COST.getPrefixed());
 			return;
 		}
 

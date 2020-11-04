@@ -57,6 +57,7 @@ public enum Message {
     FULL_AMOUNT(MessageSectionKeys.UNUSED, "&cYou must have &e{AMOUNT} &cof a single type of &e{ITEM}&c!", "\\Unused\\"),
     HELD_EMPTY(MessageSectionKeys.NONE, "&eYou are currently holding nothing.", "Text to display when the player is not holding anything"),
     ILLEGAL_ITEM(MessageSectionKeys.NONE, "&cYou cannot use one or more of those items in shops.", "Text to display when a shop failed creation due to an illegal item "),
+    NO_SHULKER_COST(MessageSectionKeys.NONE, "&cYou cannot add a Shulker Box as a cost when the shop uses it for storage.", "Text to display when a shop failed creation due to using a shulker box as cost when the shop uses it for storage: "),
     INSUFFICIENT_ITEMS(MessageSectionKeys.NONE, "&cYou do not have &e{AMOUNT} {ITEM}&c!", "Text to display when the player does not have enough items:"),
     INVALID_ARGUMENTS(MessageSectionKeys.NONE, "&eTry &6/tradeshop help &eto display help!", "Text to display when invalid arguments are submitted through the \"/tradeshop\" command:"),
     INVALID_SIGN(MessageSectionKeys.UNUSED, "&cInvalid sign format!", "\\Unused\\"),

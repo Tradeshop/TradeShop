@@ -226,10 +226,37 @@ public class ShopItemStack implements Serializable, Cloneable {
                 toCompareBookMeta = toCompare.hasItemMeta() && toCompare.getItemMeta() instanceof BookMeta ? ((BookMeta) toCompareMeta) : null;
 
 
-        boolean useMeta = itemStack.hasItemMeta() == toCompare.hasItemMeta() && itemStack != null, useBookMeta = itemStackBookMeta != null && toCompareBookMeta != null;
+        boolean useMeta = itemStack.hasItemMeta() == toCompare.hasItemMeta() && itemStackMeta != null, useBookMeta = itemStackBookMeta != null && toCompareBookMeta != null;
 
-        debugger.log("itemstack isBookMeta: " + (itemStackBookMeta != null), DebugLevels.ITEM_COMPARE);
-        debugger.log("toCompare isBookMeta: " + (toCompareBookMeta != null), DebugLevels.ITEM_COMPARE);
+        debugger.log("itemstack useMeta: " + useMeta, DebugLevels.ITEM_COMPARE);
+        debugger.log("toCompare useMeta: " + useMeta, DebugLevels.ITEM_COMPARE);
+
+        // If compareShulkerInventory is on
+        if (itemStack.getType().toString().endsWith("SHULKER_BOX")) {
+            if (compareShulkerInventory) {
+                try {
+                    ArrayList<ItemStack> contents1 = Lists.newArrayList(((ShulkerBox) ((BlockStateMeta) toCompareMeta).getBlockState()).getInventory().getContents()),
+                            contents2 = Lists.newArrayList(((ShulkerBox) ((BlockStateMeta) itemStackMeta).getBlockState()).getInventory().getContents());
+
+                    contents1.removeIf(Objects::isNull);
+                    contents2.removeIf(Objects::isNull);
+
+                    if (contents1.isEmpty() != contents2.isEmpty())
+                        return false;
+
+                    for (ItemStack itm : contents2) {
+                        if (!contents1.remove(itm))
+                            return false;
+                    }
+
+                    if (!contents1.isEmpty())
+                        return false;
+
+                } catch (ClassCastException ex) {
+                    return false;
+                }
+            }
+        }
 
         // If compareDurability is on
         if (compareDurability > -1 && compareDurability < 3 && useMeta) {
@@ -379,26 +406,6 @@ public class ShopItemStack implements Serializable, Cloneable {
             return !itemStackMeta.hasAttributeModifiers() || Objects.equals(itemStackMeta.getAttributeModifiers(), toCompareMeta.getAttributeModifiers());
         }
 
-        // If compareShulkerInventory is on
-        if (compareShulkerInventory && useMeta) {
-            if (!itemStack.getType().toString().toUpperCase().endsWith("SHULKER_BOX") || !toCompare.getType().toString().toUpperCase().endsWith("SHULKER_BOX"))
-                return false;
-
-            try {
-                ArrayList<ItemStack> contents1 = Lists.newArrayList(((ShulkerBox) ((BlockStateMeta) toCompare.clone().getItemMeta()).getBlockState()).getInventory().getContents());
-                ShulkerBox shulker2 = (ShulkerBox) ((BlockStateMeta) toCompare.clone().getItemMeta()).getBlockState();
-
-                for (ItemStack itm : shulker2.getInventory().getContents()) {
-                    contents1.remove(itm);
-                }
-
-                if (!contents1.isEmpty())
-                    return false;
-
-            } catch (ClassCastException ex) {
-                return false;
-            }
-        }
         return true;
     }
 

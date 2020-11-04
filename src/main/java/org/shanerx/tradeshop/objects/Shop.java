@@ -445,6 +445,7 @@ public class Shop implements Serializable {
 		cost.clear();
 
 		addCost(newItem);
+		cost.removeIf(item -> item.getItemStack().getType().toString().endsWith("SHULKER_BOX") && getInventoryLocation().getBlock().getType().toString().endsWith("SHULKER_BOX"));
 	}
 
 	/**
@@ -469,7 +470,8 @@ public class Shop implements Serializable {
 			}
 		}
 
-        items.forEach((ItemStack iS) -> cost.add(new ShopItemStack(iS)));
+		items.forEach((ItemStack iS) -> cost.add(new ShopItemStack(iS)));
+		cost.removeIf(item -> item.getItemStack().getType().toString().endsWith("SHULKER_BOX") && getInventoryLocation().getBlock().getType().toString().endsWith("SHULKER_BOX"));
 
 		saveShop();
 		updateSign();
@@ -625,6 +627,7 @@ public class Shop implements Serializable {
 		shopLoc.stringToWorld();
 		if (!shopType.isITrade() && chestLoc != null)
 			chestLoc.stringToWorld();
+		cost.removeIf(item -> item.getItemStack().getType().toString().endsWith("SHULKER_BOX") && getInventoryLocation().getBlock().getType().toString().endsWith("SHULKER_BOX"));
 		if (getShopSign() != null)
 			updateSign();
 	}
@@ -984,7 +987,6 @@ public class Shop implements Serializable {
 	 * Updates the number of trades the shop can make
 	 */
 	public void updateFullTradeCount() {
-		Utils utils = new Utils();
 		if (!hasStorage() || !hasProduct())
 			availableTrades = 0;
 
@@ -996,25 +998,14 @@ public class Shop implements Serializable {
 
 		for (ShopItemStack item : getProduct()) {
 			totalCount += item.getItemStack().getAmount();
-			if (item.getItemStack().getType().name().endsWith("SHULKER_BOX")) {
-				for (ItemStack itm : clone.getStorageContents()) {
-					if (itm != null && itm.getType().name().endsWith("SHULKER_BOX")) {
-						if (utils.compareShulkers(itm, item.getItemStack())) {
-							clone.removeItem(itm);
-							currentCount++;
-						}
-					}
-				}
-			} else {
-				int traded;
-				for (ItemStack storageItem : clone.getStorageContents()) {
-					if (storageItem != null && item.isSimilar(storageItem)) {
-						traded = Math.min(storageItem.getAmount(), item.getItemStack().getMaxStackSize());
+			int traded;
+			for (ItemStack storageItem : clone.getStorageContents()) {
+				if (storageItem != null && item.isSimilar(storageItem)) {
+					traded = Math.min(storageItem.getAmount(), item.getItemStack().getMaxStackSize());
 
-						storageItem.setAmount(traded);
-						clone.removeItem(storageItem);
-						currentCount += traded;
-					}
+					storageItem.setAmount(traded);
+					clone.removeItem(storageItem);
+					currentCount += traded;
 				}
 			}
 		}
@@ -1046,6 +1037,7 @@ public class Shop implements Serializable {
 	 * Updates shops cost list
 	 */
 	public void updateCost(List<ShopItemStack> updatedCostList) {
+		updatedCostList.removeIf(item -> item.getItemStack().getType().toString().endsWith("SHULKER_BOX") && getInventoryLocation().getBlock().getType().toString().endsWith("SHULKER_BOX"));
 		cost = updatedCostList;
 		saveShop();
 		updateSign();

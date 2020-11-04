@@ -25,20 +25,17 @@
 
 package org.shanerx.tradeshop.utils;
 
-import com.google.common.collect.Lists;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
-import org.bukkit.block.ShulkerBox;
 import org.bukkit.block.Sign;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.SignChangeEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.BlockStateMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.material.MaterialData;
 import org.bukkit.plugin.PluginDescriptionFile;
@@ -399,10 +396,10 @@ public class Utils {
 
         if (shop.getShopType() == ShopType.ITRADE) { //ITrade trade
 
-            //Method to find Cost items in player inventory and add to cost array
-            costItems = getItems(playerInventory, shop.getCost(), multiplier);
+			//Method to find Cost items in player inventory and add to cost array
+			costItems = getItems(playerInventory, shop.getCost(), multiplier);
 
-			if (costItems != null) {
+			if (!costItems.isEmpty()) {
 				if (costItems.get(0) == null) {
 					return ExchangeStatus.PLAYER_NO_COST;
 				}
@@ -487,16 +484,17 @@ public class Utils {
 		debugger.log("ShopTradeListener > Inventory Location Being Searched: " + (inventory.getLocation() != null ? inventory.getLocation().toString() : "null"), DebugLevels.TRADE);
 
 		for (ShopItemStack item : items) {
-            totalCount += item.getItemStack().getAmount() * multiplier;
+			totalCount += item.getItemStack().getAmount() * multiplier;
+			/*
 			if (item.getItemStack().getType().name().endsWith("SHULKER_BOX")) {
                 for (ItemStack itm : clone.getStorageContents()) {
 					if (itm != null && itm.getType().name().endsWith("SHULKER_BOX")) {
 						debugger.log("ShopTradeListener > Type of Item: " + itm.getType(), DebugLevels.TRADE);
 						debugger.log("ShopTradeListener > Amount of Item: " + itm.getAmount(), DebugLevels.TRADE);
-						StringBuilder contents = new StringBuilder();
-						Arrays.stream(clone.getContents()).forEach(a -> contents.append(a != null ? a.getType().toString() : "Empty").append("|"));
+						//StringBuilder contents = new StringBuilder();
+						//Arrays.stream(clone.getContents()).forEach(a -> contents.append(a != null ? a.getType().toString() : "Empty").append("|"));
 
-						debugger.log("ShopTradeListener > clone Contents: " + contents.toString(), DebugLevels.TRADE);
+						//debugger.log("ShopTradeListener > clone Contents: " + contents.toString(), DebugLevels.TRADE);
 						if (compareShulkers(itm, item.getItemStack())) {
 							clone.removeItem(itm);
 							ret.add(itm);
@@ -509,6 +507,7 @@ public class Utils {
 					if (currentCount >= totalCount) break;
 				}
             } else {
+			*/
                 int count = item.getItemStack().getAmount() * multiplier, traded;
 
 				debugger.log("ShopTradeListener > Item Material Being Searched for: " + item.getItemStack().getType().name(), DebugLevels.TRADE);
@@ -543,7 +542,7 @@ public class Utils {
 
 					if (currentCount >= totalCount) break;
                 }
-            }
+			//}
 
             if (currentCount < totalCount) {
                 debugger.log("ShopTradeListener > TotalCount: " + totalCount, DebugLevels.TRADE);
@@ -558,7 +557,7 @@ public class Utils {
         return ret;
     }
 
-    public boolean compareShulkers(ItemStack item1, ItemStack item2) {
+   /* public boolean compareShulkers(ItemStack item1, ItemStack item2) {
 
         if (item1 == null || item2 == null)
             return false;
@@ -576,5 +575,5 @@ public class Utils {
 		} catch (ClassCastException ex) {
             return false;
         }
-    }
+    }*/
 }
