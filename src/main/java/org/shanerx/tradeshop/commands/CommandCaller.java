@@ -145,6 +145,9 @@ public class CommandCaller implements CommandExecutor {
 			case STATUS:
 				cmdRnnr.status();
 				break;
+			case EDIT:
+				new EditCommand(plugin, cmdPass).edit();
+				break;
 		}
 
 		return true;

@@ -53,8 +53,7 @@ public class Shop implements Serializable {
 	private List<UUID> managers, members;
 	private ShopType shopType;
 	private final ShopLocation shopLoc;
-	private final List<ShopItemStack> product;
-	private final List<ShopItemStack> cost;
+	private List<ShopItemStack> product, cost;
 	private ShopLocation chestLoc;
 	private transient SignChangeEvent signChangeEvent;
 	private transient Inventory storageInv;
@@ -1020,6 +1019,44 @@ public class Shop implements Serializable {
 			}
 		}
 
-		availableTrades = currentCount < totalCount ? 0 : currentCount / totalCount;
+		availableTrades = currentCount == 0 || totalCount == 0 ? 0 : currentCount / totalCount;
+	}
+
+	/**
+	 * Updates all shop users
+	 */
+	public void updateShopUsers(Set<ShopUser> updatedUserSet) {
+		for (ShopUser user : updatedUserSet) {
+			removeUser(user.getUUID());
+			switch (user.getRole()) {
+				case MANAGER:
+					managers.add(user.getUUID());
+					break;
+				case MEMBER:
+					members.add(user.getUUID());
+					break;
+				default:
+					break;
+			}
+		}
+		saveShop();
+	}
+
+	/**
+	 * Updates shops cost list
+	 */
+	public void updateCost(List<ShopItemStack> updatedCostList) {
+		cost = updatedCostList;
+		saveShop();
+		updateSign();
+	}
+
+	/**
+	 * Updates shops product list
+	 */
+	public void updateProduct(List<ShopItemStack> updatedProductList) {
+		product = updatedProductList;
+		saveShop();
+		updateSign();
 	}
 }

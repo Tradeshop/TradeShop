@@ -25,6 +25,7 @@
 
 package org.shanerx.tradeshop.commands;
 
+import de.themoep.inventorygui.GuiElementGroup;
 import de.themoep.inventorygui.InventoryGui;
 import de.themoep.inventorygui.StaticGuiElement;
 import org.bukkit.Bukkit;
@@ -50,9 +51,9 @@ import java.util.List;
 
 public class CommandRunner extends Utils {
 
-	private final TradeShop plugin;
-	private final CommandPass command;
-	private Player pSender;
+	protected final TradeShop plugin;
+	protected final CommandPass command;
+	protected Player pSender;
 
 	public CommandRunner(TradeShop instance, CommandPass command) {
 		this.plugin = instance;
@@ -622,47 +623,40 @@ public class CommandRunner extends Utils {
 		List<String> guiSetup = new ArrayList<>();
 		guiSetup.add("141125333");
 		for (int i = 1; i < Math.max((int) (Math.ceil(shop.getProduct().size() / 3.0)), (int) (Math.ceil(shop.getCost().size() / 3.0))) + 1; i++) {
-			guiSetup.add("1   2   3");
+			guiSetup.add("1aaa2bbb3");
 		}
-
-		for (int i = 0, col = 5; i < shop.getProduct().size(); i++) {
-			int row = (i / 3) + 1;
-			guiSetup.set(row, guiSetup.get(row).substring(0, col) + ((char) (i + 97)) + guiSetup.get(row).substring(col + 1));
-			col = col + 1 < 8 ? col + 1 : 5;
-		}
-
-		for (int i = 0, col = 1; i < shop.getCost().size(); i++) {
-			int row = (i / 3) + 1;
-			guiSetup.set(row, guiSetup.get(row).substring(0, col) + ((char) (i + 65)) + guiSetup.get(row).substring(col + 1));
-			col = col + 1 < 4 ? col + 1 : 1;
-		}
-
-		guiSetup.forEach(item -> debugger.log(item, DebugLevels.INVENTORY_CLOSE_NPE));
 
 		InventoryGui gui = new InventoryGui(plugin, colorize(shop.getShopType() == ShopType.ITRADE ?
 				Setting.ITRADESHOP_OWNER.getString() :
-				Bukkit.getOfflinePlayer(shop.getOwner().getUUID()).getName() + "'s"),
+				Bukkit.getOfflinePlayer(shop.getOwner().getUUID()).getName() + "'s Shop"),
 				guiSetup.toArray(new String[0]));
 
+		GuiElementGroup costGroup = new GuiElementGroup('a'), productGroup = new GuiElementGroup('b');
+
+		costGroup.setFiller(new ItemStack(Material.LIGHT_GRAY_STAINED_GLASS_PANE, 1));
+		productGroup.setFiller(new ItemStack(Material.LIGHT_GRAY_STAINED_GLASS_PANE, 1));
 		gui.setFiller(new ItemStack(Material.LIGHT_GRAY_STAINED_GLASS_PANE, 1));
+
+		for (ShopItemStack item : shop.getCost()) {
+			costGroup.addElement(new StaticGuiElement('e', item.getItemStack()));
+		}
+
+		for (ShopItemStack item : shop.getProduct()) {
+			productGroup.addElement(new StaticGuiElement('e', item.getItemStack()));
+		}
+
 		gui.addElement(new StaticGuiElement('1', new ItemStack(Material.LIME_STAINED_GLASS_PANE),
-				" ", " "));
+				" "));
 		gui.addElement(new StaticGuiElement('2', new ItemStack(Material.BLACK_STAINED_GLASS_PANE),
-				" ", " "));
+				" "));
 		gui.addElement(new StaticGuiElement('3', new ItemStack(Material.LIGHT_BLUE_STAINED_GLASS_PANE),
-				" ", " "));
+				" "));
 		gui.addElement(new StaticGuiElement('4', new ItemStack(Material.GOLD_NUGGET),
 				"Cost", "This is the item", "that you give to", "make the trade."));
 		gui.addElement(new StaticGuiElement('5', new ItemStack(Material.GRASS_BLOCK),
 				"Product", "This is the item", "that you receive", "from the trade."));
-
-		for (int i = 0; i < shop.getCost().size(); i++) {
-			gui.addElement(new StaticGuiElement((char) (i + 65), shop.getCost().get(i).getItemStack())); // TODO: use GuiStateElement to allow removal of items from the shop
-		}
-
-		for (int i = 0; i < shop.getProduct().size(); i++) {
-			gui.addElement(new StaticGuiElement((char) (i + 97), shop.getProduct().get(i).getItemStack())); // TODO: use GuiStateElement to allow removal of items from the shop
-		}
+		gui.addElement(costGroup);
+		gui.addElement(productGroup);
 
 		gui.show(pSender);
 	}
@@ -906,7 +900,7 @@ public class CommandRunner extends Utils {
 	 *
 	 * @return null if Shop is not found, Shop object if it is
 	 */
-	private Shop findShop() {
+	protected Shop findShop() {
 		if (pSender == null) {
 			sendMessage(Message.PLAYER_ONLY_COMMAND.getPrefixed());
 			return null;
@@ -914,7 +908,7 @@ public class CommandRunner extends Utils {
 
 		Block b = pSender.getTargetBlockExact(Setting.MAX_EDIT_DISTANCE.getInt());
 		try {
-            if (b == null)
+			if (b == null)
 				throw new NoSuchFieldException();
 
 			if (ShopType.isShop(b)) {

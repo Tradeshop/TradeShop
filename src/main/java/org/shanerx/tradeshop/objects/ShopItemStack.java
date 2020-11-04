@@ -25,8 +25,12 @@
 
 package org.shanerx.tradeshop.objects;
 
+import com.google.common.collect.Lists;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import org.bukkit.block.ShulkerBox;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.BlockStateMeta;
 import org.bukkit.inventory.meta.BookMeta;
 import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -40,9 +44,10 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Objects;
 
-public class ShopItemStack implements Serializable {
+public class ShopItemStack implements Serializable, Cloneable {
 
     private transient ItemStack itemStack;
     private transient Debug debugger;
@@ -57,7 +62,8 @@ public class ShopItemStack implements Serializable {
             compareUnbreakable = true,
             compareAttributeModifier = true,
             compareBookAuthor = true,
-            compareBookPages = true;
+            compareBookPages = true,
+            compareShulkerInventory = true;
 
     public ShopItemStack(ItemStack itemStack) {
         this.itemStack = itemStack;
@@ -71,7 +77,7 @@ public class ShopItemStack implements Serializable {
         fromBase64();
     }
 
-    public ShopItemStack(String itemStackB64, int compareDurability, boolean compareEnchantments, boolean compareName, boolean compareLore, boolean compareCustomModelData, boolean compareItemFlags, boolean compareUnbreakable, boolean compareAttributeModifier, boolean compareBookAuthor, boolean compareBookPages) {
+    public ShopItemStack(String itemStackB64, int compareDurability, boolean compareEnchantments, boolean compareName, boolean compareLore, boolean compareCustomModelData, boolean compareItemFlags, boolean compareUnbreakable, boolean compareAttributeModifier, boolean compareBookAuthor, boolean compareBookPages, boolean compareShulkerInventory) {
         this.itemStackB64 = itemStackB64;
         this.compareAttributeModifier = compareAttributeModifier;
         this.compareUnbreakable = compareUnbreakable;
@@ -83,15 +89,28 @@ public class ShopItemStack implements Serializable {
         this.compareDurability = compareDurability;
         this.compareBookPages = compareBookPages;
         this.compareBookAuthor = compareBookAuthor;
+        this.compareShulkerInventory = compareShulkerInventory;
 
         fromBase64();
 
+    }
+
+    public ShopItemStack clone() {
+        return new ShopItemStack(itemStackB64, compareDurability, compareEnchantments, compareName, compareLore, compareCustomModelData, compareItemFlags, compareUnbreakable, compareAttributeModifier, compareBookAuthor, compareBookPages, compareShulkerInventory);
     }
 
     public static ShopItemStack deserialize(String serialized) {
         ShopItemStack item = new Gson().fromJson(serialized, ShopItemStack.class);
         item.fromBase64();
         return item;
+    }
+
+    public boolean isCompareShulkerInventory() {
+        return compareShulkerInventory;
+    }
+
+    public void setCompareShulkerInventory(boolean compareShulkerInventory) {
+        this.compareShulkerInventory = compareShulkerInventory;
     }
 
     public int isCompareDurability() {
@@ -187,8 +206,11 @@ public class ShopItemStack implements Serializable {
 
         // Return False if either item is null
         if (itemStack == null || toCompare == null) {
-            debugger.log("itemstack isNull: " + (itemStack == null ? null : "Not Null"), DebugLevels.ITEM_COMPARE);
-            debugger.log("toCompare isNull: " + (toCompare == null ? null : "Not Null"), DebugLevels.ITEM_COMPARE);
+            return false;
+        }
+
+        // Return True if items are equal
+        if (itemStack == toCompare) {
             return false;
         }
 
@@ -199,176 +221,183 @@ public class ShopItemStack implements Serializable {
             return false;
         }
 
-        // Return False if hasItemMeta differs (one has one doesn't)
-        if (itemStack.hasItemMeta() != toCompare.hasItemMeta()) {
-            debugger.log("itemstack hasMeta: " + itemStack.hasItemMeta(), DebugLevels.ITEM_COMPARE);
-            debugger.log("toCompare hasMeta: " + toCompare.hasItemMeta(), DebugLevels.ITEM_COMPARE);
-            return false;
-        }
+        ItemMeta itemStackMeta = itemStack.getItemMeta(), toCompareMeta = toCompare.getItemMeta();
+        BookMeta itemStackBookMeta = itemStack.hasItemMeta() && itemStack.getItemMeta() instanceof BookMeta ? ((BookMeta) itemStackMeta) : null,
+                toCompareBookMeta = toCompare.hasItemMeta() && toCompare.getItemMeta() instanceof BookMeta ? ((BookMeta) toCompareMeta) : null;
 
-        // Return True if both items don't have MetaData
-        if (itemStack.hasItemMeta()) {
 
-            ItemMeta itemStackMeta = itemStack.getItemMeta(), toCompareMeta = toCompare.getItemMeta();
-            BookMeta itemStackBookMeta = itemStack.getItemMeta() instanceof BookMeta ? ((BookMeta) itemStackMeta) : null,
-                    toCompareBookMeta = toCompare.getItemMeta() instanceof BookMeta ? ((BookMeta) toCompareMeta) : null;
-            boolean useBookMeta = itemStackBookMeta != null && toCompareBookMeta != null;
-            debugger.log("itemstack isBookMeta: " + (itemStackBookMeta != null), DebugLevels.ITEM_COMPARE);
-            debugger.log("toCompare isBookMeta: " + (toCompareBookMeta != null), DebugLevels.ITEM_COMPARE);
+        boolean useMeta = itemStack.hasItemMeta() == toCompare.hasItemMeta() && itemStack != null, useBookMeta = itemStackBookMeta != null && toCompareBookMeta != null;
 
-            // Return False if either Meta value is null
-            if (itemStackMeta == null || toCompareMeta == null) {
-                debugger.log("itemStackMeta isNull: " + (itemStackMeta == null ? null : "Not Null"), DebugLevels.ITEM_COMPARE);
-                debugger.log("toCompareMeta isNull: " + (toCompareMeta == null ? null : "Not Null"), DebugLevels.ITEM_COMPARE);
+        debugger.log("itemstack isBookMeta: " + (itemStackBookMeta != null), DebugLevels.ITEM_COMPARE);
+        debugger.log("toCompare isBookMeta: " + (toCompareBookMeta != null), DebugLevels.ITEM_COMPARE);
+
+        // If compareDurability is on
+        if (compareDurability > -1 && compareDurability < 3 && useMeta) {
+
+            // Return False if Damageable is not equal (one has and one doesn't)
+            if (itemStackMeta instanceof Damageable != toCompareMeta instanceof Damageable) {
+                debugger.log("toCompareMeta isDamageable: " + (itemStackMeta instanceof Damageable), DebugLevels.ITEM_COMPARE);
+                debugger.log("toCompareMeta isDamageable: " + (toCompareMeta instanceof Damageable), DebugLevels.ITEM_COMPARE);
                 return false;
             }
 
-            // If compareDurability is on
-            if (compareDurability > -1 && compareDurability < 3) {
-                // Return False if Damageable is not equal (one has and one doesn't)
-                if (itemStackMeta instanceof Damageable != toCompareMeta instanceof Damageable) {
-                    debugger.log("toCompareMeta isDamageable: " + (itemStackMeta instanceof Damageable), DebugLevels.ITEM_COMPARE);
-                    debugger.log("toCompareMeta isDamageable: " + (toCompareMeta instanceof Damageable), DebugLevels.ITEM_COMPARE);
+            if (itemStackMeta instanceof Damageable) {
+
+                Damageable itemStackDamageable = (Damageable) itemStackMeta, toCompareDamageable = (Damageable) toCompareMeta;
+
+                // Return False compareDurability is set to '==' and ItemStack Damage is not equal
+                if (compareDurability == 1 && itemStackDamageable.getDamage() != toCompareDamageable.getDamage()) {
+                    debugger.log("itemstack Durabilty (==): " + itemStackDamageable.getDamage(), DebugLevels.ITEM_COMPARE);
+                    debugger.log("toCompare Durabilty (==): " + toCompareDamageable.getDamage(), DebugLevels.ITEM_COMPARE);
                     return false;
                 }
 
-                if (itemStackMeta instanceof Damageable) {
-
-                    Damageable itemStackDamageable = (Damageable) itemStackMeta, toCompareDamageable = (Damageable) toCompareMeta;
-
-                    // Return False compareDurability is set to '==' and ItemStack Damage is not equal
-                    if (compareDurability == 1 && itemStackDamageable.getDamage() != toCompareDamageable.getDamage()) {
-                        debugger.log("itemstack Durabilty (==): " + itemStackDamageable.getDamage(), DebugLevels.ITEM_COMPARE);
-                        debugger.log("toCompare Durabilty (==): " + toCompareDamageable.getDamage(), DebugLevels.ITEM_COMPARE);
-                        return false;
-                    }
-
-                    // Return False compareDurability is set to '<=' and ItemStack Damage less than toCompare Damage
-                    if (compareDurability == 0 && itemStackDamageable.getDamage() > toCompareDamageable.getDamage()) {
-                        debugger.log("itemstack Durabilty (<=): " + itemStackDamageable.getDamage(), DebugLevels.ITEM_COMPARE);
-                        debugger.log("toCompare Durabilty (<=): " + toCompareDamageable.getDamage(), DebugLevels.ITEM_COMPARE);
-                        return false;
-                    }
-
-                    // Return False compareDurability is set to '>=' and ItemStack Damage greater than toCompare Damage
-                    if (compareDurability == 2 && itemStackDamageable.getDamage() < toCompareDamageable.getDamage()) {
-                        debugger.log("itemstack Durabilty (>=): " + itemStackDamageable.getDamage(), DebugLevels.ITEM_COMPARE);
-                        debugger.log("toCompare Durabilty (>=): " + toCompareDamageable.getDamage(), DebugLevels.ITEM_COMPARE);
-                        return false;
-                    }
-                }
-
-            }
-
-            // If compareEnchantments is on
-            if (compareEnchantments) {
-                // Return False if hasEnchantments differs (one has one doesn't)
-                if (itemStackMeta.hasEnchants() != toCompareMeta.hasEnchants()) {
-                    debugger.log("itemStackMeta hasEnchants: " + itemStackMeta.hasEnchants(), DebugLevels.ITEM_COMPARE);
-                    debugger.log("toCompareMeta hasEnchants: " + toCompareMeta.hasEnchants(), DebugLevels.ITEM_COMPARE);
+                // Return False compareDurability is set to '<=' and ItemStack Damage less than toCompare Damage
+                if (compareDurability == 0 && itemStackDamageable.getDamage() > toCompareDamageable.getDamage()) {
+                    debugger.log("itemstack Durabilty (<=): " + itemStackDamageable.getDamage(), DebugLevels.ITEM_COMPARE);
+                    debugger.log("toCompare Durabilty (<=): " + toCompareDamageable.getDamage(), DebugLevels.ITEM_COMPARE);
                     return false;
                 }
 
-                // Return False if itemStack hasEnchantments && Enchant maps are not equal
-                if (itemStackMeta.hasEnchants() && !itemStackMeta.getEnchants().equals(toCompareMeta.getEnchants()))
-                    return false;
-            }
-
-            // If compareName is on
-            if (compareName) {
-
-                // If ItemStack Meta are BookMeta then compare title, otherwise compare displayname
-                if (useBookMeta) {
-                    // Return False if hasTitle differs (one has one doesn't)
-                    if (itemStackBookMeta.hasTitle() != toCompareBookMeta.hasTitle()) return false;
-
-                    // Return False if itemStack hasTitle && Title is not equal
-                    if (itemStackBookMeta.hasTitle() && !itemStackBookMeta.getTitle().equals(toCompareBookMeta.getTitle()))
-                        return false;
-                } else {
-                    // Return False if hasDisplayName differs (one has one doesn't)
-                    if (itemStackMeta.hasDisplayName() != toCompareMeta.hasDisplayName()) return false;
-
-                    // Return False if itemStack hasDisplayName && DisplayName is not equal
-                    if (itemStackMeta.hasDisplayName() && !itemStackMeta.getDisplayName().equals(toCompareMeta.getDisplayName()))
-                        return false;
-                }
-            }
-
-            // If useBookMeta and compareBookAuthor are true
-            if (useBookMeta && compareBookAuthor) {
-                // Return False if hasAuthor differs (one has one doesn't)
-                debugger.log("itemStackBookMeta hasAuthor: " + itemStackBookMeta.hasAuthor(), DebugLevels.ITEM_COMPARE);
-                debugger.log("toCompareBookMeta hasAuthor: " + toCompareBookMeta.hasAuthor(), DebugLevels.ITEM_COMPARE);
-                if (itemStackBookMeta.hasAuthor() != toCompareBookMeta.hasAuthor()) {
-                    return false;
-                }
-
-                // Return False if itemStack hasAuthor && Author is not equal
-                debugger.log("itemStackBookMeta getAuthor: " + itemStackBookMeta.getAuthor(), DebugLevels.ITEM_COMPARE);
-                debugger.log("toCompareBookMeta getAuthor: " + toCompareBookMeta.getAuthor(), DebugLevels.ITEM_COMPARE);
-                if (itemStackBookMeta.hasAuthor() && !Objects.equals(itemStackBookMeta.getAuthor(), toCompareBookMeta.getAuthor())) {
+                // Return False compareDurability is set to '>=' and ItemStack Damage greater than toCompare Damage
+                if (compareDurability == 2 && itemStackDamageable.getDamage() < toCompareDamageable.getDamage()) {
+                    debugger.log("itemstack Durabilty (>=): " + itemStackDamageable.getDamage(), DebugLevels.ITEM_COMPARE);
+                    debugger.log("toCompare Durabilty (>=): " + toCompareDamageable.getDamage(), DebugLevels.ITEM_COMPARE);
                     return false;
                 }
             }
 
-            // If useBookMeta and compareBookPages are true
-            if (useBookMeta && compareBookPages) {
-                // Return False if hasPages differs (one has one doesn't)
-                debugger.log("itemStackBookMeta hasPages: " + itemStackBookMeta.hasPages(), DebugLevels.ITEM_COMPARE);
-                debugger.log("toCompareBookMeta hasPages: " + toCompareBookMeta.hasPages(), DebugLevels.ITEM_COMPARE);
-                if (itemStackBookMeta.hasPages() != toCompareBookMeta.hasPages()) {
+        }
+
+        // If compareEnchantments is on
+        if (compareEnchantments && useMeta) {
+            // Return False if hasEnchantments differs (one has one doesn't)
+            if (itemStackMeta.hasEnchants() != toCompareMeta.hasEnchants()) {
+                debugger.log("itemStackMeta hasEnchants: " + itemStackMeta.hasEnchants(), DebugLevels.ITEM_COMPARE);
+                debugger.log("toCompareMeta hasEnchants: " + toCompareMeta.hasEnchants(), DebugLevels.ITEM_COMPARE);
+                return false;
+            }
+
+            // Return False if itemStack hasEnchantments && Enchant maps are not equal
+            if (itemStackMeta.hasEnchants() && !itemStackMeta.getEnchants().equals(toCompareMeta.getEnchants()))
+                return false;
+        }
+
+        // If compareName is on
+        if (compareName && useMeta) {
+
+            // If ItemStack Meta are BookMeta then compare title, otherwise compare displayname
+            if (useBookMeta) {
+                // Return False if hasTitle differs (one has one doesn't)
+                if (itemStackBookMeta.hasTitle() != toCompareBookMeta.hasTitle()) return false;
+
+                // Return False if itemStack hasTitle && Title is not equal
+                if (itemStackBookMeta.hasTitle() && !itemStackBookMeta.getTitle().equals(toCompareBookMeta.getTitle()))
                     return false;
+            } else {
+                // Return False if hasDisplayName differs (one has one doesn't)
+                if (itemStackMeta.hasDisplayName() != toCompareMeta.hasDisplayName()) return false;
+
+                // Return False if itemStack hasDisplayName && DisplayName is not equal
+                if (itemStackMeta.hasDisplayName() && !itemStackMeta.getDisplayName().equals(toCompareMeta.getDisplayName()))
+                    return false;
+            }
+        }
+
+        // If useBookMeta and compareBookAuthor are true
+        if (useBookMeta && compareBookAuthor) {
+            // Return False if hasAuthor differs (one has one doesn't)
+            debugger.log("itemStackBookMeta hasAuthor: " + itemStackBookMeta.hasAuthor(), DebugLevels.ITEM_COMPARE);
+            debugger.log("toCompareBookMeta hasAuthor: " + toCompareBookMeta.hasAuthor(), DebugLevels.ITEM_COMPARE);
+            if (itemStackBookMeta.hasAuthor() != toCompareBookMeta.hasAuthor()) {
+                return false;
+            }
+
+            // Return False if itemStack hasAuthor && Author is not equal
+            debugger.log("itemStackBookMeta getAuthor: " + itemStackBookMeta.getAuthor(), DebugLevels.ITEM_COMPARE);
+            debugger.log("toCompareBookMeta getAuthor: " + toCompareBookMeta.getAuthor(), DebugLevels.ITEM_COMPARE);
+            if (itemStackBookMeta.hasAuthor() && !Objects.equals(itemStackBookMeta.getAuthor(), toCompareBookMeta.getAuthor())) {
+                return false;
+            }
+        }
+
+        // If useBookMeta and compareBookPages are true
+        if (useBookMeta && compareBookPages) {
+            // Return False if hasPages differs (one has one doesn't)
+            debugger.log("itemStackBookMeta hasPages: " + itemStackBookMeta.hasPages(), DebugLevels.ITEM_COMPARE);
+            debugger.log("toCompareBookMeta hasPages: " + toCompareBookMeta.hasPages(), DebugLevels.ITEM_COMPARE);
+            if (itemStackBookMeta.hasPages() != toCompareBookMeta.hasPages()) {
+                return false;
+            }
+
+            // Return False if itemStack hasPages && Pages is not equal
+            debugger.log("itemStackBookMeta isNull: " + itemStackBookMeta.getPages(), DebugLevels.ITEM_COMPARE);
+            debugger.log("toCompareBookMeta isNull: " + toCompareBookMeta.getPages(), DebugLevels.ITEM_COMPARE);
+            if (itemStackBookMeta.hasPages() && !Objects.equals(itemStackBookMeta.getPages(), toCompareBookMeta.getPages())) {
+                return false;
+            }
+        }
+
+        // If compareLore is on
+        if (compareLore && useMeta) {
+            // Return False if hasLore differs (one has one doesn't)
+            if (itemStackMeta.hasLore() != toCompareMeta.hasLore()) return false;
+
+            // Return False if itemStack hasLore && Lore is not equal
+            if (itemStackMeta.hasLore() && !Objects.equals(itemStackMeta.getLore(), toCompareMeta.getLore()))
+                return false;
+        }
+
+        // If compareCustomModelData is on
+        if (compareCustomModelData && useMeta) {
+            // Return False if hasCustomModelData differs (one has one doesn't)
+            if (itemStackMeta.hasCustomModelData() != toCompareMeta.hasCustomModelData()) return false;
+
+            // Return False if itemStack hasCustomModelData && Custom Model Data is not equal
+            if (itemStackMeta.hasCustomModelData() && itemStackMeta.getCustomModelData() != toCompareMeta.getCustomModelData())
+                return false;
+        }
+
+        // If compareItemFlags is on
+        if (compareItemFlags && useMeta) {
+            // Return False if getItemFlags sizes differs
+            if (itemStackMeta.getItemFlags().size() != toCompareMeta.getItemFlags().size()) return false;
+
+            // Return False if Lore is not equal
+            if (!itemStackMeta.getItemFlags().equals(toCompareMeta.getItemFlags())) return false;
+        }
+
+        // Return False if compareUnbreakable is on and isUnbreakable differs
+        if (compareUnbreakable && useMeta && itemStackMeta.isUnbreakable() != toCompareMeta.isUnbreakable())
+            return false;
+
+        // If compareAttributeModifier is on
+        if (compareAttributeModifier && useMeta) {
+            if (itemStackMeta.hasAttributeModifiers() != toCompareMeta.hasAttributeModifiers()) return false;
+
+            // Return False if itemStack hasAttributeModifiers && getAttributeModifiers are not equal
+            return !itemStackMeta.hasAttributeModifiers() || Objects.equals(itemStackMeta.getAttributeModifiers(), toCompareMeta.getAttributeModifiers());
+        }
+
+        // If compareShulkerInventory is on
+        if (compareShulkerInventory && useMeta) {
+            if (!itemStack.getType().toString().toUpperCase().endsWith("SHULKER_BOX") || !toCompare.getType().toString().toUpperCase().endsWith("SHULKER_BOX"))
+                return false;
+
+            try {
+                ArrayList<ItemStack> contents1 = Lists.newArrayList(((ShulkerBox) ((BlockStateMeta) toCompare.clone().getItemMeta()).getBlockState()).getInventory().getContents());
+                ShulkerBox shulker2 = (ShulkerBox) ((BlockStateMeta) toCompare.clone().getItemMeta()).getBlockState();
+
+                for (ItemStack itm : shulker2.getInventory().getContents()) {
+                    contents1.remove(itm);
                 }
 
-                // Return False if itemStack hasPages && Pages is not equal
-                debugger.log("itemStackBookMeta isNull: " + itemStackBookMeta.getPages(), DebugLevels.ITEM_COMPARE);
-                debugger.log("toCompareBookMeta isNull: " + toCompareBookMeta.getPages(), DebugLevels.ITEM_COMPARE);
-                if (itemStackBookMeta.hasPages() && !Objects.equals(itemStackBookMeta.getPages(), toCompareBookMeta.getPages())) {
+                if (!contents1.isEmpty())
                     return false;
-                }
+
+            } catch (ClassCastException ex) {
+                return false;
             }
-
-            // If compareLore is on
-            if (compareLore) {
-                // Return False if hasLore differs (one has one doesn't)
-                if (itemStackMeta.hasLore() != toCompareMeta.hasLore()) return false;
-
-                // Return False if itemStack hasLore && Lore is not equal
-                if (itemStackMeta.hasLore() && !Objects.equals(itemStackMeta.getLore(), toCompareMeta.getLore()))
-                    return false;
-            }
-
-            // If compareCustomModelData is on
-            if (compareCustomModelData) {
-                // Return False if hasCustomModelData differs (one has one doesn't)
-                if (itemStackMeta.hasCustomModelData() != toCompareMeta.hasCustomModelData()) return false;
-
-                // Return False if itemStack hasCustomModelData && Custom Model Data is not equal
-                if (itemStackMeta.hasCustomModelData() && itemStackMeta.getCustomModelData() != toCompareMeta.getCustomModelData())
-                    return false;
-            }
-
-            // If compareItemFlags is on
-            if (compareItemFlags) {
-                // Return False if getItemFlags sizes differs
-                if (itemStackMeta.getItemFlags().size() != toCompareMeta.getItemFlags().size()) return false;
-
-                // Return False if Lore is not equal
-                if (!itemStackMeta.getItemFlags().equals(toCompareMeta.getItemFlags())) return false;
-            }
-
-            // Return False if compareUnbreakable is on and isUnbreakable differs
-            if (compareUnbreakable && itemStackMeta.isUnbreakable() != toCompareMeta.isUnbreakable()) return false;
-
-            // If compareAttributeModifier is on
-            if (compareAttributeModifier) {
-                if (itemStackMeta.hasAttributeModifiers() != toCompareMeta.hasAttributeModifiers()) return false;
-
-                // Return False if itemStack hasAttributeModifiers && getAttributeModifiers are not equal
-                return !itemStackMeta.hasAttributeModifiers() || Objects.equals(itemStackMeta.getAttributeModifiers(), toCompareMeta.getAttributeModifiers());
-            }
-
         }
         return true;
     }
@@ -431,5 +460,9 @@ public class ShopItemStack implements Serializable {
         } catch (ClassNotFoundException | IOException e) {
             itemStack = null;
         }
+    }
+
+    public String toConsoleText() {
+        return new GsonBuilder().setPrettyPrinting().create().toJson(this);
     }
 }
