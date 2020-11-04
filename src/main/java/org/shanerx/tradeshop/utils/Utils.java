@@ -485,64 +485,29 @@ public class Utils {
 
 		for (ShopItemStack item : items) {
 			totalCount += item.getItemStack().getAmount() * multiplier;
-			/*
-			if (item.getItemStack().getType().name().endsWith("SHULKER_BOX")) {
-                for (ItemStack itm : clone.getStorageContents()) {
-					if (itm != null && itm.getType().name().endsWith("SHULKER_BOX")) {
-						debugger.log("ShopTradeListener > Type of Item: " + itm.getType(), DebugLevels.TRADE);
-						debugger.log("ShopTradeListener > Amount of Item: " + itm.getAmount(), DebugLevels.TRADE);
-						//StringBuilder contents = new StringBuilder();
-						//Arrays.stream(clone.getContents()).forEach(a -> contents.append(a != null ? a.getType().toString() : "Empty").append("|"));
+			int count = item.getItemStack().getAmount() * multiplier, traded;
 
-						//debugger.log("ShopTradeListener > clone Contents: " + contents.toString(), DebugLevels.TRADE);
-						if (compareShulkers(itm, item.getItemStack())) {
-							clone.removeItem(itm);
-							ret.add(itm);
-							currentCount++;
-						}
+			debugger.log("ShopTradeListener > Item Material Being Searched for: " + item.getItemStack().getType().name(), DebugLevels.TRADE);
+			debugger.log("ShopTradeListener > Item count: " + count, DebugLevels.TRADE);
 
-						debugger.log("ShopTradeListener > CurrentCount: " + currentCount, DebugLevels.TRADE);
-					}
+			for (ItemStack storageItem : clone.getStorageContents()) {
+				if (storageItem != null && item.isSimilar(storageItem)) {
 
-					if (currentCount >= totalCount) break;
+					traded = Math.min(Math.min(storageItem.getAmount(), item.getItemStack().getMaxStackSize()), count);
+
+					storageItem.setAmount(traded);
+
+					clone.removeItem(storageItem);
+					ret.add(storageItem);
+					debugger.log("ShopTradeListener > Item traded: " + traded, DebugLevels.TRADE);
+
+					count -= traded;
+					currentCount += traded;
+					debugger.log("ShopTradeListener > Item new count: " + count, DebugLevels.TRADE);
 				}
-            } else {
-			*/
-                int count = item.getItemStack().getAmount() * multiplier, traded;
 
-				debugger.log("ShopTradeListener > Item Material Being Searched for: " + item.getItemStack().getType().name(), DebugLevels.TRADE);
-                debugger.log("ShopTradeListener > Item count: " + count, DebugLevels.TRADE);
-
-                for (ItemStack storageItem : clone.getStorageContents()) {
-                    // Skips empty slots
-                    if (storageItem != null) {
-
-                        debugger.log("ShopTradeListener > Type of Item: " + storageItem.getType(), DebugLevels.TRADE);
-                        debugger.log("ShopTradeListener > Amount of Item: " + storageItem.getAmount(), DebugLevels.TRADE);
-
-                        boolean isSimilar = item.isSimilar(storageItem);
-                        debugger.log("ShopTradeListener > Location Similar: " + isSimilar, DebugLevels.TRADE);
-
-                        if (isSimilar) {
-
-                            traded = Math.min(Math.min(storageItem.getAmount(), item.getItemStack().getMaxStackSize()), count);
-
-                            storageItem.setAmount(traded);
-
-                            clone.removeItem(storageItem);
-                            ret.add(storageItem);
-                            debugger.log("ShopTradeListener > Item traded: " + traded, DebugLevels.TRADE);
-
-                            count -= traded;
-                            currentCount += traded;
-
-                            debugger.log("ShopTradeListener > Item new count: " + count, DebugLevels.TRADE);
-                        }
-                    }
-
-					if (currentCount >= totalCount) break;
-                }
-			//}
+				if (currentCount >= totalCount) break;
+			}
 
             if (currentCount < totalCount) {
                 debugger.log("ShopTradeListener > TotalCount: " + totalCount, DebugLevels.TRADE);
@@ -556,24 +521,4 @@ public class Utils {
 
         return ret;
     }
-
-   /* public boolean compareShulkers(ItemStack item1, ItemStack item2) {
-
-        if (item1 == null || item2 == null)
-            return false;
-
-        try {
-			ArrayList<ItemStack> contents1 = Lists.newArrayList(((ShulkerBox) ((BlockStateMeta) item1.clone().getItemMeta()).getBlockState()).getInventory().getContents());
-			ShulkerBox shulker2 = (ShulkerBox) ((BlockStateMeta) item2.clone().getItemMeta()).getBlockState();
-
-			for (ItemStack itm : shulker2.getInventory().getContents()) {
-				contents1.remove(itm);
-			}
-
-			return contents1.isEmpty();
-
-		} catch (ClassCastException ex) {
-            return false;
-        }
-    }*/
 }

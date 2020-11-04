@@ -987,8 +987,10 @@ public class Shop implements Serializable {
 	 * Updates the number of trades the shop can make
 	 */
 	public void updateFullTradeCount() {
-		if (!hasStorage() || !hasProduct())
+		if (!hasStorage() || !hasProduct()) {
 			availableTrades = 0;
+			return;
+		}
 
 		Inventory shopInventory = hasStorage() ? getChestAsSC().getInventory() : null;
 

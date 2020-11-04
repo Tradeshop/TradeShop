@@ -179,18 +179,19 @@ public class ShopTradeListener extends Utils implements Listener {
 
         if (shop.getShopType() == ShopType.ITRADE && action.equals(Action.RIGHT_CLICK_BLOCK)) { //ITrade trade
 
-            //Method to find Cost items in player inventory and add to cost array
-            costItems = getItems(playerInventory, shop.getCost(), multiplier);
-            if (costItems.get(0) == null) {
-                ItemStack item = costItems.get(1);
-                buyer.sendMessage(Message.INSUFFICIENT_ITEMS.getPrefixed()
-                        .replace("{ITEM}", item.hasItemMeta() && item.getItemMeta().hasDisplayName() ? item.getItemMeta().getDisplayName() : item.getType().toString())
-                        .replace("{AMOUNT}", String.valueOf(item.getAmount() * multiplier)));
-                return false;
-            }
+            if (!shop.getCost().isEmpty()) {
+                costItems = getItems(playerInventory, shop.getCost(), multiplier);
+                if (costItems.get(0) == null) {
+                    ItemStack item = costItems.get(1);
+                    buyer.sendMessage(Message.INSUFFICIENT_ITEMS.getPrefixed()
+                            .replace("{ITEM}", item.hasItemMeta() && item.getItemMeta().hasDisplayName() ? item.getItemMeta().getDisplayName() : item.getType().toString())
+                            .replace("{AMOUNT}", String.valueOf(item.getAmount() * multiplier)));
+                    return false;
+                }
 
-            for (ItemStack item : costItems) {
-                playerInventory.removeItem(item);
+                for (ItemStack item : costItems) {
+                    playerInventory.removeItem(item);
+                }
             }
 
             for (ShopItemStack item : shop.getProduct()) {
