@@ -26,7 +26,10 @@
 package org.shanerx.tradeshop.commands;
 
 import com.google.common.collect.Iterables;
-import de.themoep.inventorygui.*;
+import de.themoep.inventorygui.GuiElementGroup;
+import de.themoep.inventorygui.GuiStateElement;
+import de.themoep.inventorygui.InventoryGui;
+import de.themoep.inventorygui.StaticGuiElement;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BookMeta;
@@ -45,17 +48,6 @@ import java.util.List;
 import java.util.Set;
 
 public class EditCommand extends CommandRunner {
-
-    private final String[] MENU_LAYOUT = {"a b c"},
-            EDIT_LAYOUT = {"aggggggga", "ap c s na"},
-            ITEM_LAYOUT = {"aggggggga", "aggggggga", "a  c s  a"};
-    private final GuiPageElement PREV_BUTTON = new GuiPageElement('p', new ItemStack(Material.POTION), GuiPageElement.PageAction.PREVIOUS, "Go to previous page (%prevpage%)"),
-            NEXT_BUTTON = new GuiPageElement('n', new ItemStack(Material.SPLASH_POTION), GuiPageElement.PageAction.NEXT, "Go to next page (%nextpage%)");
-    private final StaticGuiElement CANCEL_BUTTON = new StaticGuiElement('c', new ItemStack(Material.END_CRYSTAL),
-            click3 -> {
-                InventoryGui.goBack(pSender);
-                return true;
-            }, "Cancel Changes");
 
     private Shop shop;
     private InventoryGui mainMenu,

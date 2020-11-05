@@ -25,7 +25,7 @@
 
 package org.shanerx.tradeshop.commands;
 
-import de.themoep.inventorygui.GuiElementGroup;
+import de.themoep.inventorygui.GuiPageElement;
 import de.themoep.inventorygui.InventoryGui;
 import de.themoep.inventorygui.StaticGuiElement;
 import org.bukkit.Bukkit;
@@ -46,14 +46,26 @@ import org.shanerx.tradeshop.utils.ObjectHolder;
 import org.shanerx.tradeshop.utils.Utils;
 import org.shanerx.tradeshop.utils.data.DataType;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class CommandRunner extends Utils {
 
 	protected final TradeShop plugin;
 	protected final CommandPass command;
 	protected Player pSender;
+
+	protected final GuiPageElement PREV_BUTTON = new GuiPageElement('p', new ItemStack(Material.POTION), GuiPageElement.PageAction.PREVIOUS, "Go to previous page (%prevpage%)"),
+			NEXT_BUTTON = new GuiPageElement('n', new ItemStack(Material.SPLASH_POTION), GuiPageElement.PageAction.NEXT, "Go to next page (%nextpage%)");
+	protected final StaticGuiElement CANCEL_BUTTON = new StaticGuiElement('c', new ItemStack(Material.END_CRYSTAL), click3 -> {
+		InventoryGui.goBack(pSender);
+		return true;
+	}, "Cancel Changes"),
+			BACK_BUTTON = new StaticGuiElement('b', new ItemStack(Material.END_CRYSTAL), click3 -> {
+				InventoryGui.goBack(pSender);
+				return true;
+			}, "Back");
+	protected final String[] MENU_LAYOUT = {"a b c"},
+			EDIT_LAYOUT = {"aggggggga", "ap c s na"},
+			ITEM_LAYOUT = {"aggggggga", "aggggggga", "a  cbs  a"},
+			WHAT_MENU = {"141125333", "1aaa2bbb3", "11p123n33"};
 
 	public CommandRunner(TradeShop instance, CommandPass command) {
 		this.plugin = instance;
@@ -619,56 +631,6 @@ public class CommandRunner extends Utils {
 		shop.switchType();
 
 		sendMessage(Message.SHOP_TYPE_SWITCHED.getPrefixed().replace("%newtype%", shop.getShopType().toHeader()));
-	}
-
-	/**
-	 * Opens a GUI containing the items to be traded at the shop the player is looking at
-	 */
-	public void what() {
-		Shop shop = findShop();
-
-		if (shop == null)
-			return;
-
-		List<String> guiSetup = new ArrayList<>();
-		guiSetup.add("141125333");
-		for (int i = 1; i < Math.max((int) (Math.ceil(shop.getProduct().size() / 3.0)), (int) (Math.ceil(shop.getCost().size() / 3.0))) + 1; i++) {
-			guiSetup.add("1aaa2bbb3");
-		}
-
-		InventoryGui gui = new InventoryGui(plugin, colorize(shop.getShopType() == ShopType.ITRADE ?
-				Setting.ITRADESHOP_OWNER.getString() :
-				Bukkit.getOfflinePlayer(shop.getOwner().getUUID()).getName() + "'s Shop"),
-				guiSetup.toArray(new String[0]));
-
-		GuiElementGroup costGroup = new GuiElementGroup('a'), productGroup = new GuiElementGroup('b');
-
-		costGroup.setFiller(new ItemStack(Material.LIGHT_GRAY_STAINED_GLASS_PANE, 1));
-		productGroup.setFiller(new ItemStack(Material.LIGHT_GRAY_STAINED_GLASS_PANE, 1));
-		gui.setFiller(new ItemStack(Material.LIGHT_GRAY_STAINED_GLASS_PANE, 1));
-
-		for (ShopItemStack item : shop.getCost()) {
-			costGroup.addElement(new StaticGuiElement('e', item.getItemStack()));
-		}
-
-		for (ShopItemStack item : shop.getProduct()) {
-			productGroup.addElement(new StaticGuiElement('e', item.getItemStack()));
-		}
-
-		gui.addElement(new StaticGuiElement('1', new ItemStack(Material.LIME_STAINED_GLASS_PANE),
-				" "));
-		gui.addElement(new StaticGuiElement('2', new ItemStack(Material.BLACK_STAINED_GLASS_PANE),
-				" "));
-		gui.addElement(new StaticGuiElement('3', new ItemStack(Material.LIGHT_BLUE_STAINED_GLASS_PANE),
-				" "));
-		gui.addElement(new StaticGuiElement('4', new ItemStack(Material.GOLD_NUGGET),
-				"Cost", "This is the item", "that you give to", "make the trade."));
-		gui.addElement(new StaticGuiElement('5', new ItemStack(Material.GRASS_BLOCK),
-				"Product", "This is the item", "that you receive", "from the trade."));
-		gui.addElement(costGroup);
-		gui.addElement(productGroup);
-
-		gui.show(pSender);
 	}
 
 	/**

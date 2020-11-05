@@ -104,7 +104,7 @@ public class CommandCaller implements CommandExecutor {
 				cmdRnnr.switchShop();
 				break;
 			case WHAT:
-				cmdRnnr.what();
+				new WhatCommand(plugin, cmdPass).what();
 				break;
 			case WHO:
 				cmdRnnr.who();
