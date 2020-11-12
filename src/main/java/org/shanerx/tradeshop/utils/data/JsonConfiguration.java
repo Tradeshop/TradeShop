@@ -26,10 +26,6 @@
 package org.shanerx.tradeshop.utils.data;
 
 import com.google.common.collect.Lists;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import com.google.common.collect.Sets;
 import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
@@ -46,13 +42,13 @@ import java.util.Map;
 import java.util.UUID;
 
 public class JsonConfiguration extends Utils implements Serializable {
-	private String pluginFolder;
-	private String path;
+	private final String pluginFolder;
+	private final String path;
 	private File file;
-	private File filePath;
+	private final File filePath;
 	private JsonObject jsonObj;
-	private int configType;
-	private Gson gson;
+	private final int configType;
+	private final Gson gson;
 
 	private transient UUID playerUUID;
 
@@ -194,7 +190,9 @@ public class JsonConfiguration extends Utils implements Serializable {
 			playerSetting = gson.fromJson(jsonObj.get(playerUUID.toString()), PlayerSetting.class);
 		}
 
-		playerSetting.load();
+		if (playerSetting != null)
+			playerSetting.load();
+
 		return playerSetting;
 	}
 

@@ -52,10 +52,6 @@ public class JoinEventListener extends Utils implements Listener {
 		Player player = event.getPlayer();
 		PlayerSetting playerSetting = plugin.getDataStorage().loadPlayer(player.getUniqueId());
 
-		//If player does not have setting data, create new Default settings data ad save
-		if (playerSetting == null)
-			plugin.getDataStorage().savePlayer(new PlayerSetting(player.getUniqueId()));
-
 		//If player has Manage permission and plugin is behind, then send update message
 		if (Permissions.hasPermission(player, Permissions.MANAGE_PLUGIN)) {
 			BukkitVersion ver = new BukkitVersion();

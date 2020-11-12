@@ -37,7 +37,7 @@ import java.util.*;
 public class DataStorage extends Utils {
 
     private transient DataType dataType;
-    private transient Map<World, Map<String, String>> chestLinkage = new HashMap<>();
+    private final transient Map<World, Map<String, String>> chestLinkage = new HashMap<>();
 
     public DataStorage(DataType dataType) {
         reload(dataType);
@@ -125,6 +125,8 @@ public class DataStorage extends Utils {
                 //TODO add SQLITE support
                 break;
         }
+
+        //If playerSetting data not find create new and return
         return playerSetting != null ? playerSetting : new PlayerSetting(uuid);
     }
 
