@@ -68,7 +68,7 @@ public class JsonConfiguration extends Utils implements Serializable {
 
 			try {
 				new File(path + File.separator + chunk.serialize() + ".json").createNewFile();
-			} catch (Exception exception) {
+			} catch (IOException exception) {
 				throw new RuntimeException(exception);
 			}
 		}
@@ -81,7 +81,7 @@ public class JsonConfiguration extends Utils implements Serializable {
 			try {
 				new File(path + File.separator + chunk.serialize().replace(";;", "_") + ".json").delete();
 			} catch (SecurityException | NullPointerException ignored) {
-
+				//ignored
 			}
 		}
 	}
@@ -98,7 +98,7 @@ public class JsonConfiguration extends Utils implements Serializable {
 		if (!this.file.exists()) {
 			try {
 				this.file.createNewFile();
-			} catch (Exception exception) {
+			} catch (IOException exception) {
 				throw new RuntimeException(exception);
 			}
 		}
@@ -117,7 +117,7 @@ public class JsonConfiguration extends Utils implements Serializable {
 		if (!this.file.exists()) {
 			try {
 				this.file.createNewFile();
-			} catch (Exception exception) {
+			} catch (IOException exception) {
 				throw new RuntimeException(exception);
 			}
 		}
@@ -151,7 +151,7 @@ public class JsonConfiguration extends Utils implements Serializable {
 			fileWriter.write(str);
 			fileWriter.flush();
 			fileWriter.close();
-		} catch (Exception e) {
+		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
 

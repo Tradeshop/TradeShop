@@ -447,7 +447,7 @@ public class ShopItemStack implements Serializable, Cloneable {
             // Serialize that array
             dataOutput.close();
             itemStackB64 = Base64Coder.encodeLines(outputStream.toByteArray());
-        } catch (Exception e) {
+        } catch (IOException e) {
             itemStackB64 = null;
         }
     }

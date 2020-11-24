@@ -115,7 +115,6 @@ public class TradeShop extends JavaPlugin {
 		} else {
 			getLogger().warning("Metrics are disabled! Please consider enabling them to support the authors!");
 		}
-
 	}
 
 	@Override
