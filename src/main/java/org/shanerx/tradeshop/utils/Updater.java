@@ -114,7 +114,7 @@ public class Updater {
 					in.close();
 					return RelationalStatus.AHEAD;
 				} else {
-					log.log(Level.WARNING, "[Updater] You are running the latest version of the plugin!");
+					log.log(Level.INFO, "[Updater] You are running the latest version of the plugin!");
 					in.close();
 					return RelationalStatus.UP_TO_DATE;
 				}
