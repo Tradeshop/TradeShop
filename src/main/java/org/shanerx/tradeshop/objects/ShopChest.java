@@ -34,6 +34,7 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataType;
+import org.shanerx.tradeshop.IllegalWorldException;
 import org.shanerx.tradeshop.TradeShop;
 import org.shanerx.tradeshop.enumys.DebugLevels;
 import org.shanerx.tradeshop.utils.Utils;
@@ -182,8 +183,13 @@ public class ShopChest extends Utils {
 			for (String s : name) {
 				chestData.put(s.split(titleSeparator)[0], s.replace(s.split(titleSeparator)[0] + titleSeparator, ""));
 			}
+
 			chestData.forEach((k, v) -> plugin.getDebugger().log(k + " = " + v, DebugLevels.PROTECTION));
-			shopSign = ShopLocation.deserialize(chestData.get("Sign"));
+			try {
+				shopSign = ShopLocation.deserialize(chestData.get("Sign"));
+			} catch (IllegalWorldException e) {
+				shopSign = new ShopLocation(e.getLoc().getLocation(chest.getWorld()));
+			}
 			owner = UUID.fromString(chestData.get("Owner"));
 		}
 	}
