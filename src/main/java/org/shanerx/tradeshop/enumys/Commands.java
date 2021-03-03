@@ -63,7 +63,8 @@ public enum Commands {
 	SWITCH(Lists.newArrayList("switch"), Permissions.EDIT, 1, 1, true, "Switch shop type", "/tradeshop $cmd$"),
 	MULTI(Lists.newArrayList("multi", "multiply", "many"), Permissions.NONE, 1, 2, true, "Changes trade multiplier for this login", "/tradeshop $cmd$ <Amount>"),
 	STATUS(Lists.newArrayList("status", "stats", "s"), Permissions.INFO, 1, 2, true, "Displays the status of all shops the player has a relation to", "/tradeshop $cmd$ [Name]"),
-	EDIT(Lists.newArrayList("edit", "e"), Permissions.NONE, 1, 1, true, "Opens Edit GUI for shop", "/tradeshop $cmd$");
+	EDIT(Lists.newArrayList("edit", "e"), Permissions.NONE, 1, 1, true, "Opens Edit GUI for shop", "/tradeshop $cmd$"),
+	TOGGLE_STATUS(Lists.newArrayList("togglestatus", "togglemotd"), Permissions.NONE, 1, 1, true, "Toggles the join message containing the list of shops one is involved with", "/tradeshop togglestatus");
 
 	/**
 	 * Name of the permission

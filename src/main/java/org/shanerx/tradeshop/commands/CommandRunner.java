@@ -818,6 +818,17 @@ public class CommandRunner extends Utils {
 		}
 	}
 
+	public void toggleStatus() {
+		if (!Setting.ALLOW_TOGGLE_STATUS.getBoolean()) {
+			sendMessage(Message.FEATURE_DISABLED.getPrefixed());
+			return;
+		}
+
+		PlayerSetting playerSetting = plugin.getDataStorage().loadPlayer(pSender.getUniqueId());
+		playerSetting.setShowInvolvedStatus(playerSetting.showInvolvedStatus());
+		plugin.getDataStorage().savePlayer(playerSetting);
+	}
+
 	/**
 	 * Changes/Sets the players permission level if internal permissions is enabled
 	 */

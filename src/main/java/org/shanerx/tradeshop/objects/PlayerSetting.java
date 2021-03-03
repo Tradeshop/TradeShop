@@ -49,6 +49,8 @@ public class PlayerSetting implements Serializable {
     private final String uuidString;
     private final Set<String> ownedShops;
 
+    private boolean showInvolvedStatus;
+
     private int type = 0, multi = Setting.MULTI_TRADE_DEFAULT.getInt();
     private final Set<String> staffShops;
     private transient Utils utils = new Utils();
@@ -237,5 +239,12 @@ public class PlayerSetting implements Serializable {
 
         return gui;
     }
-}
 
+    public boolean showInvolvedStatus() {
+        return showInvolvedStatus;
+    }
+
+    public void setShowInvolvedStatus(boolean showInvolvedStatus) {
+        this.showInvolvedStatus = showInvolvedStatus;
+    }
+}

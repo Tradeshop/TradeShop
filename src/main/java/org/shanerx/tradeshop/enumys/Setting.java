@@ -69,6 +69,7 @@ public enum Setting {
     ALLOWED_SHOPS(SettingSectionKeys.GLOBAL_OPTIONS, "allowed-shops", new String[]{"CHEST", "TRAPPED_CHEST", "SHULKER"}, "Inventories to allow for shops. Allowed blocks are:\n  # Chest, Trapped_Chest, Dropper, Hopper, Dispenser, Shulker, ..."),
     MAX_EDIT_DISTANCE(SettingSectionKeys.GLOBAL_OPTIONS, "max-edit-distance", 4, "Max distance a player can be from a shop to edit it (must be a whole number)"),
     ILLEGAL_ITEMS(SettingSectionKeys.GLOBAL_OPTIONS, "illegal-items", new String[]{"Air", "Void_Air", "Cave_Air", "Bedrock", "Command_Block"}, "Material types that cannot be used in trades", "\n"),
+    ALLOW_TOGGLE_STATUS(SettingSectionKeys.GLOBAL_OPTIONS, "allow-toggle-status", true, "Can players toggle view of involved shops?"),
 
     // ^ Multi Trade
     ALLOW_MULTI_TRADE(SettingSectionKeys.GLOBAL_MULTI_TRADE, "enable", true, "Should we allow multi trades with shift + click (true/false)"),
@@ -99,7 +100,6 @@ public enum Setting {
     BITRADESHOP_HEADER(SettingSectionKeys.BITRADE_SHOP_OPTIONS, "header", "BiTrade", "The header that appears at the top of the shop signs, this is also what the player types to create the sign"),
     BITRADESHOP_EXPLODE(SettingSectionKeys.BITRADE_SHOP_OPTIONS, "allow-explode", false, "Can explosions damage the shop sign/storage (true/false)"),
     BITRADESHOP_HOPPER_EXPORT(SettingSectionKeys.BITRADE_SHOP_OPTIONS, "allow-hopper-export", false, "Can hoppers pull items from the shop storage (true/false)");
-
 
     private static final TradeShop plugin = (TradeShop) Bukkit.getPluginManager().getPlugin("TradeShop");
     private static final File file = new File(plugin.getDataFolder(), "config.yml");

@@ -50,7 +50,6 @@ public class JoinEventListener extends Utils implements Listener {
 	public void onJoin(PlayerJoinEvent event) {
 
 		Player player = event.getPlayer();
-		PlayerSetting playerSetting = plugin.getDataStorage().loadPlayer(player.getUniqueId());
 
 		//If player has Manage permission and plugin is behind, then send update message
 		if (Permissions.hasPermission(player, Permissions.MANAGE_PLUGIN)) {
@@ -59,7 +58,10 @@ public class JoinEventListener extends Utils implements Listener {
 				player.sendMessage(Message.PLUGIN_BEHIND.getPrefixed());
 		}
 
-		player.sendMessage(playerSetting.getInvolvedStatusesString());
+		PlayerSetting playerSetting = plugin.getDataStorage().loadPlayer(player.getUniqueId());
+		if (playerSetting.showInvolvedStatus()) {
+			player.sendMessage(playerSetting.getInvolvedStatusesString());
+		}
 	}
 }
 
