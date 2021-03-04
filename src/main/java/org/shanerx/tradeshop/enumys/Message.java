@@ -108,7 +108,8 @@ public enum Message {
     WHO_MESSAGE(MessageSectionKeys.NONE, "&6Shop users are:\n&2Owner: &e{OWNER}\n&2Managers: &e{MANAGERS}\n&2Members: &e{MEMBERS}", "Text to display when players use the who command"),
     VIEW_PLAYER_LEVEL(MessageSectionKeys.NONE, "&e%player% has a level of %level%.", "Text to display when viewing a players level with /ts PlayerLevel"),
     SET_PLAYER_LEVEL(MessageSectionKeys.NONE, "&aYou have set the level of %player% to %level%!", "Text to display after setting a players level"),
-    VARIOUS_ITEM_TYPE(MessageSectionKeys.NONE, "Various", "Text to display when a message uses an Item Type and the Type varies");
+    VARIOUS_ITEM_TYPE(MessageSectionKeys.NONE, "Various", "Text to display when a message uses an Item Type and the Type varies"),
+    TOGGLED_STATUS(MessageSectionKeys.NONE, "Toggled status: &c%status%");
 
     private static final char COLOUR_CHAR = '&';
     private static final TradeShop plugin = (TradeShop) Bukkit.getPluginManager().getPlugin("TradeShop");

@@ -827,6 +827,7 @@ public class CommandRunner extends Utils {
 		PlayerSetting playerSetting = plugin.getDataStorage().loadPlayer(pSender.getUniqueId());
 		playerSetting.setShowInvolvedStatus(!playerSetting.showInvolvedStatus());
 		plugin.getDataStorage().savePlayer(playerSetting);
+		sendMessage(Message.TOGGLED_STATUS.getPrefixed().replace("%status%", playerSetting.showInvolvedStatus() ? "on" : "off"));
 	}
 
 	/**
