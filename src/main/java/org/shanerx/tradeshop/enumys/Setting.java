@@ -68,8 +68,8 @@ public enum Setting {
     ALLOWED_DIRECTIONS(SettingSectionKeys.GLOBAL_OPTIONS, "allowed-directions", new String[]{"DOWN", "WEST", "SOUTH", "EAST", "NORTH", "UP"}, "Directions an allowed shop can be from a sign. Allowed directions are:\n  # Up, Down, North, East, South, West"),
     ALLOWED_SHOPS(SettingSectionKeys.GLOBAL_OPTIONS, "allowed-shops", new String[]{"CHEST", "TRAPPED_CHEST", "SHULKER"}, "Inventories to allow for shops. Allowed blocks are:\n  # Chest, Trapped_Chest, Dropper, Hopper, Dispenser, Shulker, ..."),
     MAX_EDIT_DISTANCE(SettingSectionKeys.GLOBAL_OPTIONS, "max-edit-distance", 4, "Max distance a player can be from a shop to edit it (must be a whole number)"),
-    ILLEGAL_ITEMS(SettingSectionKeys.GLOBAL_OPTIONS, "illegal-items", new String[]{"Air", "Void_Air", "Cave_Air", "Bedrock", "Command_Block", "Barrier"}, "Material types that cannot be used in trades", "\n"),
-    ALLOW_TOGGLE_STATUS(SettingSectionKeys.GLOBAL_OPTIONS, "allow-toggle-status", true, "Can players toggle view of involved shops?"),
+    ILLEGAL_ITEMS(SettingSectionKeys.GLOBAL_OPTIONS, "illegal-items", new String[]{"Air", "Void_Air", "Cave_Air", "Bedrock", "Command_Block", "Barrier"}, "Material types that cannot be used in trades"),
+    ALLOW_TOGGLE_STATUS(SettingSectionKeys.GLOBAL_OPTIONS, "allow-toggle-status", true, "Can players toggle view of involved shops?", "\n"),
 
     // ^ Multi Trade
     ALLOW_MULTI_TRADE(SettingSectionKeys.GLOBAL_MULTI_TRADE, "enable", true, "Should we allow multi trades with shift + click (true/false)"),
@@ -83,6 +83,9 @@ public enum Setting {
     ALLOW_USER_PURCHASING(SettingSectionKeys.SHOP_OPTIONS, "allow-user-purchasing", false, "Can players purchase from a shop in which they are a user of (true/false)"),
     MULTIPLE_ITEMS_ON_SIGN(SettingSectionKeys.SHOP_OPTIONS, "multiple-items-on-sign", "Use '/ts what'", "Text that shows on trade signs that contain more than 1 item", "\n"),
 
+    // Item Options
+    FIREWORK_COMPARE_DURATION(SettingSectionKeys.ITEM_OPTIONS, "firework-compare-duration", true, "Must trades involving a firework rocket match the correct flight duration?"),
+    FIREWORK_COMPARE_EFFECTS(SettingSectionKeys.ITEM_OPTIONS, "firework-compare-effects", false, "Must trades involving a firework rocket match the exact firework effects?"),
 
     // Trade Shop Options
     TRADESHOP_HEADER(SettingSectionKeys.TRADE_SHOP_OPTIONS, "header", "Trade", "The header that appears at the top of the shop signs, this is also what the player types to create the sign"),
@@ -356,6 +359,7 @@ enum SettingSectionKeys {
     GLOBAL_OPTIONS("global-options", "Global Options"),
     GLOBAL_MULTI_TRADE(GLOBAL_OPTIONS, "multi-trade", ""),
     SHOP_OPTIONS("shop-options", "Shop Options"),
+    ITEM_OPTIONS("item-options", "Item-specific Options"),
     TRADE_SHOP_OPTIONS("trade-shop-options", "Trade Shop Options"),
     ITRADE_SHOP_OPTIONS("itrade-shop-options", "ITrade Shop Options"),
     BITRADE_SHOP_OPTIONS("bitrade-shop-options", "BiTrade Shop Options");

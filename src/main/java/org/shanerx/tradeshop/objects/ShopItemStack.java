@@ -28,15 +28,15 @@ package org.shanerx.tradeshop.objects;
 import com.google.common.collect.Lists;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import org.bukkit.FireworkEffect;
+import org.bukkit.Material;
 import org.bukkit.block.ShulkerBox;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.BlockStateMeta;
-import org.bukkit.inventory.meta.BookMeta;
-import org.bukkit.inventory.meta.Damageable;
-import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.*;
 import org.bukkit.util.io.BukkitObjectInputStream;
 import org.bukkit.util.io.BukkitObjectOutputStream;
 import org.shanerx.tradeshop.enumys.DebugLevels;
+import org.shanerx.tradeshop.enumys.Setting;
 import org.shanerx.tradeshop.utils.Utils;
 import org.yaml.snakeyaml.external.biz.base64Coder.Base64Coder;
 
@@ -77,7 +77,10 @@ public class ShopItemStack implements Serializable, Cloneable {
         fromBase64();
     }
 
-    public ShopItemStack(String itemStackB64, int compareDurability, boolean compareEnchantments, boolean compareName, boolean compareLore, boolean compareCustomModelData, boolean compareItemFlags, boolean compareUnbreakable, boolean compareAttributeModifier, boolean compareBookAuthor, boolean compareBookPages, boolean compareShulkerInventory) {
+    public ShopItemStack(String itemStackB64, int compareDurability, boolean compareEnchantments,
+                         boolean compareName, boolean compareLore, boolean compareCustomModelData,
+                         boolean compareItemFlags, boolean compareUnbreakable, boolean compareAttributeModifier,
+                         boolean compareBookAuthor, boolean compareBookPages, boolean compareShulkerInventory) {
         this.itemStackB64 = itemStackB64;
         this.compareAttributeModifier = compareAttributeModifier;
         this.compareUnbreakable = compareUnbreakable;
@@ -92,11 +95,13 @@ public class ShopItemStack implements Serializable, Cloneable {
         this.compareShulkerInventory = compareShulkerInventory;
 
         fromBase64();
-
     }
 
     public ShopItemStack clone() {
-        return new ShopItemStack(itemStackB64, compareDurability, compareEnchantments, compareName, compareLore, compareCustomModelData, compareItemFlags, compareUnbreakable, compareAttributeModifier, compareBookAuthor, compareBookPages, compareShulkerInventory);
+        return new ShopItemStack(itemStackB64, compareDurability, compareEnchantments,
+                compareName, compareLore, compareCustomModelData,
+                compareItemFlags, compareUnbreakable, compareAttributeModifier,
+                compareBookAuthor, compareBookPages, compareShulkerInventory);
     }
 
     public static ShopItemStack deserialize(String serialized) {
@@ -227,6 +232,8 @@ public class ShopItemStack implements Serializable, Cloneable {
 
 
         boolean useMeta = itemStack.hasItemMeta() == toCompare.hasItemMeta() && itemStackMeta != null, useBookMeta = itemStackBookMeta != null && toCompareBookMeta != null;
+        boolean compareFireworkDuration = Setting.FIREWORK_COMPARE_DURATION.getBoolean();
+        boolean compareFireworkEffects = Setting.FIREWORK_COMPARE_EFFECTS.getBoolean();
 
         debugger.log("itemstack useMeta: " + useMeta, DebugLevels.ITEM_COMPARE);
         debugger.log("toCompare useMeta: " + useMeta, DebugLevels.ITEM_COMPARE);
@@ -397,6 +404,34 @@ public class ShopItemStack implements Serializable, Cloneable {
         // Return False if compareUnbreakable is on and isUnbreakable differs
         if (compareUnbreakable && useMeta && itemStackMeta.isUnbreakable() != toCompareMeta.isUnbreakable())
             return false;
+
+        // If item is firework rocket
+        if (itemStack.getType() == Material.FIREWORK_ROCKET) {
+            FireworkMeta fireworkMeta = (FireworkMeta) itemStackMeta;
+            FireworkMeta toCompareFireworkMeta = (FireworkMeta) toCompareMeta;
+
+            if (compareFireworkDuration) {
+                if (fireworkMeta.getPower() != toCompareFireworkMeta.getPower()) {
+                    return false;
+                }
+            }
+
+            if (compareFireworkEffects) {
+                if (fireworkMeta.hasEffects()) {
+                    if (fireworkMeta.getEffects().size() != toCompareFireworkMeta.getEffects().size()) {
+                        return false;
+                    }
+
+                    for (int i = 0; i < fireworkMeta.getEffects().size(); ++i) {
+                        FireworkEffect effect = fireworkMeta.getEffects().get(i);
+                        FireworkEffect effectCompare = toCompareFireworkMeta.getEffects().get(i);
+                        if (!effect.equals(effectCompare)) {
+                            return false;
+                        }
+                    }
+                }
+            }
+        }
 
         // If compareAttributeModifier is on
         if (compareAttributeModifier && useMeta) {
