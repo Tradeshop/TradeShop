@@ -64,4 +64,3 @@ public class JoinEventListener extends Utils implements Listener {
 		}
 	}
 }
-

@@ -509,7 +509,7 @@ public class Utils {
 				if (currentCount >= totalCount) break;
 			}
 
-            if (currentCount < totalCount) {
+            if (currentCount < totalCount || ret.isEmpty()) {
                 debugger.log("ShopTradeListener > TotalCount: " + totalCount, DebugLevels.TRADE);
                 debugger.log("ShopTradeListener > CurrentCount: " + currentCount, DebugLevels.TRADE);
                 ret.clear();

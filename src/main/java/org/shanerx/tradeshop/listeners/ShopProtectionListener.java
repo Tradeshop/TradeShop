@@ -64,7 +64,7 @@ public class ShopProtectionListener extends Utils implements Listener {
         plugin = instance;
     }
 
-    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onInventoryMoveItem(InventoryMoveItemEvent event) {
 
         try {
@@ -93,10 +93,10 @@ public class ShopProtectionListener extends Utils implements Listener {
                 debugger.log("ShopProtectionListener: checked hopper setting > " + shop.getShopType().name() + "SHOP_HOPPER_EXPORT", DebugLevels.PROTECTION);
                 HopperShopAccessEvent hopperEvent = new HopperShopAccessEvent(shop, event.getSource(), event.getDestination(), event.getItem(), isForbidden);
                 Bukkit.getPluginManager().callEvent(hopperEvent);
-                debugger.log("ShopProtectionListener: HopperEvent thrown! ", DebugLevels.PROTECTION);
+                debugger.log("ShopProtectionListener: (TSAF) HopperEvent fired! ", DebugLevels.PROTECTION);
                 event.setCancelled(hopperEvent.isForbidden());
-                debugger.log("ShopProtectionListener: HopperEvent isCancelled: " + hopperEvent.isForbidden(), DebugLevels.PROTECTION);
-                debugger.log("ShopProtectionListener: HopperEvent isForbidden: " + isForbidden, DebugLevels.PROTECTION);
+                debugger.log("ShopProtectionListener: (TSAF) HopperEvent isCancelled: " + hopperEvent.isForbidden(), DebugLevels.PROTECTION);
+                debugger.log("ShopProtectionListener: (TSAF) HopperEvent isForbidden: " + isForbidden, DebugLevels.PROTECTION);
             }
         } catch (NullPointerException ignored) {
         } // Fix for random NPE triggering from this event that shows no stack trace
