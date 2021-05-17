@@ -165,6 +165,7 @@ public class ShopProtectionListener extends Utils implements Listener {
         Shop shop = null;
 
         if (ShopType.isShop(block)) {
+            if (Setting.ALLOW_SIGN_BREAK.getBoolean()) return;
             shop = Shop.loadShop((Sign) block.getState());
             if (shop == null)
                 return;
@@ -186,6 +187,7 @@ public class ShopProtectionListener extends Utils implements Listener {
             player.sendMessage(Message.NO_TS_DESTROY.getPrefixed());
 
         } else if (ShopChest.isShopChest(block)) {
+            if (Setting.ALLOW_CHEST_BREAK.getBoolean()) return;
             shop = new ShopChest(block.getLocation()).getShop();
             if (shop == null)
                 return;

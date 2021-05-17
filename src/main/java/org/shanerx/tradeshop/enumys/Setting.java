@@ -69,7 +69,9 @@ public enum Setting {
     ALLOWED_SHOPS(SettingSectionKeys.GLOBAL_OPTIONS, "allowed-shops", new String[]{"CHEST", "TRAPPED_CHEST", "SHULKER"}, "Inventories to allow for shops. Allowed blocks are:\n  # Chest, Trapped_Chest, Dropper, Hopper, Dispenser, Shulker, ..."),
     MAX_EDIT_DISTANCE(SettingSectionKeys.GLOBAL_OPTIONS, "max-edit-distance", 4, "Max distance a player can be from a shop to edit it (must be a whole number)"),
     ILLEGAL_ITEMS(SettingSectionKeys.GLOBAL_OPTIONS, "illegal-items", new String[]{"Air", "Void_Air", "Cave_Air", "Bedrock", "Command_Block", "Barrier"}, "Material types that cannot be used in trades"),
-    ALLOW_TOGGLE_STATUS(SettingSectionKeys.GLOBAL_OPTIONS, "allow-toggle-status", true, "Can players toggle view of involved shops?", "\n"),
+    ALLOW_TOGGLE_STATUS(SettingSectionKeys.GLOBAL_OPTIONS, "allow-toggle-status", true, "Can players toggle view of involved shops?"),
+    ALLOW_SIGN_BREAK(SettingSectionKeys.GLOBAL_OPTIONS, "allow-sign-break", false, "Should the sign be protected from being broken by other players?"),
+    ALLOW_CHEST_BREAK(SettingSectionKeys.GLOBAL_OPTIONS, "allow-chest-break", false, "Should the chest be protected from being broken by other players?", "\n"),
 
     // ^ Multi Trade
     ALLOW_MULTI_TRADE(SettingSectionKeys.GLOBAL_MULTI_TRADE, "enable", true, "Should we allow multi trades with shift + click (true/false)"),
