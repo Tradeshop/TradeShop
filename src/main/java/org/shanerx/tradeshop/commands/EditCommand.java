@@ -42,6 +42,8 @@ import org.shanerx.tradeshop.objects.Shop;
 import org.shanerx.tradeshop.objects.ShopItemStack;
 import org.shanerx.tradeshop.objects.ShopUser;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -58,6 +60,8 @@ public class EditCommand extends CommandRunner {
             productItems;
     private List<Boolean> costItemsRemoval,
             productItemsRemoval;
+    public final ItemStack TRUE_ITEM = new ItemStack(Material.EMERALD_BLOCK);
+    public final ItemStack FALSE_ITEM = new ItemStack(Material.REDSTONE_BLOCK);
 
 
     public EditCommand(TradeShop instance, CommandPass command) {
@@ -161,7 +165,7 @@ public class EditCommand extends CommandRunner {
         }, "Edit Shop Users"));
 
         mainMenu.addElement(new StaticGuiElement('b', new ItemStack(Material.GOLD_NUGGET), click -> {
-            costEdit = new InventoryGui(plugin, "Edit Users", EDIT_LAYOUT);
+            costEdit = new InventoryGui(plugin, "Edit Costs", EDIT_LAYOUT);
             costItems = new ArrayList<>();
             costItemsRemoval = new ArrayList<>();
             for (ShopItemStack item : shop.getCost()) {
@@ -202,7 +206,7 @@ public class EditCommand extends CommandRunner {
         }, "Edit Shop Costs"));
 
         mainMenu.addElement(new StaticGuiElement('c', new ItemStack(Material.GRASS_BLOCK), click -> {
-            productEdit = new InventoryGui(plugin, "Edit Users", EDIT_LAYOUT);
+            productEdit = new InventoryGui(plugin, "Edit Products", EDIT_LAYOUT);
             productItems = new ArrayList<>();
             productItemsRemoval = new ArrayList<>();
             for (ShopItemStack item : shop.getProduct()) {
@@ -266,254 +270,151 @@ public class EditCommand extends CommandRunner {
 
             itemGroup.addElement(new GuiStateElement('e',
                     (isCost ? costItemsRemoval : productItemsRemoval).get(index) + "",
-                    new GuiStateElement.State(change -> {
-                        (isCost ? costItemsRemoval : productItemsRemoval).set(index, true);
-                    },
+                    new GuiStateElement.State(change -> (isCost ? costItemsRemoval : productItemsRemoval).set(index, true),
                             "true",
                             new ItemStack(Material.BARRIER),
                             item.getItemName()),
-                    new GuiStateElement.State(change -> {
-                        (isCost ? costItemsRemoval : productItemsRemoval).set(index, false);
-                    },
+                    new GuiStateElement.State(change -> (isCost ? costItemsRemoval : productItemsRemoval).set(index, false),
                             "false",
                             item.getItemStack())
 
             ));
 
+            //Add new item settings below
+            try {
+                if (item.getItemStack().getItemMeta() instanceof Damageable) {
+                    itemGroup.addElement(numericalOption("CompareDurability", tempItem, new ItemStack[]{
+                            FALSE_ITEM, new ItemStack(Material.IRON_BLOCK), TRUE_ITEM, new ItemStack(Material.GOLD_BLOCK)
+                    }));
+                }
 
-            itemGroup.addElement(new GuiStateElement('e',
-                    tempItem.isCompareName() + "",
-                    new GuiStateElement.State(change -> {
-                        tempItem.setCompareName(true);
-                    },
-                            "true",
-                            new ItemStack(Material.EMERALD_BLOCK),
-                            "Compare Name",
-                            "State: True"),
-                    new GuiStateElement.State(change -> {
-                        tempItem.setCompareName(false);
-                    },
-                            "false",
-                            new ItemStack(Material.REDSTONE_BLOCK),
-                            "Compare Name",
-                            "State: False")
+                if (tempItem.getItemStack().getItemMeta() instanceof BookMeta) {
+                    itemGroup.addElement(booleanOption("CompareBookAuthor", tempItem, TRUE_ITEM, FALSE_ITEM));
+                    itemGroup.addElement(booleanOption("CompareBookPages", tempItem, TRUE_ITEM, FALSE_ITEM));
+                }
 
-            ));
+                if (tempItem.getItemStack().getType().toString().endsWith("SHULKER_BOX")) {
+                    itemGroup.addElement(booleanOption("CompareShulkerInventory", tempItem, TRUE_ITEM, FALSE_ITEM));
+                }
 
-            itemGroup.addElement(new GuiStateElement('e',
-                    tempItem.isCompareLore() + "",
-                    new GuiStateElement.State(change -> {
-                        tempItem.setCompareLore(true);
-                    },
-                            "true",
-                            new ItemStack(Material.EMERALD_BLOCK),
-                            "Compare Lore",
-                            "State: True"),
-                    new GuiStateElement.State(change -> {
-                        tempItem.setCompareLore(false);
-                    },
-                            "false",
-                            new ItemStack(Material.REDSTONE_BLOCK),
-                            "Compare Lore",
-                            "State: False")
-
-            ));
-
-            if (tempItem.getItemStack().getType().toString().endsWith("SHULKER_BOX")) {
-
-                itemGroup.addElement(new GuiStateElement('e',
-                        tempItem.isCompareShulkerInventory() + "",
-                        new GuiStateElement.State(change -> {
-                            tempItem.setCompareShulkerInventory(true);
-                        },
-                                "true",
-                                new ItemStack(Material.EMERALD_BLOCK),
-                                "Compare Shulker Inventory",
-                                "State: True"),
-                        new GuiStateElement.State(change -> {
-                            tempItem.setCompareShulkerInventory(false);
-                        },
-                                "false",
-                                new ItemStack(Material.REDSTONE_BLOCK),
-                                "Compare Shulker Inventory",
-                                "State: False")
-
-                ));
+                itemGroup.addElement(booleanOption("CompareName", tempItem, TRUE_ITEM, FALSE_ITEM));
+                itemGroup.addElement(booleanOption("CompareLore", tempItem, TRUE_ITEM, FALSE_ITEM));
+                itemGroup.addElement(booleanOption("CompareUnbreakable", tempItem, TRUE_ITEM, FALSE_ITEM));
+                itemGroup.addElement(booleanOption("CompareEnchantments", tempItem, TRUE_ITEM, FALSE_ITEM));
+                itemGroup.addElement(booleanOption("CompareItemFlags", tempItem, TRUE_ITEM, FALSE_ITEM));
+                itemGroup.addElement(booleanOption("CompareCustomModelData", tempItem, TRUE_ITEM, FALSE_ITEM));
+                itemGroup.addElement(booleanOption("CompareAttributeModifier", tempItem, TRUE_ITEM, FALSE_ITEM));
+            } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
+                e.printStackTrace();
             }
-
-            if (item.getItemStack().getItemMeta() instanceof Damageable) {
-                itemGroup.addElement(new GuiStateElement('e',
-                        tempItem.isCompareDurability() + "",
-                        new GuiStateElement.State(change -> {
-                            tempItem.setCompareDurability(2);
-                        },
-                                "2",
-                                new ItemStack(Material.GOLD_BLOCK),
-                                "Compare Durability",
-                                "State: >="),
-                        new GuiStateElement.State(change -> {
-                            tempItem.setCompareDurability(-1);
-                        },
-                                "-1",
-                                new ItemStack(Material.REDSTONE_BLOCK),
-                                "Compare Durability",
-                                "State: False"),
-                        new GuiStateElement.State(change -> {
-                            tempItem.setCompareDurability(0);
-                        },
-                                "0",
-                                new ItemStack(Material.IRON_BLOCK),
-                                "Compare Durability",
-                                "State: <="),
-                        new GuiStateElement.State(change -> {
-                            tempItem.setCompareDurability(1);
-                        },
-                                "1",
-                                new ItemStack(Material.EMERALD_BLOCK),
-                                "Compare Durability",
-                                "State: ==")
-
-                ));
-            }
-
-            itemGroup.addElement(new GuiStateElement('e',
-                    tempItem.isCompareEnchantments() + "",
-                    new GuiStateElement.State(change -> {
-                        tempItem.setCompareEnchantments(true);
-                    },
-                            "true",
-                            new ItemStack(Material.EMERALD_BLOCK),
-                            "Compare Enchantments",
-                            "State: True"),
-                    new GuiStateElement.State(change -> {
-                        tempItem.setCompareEnchantments(false);
-                    },
-                            "false",
-                            new ItemStack(Material.REDSTONE_BLOCK),
-                            "Compare Enchantments",
-                            "State: False")
-
-            ));
-
-            itemGroup.addElement(new GuiStateElement('e',
-                    tempItem.isCompareUnbreakable() + "",
-                    new GuiStateElement.State(change -> {
-                        tempItem.setCompareUnbreakable(true);
-                    },
-                            "true",
-                            new ItemStack(Material.EMERALD_BLOCK),
-                            "Compare Unbreakable",
-                            "State: True"),
-                    new GuiStateElement.State(change -> {
-                        tempItem.setCompareUnbreakable(false);
-                    },
-                            "false",
-                            new ItemStack(Material.REDSTONE_BLOCK),
-                            "Compare Unbreakable",
-                            "State: False")
-
-            ));
-
-            if (tempItem.getItemStack().getItemMeta() instanceof BookMeta) {
-                itemGroup.addElement(new GuiStateElement('e',
-                        tempItem.isCompareBookAuthor() + "",
-                        new GuiStateElement.State(change -> {
-                            tempItem.setCompareEnchantments(true);
-                        },
-                                "true",
-                                new ItemStack(Material.EMERALD_BLOCK),
-                                "Compare Author",
-                                "State: True"),
-                        new GuiStateElement.State(change -> {
-                            tempItem.setCompareEnchantments(false);
-                        },
-                                "false",
-                                new ItemStack(Material.REDSTONE_BLOCK),
-                                "Compare Author",
-                                "State: False")
-
-                ));
-
-                itemGroup.addElement(new GuiStateElement('e',
-                        tempItem.isCompareBookPages() + "",
-                        new GuiStateElement.State(change -> {
-                            tempItem.setCompareEnchantments(true);
-                        },
-                                "true",
-                                new ItemStack(Material.EMERALD_BLOCK),
-                                "Compare Pages",
-                                "State: True"),
-                        new GuiStateElement.State(change -> {
-                            tempItem.setCompareEnchantments(false);
-                        },
-                                "false",
-                                new ItemStack(Material.REDSTONE_BLOCK),
-                                "Compare Pages",
-                                "State: False")
-
-                ));
-            }
-
-            itemGroup.addElement(new GuiStateElement('e',
-                    tempItem.isCompareItemFlags() + "",
-                    new GuiStateElement.State(change -> {
-                        tempItem.setCompareItemFlags(true);
-                    },
-                            "true",
-                            new ItemStack(Material.EMERALD_BLOCK),
-                            "Compare Item Flags",
-                            "State: True"),
-                    new GuiStateElement.State(change -> {
-                        tempItem.setCompareItemFlags(false);
-                    },
-                            "false",
-                            new ItemStack(Material.REDSTONE_BLOCK),
-                            "Compare Item Flags",
-                            "State: False")
-
-            ));
-
-            itemGroup.addElement(new GuiStateElement('e',
-                    tempItem.isCompareCustomModelData() + "",
-                    new GuiStateElement.State(change -> {
-                        tempItem.setCompareCustomModelData(true);
-                    },
-                            "true",
-                            new ItemStack(Material.EMERALD_BLOCK),
-                            "Compare Custom Model Data",
-                            "State: True"),
-                    new GuiStateElement.State(change -> {
-                        tempItem.setCompareCustomModelData(false);
-                    },
-                            "false",
-                            new ItemStack(Material.REDSTONE_BLOCK),
-                            "Compare Custom Model Data",
-                            "State: False")
-
-            ));
-
-            itemGroup.addElement(new GuiStateElement('e',
-                    tempItem.isCompareAttributeModifier() + "",
-                    new GuiStateElement.State(change -> {
-                        tempItem.setCompareAttributeModifier(true);
-                    },
-                            "true",
-                            new ItemStack(Material.EMERALD_BLOCK),
-                            "Compare Attribute Modifier",
-                            "State: True"),
-                    new GuiStateElement.State(change -> {
-                        tempItem.setCompareAttributeModifier(false);
-                    },
-                            "false",
-                            new ItemStack(Material.REDSTONE_BLOCK),
-                            "Compare Attribute Modifier",
-                            "State: False")
-
-            ));
 
             itemEdit.addElement(itemGroup);
             itemEdit.show(pSender);
             return true;
         });
+    }
+
+    private GuiStateElement numericalOption(String setting, ShopItemStack tempItem, ItemStack[] indexedTempItem) throws InvocationTargetException, IllegalAccessException, NoSuchMethodException {
+        String readableSetting = makeStringReadable(setting);
+        Method isSetting = ShopItemStack.class.getMethod("is" + setting, Integer.class);
+        Method setSetting = ShopItemStack.class.getMethod("set" + setting, Void.class);
+
+        return new GuiStateElement('e',
+                isSetting.invoke(tempItem, (Object) null) + "",
+                new GuiStateElement.State(change -> {
+                    try {
+                        setSetting.invoke(tempItem, 2);
+                    } catch (IllegalAccessException | InvocationTargetException e) {
+                        e.printStackTrace();
+                    }
+                },
+                        "2",
+                        indexedTempItem[3],
+                        readableSetting,
+                        "State: >="),
+                new GuiStateElement.State(change -> {
+                    try {
+                        setSetting.invoke(tempItem, -1);
+                    } catch (IllegalAccessException | InvocationTargetException e) {
+                        e.printStackTrace();
+                    }
+                },
+                        "-1",
+                        indexedTempItem[0],
+                        readableSetting,
+                        "State: False"),
+                new GuiStateElement.State(change -> {
+                    try {
+                        setSetting.invoke(tempItem, 0);
+                    } catch (IllegalAccessException | InvocationTargetException e) {
+                        e.printStackTrace();
+                    }
+                },
+                        "0",
+                        indexedTempItem[1],
+                        readableSetting,
+                        "State: <="),
+                new GuiStateElement.State(change -> {
+                    try {
+                        setSetting.invoke(tempItem, 1);
+                    } catch (IllegalAccessException | InvocationTargetException e) {
+                        e.printStackTrace();
+                    }
+                },
+                        "1",
+                        indexedTempItem[2],
+                        readableSetting,
+                        "State: =="
+
+                ));
+    }
+
+    private GuiStateElement booleanOption(String setting, ShopItemStack tempItem, ItemStack trueTempItem, ItemStack falseTempItem) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+        String readableSetting = makeStringReadable(setting);
+        Method isSetting = ShopItemStack.class.getMethod("is" + setting, Boolean.class);
+        Method setSetting = ShopItemStack.class.getMethod("set" + setting, Void.class);
+
+
+        return new GuiStateElement('e',
+                isSetting.invoke(tempItem, (Object) null) + "",
+                new GuiStateElement.State(change -> {
+                    try {
+                        setSetting.invoke(tempItem, true);
+                    } catch (IllegalAccessException | InvocationTargetException e) {
+                        e.printStackTrace();
+                    }
+                },
+                        "true",
+                        trueTempItem,
+                        readableSetting,
+                        "State: True"),
+                new GuiStateElement.State(change -> {
+                    try {
+                        setSetting.invoke(tempItem, false);
+                    } catch (IllegalAccessException | InvocationTargetException e) {
+                        e.printStackTrace();
+                    }
+                },
+                        "false",
+                        falseTempItem,
+                        readableSetting,
+                        "State: False"
+                ));
+    }
+
+    private String makeStringReadable(String toFix) {
+        StringBuilder ret = new StringBuilder();
+
+        //Adds a space before each capital letter
+        for (int i = 0; i < toFix.length(); i++) {
+            char ch = toFix.charAt(i);
+            if (ch >= 'A' && ch <= 'Z' && i > 0)
+                ret.append(" ").append(ch);
+            else
+                ret.append(ch);
+        }
+
+        //removes any Leading/Trailing spaces and returns
+        return ret.toString().trim();
     }
 }

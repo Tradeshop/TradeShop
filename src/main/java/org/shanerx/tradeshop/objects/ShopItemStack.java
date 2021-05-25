@@ -37,6 +37,8 @@ import org.bukkit.util.io.BukkitObjectInputStream;
 import org.bukkit.util.io.BukkitObjectOutputStream;
 import org.shanerx.tradeshop.enumys.DebugLevels;
 import org.shanerx.tradeshop.enumys.Setting;
+import org.shanerx.tradeshop.enumys.ShopItemStackSettingKeys;
+import org.shanerx.tradeshop.utils.ObjectHolder;
 import org.shanerx.tradeshop.utils.Utils;
 import org.yaml.snakeyaml.external.biz.base64Coder.Base64Coder;
 
@@ -45,6 +47,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Objects;
 
 public class ShopItemStack implements Serializable, Cloneable {
@@ -53,55 +56,65 @@ public class ShopItemStack implements Serializable, Cloneable {
     private transient Debug debugger;
 
     private String itemStackB64;
-    private int compareDurability = 1; // -1 == 'off', 0 == '<=', 1 == '==', 2 == '>='
-    private boolean compareEnchantments = true,
-            compareName = true,
-            compareLore = true,
-            compareCustomModelData = true,
-            compareItemFlags = true,
-            compareUnbreakable = true,
-            compareAttributeModifier = true,
-            compareBookAuthor = true,
-            compareBookPages = true,
-            compareShulkerInventory = true;
+
+    private HashMap<ShopItemStackSettingKeys, ObjectHolder<?>> shopSettings = new HashMap<>();
 
     public ShopItemStack(ItemStack itemStack) {
         this.itemStack = itemStack;
-
+        buildMap();
         toBase64();
     }
 
     public ShopItemStack(String itemStackB64) {
         this.itemStackB64 = itemStackB64;
-
+        buildMap();
         fromBase64();
     }
 
-    public ShopItemStack(String itemStackB64, int compareDurability, boolean compareEnchantments,
-                         boolean compareName, boolean compareLore, boolean compareCustomModelData,
-                         boolean compareItemFlags, boolean compareUnbreakable, boolean compareAttributeModifier,
-                         boolean compareBookAuthor, boolean compareBookPages, boolean compareShulkerInventory) {
+    public ShopItemStack(String itemStackB64, HashMap<ShopItemStackSettingKeys, ObjectHolder<?>> settingMap) {
         this.itemStackB64 = itemStackB64;
-        this.compareAttributeModifier = compareAttributeModifier;
-        this.compareUnbreakable = compareUnbreakable;
-        this.compareItemFlags = compareItemFlags;
-        this.compareCustomModelData = compareCustomModelData;
-        this.compareLore = compareLore;
-        this.compareName = compareName;
-        this.compareEnchantments = compareEnchantments;
-        this.compareDurability = compareDurability;
-        this.compareBookPages = compareBookPages;
-        this.compareBookAuthor = compareBookAuthor;
-        this.compareShulkerInventory = compareShulkerInventory;
-
+        this.shopSettings = settingMap;
         fromBase64();
+    }
+
+    public HashMap<ShopItemStackSettingKeys, ObjectHolder<?>> getShopSettings() {
+        return shopSettings;
+    }
+
+    public Boolean getShopSettingAsBoolean(ShopItemStackSettingKeys key) {
+        try {
+            ObjectHolder<?> tempObj = shopSettings.get(key);
+            return shopSettings.containsKey(key) ? (Boolean) tempObj.getObject() : null;
+        } catch (ClassCastException | NullPointerException e) {
+            return null;
+        }
+    }
+
+    public Integer getShopSettingAsInteger(ShopItemStackSettingKeys key) {
+        try {
+            ObjectHolder<?> tempObj = shopSettings.get(key);
+            return shopSettings.containsKey(key) ? (Integer) tempObj.getObject() : null;
+        } catch (ClassCastException | NullPointerException e) {
+            return null;
+        }
+    }
+
+    public boolean setShopSettings(ShopItemStackSettingKeys key, ObjectHolder<?> value) {
+        if (shopSettings.containsKey(key)) {
+            shopSettings.put(key, value);
+            return true;
+        }
+        return false;
+    }
+
+    private void buildMap() {
+        for (ShopItemStackSettingKeys key : ShopItemStackSettingKeys.values()) {
+            shopSettings.putIfAbsent(key, key.getDefaultValue());
+        }
     }
 
     public ShopItemStack clone() {
-        return new ShopItemStack(itemStackB64, compareDurability, compareEnchantments,
-                compareName, compareLore, compareCustomModelData,
-                compareItemFlags, compareUnbreakable, compareAttributeModifier,
-                compareBookAuthor, compareBookPages, compareShulkerInventory);
+        return new ShopItemStack(itemStackB64, shopSettings);
     }
 
     public static ShopItemStack deserialize(String serialized) {
@@ -110,100 +123,12 @@ public class ShopItemStack implements Serializable, Cloneable {
         return item;
     }
 
-    public boolean isCompareShulkerInventory() {
-        return compareShulkerInventory;
-    }
-
-    public void setCompareShulkerInventory(boolean compareShulkerInventory) {
-        this.compareShulkerInventory = compareShulkerInventory;
-    }
-
-    public int isCompareDurability() {
-        return compareDurability;
-    }
-
-    public void setCompareDurability(int compareDurability) {
-        this.compareDurability = compareDurability;
-    }
-
-    public boolean isCompareEnchantments() {
-        return compareEnchantments;
-    }
-
-    public void setCompareEnchantments(boolean compareEnchantments) {
-        this.compareEnchantments = compareEnchantments;
-    }
-
-    public boolean isCompareName() {
-        return compareName;
-    }
-
-    public void setCompareName(boolean compareName) {
-        this.compareName = compareName;
-    }
-
-    public boolean isCompareLore() {
-        return compareLore;
-    }
-
-    public void setCompareLore(boolean compareLore) {
-        this.compareLore = compareLore;
-    }
-
-    public boolean isCompareCustomModelData() {
-        return compareCustomModelData;
-    }
-
-    public void setCompareCustomModelData(boolean compareCustomModelData) {
-        this.compareCustomModelData = compareCustomModelData;
-    }
-
-    public boolean isCompareItemFlags() {
-        return compareItemFlags;
-    }
-
-    public void setCompareItemFlags(boolean compareItemFlags) {
-        this.compareItemFlags = compareItemFlags;
-    }
-
-    public boolean isCompareUnbreakable() {
-        return compareUnbreakable;
-    }
-
-    public void setCompareUnbreakable(boolean compareUnbreakable) {
-        this.compareUnbreakable = compareUnbreakable;
-    }
-
-    public boolean isCompareAttributeModifier() {
-        return compareAttributeModifier;
-    }
-
-    public void setCompareAttributeModifier(boolean compareAttributeModifier) {
-        this.compareAttributeModifier = compareAttributeModifier;
-    }
-
     public String getItemStackB64() {
         return itemStackB64;
     }
 
     public boolean hasBase64() {
         return itemStackB64 != null && !itemStackB64.isEmpty();
-    }
-
-    public boolean isCompareBookAuthor() {
-        return compareBookAuthor;
-    }
-
-    public void setCompareBookAuthor(boolean compareBookAuthor) {
-        this.compareBookAuthor = compareBookAuthor;
-    }
-
-    public boolean isCompareBookPages() {
-        return compareBookPages;
-    }
-
-    public void setCompareBookPages(boolean compareBookPages) {
-        this.compareBookPages = compareBookPages;
     }
 
     public boolean isSimilar(ItemStack toCompare) {
@@ -240,7 +165,7 @@ public class ShopItemStack implements Serializable, Cloneable {
 
         // If compareShulkerInventory is on
         if (itemStack.getType().toString().endsWith("SHULKER_BOX")) {
-            if (compareShulkerInventory) {
+            if (((Boolean) shopSettings.get(ShopItemStackSettingKeys.compareShulkerInventory).getObject())) {
                 try {
                     ArrayList<ItemStack> contents1 = Lists.newArrayList(((ShulkerBox) ((BlockStateMeta) toCompareMeta).getBlockState()).getInventory().getContents()),
                             contents2 = Lists.newArrayList(((ShulkerBox) ((BlockStateMeta) itemStackMeta).getBlockState()).getInventory().getContents());
@@ -266,6 +191,13 @@ public class ShopItemStack implements Serializable, Cloneable {
         }
 
         // If compareDurability is on
+        Integer compareDurability;
+        try {
+            compareDurability = ((Integer) shopSettings.get(ShopItemStackSettingKeys.compareShulkerInventory).getObject());
+
+        } catch (ClassCastException | NullPointerException e) {
+            compareDurability = (Integer) ShopItemStackSettingKeys.compareDurability.getDefaultValue().getObject();
+        }
         if (compareDurability > -1 && compareDurability < 3 && useMeta) {
 
             // Return False if Damageable is not equal (one has and one doesn't)
@@ -304,7 +236,7 @@ public class ShopItemStack implements Serializable, Cloneable {
         }
 
         // If compareEnchantments is on
-        if (compareEnchantments && useMeta) {
+        if (((Boolean) shopSettings.get(ShopItemStackSettingKeys.compareEnchantments).getObject()) && useMeta) {
             // Return False if hasEnchantments differs (one has one doesn't)
             if (itemStackMeta.hasEnchants() != toCompareMeta.hasEnchants()) {
                 debugger.log("itemStackMeta hasEnchants: " + itemStackMeta.hasEnchants(), DebugLevels.ITEM_COMPARE);
@@ -318,7 +250,7 @@ public class ShopItemStack implements Serializable, Cloneable {
         }
 
         // If compareName is on
-        if (compareName && useMeta) {
+        if (((Boolean) shopSettings.get(ShopItemStackSettingKeys.compareName).getObject()) && useMeta) {
 
             // If ItemStack Meta are BookMeta then compare title, otherwise compare displayname
             if (useBookMeta) {
@@ -339,7 +271,7 @@ public class ShopItemStack implements Serializable, Cloneable {
         }
 
         // If useBookMeta and compareBookAuthor are true
-        if (useBookMeta && compareBookAuthor) {
+        if (useBookMeta && ((Boolean) shopSettings.get(ShopItemStackSettingKeys.compareBookAuthor).getObject())) {
             // Return False if hasAuthor differs (one has one doesn't)
             debugger.log("itemStackBookMeta hasAuthor: " + itemStackBookMeta.hasAuthor(), DebugLevels.ITEM_COMPARE);
             debugger.log("toCompareBookMeta hasAuthor: " + toCompareBookMeta.hasAuthor(), DebugLevels.ITEM_COMPARE);
@@ -356,7 +288,7 @@ public class ShopItemStack implements Serializable, Cloneable {
         }
 
         // If useBookMeta and compareBookPages are true
-        if (useBookMeta && compareBookPages) {
+        if (useBookMeta && ((Boolean) shopSettings.get(ShopItemStackSettingKeys.compareBookPages).getObject())) {
             // Return False if hasPages differs (one has one doesn't)
             debugger.log("itemStackBookMeta hasPages: " + itemStackBookMeta.hasPages(), DebugLevels.ITEM_COMPARE);
             debugger.log("toCompareBookMeta hasPages: " + toCompareBookMeta.hasPages(), DebugLevels.ITEM_COMPARE);
@@ -373,7 +305,7 @@ public class ShopItemStack implements Serializable, Cloneable {
         }
 
         // If compareLore is on
-        if (compareLore && useMeta) {
+        if (((Boolean) shopSettings.get(ShopItemStackSettingKeys.compareLore).getObject()) && useMeta) {
             // Return False if hasLore differs (one has one doesn't)
             if (itemStackMeta.hasLore() != toCompareMeta.hasLore()) return false;
 
@@ -383,7 +315,7 @@ public class ShopItemStack implements Serializable, Cloneable {
         }
 
         // If compareCustomModelData is on
-        if (compareCustomModelData && useMeta) {
+        if (((Boolean) shopSettings.get(ShopItemStackSettingKeys.compareCustomModelData).getObject()) && useMeta) {
             // Return False if hasCustomModelData differs (one has one doesn't)
             if (itemStackMeta.hasCustomModelData() != toCompareMeta.hasCustomModelData()) return false;
 
@@ -393,7 +325,7 @@ public class ShopItemStack implements Serializable, Cloneable {
         }
 
         // If compareItemFlags is on
-        if (compareItemFlags && useMeta) {
+        if (((Boolean) shopSettings.get(ShopItemStackSettingKeys.compareItemFlags).getObject()) && useMeta) {
             // Return False if getItemFlags sizes differs
             if (itemStackMeta.getItemFlags().size() != toCompareMeta.getItemFlags().size()) return false;
 
@@ -402,7 +334,7 @@ public class ShopItemStack implements Serializable, Cloneable {
         }
 
         // Return False if compareUnbreakable is on and isUnbreakable differs
-        if (compareUnbreakable && useMeta && itemStackMeta.isUnbreakable() != toCompareMeta.isUnbreakable())
+        if (((Boolean) shopSettings.get(ShopItemStackSettingKeys.compareUnbreakable).getObject()) && useMeta && itemStackMeta.isUnbreakable() != toCompareMeta.isUnbreakable())
             return false;
 
         // If item is firework rocket
@@ -410,13 +342,14 @@ public class ShopItemStack implements Serializable, Cloneable {
             FireworkMeta fireworkMeta = (FireworkMeta) itemStackMeta;
             FireworkMeta toCompareFireworkMeta = (FireworkMeta) toCompareMeta;
 
-            if (compareFireworkDuration) {
+            // If server compare firework duration is disabled local setting is ignores
+            if (((Boolean) shopSettings.get(ShopItemStackSettingKeys.compareFireworkDuration).getObject()) && compareFireworkDuration) {
                 if (fireworkMeta.getPower() != toCompareFireworkMeta.getPower()) {
                     return false;
                 }
             }
 
-            if (compareFireworkEffects) {
+            if (((Boolean) shopSettings.get(ShopItemStackSettingKeys.compareFireworkEffects).getObject()) && compareFireworkEffects) {
                 if (fireworkMeta.hasEffects()) {
                     if (fireworkMeta.getEffects().size() != toCompareFireworkMeta.getEffects().size()) {
                         return false;
@@ -434,7 +367,7 @@ public class ShopItemStack implements Serializable, Cloneable {
         }
 
         // If compareAttributeModifier is on
-        if (compareAttributeModifier && useMeta) {
+        if (((Boolean) shopSettings.get(ShopItemStackSettingKeys.compareAttributeModifier).getObject()) && useMeta) {
             if (itemStackMeta.hasAttributeModifiers() != toCompareMeta.hasAttributeModifiers()) return false;
 
             // Return False if itemStack hasAttributeModifiers && getAttributeModifiers are not equal
@@ -507,4 +440,5 @@ public class ShopItemStack implements Serializable, Cloneable {
     public String toConsoleText() {
         return new GsonBuilder().setPrettyPrinting().create().toJson(this);
     }
+
 }
