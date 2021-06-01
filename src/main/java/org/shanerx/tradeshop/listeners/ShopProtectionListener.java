@@ -67,7 +67,7 @@ public class ShopProtectionListener extends Utils implements Listener {
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onInventoryMoveItem(InventoryMoveItemEvent event) {
 
-        try {
+        //try {
             if (event.isCancelled()) {
                 return;
             }
@@ -98,9 +98,9 @@ public class ShopProtectionListener extends Utils implements Listener {
                 debugger.log("ShopProtectionListener: (TSAF) HopperEvent isCancelled: " + hopperEvent.isForbidden(), DebugLevels.PROTECTION);
                 debugger.log("ShopProtectionListener: (TSAF) HopperEvent isForbidden: " + isForbidden, DebugLevels.PROTECTION);
             }
-        } catch (NullPointerException ignored) {
-        } // Fix for random NPE triggering from this event that shows no stack trace
-	}
+        // } catch (NullPointerException ignored) {
+        //} // Fix for random NPE triggering from this event that shows no stack trace
+    }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
 	public void onEntityExplodeItem(EntityExplodeEvent event) {
