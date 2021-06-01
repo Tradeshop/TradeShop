@@ -31,19 +31,19 @@ public enum ShopItemStackSettingKeys {
 
     //New per shop settings and their default value should be added below and will be added to the shops
 
-    compareDurability(new ObjectHolder<>(1)), // -1 == 'off', 0 == '<=', 1 == '==', 2 == '>='
-    compareEnchantments(new ObjectHolder<>(true)),
-    compareName(new ObjectHolder<>(true)),
-    compareLore(new ObjectHolder<>(true)),
-    compareCustomModelData(new ObjectHolder<>(true)),
-    compareItemFlags(new ObjectHolder<>(true)),
-    compareUnbreakable(new ObjectHolder<>(true)),
-    compareAttributeModifier(new ObjectHolder<>(true)),
-    compareBookAuthor(new ObjectHolder<>(true)),
-    compareBookPages(new ObjectHolder<>(true)),
-    compareShulkerInventory(new ObjectHolder<>(true)),
-    compareFireworkDuration(new ObjectHolder<>(true)),
-    compareFireworkEffects(new ObjectHolder<>(true));
+    COMPARE_DURABILITY(new ObjectHolder<>(1)), // -1 == 'off', 0 == '<=', 1 == '==', 2 == '>='
+    COMPARE_ENCHANTMENTS(new ObjectHolder<>(true)),
+    COMPARE_NAME(new ObjectHolder<>(true)),
+    COMPARE_LORE(new ObjectHolder<>(true)),
+    COMPARE_CUSTOM_MODEL_DATA(new ObjectHolder<>(true)),
+    COMPARE_ITEM_FLAGS(new ObjectHolder<>(true)),
+    COMPARE_UNBREAKABLE(new ObjectHolder<>(true)),
+    COMPARE_ATTRIBUTE_MODIFIER(new ObjectHolder<>(true)),
+    COMPARE_BOOK_AUTHOR(new ObjectHolder<>(true)),
+    COMPARE_BOOK_PAGES(new ObjectHolder<>(true)),
+    COMPARE_SHULKER_INVENTORY(new ObjectHolder<>(true)),
+    COMPARE_FIREWORK_DURATION(new ObjectHolder<>(true)),
+    COMPARE_FIREWORK_EFFECTS(new ObjectHolder<>(true));
 
     private final ObjectHolder<?> defaultValue;
 
@@ -53,5 +53,25 @@ public enum ShopItemStackSettingKeys {
 
     public ObjectHolder<?> getDefaultValue() {
         return defaultValue;
+    }
+
+    public String makeReadable() {
+        StringBuilder ret = new StringBuilder();
+
+        //Replaces '_' with ' ' followed by a Capital letter, other letters are lower cased.
+        for (int i = 0; i < name().length(); i++) {
+            char ch = name().charAt(i);
+
+            if (i == 0 || (i > 0 && ret.charAt(i - 1) == ' '))
+                ret.append(Character.toUpperCase(ch));
+            else if (ch == '_')
+                ret.append(" ");
+            else
+                ret.append(Character.toLowerCase(ch));
+        }
+
+        //removes any Leading/Trailing spaces and returns
+        return ret.toString().trim();
+
     }
 }

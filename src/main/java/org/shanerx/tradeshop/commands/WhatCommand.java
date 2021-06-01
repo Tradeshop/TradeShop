@@ -133,31 +133,31 @@ public class WhatCommand extends CommandRunner {
 
             itemGroup.addElement(new StaticGuiElement('e', item.getItemStack()));
 
-            itemGroup.addElement(new StaticGuiElement('e', settingItem(item.getShopSettingAsBoolean(ShopItemStackSettingKeys.compareName)), "Compare Name", "State: " + item.getShopSettingAsBoolean(ShopItemStackSettingKeys.compareName)));
-            itemGroup.addElement(new StaticGuiElement('e', settingItem(item.getShopSettingAsBoolean(ShopItemStackSettingKeys.compareLore)), "Compare Lore", "State: " + item.getShopSettingAsBoolean(ShopItemStackSettingKeys.compareLore)));
+            itemGroup.addElement(new StaticGuiElement('e', settingItem(item.getShopSettingAsBoolean(ShopItemStackSettingKeys.COMPARE_NAME)), "Compare Name", "State: " + item.getShopSettingAsBoolean(ShopItemStackSettingKeys.COMPARE_NAME)));
+            itemGroup.addElement(new StaticGuiElement('e', settingItem(item.getShopSettingAsBoolean(ShopItemStackSettingKeys.COMPARE_LORE)), "Compare Lore", "State: " + item.getShopSettingAsBoolean(ShopItemStackSettingKeys.COMPARE_LORE)));
 
             if (item.getItemStack().getType().toString().endsWith("SHULKER_BOX")) {
-                itemGroup.addElement(new StaticGuiElement('e', settingItem(item.getShopSettingAsBoolean(ShopItemStackSettingKeys.compareShulkerInventory)), "Compare Shulker Inventory", "State: " + item.getShopSettingAsBoolean(ShopItemStackSettingKeys.compareShulkerInventory)));
+                itemGroup.addElement(new StaticGuiElement('e', settingItem(item.getShopSettingAsBoolean(ShopItemStackSettingKeys.COMPARE_SHULKER_INVENTORY)), "Compare Shulker Inventory", "State: " + item.getShopSettingAsBoolean(ShopItemStackSettingKeys.COMPARE_SHULKER_INVENTORY)));
             }
 
             if (item.getItemStack().getItemMeta() instanceof Damageable) {
-                itemGroup.addElement(new StaticGuiElement('e', settingItem(item.getShopSettingAsInteger(ShopItemStackSettingKeys.compareDurability)), "Compare Durability", "State: " + stateText(item.getShopSettingAsInteger(ShopItemStackSettingKeys.compareDurability))));
+                itemGroup.addElement(new StaticGuiElement('e', settingItem(item.getShopSettingAsInteger(ShopItemStackSettingKeys.COMPARE_DURABILITY)), "Compare Durability", "State: " + stateText(item.getShopSettingAsInteger(ShopItemStackSettingKeys.COMPARE_DURABILITY))));
             }
 
-            itemGroup.addElement(new StaticGuiElement('e', settingItem(item.getShopSettingAsBoolean(ShopItemStackSettingKeys.compareEnchantments)), "Compare Enchantments", "State: " + item.getShopSettingAsBoolean(ShopItemStackSettingKeys.compareEnchantments)));
+            itemGroup.addElement(new StaticGuiElement('e', settingItem(item.getShopSettingAsBoolean(ShopItemStackSettingKeys.COMPARE_ENCHANTMENTS)), "Compare Enchantments", "State: " + item.getShopSettingAsBoolean(ShopItemStackSettingKeys.COMPARE_ENCHANTMENTS)));
 
-            itemGroup.addElement(new StaticGuiElement('e', settingItem(item.getShopSettingAsBoolean(ShopItemStackSettingKeys.compareUnbreakable)), "Compare Unbreakable", "State: " + item.getShopSettingAsBoolean(ShopItemStackSettingKeys.compareUnbreakable)));
+            itemGroup.addElement(new StaticGuiElement('e', settingItem(item.getShopSettingAsBoolean(ShopItemStackSettingKeys.COMPARE_UNBREAKABLE)), "Compare Unbreakable", "State: " + item.getShopSettingAsBoolean(ShopItemStackSettingKeys.COMPARE_UNBREAKABLE)));
 
             if (item.getItemStack().getItemMeta() instanceof BookMeta) {
-                itemGroup.addElement(new StaticGuiElement('e', settingItem(item.getShopSettingAsBoolean(ShopItemStackSettingKeys.compareBookAuthor)), "Compare Book Author", "State: " + item.getShopSettingAsBoolean(ShopItemStackSettingKeys.compareBookAuthor)));
-                itemGroup.addElement(new StaticGuiElement('e', settingItem(item.getShopSettingAsBoolean(ShopItemStackSettingKeys.compareBookPages)), "Compare Book Pages", "State: " + item.getShopSettingAsBoolean(ShopItemStackSettingKeys.compareBookPages)));
+                itemGroup.addElement(new StaticGuiElement('e', settingItem(item.getShopSettingAsBoolean(ShopItemStackSettingKeys.COMPARE_BOOK_AUTHOR)), "Compare Book Author", "State: " + item.getShopSettingAsBoolean(ShopItemStackSettingKeys.COMPARE_BOOK_AUTHOR)));
+                itemGroup.addElement(new StaticGuiElement('e', settingItem(item.getShopSettingAsBoolean(ShopItemStackSettingKeys.COMPARE_BOOK_PAGES)), "Compare Book Pages", "State: " + item.getShopSettingAsBoolean(ShopItemStackSettingKeys.COMPARE_BOOK_PAGES)));
             }
 
-            itemGroup.addElement(new StaticGuiElement('e', settingItem(item.getShopSettingAsBoolean(ShopItemStackSettingKeys.compareItemFlags)), "Compare Item Flags", "State: " + item.getShopSettingAsBoolean(ShopItemStackSettingKeys.compareItemFlags)));
+            itemGroup.addElement(new StaticGuiElement('e', settingItem(item.getShopSettingAsBoolean(ShopItemStackSettingKeys.COMPARE_ITEM_FLAGS)), "Compare Item Flags", "State: " + item.getShopSettingAsBoolean(ShopItemStackSettingKeys.COMPARE_ITEM_FLAGS)));
 
-            itemGroup.addElement(new StaticGuiElement('e', settingItem(item.getShopSettingAsBoolean(ShopItemStackSettingKeys.compareCustomModelData)), "Compare Custom Model Data", "State: " + item.getShopSettingAsBoolean(ShopItemStackSettingKeys.compareCustomModelData)));
+            itemGroup.addElement(new StaticGuiElement('e', settingItem(item.getShopSettingAsBoolean(ShopItemStackSettingKeys.COMPARE_CUSTOM_MODEL_DATA)), "Compare Custom Model Data", "State: " + item.getShopSettingAsBoolean(ShopItemStackSettingKeys.COMPARE_CUSTOM_MODEL_DATA)));
 
-            itemGroup.addElement(new StaticGuiElement('e', settingItem(item.getShopSettingAsBoolean(ShopItemStackSettingKeys.compareAttributeModifier)), "Compare Attribute Modifier", "State: " + item.getShopSettingAsBoolean(ShopItemStackSettingKeys.compareAttributeModifier)));
+            itemGroup.addElement(new StaticGuiElement('e', settingItem(item.getShopSettingAsBoolean(ShopItemStackSettingKeys.COMPARE_ATTRIBUTE_MODIFIER)), "Compare Attribute Modifier", "State: " + item.getShopSettingAsBoolean(ShopItemStackSettingKeys.COMPARE_ATTRIBUTE_MODIFIER)));
 
             itemView.addElement(itemGroup);
             itemView.show(pSender);

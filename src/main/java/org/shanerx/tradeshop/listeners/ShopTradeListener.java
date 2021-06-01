@@ -39,7 +39,6 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.shanerx.tradeshop.enumys.Message;
 import org.shanerx.tradeshop.enumys.Setting;
-import org.shanerx.tradeshop.enumys.ShopStatus;
 import org.shanerx.tradeshop.enumys.ShopType;
 import org.shanerx.tradeshop.framework.events.PlayerTradeEvent;
 import org.shanerx.tradeshop.framework.events.SuccessfulTradeEvent;
@@ -90,14 +89,16 @@ public class ShopTradeListener extends Utils implements Listener {
             return;
         }
 
-        if (shop.getStatus() == ShopStatus.CLOSED) {
-            buyer.sendMessage(Message.SHOP_EMPTY.getPrefixed());
-            return;
-        }
 
-        if (!shop.isTradeable()) {
-            buyer.sendMessage(Message.INSUFFICIENT_ITEMS.getPrefixed());
-            return;
+        switch (shop.getStatus()) {
+            case CLOSED:
+            case INCOMPLETE:
+                buyer.sendMessage(Message.SHOP_CLOSED.getPrefixed());
+            case OUT_OF_STOCK:
+                buyer.sendMessage(Message.SHOP_EMPTY.getPrefixed());
+                return;
+            case OPEN:
+                break;
         }
 
         chestState = shop.getStorage();

@@ -283,32 +283,32 @@ public class EditCommand extends CommandRunner {
 
             //Add new item settings below
             if (item.getItemStack().getItemMeta() instanceof Damageable) {
-                itemGroup.addElement(numericalOption(ShopItemStackSettingKeys.compareDurability, tempItem, new ItemStack[]{
+                itemGroup.addElement(numericalOption(ShopItemStackSettingKeys.COMPARE_DURABILITY, tempItem, new ItemStack[]{
                         FALSE_ITEM, new ItemStack(Material.IRON_BLOCK), TRUE_ITEM, new ItemStack(Material.GOLD_BLOCK)
                 }));
             }
 
             if (tempItem.getItemStack().getItemMeta() instanceof BookMeta) {
-                itemGroup.addElement(booleanOption(ShopItemStackSettingKeys.compareBookAuthor, tempItem, TRUE_ITEM, FALSE_ITEM));
-                itemGroup.addElement(booleanOption(ShopItemStackSettingKeys.compareBookPages, tempItem, TRUE_ITEM, FALSE_ITEM));
+                itemGroup.addElement(booleanOption(ShopItemStackSettingKeys.COMPARE_BOOK_AUTHOR, tempItem, TRUE_ITEM, FALSE_ITEM));
+                itemGroup.addElement(booleanOption(ShopItemStackSettingKeys.COMPARE_BOOK_PAGES, tempItem, TRUE_ITEM, FALSE_ITEM));
             }
 
             if (tempItem.getItemStack().getItemMeta() instanceof FireworkMeta) {
-                itemGroup.addElement(booleanOption(ShopItemStackSettingKeys.compareFireworkDuration, tempItem, TRUE_ITEM, FALSE_ITEM));
-                itemGroup.addElement(booleanOption(ShopItemStackSettingKeys.compareFireworkEffects, tempItem, TRUE_ITEM, FALSE_ITEM));
+                itemGroup.addElement(booleanOption(ShopItemStackSettingKeys.COMPARE_FIREWORK_DURATION, tempItem, TRUE_ITEM, FALSE_ITEM));
+                itemGroup.addElement(booleanOption(ShopItemStackSettingKeys.COMPARE_FIREWORK_EFFECTS, tempItem, TRUE_ITEM, FALSE_ITEM));
             }
 
             if (tempItem.getItemStack().getType().toString().endsWith("SHULKER_BOX")) {
-                itemGroup.addElement(booleanOption(ShopItemStackSettingKeys.compareShulkerInventory, tempItem, TRUE_ITEM, FALSE_ITEM));
+                itemGroup.addElement(booleanOption(ShopItemStackSettingKeys.COMPARE_SHULKER_INVENTORY, tempItem, TRUE_ITEM, FALSE_ITEM));
             }
 
-            itemGroup.addElement(booleanOption(ShopItemStackSettingKeys.compareName, tempItem, TRUE_ITEM, FALSE_ITEM));
-            itemGroup.addElement(booleanOption(ShopItemStackSettingKeys.compareLore, tempItem, TRUE_ITEM, FALSE_ITEM));
-            itemGroup.addElement(booleanOption(ShopItemStackSettingKeys.compareUnbreakable, tempItem, TRUE_ITEM, FALSE_ITEM));
-            itemGroup.addElement(booleanOption(ShopItemStackSettingKeys.compareEnchantments, tempItem, TRUE_ITEM, FALSE_ITEM));
-            itemGroup.addElement(booleanOption(ShopItemStackSettingKeys.compareItemFlags, tempItem, TRUE_ITEM, FALSE_ITEM));
-            itemGroup.addElement(booleanOption(ShopItemStackSettingKeys.compareCustomModelData, tempItem, TRUE_ITEM, FALSE_ITEM));
-            itemGroup.addElement(booleanOption(ShopItemStackSettingKeys.compareAttributeModifier, tempItem, TRUE_ITEM, FALSE_ITEM));
+            itemGroup.addElement(booleanOption(ShopItemStackSettingKeys.COMPARE_NAME, tempItem, TRUE_ITEM, FALSE_ITEM));
+            itemGroup.addElement(booleanOption(ShopItemStackSettingKeys.COMPARE_LORE, tempItem, TRUE_ITEM, FALSE_ITEM));
+            itemGroup.addElement(booleanOption(ShopItemStackSettingKeys.COMPARE_UNBREAKABLE, tempItem, TRUE_ITEM, FALSE_ITEM));
+            itemGroup.addElement(booleanOption(ShopItemStackSettingKeys.COMPARE_ENCHANTMENTS, tempItem, TRUE_ITEM, FALSE_ITEM));
+            itemGroup.addElement(booleanOption(ShopItemStackSettingKeys.COMPARE_ITEM_FLAGS, tempItem, TRUE_ITEM, FALSE_ITEM));
+            itemGroup.addElement(booleanOption(ShopItemStackSettingKeys.COMPARE_CUSTOM_MODEL_DATA, tempItem, TRUE_ITEM, FALSE_ITEM));
+            itemGroup.addElement(booleanOption(ShopItemStackSettingKeys.COMPARE_ATTRIBUTE_MODIFIER, tempItem, TRUE_ITEM, FALSE_ITEM));
 
 
             itemEdit.addElement(itemGroup);
@@ -320,13 +320,13 @@ public class EditCommand extends CommandRunner {
     private GuiStateElement numericalOption(ShopItemStackSettingKeys setting, ShopItemStack tempItem, ItemStack[] indexedTempItem) {
 
         return new GuiStateElement('e',
-                tempItem.getShopSettingAsInteger(setting),
+                String.valueOf(tempItem.getShopSettingAsInteger(setting)),
                 new GuiStateElement.State(change -> {
                     tempItem.setShopSettings(setting, new ObjectHolder<>(2));
                 },
                         "2",
                         indexedTempItem[3],
-                        setting.name(),
+                        setting.makeReadable(),
                         "State: >="),
 
                 new GuiStateElement.State(change -> {
@@ -334,7 +334,7 @@ public class EditCommand extends CommandRunner {
                 },
                         "-1",
                         indexedTempItem[0],
-                        setting.name(),
+                        setting.makeReadable(),
                         "State: False"),
 
                 new GuiStateElement.State(change -> {
@@ -342,7 +342,7 @@ public class EditCommand extends CommandRunner {
                 },
                         "0",
                         indexedTempItem[1],
-                        setting.name(),
+                        setting.makeReadable(),
                         "State: <="),
 
                 new GuiStateElement.State(change -> {
@@ -350,7 +350,7 @@ public class EditCommand extends CommandRunner {
                 },
                         "1",
                         indexedTempItem[2],
-                        setting.name(),
+                        setting.makeReadable(),
                         "State: =="
 
                 ));
@@ -364,31 +364,15 @@ public class EditCommand extends CommandRunner {
                 },
                         "true",
                         trueTempItem,
-                        setting.name(),
+                        setting.makeReadable(),
                         "State: True"),
                 new GuiStateElement.State(change -> {
                     tempItem.setShopSettings(setting, new ObjectHolder<>(false));
                 },
                         "false",
                         falseTempItem,
-                        setting.name(),
+                        setting.makeReadable(),
                         "State: False"
                 ));
-    }
-
-    private String makeStringReadable(String toFix) {
-        StringBuilder ret = new StringBuilder();
-
-        //Adds a space before each capital letter
-        for (int i = 0; i < toFix.length(); i++) {
-            char ch = toFix.charAt(i);
-            if (ch >= 'A' && ch <= 'Z' && i > 0)
-                ret.append(" ").append(ch);
-            else
-                ret.append(ch);
-        }
-
-        //removes any Leading/Trailing spaces and returns
-        return ret.toString().trim();
     }
 }
