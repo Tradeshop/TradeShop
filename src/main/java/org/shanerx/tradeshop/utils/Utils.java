@@ -57,7 +57,6 @@ import java.util.logging.Level;
  */
 public class Utils {
 
-	protected final String PREFIX = "&a[&eTradeShop&a] ";
 	private final UUID KOPUUID = UUID.fromString("daf79be7-bc1d-47d3-9896-f97b8d4cea7d");
 	private final UUID LORIUUID = UUID.fromString("e296bc43-2972-4111-9843-48fc32302fd4");
 	public final TradeShop plugin = (TradeShop) Bukkit.getPluginManager().getPlugin("TradeShop");
@@ -107,15 +106,6 @@ public class Utils {
 	 */
 	public String getWebsite() {
 		return pdf.getWebsite();
-	}
-
-	/**
-	 * Returns the prefix of the plugin.
-	 *
-	 * @return the prefix
-	 */
-	public String getPrefix() {
-		return PREFIX;
 	}
 
 	/**
@@ -222,7 +212,7 @@ public class Utils {
 	 */
 	public void failedSign(SignChangeEvent e, ShopType shop, Message msg) {
 		failedSignReset(e, shop);
-		e.getPlayer().sendMessage(colorize(getPrefix() + msg));
+		e.getPlayer().sendMessage(colorize(Setting.MESSAGE_PREFIX.getString() + msg));
 	}
 
 	/**
@@ -232,7 +222,7 @@ public class Utils {
 	 * @param msg The enum constant representing the error message
 	 */
 	public void failedTrade(PlayerInteractEvent e, Message msg) {
-		e.getPlayer().sendMessage(colorize(getPrefix() + msg));
+		e.getPlayer().sendMessage(colorize(Setting.MESSAGE_PREFIX.getString() + msg));
 	}
 
 	/**
