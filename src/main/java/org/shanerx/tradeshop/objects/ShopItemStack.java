@@ -81,12 +81,12 @@ public class ShopItemStack implements Serializable, Cloneable {
         return shopSettings;
     }
 
-    public Boolean getShopSettingAsBoolean(ShopItemStackSettingKeys key) {
+    public boolean getShopSettingAsBoolean(ShopItemStackSettingKeys key) {
         try {
             ObjectHolder<?> tempObj = shopSettings.get(key);
-            return shopSettings.containsKey(key) ? (Boolean) tempObj.getObject() : null;
+            return shopSettings.containsKey(key) ? (Boolean) tempObj.getObject() : false;
         } catch (ClassCastException | NullPointerException e) {
-            return null;
+            return false;
         }
     }
 

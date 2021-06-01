@@ -34,16 +34,17 @@ import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BookMeta;
 import org.bukkit.inventory.meta.Damageable;
+import org.bukkit.inventory.meta.FireworkMeta;
 import org.shanerx.tradeshop.TradeShop;
 import org.shanerx.tradeshop.enumys.Message;
 import org.shanerx.tradeshop.enumys.Permissions;
+import org.shanerx.tradeshop.enumys.ShopItemStackSettingKeys;
 import org.shanerx.tradeshop.enumys.ShopRole;
 import org.shanerx.tradeshop.objects.Shop;
 import org.shanerx.tradeshop.objects.ShopItemStack;
 import org.shanerx.tradeshop.objects.ShopUser;
+import org.shanerx.tradeshop.utils.ObjectHolder;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -281,32 +282,34 @@ public class EditCommand extends CommandRunner {
             ));
 
             //Add new item settings below
-            try {
-                if (item.getItemStack().getItemMeta() instanceof Damageable) {
-                    itemGroup.addElement(numericalOption("CompareDurability", tempItem, new ItemStack[]{
-                            FALSE_ITEM, new ItemStack(Material.IRON_BLOCK), TRUE_ITEM, new ItemStack(Material.GOLD_BLOCK)
-                    }));
-                }
-
-                if (tempItem.getItemStack().getItemMeta() instanceof BookMeta) {
-                    itemGroup.addElement(booleanOption("CompareBookAuthor", tempItem, TRUE_ITEM, FALSE_ITEM));
-                    itemGroup.addElement(booleanOption("CompareBookPages", tempItem, TRUE_ITEM, FALSE_ITEM));
-                }
-
-                if (tempItem.getItemStack().getType().toString().endsWith("SHULKER_BOX")) {
-                    itemGroup.addElement(booleanOption("CompareShulkerInventory", tempItem, TRUE_ITEM, FALSE_ITEM));
-                }
-
-                itemGroup.addElement(booleanOption("CompareName", tempItem, TRUE_ITEM, FALSE_ITEM));
-                itemGroup.addElement(booleanOption("CompareLore", tempItem, TRUE_ITEM, FALSE_ITEM));
-                itemGroup.addElement(booleanOption("CompareUnbreakable", tempItem, TRUE_ITEM, FALSE_ITEM));
-                itemGroup.addElement(booleanOption("CompareEnchantments", tempItem, TRUE_ITEM, FALSE_ITEM));
-                itemGroup.addElement(booleanOption("CompareItemFlags", tempItem, TRUE_ITEM, FALSE_ITEM));
-                itemGroup.addElement(booleanOption("CompareCustomModelData", tempItem, TRUE_ITEM, FALSE_ITEM));
-                itemGroup.addElement(booleanOption("CompareAttributeModifier", tempItem, TRUE_ITEM, FALSE_ITEM));
-            } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
-                e.printStackTrace();
+            if (item.getItemStack().getItemMeta() instanceof Damageable) {
+                itemGroup.addElement(numericalOption(ShopItemStackSettingKeys.compareDurability, tempItem, new ItemStack[]{
+                        FALSE_ITEM, new ItemStack(Material.IRON_BLOCK), TRUE_ITEM, new ItemStack(Material.GOLD_BLOCK)
+                }));
             }
+
+            if (tempItem.getItemStack().getItemMeta() instanceof BookMeta) {
+                itemGroup.addElement(booleanOption(ShopItemStackSettingKeys.compareBookAuthor, tempItem, TRUE_ITEM, FALSE_ITEM));
+                itemGroup.addElement(booleanOption(ShopItemStackSettingKeys.compareBookPages, tempItem, TRUE_ITEM, FALSE_ITEM));
+            }
+
+            if (tempItem.getItemStack().getItemMeta() instanceof FireworkMeta) {
+                itemGroup.addElement(booleanOption(ShopItemStackSettingKeys.compareFireworkDuration, tempItem, TRUE_ITEM, FALSE_ITEM));
+                itemGroup.addElement(booleanOption(ShopItemStackSettingKeys.compareFireworkEffects, tempItem, TRUE_ITEM, FALSE_ITEM));
+            }
+
+            if (tempItem.getItemStack().getType().toString().endsWith("SHULKER_BOX")) {
+                itemGroup.addElement(booleanOption(ShopItemStackSettingKeys.compareShulkerInventory, tempItem, TRUE_ITEM, FALSE_ITEM));
+            }
+
+            itemGroup.addElement(booleanOption(ShopItemStackSettingKeys.compareName, tempItem, TRUE_ITEM, FALSE_ITEM));
+            itemGroup.addElement(booleanOption(ShopItemStackSettingKeys.compareLore, tempItem, TRUE_ITEM, FALSE_ITEM));
+            itemGroup.addElement(booleanOption(ShopItemStackSettingKeys.compareUnbreakable, tempItem, TRUE_ITEM, FALSE_ITEM));
+            itemGroup.addElement(booleanOption(ShopItemStackSettingKeys.compareEnchantments, tempItem, TRUE_ITEM, FALSE_ITEM));
+            itemGroup.addElement(booleanOption(ShopItemStackSettingKeys.compareItemFlags, tempItem, TRUE_ITEM, FALSE_ITEM));
+            itemGroup.addElement(booleanOption(ShopItemStackSettingKeys.compareCustomModelData, tempItem, TRUE_ITEM, FALSE_ITEM));
+            itemGroup.addElement(booleanOption(ShopItemStackSettingKeys.compareAttributeModifier, tempItem, TRUE_ITEM, FALSE_ITEM));
+
 
             itemEdit.addElement(itemGroup);
             itemEdit.show(pSender);
@@ -314,90 +317,61 @@ public class EditCommand extends CommandRunner {
         });
     }
 
-    private GuiStateElement numericalOption(String setting, ShopItemStack tempItem, ItemStack[] indexedTempItem) throws InvocationTargetException, IllegalAccessException, NoSuchMethodException {
-        String readableSetting = makeStringReadable(setting);
-        Method isSetting = ShopItemStack.class.getMethod("is" + setting, Integer.class);
-        Method setSetting = ShopItemStack.class.getMethod("set" + setting, Void.class);
+    private GuiStateElement numericalOption(ShopItemStackSettingKeys setting, ShopItemStack tempItem, ItemStack[] indexedTempItem) {
 
         return new GuiStateElement('e',
-                isSetting.invoke(tempItem, (Object) null) + "",
+                tempItem.getShopSettingAsInteger(setting),
                 new GuiStateElement.State(change -> {
-                    try {
-                        setSetting.invoke(tempItem, 2);
-                    } catch (IllegalAccessException | InvocationTargetException e) {
-                        e.printStackTrace();
-                    }
+                    tempItem.setShopSettings(setting, new ObjectHolder<>(2));
                 },
                         "2",
                         indexedTempItem[3],
-                        readableSetting,
+                        setting.name(),
                         "State: >="),
+
                 new GuiStateElement.State(change -> {
-                    try {
-                        setSetting.invoke(tempItem, -1);
-                    } catch (IllegalAccessException | InvocationTargetException e) {
-                        e.printStackTrace();
-                    }
+                    tempItem.setShopSettings(setting, new ObjectHolder<>(-1));
                 },
                         "-1",
                         indexedTempItem[0],
-                        readableSetting,
+                        setting.name(),
                         "State: False"),
+
                 new GuiStateElement.State(change -> {
-                    try {
-                        setSetting.invoke(tempItem, 0);
-                    } catch (IllegalAccessException | InvocationTargetException e) {
-                        e.printStackTrace();
-                    }
+                    tempItem.setShopSettings(setting, new ObjectHolder<>(0));
                 },
                         "0",
                         indexedTempItem[1],
-                        readableSetting,
+                        setting.name(),
                         "State: <="),
+
                 new GuiStateElement.State(change -> {
-                    try {
-                        setSetting.invoke(tempItem, 1);
-                    } catch (IllegalAccessException | InvocationTargetException e) {
-                        e.printStackTrace();
-                    }
+                    tempItem.setShopSettings(setting, new ObjectHolder<>(1));
                 },
                         "1",
                         indexedTempItem[2],
-                        readableSetting,
+                        setting.name(),
                         "State: =="
 
                 ));
     }
 
-    private GuiStateElement booleanOption(String setting, ShopItemStack tempItem, ItemStack trueTempItem, ItemStack falseTempItem) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
-        String readableSetting = makeStringReadable(setting);
-        Method isSetting = ShopItemStack.class.getMethod("is" + setting, Boolean.class);
-        Method setSetting = ShopItemStack.class.getMethod("set" + setting, Void.class);
-
-
+    private GuiStateElement booleanOption(ShopItemStackSettingKeys setting, ShopItemStack tempItem, ItemStack trueTempItem, ItemStack falseTempItem) {
         return new GuiStateElement('e',
-                isSetting.invoke(tempItem, (Object) null) + "",
+                String.valueOf(tempItem.getShopSettingAsBoolean(setting)),
                 new GuiStateElement.State(change -> {
-                    try {
-                        setSetting.invoke(tempItem, true);
-                    } catch (IllegalAccessException | InvocationTargetException e) {
-                        e.printStackTrace();
-                    }
+                    tempItem.setShopSettings(setting, new ObjectHolder<>(true));
                 },
                         "true",
                         trueTempItem,
-                        readableSetting,
+                        setting.name(),
                         "State: True"),
                 new GuiStateElement.State(change -> {
-                    try {
-                        setSetting.invoke(tempItem, false);
-                    } catch (IllegalAccessException | InvocationTargetException e) {
-                        e.printStackTrace();
-                    }
+                    tempItem.setShopSettings(setting, new ObjectHolder<>(false));
                 },
                         "false",
                         falseTempItem,
-                        readableSetting,
+                        setting.name(),
                         "State: False"
                 ));
     }
