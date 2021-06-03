@@ -62,7 +62,9 @@ public enum ShopItemStackSettingKeys {
         for (int i = 0; i < name().length(); i++) {
             char ch = name().charAt(i);
 
-            if (i == 0 || (i > 0 && ret.charAt(i - 1) == ' '))
+            if (i == 0)
+                ret.append(Character.toUpperCase(ch));
+            else if (ret.charAt(i - 1) == ' ')
                 ret.append(Character.toUpperCase(ch));
             else if (ch == '_')
                 ret.append(" ");
