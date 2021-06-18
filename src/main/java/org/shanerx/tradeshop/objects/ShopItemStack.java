@@ -76,6 +76,7 @@ public class ShopItemStack implements Serializable, Cloneable {
     public ShopItemStack(String itemStackB64, HashMap<ShopItemStackSettingKeys, ObjectHolder<?>> settingMap) {
         this.itemStackB64 = itemStackB64;
         this.shopSettings = settingMap;
+        buildMap();
         fromBase64();
     }
 
@@ -135,6 +136,10 @@ public class ShopItemStack implements Serializable, Cloneable {
     }
 
     private void buildMap() {
+        if (shopSettings == null) {
+            shopSettings = new HashMap<>();
+        }
+
         for (ShopItemStackSettingKeys key : ShopItemStackSettingKeys.values()) {
             shopSettings.putIfAbsent(key, key.getDefaultValue());
         }

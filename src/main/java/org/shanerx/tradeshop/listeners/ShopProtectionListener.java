@@ -26,7 +26,6 @@
 package org.shanerx.tradeshop.listeners;
 
 import org.bukkit.Bukkit;
-import org.bukkit.Nameable;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.Sign;
@@ -55,6 +54,7 @@ import org.shanerx.tradeshop.utils.Utils;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 
 public class ShopProtectionListener extends Utils implements Listener {
 
@@ -76,14 +76,12 @@ public class ShopProtectionListener extends Utils implements Listener {
                 return;
             }
 
-            if (!(event.getInitiator().getType().equals(InventoryType.HOPPER) &&
-                    plugin.getListManager().isInventory(event.getSource().getLocation().getBlock()))) {
-                return;
-            }
+        if (!(event.getInitiator().getType().equals(InventoryType.HOPPER) &&
+                plugin.getListManager().isInventory(Objects.requireNonNull(event.getSource().getLocation()).getBlock()))) {
+            return;
+        }
 
             Block invBlock = event.getSource().getLocation().getBlock();
-
-            Nameable fromContainer = (Nameable) invBlock.getState();
 
             if (ShopChest.isShopChest(invBlock)) {
                 Shop shop = new ShopChest(invBlock.getLocation()).getShop();
