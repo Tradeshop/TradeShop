@@ -94,7 +94,7 @@ public enum Message {
             + "\n&6&o-- Leave Blank --"
             + "\n&2Step 4: &eUse the addCost and addProduct commands to add items to your shop", "Text to display on \"/tradeshop setup\":"),
     SHOP_CLOSED(MessageSectionKeys.NONE, "&cThis shop is currently closed."),
-    SHOP_EMPTY(MessageSectionKeys.NONE, "&cThis TradeShop is currently &emissing &citems to complete the trade!", "Text to display when the shop does not have enough stock:"),
+    SHOP_EMPTY(MessageSectionKeys.NONE, "&cThis TradeShop is currently missing items to complete the trade!", "Text to display when the shop does not have enough stock:"),
     SHOP_FULL(MessageSectionKeys.NONE, "&cThis TradeShop is full, please contact the owner to get it emptied!", "Text to display when the shop storage is full:"),
     SHOP_FULL_AMOUNT(MessageSectionKeys.UNUSED, "&cThe shop does not have &e{AMOUNT} &cof a single type of &e{ITEM}&c!", "\\Unused\\"),
     SHOP_INSUFFICIENT_ITEMS(MessageSectionKeys.NONE, "&cThis shop does not have &e{AMOUNT} {ITEM}&c!"),
@@ -236,7 +236,7 @@ public enum Message {
     }
 
     public String getPrefixed() {
-        return colour(PREFIX + toString());
+        return colour(PREFIX + this);
     }
 
     public void sendMessage(Player player, Map<String, String> replacements) {

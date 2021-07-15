@@ -226,13 +226,13 @@ public class Utils {
 	}
 
 	/**
-	 * Checks whether or not it is a valid material or custom item.
+	 * Checks whether or not it is non-blacklisted material.
 	 *
 	 * @param mat String to check
 	 * @return returns true if valid material
 	 */
 	public boolean isValidType(Material mat) {
-		return !plugin.getListManager().getBlacklist().contains(mat);
+		return !plugin.getListManager().isBlacklisted(mat);
 	}
 
 	/**
