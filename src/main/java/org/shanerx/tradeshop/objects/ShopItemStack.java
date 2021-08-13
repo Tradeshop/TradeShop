@@ -187,14 +187,15 @@ public class ShopItemStack implements Serializable, Cloneable {
             return false;
         }
 
-        ItemMeta itemStackMeta = itemStack.getItemMeta(), toCompareMeta = toCompare.getItemMeta();
+        ItemMeta itemStackMeta = itemStack.getItemMeta(),
+                toCompareMeta = toCompare.getItemMeta();
         BookMeta itemStackBookMeta = itemStack.hasItemMeta() && itemStack.getItemMeta() instanceof BookMeta ? ((BookMeta) itemStackMeta) : null,
                 toCompareBookMeta = toCompare.hasItemMeta() && toCompare.getItemMeta() instanceof BookMeta ? ((BookMeta) toCompareMeta) : null;
 
-
-        boolean useMeta = itemStack.hasItemMeta() == toCompare.hasItemMeta() && itemStackMeta != null, useBookMeta = itemStackBookMeta != null && toCompareBookMeta != null;
-        boolean compareFireworkDuration = Setting.FIREWORK_COMPARE_DURATION.getBoolean();
-        boolean compareFireworkEffects = Setting.FIREWORK_COMPARE_EFFECTS.getBoolean();
+        boolean useMeta = itemStack.hasItemMeta() == toCompare.hasItemMeta() && itemStackMeta != null,
+                useBookMeta = itemStackBookMeta != null && toCompareBookMeta != null,
+                compareFireworkDuration = Setting.FIREWORK_COMPARE_DURATION.getBoolean(),
+                compareFireworkEffects = Setting.FIREWORK_COMPARE_EFFECTS.getBoolean();
 
         debugger.log("itemstack useMeta: " + useMeta, DebugLevels.ITEM_COMPARE);
         debugger.log("toCompare useMeta: " + useMeta, DebugLevels.ITEM_COMPARE);
