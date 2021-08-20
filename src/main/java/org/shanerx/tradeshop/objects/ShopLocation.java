@@ -29,7 +29,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.World;
-import org.shanerx.tradeshop.IllegalWorldException;
+import org.shanerx.tradeshop.exceptions.IllegalWorldException;
 
 import java.io.Serializable;
 
@@ -37,8 +37,10 @@ public class ShopLocation implements Serializable {
 
 	final private String div = "::";
 	private transient World world;
-	private String worldName;
-	private double x, y, z;
+	private final String worldName;
+	private final double x;
+	private final double y;
+	private final double z;
 
 	public ShopLocation(World w, double x, double y, double z) {
 		this.world = w;
