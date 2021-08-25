@@ -41,6 +41,7 @@ import org.shanerx.tradeshop.framework.ShopChange;
 import org.shanerx.tradeshop.framework.events.PlayerShopChangeEvent;
 import org.shanerx.tradeshop.framework.events.PlayerShopCloseEvent;
 import org.shanerx.tradeshop.framework.events.PlayerShopOpenEvent;
+import org.shanerx.tradeshop.framework.events.TradeShopReloadEvent;
 import org.shanerx.tradeshop.objects.*;
 import org.shanerx.tradeshop.utils.ObjectHolder;
 import org.shanerx.tradeshop.utils.Utils;
@@ -153,6 +154,7 @@ public class CommandRunner extends Utils {
             return;
         }
 		sendMessage(getPrefix() + "&6The configuration files have been reloaded!");
+        Bukkit.getPluginManager().callEvent(new TradeShopReloadEvent(plugin));
 	}
 
 	/**

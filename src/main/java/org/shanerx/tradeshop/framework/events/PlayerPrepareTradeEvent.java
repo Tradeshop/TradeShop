@@ -42,7 +42,7 @@ import java.util.List;
  * Note: This event is ONLY fired when all the necessary conditions for the transaction are met, and it is fired JUST BEFORE it happens.
  * This makes it possible to cancel the event moments before the trade takes place, by using {@link org.bukkit.event.Cancellable}.
  */
-public class PlayerTradeEvent extends PlayerInteractEvent implements Cancellable {
+public class PlayerPrepareTradeEvent extends PlayerInteractEvent implements Cancellable {
 
 	private static final HandlerList handlers = new HandlerList();
 	private Shop shop;
@@ -60,7 +60,7 @@ public class PlayerTradeEvent extends PlayerInteractEvent implements Cancellable
 	 * @param clickedBlock The {@link org.bukkit.block.Block} that was clicked, ie. the sign.
 	 * @param clickedFace  The {@link org.bukkit.block.BlockFace} object representing the face of the block that was clicked.
 	 */
-    public PlayerTradeEvent(Player who, List<ShopItemStack> cost, List<ShopItemStack> product, Shop shop, Block clickedBlock, BlockFace clickedFace) {
+    public PlayerPrepareTradeEvent(Player who, List<ShopItemStack> cost, List<ShopItemStack> product, Shop shop, Block clickedBlock, BlockFace clickedFace) {
 		super(who, Action.RIGHT_CLICK_BLOCK, null, shop.getShopSign().getBlock(), clickedFace);
 		this.shop = shop;
 		this.product = product;
