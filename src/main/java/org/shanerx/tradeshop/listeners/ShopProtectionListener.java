@@ -197,7 +197,10 @@ public class ShopProtectionListener extends Utils implements Listener {
                     return;
                 }
 
-                shop.getChestAsSC().resetName();
+                ShopChest sc = shop.getChestAsSC();
+                if (sc != null)
+                    sc.resetName();
+
                 shop.removeStorage();
 
                 if (shop.getShopSign() == null) {
