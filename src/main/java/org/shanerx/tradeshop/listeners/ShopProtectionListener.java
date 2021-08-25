@@ -26,7 +26,6 @@
 package org.shanerx.tradeshop.listeners;
 
 import org.bukkit.Bukkit;
-import org.bukkit.Nameable;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.Sign;
@@ -55,6 +54,7 @@ import org.shanerx.tradeshop.utils.Utils;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 
 public class ShopProtectionListener extends Utils implements Listener {
 
@@ -67,7 +67,7 @@ public class ShopProtectionListener extends Utils implements Listener {
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onInventoryMoveItem(InventoryMoveItemEvent event) {
 
-        try {
+        //try {
             if (event.isCancelled()) {
                 return;
             }
@@ -76,14 +76,12 @@ public class ShopProtectionListener extends Utils implements Listener {
                 return;
             }
 
-            if (!(event.getInitiator().getType().equals(InventoryType.HOPPER) &&
-                    plugin.getListManager().isInventory(event.getSource().getLocation().getBlock()))) {
-                return;
-            }
+        if (!(event.getInitiator().getType().equals(InventoryType.HOPPER) &&
+                plugin.getListManager().isInventory(Objects.requireNonNull(event.getSource().getLocation()).getBlock()))) {
+            return;
+        }
 
             Block invBlock = event.getSource().getLocation().getBlock();
-
-            Nameable fromContainer = (Nameable) invBlock.getState();
 
             if (ShopChest.isShopChest(invBlock)) {
                 Shop shop = new ShopChest(invBlock.getLocation()).getShop();
@@ -98,9 +96,9 @@ public class ShopProtectionListener extends Utils implements Listener {
                 debugger.log("ShopProtectionListener: (TSAF) HopperEvent isCancelled: " + hopperEvent.isForbidden(), DebugLevels.PROTECTION);
                 debugger.log("ShopProtectionListener: (TSAF) HopperEvent isForbidden: " + isForbidden, DebugLevels.PROTECTION);
             }
-        } catch (NullPointerException ignored) {
-        } // Fix for random NPE triggering from this event that shows no stack trace
-	}
+        // } catch (NullPointerException ignored) {
+        //} // Fix for random NPE triggering from this event that shows no stack trace
+    }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
 	public void onEntityExplodeItem(EntityExplodeEvent event) {
@@ -199,7 +197,10 @@ public class ShopProtectionListener extends Utils implements Listener {
                     return;
                 }
 
-                shop.getChestAsSC().resetName();
+                ShopChest sc = shop.getChestAsSC();
+                if (sc != null)
+                    sc.resetName();
+
                 shop.removeStorage();
 
                 if (shop.getShopSign() == null) {

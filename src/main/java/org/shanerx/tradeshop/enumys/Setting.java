@@ -46,7 +46,7 @@ public enum Setting {
     CONFIG_VERSION(SettingSectionKeys.NONE, "config-version", 1.1, "", "\n"),
 
     // System Options
-    DATA_STORAGE_TYPE(SettingSectionKeys.SYSTEM_OPTIONS, "data-storage-type", "FLATFILE", "How would you like your servers data stored? (FLATFILE, SQLITE)"),
+    DATA_STORAGE_TYPE(SettingSectionKeys.SYSTEM_OPTIONS, "data-storage-type", "FLATFILE", "How would you like your servers data stored? (FLATFILE)"),
     ENABLE_DEBUG(SettingSectionKeys.SYSTEM_OPTIONS, "enable-debug", 0, "What debug code should be run. this will add significant amounts of spam to the console/log, generally not used unless requested by Devs (must be a whole number)"),
     CHECK_UPDATES(SettingSectionKeys.SYSTEM_OPTIONS, "check-updates", true, "Should we check for updates when the server starts"),
     ALLOW_METRICS(SettingSectionKeys.SYSTEM_OPTIONS, "allow-metrics", true, "Allow us to connect anonymous metrics so we can see how our plugin is being used to better develop it"),
@@ -351,78 +351,4 @@ public enum Setting {
 	public boolean getBoolean() {
 		return config.getBoolean(toPath());
 	}
-}
-
-enum SettingSectionKeys {
-
-    NONE("", ""),
-    SYSTEM_OPTIONS("system-options", "System Options"),
-    LANGUAGE_OPTIONS("language-options", "Language Options"),
-    GLOBAL_OPTIONS("global-options", "Global Options"),
-    GLOBAL_MULTI_TRADE(GLOBAL_OPTIONS, "multi-trade", ""),
-    SHOP_OPTIONS("shop-options", "Shop Options"),
-    ITEM_OPTIONS("item-options", "Item-specific Options"),
-    TRADE_SHOP_OPTIONS("trade-shop-options", "Trade Shop Options"),
-    ITRADE_SHOP_OPTIONS("itrade-shop-options", "ITrade Shop Options"),
-    BITRADE_SHOP_OPTIONS("bitrade-shop-options", "BiTrade Shop Options");
-
-    private final String key;
-    private final String sectionHeader;
-    private String value_lead = "";
-    private SettingSectionKeys parent;
-
-    SettingSectionKeys(String key, String sectionHeader) {
-        this.key = key;
-        this.sectionHeader = sectionHeader;
-        if (!key.isEmpty())
-            this.value_lead = "  ";
-    }
-
-    SettingSectionKeys(SettingSectionKeys parent, String key, String sectionHeader) {
-        this.key = key;
-        this.sectionHeader = sectionHeader;
-        this.parent = parent;
-        if (!key.isEmpty())
-            this.value_lead = parent.value_lead + "  ";
-    }
-
-    public String getKey() {
-        return !key.isEmpty() ? (parent != null ? parent.getKey() + "." + key + "." : key + ".") : "";
-    }
-
-    public String getValueLead() {
-        return value_lead;
-    }
-
-    public String getFormattedHeader() {
-        if (!sectionHeader.isEmpty() && !key.isEmpty()) {
-            StringBuilder header = new StringBuilder();
-            header.append("|    ").append(sectionHeader).append("    |");
-
-            int line1Length = header.length();
-
-            header.insert(0, "# ").append("\n").append("# ");
-
-            while (line1Length > 0) {
-                header.append("^");
-                line1Length--;
-            }
-
-            header.append("\n").append(getFileText()).append(":\n");
-
-            return header.toString();
-        } else if (sectionHeader.isEmpty() && !key.isEmpty()) {
-            StringBuilder header = new StringBuilder();
-
-            header.append(getFileText()).append(":\n");
-
-            return header.toString();
-        }
-
-        return "";
-    }
-
-    public String getFileText() {
-        return parent != null ? parent.value_lead + key : key;
-    }
 }

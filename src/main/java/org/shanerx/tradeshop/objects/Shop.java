@@ -442,6 +442,9 @@ public class Shop implements Serializable {
 	 * @param newItem ItemStack to be set
 	 */
 	public void setCost(ItemStack newItem) {
+		if (!utils.isValidType(newItem.getType()))
+			return;
+
 		cost.clear();
 
 		addCost(newItem);
@@ -454,6 +457,9 @@ public class Shop implements Serializable {
 	 * @param newItem ItemStack to be added
 	 */
 	public void addCost(ItemStack newItem) {
+		if (!utils.isValidType(newItem.getType()))
+			return;
+
 		int amount = newItem.getAmount();
 		List<ItemStack> items = new ArrayList<>();
 		while (amount > 0) {
@@ -530,6 +536,9 @@ public class Shop implements Serializable {
 	 * @param newItem ItemStack to be added
 	 */
 	public void addProduct(ItemStack newItem) {
+		if (!utils.isValidType(newItem.getType()))
+			return;
+
 		int amount = newItem.getAmount();
 		List<ItemStack> items = new ArrayList<>();
 		while (amount > 0) {
@@ -567,6 +576,9 @@ public class Shop implements Serializable {
 	 * @param newItem item to be set to product
 	 */
 	public void setProduct(ItemStack newItem) {
+		if (!utils.isValidType(newItem.getType()))
+			return;
+
 		product.clear();
 
 		addProduct(newItem);

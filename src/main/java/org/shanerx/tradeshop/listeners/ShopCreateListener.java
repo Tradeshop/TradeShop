@@ -78,7 +78,7 @@ public class ShopCreateListener extends Utils implements Listener {
 			return;
 		}
 
-		if (Setting.MAX_SHOPS_PER_CHUNK.getInt() <= plugin.getDataStorage().getShopCountInChunk(shopSign.getChunk()) + 1) {
+		if (Setting.MAX_SHOPS_PER_CHUNK.getInt() <= plugin.getDataStorage().getShopCountInChunk(shopSign.getChunk())) {
 			failedSign(event, shopType, Message.TOO_MANY_CHESTS);
 			return;
 		}

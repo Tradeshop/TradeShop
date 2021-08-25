@@ -105,7 +105,7 @@ public class TradeShop extends JavaPlugin {
 		getCommand("tradeshop").setTabCompleter(new CommandTabCaller(this));
 
         if (Setting.CHECK_UPDATES.getBoolean()) {
-			new Thread(() -> new Updater(getDescription()).checkCurrentVersion()).start();
+			new Thread(() -> getUpdater().checkCurrentVersion()).start();
 		}
 
 		if (Setting.ALLOW_METRICS.getBoolean()) {
@@ -157,7 +157,7 @@ public class TradeShop extends JavaPlugin {
     }
 
     public Updater getUpdater() {
-        return new Updater(getDescription());
+		return new Updater(getDescription(), "https://api.spigotmc.org/legacy/update.php?resource=32762", "https://www.spigotmc.org/resources/tradeshop.32762/");
     }
 
     public Debug getDebugger() {
