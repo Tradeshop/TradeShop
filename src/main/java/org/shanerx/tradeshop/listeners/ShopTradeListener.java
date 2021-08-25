@@ -40,8 +40,8 @@ import org.bukkit.inventory.ItemStack;
 import org.shanerx.tradeshop.enumys.Message;
 import org.shanerx.tradeshop.enumys.Setting;
 import org.shanerx.tradeshop.enumys.ShopType;
-import org.shanerx.tradeshop.framework.events.PlayerTradeEvent;
-import org.shanerx.tradeshop.framework.events.SuccessfulTradeEvent;
+import org.shanerx.tradeshop.framework.events.PlayerPrepareTradeEvent;
+import org.shanerx.tradeshop.framework.events.PlayerSuccessfulTradeEvent;
 import org.shanerx.tradeshop.objects.Shop;
 import org.shanerx.tradeshop.objects.ShopItemStack;
 import org.shanerx.tradeshop.objects.ShopLocation;
@@ -89,6 +89,9 @@ public class ShopTradeListener extends Utils implements Listener {
             return;
         }
 
+        PlayerPrepareTradeEvent preEvent = new PlayerPrepareTradeEvent(e.getPlayer(), shop.getCost(), shop.getProduct(), shop, e.getClickedBlock(), e.getBlockFace());
+        Bukkit.getPluginManager().callEvent(preEvent);
+        if (preEvent.isCancelled()) return;
 
         switch (shop.getStatus()) {
             case CLOSED:
@@ -132,10 +135,9 @@ public class ShopTradeListener extends Utils implements Listener {
 
         if (buyer.isSneaking() && Setting.ALLOW_MULTI_TRADE.getBoolean()) {
             multiplier = plugin.getDataStorage().loadPlayer(buyer.getUniqueId()).getMulti();
-
         }
 
-        PlayerTradeEvent event = new PlayerTradeEvent(e.getPlayer(), shop.getCost(), shop.getProduct(), shop, e.getClickedBlock(), e.getBlockFace());
+        PlayerPrepareTradeEvent event = new PlayerPrepareTradeEvent(e.getPlayer(), shop.getCost(), shop.getProduct(), shop, e.getClickedBlock(), e.getBlockFace());
         Bukkit.getPluginManager().callEvent(event);
         if (event.isCancelled()) return;
 
@@ -172,7 +174,7 @@ public class ShopTradeListener extends Utils implements Listener {
                     .replace("{ITEM2}", costName.toLowerCase())
                     .replace("{SELLER}", shop.getShopType().isITrade() ? Setting.ITRADESHOP_OWNER.getString() : shop.getOwner().getPlayer().getName()));
 
-            Bukkit.getPluginManager().callEvent(new SuccessfulTradeEvent(e.getPlayer(), shop.getCost(), shop.getProduct(), shop, e.getClickedBlock(), e.getBlockFace()));
+            Bukkit.getPluginManager().callEvent(new PlayerSuccessfulTradeEvent(e.getPlayer(), shop.getCost(), shop.getProduct(), shop, e.getClickedBlock(), e.getBlockFace()));
         }
 
         shop.updateSign();
