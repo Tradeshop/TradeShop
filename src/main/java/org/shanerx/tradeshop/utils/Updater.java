@@ -122,9 +122,9 @@ public class Updater {
 				}
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
 			log.log(Level.WARNING, "[Updater] +----------------------------------------------------+");
 			log.log(Level.WARNING, "[Updater] Could not establish a connection to check " + pdf.getName() + " for updates!");
+			log.log(Level.WARNING, "[Updater] Connection failed: "  + e.getMessage());
 			log.log(Level.WARNING, "[Updater] Current version: " + getVersion());
 			log.log(Level.WARNING, "[Updater] Please check for new updates from: ");
 			log.log(Level.WARNING, "[Updater] " + updateURL);
