@@ -13,10 +13,16 @@ import org.shanerx.tradeshop.objects.Shop;
  * Note: This method does NOT work like {@link org.bukkit.event.Cancellable#setCancelled(boolean)}
  */
 public class HopperShopAccessEvent extends InventoryMoveItemEvent {
+
+	public enum HopperDirection {
+		FROM_HOPPER,
+		TO_HOPPER
+	}
 	
 	private static final HandlerList handlers = new HandlerList();
 	private Shop shop;
 	private boolean isForbidden;
+	private HopperDirection dir;
 	
 	/**
 	 * Constructor for the object.
@@ -26,9 +32,10 @@ public class HopperShopAccessEvent extends InventoryMoveItemEvent {
 	 * @param itm The {@link org.bukkit.inventory.ItemStack} object representing the item in transaction.
 	 * @param isForbidden Whether or not the trade is meant to happen.
 	 */
-	public HopperShopAccessEvent(Shop s, Inventory source, Inventory destination, ItemStack itm, boolean isForbidden) {
+	public HopperShopAccessEvent(Shop s, Inventory source, Inventory destination, ItemStack itm, boolean isForbidden, HopperDirection dir) {
 		super(source, itm, destination, false);
 		this.isForbidden = isForbidden;
+		this.dir = dir;
 	}
 	
 	/**
@@ -53,5 +60,9 @@ public class HopperShopAccessEvent extends InventoryMoveItemEvent {
 	 */
 	public void setForbidden(boolean forbidden) {
 		isForbidden = forbidden;
+	}
+
+	public HopperDirection getItemDirection() {
+		return dir;
 	}
 }

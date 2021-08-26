@@ -47,7 +47,7 @@ public enum Setting {
 
     // System Options
     DATA_STORAGE_TYPE(SettingSectionKeys.SYSTEM_OPTIONS, "data-storage-type", "FLATFILE", "How would you like your servers data stored? (FLATFILE)"),
-    ENABLE_DEBUG(SettingSectionKeys.SYSTEM_OPTIONS, "enable-debug", 0, "What debug code should be run. this will add significant amounts of spam to the console/log, generally not used unless requested by Devs (must be a whole number)"),
+    ENABLE_DEBUG(SettingSectionKeys.SYSTEM_OPTIONS, "enable-debug", 0, "What debug code should be run. This will add significant amounts of spam to the console/log, generally not used unless requested by Devs (must be a whole number)"),
     CHECK_UPDATES(SettingSectionKeys.SYSTEM_OPTIONS, "check-updates", true, "Should we check for updates when the server starts"),
     ALLOW_METRICS(SettingSectionKeys.SYSTEM_OPTIONS, "allow-metrics", true, "Allow us to connect anonymous metrics so we can see how our plugin is being used to better develop it"),
     USE_INTERNAL_PERMISSIONS(SettingSectionKeys.SYSTEM_OPTIONS, "use-internal-permissions", false, "Should our internal permission system be used? (Only enable if you aren't using a permission plugin)", "\n"),
@@ -92,19 +92,20 @@ public enum Setting {
     // Trade Shop Options
     TRADESHOP_HEADER(SettingSectionKeys.TRADE_SHOP_OPTIONS, "header", "Trade", "The header that appears at the top of the shop signs, this is also what the player types to create the sign"),
     TRADESHOP_EXPLODE(SettingSectionKeys.TRADE_SHOP_OPTIONS, "allow-explode", false, "Can explosions damage the shop sign/storage (true/false)"),
-    TRADESHOP_HOPPER_EXPORT(SettingSectionKeys.TRADE_SHOP_OPTIONS, "allow-hopper-export", false, "Can hoppers pull items from the shop storage (true/false)", "\n"),
-
+    TRADESHOP_HOPPER_EXPORT(SettingSectionKeys.TRADE_SHOP_OPTIONS, "allow-hopper-export", false, "Can hoppers pull items from the shop storage (true/false)"),
+    TRADESHOP_HOPPER_IMPORT(SettingSectionKeys.TRADE_SHOP_OPTIONS, "allow-hopper-import", false, "Can hoppers push items into the shop storage (true/false)", "\n"),
 
     // ITrade Shop Options
     ITRADESHOP_OWNER(SettingSectionKeys.ITRADE_SHOP_OPTIONS, "owner", "Server Shop", "Name to put on the bottom of iTrade signs"),
     ITRADESHOP_HEADER(SettingSectionKeys.ITRADE_SHOP_OPTIONS, "header", "iTrade", "The header that appears at the top of the shop signs, this is also what the player types to create the sign"),
     ITRADESHOP_EXPLODE(SettingSectionKeys.ITRADE_SHOP_OPTIONS, "allow-explode", false, "Can explosions damage the shop sign (true/false)", "\n"),
 
-
     // BiTrade Shop Options
     BITRADESHOP_HEADER(SettingSectionKeys.BITRADE_SHOP_OPTIONS, "header", "BiTrade", "The header that appears at the top of the shop signs, this is also what the player types to create the sign"),
     BITRADESHOP_EXPLODE(SettingSectionKeys.BITRADE_SHOP_OPTIONS, "allow-explode", false, "Can explosions damage the shop sign/storage (true/false)"),
-    BITRADESHOP_HOPPER_EXPORT(SettingSectionKeys.BITRADE_SHOP_OPTIONS, "allow-hopper-export", false, "Can hoppers pull items from the shop storage (true/false)");
+    BITRADESHOP_HOPPER_EXPORT(SettingSectionKeys.BITRADE_SHOP_OPTIONS, "allow-hopper-export", false, "Can hoppers pull items from the shop storage (true/false)"),
+    BITRADESHOP_HOPPER_IMPORT(SettingSectionKeys.BITRADE_SHOP_OPTIONS, "allow-hopper-import", false, "Can hoppers push items into the shop storage (true/false)", "\n");
+
 
     private static final TradeShop plugin = (TradeShop) Bukkit.getPluginManager().getPlugin("TradeShop");
     private static final File file = new File(plugin.getDataFolder(), "config.yml");

@@ -681,6 +681,7 @@ public class Shop implements Serializable {
 	 * Updates the text on the shops sign
 	 */
 	public void updateSign() {
+		if (((TradeShop) Bukkit.getPluginManager().getPlugin("TradeShop")).isFrozen()) return;
 		if (signChangeEvent != null)
 			updateSign(signChangeEvent);
 		else {
@@ -716,7 +717,7 @@ public class Shop implements Serializable {
      * @return String array containing updated sign lines to be set
      */
     private String[] updateSignLines() {
-        String[] signLines = new String[4];
+		String[] signLines = new String[4];
 
         if (isMissingItems()) {
             signLines[0] = utils.colorize(Setting.SHOP_INCOMPLETE_COLOUR.getString() + shopType.toHeader());
