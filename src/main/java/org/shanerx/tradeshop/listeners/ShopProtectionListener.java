@@ -66,13 +66,21 @@ public class ShopProtectionListener extends Utils implements Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onInventoryMoveItem(InventoryMoveItemEvent event) {
+
+        //If all Hopper Settings should be allowed, ignore event
+        if (Setting.BITRADESHOP_HOPPER_EXPORT.getBoolean() &&
+                Setting.BITRADESHOP_HOPPER_IMPORT.getBoolean() &&
+                Setting.TRADESHOP_HOPPER_IMPORT.getBoolean() &&
+                Setting.TRADESHOP_HOPPER_EXPORT.getBoolean()) {
+
+            return;
+        }
+
         if (event.isCancelled()) {
             return;
-        }
-        else if (event instanceof HopperShopAccessEvent) {
+        } else if (event instanceof HopperShopAccessEvent) {
             return;
-        }
-        else if (!event.getInitiator().getType().equals(InventoryType.HOPPER)) {
+        } else if (!event.getInitiator().getType().equals(InventoryType.HOPPER)) {
             return;
         }
 
