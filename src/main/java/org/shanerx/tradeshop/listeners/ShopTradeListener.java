@@ -166,13 +166,18 @@ public class ShopTradeListener extends Utils implements Listener {
                 return;
         }
 
+        String owner = shop.getOwner().getName();
+
+        if (owner == null)
+            owner = "-Unknown-";
+
         if (tradeAllItems(shop, multiplier, e.getAction(), buyer)) {
             buyer.sendMessage(Message.ON_TRADE.getPrefixed()
                     .replace("{AMOUNT1}", String.valueOf(amountProduct))
                     .replace("{AMOUNT2}", String.valueOf(amountCost))
                     .replace("{ITEM1}", productName.toLowerCase())
                     .replace("{ITEM2}", costName.toLowerCase())
-                    .replace("{SELLER}", shop.getShopType().isITrade() ? Setting.ITRADESHOP_OWNER.getString() : shop.getOwner().getPlayer().getName()));
+                    .replace("{SELLER}", shop.getShopType().isITrade() ? Setting.ITRADESHOP_OWNER.getString() : owner));
 
             Bukkit.getPluginManager().callEvent(new PlayerSuccessfulTradeEvent(e.getPlayer(), shop.getCost(), shop.getProduct(), shop, e.getClickedBlock(), e.getBlockFace()));
         }
