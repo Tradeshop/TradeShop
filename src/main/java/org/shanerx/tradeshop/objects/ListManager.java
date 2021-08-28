@@ -29,6 +29,7 @@ import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.shanerx.tradeshop.enumys.DebugLevels;
+import org.shanerx.tradeshop.enumys.NonObtainableMaterials;
 import org.shanerx.tradeshop.enumys.Setting;
 import org.shanerx.tradeshop.enumys.ShopStorage;
 import org.shanerx.tradeshop.utils.Utils;
@@ -131,6 +132,11 @@ public class ListManager extends Utils {
 		//Adds each Material from Minecraft to a list for command tab complete
 		for (Material mat : Material.values()) {
 			gameMats.add(mat.toString());
+		}
+
+		// Remove all non obtainable materials that we have found
+		for (NonObtainableMaterials mat : NonObtainableMaterials.values()) {
+			gameMats.remove(mat.toString());
 		}
 
 		//Adds any strings that have been added the the AddOnMats list to the autocomplete list

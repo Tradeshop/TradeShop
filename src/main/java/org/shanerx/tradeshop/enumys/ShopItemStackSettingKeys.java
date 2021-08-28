@@ -42,6 +42,7 @@ public enum ShopItemStackSettingKeys {
     COMPARE_BOOK_AUTHOR(new ObjectHolder<>(true)),
     COMPARE_BOOK_PAGES(new ObjectHolder<>(true)),
     COMPARE_SHULKER_INVENTORY(new ObjectHolder<>(true)),
+    COMPARE_BUNDLE_INVENTORY(new ObjectHolder<>(true)),
     COMPARE_FIREWORK_DURATION(new ObjectHolder<>(true)),
     COMPARE_FIREWORK_EFFECTS(new ObjectHolder<>(true));
 

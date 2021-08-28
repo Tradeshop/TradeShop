@@ -302,6 +302,10 @@ public class EditCommand extends CommandRunner {
                 itemGroup.addElement(booleanOption(ShopItemStackSettingKeys.COMPARE_SHULKER_INVENTORY, tempItem, TRUE_ITEM, FALSE_ITEM));
             }
 
+            if (plugin.getVersion().isAtLeast(1, 17) && tempItem.getItemStack().getType().equals(Material.BUNDLE)) {
+                itemGroup.addElement(booleanOption(ShopItemStackSettingKeys.COMPARE_BUNDLE_INVENTORY, tempItem, TRUE_ITEM, FALSE_ITEM));
+            }
+
             itemGroup.addElement(booleanOption(ShopItemStackSettingKeys.COMPARE_NAME, tempItem, TRUE_ITEM, FALSE_ITEM));
             itemGroup.addElement(booleanOption(ShopItemStackSettingKeys.COMPARE_LORE, tempItem, TRUE_ITEM, FALSE_ITEM));
             itemGroup.addElement(booleanOption(ShopItemStackSettingKeys.COMPARE_UNBREAKABLE, tempItem, TRUE_ITEM, FALSE_ITEM));

@@ -201,29 +201,55 @@ public class ShopItemStack implements Serializable, Cloneable {
         debugger.log("toCompare useMeta: " + useMeta, DebugLevels.ITEM_COMPARE);
 
         // If compareShulkerInventory is on
-        if (itemStack.getType().toString().endsWith("SHULKER_BOX")) {
-            if (getShopSettingAsBoolean(ShopItemStackSettingKeys.COMPARE_SHULKER_INVENTORY)) {
-                try {
-                    ArrayList<ItemStack> contents1 = Lists.newArrayList(((ShulkerBox) ((BlockStateMeta) toCompareMeta).getBlockState()).getInventory().getContents()),
-                            contents2 = Lists.newArrayList(((ShulkerBox) ((BlockStateMeta) itemStackMeta).getBlockState()).getInventory().getContents());
+        if (itemStack.getType().toString().endsWith("SHULKER_BOX") &&
+                getShopSettingAsBoolean(ShopItemStackSettingKeys.COMPARE_SHULKER_INVENTORY)) {
+            try {
+                ArrayList<ItemStack> contents1 = Lists.newArrayList(((ShulkerBox) ((BlockStateMeta) toCompareMeta).getBlockState()).getInventory().getContents()),
+                        contents2 = Lists.newArrayList(((ShulkerBox) ((BlockStateMeta) itemStackMeta).getBlockState()).getInventory().getContents());
 
-                    contents1.removeIf(Objects::isNull);
-                    contents2.removeIf(Objects::isNull);
+                contents1.removeIf(Objects::isNull);
+                contents2.removeIf(Objects::isNull);
 
-                    if (contents1.isEmpty() != contents2.isEmpty())
-                        return false;
-
-                    for (ItemStack itm : contents2) {
-                        if (!contents1.remove(itm))
-                            return false;
-                    }
-
-                    if (!contents1.isEmpty())
-                        return false;
-
-                } catch (ClassCastException ex) {
+                if (contents1.isEmpty() != contents2.isEmpty())
                     return false;
+
+                for (ItemStack itm : contents2) {
+                    if (!contents1.remove(itm))
+                        return false;
                 }
+
+                if (!contents1.isEmpty())
+                    return false;
+
+            } catch (ClassCastException ex) {
+                return false;
+            }
+        }
+
+        // If compareBundleInventory is on and version is above 1.17 also check Bundles
+        if (new Utils().plugin.getVersion().isAtLeast(1, 17) &&
+                itemStack.getType().equals(Material.BUNDLE) &&
+                getShopSettingAsBoolean(ShopItemStackSettingKeys.COMPARE_BUNDLE_INVENTORY)) {
+            try {
+                ArrayList<ItemStack> contents1 = Lists.newArrayList(((BundleMeta) toCompareMeta).getItems()),
+                        contents2 = Lists.newArrayList(((BundleMeta) itemStackMeta).getItems());
+
+                contents1.removeIf(Objects::isNull);
+                contents2.removeIf(Objects::isNull);
+
+                if (contents1.isEmpty() != contents2.isEmpty())
+                    return false;
+
+                for (ItemStack itm : contents2) {
+                    if (!contents1.remove(itm))
+                        return false;
+                }
+
+                if (!contents1.isEmpty())
+                    return false;
+
+            } catch (ClassCastException ex) {
+                return false;
             }
         }
 
