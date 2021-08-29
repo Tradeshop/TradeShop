@@ -486,7 +486,7 @@ public class ShopItemStack implements Serializable, Cloneable {
             BukkitObjectInputStream dataInput = new BukkitObjectInputStream(inputStream);
 
             // Read the serialized inventory
-            itemStack = (ItemStack) dataInput.readObject();
+            itemStack = new ItemStack((ItemStack) dataInput.readObject());
 
             dataInput.close();
         } catch (ClassNotFoundException | IOException e) {
