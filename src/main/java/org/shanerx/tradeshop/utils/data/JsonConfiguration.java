@@ -146,16 +146,18 @@ public class JsonConfiguration extends Utils implements Serializable {
 	}
 
 	private void saveContents(String str) {
-		try {
-			FileWriter fileWriter = new FileWriter(this.file);
-			fileWriter.write(str);
-			fileWriter.flush();
-			fileWriter.close();
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
+		if (!str.isEmpty()) {
+			try {
+				FileWriter fileWriter = new FileWriter(this.file);
+				fileWriter.write(str);
+				fileWriter.flush();
+				fileWriter.close();
+			} catch (IOException e) {
+				throw new RuntimeException(e);
+			}
 
-		loadContents();
+			loadContents();
+		}
 	}
 
 	public void savePlayer(PlayerSetting playerSetting) {
