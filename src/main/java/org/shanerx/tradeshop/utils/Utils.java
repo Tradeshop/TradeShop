@@ -481,7 +481,8 @@ public class Utils {
 			debugger.log("ShopTradeListener > Item count: " + count, DebugLevels.TRADE);
 
 			for (ItemStack storageItem : clone.getStorageContents()) {
-				if (storageItem != null && item.isSimilar(storageItem)) {
+				boolean isSimilar = item.isSimilar(storageItem);
+				if (storageItem != null && isSimilar) {
 
 					traded = Math.min(Math.min(storageItem.getAmount(), item.getItemStack().getMaxStackSize()), count);
 
@@ -493,8 +494,9 @@ public class Utils {
 
 					count -= traded;
 					currentCount += traded;
-					debugger.log("ShopTradeListener > Item new count: " + count, DebugLevels.TRADE);
+					debugger.log("ShopTradeListener > Item traded: " + count, DebugLevels.TRADE);
 				}
+				debugger.log("ShopTradeListener > isSimilar: " + isSimilar, DebugLevels.NAME_COMPARE);
 
 				if (currentCount >= totalCount) break;
 			}

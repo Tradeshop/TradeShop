@@ -193,9 +193,7 @@ public class ShopItemStack implements Serializable, Cloneable {
                 toCompareBookMeta = toCompare.hasItemMeta() && toCompare.getItemMeta() instanceof BookMeta ? ((BookMeta) toCompareMeta) : null;
 
         boolean useMeta = itemStack.hasItemMeta() == toCompare.hasItemMeta() && itemStackMeta != null,
-                useBookMeta = itemStackBookMeta != null && toCompareBookMeta != null,
-                compareFireworkDuration = Setting.FIREWORK_COMPARE_DURATION.getBoolean(),
-                compareFireworkEffects = Setting.FIREWORK_COMPARE_EFFECTS.getBoolean();
+                useBookMeta = itemStackBookMeta != null && toCompareBookMeta != null;
 
         debugger.log("itemstack useMeta: " + useMeta, DebugLevels.ITEM_COMPARE);
         debugger.log("toCompare useMeta: " + useMeta, DebugLevels.ITEM_COMPARE);
@@ -307,7 +305,8 @@ public class ShopItemStack implements Serializable, Cloneable {
         }
 
         // If compareName is on
-        if (getShopSettingAsBoolean(ShopItemStackSettingKeys.COMPARE_NAME) && useMeta) {
+        if (getShopSettingAsBoolean(ShopItemStackSettingKeys.COMPARE_NAME)) {
+            debugger.log("ShopItemStack > isSimilar > getDisplayName: " + itemStackMeta.getDisplayName() + " - " + toCompareMeta.getDisplayName(), DebugLevels.NAME_COMPARE);
 
             // If ItemStack Meta are BookMeta then compare title, otherwise compare displayname
             if (useBookMeta) {
@@ -315,7 +314,7 @@ public class ShopItemStack implements Serializable, Cloneable {
                 if (itemStackBookMeta.hasTitle() != toCompareBookMeta.hasTitle()) return false;
 
                 // Return False if itemStack hasTitle && Title is not equal
-                if (itemStackBookMeta.hasTitle() && !itemStackBookMeta.getTitle().equals(toCompareBookMeta.getTitle()))
+                if (itemStackBookMeta.hasTitle() && !Objects.equals(itemStackBookMeta.getTitle(), toCompareBookMeta.getTitle()))
                     return false;
             } else {
                 // Return False if hasDisplayName differs (one has one doesn't)
@@ -400,13 +399,13 @@ public class ShopItemStack implements Serializable, Cloneable {
             FireworkMeta toCompareFireworkMeta = (FireworkMeta) toCompareMeta;
 
             // If server compare firework duration is disabled local setting is ignores
-            if (getShopSettingAsBoolean(ShopItemStackSettingKeys.COMPARE_FIREWORK_DURATION) && compareFireworkDuration) {
+            if (getShopSettingAsBoolean(ShopItemStackSettingKeys.COMPARE_FIREWORK_DURATION) && Setting.FIREWORK_COMPARE_DURATION.getBoolean()) {
                 if (fireworkMeta.getPower() != toCompareFireworkMeta.getPower()) {
                     return false;
                 }
             }
 
-            if (getShopSettingAsBoolean(ShopItemStackSettingKeys.COMPARE_FIREWORK_EFFECTS) && compareFireworkEffects) {
+            if (getShopSettingAsBoolean(ShopItemStackSettingKeys.COMPARE_FIREWORK_EFFECTS) && Setting.FIREWORK_COMPARE_EFFECTS.getBoolean()) {
                 if (fireworkMeta.hasEffects()) {
                     if (fireworkMeta.getEffects().size() != toCompareFireworkMeta.getEffects().size()) {
                         return false;
