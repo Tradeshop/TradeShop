@@ -171,22 +171,21 @@ public class ShopTradeListener extends Utils implements Listener {
         if (owner == null)
             owner = "-Unknown-";
 
-        if (tradeAllItems(shop, multiplier, e.getAction(), buyer)) {
+        if (tradeAllItems(shop, multiplier, e, buyer)) {
             buyer.sendMessage(Message.ON_TRADE.getPrefixed()
                     .replace("{AMOUNT1}", String.valueOf(amountProduct))
                     .replace("{AMOUNT2}", String.valueOf(amountCost))
                     .replace("{ITEM1}", productName.toLowerCase())
                     .replace("{ITEM2}", costName.toLowerCase())
                     .replace("{SELLER}", shop.getShopType().isITrade() ? Setting.ITRADESHOP_OWNER.getString() : owner));
-
-            Bukkit.getPluginManager().callEvent(new PlayerSuccessfulTradeEvent(e.getPlayer(), shop.getCost(), shop.getProduct(), shop, e.getClickedBlock(), e.getBlockFace()));
         }
 
         shop.updateSign();
         shop.saveShop();
     }
 
-    private boolean tradeAllItems(Shop shop, int multiplier, Action action, Player buyer) {
+    private boolean tradeAllItems(Shop shop, int multiplier, PlayerInteractEvent event, Player buyer) {
+        Action action = event.getAction();
         ArrayList<ItemStack> costItems = new ArrayList<>(), productItems = new ArrayList<>();
         Inventory shopInventory = shop.hasStorage() ? shop.getChestAsSC().getInventory() : null;
         Inventory playerInventory = buyer.getInventory();
@@ -212,6 +211,7 @@ public class ShopTradeListener extends Utils implements Listener {
                 playerInventory.addItem(item.getItemStack());
             }
 
+            Bukkit.getPluginManager().callEvent(new PlayerSuccessfulTradeEvent(buyer, costItems, productItems, shop, event.getClickedBlock(), event.getBlockFace()));
             return true; //Successfully completed trade
         } else if (shop.getShopType() == ShopType.BITRADE && action == Action.LEFT_CLICK_BLOCK) { //BiTrade Reversed Trade
 
@@ -281,6 +281,7 @@ public class ShopTradeListener extends Utils implements Listener {
                 playerInventory.addItem(item);
             }
 
+            Bukkit.getPluginManager().callEvent(new PlayerSuccessfulTradeEvent(buyer, costItems, productItems, shop, event.getClickedBlock(), event.getBlockFace()));
             return true; //Successfully completed trade
         } else {
             return false;
