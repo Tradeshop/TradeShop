@@ -43,14 +43,13 @@ import org.shanerx.tradeshop.framework.events.PlayerShopCreateEvent;
 import org.shanerx.tradeshop.objects.Shop;
 import org.shanerx.tradeshop.objects.ShopChest;
 import org.shanerx.tradeshop.objects.ShopUser;
-import org.shanerx.tradeshop.utils.JsonConfiguration;
 import org.shanerx.tradeshop.utils.Tuple;
 import org.shanerx.tradeshop.utils.Utils;
 
 @SuppressWarnings("unused")
 public class ShopCreateListener extends Utils implements Listener {
 
-	@EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
+	@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
 	public void onSignChange(SignChangeEvent event) {
 
 		if (event.isCancelled())
@@ -79,9 +78,7 @@ public class ShopCreateListener extends Utils implements Listener {
 			return;
 		}
 
-		JsonConfiguration chunk = new JsonConfiguration(shopSign.getChunk());
-
-		if (Setting.MAX_SHOPS_PER_CHUNK.getInt() <= chunk.getShopCount() + 1) {
+		if (Setting.MAX_SHOPS_PER_CHUNK.getInt() <= plugin.getDataStorage().getShopCountInChunk(shopSign.getChunk())) {
 			failedSign(event, shopType, Message.TOO_MANY_CHESTS);
 			return;
 		}
@@ -135,7 +132,7 @@ public class ShopCreateListener extends Utils implements Listener {
 			event.setCancelled(true);
 			return;
 		}
-		
+
 		shop.updateSign(event);
 		shop.removeEvent();
 		shop.saveShop();

@@ -25,6 +25,7 @@
 
 package org.shanerx.tradeshop.commands;
 
+import de.themoep.inventorygui.GuiPageElement;
 import de.themoep.inventorygui.InventoryGui;
 import de.themoep.inventorygui.StaticGuiElement;
 import org.bukkit.Bukkit;
@@ -40,23 +41,32 @@ import org.shanerx.tradeshop.framework.ShopChange;
 import org.shanerx.tradeshop.framework.events.PlayerShopChangeEvent;
 import org.shanerx.tradeshop.framework.events.PlayerShopCloseEvent;
 import org.shanerx.tradeshop.framework.events.PlayerShopOpenEvent;
-import org.shanerx.tradeshop.objects.Shop;
-import org.shanerx.tradeshop.objects.ShopChest;
-import org.shanerx.tradeshop.objects.ShopItemStack;
-import org.shanerx.tradeshop.objects.ShopUser;
-import org.shanerx.tradeshop.utils.JsonConfiguration;
+import org.shanerx.tradeshop.framework.events.TradeShopReloadEvent;
+import org.shanerx.tradeshop.objects.*;
 import org.shanerx.tradeshop.utils.ObjectHolder;
 import org.shanerx.tradeshop.utils.Utils;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import org.shanerx.tradeshop.utils.data.DataType;
 
 public class CommandRunner extends Utils {
 
-	private TradeShop plugin;
-	private CommandPass command;
-	private Player pSender;
+	protected final TradeShop plugin;
+	protected final CommandPass command;
+	protected Player pSender;
+
+	protected final GuiPageElement PREV_BUTTON = new GuiPageElement('p', new ItemStack(Material.POTION), GuiPageElement.PageAction.PREVIOUS, "Go to previous page (%prevpage%)"),
+			NEXT_BUTTON = new GuiPageElement('n', new ItemStack(Material.SPLASH_POTION), GuiPageElement.PageAction.NEXT, "Go to next page (%nextpage%)");
+	protected final StaticGuiElement CANCEL_BUTTON = new StaticGuiElement('c', new ItemStack(Material.END_CRYSTAL), click3 -> {
+		InventoryGui.goBack(pSender);
+		return true;
+	}, "Cancel Changes"),
+			BACK_BUTTON = new StaticGuiElement('b', new ItemStack(Material.END_CRYSTAL), click3 -> {
+				InventoryGui.goBack(pSender);
+				return true;
+			}, "Back");
+	protected final String[] MENU_LAYOUT = {"a b c"},
+			EDIT_LAYOUT = {"aggggggga", "ap c s na"},
+			ITEM_LAYOUT = {"aggggggga", "aggggggga", "a  cbs  a"},
+			WHAT_MENU = {"141125333", "1aaa2bbb3", "11p123n33"};
 
 	public CommandRunner(TradeShop instance, CommandPass command) {
 		this.plugin = instance;
@@ -95,7 +105,7 @@ public class CommandRunner extends Utils {
 				.append("\n\n&b/tradeshop &f &f Display help message\n");
 
 		for (Commands c : Commands.values()) {
-			if (c.checkPerm(command.getSender())) {
+			if (c.checkPerm(command.getSender()) == PermStatus.GOOD) {
 				sb.append(Message.colour(String.format("&b/ts %s  &f %s\n", c.getFirstName(), c.getDescription())));
 			}
 		}
@@ -135,7 +145,17 @@ public class CommandRunner extends Utils {
 		Message.reload();
 		Setting.reload();
         plugin.getDebugger().reload();
-		sendMessage(getPrefix() + "&6The configuration files have been reloaded!");
+		try {
+			plugin.getDataStorage().reload(DataType.valueOf(Setting.DATA_STORAGE_TYPE.getString().toUpperCase()));
+		} catch (IllegalArgumentException iae) {
+			debugger.log("Config value for data storage set to an invalid value: " + Setting.DATA_STORAGE_TYPE.getString(), DebugLevels.DATA_ERROR);
+			debugger.log("TradeShop will now disable...", DebugLevels.DATA_ERROR);
+			plugin.getServer().getPluginManager().disablePlugin(plugin);
+			return;
+		}
+
+		sendMessage(Setting.MESSAGE_PREFIX.getString() + "&6The configuration files have been reloaded!");
+		Bukkit.getPluginManager().callEvent(new TradeShopReloadEvent(plugin, command.getSender()));
 	}
 
 	/**
@@ -436,6 +456,11 @@ public class CommandRunner extends Utils {
 			return;
 		}
 
+		if (itemInHand.getType().toString().endsWith("SHULKER_BOX") && shop.getInventoryLocation().getBlock().getType().toString().endsWith("SHULKER_BOX")) {
+			sendMessage(Message.NO_SHULKER_COST.getPrefixed());
+			return;
+		}
+
 		if (amount > 0) {
 			itemInHand.setAmount(amount);
 		}
@@ -506,6 +531,11 @@ public class CommandRunner extends Utils {
 			return;
 		}
 
+		if (itemInHand.getType().toString().endsWith("SHULKER_BOX") && shop.getInventoryLocation().getBlock().getType().toString().endsWith("SHULKER_BOX")) {
+			sendMessage(Message.NO_SHULKER_COST.getPrefixed());
+			return;
+		}
+
 		if (amount > 0) {
 			itemInHand.setAmount(amount);
 		}
@@ -535,7 +565,7 @@ public class CommandRunner extends Utils {
 
 		if (!(shop.getOwner().getUUID().equals(pSender.getUniqueId()) ||
 				shop.getManagersUUID().contains(pSender.getUniqueId()) ||
-				pSender.hasPermission(Permissions.ADMIN.getPerm()))) {
+				Permissions.hasPermission(pSender, Permissions.ADMIN))) {
 			sendMessage(Message.NO_EDIT.getPrefixed());
 			return;
 		}
@@ -572,7 +602,7 @@ public class CommandRunner extends Utils {
 
 		if (!(shop.getOwner().getUUID().equals(pSender.getUniqueId()) ||
 				shop.getManagersUUID().contains(pSender.getUniqueId()) ||
-				pSender.hasPermission(Permissions.ADMIN.getPerm()))) {
+				Permissions.hasPermission(pSender, Permissions.ADMIN))) {
 			sendMessage(Message.NO_EDIT.getPrefixed());
 			return;
 		}
@@ -604,63 +634,6 @@ public class CommandRunner extends Utils {
 		shop.switchType();
 
 		sendMessage(Message.SHOP_TYPE_SWITCHED.getPrefixed().replace("%newtype%", shop.getShopType().toHeader()));
-	}
-
-	/**
-	 * Opens a GUI containing the items to be traded at the shop the player is looking at
-	 */
-	public void what() {
-		Shop shop = findShop();
-
-		if (shop == null)
-			return;
-
-		List<String> guiSetup = new ArrayList<>();
-		guiSetup.add("141125333");
-		for (int i = 1; i < Math.max((int) (Math.ceil(shop.getProduct().size() / 3.0)), (int) (Math.ceil(shop.getCost().size() / 3.0))) + 1; i++) {
-			guiSetup.add("1   2   3");
-		}
-
-		for (int i = 0, col = 5; i < shop.getProduct().size(); i++) {
-			int row = (i / 3) + 1;
-			guiSetup.set(row, guiSetup.get(row).substring(0, col) + ((char) (i + 97)) + guiSetup.get(row).substring(col + 1));
-			col = col + 1 < 8 ? col + 1 : 5;
-		}
-
-		for (int i = 0, col = 1; i < shop.getCost().size(); i++) {
-			int row = (i / 3) + 1;
-			guiSetup.set(row, guiSetup.get(row).substring(0, col) + ((char) (i + 65)) + guiSetup.get(row).substring(col + 1));
-			col = col + 1 < 4 ? col + 1 : 1;
-		}
-
-		guiSetup.forEach(item -> debugger.log(item, DebugLevels.INVENTORY_CLOSE_NPE));
-
-		InventoryGui gui = new InventoryGui(plugin, colorize(shop.getShopType() == ShopType.ITRADE ?
-				Setting.ITRADESHOP_OWNER.getString() :
-				Bukkit.getOfflinePlayer(shop.getOwner().getUUID()).getName() + "'s"),
-				guiSetup.toArray(new String[0]));
-
-		gui.setFiller(new ItemStack(Material.LIGHT_GRAY_STAINED_GLASS_PANE, 1));
-		gui.addElement(new StaticGuiElement('1', new ItemStack(Material.LIME_STAINED_GLASS_PANE),
-				" ", " "));
-		gui.addElement(new StaticGuiElement('2', new ItemStack(Material.BLACK_STAINED_GLASS_PANE),
-				" ", " "));
-		gui.addElement(new StaticGuiElement('3', new ItemStack(Material.LIGHT_BLUE_STAINED_GLASS_PANE),
-				" ", " "));
-		gui.addElement(new StaticGuiElement('4', new ItemStack(Material.GOLD_NUGGET),
-				"Cost", "This is the item", "that you give to", "make the trade."));
-		gui.addElement(new StaticGuiElement('5', new ItemStack(Material.GRASS_BLOCK),
-				"Product", "This is the item", "that you receive", "from the trade."));
-
-		for (int i = 0; i < shop.getCost().size(); i++) {
-			gui.addElement(new StaticGuiElement((char) (i + 65), shop.getCost().get(i).getItemStack())); // TODO: use GuiStateElement to allow removal of items from the shop
-		}
-
-		for (int i = 0; i < shop.getProduct().size(); i++) {
-			gui.addElement(new StaticGuiElement((char) (i + 97), shop.getProduct().get(i).getItemStack())); // TODO: use GuiStateElement to allow removal of items from the shop
-		}
-
-		gui.show(pSender);
 	}
 
 	/**
@@ -785,8 +758,8 @@ public class CommandRunner extends Utils {
 	/**
 	 * Adds the specified player to the shop as a member
 	 */
-    public void addMember() {
-        Shop shop = findShop();
+	public void addMember() {
+		Shop shop = findShop();
 
 		if (shop == null)
 			return;
@@ -807,11 +780,11 @@ public class CommandRunner extends Utils {
 			sendMessage(Message.UNSUCCESSFUL_SHOP_MEMBERS.getPrefixed());
 			return;
 		}
-		
+
 		PlayerShopChangeEvent changeEvent = new PlayerShopChangeEvent(pSender, shop, ShopChange.ADD_MEMBER, new ObjectHolder<OfflinePlayer>(target));
 		Bukkit.getPluginManager().callEvent(changeEvent);
 		if (changeEvent.isCancelled()) return;
-		
+
 		shop.addMember(target.getUniqueId());
 
 		sendMessage(Message.UPDATED_SHOP_MEMBERS.getPrefixed());
@@ -826,11 +799,10 @@ public class CommandRunner extends Utils {
             return;
         }
 
-		JsonConfiguration json = new JsonConfiguration(pSender.getUniqueId());
-		Map<String, Integer> data = json.loadPlayer();
+        PlayerSetting playerSetting = plugin.getDataStorage().loadPlayer(pSender.getUniqueId());
 
 		if (command.argsSize() == 1) {
-			sendMessage(Message.MULTI_AMOUNT.getPrefixed().replaceAll("%amount%", String.valueOf(data.get("multi"))));
+			sendMessage(Message.MULTI_AMOUNT.getPrefixed().replaceAll("%amount%", String.valueOf(playerSetting.getMulti())));
 		} else {
             int amount = Setting.MULTI_TRADE_DEFAULT.getInt();
 
@@ -839,13 +811,74 @@ public class CommandRunner extends Utils {
 
 			if (amount < 2)
 				amount = 2;
-            else if (amount > Setting.MULTI_TRADE_MAX.getInt())
-                amount = Setting.MULTI_TRADE_MAX.getInt();
+			else if (amount > Setting.MULTI_TRADE_MAX.getInt())
+				amount = Setting.MULTI_TRADE_MAX.getInt();
 
-			data.put("multi", amount);
-			json.savePlayer(data);
+			playerSetting.setMulti(amount);
+			plugin.getDataStorage().savePlayer(playerSetting);
 
 			sendMessage(Message.MULTI_UPDATE.getPrefixed().replaceAll("%amount%", String.valueOf(amount)));
+		}
+	}
+
+	public void toggleStatus() {
+		if (!Setting.ALLOW_TOGGLE_STATUS.getBoolean()) {
+			sendMessage(Message.FEATURE_DISABLED.getPrefixed());
+			return;
+		}
+
+		PlayerSetting playerSetting = plugin.getDataStorage().loadPlayer(pSender.getUniqueId());
+		playerSetting.setShowInvolvedStatus(!playerSetting.showInvolvedStatus());
+		plugin.getDataStorage().savePlayer(playerSetting);
+		sendMessage(Message.TOGGLED_STATUS.getPrefixed().replace("%status%", playerSetting.showInvolvedStatus() ? "on" : "off"));
+	}
+
+	/**
+	 * Changes/Sets the players permission level if internal permissions is enabled
+	 */
+	public void playerLevel() {
+		if (Bukkit.getOfflinePlayer(command.getArgAt(1)).hasPlayedBefore()) {
+			PlayerSetting playerSetting = plugin.getDataStorage().loadPlayer(Bukkit.getOfflinePlayer(command.getArgAt(1)).getUniqueId());
+			if (command.argsSize() == 2) {
+				sendMessage(Message.VIEW_PLAYER_LEVEL.getMessage()
+						.replace("%player%", Bukkit.getOfflinePlayer(command.getArgAt(1)).getName())
+						.replace("%level%", playerSetting.getType() + ""));
+			} else {
+				if (isInt(command.getArgAt(2))) {
+					int newLevel = Integer.parseInt(command.getArgAt(2));
+
+					playerSetting.setType(newLevel);
+					plugin.getDataStorage().savePlayer(playerSetting);
+
+					sendMessage(Message.SET_PLAYER_LEVEL.getMessage()
+							.replace("%player%", Bukkit.getOfflinePlayer(command.getArgAt(1)).getName())
+							.replace("%level%", playerSetting.getType() + ""));
+				} else {
+					sendMessage(Message.INVALID_ARGUMENTS.getMessage());
+				}
+			}
+		} else {
+			sendMessage(Message.PLAYER_NOT_FOUND.getMessage());
+		}
+	}
+
+	/**
+	 * Changes/Sets the players permission level if internal permissions is enabled
+	 */
+	public void status() {
+		if (command.hasArgAt(1)) {
+			if (!Permissions.hasPermission(pSender, Permissions.ADMIN)) {
+				Message.NO_COMMAND_PERMISSION.sendMessage(pSender);
+				return;
+			}
+			if (Bukkit.getOfflinePlayer(command.getArgAt(1)).hasPlayedBefore()) {
+				plugin.getDataStorage().loadPlayer(Bukkit.getOfflinePlayer(command.getArgAt(1)).getUniqueId())
+						.getInvolvedStatusesInventory().show(pSender.getPlayer());
+			} else {
+				sendMessage(Message.PLAYER_NOT_FOUND.getMessage());
+			}
+		} else {
+			plugin.getDataStorage().loadPlayer(pSender.getUniqueId()).getInvolvedStatusesInventory().show(pSender.getPlayer());
 		}
 	}
 
@@ -854,7 +887,7 @@ public class CommandRunner extends Utils {
 	 *
 	 * @return null if Shop is not found, Shop object if it is
 	 */
-	private Shop findShop() {
+	protected Shop findShop() {
 		if (pSender == null) {
 			sendMessage(Message.PLAYER_ONLY_COMMAND.getPrefixed());
 			return null;
@@ -862,13 +895,16 @@ public class CommandRunner extends Utils {
 
 		Block b = pSender.getTargetBlockExact(Setting.MAX_EDIT_DISTANCE.getInt());
 		try {
-            if (b == null)
+			if (b == null)
 				throw new NoSuchFieldException();
 
 			if (ShopType.isShop(b)) {
 				return Shop.loadShop((Sign) b.getState());
 
             } else if (ShopChest.isShopChest(b)) {
+				if (plugin.getDataStorage().getChestLinkage(new ShopLocation(b.getLocation())) != null)
+					return plugin.getDataStorage().loadShopFromStorage(new ShopLocation(b.getLocation()));
+
 				return Shop.loadShop(new ShopChest(b.getLocation()).getShopSign());
 
 			} else

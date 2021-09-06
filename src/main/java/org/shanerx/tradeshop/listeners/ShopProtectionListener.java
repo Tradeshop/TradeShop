@@ -26,7 +26,6 @@
 package org.shanerx.tradeshop.listeners;
 
 import org.bukkit.Bukkit;
-import org.bukkit.Nameable;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.Sign;
@@ -55,6 +54,7 @@ import org.shanerx.tradeshop.utils.Utils;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 
 public class ShopProtectionListener extends Utils implements Listener {
 
@@ -64,43 +64,66 @@ public class ShopProtectionListener extends Utils implements Listener {
         plugin = instance;
     }
 
-    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onInventoryMoveItem(InventoryMoveItemEvent event) {
 
-        try {
-            if (event.isCancelled()) {
-                return;
-            }
+        //If all Hopper Settings should be allowed, ignore event
+        if (Setting.BITRADESHOP_HOPPER_EXPORT.getBoolean() &&
+                Setting.BITRADESHOP_HOPPER_IMPORT.getBoolean() &&
+                Setting.TRADESHOP_HOPPER_IMPORT.getBoolean() &&
+                Setting.TRADESHOP_HOPPER_EXPORT.getBoolean()) {
 
-            if (event instanceof HopperShopAccessEvent) {
-                return;
-            }
+            return;
+        }
 
-            if (!(event.getInitiator().getType().equals(InventoryType.HOPPER) &&
-                    plugin.getListManager().isInventory(event.getSource().getLocation().getBlock()))) {
-                return;
-            }
+        if (event.isCancelled()) {
+            return;
+        } else if (event instanceof HopperShopAccessEvent) {
+            return;
+        } else if (!event.getInitiator().getType().equals(InventoryType.HOPPER)) {
+            return;
+        }
 
-            Block invBlock = event.getSource().getLocation().getBlock();
+        boolean fromHopper;
 
-            Nameable fromContainer = (Nameable) invBlock.getState();
+        if (plugin.getListManager().isInventory(Objects.requireNonNull(event.getSource().getLocation()).getBlock())) {
+            fromHopper = false;
+        }
+        else if (plugin.getListManager().isInventory(Objects.requireNonNull(event.getDestination().getLocation()).getBlock())) {
+            fromHopper = true;
+        }
+        else {
+            return;
+        }
 
-            if (ShopChest.isShopChest(invBlock)) {
-                Shop shop = new ShopChest(invBlock.getLocation()).getShop();
-                debugger.log("ShopProtectionListener: Shop Location as SL > " + shop.getInventoryLocationAsSL().serialize(), DebugLevels.PROTECTION);
-                boolean isForbidden = !Setting.findSetting(shop.getShopType().name() + "SHOP_HOPPER_EXPORT").getBoolean();
-                debugger.log("ShopProtectionListener: isForbidden > " + isForbidden, DebugLevels.PROTECTION);
-                debugger.log("ShopProtectionListener: checked hopper setting > " + shop.getShopType().name() + "SHOP_HOPPER_EXPORT", DebugLevels.PROTECTION);
-                HopperShopAccessEvent hopperEvent = new HopperShopAccessEvent(shop, event.getSource(), event.getDestination(), event.getItem(), isForbidden);
-                Bukkit.getPluginManager().callEvent(hopperEvent);
-                debugger.log("ShopProtectionListener: HopperEvent thrown! ", DebugLevels.PROTECTION);
-                event.setCancelled(hopperEvent.isForbidden());
-                debugger.log("ShopProtectionListener: HopperEvent isCancelled: " + hopperEvent.isForbidden(), DebugLevels.PROTECTION);
-                debugger.log("ShopProtectionListener: HopperEvent isForbidden: " + isForbidden, DebugLevels.PROTECTION);
-            }
-        } catch (NullPointerException ignored) {
-        } // Fix for random NPE triggering from this event that shows no stack trace
-	}
+        Block invBlock = (fromHopper ? event.getDestination() : event.getSource()).getLocation().getBlock();
+        if (!ShopChest.isShopChest(invBlock)) {
+            return;
+        }
+
+        ((TradeShop) Bukkit.getPluginManager().getPlugin("TradeShop")).setFrozen(true);
+        Shop shop = new ShopChest(invBlock.getLocation()).getShop();
+        debugger.log("ShopProtectionListener: Triggered > " + (fromHopper ? "FROM_HOPPER" : "TO_HOPPER"), DebugLevels.PROTECTION);
+        debugger.log("ShopProtectionListener: Shop Location as SL > " + shop.getInventoryLocationAsSL().serialize(), DebugLevels.PROTECTION);
+        boolean isForbidden = !Setting.findSetting(shop.getShopType().name() + (fromHopper ? "SHOP_HOPPER_IMPORT" : "SHOP_HOPPER_EXPORT")).getBoolean();
+        debugger.log("ShopProtectionListener: isForbidden > " + isForbidden, DebugLevels.PROTECTION);
+        debugger.log("ShopProtectionListener: checked hopper setting > " + shop.getShopType().name() + "SHOP_HOPPER_EXPORT", DebugLevels.PROTECTION);
+        HopperShopAccessEvent hopperEvent = new HopperShopAccessEvent(
+                shop,
+                event.getSource(),
+                event.getDestination(),
+                event.getItem(),
+                isForbidden,
+                fromHopper ? HopperShopAccessEvent.HopperDirection.FROM_HOPPER : HopperShopAccessEvent.HopperDirection.TO_HOPPER
+        );
+        debugger.log("ShopProtectionListener: (TSAF) HopperEvent fired! ", DebugLevels.PROTECTION);
+        Bukkit.getPluginManager().callEvent(hopperEvent);
+        debugger.log("ShopProtectionListener: (TSAF) HopperEvent recovered! ", DebugLevels.PROTECTION);
+        event.setCancelled(hopperEvent.isForbidden());
+        debugger.log("ShopProtectionListener: (TSAF) HopperEvent isCancelled: " + hopperEvent.isForbidden(), DebugLevels.PROTECTION);
+        debugger.log("ShopProtectionListener: (TSAF) HopperEvent isForbidden: " + isForbidden, DebugLevels.PROTECTION);
+        ((TradeShop) Bukkit.getPluginManager().getPlugin("TradeShop")).setFrozen(false);
+    }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
 	public void onEntityExplodeItem(EntityExplodeEvent event) {
@@ -165,10 +188,11 @@ public class ShopProtectionListener extends Utils implements Listener {
         Shop shop = null;
 
         if (ShopType.isShop(block)) {
+            if (Setting.ALLOW_SIGN_BREAK.getBoolean()) return;
             shop = Shop.loadShop((Sign) block.getState());
             if (shop == null)
                 return;
-            if (player.hasPermission(Permissions.ADMIN.getPerm()) || player.getUniqueId().equals(shop.getOwner().getUUID())) {
+            if (Permissions.hasPermission(player, Permissions.ADMIN) || player.getUniqueId().equals(shop.getOwner().getUUID())) {
                 PlayerShopDestroyEvent destroyEvent = new PlayerShopDestroyEvent(player, shop);
                 Bukkit.getPluginManager().callEvent(destroyEvent);
                 if (destroyEvent.isCancelled()) {
@@ -176,7 +200,8 @@ public class ShopProtectionListener extends Utils implements Listener {
                     return;
                 }
 
-                shop.getChestAsSC().resetName();
+                if (shop.getChestAsSC() != null)
+                    shop.getChestAsSC().resetName();
                 shop.remove();
                 return;
             }
@@ -185,10 +210,11 @@ public class ShopProtectionListener extends Utils implements Listener {
             player.sendMessage(Message.NO_TS_DESTROY.getPrefixed());
 
         } else if (ShopChest.isShopChest(block)) {
+            if (Setting.ALLOW_CHEST_BREAK.getBoolean()) return;
             shop = new ShopChest(block.getLocation()).getShop();
             if (shop == null)
                 return;
-            if (player.hasPermission(Permissions.ADMIN.getPerm()) || player.getUniqueId().equals(shop.getOwner().getUUID())) {
+            if (Permissions.hasPermission(player, Permissions.ADMIN) || player.getUniqueId().equals(shop.getOwner().getUUID())) {
                 PlayerShopDestroyEvent destroyEvent = new PlayerShopDestroyEvent(player, shop);
                 Bukkit.getPluginManager().callEvent(destroyEvent);
                 if (destroyEvent.isCancelled()) {
@@ -196,7 +222,10 @@ public class ShopProtectionListener extends Utils implements Listener {
                     return;
                 }
 
-                shop.getChestAsSC().resetName();
+                ShopChest sc = shop.getChestAsSC();
+                if (sc != null)
+                    sc.resetName();
+
                 shop.removeStorage();
 
                 if (shop.getShopSign() == null) {
@@ -232,7 +261,7 @@ public class ShopProtectionListener extends Utils implements Listener {
             Shop shop = new ShopChest(block.getLocation()).getShop();
             PlayerShopInventoryOpenEvent openEvent = new PlayerShopInventoryOpenEvent(e.getPlayer(), shop, e.getAction(), e.getItem(), e.getClickedBlock(), e.getBlockFace());
 
-            if (!e.getPlayer().hasPermission(Permissions.ADMIN.getPerm()) && !shop.getUsersUUID().contains(e.getPlayer().getUniqueId())) {
+            if (!Permissions.hasPermission(e.getPlayer(), Permissions.ADMIN) && !shop.getUsersUUID().contains(e.getPlayer().getUniqueId())) {
                 openEvent.setCancelled(true);
             }
 

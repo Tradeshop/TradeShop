@@ -31,12 +31,16 @@ import com.google.common.io.Files;
 import org.apache.commons.lang.Validate;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.entity.Player;
 import org.shanerx.tradeshop.TradeShop;
 import org.yaml.snakeyaml.Yaml;
 
 import java.io.*;
+import java.util.Collections;
+import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 
@@ -53,6 +57,7 @@ public enum Message {
     FULL_AMOUNT(MessageSectionKeys.UNUSED, "&cYou must have &e{AMOUNT} &cof a single type of &e{ITEM}&c!", "\\Unused\\"),
     HELD_EMPTY(MessageSectionKeys.NONE, "&eYou are currently holding nothing.", "Text to display when the player is not holding anything"),
     ILLEGAL_ITEM(MessageSectionKeys.NONE, "&cYou cannot use one or more of those items in shops.", "Text to display when a shop failed creation due to an illegal item "),
+    NO_SHULKER_COST(MessageSectionKeys.NONE, "&cYou cannot add a Shulker Box as a cost when the shop uses it for storage.", "Text to display when a shop failed creation due to using a shulker box as cost when the shop uses it for storage: "),
     INSUFFICIENT_ITEMS(MessageSectionKeys.NONE, "&cYou do not have &e{AMOUNT} {ITEM}&c!", "Text to display when the player does not have enough items:"),
     INVALID_ARGUMENTS(MessageSectionKeys.NONE, "&eTry &6/tradeshop help &eto display help!", "Text to display when invalid arguments are submitted through the \"/tradeshop\" command:"),
     INVALID_SIGN(MessageSectionKeys.UNUSED, "&cInvalid sign format!", "\\Unused\\"),
@@ -89,7 +94,7 @@ public enum Message {
             + "\n&6&o-- Leave Blank --"
             + "\n&2Step 4: &eUse the addCost and addProduct commands to add items to your shop", "Text to display on \"/tradeshop setup\":"),
     SHOP_CLOSED(MessageSectionKeys.NONE, "&cThis shop is currently closed."),
-    SHOP_EMPTY(MessageSectionKeys.NONE, "&cThis TradeShop is currently &emissing &citems to complete the trade!", "Text to display when the shop does not have enough stock:"),
+    SHOP_EMPTY(MessageSectionKeys.NONE, "&cThis TradeShop is currently missing items to complete the trade!", "Text to display when the shop does not have enough stock:"),
     SHOP_FULL(MessageSectionKeys.NONE, "&cThis TradeShop is full, please contact the owner to get it emptied!", "Text to display when the shop storage is full:"),
     SHOP_FULL_AMOUNT(MessageSectionKeys.UNUSED, "&cThe shop does not have &e{AMOUNT} &cof a single type of &e{ITEM}&c!", "\\Unused\\"),
     SHOP_INSUFFICIENT_ITEMS(MessageSectionKeys.NONE, "&cThis shop does not have &e{AMOUNT} {ITEM}&c!"),
@@ -101,16 +106,21 @@ public enum Message {
     UNSUCCESSFUL_SHOP_MEMBERS(MessageSectionKeys.NONE, "&aThat player is either already on the shop, or you have reached the maximum number of users!", "Text to display when shop users could not be updated"),
     UPDATED_SHOP_MEMBERS(MessageSectionKeys.NONE, "&aShop owners and members have been updated!", "Text to display when shop users have been updated successfully"),
     WHO_MESSAGE(MessageSectionKeys.NONE, "&6Shop users are:\n&2Owner: &e{OWNER}\n&2Managers: &e{MANAGERS}\n&2Members: &e{MEMBERS}", "Text to display when players use the who command"),
-    VARIOUS_ITEM_TYPE(MessageSectionKeys.NONE, "Various", "Text to display when a message uses an Item Type and the Type varies");
+    VIEW_PLAYER_LEVEL(MessageSectionKeys.NONE, "&e%player% has a level of %level%.", "Text to display when viewing a players level with /ts PlayerLevel"),
+    SET_PLAYER_LEVEL(MessageSectionKeys.NONE, "&aYou have set the level of %player% to %level%!", "Text to display after setting a players level"),
+    VARIOUS_ITEM_TYPE(MessageSectionKeys.NONE, "Various", "Text to display when a message uses an Item Type and the Type varies"),
+    TOGGLED_STATUS(MessageSectionKeys.NONE, "Toggled status: &c%status%");
 
     private static final char COLOUR_CHAR = '&';
-    private static TradeShop plugin = (TradeShop) Bukkit.getPluginManager().getPlugin("TradeShop");
-    private static File file = new File(plugin.getDataFolder(), "messages.yml");
+    private static final TradeShop plugin = (TradeShop) Bukkit.getPluginManager().getPlugin("TradeShop");
+    private static final File file = new File(plugin.getDataFolder(), "messages.yml");
     private static FileConfiguration config = YamlConfiguration.loadConfiguration(file);
     private static String PREFIX = Setting.MESSAGE_PREFIX.getString() + " ";
 
-    private String defaultValue, preComment = "", postComment = "";
-    private MessageSectionKeys sectionKey;
+    private final String defaultValue;
+    private final MessageSectionKeys sectionKey;
+    private String preComment = "";
+    private String postComment = "";
 
 
     Message(MessageSectionKeys sectionKey, String defaultValue) {
@@ -226,7 +236,42 @@ public enum Message {
     }
 
     public String getPrefixed() {
-        return colour(PREFIX + toString());
+        return colour(PREFIX + this);
+    }
+
+    public void sendMessage(Player player, Map<String, String> replacements) {
+        String message = getPrefixed();
+        replacements.forEach(message::replaceAll);
+
+        if (getMessage().startsWith("#json ")) {
+            message.replaceFirst("#json ", "");
+            player.sendRawMessage(colour(message));
+        } else {
+            player.sendMessage(colour(message));
+        }
+    }
+
+    public void sendMessage(Player player) {
+        sendMessage(player, Collections.emptyMap());
+    }
+
+    public void sendMessage(CommandSender sender) {
+        sendMessage(sender, Collections.emptyMap());
+    }
+
+    public void sendMessage(CommandSender sender, Map<String, String> replacements) {
+        if (sender instanceof Player) {
+            sendMessage((Player) sender, replacements);
+            return;
+        }
+        String message = getPrefixed();
+        replacements.forEach(message::replaceAll);
+
+        if (getMessage().startsWith("#json ")) {
+            message.replaceFirst("#json ", "");
+        }
+
+        sender.sendMessage(colour(message));
     }
 }
 
@@ -235,7 +280,9 @@ enum MessageSectionKeys {
     NONE("", ""),
     UNUSED("", "");
 
-    private String key, sectionHeader, value_lead = "";
+    private final String key;
+    private final String sectionHeader;
+    private String value_lead = "";
     private MessageSectionKeys parent;
 
     MessageSectionKeys(String key, String sectionHeader) {

@@ -26,6 +26,7 @@
 package org.shanerx.tradeshop.objects;
 
 import com.google.gson.Gson;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
@@ -34,11 +35,11 @@ import org.bukkit.block.Sign;
 import org.bukkit.event.block.SignChangeEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.shanerx.tradeshop.TradeShop;
 import org.shanerx.tradeshop.enumys.Setting;
 import org.shanerx.tradeshop.enumys.ShopRole;
 import org.shanerx.tradeshop.enumys.ShopStatus;
 import org.shanerx.tradeshop.enumys.ShopType;
-import org.shanerx.tradeshop.utils.JsonConfiguration;
 import org.shanerx.tradeshop.utils.Tuple;
 import org.shanerx.tradeshop.utils.Utils;
 
@@ -46,20 +47,20 @@ import java.io.Serializable;
 import java.util.*;
 import java.util.stream.Collectors;
 
-@SuppressWarnings("unused")
 public class Shop implements Serializable {
 
 	private ShopUser owner;
 	private List<UUID> managers, members;
 	private ShopType shopType;
 	private final ShopLocation shopLoc;
-	private final List<ShopItemStack> product;
-	private final List<ShopItemStack> cost;
+	private List<ShopItemStack> product, cost;
 	private ShopLocation chestLoc;
 	private transient SignChangeEvent signChangeEvent;
 	private transient Inventory storageInv;
-	private transient Utils utils;
+	private transient Utils utils = new Utils();
 	private ShopStatus status = ShopStatus.INCOMPLETE;
+
+	private int availableTrades = 0;
 
 	/**
 	 * Creates a Shop object
@@ -74,6 +75,7 @@ public class Shop implements Serializable {
 		shopLoc = new ShopLocation(locations.getLeft());
 		this.owner = owner;
 		chestLoc = new ShopLocation(locations.getRight());
+		utils.plugin.getDataStorage().addChestLinkage(chestLoc, shopLoc);
 		this.shopType = shopType;
 		managers = players.getLeft();
 		members = players.getRight();
@@ -98,6 +100,7 @@ public class Shop implements Serializable {
 		shopLoc = new ShopLocation(locations.getLeft());
 		this.owner = owner;
 		chestLoc = new ShopLocation(locations.getRight());
+		utils.plugin.getDataStorage().addChestLinkage(chestLoc, shopLoc);
 		this.shopType = shopType;
 		managers = Collections.emptyList();
 		members = Collections.emptyList();
@@ -149,17 +152,7 @@ public class Shop implements Serializable {
 	 * @return The shop from file
 	 */
 	public static Shop loadShop(ShopLocation loc) {
-		return new JsonConfiguration(loc.getLocation().getChunk()).loadShop(loc);
-	}
-
-	/**
-	 * Retrieves the Shop object based on a serialized ShopLocation of the sign
-	 *
-	 * @param serializedShopLocation ShopLocation in serialized string
-	 * @return Shop object from file
-	 */
-	public static Shop loadShop(String serializedShopLocation) {
-        return loadShop(Objects.requireNonNull(ShopLocation.deserialize(serializedShopLocation)));
+		return new Utils().plugin.getDataStorage().loadShopFromSign(loc);
 	}
 
 	/**
@@ -250,6 +243,7 @@ public class Shop implements Serializable {
 		users.add(owner);
 		users.addAll(getManagers());
 		users.addAll(getMembers());
+
 		return users;
 	}
 
@@ -305,29 +299,53 @@ public class Shop implements Serializable {
 		return false;
 	}
 
+    /**
+     * Updates the saved player data for all users
+     */
+    private void updateUserFiles() {
+        TradeShop plugin = new Utils().plugin;
+        for (UUID user : getUsersUUID()) {
+            PlayerSetting playerSetting = plugin.getDataStorage().loadPlayer(user);
+            playerSetting.updateShops(this);
+            plugin.getDataStorage().savePlayer(playerSetting);
+        }
+    }
+
+    /**
+     * Removes this shop from all users
+     */
+    private void purgeFromUserFiles() {
+        TradeShop plugin = new Utils().plugin;
+        for (UUID user : getUsersUUID()) {
+            PlayerSetting playerSetting = plugin.getDataStorage().loadPlayer(user);
+            playerSetting.removeShop(this);
+            plugin.getDataStorage().savePlayer(playerSetting);
+        }
+    }
+
 	/**
 	 * Removes a user from the shop
 	 *
 	 * @param oldUser the UUID of the player to be removed
 	 * @return true if user was removed
 	 */
-	public boolean removeUser(UUID oldUser) {
-		if (getManagersUUID().contains(oldUser)) {
-			managers.remove(oldUser);
-			saveShop();
-			updateSign();
-			return true;
-		}
+    public boolean removeUser(UUID oldUser) {
+        boolean ret = false;
+        if (getManagersUUID().contains(oldUser)) {
+            managers.remove(oldUser);
+            ret = true;
+        }
 
-		if (getMembersUUID().contains(oldUser)) {
-			members.remove(oldUser);
-			saveShop();
-			updateSign();
-			return true;
-		}
+        if (getMembersUUID().contains(oldUser)) {
+            members.remove(oldUser);
+            ret = true;
+        }
 
-		return false;
-	}
+        saveShop();
+        updateSign();
+
+        return ret;
+    }
 
 	/**
 	 * Adds a member to the shop
@@ -341,6 +359,7 @@ public class Shop implements Serializable {
 			saveShop();
 			return true;
 		}
+
 		return false;
 	}
 
@@ -368,7 +387,7 @@ public class Shop implements Serializable {
 	 * @return inventory location as Location
 	 */
 	public Location getInventoryLocation() {
-		return chestLoc.getLocation();
+		return chestLoc != null ? chestLoc.getLocation() : null;
 	}
 
 	/**
@@ -378,6 +397,7 @@ public class Shop implements Serializable {
 	 */
 	public void setInventoryLocation(Location newLoc) {
 		chestLoc = new ShopLocation(newLoc);
+		utils.plugin.getDataStorage().addChestLinkage(chestLoc, shopLoc);
 	}
 
 	/**
@@ -422,9 +442,13 @@ public class Shop implements Serializable {
 	 * @param newItem ItemStack to be set
 	 */
 	public void setCost(ItemStack newItem) {
+		if (!utils.isValidType(newItem.getType()))
+			return;
+
 		cost.clear();
 
 		addCost(newItem);
+		cost.removeIf(item -> item.getItemStack().getType().toString().endsWith("SHULKER_BOX") && getInventoryLocation().getBlock().getType().toString().endsWith("SHULKER_BOX"));
 	}
 
 	/**
@@ -433,6 +457,9 @@ public class Shop implements Serializable {
 	 * @param newItem ItemStack to be added
 	 */
 	public void addCost(ItemStack newItem) {
+		if (!utils.isValidType(newItem.getType()))
+			return;
+
 		int amount = newItem.getAmount();
 		List<ItemStack> items = new ArrayList<>();
 		while (amount > 0) {
@@ -449,7 +476,8 @@ public class Shop implements Serializable {
 			}
 		}
 
-        items.forEach((ItemStack iS) -> cost.add(new ShopItemStack(iS)));
+		items.forEach((ItemStack iS) -> cost.add(new ShopItemStack(iS)));
+		cost.removeIf(item -> item.getItemStack().getType().toString().endsWith("SHULKER_BOX") && getInventoryLocation().getBlock().getType().toString().endsWith("SHULKER_BOX"));
 
 		saveShop();
 		updateSign();
@@ -492,12 +520,25 @@ public class Shop implements Serializable {
 		return cost.size() > 0;
 	}
 
+
+	/**
+	 * Returns the amount of trades the shop could do when last accessed
+	 *
+	 * @return amount of trades the shop can do
+	 */
+	public int getAvailableTrades() {
+		return availableTrades;
+	}
+
 	/**
 	 * Adds more product items
 	 *
 	 * @param newItem ItemStack to be added
 	 */
 	public void addProduct(ItemStack newItem) {
+		if (!utils.isValidType(newItem.getType()))
+			return;
+
 		int amount = newItem.getAmount();
 		List<ItemStack> items = new ArrayList<>();
 		while (amount > 0) {
@@ -535,6 +576,9 @@ public class Shop implements Serializable {
 	 * @param newItem item to be set to product
 	 */
 	public void setProduct(ItemStack newItem) {
+		if (!utils.isValidType(newItem.getType()))
+			return;
+
 		product.clear();
 
 		addProduct(newItem);
@@ -590,10 +634,12 @@ public class Shop implements Serializable {
 	 * Fixes values that cannot be serialized after loading
 	 */
 	public void fixAfterLoad() {
-		utils = new Utils();
+		if (utils == null)
+			utils = new Utils();
 		shopLoc.stringToWorld();
 		if (!shopType.isITrade() && chestLoc != null)
 			chestLoc.stringToWorld();
+		cost.removeIf(item -> item.getItemStack().getType().toString().endsWith("SHULKER_BOX") && getInventoryLocation().getBlock().getType().toString().endsWith("SHULKER_BOX"));
 		if (getShopSign() != null)
 			updateSign();
 	}
@@ -611,7 +657,9 @@ public class Shop implements Serializable {
 	 * Saves the shop too file
 	 */
 	public void saveShop() {
-		new JsonConfiguration(shopLoc.getLocation().getChunk()).saveShop(this);
+		updateFullTradeCount();
+		utils.plugin.getDataStorage().saveShop(this);
+        updateUserFiles();
 	}
 
 	/**
@@ -633,6 +681,7 @@ public class Shop implements Serializable {
 	 * Updates the text on the shops sign
 	 */
 	public void updateSign() {
+		if (((TradeShop) Bukkit.getPluginManager().getPlugin("TradeShop")).isFrozen()) return;
 		if (signChangeEvent != null)
 			updateSign(signChangeEvent);
 		else {
@@ -668,7 +717,7 @@ public class Shop implements Serializable {
      * @return String array containing updated sign lines to be set
      */
     private String[] updateSignLines() {
-        String[] signLines = new String[4];
+		String[] signLines = new String[4];
 
         if (isMissingItems()) {
             signLines[0] = utils.colorize(Setting.SHOP_INCOMPLETE_COLOUR.getString() + shopType.toHeader());
@@ -736,6 +785,7 @@ public class Shop implements Serializable {
 	 */
 	public void removeStorage() {
 		if (hasStorage()) {
+			utils.plugin.getDataStorage().removeChestLinkage(chestLoc);
 			chestLoc = null;
 		}
 	}
@@ -807,11 +857,11 @@ public class Shop implements Serializable {
 	/**
 	 * Removes this shop from file
 	 */
-	public void remove() {
-		JsonConfiguration json = new JsonConfiguration(shopLoc.getLocation().getChunk());
-
-		json.removeShop(shopLoc);
-	}
+    public void remove() {
+        purgeFromUserFiles();
+		removeStorage();
+		utils.plugin.getDataStorage().removeShop(this);
+    }
 
 	/**
 	 * Checks if shop is open
@@ -926,5 +976,94 @@ public class Shop implements Serializable {
 	public Boolean checkCost(int multiplier) {
 		setStorageInventory();
 		return utils.checkInventory(storageInv, cost, multiplier);
+	}
+
+	/**
+	 * Returns the ShopRole of the supplied UUID
+	 *
+	 * @param uuidToCheck uuid to check for role of
+	 * @return the ShopRole of the supplied UUID
+	 */
+	public ShopRole checkRole(UUID uuidToCheck) {
+		if (owner.getUUID().equals(uuidToCheck)) {
+			return ShopRole.OWNER;
+		} else if (managers.contains(uuidToCheck)) {
+			return ShopRole.MANAGER;
+		} else if (members.contains(uuidToCheck)) {
+			return ShopRole.MEMBER;
+		} else {
+			return ShopRole.SHOPPER;
+		}
+	}
+
+	/**
+	 * Updates the number of trades the shop can make
+	 */
+	public void updateFullTradeCount() {
+		if (!hasStorage() || !hasProduct()) {
+			availableTrades = 0;
+			return;
+		}
+
+		Inventory shopInventory = hasStorage() ? getChestAsSC().getInventory() : null;
+
+		Inventory clone = Bukkit.createInventory(null, shopInventory.getStorageContents().length);
+		clone.setContents(shopInventory.getStorageContents());
+		int totalCount = 0, currentCount = 0;
+
+		for (ShopItemStack item : getProduct()) {
+			totalCount += item.getItemStack().getAmount();
+			int traded;
+			for (ItemStack storageItem : clone.getStorageContents()) {
+				if (storageItem != null && item.isSimilar(storageItem)) {
+					traded = Math.min(storageItem.getAmount(), item.getItemStack().getMaxStackSize());
+
+					storageItem.setAmount(traded);
+					clone.removeItem(storageItem);
+					currentCount += traded;
+				}
+			}
+		}
+
+		availableTrades = currentCount == 0 || totalCount == 0 ? 0 : currentCount / totalCount;
+	}
+
+	/**
+	 * Updates all shop users
+	 */
+	public void updateShopUsers(Set<ShopUser> updatedUserSet) {
+		for (ShopUser user : updatedUserSet) {
+			removeUser(user.getUUID());
+			switch (user.getRole()) {
+				case MANAGER:
+					managers.add(user.getUUID());
+					break;
+				case MEMBER:
+					members.add(user.getUUID());
+					break;
+				default:
+					break;
+			}
+		}
+		saveShop();
+	}
+
+	/**
+	 * Updates shops cost list
+	 */
+	public void updateCost(List<ShopItemStack> updatedCostList) {
+		updatedCostList.removeIf(item -> item.getItemStack().getType().toString().endsWith("SHULKER_BOX") && getInventoryLocation().getBlock().getType().toString().endsWith("SHULKER_BOX"));
+		cost = updatedCostList;
+		saveShop();
+		updateSign();
+	}
+
+	/**
+	 * Updates shops product list
+	 */
+	public void updateProduct(List<ShopItemStack> updatedProductList) {
+		product = updatedProductList;
+		saveShop();
+		updateSign();
 	}
 }

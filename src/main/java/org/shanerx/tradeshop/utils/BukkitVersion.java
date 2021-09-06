@@ -34,7 +34,7 @@ import java.util.regex.Pattern;
 
 public class BukkitVersion {
 	private final String VERSION = Bukkit.getBukkitVersion();
-	private Map<String, Integer> verMap;
+	private final Map<String, Integer> verMap;
 
 	public BukkitVersion() {
 		verMap = getVerMap();
@@ -102,6 +102,30 @@ public class BukkitVersion {
 				return true;
 			} else if (getMinor() == minor) {
 				return getPatch() > patch;
+			}
+		}
+
+		return false;
+	}
+
+	public boolean isAtLeast(int major, int minor) {
+		if (getMajor() > major) {
+			return true;
+		} else if (getMajor() == major) {
+			return getMinor() >= minor;
+		}
+
+		return false;
+	}
+
+	public boolean isAtLeast(int major, int minor, int patch) {
+		if (getMajor() > major) {
+			return true;
+		} else if (getMajor() == major) {
+			if (getMinor() > minor) {
+				return true;
+			} else if (getMinor() == minor) {
+				return getPatch() >= patch;
 			}
 		}
 

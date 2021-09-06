@@ -23,21 +23,23 @@
  *
  */
 
-package org.shanerx.tradeshop.utils;
+package org.shanerx.tradeshop.utils.data;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
 import org.bukkit.Chunk;
+import org.bukkit.World;
 import org.bukkit.inventory.ItemStack;
-import org.shanerx.tradeshop.objects.Shop;
-import org.shanerx.tradeshop.objects.ShopChunk;
-import org.shanerx.tradeshop.objects.ShopItemStack;
-import org.shanerx.tradeshop.objects.ShopLocation;
+import org.shanerx.tradeshop.objects.*;
+import org.shanerx.tradeshop.utils.Utils;
 
 import java.io.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 public class JsonConfiguration extends Utils implements Serializable {
 	private final String pluginFolder;
@@ -47,6 +49,8 @@ public class JsonConfiguration extends Utils implements Serializable {
 	private JsonObject jsonObj;
 	private final int configType;
 	private final Gson gson;
+
+	private transient UUID playerUUID;
 
 	public JsonConfiguration(Chunk c) {
 		gson = new GsonBuilder().setPrettyPrinting().serializeNulls().create();
@@ -64,7 +68,7 @@ public class JsonConfiguration extends Utils implements Serializable {
 
 			try {
 				new File(path + File.separator + chunk.serialize() + ".json").createNewFile();
-			} catch (Exception exception) {
+			} catch (IOException exception) {
 				throw new RuntimeException(exception);
 			}
 		}
@@ -77,14 +81,15 @@ public class JsonConfiguration extends Utils implements Serializable {
 			try {
 				new File(path + File.separator + chunk.serialize().replace(";;", "_") + ".json").delete();
 			} catch (SecurityException | NullPointerException ignored) {
-
+				//ignored
 			}
 		}
 	}
 
 	public JsonConfiguration(UUID uuid) {
-		gson = new GsonBuilder().enableComplexMapKeySerialization().setPrettyPrinting().serializeNulls().create();
+		gson = new GsonBuilder().setPrettyPrinting().serializeNulls().create();
 		configType = 1;
+		playerUUID = uuid;
 		this.pluginFolder = plugin.getDataFolder().getAbsolutePath();
 		this.path = this.pluginFolder + File.separator + "Data" + File.separator + "Players";
 		this.file = new File(path + File.separator + uuid.toString() + ".json");
@@ -93,7 +98,26 @@ public class JsonConfiguration extends Utils implements Serializable {
 		if (!this.file.exists()) {
 			try {
 				this.file.createNewFile();
-			} catch (Exception exception) {
+			} catch (IOException exception) {
+				throw new RuntimeException(exception);
+			}
+		}
+
+		loadContents();
+	}
+
+	public JsonConfiguration(World world) {
+		gson = new GsonBuilder().setPrettyPrinting().serializeNulls().create();
+		configType = 2;
+		this.pluginFolder = plugin.getDataFolder().getAbsolutePath();
+		this.path = this.pluginFolder + File.separator + "Data" + File.separator + world.getName();
+		this.file = new File(path + File.separator + "chest_linkage.json");
+		this.filePath = new File(path);
+		this.filePath.mkdirs();
+		if (!this.file.exists()) {
+			try {
+				this.file.createNewFile();
+			} catch (IOException exception) {
 				throw new RuntimeException(exception);
 			}
 		}
@@ -122,24 +146,25 @@ public class JsonConfiguration extends Utils implements Serializable {
 	}
 
 	private void saveContents(String str) {
-		try {
-			FileWriter fileWriter = new FileWriter(this.file);
-			fileWriter.write(str);
-			fileWriter.flush();
-			fileWriter.close();
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
+		if (!str.isEmpty()) {
+			try {
+				FileWriter fileWriter = new FileWriter(this.file);
+				fileWriter.write(str);
+				fileWriter.flush();
+				fileWriter.close();
+			} catch (IOException e) {
+				throw new RuntimeException(e);
+			}
 
-		loadContents();
+			loadContents();
+		}
 	}
 
-	public void savePlayer(Map<String, Integer> data) {
+	public void savePlayer(PlayerSetting playerSetting) {
 		if (configType != 1)
 			return;
 
-		JsonElement obj = gson.toJsonTree(data);
-		jsonObj.add("data", obj);
+		jsonObj.add(playerSetting.getUuid().toString(), gson.toJsonTree(playerSetting));
 
 		saveContents(gson.toJson(jsonObj));
 	}
@@ -151,21 +176,26 @@ public class JsonConfiguration extends Utils implements Serializable {
 		file.delete();
 	}
 
-	public Map<String, Integer> loadPlayer() {
+	public PlayerSetting loadPlayer() {
 		if (configType != 1)
 			return null;
 
-		Gson gson = new Gson();
-		Map<String, Integer> data;
+		Gson gson = new GsonBuilder().setPrettyPrinting().serializeNulls().create();
+		PlayerSetting playerSetting;
 
 		if (jsonObj.has("data")) {
-			data = gson.fromJson(jsonObj.get("data"), new TypeToken<Map<String, Integer>>() {
-			}.getType());
+			playerSetting = new PlayerSetting(playerUUID, gson.fromJson(jsonObj.get("data"), new TypeToken<Map<String, Integer>>() {
+			}.getType()));
+			jsonObj.remove("data");
+			saveContents(gson.toJson(jsonObj));
 		} else {
-			data = new HashMap<>();
+			playerSetting = gson.fromJson(jsonObj.get(playerUUID.toString()), PlayerSetting.class);
 		}
 
-		return data;
+		if (playerSetting != null)
+			playerSetting.load();
+
+		return playerSetting;
 	}
 
 	public void saveShop(Shop shop) {
@@ -199,18 +229,16 @@ public class JsonConfiguration extends Utils implements Serializable {
 			if (jsonObj.getAsJsonObject(loc.serialize()).getAsJsonPrimitive("productB64") != null) {
 				String str = jsonObj.getAsJsonObject(loc.serialize()).get("productB64").getAsString();
 				jsonObj.getAsJsonObject(loc.serialize()).remove("productB64");
-				jsonObj.getAsJsonObject(loc.serialize()).add("productListB64", gson.toJsonTree(b64OverstackFixer(str)));
+				jsonObj.getAsJsonObject(loc.serialize()).add("product", gson.toJsonTree(b64OverstackFixer(str)));
 				saveContents(gson.toJson(jsonObj));
 			}
 
 			if (jsonObj.getAsJsonObject(loc.serialize()).getAsJsonPrimitive("costB64") != null) {
 				String str = jsonObj.getAsJsonObject(loc.serialize()).get("costB64").getAsString();
 				jsonObj.getAsJsonObject(loc.serialize()).remove("costB64");
-				jsonObj.getAsJsonObject(loc.serialize()).add("costListB64", gson.toJsonTree(b64OverstackFixer(str)));
+				jsonObj.getAsJsonObject(loc.serialize()).add("cost", gson.toJsonTree(b64OverstackFixer(str)));
 				saveContents(gson.toJson(jsonObj));
 			}
-
-
 
 			if (jsonObj.getAsJsonObject(loc.serialize()).has("productListB64")) {
 				List<ShopItemStack> productList = new ArrayList<>();
@@ -240,35 +268,46 @@ public class JsonConfiguration extends Utils implements Serializable {
 		return jsonObj.size();
 	}
 
-	private List<String> b64OverstackFixer(String oldB64) {
-		ItemStack oldStack = null;
-		if (oldB64.length() > 0) {
-			try {
-				oldStack = ItemSerializer.itemStackArrayFromBase64(oldB64);
-			} catch (IOException ex) {
-				ex.printStackTrace();
-			}
-		}
-
-		if (oldStack == null)
+	public Map<String, String> loadChestLinkage() {
+		if (configType != 2)
 			return null;
 
-		if (!(oldStack.getAmount() > oldStack.getMaxStackSize())) {
-			return Lists.newArrayList(ItemSerializer.itemStackArrayToBase64(oldStack));
+		Gson gson = new Gson();
+		return gson.fromJson(jsonObj.get("linkage_data"), new TypeToken<Map<String, String>>() {
+		}.getType());
+	}
+
+	public void saveChestLinkage(Map<String, String> linkageData) {
+		if (configType != 2)
+			return;
+
+		jsonObj.add("linkage_data", gson.toJsonTree(linkageData));
+
+		saveContents(gson.toJson(jsonObj));
+	}
+
+	private List<ShopItemStack> b64OverstackFixer(String oldB64) {
+		ShopItemStack oldStack = new ShopItemStack(oldB64);
+
+		if (oldStack.hasBase64())
+			return null;
+
+		if (!(oldStack.getItemStack().getAmount() > oldStack.getItemStack().getMaxStackSize())) {
+			return Lists.newArrayList(oldStack);
 		} else {
-			List<String> newStacks = new ArrayList<>();
-			int amount = oldStack.getAmount();
+			List<ShopItemStack> newStacks = new ArrayList<>();
+			int amount = oldStack.getItemStack().getAmount();
 
 			while (amount > 0) {
-				if (oldStack.getMaxStackSize() < amount) {
-					ItemStack itm = oldStack.clone();
-					itm.setAmount(oldStack.getMaxStackSize());
-					newStacks.add(ItemSerializer.itemStackArrayToBase64(itm));
-					amount -= oldStack.getMaxStackSize();
+				if (oldStack.getItemStack().getMaxStackSize() < amount) {
+					ItemStack itm = oldStack.getItemStack().clone();
+					itm.setAmount(oldStack.getItemStack().getMaxStackSize());
+					newStacks.add(new ShopItemStack(itm));
+					amount -= oldStack.getItemStack().getMaxStackSize();
 				} else {
-					ItemStack itm = oldStack.clone();
+					ItemStack itm = oldStack.getItemStack().clone();
 					itm.setAmount(amount);
-					newStacks.add(ItemSerializer.itemStackArrayToBase64(itm));
+					newStacks.add(new ShopItemStack(itm));
 					amount -= amount;
 				}
 			}

@@ -46,9 +46,11 @@ public enum Setting {
     CONFIG_VERSION(SettingSectionKeys.NONE, "config-version", 1.1, "", "\n"),
 
     // System Options
-    ENABLE_DEBUG(SettingSectionKeys.SYSTEM_OPTIONS, "enable-debug", 0, "What debug code should be run. this will add significant amounts of spam to the console/log, generally not used unless requested by Devs (must be a whole number)"),
+    DATA_STORAGE_TYPE(SettingSectionKeys.SYSTEM_OPTIONS, "data-storage-type", "FLATFILE", "How would you like your servers data stored? (FLATFILE)"),
+    ENABLE_DEBUG(SettingSectionKeys.SYSTEM_OPTIONS, "enable-debug", 0, "What debug code should be run. This will add significant amounts of spam to the console/log, generally not used unless requested by Devs (must be a whole number)"),
     CHECK_UPDATES(SettingSectionKeys.SYSTEM_OPTIONS, "check-updates", true, "Should we check for updates when the server starts"),
-    ALLOW_METRICS(SettingSectionKeys.SYSTEM_OPTIONS, "allow-metrics", true, "Allow us to connect anonymous metrics so we can see how our plugin is being used to better develop it", "\n"),
+    ALLOW_METRICS(SettingSectionKeys.SYSTEM_OPTIONS, "allow-metrics", true, "Allow us to connect anonymous metrics so we can see how our plugin is being used to better develop it"),
+    USE_INTERNAL_PERMISSIONS(SettingSectionKeys.SYSTEM_OPTIONS, "use-internal-permissions", false, "Should our internal permission system be used? (Only enable if you aren't using a permission plugin)", "\n"),
 
     // Language Options
     MESSAGE_PREFIX(SettingSectionKeys.LANGUAGE_OPTIONS, "message-prefix", "&a[&eTradeShop&a] ", "The prefix the displays before all plugin messages", "\n"),
@@ -66,7 +68,10 @@ public enum Setting {
     ALLOWED_DIRECTIONS(SettingSectionKeys.GLOBAL_OPTIONS, "allowed-directions", new String[]{"DOWN", "WEST", "SOUTH", "EAST", "NORTH", "UP"}, "Directions an allowed shop can be from a sign. Allowed directions are:\n  # Up, Down, North, East, South, West"),
     ALLOWED_SHOPS(SettingSectionKeys.GLOBAL_OPTIONS, "allowed-shops", new String[]{"CHEST", "TRAPPED_CHEST", "SHULKER"}, "Inventories to allow for shops. Allowed blocks are:\n  # Chest, Trapped_Chest, Dropper, Hopper, Dispenser, Shulker, ..."),
     MAX_EDIT_DISTANCE(SettingSectionKeys.GLOBAL_OPTIONS, "max-edit-distance", 4, "Max distance a player can be from a shop to edit it (must be a whole number)"),
-    ILLEGAL_ITEMS(SettingSectionKeys.GLOBAL_OPTIONS, "illegal-items", new String[]{"Air", "Void_Air", "Cave_Air", "Bedrock", "Command_Block"}, "Material types that cannot be used in trades", "\n"),
+    ILLEGAL_ITEMS(SettingSectionKeys.GLOBAL_OPTIONS, "illegal-items", new String[]{"Air", "Void_Air", "Cave_Air", "Bedrock", "Command_Block", "Barrier"}, "Material types that cannot be used in trades"),
+    ALLOW_TOGGLE_STATUS(SettingSectionKeys.GLOBAL_OPTIONS, "allow-toggle-status", true, "Can players toggle view of involved shops?"),
+    ALLOW_SIGN_BREAK(SettingSectionKeys.GLOBAL_OPTIONS, "allow-sign-break", false, "Should the sign be protected from being broken by other players?"),
+    ALLOW_CHEST_BREAK(SettingSectionKeys.GLOBAL_OPTIONS, "allow-chest-break", false, "Should the chest be protected from being broken by other players?", "\n"),
 
     // ^ Multi Trade
     ALLOW_MULTI_TRADE(SettingSectionKeys.GLOBAL_MULTI_TRADE, "enable", true, "Should we allow multi trades with shift + click (true/false)"),
@@ -80,31 +85,37 @@ public enum Setting {
     ALLOW_USER_PURCHASING(SettingSectionKeys.SHOP_OPTIONS, "allow-user-purchasing", false, "Can players purchase from a shop in which they are a user of (true/false)"),
     MULTIPLE_ITEMS_ON_SIGN(SettingSectionKeys.SHOP_OPTIONS, "multiple-items-on-sign", "Use '/ts what'", "Text that shows on trade signs that contain more than 1 item", "\n"),
 
+    // Item Options
+    FIREWORK_COMPARE_DURATION(SettingSectionKeys.ITEM_OPTIONS, "firework-compare-duration", true, "Must trades involving a firework rocket match the correct flight duration?"),
+    FIREWORK_COMPARE_EFFECTS(SettingSectionKeys.ITEM_OPTIONS, "firework-compare-effects", false, "Must trades involving a firework rocket match the exact firework effects?"),
 
     // Trade Shop Options
     TRADESHOP_HEADER(SettingSectionKeys.TRADE_SHOP_OPTIONS, "header", "Trade", "The header that appears at the top of the shop signs, this is also what the player types to create the sign"),
     TRADESHOP_EXPLODE(SettingSectionKeys.TRADE_SHOP_OPTIONS, "allow-explode", false, "Can explosions damage the shop sign/storage (true/false)"),
-    TRADESHOP_HOPPER_EXPORT(SettingSectionKeys.TRADE_SHOP_OPTIONS, "allow-hopper-export", false, "Can hoppers pull items from the shop storage (true/false)", "\n"),
-
+    TRADESHOP_HOPPER_EXPORT(SettingSectionKeys.TRADE_SHOP_OPTIONS, "allow-hopper-export", false, "Can hoppers pull items from the shop storage (true/false)"),
+    TRADESHOP_HOPPER_IMPORT(SettingSectionKeys.TRADE_SHOP_OPTIONS, "allow-hopper-import", false, "Can hoppers push items into the shop storage (true/false)", "\n"),
 
     // ITrade Shop Options
     ITRADESHOP_OWNER(SettingSectionKeys.ITRADE_SHOP_OPTIONS, "owner", "Server Shop", "Name to put on the bottom of iTrade signs"),
     ITRADESHOP_HEADER(SettingSectionKeys.ITRADE_SHOP_OPTIONS, "header", "iTrade", "The header that appears at the top of the shop signs, this is also what the player types to create the sign"),
     ITRADESHOP_EXPLODE(SettingSectionKeys.ITRADE_SHOP_OPTIONS, "allow-explode", false, "Can explosions damage the shop sign (true/false)", "\n"),
 
-
     // BiTrade Shop Options
     BITRADESHOP_HEADER(SettingSectionKeys.BITRADE_SHOP_OPTIONS, "header", "BiTrade", "The header that appears at the top of the shop signs, this is also what the player types to create the sign"),
     BITRADESHOP_EXPLODE(SettingSectionKeys.BITRADE_SHOP_OPTIONS, "allow-explode", false, "Can explosions damage the shop sign/storage (true/false)"),
-    BITRADESHOP_HOPPER_EXPORT(SettingSectionKeys.BITRADE_SHOP_OPTIONS, "allow-hopper-export", false, "Can hoppers pull items from the shop storage (true/false)");
+    BITRADESHOP_HOPPER_EXPORT(SettingSectionKeys.BITRADE_SHOP_OPTIONS, "allow-hopper-export", false, "Can hoppers pull items from the shop storage (true/false)"),
+    BITRADESHOP_HOPPER_IMPORT(SettingSectionKeys.BITRADE_SHOP_OPTIONS, "allow-hopper-import", false, "Can hoppers push items into the shop storage (true/false)", "\n");
 
 
-	private static TradeShop plugin = (TradeShop) Bukkit.getPluginManager().getPlugin("TradeShop");
-	private static File file = new File(plugin.getDataFolder(), "config.yml");
-	private static FileConfiguration config = YamlConfiguration.loadConfiguration(file);
-    private String key, path, preComment = "", postComment = "";
-    private Object defaultValue;
-    private SettingSectionKeys sectionKey;
+    private static final TradeShop plugin = (TradeShop) Bukkit.getPluginManager().getPlugin("TradeShop");
+    private static final File file = new File(plugin.getDataFolder(), "config.yml");
+    private static FileConfiguration config = YamlConfiguration.loadConfiguration(file);
+    private final String key;
+    private final String path;
+    private final Object defaultValue;
+    private final SettingSectionKeys sectionKey;
+    private String preComment = "";
+    private String postComment = "";
 
     Setting(SettingSectionKeys sectionKey, String path, Object defaultValue) {
         this.sectionKey = sectionKey;
@@ -208,17 +219,19 @@ public enum Setting {
 			}
 			if (!file.exists()) {
 				file.createNewFile();
-			}
-		} catch (IOException e) {
-			plugin.getLogger().log(Level.SEVERE, "Could not create Config file! Disabling plugin!", e);
-			plugin.getServer().getPluginManager().disablePlugin(plugin);
-		}
+            }
+        } catch (IOException e) {
+            plugin.getLogger().log(Level.SEVERE, "Could not create Config file! Disabling plugin!", e);
+            plugin.getServer().getPluginManager().disablePlugin(plugin);
+        }
 
         fixUp();
 
-		setDefaults();
-		config = YamlConfiguration.loadConfiguration(file);
-	}
+        setDefaults();
+        config = YamlConfiguration.loadConfiguration(file);
+
+        plugin.setUseInternalPerms(USE_INTERNAL_PERMISSIONS.getBoolean());
+    }
 
     // Method to fix any values that have changed with updates
     private static void fixUp() {
@@ -339,75 +352,4 @@ public enum Setting {
 	public boolean getBoolean() {
 		return config.getBoolean(toPath());
 	}
-}
-
-enum SettingSectionKeys {
-
-    NONE("", ""),
-    SYSTEM_OPTIONS("system-options", "System Options"),
-    LANGUAGE_OPTIONS("language-options", "Language Options"),
-    GLOBAL_OPTIONS("global-options", "Global Options"),
-    GLOBAL_MULTI_TRADE(GLOBAL_OPTIONS, "multi-trade", ""),
-    SHOP_OPTIONS("shop-options", "Shop Options"),
-    TRADE_SHOP_OPTIONS("trade-shop-options", "Trade Shop Options"),
-    ITRADE_SHOP_OPTIONS("itrade-shop-options", "ITrade Shop Options"),
-    BITRADE_SHOP_OPTIONS("bitrade-shop-options", "BiTrade Shop Options");
-
-    private String key, sectionHeader, value_lead = "";
-    private SettingSectionKeys parent;
-
-    SettingSectionKeys(String key, String sectionHeader) {
-        this.key = key;
-        this.sectionHeader = sectionHeader;
-        if (!key.isEmpty())
-            this.value_lead = "  ";
-    }
-
-    SettingSectionKeys(SettingSectionKeys parent, String key, String sectionHeader) {
-        this.key = key;
-        this.sectionHeader = sectionHeader;
-        this.parent = parent;
-        if (!key.isEmpty())
-            this.value_lead = parent.value_lead + "  ";
-    }
-
-    public String getKey() {
-        return !key.isEmpty() ? (parent != null ? parent.getKey() + "." + key + "." : key + ".") : "";
-    }
-
-    public String getValueLead() {
-        return value_lead;
-    }
-
-    public String getFormattedHeader() {
-        if (!sectionHeader.isEmpty() && !key.isEmpty()) {
-            StringBuilder header = new StringBuilder();
-            header.append("|    ").append(sectionHeader).append("    |");
-
-            int line1Length = header.length();
-
-            header.insert(0, "# ").append("\n").append("# ");
-
-            while (line1Length > 0) {
-                header.append("^");
-                line1Length--;
-            }
-
-            header.append("\n").append(getFileText()).append(":\n");
-
-            return header.toString();
-        } else if (sectionHeader.isEmpty() && !key.isEmpty()) {
-            StringBuilder header = new StringBuilder();
-
-            header.append(getFileText()).append(":\n");
-
-            return header.toString();
-        }
-
-        return "";
-    }
-
-    public String getFileText() {
-        return parent != null ? parent.value_lead + key : key;
-    }
 }

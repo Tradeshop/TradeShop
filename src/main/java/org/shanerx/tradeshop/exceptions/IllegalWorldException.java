@@ -23,41 +23,20 @@
  *
  */
 
-package org.shanerx.tradeshop.enumys;
+package org.shanerx.tradeshop.exceptions;
 
-@SuppressWarnings("unused")
-public enum ShopRole {
+import org.shanerx.tradeshop.objects.WorldlessLocation;
 
-	/**
-	 * ShopRole(canDestroy, canEdit, canOpen, canShop)
-	 */
-	OWNER(true, true, true, false),
-	MANAGER(false, true, true, false),
-	MEMBER(false, false, true, false),
-	SHOPPER(false, false, false, true);
+public class IllegalWorldException extends IllegalStateException {
 
-	private final transient boolean destroy, edit, open, shop;
+    private final WorldlessLocation loc;
 
-	ShopRole(boolean destroy, boolean edit, boolean open, boolean shop) {
-		this.destroy = destroy;
-		this.edit = edit;
-		this.open = open;
-		this.shop = shop;
-	}
+    public IllegalWorldException(String msg, WorldlessLocation loc) {
+        super(msg);
+        this.loc = loc;
+    }
 
-	public boolean canDestroy() {
-		return destroy;
-	}
-
-	public boolean canEdit() {
-		return edit;
-	}
-
-	public boolean canOpen() {
-		return open;
-	}
-
-	public boolean canShop() {
-		return shop;
-	}
+    public WorldlessLocation getLoc() {
+        return loc;
+    }
 }

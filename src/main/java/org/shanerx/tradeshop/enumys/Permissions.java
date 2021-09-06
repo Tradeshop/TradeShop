@@ -26,32 +26,37 @@
 package org.shanerx.tradeshop.enumys;
 
 import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 import org.bukkit.permissions.Permission;
 import org.shanerx.tradeshop.TradeShop;
 
 public enum Permissions {
 
-	HELP("help"),
+	HELP("help", 0),
 
-	CREATE("create"),
+	CREATE("create", 0),
 
-	CREATEI("create.infinite"),
+	CREATEI("create.infinite", 1),
 
-	CREATEBI("create.bi"),
+	CREATEBI("create.bi", 0),
 
-	ADMIN("admin"),
+	ADMIN("admin", 1),
 
-	EDIT("edit"), // non admin perm
+	EDIT("edit", 0), // non admin perm
 
-	INFO("info"),
+	INFO("info", 0),
 
-	NONE("");
+	MANAGE_PLUGIN("manage-plugin", 2),
+
+	NONE("", 0);
 
 	private final static TradeShop plugin = (TradeShop) Bukkit.getPluginManager().getPlugin("TradeShop");
-	private String key;
+	private final String key;
+	private final int level;
 
-	Permissions(String key) {
+	Permissions(String key, int level) {
 		this.key = key;
+		this.level = level;
 	}
 
 	@Override
@@ -65,5 +70,17 @@ public enum Permissions {
 
 	public Permission getPerm() {
 		return new Permission(toString());
+	}
+
+	public static boolean hasPermission(Player player, Permissions permission) {
+		if (plugin.useInternalPerms()) {
+			return plugin.getDataStorage().loadPlayer(player.getUniqueId()).getType() >= permission.getLevel();
+		} else {
+			return permission.equals(Permissions.NONE) || player.hasPermission(permission.getPerm());
+		}
+	}
+
+	public int getLevel() {
+		return level;
 	}
 }

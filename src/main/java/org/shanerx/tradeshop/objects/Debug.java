@@ -61,7 +61,11 @@ public class Debug {
     }
 
     public void log(String message, DebugLevels level) {
-        if (level.getPosition() - 1 != -1 && binaryDebugLevel.charAt(level.getPosition() - 1) == '1') {
+        if (level.getPosition() > 0 && binaryDebugLevel.charAt(level.getPosition() - 1) == '1') {
+            Bukkit.getLogger().log(level.getLogLevel(), PREFIX.replace("%level%", level.getPrefix()) + message);
+        } else if (level == DebugLevels.DISABLED) {
+            Bukkit.getLogger().log(level.getLogLevel(), PREFIX.replace(" Debug%level%", "") + message);
+        } else if (level.getPosition() < 0) {
             Bukkit.getLogger().log(level.getLogLevel(), PREFIX.replace("%level%", level.getPrefix()) + message);
         }
     }

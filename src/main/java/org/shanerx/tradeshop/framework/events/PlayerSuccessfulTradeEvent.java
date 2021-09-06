@@ -31,8 +31,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.inventory.ItemStack;
 import org.shanerx.tradeshop.objects.Shop;
-import org.shanerx.tradeshop.objects.ShopItemStack;
 
 import java.util.List;
 
@@ -41,24 +41,25 @@ import java.util.List;
  * Note: This event is ONLY fired when all the necessary conditions for the transaction are met, and it is fired JUST BEFORE it happens.
  * This makes it possible to cancel the event moments before the trade takes place, by using {@link org.bukkit.event.Cancellable}.
  */
-public class SuccessfulTradeEvent extends PlayerInteractEvent {
+public class PlayerSuccessfulTradeEvent extends PlayerInteractEvent {
 
 	private static final HandlerList handlers = new HandlerList();
-	private Shop shop;
-    private List<ShopItemStack> product;
-    private List<ShopItemStack> cost;
-	private Block clickedBlock;
-	
+	private final Shop shop;
+	private final List<ItemStack> product;
+	private final List<ItemStack> cost;
+	private final Block clickedBlock;
+
 	/**
 	 * Constructor for the object.
-	 * @param who The {@link org.bukkit.entity.Player} object representing the player who is attempting the trade.
-	 * @param cost The object representing the items which are being traded.
-	 * @param product The object representing the items being traded for.
-	 * @param shop The object representing the shop at which the trade takes place.
+	 *
+	 * @param who          The {@link org.bukkit.entity.Player} object representing the player who is attempting the trade.
+	 * @param cost         The object representing the items which are being traded.
+	 * @param product      The object representing the items being traded for.
+	 * @param shop         The object representing the shop at which the trade takes place.
 	 * @param clickedBlock The {@link org.bukkit.block.Block} that was clicked, ie. the sign.
 	 * @param clickedFace  The {@link org.bukkit.block.BlockFace} object representing the face of the block that was clicked.
 	 */
-    public SuccessfulTradeEvent(Player who, List<ShopItemStack> cost, List<ShopItemStack> product, Shop shop, Block clickedBlock, BlockFace clickedFace) {
+	public PlayerSuccessfulTradeEvent(Player who, List<ItemStack> cost, List<ItemStack> product, Shop shop, Block clickedBlock, BlockFace clickedFace) {
 		super(who, Action.RIGHT_CLICK_BLOCK, null, shop.getShopSign().getBlock(), clickedFace);
 		this.shop = shop;
 		this.product = product;
@@ -82,20 +83,21 @@ public class SuccessfulTradeEvent extends PlayerInteractEvent {
 	public Shop getShop() {
 		return shop;
 	}
-	
+
 	/**
 	 * The items that are being bought from the shop by the player.
+	 *
 	 * @return A {@link java.util.List} which contains the {@link org.bukkit.inventory.ItemStack} objects which represent the items.
 	 */
-    public List<ShopItemStack> getProduct() {
+	public List<ItemStack> getProduct() {
 		return product;
 	}
-	
+
 	/**
 	 * The items that are being paid to the shop by the player.
 	 * @return A {@link java.util.List} which contains the {@link org.bukkit.inventory.ItemStack} objects which represent the items.
 	 */
-    public List<ShopItemStack> getCost() {
+    public List<ItemStack> getCost() {
 		return cost;
 	}
 }

@@ -29,13 +29,15 @@ import java.util.logging.Level;
 
 public enum DebugLevels {
 
-    DISABLED(0, Level.INFO),
-    LIST_MANAGER(1, Level.WARNING),
-    STARTUP(2, Level.INFO),
-    PROTECTION(3, Level.WARNING),
-    TRADE(4, Level.WARNING),
-    INVENTORY_CLOSE_NPE(5, Level.WARNING),
-    ITEM_COMPARE(6, Level.WARNING);
+    DATA_ERROR(-1, Level.SEVERE),
+    DISABLED(0, Level.INFO), // 0
+    LIST_MANAGER(1, Level.WARNING), // 1
+    STARTUP(2, Level.INFO), // 2
+    PROTECTION(3, Level.WARNING), // 4
+    TRADE(4, Level.WARNING), // 8
+    INVENTORY_CLOSE_NPE(5, Level.WARNING), // 16
+    ITEM_COMPARE(6, Level.WARNING), // 32
+    NAME_COMPARE(7, Level.WARNING); // 64
 
     //position is what value to check for this level in the binary string -1.
     //
@@ -57,7 +59,7 @@ public enum DebugLevels {
     }
 
     public static int levels() {
-        return values().length - 1 > 32 ? 32 : values().length - 1;
+        return Math.min(values().length - 1, 32);
     }
 
     public static int maxValue() {

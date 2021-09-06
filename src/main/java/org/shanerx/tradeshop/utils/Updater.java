@@ -38,17 +38,19 @@ import java.util.logging.Logger;
 public class Updater {
 
 	private static Logger log;
-	private PluginDescriptionFile pdf;
+	private final PluginDescriptionFile pdf;
 	private BuildType build;
 	private URL url = null;
+	private final String updateURL;
 
-	public Updater(PluginDescriptionFile pdf) {
+	public Updater(PluginDescriptionFile pdf, String versionURL, String updateURL) {
 		this.pdf = pdf;
+		this.updateURL = updateURL;
 
-		log = Bukkit.getPluginManager().getPlugin("TradeShop").getLogger();
+		log = Bukkit.getPluginManager().getPlugin(pdf.getName()).getLogger();
 
 		try {
-			url = new URL("https://api.spigotmc.org/legacy/update.php?resource=32762"); // Edit API URL.
+			url = new URL(versionURL);
 		} catch (MalformedURLException ex) {
 			log.log(Level.WARNING, "Error: Bad URL while checking {0} !", pdf.getName());
 		}
@@ -96,19 +98,19 @@ public class Updater {
 				RelationalStatus rs = compareVersions(ver[0], ver[1], ver[2].split("-")[0]);
 				if (rs == RelationalStatus.BEHIND) {
 					log.log(Level.WARNING, "[Updater] +------------------------------------------------+");
-					log.log(Level.WARNING, "[Updater] You are running an outdated version of the plugin!");
+					log.log(Level.WARNING, "[Updater] You are running an outdated version of " + pdf.getName() + "!");
 					log.log(Level.WARNING, "[Updater] Most recent stable version: " + inputLine);
-                    log.log(Level.WARNING, "[Updater] Current version: " + getVersion());
-                    log.log(Level.WARNING, "[Updater] Please update from: ");
-                    log.log(Level.WARNING, "[Updater] https://www.spigotmc.org/resources/tradeshop.32762/");
+					log.log(Level.WARNING, "[Updater] Current version: " + getVersion());
+					log.log(Level.WARNING, "[Updater] Please update from: ");
+					log.log(Level.WARNING, "[Updater] " + updateURL);
 					log.log(Level.WARNING, "[Updater] +------------------------------------------------+");
 					in.close();
 					return RelationalStatus.BEHIND;
 				} else if (rs == RelationalStatus.AHEAD) {
 					log.log(Level.WARNING, "[Updater] +-----------------------------------------------------+");
-					log.log(Level.WARNING, "[Updater] You are running a developmental version of the plugin!");
+					log.log(Level.WARNING, "[Updater] You are running a developmental version of " + pdf.getName() + "!");
 					log.log(Level.WARNING, "[Updater] Most recent stable version: " + inputLine);
-                    log.log(Level.WARNING, "[Updater] Current version: " + getVersion());
+					log.log(Level.WARNING, "[Updater] Current version: " + getVersion());
 					log.log(Level.WARNING, "[Updater] Please notice that the build may contain critical bugs!");
 					log.log(Level.WARNING, "[Updater] +-----------------------------------------------------+");
 					in.close();
@@ -120,12 +122,12 @@ public class Updater {
 				}
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
 			log.log(Level.WARNING, "[Updater] +----------------------------------------------------+");
-			log.log(Level.WARNING, "[Updater] Could not establish a connection to check for updates!");
-            log.log(Level.WARNING, "[Updater] Current version: " + getVersion());
-            log.log(Level.WARNING, "[Updater] Please check for new updates from: ");
-            log.log(Level.WARNING, "[Updater] https://www.spigotmc.org/resources/tradeshop.32762/");
+			log.log(Level.WARNING, "[Updater] Could not establish a connection to check " + pdf.getName() + " for updates!");
+			log.log(Level.WARNING, "[Updater] Connection failed: "  + e.getMessage());
+			log.log(Level.WARNING, "[Updater] Current version: " + getVersion());
+			log.log(Level.WARNING, "[Updater] Please check for new updates from: ");
+			log.log(Level.WARNING, "[Updater] " + updateURL);
 			log.log(Level.WARNING, "[Updater] +----------------------------------------------------+");
 		}
 		return RelationalStatus.UNKNOWN;

@@ -26,8 +26,10 @@
 package org.shanerx.tradeshop.objects;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.World;
+import org.shanerx.tradeshop.exceptions.IllegalWorldException;
 
 import java.io.Serializable;
 
@@ -35,8 +37,10 @@ public class ShopLocation implements Serializable {
 
 	final private String div = "::";
 	private transient World world;
-	private String worldName;
-	private double x, y, z;
+	private final String worldName;
+	private final double x;
+	private final double y;
+	private final double z;
 
 	public ShopLocation(World w, double x, double y, double z) {
 		this.world = w;
@@ -57,10 +61,16 @@ public class ShopLocation implements Serializable {
 	public static ShopLocation deserialize(String loc) {
 		if (loc.startsWith("l")) {
 			String[] locA = loc.contains("::") ? loc.split("::") : loc.split("_"); //Keep same as div
+			double x = Double.parseDouble(locA[2]), y = Double.parseDouble(locA[3]), z = Double.parseDouble(locA[4]);
+
 			World world = Bukkit.getWorld(locA[1]);
 			if (world == null)
 				world = Bukkit.getWorld(locA[1].replace("-", "_"));
-			double x = Double.parseDouble(locA[2]), y = Double.parseDouble(locA[3]), z = Double.parseDouble(locA[4]);
+			if (world == null) {
+				throw new IllegalWorldException("Cannot find world " + locA[1], new WorldlessLocation(x, y, z));
+				// Not to maintainer: do NOT remove this aritificial error, it is supposed to be catched elsewhere
+				// (Temporary fix for metadata world renaming bug until metadata is removed entirely)
+			}
 
 			return new ShopLocation(world, x, y, z);
 		}
@@ -96,6 +106,10 @@ public class ShopLocation implements Serializable {
 
 	public double getZ() {
 		return z;
+	}
+
+	public Chunk getChunk() {
+		return getLocation().getChunk();
 	}
 
 	public Location getLocation() {

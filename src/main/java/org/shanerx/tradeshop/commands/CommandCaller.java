@@ -28,7 +28,6 @@ package org.shanerx.tradeshop.commands;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
 import org.shanerx.tradeshop.TradeShop;
 import org.shanerx.tradeshop.enumys.Commands;
 import org.shanerx.tradeshop.enumys.Message;
@@ -40,7 +39,7 @@ import org.shanerx.tradeshop.enumys.Message;
  **/
 public class CommandCaller implements CommandExecutor {
 
-	private TradeShop plugin;
+	private final TradeShop plugin;
 	private CommandPass cmdPass;
 	private Commands command;
 	private CommandRunner cmdRnnr;
@@ -54,24 +53,23 @@ public class CommandCaller implements CommandExecutor {
 		cmdPass = new CommandPass(sender, cmd, label, args);
 		command = Commands.getType(cmdPass.getArgAt(0));
 
-
 		if (!cmdPass.hasArgs() || command == null) {
 			sender.sendMessage(Message.INVALID_ARGUMENTS.getPrefixed());
 			return true;
 
 		}
 
-		if (!checkPerm()) {
-			return true;
+		switch (command.checkPerm(sender)) {
+			case NO_PERM:
+				sender.sendMessage(Message.NO_COMMAND_PERMISSION.getPrefixed());
+				return true;
+			case PLAYER_ONLY:
+				sender.sendMessage(Message.PLAYER_ONLY_COMMAND.getPrefixed());
+				return true;
 		}
 
 		if (command.getMinArgs() > args.length || command.getMaxArgs() < args.length) {
 			sender.sendMessage(Message.INVALID_ARGUMENTS.getPrefixed());
-			return true;
-		}
-
-		if (command.needsPlayer() && !(sender instanceof Player)) {
-			sender.sendMessage(Message.PLAYER_ONLY_COMMAND.getPrefixed());
 			return true;
 		}
 
@@ -106,7 +104,7 @@ public class CommandCaller implements CommandExecutor {
 				cmdRnnr.switchShop();
 				break;
 			case WHAT:
-				cmdRnnr.what();
+				new WhatCommand(plugin, cmdPass).what();
 				break;
 			case WHO:
 				cmdRnnr.who();
@@ -141,21 +139,18 @@ public class CommandCaller implements CommandExecutor {
 			case REMOVE_COST:
 				cmdRnnr.removeCost();
 				break;
-		}
-
-		return true;
-	}
-
-
-	/**
-	 * Checks if the sender has the required permission
-	 *
-	 * @return true if permission is NONE or sender has permission
-	 */
-	public boolean checkPerm() {
-		if (!command.checkPerm(cmdPass.getSender())) {
-			cmdPass.getSender().sendMessage(Message.NO_COMMAND_PERMISSION.getPrefixed());
-			return false;
+			case PLAYER_LEVEL:
+				cmdRnnr.playerLevel();
+				break;
+			case STATUS:
+				cmdRnnr.status();
+				break;
+			case EDIT:
+				new EditCommand(plugin, cmdPass).edit();
+				break;
+			case TOGGLE_STATUS:
+				cmdRnnr.toggleStatus();
+				break;
 		}
 
 		return true;

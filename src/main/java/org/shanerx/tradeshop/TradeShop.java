@@ -31,32 +31,35 @@ import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.shanerx.tradeshop.commands.CommandCaller;
 import org.shanerx.tradeshop.commands.CommandTabCaller;
-import org.shanerx.tradeshop.enumys.Message;
-import org.shanerx.tradeshop.enumys.Setting;
-import org.shanerx.tradeshop.enumys.ShopSign;
-import org.shanerx.tradeshop.enumys.ShopStorage;
+import org.shanerx.tradeshop.enumys.*;
 import org.shanerx.tradeshop.listeners.*;
 import org.shanerx.tradeshop.objects.Debug;
 import org.shanerx.tradeshop.objects.ListManager;
 import org.shanerx.tradeshop.utils.BukkitVersion;
 import org.shanerx.tradeshop.utils.Updater;
+import org.shanerx.tradeshop.utils.data.DataStorage;
+import org.shanerx.tradeshop.utils.data.DataType;
 
 public class TradeShop extends JavaPlugin {
 
 
-    private final NamespacedKey storageKey = new NamespacedKey(this, "tradeshop-storage-data");
-    private final NamespacedKey signKey = new NamespacedKey(this, "tradeshop-sign-data");
-    private final int bStatsPluginID = 1690;
+	private final NamespacedKey storageKey = new NamespacedKey(this, "tradeshop-storage-data");
+	private final NamespacedKey signKey = new NamespacedKey(this, "tradeshop-sign-data");
 
-	private ListManager lists;
-	private BukkitVersion version;
-	private ShopSign signs;
-
-    private ShopStorage storages;
-
+	private final int bStatsPluginID = 1690;
 	private Metrics metrics;
 
+	private boolean useInternalPerms = false;
+
+	private ListManager lists;
+	private DataStorage dataStorage;
+
+	private BukkitVersion version;
+	private ShopSign signs;
+	private ShopStorage storages;
+
 	private Debug debugger;
+	private boolean frozen = false;
 
 	@Override
 	public void onEnable() {
@@ -78,8 +81,18 @@ public class TradeShop extends JavaPlugin {
 		Message.reload();
 
 		debugger = new Debug();
-        signs = new ShopSign();
-        storages = new ShopStorage();
+
+		try {
+			dataStorage = new DataStorage(DataType.valueOf(Setting.DATA_STORAGE_TYPE.getString().toUpperCase()));
+		} catch (IllegalArgumentException iae) {
+			debugger.log("Config value for data storage set to an invalid value: " + Setting.DATA_STORAGE_TYPE.getString(), DebugLevels.DATA_ERROR);
+			debugger.log("TradeShop will now disable...", DebugLevels.DATA_ERROR);
+			getServer().getPluginManager().disablePlugin(this);
+			return;
+		}
+
+		signs = new ShopSign();
+		storages = new ShopStorage();
 		lists = new ListManager();
 
 		PluginManager pm = getServer().getPluginManager();
@@ -93,7 +106,7 @@ public class TradeShop extends JavaPlugin {
 		getCommand("tradeshop").setTabCompleter(new CommandTabCaller(this));
 
         if (Setting.CHECK_UPDATES.getBoolean()) {
-			new Thread(() -> new Updater(getDescription()).checkCurrentVersion()).start();
+			new Thread(() -> getUpdater().checkCurrentVersion()).start();
 		}
 
 		if (Setting.ALLOW_METRICS.getBoolean()) {
@@ -103,18 +116,32 @@ public class TradeShop extends JavaPlugin {
 		} else {
 			getLogger().warning("Metrics are disabled! Please consider enabling them to support the authors!");
 		}
-
 	}
 
-    public NamespacedKey getStorageKey() {
-        return storageKey;
-    }
+	@Override
+	public void onDisable() {
+		dataStorage.saveChestLinkages();
 
-    public NamespacedKey getSignKey() {
-        return signKey;
-    }
+		getListManager().clearManager();
+	}
 
-    public ListManager getListManager() {
+	public boolean useInternalPerms() {
+		return useInternalPerms;
+	}
+
+	public void setUseInternalPerms(boolean useInternalPerms) {
+		this.useInternalPerms = useInternalPerms;
+	}
+
+	public NamespacedKey getStorageKey() {
+		return storageKey;
+	}
+
+	public NamespacedKey getSignKey() {
+		return signKey;
+	}
+
+	public ListManager getListManager() {
         return lists;
     }
 
@@ -131,10 +158,22 @@ public class TradeShop extends JavaPlugin {
     }
 
     public Updater getUpdater() {
-        return new Updater(getDescription());
+		return new Updater(getDescription(), "https://api.spigotmc.org/legacy/update.php?resource=32762", "https://www.spigotmc.org/resources/tradeshop.32762/");
     }
 
     public Debug getDebugger() {
         return debugger;
     }
+
+	public DataStorage getDataStorage() {
+		return dataStorage;
+	}
+
+	public boolean isFrozen() {
+		return frozen;
+	}
+
+	public void setFrozen(boolean frozen) {
+		this.frozen = frozen;
+	}
 }

@@ -40,16 +40,14 @@ import org.bukkit.inventory.ItemStack;
 import org.shanerx.tradeshop.enumys.Message;
 import org.shanerx.tradeshop.enumys.Setting;
 import org.shanerx.tradeshop.enumys.ShopType;
-import org.shanerx.tradeshop.framework.events.PlayerTradeEvent;
-import org.shanerx.tradeshop.framework.events.SuccessfulTradeEvent;
+import org.shanerx.tradeshop.framework.events.PlayerPrepareTradeEvent;
+import org.shanerx.tradeshop.framework.events.PlayerSuccessfulTradeEvent;
 import org.shanerx.tradeshop.objects.Shop;
 import org.shanerx.tradeshop.objects.ShopItemStack;
 import org.shanerx.tradeshop.objects.ShopLocation;
-import org.shanerx.tradeshop.utils.JsonConfiguration;
 import org.shanerx.tradeshop.utils.Utils;
 
 import java.util.ArrayList;
-import java.util.Map;
 
 public class ShopTradeListener extends Utils implements Listener {
 
@@ -70,8 +68,7 @@ public class ShopTradeListener extends Utils implements Listener {
             return;
         }
 
-        JsonConfiguration json = new JsonConfiguration(s.getChunk());
-        shop = json.loadShop(new ShopLocation(s.getLocation()));
+        shop = plugin.getDataStorage().loadShopFromSign(new ShopLocation(s.getLocation()));
 
         if (shop == null) {
             s.setLine(0, "");
@@ -92,9 +89,19 @@ public class ShopTradeListener extends Utils implements Listener {
             return;
         }
 
-        if (!shop.isTradeable()) {
-            buyer.sendMessage(Message.SHOP_CLOSED.getPrefixed());
-            return;
+        PlayerPrepareTradeEvent preEvent = new PlayerPrepareTradeEvent(e.getPlayer(), shop.getCost(), shop.getProduct(), shop, e.getClickedBlock(), e.getBlockFace());
+        Bukkit.getPluginManager().callEvent(preEvent);
+        if (preEvent.isCancelled()) return;
+
+        switch (shop.getStatus()) {
+            case CLOSED:
+            case INCOMPLETE:
+                buyer.sendMessage(Message.SHOP_CLOSED.getPrefixed());
+            case OUT_OF_STOCK:
+                buyer.sendMessage(Message.SHOP_EMPTY.getPrefixed());
+                return;
+            case OPEN:
+                break;
         }
 
         chestState = shop.getStorage();
@@ -127,18 +134,15 @@ public class ShopTradeListener extends Utils implements Listener {
         }
 
         if (buyer.isSneaking() && Setting.ALLOW_MULTI_TRADE.getBoolean()) {
-            JsonConfiguration pJson = new JsonConfiguration(buyer.getUniqueId());
-            Map<String, Integer> data = pJson.loadPlayer();
-            multiplier = data.get("multi");
-
+            multiplier = plugin.getDataStorage().loadPlayer(buyer.getUniqueId()).getMulti();
         }
 
-        PlayerTradeEvent event = new PlayerTradeEvent(e.getPlayer(), shop.getCost(), shop.getProduct(), shop, e.getClickedBlock(), e.getBlockFace());
+        PlayerPrepareTradeEvent event = new PlayerPrepareTradeEvent(e.getPlayer(), shop.getCost(), shop.getProduct(), shop, e.getClickedBlock(), e.getBlockFace());
         Bukkit.getPluginManager().callEvent(event);
         if (event.isCancelled()) return;
 
         e.setCancelled(true);
-        shop = json.loadShop(new ShopLocation(s.getLocation()));
+        shop = plugin.getDataStorage().loadShopFromSign(new ShopLocation(s.getLocation()));
 
         switch (canExchangeAll(shop, buyer.getInventory(), multiplier, e.getAction())) {
             case SHOP_NO_PRODUCT:
@@ -162,46 +166,52 @@ public class ShopTradeListener extends Utils implements Listener {
                 return;
         }
 
-        if (tradeAllItems(shop, multiplier, e.getAction(), buyer)) {
+        String owner = shop.getOwner().getName();
+
+        if (owner == null)
+            owner = "-Unknown-";
+
+        if (tradeAllItems(shop, multiplier, e, buyer)) {
             buyer.sendMessage(Message.ON_TRADE.getPrefixed()
                     .replace("{AMOUNT1}", String.valueOf(amountProduct))
                     .replace("{AMOUNT2}", String.valueOf(amountCost))
                     .replace("{ITEM1}", productName.toLowerCase())
                     .replace("{ITEM2}", costName.toLowerCase())
-                    .replace("{SELLER}", shop.getShopType().isITrade() ? Setting.ITRADESHOP_OWNER.getString() : shop.getOwner().getPlayer().getName()));
-
-            Bukkit.getPluginManager().callEvent(new SuccessfulTradeEvent(e.getPlayer(), shop.getCost(), shop.getProduct(), shop, e.getClickedBlock(), e.getBlockFace()));
+                    .replace("{SELLER}", shop.getShopType().isITrade() ? Setting.ITRADESHOP_OWNER.getString() : owner));
         }
 
         shop.updateSign();
         shop.saveShop();
     }
 
-    private boolean tradeAllItems(Shop shop, int multiplier, Action action, Player buyer) {
+    private boolean tradeAllItems(Shop shop, int multiplier, PlayerInteractEvent event, Player buyer) {
+        Action action = event.getAction();
         ArrayList<ItemStack> costItems = new ArrayList<>(), productItems = new ArrayList<>();
         Inventory shopInventory = shop.hasStorage() ? shop.getChestAsSC().getInventory() : null;
         Inventory playerInventory = buyer.getInventory();
 
         if (shop.getShopType() == ShopType.ITRADE && action.equals(Action.RIGHT_CLICK_BLOCK)) { //ITrade trade
 
-            //Method to find Cost items in player inventory and add to cost array
-            costItems = getItems(playerInventory, shop.getCost(), multiplier);
-            if (costItems.get(0) == null) {
-                ItemStack item = costItems.get(1);
-                buyer.sendMessage(Message.INSUFFICIENT_ITEMS.getPrefixed()
-                        .replace("{ITEM}", item.hasItemMeta() && item.getItemMeta().hasDisplayName() ? item.getItemMeta().getDisplayName() : item.getType().toString())
-                        .replace("{AMOUNT}", String.valueOf(item.getAmount() * multiplier)));
-                return false;
-            }
+            if (!shop.getCost().isEmpty()) {
+                costItems = getItems(playerInventory, shop.getCost(), multiplier);
+                if (costItems.get(0) == null) {
+                    ItemStack item = costItems.get(1);
+                    buyer.sendMessage(Message.INSUFFICIENT_ITEMS.getPrefixed()
+                            .replace("{ITEM}", item.hasItemMeta() && item.getItemMeta().hasDisplayName() ? item.getItemMeta().getDisplayName() : item.getType().toString())
+                            .replace("{AMOUNT}", String.valueOf(item.getAmount() * multiplier)));
+                    return false;
+                }
 
-            for (ItemStack item : costItems) {
-                playerInventory.removeItem(item);
+                for (ItemStack item : costItems) {
+                    playerInventory.removeItem(item);
+                }
             }
 
             for (ShopItemStack item : shop.getProduct()) {
                 playerInventory.addItem(item.getItemStack());
             }
 
+            Bukkit.getPluginManager().callEvent(new PlayerSuccessfulTradeEvent(buyer, costItems, productItems, shop, event.getClickedBlock(), event.getBlockFace()));
             return true; //Successfully completed trade
         } else if (shop.getShopType() == ShopType.BITRADE && action == Action.LEFT_CLICK_BLOCK) { //BiTrade Reversed Trade
 
@@ -271,6 +281,7 @@ public class ShopTradeListener extends Utils implements Listener {
                 playerInventory.addItem(item);
             }
 
+            Bukkit.getPluginManager().callEvent(new PlayerSuccessfulTradeEvent(buyer, costItems, productItems, shop, event.getClickedBlock(), event.getBlockFace()));
             return true; //Successfully completed trade
         } else {
             return false;
