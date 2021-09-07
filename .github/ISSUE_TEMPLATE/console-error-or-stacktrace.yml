@@ -1,0 +1,93 @@
+name: Console error or Stacktrace
+description: Report errors, warnings or scary stacktraces
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Before reporting an error here, please make sure you are on the latest version of TradeShop (both STABLE or DEV -- check [here](https://github.com/Tradeshop/TradeShop/releases) for DEV builds).
+        Forks of TradeShop receive no support here. If you are using a fork, please make sure that this error also happens when using the upstream TradeShop version.
+        Please DO NOT use this issue template if you do not see a stacktrace or any other kind of error message. Use a more appropriate issue template instead (when in doubt, ask on [Discord](https://discord.link/TradeShopPlugin)).
+
+  - type: textarea
+    attributes:
+      label: Stack trace
+      description: |
+        We need all of the stack trace! Do not cut off parts of it no matter how long it is. Please do not use attachments.
+        If you prefer, you can use a paste site like https://paste.gg. Please only add more than one stacktrace if you are sure they are releated. Otherwise, open an issue for every stacktrace.
+      value: |
+        ```
+        paste your stack trace or a paste.gg link here!
+        ```
+      placeholder: Please don't remove the backticks; it makes your issue a lot harder to read!
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Plugin list
+      description: All plugins running on the server.
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Actions to reproduce (if known)
+      description: This may include a build schematic, a video, or detailed instructions to help reconstruct the issue. Anything helps!
+    validations:
+      required: false
+  - type: textarea
+    attributes:
+      label: TradeShop version and Minecraft version (CraftBukkit/Spigot/Paper/...)
+      description: |
+        Run `/version` and `/ts help` on your server and **paste** the full, unmodified output here.
+        "latest" is *not* a version; we require the actual output outputs so we can adequately track down the issue.
+        Additionally, do NOT provide a screenshot, you MUST paste the entire output.
+        Lastly, if you use a pre-release (DEV build), add the date and time of the release as well, as often many pre-releases share the same version tag.
+        <details>
+        <summary>Example</summary>
+
+        ```
+        > version
+        [20:34:42 INFO]: This server is running Paper version git-Paper-540 (MC: 1.16.5) (Implementing API version 1.16.5-R0.1-SNAPSHOT)
+        [20:34:42 INFO]: Checking version, please wait...
+        [20:34:42 INFO]: Previous version: git-Paper-538 (MC: 1.16.5)
+        [20:34:42 INFO]: You are running the latest version
+        > ts help
+        [00:13:35] [Server thread/INFO]:
+        [00:13:35] [Server thread/INFO]: TradeShop 2.3.0-DEV by Lori00 & KillerOfPie
+        [00:13:35] [Server thread/INFO]:
+        [00:13:35] [Server thread/INFO]: /tradeshop   Display help message
+        [00:13:35] [Server thread/INFO]: /ts help   Display help message
+        [00:13:35] [Server thread/INFO]: /ts setup   Display shop setup tutorial
+        [00:13:35] [Server thread/INFO]: /ts bugs   Report bugs to the developers
+        [00:13:35] [Server thread/INFO]: /ts playerlevel If Internal Permissions is enable this allows the getting and setting of player permission levels.
+        [00:13:35] [Server thread/INFO]: /ts reload   Reload configuration files
+        [00:13:35] [Server thread/INFO]:                                                    
+        ```
+
+        </details>
+    validations:
+      required: true
+
+  - type: checkboxes
+    attributes:
+      label: Agreements
+      description: Please agree to the following.
+      options:
+        - label: I have searched for and ensured there isn't already an open issue regarding this.
+          required: true
+        - label: My version of Minecraft and TradeShop are supported by the TradeShop Dev Team (when in doubt, first ask on the [Discord](https://discord.link/TradeShopPlugin)).
+          required: true
+
+  - type: textarea
+    attributes:
+      label: Other
+      description: |
+        Please include other helpful information below, if any.
+        The more information we receive, the quicker and more effective we can be at finding the solution to the issue.
+    validations:
+      required: false
+      
+  - type: markdown
+    attributes:
+      value: |
+        If you have filled in all the required information, submit the issue. We will reply as soon as possible so please check back frequently.
+        **Disclaimer:** Several parts of this document were taken from the [PaperMC](https://github.com/PaperMC/Paper) project, which holds the credit.
