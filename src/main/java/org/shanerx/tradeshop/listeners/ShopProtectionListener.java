@@ -55,7 +55,6 @@ import org.shanerx.tradeshop.utils.Utils;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Objects;
 
 public class ShopProtectionListener extends Utils implements Listener {
 
@@ -267,6 +266,11 @@ public class ShopProtectionListener extends Utils implements Listener {
         if (ShopChest.isShopChest(block)) {
             Shop shop = new ShopChest(block.getLocation()).getShop();
             PlayerShopInventoryOpenEvent openEvent = new PlayerShopInventoryOpenEvent(e.getPlayer(), shop, e.getAction(), e.getItem(), e.getClickedBlock(), e.getBlockFace());
+
+            if (shop == null) {
+                new ShopChest(block.getLocation()).resetName();
+                return;
+            }
 
             if (!Permissions.hasPermission(e.getPlayer(), Permissions.ADMIN) && !shop.getUsersUUID().contains(e.getPlayer().getUniqueId())) {
                 openEvent.setCancelled(true);
