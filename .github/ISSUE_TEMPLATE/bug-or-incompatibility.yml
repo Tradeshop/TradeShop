@@ -1,5 +1,5 @@
 name: Plugin Bug or Incompatibility with another Plugin
-description: Report issues with plugin incompatbility or other behavior related issues. Not for config help or console errors - contact us on Discord for the former, and use the right issue template for the latter.
+description: Report issues with plugin incompatbility or other behavior related issues. Not for config help or any errors, contact us on Discord for the former, and use the right issue template for the latter.
 body:
   - type: markdown
     attributes:
