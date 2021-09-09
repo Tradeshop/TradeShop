@@ -26,6 +26,7 @@
 package org.shanerx.tradeshop.listeners;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.Sign;
@@ -54,7 +55,6 @@ import org.shanerx.tradeshop.utils.Utils;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Objects;
 
 public class ShopProtectionListener extends Utils implements Listener {
 
@@ -86,10 +86,16 @@ public class ShopProtectionListener extends Utils implements Listener {
 
         boolean fromHopper;
 
-        if (plugin.getListManager().isInventory(Objects.requireNonNull(event.getSource().getLocation()).getBlock())) {
+        Location srcLoc = event.getSource().getLocation();
+        Location destLoc = event.getDestination().getLocation();
+
+        if (srcLoc == null || destLoc == null) {
+            return;
+        }
+        else if (plugin.getListManager().isInventory(srcLoc.getBlock())) {
             fromHopper = false;
         }
-        else if (plugin.getListManager().isInventory(Objects.requireNonNull(event.getDestination().getLocation()).getBlock())) {
+        else if (plugin.getListManager().isInventory(destLoc.getBlock())) {
             fromHopper = true;
         }
         else {
@@ -126,56 +132,56 @@ public class ShopProtectionListener extends Utils implements Listener {
     }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
-	public void onEntityExplodeItem(EntityExplodeEvent event) {
+    public void onEntityExplodeItem(EntityExplodeEvent event) {
 
         if (event.isCancelled())
             return;
 
-		List<Block> toRemove = new ArrayList<>();
-		for (Iterator<Block> i = event.blockList().iterator(); i.hasNext(); ) {
-			Block b = i.next();
-			if (ShopChest.isShopChest(b)) {
-				Shop shop = Shop.loadShop((new ShopChest(b.getLocation())).getShopSign());
-				if (shop != null) {
+        List<Block> toRemove = new ArrayList<>();
+        for (Iterator<Block> i = event.blockList().iterator(); i.hasNext(); ) {
+            Block b = i.next();
+            if (ShopChest.isShopChest(b)) {
+                Shop shop = Shop.loadShop((new ShopChest(b.getLocation())).getShopSign());
+                if (shop != null) {
                     if (!Setting.findSetting((shop.getShopType().name() + "SHOP_EXPLODE").toUpperCase()).getBoolean())
-						i.remove();
-					else {
-						if (shop.getStorage() != null)
-							shop.getChestAsSC().resetName();
-						shop.remove();
-					}
+                        i.remove();
+                    else {
+                        if (shop.getStorage() != null)
+                            shop.getChestAsSC().resetName();
+                        shop.remove();
+                    }
 
-				}
+                }
 
-			} else if (ShopType.isShop(b)) {
+            } else if (ShopType.isShop(b)) {
                 if (!Setting.findSetting(ShopType.getType((Sign) b.getState()).name() + "SHOP_EXPLODE".toUpperCase()).getBoolean()) {
-					i.remove();
+                    i.remove();
 
-					if (plugin.getVersion().isBelow(1, 14)) {
-						org.bukkit.material.Sign s = (org.bukkit.material.Sign) b.getState().getData();
-						toRemove.add(b.getRelative(s.getAttachedFace()));
-					} else if (b.getType().toString().contains("WALL_SIGN")) {
-						BlockData data = b.getBlockData();
-						if (data instanceof Directional)
-							toRemove.add(b.getRelative(((Directional) data).getFacing().getOppositeFace()));
-					} else {
-						toRemove.add(b.getRelative(BlockFace.DOWN));
-					}
-				} else {
-					Shop shop = Shop.loadShop((Sign) b.getState());
-					if (shop != null) {
+                    if (plugin.getVersion().isBelow(1, 14)) {
+                        org.bukkit.material.Sign s = (org.bukkit.material.Sign) b.getState().getData();
+                        toRemove.add(b.getRelative(s.getAttachedFace()));
+                    } else if (b.getType().toString().contains("WALL_SIGN")) {
+                        BlockData data = b.getBlockData();
+                        if (data instanceof Directional)
+                            toRemove.add(b.getRelative(((Directional) data).getFacing().getOppositeFace()));
+                    } else {
+                        toRemove.add(b.getRelative(BlockFace.DOWN));
+                    }
+                } else {
+                    Shop shop = Shop.loadShop((Sign) b.getState());
+                    if (shop != null) {
 
-						if (shop.getStorage() != null)
-							shop.getChestAsSC().resetName();
+                        if (shop.getStorage() != null)
+                            shop.getChestAsSC().resetName();
 
-						shop.remove();
-					}
-				}
-			}
-		}
+                        shop.remove();
+                    }
+                }
+            }
+        }
 
-		event.blockList().removeAll(toRemove);
-	}
+        event.blockList().removeAll(toRemove);
+    }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onBlockBreak(BlockBreakEvent event) {
@@ -260,6 +266,11 @@ public class ShopProtectionListener extends Utils implements Listener {
         if (ShopChest.isShopChest(block)) {
             Shop shop = new ShopChest(block.getLocation()).getShop();
             PlayerShopInventoryOpenEvent openEvent = new PlayerShopInventoryOpenEvent(e.getPlayer(), shop, e.getAction(), e.getItem(), e.getClickedBlock(), e.getBlockFace());
+
+            if (shop == null) {
+                new ShopChest(block.getLocation()).resetName();
+                return;
+            }
 
             if (!Permissions.hasPermission(e.getPlayer(), Permissions.ADMIN) && !shop.getUsersUUID().contains(e.getPlayer().getUniqueId())) {
                 openEvent.setCancelled(true);
