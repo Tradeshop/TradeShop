@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: TradeShop Help [Discord]
+    url: https://discord.link/TradeShopPlugin
+    about: If you are having issues with the configuration or questions about the use of our plugin, join our Discord server. You can also talk to us to suggest new features!
+  - name: Plugin Discussion [SpigotMC]
+    url: https://www.spigotmc.org/threads/tradeshop.198419/
+    about: Original discussion thread on SpigotMC.org. Please only post there if you do not wish to open a Discord account, as it is harder to conduct a fluent discussion in that medium. Discord is preferred.

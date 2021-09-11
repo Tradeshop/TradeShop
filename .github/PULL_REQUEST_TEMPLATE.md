@@ -2,8 +2,8 @@
 
 ## Pull Request Etiquette
 
-There are several guidelines you should follow in order for your
-  Pull Request to be merged.
+There are several guidelines you should follow in order for your Pull Request to be merged.
+Replace `[ ]` with `[x]` to cross the checkbox.
 
 - [ ] I have checked the PRs for upcoming features/bug fixes.
 - [ ] I have read the [contributing guidelines][contributing].
@@ -12,8 +12,7 @@ There are several guidelines you should follow in order for your
   If you find yourself having an overwhelming amount of commits, you
   can **rebase** your branch.
 
-## Template
+## Changes
 
-### Pull Request
+_Replace this sentence with a description of che changes introduced by this PR._
 
-Replace this sentence with general description of what your Pull Request does.
