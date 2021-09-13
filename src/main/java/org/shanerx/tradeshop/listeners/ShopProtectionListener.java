@@ -109,25 +109,28 @@ public class ShopProtectionListener extends Utils implements Listener {
 
         ((TradeShop) Bukkit.getPluginManager().getPlugin("TradeShop")).setFrozen(true);
         Shop shop = new ShopChest(invBlock.getLocation()).getShop();
+
+        boolean isForbidden = !Setting.findSetting(shop.getShopType().name() + (fromHopper ? "SHOP_HOPPER_IMPORT" : "SHOP_HOPPER_EXPORT")).getBoolean();
+        if (isForbidden) {
+            event.setCancelled(true);
+            return;
+        }
+
         debugger.log("ShopProtectionListener: Triggered > " + (fromHopper ? "FROM_HOPPER" : "TO_HOPPER"), DebugLevels.PROTECTION);
         debugger.log("ShopProtectionListener: Shop Location as SL > " + shop.getInventoryLocationAsSL().serialize(), DebugLevels.PROTECTION);
-        boolean isForbidden = !Setting.findSetting(shop.getShopType().name() + (fromHopper ? "SHOP_HOPPER_IMPORT" : "SHOP_HOPPER_EXPORT")).getBoolean();
-        debugger.log("ShopProtectionListener: isForbidden > " + isForbidden, DebugLevels.PROTECTION);
         debugger.log("ShopProtectionListener: checked hopper setting > " + shop.getShopType().name() + "SHOP_HOPPER_EXPORT", DebugLevels.PROTECTION);
         HopperShopAccessEvent hopperEvent = new HopperShopAccessEvent(
                 shop,
                 event.getSource(),
                 event.getDestination(),
                 event.getItem(),
-                isForbidden,
                 fromHopper ? HopperShopAccessEvent.HopperDirection.FROM_HOPPER : HopperShopAccessEvent.HopperDirection.TO_HOPPER
         );
         debugger.log("ShopProtectionListener: (TSAF) HopperEvent fired! ", DebugLevels.PROTECTION);
         Bukkit.getPluginManager().callEvent(hopperEvent);
         debugger.log("ShopProtectionListener: (TSAF) HopperEvent recovered! ", DebugLevels.PROTECTION);
         event.setCancelled(hopperEvent.isForbidden());
-        debugger.log("ShopProtectionListener: (TSAF) HopperEvent isCancelled: " + hopperEvent.isForbidden(), DebugLevels.PROTECTION);
-        debugger.log("ShopProtectionListener: (TSAF) HopperEvent isForbidden: " + isForbidden, DebugLevels.PROTECTION);
+        debugger.log("ShopProtectionListener: (TSAF) HopperEvent isForbidden: " + hopperEvent.isForbidden(), DebugLevels.PROTECTION);
         ((TradeShop) Bukkit.getPluginManager().getPlugin("TradeShop")).setFrozen(false);
     }
 
