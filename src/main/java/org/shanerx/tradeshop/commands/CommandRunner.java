@@ -566,7 +566,7 @@ public class CommandRunner extends Utils {
 		if (!(shop.getOwner().getUUID().equals(pSender.getUniqueId()) ||
 				shop.getManagersUUID().contains(pSender.getUniqueId()) ||
 				Permissions.hasPermission(pSender, Permissions.ADMIN))) {
-			sendMessage(Message.NO_EDIT.getPrefixed());
+			sendMessage(Message.NO_SHOP_PERMISSION.getPrefixed());
 			return;
 		}
 		
@@ -603,7 +603,7 @@ public class CommandRunner extends Utils {
 		if (!(shop.getOwner().getUUID().equals(pSender.getUniqueId()) ||
 				shop.getManagersUUID().contains(pSender.getUniqueId()) ||
 				Permissions.hasPermission(pSender, Permissions.ADMIN))) {
-			sendMessage(Message.NO_EDIT.getPrefixed());
+			sendMessage(Message.NO_SHOP_PERMISSION.getPrefixed());
 			return;
 		}
 		
@@ -626,8 +626,26 @@ public class CommandRunner extends Utils {
 		if (shop == null)
 			return;
 
+		if (!Permissions.hasPermission(pSender, Permissions.EDIT)) {
+			sendMessage(Message.NO_COMMAND_PERMISSION.getPrefixed());
+			return;
+		}
+
+		switch (shop.getShopType()) {
+			case TRADE:
+				if (!Permissions.hasPermission(pSender, Permissions.CREATEBI)) {
+					sendMessage(Message.NO_COMMAND_PERMISSION.getPrefixed());
+					return;
+				}
+			case BITRADE:
+				if (!Permissions.hasPermission(pSender, Permissions.CREATE)) {
+					sendMessage(Message.NO_COMMAND_PERMISSION.getPrefixed());
+					return;
+				}
+		}
+
 		if (!(shop.getOwner().getUUID().equals(pSender.getUniqueId()) || shop.getManagersUUID().contains(pSender.getUniqueId()))) {
-			sendMessage(Message.NO_EDIT.getPrefixed());
+			sendMessage(Message.NO_SHOP_PERMISSION.getPrefixed());
 			return;
 		}
 

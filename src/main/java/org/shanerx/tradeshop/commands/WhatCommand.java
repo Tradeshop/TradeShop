@@ -34,9 +34,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BookMeta;
 import org.bukkit.inventory.meta.Damageable;
 import org.shanerx.tradeshop.TradeShop;
-import org.shanerx.tradeshop.enumys.Setting;
-import org.shanerx.tradeshop.enumys.ShopItemStackSettingKeys;
-import org.shanerx.tradeshop.enumys.ShopType;
+import org.shanerx.tradeshop.enumys.*;
 import org.shanerx.tradeshop.objects.Shop;
 import org.shanerx.tradeshop.objects.ShopItemStack;
 
@@ -54,6 +52,11 @@ public class WhatCommand extends CommandRunner {
 
         if (shop == null)
             return;
+
+        if (!Permissions.hasPermission(pSender, Permissions.INFO)) {
+            sendMessage(Message.NO_COMMAND_PERMISSION.getPrefixed());
+            return;
+        }
 
         InventoryGui gui = new InventoryGui(plugin, colorize(shop.getShopType() == ShopType.ITRADE ?
                 Setting.ITRADESHOP_OWNER.getString() :

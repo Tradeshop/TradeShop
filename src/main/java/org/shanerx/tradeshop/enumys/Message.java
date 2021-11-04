@@ -72,7 +72,6 @@ public enum Message {
     MULTI_UPDATE(MessageSectionKeys.NONE, "&aTrade multiplier has been updated to %amount%."),
     NO_CHEST(MessageSectionKeys.NONE, "&cYou need to put a chest under the sign!", "Text to display when a player attempts to place a sign without placing the chest first:"),
     NO_COMMAND_PERMISSION(MessageSectionKeys.NONE, "&aYou do not have permission to execute this command", "Text to display when a player attempts to run administrator commands:"),
-    NO_EDIT(MessageSectionKeys.NONE, "&cYou do not have permission to edit this shop."),
     NO_SHOP_PERMISSION(MessageSectionKeys.NONE, "&cYou do not have permission to edit that shop."),
     NO_SIGHTED_SHOP(MessageSectionKeys.NONE, "&cNo shop in range!", "Text to display when a player is too far from a shop"),
     NO_TS_CREATE_PERMISSION(MessageSectionKeys.NONE, "&cYou don't have permission to create TradeShops!", "Text to display when a player attempts to setup a shoptype they are not allowed to create:"),
