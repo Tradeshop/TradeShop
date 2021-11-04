@@ -448,7 +448,6 @@ public class Shop implements Serializable {
 		cost.clear();
 
 		addCost(newItem);
-		cost.removeIf(item -> item.getItemStack().getType().toString().endsWith("SHULKER_BOX") && getInventoryLocation().getBlock().getType().toString().endsWith("SHULKER_BOX"));
 	}
 
 	/**
@@ -472,12 +471,13 @@ public class Shop implements Serializable {
 				ItemStack itm = newItem.clone();
 				itm.setAmount(amount);
 				items.add(itm);
-				amount -= amount;
+				amount = 0;
 			}
 		}
 
 		items.forEach((ItemStack iS) -> cost.add(new ShopItemStack(iS)));
-		cost.removeIf(item -> item.getItemStack().getType().toString().endsWith("SHULKER_BOX") && getInventoryLocation().getBlock().getType().toString().endsWith("SHULKER_BOX"));
+		if (!getShopType().isITrade() && chestLoc != null)
+			cost.removeIf(item -> item.getItemStack().getType().toString().endsWith("SHULKER_BOX") && getInventoryLocation().getBlock().getType().toString().endsWith("SHULKER_BOX"));
 
 		saveShop();
 		updateSign();
@@ -637,9 +637,10 @@ public class Shop implements Serializable {
 		if (utils == null)
 			utils = new Utils();
 		shopLoc.stringToWorld();
-		if (!shopType.isITrade() && chestLoc != null)
+		if (!getShopType().isITrade() && chestLoc != null) {
 			chestLoc.stringToWorld();
-		cost.removeIf(item -> item.getItemStack().getType().toString().endsWith("SHULKER_BOX") && getInventoryLocation().getBlock().getType().toString().endsWith("SHULKER_BOX"));
+			cost.removeIf(item -> item.getItemStack().getType().toString().endsWith("SHULKER_BOX") && getInventoryLocation().getBlock().getType().toString().endsWith("SHULKER_BOX"));
+		}
 		if (getShopSign() != null)
 			updateSign();
 	}
@@ -1052,7 +1053,8 @@ public class Shop implements Serializable {
 	 * Updates shops cost list
 	 */
 	public void updateCost(List<ShopItemStack> updatedCostList) {
-		updatedCostList.removeIf(item -> item.getItemStack().getType().toString().endsWith("SHULKER_BOX") && getInventoryLocation().getBlock().getType().toString().endsWith("SHULKER_BOX"));
+		if (!getShopType().isITrade() && chestLoc != null)
+			updatedCostList.removeIf(item -> item.getItemStack().getType().toString().endsWith("SHULKER_BOX") && getInventoryLocation().getBlock().getType().toString().endsWith("SHULKER_BOX"));
 		cost = updatedCostList;
 		saveShop();
 		updateSign();

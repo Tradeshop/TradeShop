@@ -37,7 +37,10 @@ public enum DebugLevels {
     TRADE(4, Level.WARNING), // 8
     INVENTORY_CLOSE_NPE(5, Level.WARNING), // 16
     ITEM_COMPARE(6, Level.WARNING), // 32
-    NAME_COMPARE(7, Level.WARNING); // 64
+    NAME_COMPARE(7, Level.WARNING), // 64
+    SHULKERS_SUCK(8, Level.WARNING) // 128
+
+    ;
 
     //position is what value to check for this level in the binary string -1.
     //

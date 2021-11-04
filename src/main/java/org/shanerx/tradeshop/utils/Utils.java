@@ -481,22 +481,24 @@ public class Utils {
 			debugger.log("ShopTradeListener > Item count: " + count, DebugLevels.TRADE);
 
 			for (ItemStack storageItem : clone.getStorageContents()) {
-				boolean isSimilar = item.isSimilar(storageItem);
-				if (storageItem != null && isSimilar) {
+				if (storageItem != null) {
+					boolean isSimilar = item.isSimilar(storageItem.clone());
+					if (isSimilar) {
 
-					traded = Math.min(Math.min(storageItem.getAmount(), item.getItemStack().getMaxStackSize()), count);
+						traded = Math.min(Math.min(storageItem.getAmount(), item.getItemStack().getMaxStackSize()), count);
 
-					storageItem.setAmount(traded);
+						storageItem.setAmount(traded);
 
-					clone.removeItem(storageItem);
-					ret.add(storageItem);
-					debugger.log("ShopTradeListener > Item traded: " + traded, DebugLevels.TRADE);
+						clone.removeItem(storageItem);
+						ret.add(storageItem);
+						debugger.log("ShopTradeListener > Item traded: " + traded, DebugLevels.TRADE);
 
-					count -= traded;
-					currentCount += traded;
-					debugger.log("ShopTradeListener > Item traded: " + count, DebugLevels.TRADE);
+						count -= traded;
+						currentCount += traded;
+						debugger.log("ShopTradeListener > Item traded: " + count, DebugLevels.TRADE);
+					}
+					debugger.log("ShopTradeListener > isSimilar: " + isSimilar, DebugLevels.NAME_COMPARE);
 				}
-				debugger.log("ShopTradeListener > isSimilar: " + isSimilar, DebugLevels.NAME_COMPARE);
 
 				if (currentCount >= totalCount) break;
 			}

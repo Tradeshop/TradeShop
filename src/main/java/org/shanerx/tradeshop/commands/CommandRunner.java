@@ -316,6 +316,11 @@ public class CommandRunner extends Utils {
 			return;
 		}
 
+		if (!(shop.getShopType().isITrade() && shop.getInventoryLocation() == null) && itemInHand.getType().toString().endsWith("SHULKER_BOX") && shop.getInventoryLocation().getBlock().getType().toString().endsWith("SHULKER_BOX")) {
+			sendMessage(Message.NO_SHULKER_COST.getPrefixed());
+			return;
+		}
+
 		if (amount > 0) {
 			itemInHand.setAmount(amount);
 		}
@@ -386,6 +391,11 @@ public class CommandRunner extends Utils {
 			return;
 		}
 
+		if (!(shop.getShopType().isITrade() && shop.getInventoryLocation() == null) && itemInHand.getType().toString().endsWith("SHULKER_BOX") && shop.getInventoryLocation().getBlock().getType().toString().endsWith("SHULKER_BOX")) {
+			sendMessage(Message.NO_SHULKER_COST.getPrefixed());
+			return;
+		}
+
 		if (amount > 0) {
 			itemInHand.setAmount(amount);
 		}
@@ -438,43 +448,43 @@ public class CommandRunner extends Utils {
 			return;
 		}
 
-		ItemStack itemInHand;
+		ItemStack costItem;
 
 		if (mat == null) {
-			itemInHand = pSender.getInventory().getItemInMainHand().clone();
+			costItem = pSender.getInventory().getItemInMainHand().clone();
 		} else {
-			itemInHand = new ItemStack(mat, 1);
+			costItem = new ItemStack(mat, 1);
 		}
 
-		if (itemInHand.getType() == Material.AIR) {
+		if (costItem.getType() == Material.AIR) {
 			sendMessage(Message.HELD_EMPTY.getPrefixed());
 			return;
 		}
 
-		if (!isValidType(itemInHand.getType())) {
+		if (!isValidType(costItem.getType())) {
 			sendMessage(Message.ILLEGAL_ITEM.getPrefixed());
 			return;
 		}
 
-		if (itemInHand.getType().toString().endsWith("SHULKER_BOX") && shop.getInventoryLocation().getBlock().getType().toString().endsWith("SHULKER_BOX")) {
+		if (!(shop.getShopType().isITrade() && shop.getInventoryLocation() == null) && costItem.getType().toString().endsWith("SHULKER_BOX") && shop.getInventoryLocation().getBlock().getType().toString().endsWith("SHULKER_BOX")) {
 			sendMessage(Message.NO_SHULKER_COST.getPrefixed());
 			return;
 		}
 
 		if (amount > 0) {
-			itemInHand.setAmount(amount);
+			costItem.setAmount(amount);
 		}
 
-		if (Math.ceil((double) itemInHand.getAmount() / (double) itemInHand.getMaxStackSize()) > Setting.MAX_ITEMS_PER_TRADE_SIDE.getInt()) {
+		if (Math.ceil((double) costItem.getAmount() / (double) costItem.getMaxStackSize()) > Setting.MAX_ITEMS_PER_TRADE_SIDE.getInt()) {
 			sendMessage(Message.TOO_MANY_ITEMS.getPrefixed().replaceAll("%side%", "costs"));
 			return;
 		}
-		
-		PlayerShopChangeEvent changeEvent = new PlayerShopChangeEvent(pSender, shop, ShopChange.SET_COST, new ObjectHolder<ItemStack>(itemInHand));
+
+		PlayerShopChangeEvent changeEvent = new PlayerShopChangeEvent(pSender, shop, ShopChange.SET_COST, new ObjectHolder<ItemStack>(costItem));
 		Bukkit.getPluginManager().callEvent(changeEvent);
 		if (changeEvent.isCancelled()) return;
-		
-		shop.setCost(itemInHand);
+
+		shop.setCost(costItem);
 
 		sendMessage(Message.ITEM_ADDED.getPrefixed());
 	}
@@ -531,7 +541,7 @@ public class CommandRunner extends Utils {
 			return;
 		}
 
-		if (itemInHand.getType().toString().endsWith("SHULKER_BOX") && shop.getInventoryLocation().getBlock().getType().toString().endsWith("SHULKER_BOX")) {
+		if (!(shop.getShopType().isITrade() && shop.getInventoryLocation() == null) && itemInHand.getType().toString().endsWith("SHULKER_BOX") && shop.getInventoryLocation().getBlock().getType().toString().endsWith("SHULKER_BOX")) {
 			sendMessage(Message.NO_SHULKER_COST.getPrefixed());
 			return;
 		}

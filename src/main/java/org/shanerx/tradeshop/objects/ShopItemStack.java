@@ -202,21 +202,21 @@ public class ShopItemStack implements Serializable, Cloneable {
         if (itemStack.getType().toString().endsWith("SHULKER_BOX") &&
                 getShopSettingAsBoolean(ShopItemStackSettingKeys.COMPARE_SHULKER_INVENTORY)) {
             try {
-                ArrayList<ItemStack> contents1 = Lists.newArrayList(((ShulkerBox) ((BlockStateMeta) toCompareMeta).getBlockState()).getInventory().getContents()),
-                        contents2 = Lists.newArrayList(((ShulkerBox) ((BlockStateMeta) itemStackMeta).getBlockState()).getInventory().getContents());
+                ArrayList<ItemStack> itemStackContents = Lists.newArrayList(((ShulkerBox) ((BlockStateMeta) toCompareMeta).getBlockState()).getInventory().getContents()),
+                        toCompareContents = Lists.newArrayList(((ShulkerBox) ((BlockStateMeta) itemStackMeta).getBlockState()).getInventory().getContents());
 
-                contents1.removeIf(Objects::isNull);
-                contents2.removeIf(Objects::isNull);
+                itemStackContents.removeIf(Objects::isNull);
+                toCompareContents.removeIf(Objects::isNull);
 
-                if (contents1.isEmpty() != contents2.isEmpty())
+                if (itemStackContents.isEmpty() != toCompareContents.isEmpty())
                     return false;
 
-                for (ItemStack itm : contents2) {
-                    if (!contents1.remove(itm))
+                for (ItemStack itm : toCompareContents) {
+                    if (!itemStackContents.remove(itm))
                         return false;
                 }
 
-                if (!contents1.isEmpty())
+                if (!itemStackContents.isEmpty())
                     return false;
 
             } catch (ClassCastException ex) {
@@ -229,21 +229,21 @@ public class ShopItemStack implements Serializable, Cloneable {
                 itemStack.getType().equals(Material.BUNDLE) &&
                 getShopSettingAsBoolean(ShopItemStackSettingKeys.COMPARE_BUNDLE_INVENTORY)) {
             try {
-                ArrayList<ItemStack> contents1 = Lists.newArrayList(((BundleMeta) toCompareMeta).getItems()),
-                        contents2 = Lists.newArrayList(((BundleMeta) itemStackMeta).getItems());
+                ArrayList<ItemStack> itemStackContents = Lists.newArrayList(((BundleMeta) toCompareMeta).getItems()),
+                        toCompareContents = Lists.newArrayList(((BundleMeta) itemStackMeta).getItems());
 
-                contents1.removeIf(Objects::isNull);
-                contents2.removeIf(Objects::isNull);
+                itemStackContents.removeIf(Objects::isNull);
+                toCompareContents.removeIf(Objects::isNull);
 
-                if (contents1.isEmpty() != contents2.isEmpty())
+                if (itemStackContents.isEmpty() != toCompareContents.isEmpty())
                     return false;
 
-                for (ItemStack itm : contents2) {
-                    if (!contents1.remove(itm))
+                for (ItemStack itm : toCompareContents) {
+                    if (!itemStackContents.remove(itm))
                         return false;
                 }
 
-                if (!contents1.isEmpty())
+                if (!itemStackContents.isEmpty())
                     return false;
 
             } catch (ClassCastException ex) {
