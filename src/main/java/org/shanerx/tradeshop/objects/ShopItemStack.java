@@ -159,6 +159,15 @@ public class ShopItemStack implements Serializable, Cloneable {
         return false;
     }
 
+    public int getAmount() {
+        return itemStack.getAmount();
+    }
+
+    public void setAmount(int amount) {
+        itemStack.setAmount(amount);
+        toBase64();
+    }
+
     public String getItemStackB64() {
         return itemStackB64;
     }

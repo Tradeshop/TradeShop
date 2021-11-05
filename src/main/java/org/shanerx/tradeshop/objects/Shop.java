@@ -459,6 +459,7 @@ public class Shop implements Serializable {
 		if (!utils.isValidType(newItem.getType()))
 			return;
 
+		/* Added stacks are separated by stack size
 		int amount = newItem.getAmount();
 		List<ItemStack> items = new ArrayList<>();
 		while (amount > 0) {
@@ -476,6 +477,30 @@ public class Shop implements Serializable {
 		}
 
 		items.forEach((ItemStack iS) -> cost.add(new ShopItemStack(iS)));
+
+		 */
+
+		///* Added stacks are not separated and are added ontop of existing similar stacks
+		ShopItemStack toAddShopItemStack = new ShopItemStack(newItem),
+				toRemoveShopItemStack = null;
+
+
+		for (ShopItemStack shopItemStack : getCost()) {
+			if (shopItemStack.getItemStack().getType().equals(newItem.getType()) && shopItemStack.isSimilar(newItem)) {
+				toRemoveShopItemStack = shopItemStack;
+				toAddShopItemStack = shopItemStack.clone();
+				toAddShopItemStack.setAmount(shopItemStack.getAmount() + newItem.getAmount());
+				break;
+			}
+		}
+
+		if (toRemoveShopItemStack != null)
+			cost.remove(toRemoveShopItemStack);
+
+		cost.add(toAddShopItemStack);
+		//*/
+
+
 		if (!getShopType().isITrade() && chestLoc != null)
 			cost.removeIf(item -> item.getItemStack().getType().toString().endsWith("SHULKER_BOX") && getInventoryLocation().getBlock().getType().toString().endsWith("SHULKER_BOX"));
 
@@ -539,6 +564,7 @@ public class Shop implements Serializable {
 		if (!utils.isValidType(newItem.getType()))
 			return;
 
+		/* Added stacks are separated by stack size
 		int amount = newItem.getAmount();
 		List<ItemStack> items = new ArrayList<>();
 		while (amount > 0) {
@@ -556,6 +582,28 @@ public class Shop implements Serializable {
 		}
 
         items.forEach((ItemStack iS) -> product.add(new ShopItemStack(iS)));
+        */
+
+
+		///* Added stacks are not separated and are added ontop of existing similar stacks
+		ShopItemStack toAddShopItemStack = new ShopItemStack(newItem),
+				toRemoveShopItemStack = null;
+
+
+		for (ShopItemStack shopItemStack : getProduct()) {
+			if (shopItemStack.getItemStack().getType().equals(newItem.getType()) && shopItemStack.isSimilar(newItem)) {
+				toRemoveShopItemStack = shopItemStack;
+				toAddShopItemStack = shopItemStack.clone();
+				toAddShopItemStack.setAmount(shopItemStack.getAmount() + newItem.getAmount());
+				break;
+			}
+		}
+
+		if (toRemoveShopItemStack != null)
+			product.remove(toRemoveShopItemStack);
+
+		product.add(toAddShopItemStack);
+		//*/
 
 		saveShop();
 		updateSign();
