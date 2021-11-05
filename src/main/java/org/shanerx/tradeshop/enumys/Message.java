@@ -52,7 +52,7 @@ public enum Message {
     CHANGE_OPEN(MessageSectionKeys.NONE, "&aThe shop is now &l&bOPEN&r&a."),
     CONFIRM_TRADE(MessageSectionKeys.UNUSED, "&eTrade &6{AMOUNT1} {ITEM1} &efor &6{AMOUNT2} {ITEM2} &e?", "\\Unused\\"),
     EMPTY_TS_ON_SETUP(MessageSectionKeys.NONE, "&cTradeShop empty, please remember to fill it!", "Text to display when a player places a TradeSign above an empty chest:"),
-    EXISTING_SHOP(MessageSectionKeys.NONE, "&cYou may only have 1 shop per inventory block."),
+    EXISTING_SHOP(MessageSectionKeys.NONE, "&cThis storage or sign is already linked to a shop."),
     FEATURE_DISABLED(MessageSectionKeys.NONE, "&cThis feature has been disabled on this server!"),
     FULL_AMOUNT(MessageSectionKeys.UNUSED, "&cYou must have &e{AMOUNT} &cof a single type of &e{ITEM}&c!", "\\Unused\\"),
     HELD_EMPTY(MessageSectionKeys.NONE, "&eYou are currently holding nothing.", "Text to display when the player is not holding anything"),
@@ -108,7 +108,8 @@ public enum Message {
     VIEW_PLAYER_LEVEL(MessageSectionKeys.NONE, "&e%player% has a level of %level%.", "Text to display when viewing a players level with /ts PlayerLevel"),
     SET_PLAYER_LEVEL(MessageSectionKeys.NONE, "&aYou have set the level of %player% to %level%!", "Text to display after setting a players level"),
     VARIOUS_ITEM_TYPE(MessageSectionKeys.NONE, "Various", "Text to display when a message uses an Item Type and the Type varies"),
-    TOGGLED_STATUS(MessageSectionKeys.NONE, "Toggled status: &c%status%");
+    TOGGLED_STATUS(MessageSectionKeys.NONE, "Toggled status: &c%status%"),
+    NO_SIGN_FOUND(MessageSectionKeys.NONE, "&cNo sign in range!\", \"Text to display when a player is too far from a sign\"");
 
     private static final char COLOUR_CHAR = '&';
     private static final TradeShop plugin = (TradeShop) Bukkit.getPluginManager().getPlugin("TradeShop");

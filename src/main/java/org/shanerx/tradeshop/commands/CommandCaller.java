@@ -151,6 +151,15 @@ public class CommandCaller implements CommandExecutor {
 			case TOGGLE_STATUS:
 				cmdRnnr.toggleStatus();
 				break;
+			case CREATE_TRADE:
+				cmdRnnr.createTrade();
+				break;
+			case CREATE_BITRADE:
+				cmdRnnr.createBiTrade();
+				break;
+			case CREATE_ITRADE:
+				cmdRnnr.createITrade();
+				break;
 		}
 
 		return true;

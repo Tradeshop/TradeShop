@@ -58,7 +58,7 @@ public class WhatCommand extends CommandRunner {
             return;
 
         if (!Permissions.hasPermission(pSender, Permissions.INFO)) {
-            sendMessage(Message.NO_COMMAND_PERMISSION.getPrefixed());
+            command.sendMessage(Message.NO_COMMAND_PERMISSION.getPrefixed());
             return;
         }
 

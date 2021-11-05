@@ -28,15 +28,17 @@ package org.shanerx.tradeshop.commands;
 import com.google.common.collect.Lists;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.shanerx.tradeshop.enumys.Message;
+import org.shanerx.tradeshop.utils.Utils;
 
 import java.util.ArrayList;
 
 public class CommandPass {
 
-	private CommandSender sender;
-	private Command cmd;
-	private String label;
-	private ArrayList<String> args;
+	private final CommandSender sender;
+	private final Command cmd;
+	private final String label;
+	private final ArrayList<String> args;
 
 	public CommandPass(CommandSender sender, Command cmd, String label, String[] args) {
 		this.sender = sender;
@@ -79,5 +81,23 @@ public class CommandPass {
 
 	public boolean hasArgs() {
 		return argsSize() > 0;
+	}
+
+	/**
+	 * Colors and sends the string to the sender
+	 *
+	 * @param message message to send to the sender
+	 */
+	public void sendMessage(String message) {
+		getSender().sendMessage((new Utils()).colorize(message));
+	}
+
+	/**
+	 * Colors and sends the Message to the sender
+	 *
+	 * @param message Message to send to the sender
+	 */
+	public void sendMessage(Message message) {
+		getSender().sendMessage((new Utils()).colorize(message.getPrefixed()));
 	}
 }

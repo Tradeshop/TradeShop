@@ -45,6 +45,9 @@ public enum Commands {
 	CLOSE(Lists.newArrayList("close"), Permissions.NONE, 1, 1, true, "Close shop", "/tradeshop $cmd$"),
 	SWITCH(Lists.newArrayList("switch"), Permissions.EDIT, 1, 1, true, "Switch shop type", "/tradeshop $cmd$"),
 	EDIT(Lists.newArrayList("edit", "e"), Permissions.EDIT, 1, 1, true, "Opens Edit GUI for shop", "/tradeshop $cmd$"),
+	CREATE_TRADE(Lists.newArrayList("createtrade", "create", "cr"), Permissions.CREATE, 1, 1, true, "Create regular shop", "/tradeshop $cmd$"),
+	CREATE_BITRADE(Lists.newArrayList("createbitrade", "createbi", "crbi"), Permissions.CREATEBI, 1, 1, true, "Create BiTrade shop", "/tradeshop $cmd$"),
+	CREATE_ITRADE(Lists.newArrayList("createitrade", "createi", "cri"), Permissions.CREATEI, 1, 1, true, "Create iTrade shop", "/tradeshop $cmd$"),
 
 	// Shop user management commands
 	ADD_MANAGER(Lists.newArrayList("addManager"), Permissions.NONE, 2, 2, true, "Add manager to shop", "/tradeshop $cmd$ <name>"),

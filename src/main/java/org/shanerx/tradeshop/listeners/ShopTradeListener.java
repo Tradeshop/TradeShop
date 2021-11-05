@@ -95,6 +95,8 @@ public class ShopTradeListener extends Utils implements Listener {
 
         switch (shop.getStatus()) {
             case CLOSED:
+                buyer.sendMessage(Message.SHOP_CLOSED.getPrefixed());
+                return;
             case INCOMPLETE:
                 buyer.sendMessage(Message.SHOP_CLOSED.getPrefixed());
             case OUT_OF_STOCK:

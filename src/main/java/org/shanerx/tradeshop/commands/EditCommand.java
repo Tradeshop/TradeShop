@@ -80,14 +80,14 @@ public class EditCommand extends CommandRunner {
             return;
 
         if (!Permissions.hasPermission(pSender, Permissions.EDIT)) {
-            sendMessage(Message.NO_COMMAND_PERMISSION.getPrefixed());
+            command.sendMessage(Message.NO_COMMAND_PERMISSION.getPrefixed());
             return;
         }
 
         if (!(shop.getOwner().getUUID().equals(pSender.getUniqueId()) ||
                 shop.getManagersUUID().contains(pSender.getUniqueId()) ||
                 Permissions.hasPermission(pSender, Permissions.ADMIN))) {
-            sendMessage(Message.NO_SHOP_PERMISSION.getPrefixed());
+            command.sendMessage(Message.NO_SHOP_PERMISSION.getPrefixed());
             return;
         }
 
