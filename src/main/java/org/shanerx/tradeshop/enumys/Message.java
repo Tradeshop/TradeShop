@@ -76,6 +76,7 @@ public enum Message {
     NO_SIGHTED_SHOP(MessageSectionKeys.NONE, "&cNo shop in range!", "Text to display when a player is too far from a shop"),
     NO_TS_CREATE_PERMISSION(MessageSectionKeys.NONE, "&cYou don't have permission to create TradeShops!", "Text to display when a player attempts to setup a shoptype they are not allowed to create:"),
     NO_TS_DESTROY(MessageSectionKeys.NONE, "&cYou may not destroy that TradeShop", "Text to display when a player attempts to destroy a shop they do not own:"),
+    DESTROY_SHOP_SIGN_FIRST(MessageSectionKeys.NONE, "&cYou must destroy the shops sign first.", "Text to display when a player attempts to destroy a block with a shop sign attached to it:"),
     NO_TS_OPEN(MessageSectionKeys.NONE, "&cThat TradeShop does not belong to you", "Text to display when a player attempts to open a shop they do not own nor have been granted access to (1.6):"),
     ON_TRADE(MessageSectionKeys.NONE, "&aYou have traded your &e{AMOUNT2} {ITEM2} &afor &e{AMOUNT1} {ITEM1} &awith {SELLER}", "Text to display upon a successful trade:"),
     PLAYER_FULL(MessageSectionKeys.NONE, "&cYour inventory is full, please make room before trading items!", "Text to display when the players inventory is too full to recieve the trade:"),

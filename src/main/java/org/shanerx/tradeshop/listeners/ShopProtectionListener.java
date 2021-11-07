@@ -246,8 +246,7 @@ public class ShopProtectionListener extends Utils implements Listener {
             }
             event.setCancelled(true);
             player.sendMessage(Message.NO_TS_DESTROY.getPrefixed());
-        } else {
-            if (Setting.ALLOW_SIGN_BREAK.getBoolean()) return;
+        } else if (!block.getType().name().contains("SIGN")) {
             boolean ret = true;
             for (BlockFace face : Arrays.asList(BlockFace.UP, BlockFace.NORTH, BlockFace.EAST, BlockFace.SOUTH, BlockFace.WEST)) {
                 Block temp = block.getRelative(face);
@@ -261,7 +260,7 @@ public class ShopProtectionListener extends Utils implements Listener {
                 return;
 
             event.setCancelled(true);
-            player.sendMessage(Message.NO_TS_DESTROY.getPrefixed());
+            player.sendMessage(Message.DESTROY_SHOP_SIGN_FIRST.getPrefixed());
         }
     }
 
