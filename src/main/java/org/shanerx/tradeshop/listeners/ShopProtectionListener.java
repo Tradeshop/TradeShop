@@ -53,6 +53,7 @@ import org.shanerx.tradeshop.objects.ShopChest;
 import org.shanerx.tradeshop.utils.Utils;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
@@ -243,6 +244,21 @@ public class ShopProtectionListener extends Utils implements Listener {
                 shop.saveShop();
                 return;
             }
+            event.setCancelled(true);
+            player.sendMessage(Message.NO_TS_DESTROY.getPrefixed());
+        } else {
+            if (Setting.ALLOW_SIGN_BREAK.getBoolean()) return;
+            boolean ret = true;
+            for (BlockFace face : Arrays.asList(BlockFace.UP, BlockFace.NORTH, BlockFace.EAST, BlockFace.SOUTH, BlockFace.WEST)) {
+                Block temp = block.getRelative(face);
+                if (face.equals(BlockFace.UP) && temp.getType().name().contains("SIGN")) {
+                    ret = !ShopType.isShop(temp);
+                } else if (temp.getType().name().contains("WALL_SIGN")) {
+                    ret = !ShopType.isShop(temp);
+                }
+            }
+            if (ret)
+                return;
 
             event.setCancelled(true);
             player.sendMessage(Message.NO_TS_DESTROY.getPrefixed());
