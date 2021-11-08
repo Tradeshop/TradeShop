@@ -30,11 +30,10 @@ public class HopperShopAccessEvent extends InventoryMoveItemEvent {
 	 * @param source The source {@link org.bukkit.inventory.Inventory} object.
 	 * @param destination The source {@link org.bukkit.inventory.Inventory} object.
 	 * @param itm The {@link org.bukkit.inventory.ItemStack} object representing the item in transaction.
-	 * @param isForbidden Whether or not the trade is meant to happen.
 	 */
-	public HopperShopAccessEvent(Shop s, Inventory source, Inventory destination, ItemStack itm, boolean isForbidden, HopperDirection dir) {
+	public HopperShopAccessEvent(Shop s, Inventory source, Inventory destination, ItemStack itm, HopperDirection dir) {
 		super(source, itm, destination, false);
-		this.isForbidden = isForbidden;
+		this.isForbidden = false;
 		this.dir = dir;
 	}
 	
