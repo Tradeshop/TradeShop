@@ -162,20 +162,20 @@ public class ShopChest extends Utils {
 	}
 
 	public Inventory getInventory() {
-        try {
-            return ((InventoryHolder) chest.getState()).getInventory();
-        } catch (ClassCastException | NullPointerException ex) {
-        }
+		try {
+			return ((InventoryHolder) chest.getState()).getInventory();
+		} catch (ClassCastException | NullPointerException ex) {
+		}
 
 		return null;
 	}
 
-    public boolean hasStock(List<ShopItemStack> product) {
-		return product.size() > 0 && getItems(getInventory(), product, 1).get(0) != null;
-    }
+	public boolean hasStock(List<ShopItemStack> itemToCheck) {
+		return itemToCheck.size() > 0 && getItems(getInventory(), itemToCheck, 1).get(0) != null;
+	}
 
 	public void loadFromName() {
-        if (isShopChest(chest)) {
+		if (isShopChest(chest)) {
 			String[] name = ((Container) chest.getState()).getPersistentDataContainer().get(plugin.getSignKey(), PersistentDataType.STRING)
 					.replaceAll("Sign:", "Sign" + titleSeparator).replaceAll("Owner:", "Owner" + titleSeparator)
 					.split(sectionSeparator);

@@ -862,29 +862,43 @@ public class Shop implements Serializable {
 	 *
 	 * @return true if shop opened
 	 */
-    public ShopStatus setOpen() {
-        setStatus(ShopStatus.OPEN);
-        updateStatus();
+	public ShopStatus setOpen() {
+		setStatus(ShopStatus.OPEN);
+		updateStatus();
 
 		saveShop();
 		updateSign();
-        return status;
-    }
+		return status;
+	}
 
-    /**
-     * Automatically updates a shops status if it is not CLOSED
-     */
-    public void updateStatus() {
-        if (!status.equals(ShopStatus.CLOSED)) {
-            if (!isMissingItems() && (chestLoc != null || shopType.equals(ShopType.ITRADE))) {
-                if (shopType.equals(ShopType.ITRADE) || (getChestAsSC() != null && getChestAsSC().hasStock(product)))
-                    setStatus(ShopStatus.OPEN);
-                else
-                    setStatus(ShopStatus.OUT_OF_STOCK);
-            } else {
-                setStatus(ShopStatus.INCOMPLETE);
-            }
-        }
+	/**
+	 * Checks if the shop has sufficient product stock to make a trade
+	 */
+	public boolean hasProductStock() {
+		return !shopType.isITrade() && hasProduct() && getChestAsSC() != null && getChestAsSC().hasStock(product);
+	}
+
+	/**
+	 * Checks if the shop has sufficient cost stock to make a trade(Use for BiTrade)
+	 */
+	public boolean hasCostStock() {
+		return !shopType.isITrade() && hasCost() && getChestAsSC() != null && getChestAsSC().hasStock(cost);
+	}
+
+	/**
+	 * Automatically updates a shops status if it is not CLOSED
+	 */
+	public void updateStatus() {
+		if (!status.equals(ShopStatus.CLOSED)) {
+			if (!isMissingItems() && (chestLoc != null || shopType.isITrade())) {
+				if (shopType.isITrade() || hasProductStock() || (shopType.isBiTrade() && hasCostStock()))
+					setStatus(ShopStatus.OPEN);
+				else
+					setStatus(ShopStatus.OUT_OF_STOCK);
+			} else {
+				setStatus(ShopStatus.INCOMPLETE);
+			}
+		}
     }
 
 	/**

@@ -201,7 +201,7 @@ public class ShopItemStack implements Serializable, Cloneable {
         BookMeta itemStackBookMeta = itemStack.hasItemMeta() && itemStack.getItemMeta() instanceof BookMeta ? ((BookMeta) itemStackMeta) : null,
                 toCompareBookMeta = toCompare.hasItemMeta() && toCompare.getItemMeta() instanceof BookMeta ? ((BookMeta) toCompareMeta) : null;
 
-        boolean useMeta = itemStack.hasItemMeta() == toCompare.hasItemMeta() && itemStackMeta != null,
+        boolean useMeta = itemStack.hasItemMeta() == toCompare.hasItemMeta() && itemStack.hasItemMeta(),
                 useBookMeta = itemStackBookMeta != null && toCompareBookMeta != null;
 
         debugger.log("itemstack useMeta: " + useMeta, DebugLevels.ITEM_COMPARE);
@@ -301,16 +301,33 @@ public class ShopItemStack implements Serializable, Cloneable {
 
         // If compareEnchantments is on
         if (getShopSettingAsBoolean(ShopItemStackSettingKeys.COMPARE_ENCHANTMENTS) && useMeta) {
-            // Return False if hasEnchantments differs (one has one doesn't)
-            if (itemStackMeta.hasEnchants() != toCompareMeta.hasEnchants()) {
-                debugger.log("itemStackMeta hasEnchants: " + itemStackMeta.hasEnchants(), DebugLevels.ITEM_COMPARE);
-                debugger.log("toCompareMeta hasEnchants: " + toCompareMeta.hasEnchants(), DebugLevels.ITEM_COMPARE);
-                return false;
-            }
+            if (itemStackMeta instanceof EnchantmentStorageMeta && toCompareMeta instanceof EnchantmentStorageMeta) {
+                EnchantmentStorageMeta itemStackEnchantmentStorageMeta = (EnchantmentStorageMeta) itemStackMeta,
+                        toCompareEnchantmentStorageMeta = (EnchantmentStorageMeta) toCompareMeta;
 
-            // Return False if itemStack hasEnchantments && Enchant maps are not equal
-            if (itemStackMeta.hasEnchants() && !itemStackMeta.getEnchants().equals(toCompareMeta.getEnchants()))
-                return false;
+                debugger.log("itemStackEnchantmentStorageMeta Enchants: " + itemStackEnchantmentStorageMeta.getStoredEnchants(), DebugLevels.ENCHANT_CHECKS);
+                debugger.log("toCompareEnchantmentStorageMeta Enchants: " + toCompareEnchantmentStorageMeta.getStoredEnchants(), DebugLevels.ENCHANT_CHECKS);
+
+                // Return False if hasEnchantments differs (one has one doesn't)
+                if (itemStackEnchantmentStorageMeta.hasStoredEnchants() != toCompareEnchantmentStorageMeta.hasStoredEnchants())
+                    return false;
+
+                // Return False if itemStack hasEnchantments && Enchant maps are not equal
+                if (itemStackEnchantmentStorageMeta.hasStoredEnchants() && !itemStackEnchantmentStorageMeta.getStoredEnchants().equals(toCompareEnchantmentStorageMeta.getStoredEnchants()))
+                    return false;
+            } else {
+
+                // Return False if hasEnchantments differs (one has one doesn't)
+                if (itemStackMeta.hasEnchants() != toCompareMeta.hasEnchants()) {
+                    debugger.log("itemStackMeta hasEnchants: " + itemStackMeta.hasEnchants(), DebugLevels.ITEM_COMPARE);
+                    debugger.log("toCompareMeta hasEnchants: " + toCompareMeta.hasEnchants(), DebugLevels.ITEM_COMPARE);
+                    return false;
+                }
+
+                // Return False if itemStack hasEnchantments && Enchant maps are not equal
+                if (itemStackMeta.hasEnchants() && !itemStackMeta.getEnchants().equals(toCompareMeta.getEnchants()))
+                    return false;
+            }
         }
 
         // If compareName is on

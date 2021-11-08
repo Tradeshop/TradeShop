@@ -475,7 +475,7 @@ public class Utils {
 
 		for (ShopItemStack item : items) {
 			totalCount += item.getItemStack().getAmount() * multiplier;
-			int count = item.getItemStack().getAmount() * multiplier, traded;
+			int count = item.getItemStack().getAmount() * multiplier;
 
 			debugger.log("ShopTradeListener > Item Material Being Searched for: " + item.getItemStack().getType().name(), DebugLevels.TRADE);
 			debugger.log("ShopTradeListener > Item count: " + count, DebugLevels.TRADE);
@@ -485,7 +485,7 @@ public class Utils {
 					boolean isSimilar = item.isSimilar(storageItem.clone());
 					if (isSimilar) {
 
-						traded = Math.min(Math.min(storageItem.getAmount(), item.getItemStack().getMaxStackSize()), count);
+						int traded = Math.min(Math.min(storageItem.getAmount(), item.getItemStack().getMaxStackSize()), count);
 
 						storageItem.setAmount(traded);
 
