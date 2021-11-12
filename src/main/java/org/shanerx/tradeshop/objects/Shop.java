@@ -703,12 +703,13 @@ public class Shop implements Serializable {
 	}
 
 	/**
-	 * Saves the shop too file
+	 * Saves the shop to file
 	 */
 	public void saveShop() {
 		updateFullTradeCount();
 		utils.plugin.getDataStorage().saveShop(this);
-        updateUserFiles();
+		updateUserFiles();
+		updateSign();
 	}
 
 	/**
@@ -730,15 +731,16 @@ public class Shop implements Serializable {
 	 * Updates the text on the shops sign
 	 */
 	public void updateSign() {
-		if (((TradeShop) Bukkit.getPluginManager().getPlugin("TradeShop")).isFrozen()) return;
-		if (signChangeEvent != null)
+		if (utils.plugin.isFrozen()) return;
+		if (signChangeEvent != null) {
 			updateSign(signChangeEvent);
-		else {
+			removeEvent();
+		} else {
 			Sign s = getShopSign();
 
-            String[] signLines = updateSignLines();
+			String[] signLines = updateSignLines();
 
-            for (int i = 0; i < 4; i++) {
+			for (int i = 0; i < 4; i++) {
 				if (signLines[i] != null && s != null)
 					s.setLine(i, signLines[i]);
 			}

@@ -36,11 +36,10 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.shanerx.tradeshop.TradeShop;
+import org.shanerx.tradeshop.utils.Tuple;
 import org.yaml.snakeyaml.Yaml;
 
 import java.io.*;
-import java.util.Collections;
-import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 
@@ -110,7 +109,8 @@ public enum Message {
     SET_PLAYER_LEVEL(MessageSectionKeys.NONE, "&aYou have set the level of %player% to %level%!", "Text to display after setting a players level"),
     VARIOUS_ITEM_TYPE(MessageSectionKeys.NONE, "Various", "Text to display when a message uses an Item Type and the Type varies"),
     TOGGLED_STATUS(MessageSectionKeys.NONE, "Toggled status: &c%status%"),
-    NO_SIGN_FOUND(MessageSectionKeys.NONE, "&cNo sign in range!\", \"Text to display when a player is too far from a sign\"");
+    NO_SIGN_FOUND(MessageSectionKeys.NONE, "&cNo sign in range!", "Text to display when a player is too far from a sign"),
+    ADMIN_TOGGLED(MessageSectionKeys.NONE, "&aYour Admin mode is now &e{STATE}&a.", "Text to display when an admin toggles their Admin abilities. \"{STATE}\" will be replaced by the state that the player is in after the command.");
 
     private static final char COLOUR_CHAR = '&';
     private static final TradeShop plugin = (TradeShop) Bukkit.getPluginManager().getPlugin("TradeShop");
@@ -240,39 +240,62 @@ public enum Message {
         return colour(PREFIX + this);
     }
 
-    public void sendMessage(Player player, Map<String, String> replacements) {
-        String message = getPrefixed();
-        replacements.forEach(message::replaceAll);
 
-        if (getMessage().startsWith("#json ")) {
-            message.replaceFirst("#json ", "");
-            player.sendRawMessage(colour(message));
-        } else {
-            player.sendMessage(colour(message));
-        }
+    private void sendMessageDirect(CommandSender sendTo, String message) {
+        sendTo.sendMessage(colour(message));
+    }
+
+    //Not currently working
+    private void sendMessageDirectJson(Player sendTo, String message) {
+        sendTo.sendRawMessage(colour(message));
     }
 
     public void sendMessage(Player player) {
-        sendMessage(player, Collections.emptyMap());
+        String message = getPrefixed();
+        if (getMessage().startsWith("#json ")) {
+            message.replaceFirst("#json ", "");
+            sendMessageDirectJson(player, message);
+        } else {
+            sendMessageDirect(player, message);
+        }
     }
 
     public void sendMessage(CommandSender sender) {
-        sendMessage(sender, Collections.emptyMap());
+        sendMessageDirect(sender, getPrefixed());
     }
 
-    public void sendMessage(CommandSender sender, Map<String, String> replacements) {
+    @SafeVarargs
+    public final void sendMessage(Player player, Tuple<String, String>... replacements) {
+        String message = getPrefixed();
+        for (Tuple<String, String> replace : replacements) {
+            message = message.replace(replace.getLeft(), replace.getRight());
+        }
+
+        if (getMessage().startsWith("#json ")) {
+            message = message.replaceFirst("#json ", "");
+            sendMessageDirectJson(player, message);
+        } else {
+            sendMessageDirect(player, message);
+        }
+    }
+
+    @SafeVarargs
+    public final void sendMessage(CommandSender sender, Tuple<String, String>... replacements) {
         if (sender instanceof Player) {
             sendMessage((Player) sender, replacements);
             return;
         }
-        String message = getPrefixed();
-        replacements.forEach(message::replaceAll);
 
-        if (getMessage().startsWith("#json ")) {
-            message.replaceFirst("#json ", "");
+        String message = getPrefixed();
+        for (Tuple<String, String> replace : replacements) {
+            message = message.replace(replace.getLeft(), replace.getRight());
         }
 
-        sender.sendMessage(colour(message));
+        if (getMessage().startsWith("#json ")) {
+            message = message.replaceFirst("#json ", "");
+        }
+
+        sendMessageDirect(sender, message);
     }
 }
 

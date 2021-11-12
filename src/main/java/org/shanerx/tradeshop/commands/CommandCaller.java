@@ -160,6 +160,9 @@ public class CommandCaller implements CommandExecutor {
 			case CREATE_ITRADE:
 				cmdRnnr.createITrade();
 				break;
+			case TOGGLE_ADMIN:
+				cmdRnnr.toggleAdmin();
+				break;
 		}
 
 		return true;

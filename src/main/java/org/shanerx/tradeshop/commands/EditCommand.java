@@ -79,14 +79,9 @@ public class EditCommand extends CommandRunner {
         if (shop == null)
             return;
 
-        if (!Permissions.hasPermission(pSender, Permissions.EDIT)) {
-            command.sendMessage(Message.NO_COMMAND_PERMISSION.getPrefixed());
-            return;
-        }
-
         if (!(shop.getOwner().getUUID().equals(pSender.getUniqueId()) ||
                 shop.getManagersUUID().contains(pSender.getUniqueId()) ||
-                Permissions.hasPermission(pSender, Permissions.ADMIN))) {
+                Permissions.isAdminEnabled(pSender))) {
             command.sendMessage(Message.NO_SHOP_PERMISSION.getPrefixed());
             return;
         }

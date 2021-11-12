@@ -85,10 +85,6 @@ public enum Setting {
     ALLOW_USER_PURCHASING(SettingSectionKeys.SHOP_OPTIONS, "allow-user-purchasing", false, "Can players purchase from a shop in which they are a user of (true/false)"),
     MULTIPLE_ITEMS_ON_SIGN(SettingSectionKeys.SHOP_OPTIONS, "multiple-items-on-sign", "Use '/ts what'", "Text that shows on trade signs that contain more than 1 item", "\n"),
 
-    // Item Options
-    FIREWORK_COMPARE_DURATION(SettingSectionKeys.ITEM_OPTIONS, "firework-compare-duration", true, "Must trades involving a firework rocket match the correct flight duration?"),
-    FIREWORK_COMPARE_EFFECTS(SettingSectionKeys.ITEM_OPTIONS, "firework-compare-effects", false, "Must trades involving a firework rocket match the exact firework effects?"),
-
     // Trade Shop Options
     TRADESHOP_HEADER(SettingSectionKeys.TRADE_SHOP_OPTIONS, "header", "Trade", "The header that appears at the top of the shop signs, this is also what the player types to create the sign"),
     TRADESHOP_EXPLODE(SettingSectionKeys.TRADE_SHOP_OPTIONS, "allow-explode", false, "Can explosions damage the shop sign/storage (true/false)"),

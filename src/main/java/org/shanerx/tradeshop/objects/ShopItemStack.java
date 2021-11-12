@@ -36,7 +36,6 @@ import org.bukkit.inventory.meta.*;
 import org.bukkit.util.io.BukkitObjectInputStream;
 import org.bukkit.util.io.BukkitObjectOutputStream;
 import org.shanerx.tradeshop.enumys.DebugLevels;
-import org.shanerx.tradeshop.enumys.Setting;
 import org.shanerx.tradeshop.enumys.ShopItemStackSettingKeys;
 import org.shanerx.tradeshop.utils.ObjectHolder;
 import org.shanerx.tradeshop.utils.Utils;
@@ -425,13 +424,13 @@ public class ShopItemStack implements Serializable, Cloneable {
             FireworkMeta toCompareFireworkMeta = (FireworkMeta) toCompareMeta;
 
             // If server compare firework duration is disabled local setting is ignores
-            if (getShopSettingAsBoolean(ShopItemStackSettingKeys.COMPARE_FIREWORK_DURATION) && Setting.FIREWORK_COMPARE_DURATION.getBoolean()) {
+            if (getShopSettingAsBoolean(ShopItemStackSettingKeys.COMPARE_FIREWORK_DURATION)) {
                 if (fireworkMeta.getPower() != toCompareFireworkMeta.getPower()) {
                     return false;
                 }
             }
 
-            if (getShopSettingAsBoolean(ShopItemStackSettingKeys.COMPARE_FIREWORK_EFFECTS) && Setting.FIREWORK_COMPARE_EFFECTS.getBoolean()) {
+            if (getShopSettingAsBoolean(ShopItemStackSettingKeys.COMPARE_FIREWORK_EFFECTS)) {
                 if (fireworkMeta.hasEffects()) {
                     if (fireworkMeta.getEffects().size() != toCompareFireworkMeta.getEffects().size()) {
                         return false;

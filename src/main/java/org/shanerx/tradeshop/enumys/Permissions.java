@@ -80,6 +80,11 @@ public enum Permissions {
 		}
 	}
 
+
+	public static boolean isAdminEnabled(Player player) {
+		return hasPermission(player, Permissions.ADMIN) && plugin.getDataStorage().loadPlayer(player.getUniqueId()).isAdminEnabled();
+	}
+
 	public int getLevel() {
 		return level;
 	}

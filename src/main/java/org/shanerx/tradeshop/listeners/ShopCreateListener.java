@@ -64,6 +64,7 @@ public class ShopCreateListener extends Utils implements Listener {
 		if (!ShopType.isShop(shopSign)) {
 			return;
 		}
+
 		ShopType shopType = ShopType.getType(shopSign);
 		Player p = event.getPlayer();
 		ShopUser owner = new ShopUser(p, ShopRole.OWNER);
