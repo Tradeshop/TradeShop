@@ -731,21 +731,22 @@ public class Shop implements Serializable {
 	 * Updates the text on the shops sign
 	 */
 	public void updateSign() {
-		if (utils.plugin.isFrozen()) return;
 		if (signChangeEvent != null) {
 			updateSign(signChangeEvent);
 			removeEvent();
 		} else {
 			Sign s = getShopSign();
 
-			String[] signLines = updateSignLines();
+			if (s != null) {
+				String[] signLines = updateSignLines();
 
-			for (int i = 0; i < 4; i++) {
-				if (signLines[i] != null && s != null)
-					s.setLine(i, signLines[i]);
+				for (int i = 0; i < 4; i++) {
+					if (signLines[i] != null)
+						s.setLine(i, signLines[i]);
+				}
+
+				s.update();
 			}
-
-			s.update();
 		}
 	}
 

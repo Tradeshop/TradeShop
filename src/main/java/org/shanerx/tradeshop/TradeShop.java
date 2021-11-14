@@ -59,7 +59,6 @@ public class TradeShop extends JavaPlugin {
 	private ShopStorage storages;
 
 	private Debug debugger;
-	private boolean frozen = false;
 
 	@Override
 	public void onEnable() {
@@ -167,13 +166,5 @@ public class TradeShop extends JavaPlugin {
 
 	public DataStorage getDataStorage() {
 		return dataStorage;
-	}
-
-	public boolean isFrozen() {
-		return frozen;
-	}
-
-	public void setFrozen(boolean frozen) {
-		this.frozen = frozen;
 	}
 }

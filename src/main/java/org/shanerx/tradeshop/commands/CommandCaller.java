@@ -29,7 +29,6 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.shanerx.tradeshop.TradeShop;
-import org.shanerx.tradeshop.enumys.Commands;
 import org.shanerx.tradeshop.enumys.Message;
 
 /**
@@ -162,6 +161,9 @@ public class CommandCaller implements CommandExecutor {
 				break;
 			case TOGGLE_ADMIN:
 				cmdRnnr.toggleAdmin();
+				break;
+			case ADMIN:
+				cmdRnnr.admin();
 				break;
 		}
 

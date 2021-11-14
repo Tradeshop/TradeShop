@@ -839,13 +839,40 @@ public class CommandRunner extends Utils {
 	}
 
 	/**
-	 * Changes the players with the ADMIN permission to toggle whether it is enable for them
+	 * Changes the players with the ADMIN permission to toggle whether it is enabled for them
 	 */
 	public void toggleAdmin() {
 		PlayerSetting playerSetting = plugin.getDataStorage().loadPlayer(pSender.getUniqueId());
 
 		playerSetting.setAdminEnabled(!playerSetting.isAdminEnabled());
 		plugin.getDataStorage().savePlayer(playerSetting);
+
+		Message.ADMIN_TOGGLED.sendMessage(pSender, new Tuple<>("{STATE}", playerSetting.isAdminEnabled() ? "enabled" : "disabled"));
+	}
+
+	/**
+	 * Shows players their current admin mode or changes with optional variable
+	 */
+	public void admin() {
+		PlayerSetting playerSetting = plugin.getDataStorage().loadPlayer(pSender.getUniqueId());
+		boolean initialValue = playerSetting.isAdminEnabled();
+
+		if (command.hasArgAt(1)) {
+
+			switch (command.getArgAt(1).toLowerCase()) {
+				case "true":
+				case "t":
+					playerSetting.setAdminEnabled(true);
+					break;
+				case "false":
+				case "f":
+					playerSetting.setAdminEnabled(false);
+					break;
+			}
+
+			if (initialValue != playerSetting.isAdminEnabled())
+				plugin.getDataStorage().savePlayer(playerSetting);
+		}
 
 		Message.ADMIN_TOGGLED.sendMessage(pSender, new Tuple<>("{STATE}", playerSetting.isAdminEnabled() ? "enabled" : "disabled"));
 	}

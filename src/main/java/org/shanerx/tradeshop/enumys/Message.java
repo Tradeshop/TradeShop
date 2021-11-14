@@ -110,7 +110,7 @@ public enum Message {
     VARIOUS_ITEM_TYPE(MessageSectionKeys.NONE, "Various", "Text to display when a message uses an Item Type and the Type varies"),
     TOGGLED_STATUS(MessageSectionKeys.NONE, "Toggled status: &c%status%"),
     NO_SIGN_FOUND(MessageSectionKeys.NONE, "&cNo sign in range!", "Text to display when a player is too far from a sign"),
-    ADMIN_TOGGLED(MessageSectionKeys.NONE, "&aYour Admin mode is now &e{STATE}&a.", "Text to display when an admin toggles their Admin abilities. \"{STATE}\" will be replaced by the state that the player is in after the command.");
+    ADMIN_TOGGLED(MessageSectionKeys.NONE, "&aYour Admin mode is currently &e{STATE}&a.", "Text to display when an admin toggles or views their Admin abilities. \n\"{STATE}\" will be replaced by the state that the player is in after the command.");
 
     private static final char COLOUR_CHAR = '&';
     private static final TradeShop plugin = (TradeShop) Bukkit.getPluginManager().getPlugin("TradeShop");
