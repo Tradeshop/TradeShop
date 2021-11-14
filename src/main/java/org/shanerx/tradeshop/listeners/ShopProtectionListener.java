@@ -108,7 +108,6 @@ public class ShopProtectionListener extends Utils implements Listener {
             return;
         }
 
-        plugin.setFrozen(true);
         Shop shop = new ShopChest(invBlock.getLocation()).getShop();
 
         boolean isForbidden = !Setting.findSetting(shop.getShopType().name() + (fromHopper ? "SHOP_HOPPER_IMPORT" : "SHOP_HOPPER_EXPORT")).getBoolean();
@@ -132,7 +131,6 @@ public class ShopProtectionListener extends Utils implements Listener {
         debugger.log("ShopProtectionListener: (TSAF) HopperEvent recovered! ", DebugLevels.PROTECTION);
         event.setCancelled(hopperEvent.isForbidden());
         debugger.log("ShopProtectionListener: (TSAF) HopperEvent isForbidden: " + hopperEvent.isForbidden(), DebugLevels.PROTECTION);
-        plugin.setFrozen(false);
     }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
