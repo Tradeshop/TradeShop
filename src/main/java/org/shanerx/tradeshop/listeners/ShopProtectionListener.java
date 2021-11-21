@@ -251,9 +251,9 @@ public class ShopProtectionListener extends Utils implements Listener {
             boolean ret = true;
             for (BlockFace face : Arrays.asList(BlockFace.UP, BlockFace.NORTH, BlockFace.EAST, BlockFace.SOUTH, BlockFace.WEST)) {
                 Block temp = block.getRelative(face);
-                if (face.equals(BlockFace.UP) && temp.getType().name().contains("SIGN")) {
+                if (face.equals(BlockFace.UP) && temp.getType().name().contains("SIGN") && !temp.getType().name().contains("WALL_SIGN")) {
                     ret = !ShopType.isShop(temp);
-                } else if (temp.getType().name().contains("WALL_SIGN")) {
+                } else if (temp.getType().name().contains("WALL_SIGN") && ((Directional) temp.getBlockData()).getFacing().equals(face)) {
                     ret = !ShopType.isShop(temp);
                 }
             }
