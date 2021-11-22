@@ -399,14 +399,24 @@ public class Utils {
 				}
 			}
 
-			for (ShopItemStack item : shop.getProduct()) {
-				if (!playerInventory.addItem(item.getItemStack()).isEmpty()) {
-                    return ExchangeStatus.PLAYER_NO_SPACE;
-                }
-            }
+			Inventory iTradeVirtualInventory = Bukkit.createInventory(null, Math.min((int) (Math.ceil(shop.getProduct().size() / 9.0) * 9) * multiplier, 54));
+			while (iTradeVirtualInventory.firstEmpty() != -1) {
+				for (ItemStack item : shop.getProductItemStacks()) {
+					item.setAmount(item.getMaxStackSize());
+					iTradeVirtualInventory.addItem(item);
+				}
+			}
 
-            return ExchangeStatus.SUCCESS; //Successfully completed trade
-        } else if (shop.getShopType() == ShopType.BITRADE && action == Action.LEFT_CLICK_BLOCK) { //BiTrade Reversed Trade
+			productItems = getItems(iTradeVirtualInventory, shop.getProduct(), multiplier);
+
+			for (ItemStack item : productItems) {
+				if (!playerInventory.addItem(item).isEmpty()) {
+					return ExchangeStatus.PLAYER_NO_SPACE;
+				}
+			}
+
+			return ExchangeStatus.SUCCESS; //Successfully completed trade
+		} else if (shop.getShopType() == ShopType.BITRADE && action == Action.LEFT_CLICK_BLOCK) { //BiTrade Reversed Trade
 
             //Method to find Cost items in player inventory and add to cost array
             costItems = getItems(playerInventory, shop.getProduct(), multiplier); //Reverse BiTrade, Product is Cost
@@ -474,7 +484,7 @@ public class Utils {
 		debugger.log("ShopTradeListener > Inventory Location Being Searched: " + (inventory.getLocation() != null ? inventory.getLocation().toString() : "null"), DebugLevels.TRADE);
 
 		for (ShopItemStack item : items) {
-			totalCount += item.getItemStack().getAmount() * multiplier;
+			totalCount += item.getAmount() * multiplier;
 			int count = item.getItemStack().getAmount() * multiplier;
 
 			debugger.log("ShopTradeListener > Item Material Being Searched for: " + item.getItemStack().getType().name(), DebugLevels.TRADE);

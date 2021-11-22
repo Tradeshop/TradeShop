@@ -65,6 +65,13 @@ public class ShopItemStack implements Serializable, Cloneable {
         toBase64();
     }
 
+    public ShopItemStack(ItemStack itemStack, HashMap<ShopItemStackSettingKeys, ObjectHolder<?>> settingMap) {
+        this.itemStack = itemStack;
+        this.shopSettings = settingMap;
+        buildMap();
+        toBase64();
+    }
+
     public ShopItemStack(String itemStackB64) {
         this.itemStackB64 = itemStackB64;
         shopSettings = new HashMap<>();
@@ -145,7 +152,7 @@ public class ShopItemStack implements Serializable, Cloneable {
     }
 
     public ShopItemStack clone() {
-        return new ShopItemStack(itemStackB64, shopSettings);
+        return new ShopItemStack(itemStack.clone(), shopSettings);
     }
 
     public boolean setShopSettings(ShopItemStackSettingKeys key, ObjectHolder<?> value) {

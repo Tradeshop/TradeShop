@@ -133,6 +133,7 @@ public class ShopTradeListener extends Utils implements Listener {
                 return;
             case INCOMPLETE:
                 Message.SHOP_EMPTY.sendMessage(buyer);
+                buyer.sendMessage("incomplete?");
             case OUT_OF_STOCK:
                 if (shop.getShopType() == ShopType.BITRADE && e.getAction() == Action.LEFT_CLICK_BLOCK) {
                     Message.SHOP_INSUFFICIENT_ITEMS.sendMessage(buyer, new Tuple<>("{ITEM}", costName), new Tuple<>("{AMOUNT}", String.valueOf(amountCost)));
@@ -191,12 +192,21 @@ public class ShopTradeListener extends Utils implements Listener {
             owner = "-Unknown-";
 
         if (tradeAllItems(shop, multiplier, e, buyer)) {
-            Message.ON_TRADE.sendMessage(buyer,
-                    new Tuple<>("{AMOUNT1}", String.valueOf(amountProduct)),
-                    new Tuple<>("{AMOUNT2}", String.valueOf(amountCost)),
-                    new Tuple<>("{ITEM1}", productName.toLowerCase()),
-                    new Tuple<>("{ITEM2}", costName.toLowerCase()),
-                    new Tuple<>("{SELLER}", shop.getShopType().isITrade() ? Setting.ITRADESHOP_OWNER.getString() : owner));
+            if (amountCost != 0) {
+                Message.ON_TRADE.sendMessage(buyer,
+                        new Tuple<>("{AMOUNT1}", String.valueOf(amountProduct)),
+                        new Tuple<>("{AMOUNT2}", String.valueOf(amountCost)),
+                        new Tuple<>("{ITEM1}", productName.toLowerCase()),
+                        new Tuple<>("{ITEM2}", costName.toLowerCase()),
+                        new Tuple<>("{SELLER}", shop.getShopType().isITrade() ? Setting.ITRADESHOP_OWNER.getString() : owner));
+            } else {
+                Message.ON_TRADE.sendMessage(buyer,
+                        new Tuple<>("{AMOUNT1}", String.valueOf(amountProduct)),
+                        new Tuple<>("{AMOUNT2} ", ""), //Also replaces the extra space
+                        new Tuple<>("{ITEM1}", productName.toLowerCase()),
+                        new Tuple<>("{ITEM2}", Setting.ITRADESHOP_NO_COST_TEXT.getString()),
+                        new Tuple<>("{SELLER}", shop.getShopType().isITrade() ? Setting.ITRADESHOP_OWNER.getString() : owner));
+            }
         }
 
         shop.updateSign();
@@ -226,8 +236,19 @@ public class ShopTradeListener extends Utils implements Listener {
                 }
             }
 
-            for (ShopItemStack item : shop.getProduct()) {
-                playerInventory.addItem(item.getItemStack());
+            Inventory iTradeVirtualInventory = Bukkit.createInventory(null, Math.min((int) (Math.ceil(shop.getProduct().size() / 9.0) * 9) * multiplier, 54));
+            while (iTradeVirtualInventory.firstEmpty() != -1) {
+                for (ItemStack item : shop.getProductItemStacks()) {
+                    item.setAmount(item.getMaxStackSize());
+                    iTradeVirtualInventory.addItem(item);
+                }
+            }
+
+            productItems = getItems(iTradeVirtualInventory, shop.getProduct(), multiplier);
+
+            for (ItemStack item : productItems) {
+                playerInventory.addItem(item);
+                buyer.sendMessage("Item Traded: \n" + item.toString());
             }
 
             Bukkit.getPluginManager().callEvent(new PlayerSuccessfulTradeEvent(buyer, costItems, productItems, shop, event.getClickedBlock(), event.getBlockFace()));
@@ -274,6 +295,7 @@ public class ShopTradeListener extends Utils implements Listener {
                 Message.SHOP_INSUFFICIENT_ITEMS.sendMessage(buyer,
                         new Tuple<>("{ITEM}", item.hasItemMeta() && item.getItemMeta().hasDisplayName() ? item.getItemMeta().getDisplayName() : item.getType().toString()),
                         new Tuple<>("{AMOUNT}", String.valueOf(item.getAmount() * multiplier)));
+                buyer.sendMessage("3");
                 return false;
             }
 

@@ -76,7 +76,7 @@ public enum Setting {
     // ^ Multi Trade
     ALLOW_MULTI_TRADE(SettingSectionKeys.GLOBAL_MULTI_TRADE, "enable", true, "Should we allow multi trades with shift + click (true/false)"),
     MULTI_TRADE_DEFAULT(SettingSectionKeys.GLOBAL_MULTI_TRADE, "default-multi", 2, "Default multiplier for trades using shift + click"),
-    MULTI_TRADE_MAX(SettingSectionKeys.GLOBAL_MULTI_TRADE, "max-multi", 6, "Maximum amount a player can set their multiplier to, reset upon leaving", "\n"),
+    MULTI_TRADE_MAX(SettingSectionKeys.GLOBAL_MULTI_TRADE, "max-multi", 6, "Maximum amount a player can set their multiplier to. Not recommended to set any higher than 6 as this can cause bugs with iTrade Shops", "\n"),
 
     // Shop Options
     MAX_SHOP_USERS(SettingSectionKeys.SHOP_OPTIONS, "max-shop-users", 5, "Maximum users(Managers/Members) a shop can have"),
@@ -94,7 +94,8 @@ public enum Setting {
     // ITrade Shop Options
     ITRADESHOP_OWNER(SettingSectionKeys.ITRADE_SHOP_OPTIONS, "owner", "Server Shop", "Name to put on the bottom of iTrade signs"),
     ITRADESHOP_HEADER(SettingSectionKeys.ITRADE_SHOP_OPTIONS, "header", "iTrade", "The header that appears at the top of the shop signs, this is also what the player types to create the sign"),
-    ITRADESHOP_EXPLODE(SettingSectionKeys.ITRADE_SHOP_OPTIONS, "allow-explode", false, "Can explosions damage the shop sign (true/false)", "\n"),
+    ITRADESHOP_EXPLODE(SettingSectionKeys.ITRADE_SHOP_OPTIONS, "allow-explode", false, "Can explosions damage the shop sign (true/false)", ""),
+    ITRADESHOP_NO_COST_TEXT(SettingSectionKeys.ITRADE_SHOP_OPTIONS, "no-cost-text", "nothing", "What text should be used for successful trades when no cost is present", "\n"),
 
     // BiTrade Shop Options
     BITRADESHOP_HEADER(SettingSectionKeys.BITRADE_SHOP_OPTIONS, "header", "BiTrade", "The header that appears at the top of the shop signs, this is also what the player types to create the sign"),

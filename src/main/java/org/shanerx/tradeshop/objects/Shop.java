@@ -428,15 +428,6 @@ public class Shop implements Serializable {
 	}
 
 	/**
-	 * returns the cost item
-	 *
-	 * @return Cost ItemStack List
-	 */
-    public List<ShopItemStack> getCost() {
-		return cost;
-	}
-
-	/**
 	 * Sets the cost item
 	 *
 	 * @param newItem ItemStack to be set
@@ -610,12 +601,51 @@ public class Shop implements Serializable {
 	}
 
 	/**
-	 * Returns the product item
+	 * Returns the product items
+	 *
+	 * @return Product ShopItemStack List
+	 */
+	public List<ShopItemStack> getProduct() {
+		List<ShopItemStack> ret = new ArrayList<>();
+		for (ShopItemStack itm : product)
+			ret.add(itm.clone());
+		return ret;
+	}
+
+	/**
+	 * Returns the product items
 	 *
 	 * @return Product ItemStack List
 	 */
-    public List<ShopItemStack> getProduct() {
-		return product;
+	public List<ItemStack> getProductItemStacks() {
+		List<ItemStack> ret = new ArrayList<>();
+		for (ShopItemStack itm : product)
+			ret.add(itm.getItemStack().clone());
+		return ret;
+	}
+
+	/**
+	 * returns the cost item
+	 *
+	 * @return Cost ItemStack List
+	 */
+	public List<ShopItemStack> getCost() {
+		List<ShopItemStack> ret = new ArrayList<>();
+		for (ShopItemStack itm : cost)
+			ret.add(itm.clone());
+		return ret;
+	}
+
+	/**
+	 * Returns the cost items
+	 *
+	 * @return Cost ItemStack List
+	 */
+	public List<ItemStack> getCostItemStacks() {
+		List<ItemStack> ret = new ArrayList<>();
+		for (ShopItemStack itm : cost)
+			ret.add(itm.getItemStack().clone());
+		return ret;
 	}
 
 	/**
@@ -689,6 +719,12 @@ public class Shop implements Serializable {
 			chestLoc.stringToWorld();
 			cost.removeIf(item -> item.getItemStack().getType().toString().endsWith("SHULKER_BOX") && getInventoryLocation().getBlock().getType().toString().endsWith("SHULKER_BOX"));
 		}
+
+		/* TODO Fix this after 2.4
+		 Removed since this ends up running getItems everytime a hopper trys to access a shop.
+		 Runs up to 3 times per second per hopper under a tradeshop with items inside
+		 Removing this caused errors with shops not being updated properly and causing fail messages during trades
+		 */
 		if (getShopSign() != null)
 			updateSign();
 	}

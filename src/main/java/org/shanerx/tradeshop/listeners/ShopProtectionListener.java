@@ -77,11 +77,9 @@ public class ShopProtectionListener extends Utils implements Listener {
             return;
         }
 
-        if (event.isCancelled()) {
-            return;
-        } else if (event instanceof HopperShopAccessEvent) {
-            return;
-        } else if (!event.getInitiator().getType().equals(InventoryType.HOPPER)) {
+        if (event.isCancelled() ||
+                event instanceof HopperShopAccessEvent ||
+                !event.getInitiator().getType().equals(InventoryType.HOPPER)) {
             return;
         }
 
