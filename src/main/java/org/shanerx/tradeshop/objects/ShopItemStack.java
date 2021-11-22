@@ -152,7 +152,15 @@ public class ShopItemStack implements Serializable, Cloneable {
     }
 
     public ShopItemStack clone() {
-        return new ShopItemStack(itemStack.clone(), shopSettings);
+        try {
+            ShopItemStack clone = (ShopItemStack) super.clone();
+            if (itemStack != null)
+                clone.itemStack = this.itemStack.clone();
+
+            return clone;
+        } catch (CloneNotSupportedException var2) {
+            throw new Error(var2);
+        }
     }
 
     public boolean setShopSettings(ShopItemStackSettingKeys key, ObjectHolder<?> value) {

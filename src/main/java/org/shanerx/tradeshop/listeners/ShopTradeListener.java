@@ -133,7 +133,6 @@ public class ShopTradeListener extends Utils implements Listener {
                 return;
             case INCOMPLETE:
                 Message.SHOP_EMPTY.sendMessage(buyer);
-                buyer.sendMessage("incomplete?");
             case OUT_OF_STOCK:
                 if (shop.getShopType() == ShopType.BITRADE && e.getAction() == Action.LEFT_CLICK_BLOCK) {
                     Message.SHOP_INSUFFICIENT_ITEMS.sendMessage(buyer, new Tuple<>("{ITEM}", costName), new Tuple<>("{AMOUNT}", String.valueOf(amountCost)));
@@ -248,7 +247,6 @@ public class ShopTradeListener extends Utils implements Listener {
 
             for (ItemStack item : productItems) {
                 playerInventory.addItem(item);
-                buyer.sendMessage("Item Traded: \n" + item.toString());
             }
 
             Bukkit.getPluginManager().callEvent(new PlayerSuccessfulTradeEvent(buyer, costItems, productItems, shop, event.getClickedBlock(), event.getBlockFace()));
@@ -295,7 +293,6 @@ public class ShopTradeListener extends Utils implements Listener {
                 Message.SHOP_INSUFFICIENT_ITEMS.sendMessage(buyer,
                         new Tuple<>("{ITEM}", item.hasItemMeta() && item.getItemMeta().hasDisplayName() ? item.getItemMeta().getDisplayName() : item.getType().toString()),
                         new Tuple<>("{AMOUNT}", String.valueOf(item.getAmount() * multiplier)));
-                buyer.sendMessage("3");
                 return false;
             }
 
