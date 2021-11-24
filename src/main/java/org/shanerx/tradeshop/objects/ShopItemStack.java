@@ -174,6 +174,8 @@ public class ShopItemStack implements Serializable, Cloneable {
     }
 
     public int getAmount() {
+        if (itemStack == null) //TODO this fixes an NPE from this method when itemstack is null(idk why itemstack would be null, this fixes for now so hopefully it will be enough)
+            return 0;
         return itemStack.getAmount();
     }
 

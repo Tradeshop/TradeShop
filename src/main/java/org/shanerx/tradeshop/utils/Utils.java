@@ -485,7 +485,7 @@ public class Utils {
 
 		for (ShopItemStack item : items) {
 			totalCount += item.getAmount() * multiplier;
-			int count = item.getItemStack().getAmount() * multiplier;
+			int count = item.getAmount() * multiplier;
 
 			debugger.log("ShopTradeListener > Item Material Being Searched for: " + item.getItemStack().getType().name(), DebugLevels.TRADE);
 			debugger.log("ShopTradeListener > Item count: " + count, DebugLevels.TRADE);
@@ -519,7 +519,7 @@ public class Utils {
                 ret.clear();
                 ret.add(0, null);
 				ret.add(1, item.getItemStack());
-				ret.get(1).setAmount(item.getItemStack().getAmount() * multiplier);
+				ret.get(1).setAmount(item.getAmount() * multiplier);
             }
         }
 

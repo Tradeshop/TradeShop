@@ -1029,7 +1029,7 @@ public class CommandRunner extends Utils {
 	}
 
 	/**
-	 * Changes/Sets the players permission level if internal permissions is enabled
+	 * Shows the player the status of all shops they are involved with or the specified player is involved with
 	 */
 	public void status() {
 		if (command.hasArgAt(1)) {
