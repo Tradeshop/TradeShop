@@ -47,7 +47,7 @@ public enum Setting {
 
     // System Options
     DATA_STORAGE_TYPE(SettingSectionKeys.SYSTEM_OPTIONS, "data-storage-type", "FLATFILE", "How would you like your servers data stored? (FLATFILE)"),
-    ENABLE_DEBUG(SettingSectionKeys.SYSTEM_OPTIONS, "enable-debug", 0, "What debug code should be run. This will add significant amounts of spam to the console/log, generally not used unless requested by Devs (must be a whole number)"),
+    ENABLE_DEBUG(SettingSectionKeys.SYSTEM_OPTIONS, "enable-debug", 0, "What debug code should be run. This will add significant amounts of spam to the console/log, generally not used unless requested by Devs"),
     CHECK_UPDATES(SettingSectionKeys.SYSTEM_OPTIONS, "check-updates", true, "Should we check for updates when the server starts"),
     ALLOW_METRICS(SettingSectionKeys.SYSTEM_OPTIONS, "allow-metrics", true, "Allow us to connect anonymous metrics so we can see how our plugin is being used to better develop it"),
     USE_INTERNAL_PERMISSIONS(SettingSectionKeys.SYSTEM_OPTIONS, "use-internal-permissions", false, "Should our internal permission system be used? (Only enable if you aren't using a permission plugin)", "\n"),
@@ -67,27 +67,23 @@ public enum Setting {
     // Global Options
     ALLOWED_DIRECTIONS(SettingSectionKeys.GLOBAL_OPTIONS, "allowed-directions", new String[]{"DOWN", "WEST", "SOUTH", "EAST", "NORTH", "UP"}, "Directions an allowed shop can be from a sign. Allowed directions are:\n  # Up, Down, North, East, South, West"),
     ALLOWED_SHOPS(SettingSectionKeys.GLOBAL_OPTIONS, "allowed-shops", new String[]{"CHEST", "TRAPPED_CHEST", "SHULKER"}, "Inventories to allow for shops. Allowed blocks are:\n  # Chest, Trapped_Chest, Dropper, Hopper, Dispenser, Shulker, ..."),
-    MAX_EDIT_DISTANCE(SettingSectionKeys.GLOBAL_OPTIONS, "max-edit-distance", 4, "Max distance a player can be from a shop to edit it (must be a whole number)"),
+    MAX_EDIT_DISTANCE(SettingSectionKeys.GLOBAL_OPTIONS, "max-edit-distance", 4, "Max distance a player can be from a shop to edit it"),
     ILLEGAL_ITEMS(SettingSectionKeys.GLOBAL_OPTIONS, "illegal-items", new String[]{"Air", "Void_Air", "Cave_Air", "Bedrock", "Command_Block", "Barrier"}, "Material types that cannot be used in trades"),
     ALLOW_TOGGLE_STATUS(SettingSectionKeys.GLOBAL_OPTIONS, "allow-toggle-status", true, "Can players toggle view of involved shops?"),
-    ALLOW_SIGN_BREAK(SettingSectionKeys.GLOBAL_OPTIONS, "allow-sign-break", false, "Should the sign be protected from being broken by other players?"),
-    ALLOW_CHEST_BREAK(SettingSectionKeys.GLOBAL_OPTIONS, "allow-chest-break", false, "Should the chest be protected from being broken by other players?", "\n"),
+    ALLOW_SIGN_BREAK(SettingSectionKeys.GLOBAL_OPTIONS, "allow-sign-break", false, "Should we allow anyone to destroy a shops sign?"),
+    ALLOW_CHEST_BREAK(SettingSectionKeys.GLOBAL_OPTIONS, "allow-chest-break", false, "Should we allow anyone to destroy a shops storage?", "\n"),
 
     // ^ Multi Trade
     ALLOW_MULTI_TRADE(SettingSectionKeys.GLOBAL_MULTI_TRADE, "enable", true, "Should we allow multi trades with shift + click (true/false)"),
-    MULTI_TRADE_DEFAULT(SettingSectionKeys.GLOBAL_MULTI_TRADE, "default-multi", 2, "Default multiplier for trades using shift + click (must be a whole number)"),
-    MULTI_TRADE_MAX(SettingSectionKeys.GLOBAL_MULTI_TRADE, "max-multi", 6, "Maximum amount a player can set their multiplier to, reset upon leaving (must be a whole number)", "\n"),
+    MULTI_TRADE_DEFAULT(SettingSectionKeys.GLOBAL_MULTI_TRADE, "default-multi", 2, "Default multiplier for trades using shift + click"),
+    MULTI_TRADE_MAX(SettingSectionKeys.GLOBAL_MULTI_TRADE, "max-multi", 6, "Maximum amount a player can set their multiplier to. Not recommended to set any higher than 6 as this can cause bugs with iTrade Shops", "\n"),
 
     // Shop Options
-    MAX_SHOP_USERS(SettingSectionKeys.SHOP_OPTIONS, "max-shop-users", 5, "Maximum users a shop can have (must be a whole number)"),
-    MAX_SHOPS_PER_CHUNK(SettingSectionKeys.SHOP_OPTIONS, "max-shops-per-chunk", 128, "Maximum shops that can exist in a single chunk (must be a whole number)"),
-    MAX_ITEMS_PER_TRADE_SIDE(SettingSectionKeys.SHOP_OPTIONS, "max-items-per-trade-side", 6, "Maximum amount of item stacks per side of trade (must be a whole number)"),
+    MAX_SHOP_USERS(SettingSectionKeys.SHOP_OPTIONS, "max-shop-users", 5, "Maximum users(Managers/Members) a shop can have"),
+    MAX_SHOPS_PER_CHUNK(SettingSectionKeys.SHOP_OPTIONS, "max-shops-per-chunk", 128, "Maximum shops that can exist in a single chunk"),
+    MAX_ITEMS_PER_TRADE_SIDE(SettingSectionKeys.SHOP_OPTIONS, "max-items-per-trade-side", 6, "Maximum amount of item stacks per side of trade"),
     ALLOW_USER_PURCHASING(SettingSectionKeys.SHOP_OPTIONS, "allow-user-purchasing", false, "Can players purchase from a shop in which they are a user of (true/false)"),
     MULTIPLE_ITEMS_ON_SIGN(SettingSectionKeys.SHOP_OPTIONS, "multiple-items-on-sign", "Use '/ts what'", "Text that shows on trade signs that contain more than 1 item", "\n"),
-
-    // Item Options
-    FIREWORK_COMPARE_DURATION(SettingSectionKeys.ITEM_OPTIONS, "firework-compare-duration", true, "Must trades involving a firework rocket match the correct flight duration?"),
-    FIREWORK_COMPARE_EFFECTS(SettingSectionKeys.ITEM_OPTIONS, "firework-compare-effects", false, "Must trades involving a firework rocket match the exact firework effects?"),
 
     // Trade Shop Options
     TRADESHOP_HEADER(SettingSectionKeys.TRADE_SHOP_OPTIONS, "header", "Trade", "The header that appears at the top of the shop signs, this is also what the player types to create the sign"),
@@ -98,7 +94,8 @@ public enum Setting {
     // ITrade Shop Options
     ITRADESHOP_OWNER(SettingSectionKeys.ITRADE_SHOP_OPTIONS, "owner", "Server Shop", "Name to put on the bottom of iTrade signs"),
     ITRADESHOP_HEADER(SettingSectionKeys.ITRADE_SHOP_OPTIONS, "header", "iTrade", "The header that appears at the top of the shop signs, this is also what the player types to create the sign"),
-    ITRADESHOP_EXPLODE(SettingSectionKeys.ITRADE_SHOP_OPTIONS, "allow-explode", false, "Can explosions damage the shop sign (true/false)", "\n"),
+    ITRADESHOP_EXPLODE(SettingSectionKeys.ITRADE_SHOP_OPTIONS, "allow-explode", false, "Can explosions damage the shop sign (true/false)", ""),
+    ITRADESHOP_NO_COST_TEXT(SettingSectionKeys.ITRADE_SHOP_OPTIONS, "no-cost-text", "nothing", "What text should be used for successful trades when no cost is present", "\n"),
 
     // BiTrade Shop Options
     BITRADESHOP_HEADER(SettingSectionKeys.BITRADE_SHOP_OPTIONS, "header", "BiTrade", "The header that appears at the top of the shop signs, this is also what the player types to create the sign"),

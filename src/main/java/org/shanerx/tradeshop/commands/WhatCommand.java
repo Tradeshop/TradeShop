@@ -33,12 +33,14 @@ import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BookMeta;
 import org.bukkit.inventory.meta.Damageable;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.shanerx.tradeshop.TradeShop;
-import org.shanerx.tradeshop.enumys.Setting;
-import org.shanerx.tradeshop.enumys.ShopItemStackSettingKeys;
-import org.shanerx.tradeshop.enumys.ShopType;
+import org.shanerx.tradeshop.enumys.*;
 import org.shanerx.tradeshop.objects.Shop;
 import org.shanerx.tradeshop.objects.ShopItemStack;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class WhatCommand extends CommandRunner {
 
@@ -54,6 +56,11 @@ public class WhatCommand extends CommandRunner {
 
         if (shop == null)
             return;
+
+        if (!Permissions.hasPermission(pSender, Permissions.INFO)) {
+            command.sendMessage(Message.NO_COMMAND_PERMISSION.getPrefixed());
+            return;
+        }
 
         InventoryGui gui = new InventoryGui(plugin, colorize(shop.getShopType() == ShopType.ITRADE ?
                 Setting.ITRADESHOP_OWNER.getString() :
@@ -123,7 +130,19 @@ public class WhatCommand extends CommandRunner {
     }
 
     private StaticGuiElement shopitemViewMenu(ShopItemStack item) {
-        return new StaticGuiElement('e', item.getItemStack(), click2 -> {
+        ItemStack tempStack = item.getItemStack().clone();
+        ItemMeta tempMeta = tempStack.getItemMeta();
+        List<String> newLore = new ArrayList<>();
+        newLore.add("Amount: " + item.getAmount());
+
+        if (tempMeta != null && tempMeta.hasLore()) {
+            newLore.add("");
+            newLore.addAll(tempMeta.getLore());
+        }
+
+        tempMeta.setLore(newLore);
+        tempStack.setItemMeta(tempMeta);
+        return new StaticGuiElement('e', tempStack, click2 -> {
             InventoryGui itemView = new InventoryGui(plugin, "Edit Cost Item", ITEM_LAYOUT);
             GuiElementGroup itemGroup = new GuiElementGroup('g');
 
@@ -131,7 +150,7 @@ public class WhatCommand extends CommandRunner {
 
             itemView.addElement(new StaticGuiElement('a', new ItemStack(Material.BLACK_STAINED_GLASS_PANE), " "));
 
-            itemGroup.addElement(new StaticGuiElement('e', item.getItemStack()));
+            itemGroup.addElement(new StaticGuiElement('e', tempStack));
 
             itemGroup.addElement(new StaticGuiElement('e', settingItem(item.getShopSettingAsBoolean(ShopItemStackSettingKeys.COMPARE_NAME)), "Compare Name", "State: " + item.getShopSettingAsBoolean(ShopItemStackSettingKeys.COMPARE_NAME)));
             itemGroup.addElement(new StaticGuiElement('e', settingItem(item.getShopSettingAsBoolean(ShopItemStackSettingKeys.COMPARE_LORE)), "Compare Lore", "State: " + item.getShopSettingAsBoolean(ShopItemStackSettingKeys.COMPARE_LORE)));

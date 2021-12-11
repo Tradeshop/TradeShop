@@ -36,7 +36,6 @@ import org.bukkit.inventory.meta.*;
 import org.bukkit.util.io.BukkitObjectInputStream;
 import org.bukkit.util.io.BukkitObjectOutputStream;
 import org.shanerx.tradeshop.enumys.DebugLevels;
-import org.shanerx.tradeshop.enumys.Setting;
 import org.shanerx.tradeshop.enumys.ShopItemStackSettingKeys;
 import org.shanerx.tradeshop.utils.ObjectHolder;
 import org.shanerx.tradeshop.utils.Utils;
@@ -62,6 +61,13 @@ public class ShopItemStack implements Serializable, Cloneable {
     public ShopItemStack(ItemStack itemStack) {
         this.itemStack = itemStack;
         shopSettings = new HashMap<>();
+        buildMap();
+        toBase64();
+    }
+
+    public ShopItemStack(ItemStack itemStack, HashMap<ShopItemStackSettingKeys, ObjectHolder<?>> settingMap) {
+        this.itemStack = itemStack;
+        this.shopSettings = settingMap;
         buildMap();
         toBase64();
     }
@@ -146,7 +152,15 @@ public class ShopItemStack implements Serializable, Cloneable {
     }
 
     public ShopItemStack clone() {
-        return new ShopItemStack(itemStackB64, shopSettings);
+        try {
+            ShopItemStack clone = (ShopItemStack) super.clone();
+            if (itemStack != null)
+                clone.itemStack = this.itemStack.clone();
+
+            return clone;
+        } catch (CloneNotSupportedException var2) {
+            throw new Error(var2);
+        }
     }
 
     public boolean setShopSettings(ShopItemStackSettingKeys key, ObjectHolder<?> value) {
@@ -157,6 +171,17 @@ public class ShopItemStack implements Serializable, Cloneable {
 
         shopSettings.put(key, value);
         return false;
+    }
+
+    public int getAmount() {
+        if (itemStack == null) //TODO this fixes an NPE from this method when itemstack is null(idk why itemstack would be null, this fixes for now so hopefully it will be enough)
+            return 0;
+        return itemStack.getAmount();
+    }
+
+    public void setAmount(int amount) {
+        itemStack.setAmount(amount);
+        toBase64();
     }
 
     public String getItemStackB64() {
@@ -192,7 +217,7 @@ public class ShopItemStack implements Serializable, Cloneable {
         BookMeta itemStackBookMeta = itemStack.hasItemMeta() && itemStack.getItemMeta() instanceof BookMeta ? ((BookMeta) itemStackMeta) : null,
                 toCompareBookMeta = toCompare.hasItemMeta() && toCompare.getItemMeta() instanceof BookMeta ? ((BookMeta) toCompareMeta) : null;
 
-        boolean useMeta = itemStack.hasItemMeta() == toCompare.hasItemMeta() && itemStackMeta != null,
+        boolean useMeta = itemStack.hasItemMeta() == toCompare.hasItemMeta() && itemStack.hasItemMeta(),
                 useBookMeta = itemStackBookMeta != null && toCompareBookMeta != null;
 
         debugger.log("itemstack useMeta: " + useMeta, DebugLevels.ITEM_COMPARE);
@@ -202,21 +227,21 @@ public class ShopItemStack implements Serializable, Cloneable {
         if (itemStack.getType().toString().endsWith("SHULKER_BOX") &&
                 getShopSettingAsBoolean(ShopItemStackSettingKeys.COMPARE_SHULKER_INVENTORY)) {
             try {
-                ArrayList<ItemStack> contents1 = Lists.newArrayList(((ShulkerBox) ((BlockStateMeta) toCompareMeta).getBlockState()).getInventory().getContents()),
-                        contents2 = Lists.newArrayList(((ShulkerBox) ((BlockStateMeta) itemStackMeta).getBlockState()).getInventory().getContents());
+                ArrayList<ItemStack> itemStackContents = Lists.newArrayList(((ShulkerBox) ((BlockStateMeta) toCompareMeta).getBlockState()).getInventory().getContents()),
+                        toCompareContents = Lists.newArrayList(((ShulkerBox) ((BlockStateMeta) itemStackMeta).getBlockState()).getInventory().getContents());
 
-                contents1.removeIf(Objects::isNull);
-                contents2.removeIf(Objects::isNull);
+                itemStackContents.removeIf(Objects::isNull);
+                toCompareContents.removeIf(Objects::isNull);
 
-                if (contents1.isEmpty() != contents2.isEmpty())
+                if (itemStackContents.isEmpty() != toCompareContents.isEmpty())
                     return false;
 
-                for (ItemStack itm : contents2) {
-                    if (!contents1.remove(itm))
+                for (ItemStack itm : toCompareContents) {
+                    if (!itemStackContents.remove(itm))
                         return false;
                 }
 
-                if (!contents1.isEmpty())
+                if (!itemStackContents.isEmpty())
                     return false;
 
             } catch (ClassCastException ex) {
@@ -229,21 +254,21 @@ public class ShopItemStack implements Serializable, Cloneable {
                 itemStack.getType().equals(Material.BUNDLE) &&
                 getShopSettingAsBoolean(ShopItemStackSettingKeys.COMPARE_BUNDLE_INVENTORY)) {
             try {
-                ArrayList<ItemStack> contents1 = Lists.newArrayList(((BundleMeta) toCompareMeta).getItems()),
-                        contents2 = Lists.newArrayList(((BundleMeta) itemStackMeta).getItems());
+                ArrayList<ItemStack> itemStackContents = Lists.newArrayList(((BundleMeta) toCompareMeta).getItems()),
+                        toCompareContents = Lists.newArrayList(((BundleMeta) itemStackMeta).getItems());
 
-                contents1.removeIf(Objects::isNull);
-                contents2.removeIf(Objects::isNull);
+                itemStackContents.removeIf(Objects::isNull);
+                toCompareContents.removeIf(Objects::isNull);
 
-                if (contents1.isEmpty() != contents2.isEmpty())
+                if (itemStackContents.isEmpty() != toCompareContents.isEmpty())
                     return false;
 
-                for (ItemStack itm : contents2) {
-                    if (!contents1.remove(itm))
+                for (ItemStack itm : toCompareContents) {
+                    if (!itemStackContents.remove(itm))
                         return false;
                 }
 
-                if (!contents1.isEmpty())
+                if (!itemStackContents.isEmpty())
                     return false;
 
             } catch (ClassCastException ex) {
@@ -292,16 +317,33 @@ public class ShopItemStack implements Serializable, Cloneable {
 
         // If compareEnchantments is on
         if (getShopSettingAsBoolean(ShopItemStackSettingKeys.COMPARE_ENCHANTMENTS) && useMeta) {
-            // Return False if hasEnchantments differs (one has one doesn't)
-            if (itemStackMeta.hasEnchants() != toCompareMeta.hasEnchants()) {
-                debugger.log("itemStackMeta hasEnchants: " + itemStackMeta.hasEnchants(), DebugLevels.ITEM_COMPARE);
-                debugger.log("toCompareMeta hasEnchants: " + toCompareMeta.hasEnchants(), DebugLevels.ITEM_COMPARE);
-                return false;
-            }
+            if (itemStackMeta instanceof EnchantmentStorageMeta && toCompareMeta instanceof EnchantmentStorageMeta) {
+                EnchantmentStorageMeta itemStackEnchantmentStorageMeta = (EnchantmentStorageMeta) itemStackMeta,
+                        toCompareEnchantmentStorageMeta = (EnchantmentStorageMeta) toCompareMeta;
 
-            // Return False if itemStack hasEnchantments && Enchant maps are not equal
-            if (itemStackMeta.hasEnchants() && !itemStackMeta.getEnchants().equals(toCompareMeta.getEnchants()))
-                return false;
+                debugger.log("itemStackEnchantmentStorageMeta Enchants: " + itemStackEnchantmentStorageMeta.getStoredEnchants(), DebugLevels.ENCHANT_CHECKS);
+                debugger.log("toCompareEnchantmentStorageMeta Enchants: " + toCompareEnchantmentStorageMeta.getStoredEnchants(), DebugLevels.ENCHANT_CHECKS);
+
+                // Return False if hasEnchantments differs (one has one doesn't)
+                if (itemStackEnchantmentStorageMeta.hasStoredEnchants() != toCompareEnchantmentStorageMeta.hasStoredEnchants())
+                    return false;
+
+                // Return False if itemStack hasEnchantments && Enchant maps are not equal
+                if (itemStackEnchantmentStorageMeta.hasStoredEnchants() && !itemStackEnchantmentStorageMeta.getStoredEnchants().equals(toCompareEnchantmentStorageMeta.getStoredEnchants()))
+                    return false;
+            } else {
+
+                // Return False if hasEnchantments differs (one has one doesn't)
+                if (itemStackMeta.hasEnchants() != toCompareMeta.hasEnchants()) {
+                    debugger.log("itemStackMeta hasEnchants: " + itemStackMeta.hasEnchants(), DebugLevels.ITEM_COMPARE);
+                    debugger.log("toCompareMeta hasEnchants: " + toCompareMeta.hasEnchants(), DebugLevels.ITEM_COMPARE);
+                    return false;
+                }
+
+                // Return False if itemStack hasEnchantments && Enchant maps are not equal
+                if (itemStackMeta.hasEnchants() && !itemStackMeta.getEnchants().equals(toCompareMeta.getEnchants()))
+                    return false;
+            }
         }
 
         // If compareName is on
@@ -399,13 +441,13 @@ public class ShopItemStack implements Serializable, Cloneable {
             FireworkMeta toCompareFireworkMeta = (FireworkMeta) toCompareMeta;
 
             // If server compare firework duration is disabled local setting is ignores
-            if (getShopSettingAsBoolean(ShopItemStackSettingKeys.COMPARE_FIREWORK_DURATION) && Setting.FIREWORK_COMPARE_DURATION.getBoolean()) {
+            if (getShopSettingAsBoolean(ShopItemStackSettingKeys.COMPARE_FIREWORK_DURATION)) {
                 if (fireworkMeta.getPower() != toCompareFireworkMeta.getPower()) {
                     return false;
                 }
             }
 
-            if (getShopSettingAsBoolean(ShopItemStackSettingKeys.COMPARE_FIREWORK_EFFECTS) && Setting.FIREWORK_COMPARE_EFFECTS.getBoolean()) {
+            if (getShopSettingAsBoolean(ShopItemStackSettingKeys.COMPARE_FIREWORK_EFFECTS)) {
                 if (fireworkMeta.hasEffects()) {
                     if (fireworkMeta.getEffects().size() != toCompareFireworkMeta.getEffects().size()) {
                         return false;

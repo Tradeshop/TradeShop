@@ -428,15 +428,6 @@ public class Shop implements Serializable {
 	}
 
 	/**
-	 * returns the cost item
-	 *
-	 * @return Cost ItemStack List
-	 */
-    public List<ShopItemStack> getCost() {
-		return cost;
-	}
-
-	/**
 	 * Sets the cost item
 	 *
 	 * @param newItem ItemStack to be set
@@ -448,7 +439,6 @@ public class Shop implements Serializable {
 		cost.clear();
 
 		addCost(newItem);
-		cost.removeIf(item -> item.getItemStack().getType().toString().endsWith("SHULKER_BOX") && getInventoryLocation().getBlock().getType().toString().endsWith("SHULKER_BOX"));
 	}
 
 	/**
@@ -460,6 +450,7 @@ public class Shop implements Serializable {
 		if (!utils.isValidType(newItem.getType()))
 			return;
 
+		/* Added stacks are separated by stack size
 		int amount = newItem.getAmount();
 		List<ItemStack> items = new ArrayList<>();
 		while (amount > 0) {
@@ -472,12 +463,37 @@ public class Shop implements Serializable {
 				ItemStack itm = newItem.clone();
 				itm.setAmount(amount);
 				items.add(itm);
-				amount -= amount;
+				amount = 0;
 			}
 		}
 
 		items.forEach((ItemStack iS) -> cost.add(new ShopItemStack(iS)));
-		cost.removeIf(item -> item.getItemStack().getType().toString().endsWith("SHULKER_BOX") && getInventoryLocation().getBlock().getType().toString().endsWith("SHULKER_BOX"));
+
+		 */
+
+		///* Added stacks are not separated and are added ontop of existing similar stacks
+		ShopItemStack toAddShopItemStack = new ShopItemStack(newItem),
+				toRemoveShopItemStack = null;
+
+
+		for (ShopItemStack shopItemStack : getCost()) {
+			if (shopItemStack.getItemStack().getType().equals(newItem.getType()) && shopItemStack.isSimilar(newItem)) {
+				toRemoveShopItemStack = shopItemStack;
+				toAddShopItemStack = shopItemStack.clone();
+				toAddShopItemStack.setAmount(shopItemStack.getAmount() + newItem.getAmount());
+				break;
+			}
+		}
+
+		if (toRemoveShopItemStack != null)
+			cost.remove(toRemoveShopItemStack);
+
+		cost.add(toAddShopItemStack);
+		//*/
+
+
+		if (!getShopType().isITrade() && chestLoc != null)
+			cost.removeIf(item -> item.getItemStack().getType().toString().endsWith("SHULKER_BOX") && getInventoryLocation().getBlock().getType().toString().endsWith("SHULKER_BOX"));
 
 		saveShop();
 		updateSign();
@@ -539,6 +555,7 @@ public class Shop implements Serializable {
 		if (!utils.isValidType(newItem.getType()))
 			return;
 
+		/* Added stacks are separated by stack size
 		int amount = newItem.getAmount();
 		List<ItemStack> items = new ArrayList<>();
 		while (amount > 0) {
@@ -556,18 +573,79 @@ public class Shop implements Serializable {
 		}
 
         items.forEach((ItemStack iS) -> product.add(new ShopItemStack(iS)));
+        */
+
+
+		///* Added stacks are not separated and are added ontop of existing similar stacks
+		ShopItemStack toAddShopItemStack = new ShopItemStack(newItem),
+				toRemoveShopItemStack = null;
+
+
+		for (ShopItemStack shopItemStack : getProduct()) {
+			if (shopItemStack.getItemStack().getType().equals(newItem.getType()) && shopItemStack.isSimilar(newItem)) {
+				toRemoveShopItemStack = shopItemStack;
+				toAddShopItemStack = shopItemStack.clone();
+				toAddShopItemStack.setAmount(shopItemStack.getAmount() + newItem.getAmount());
+				break;
+			}
+		}
+
+		if (toRemoveShopItemStack != null)
+			product.remove(toRemoveShopItemStack);
+
+		product.add(toAddShopItemStack);
+		//*/
 
 		saveShop();
 		updateSign();
 	}
 
 	/**
-	 * Returns the product item
+	 * Returns the product items
+	 *
+	 * @return Product ShopItemStack List
+	 */
+	public List<ShopItemStack> getProduct() {
+		List<ShopItemStack> ret = new ArrayList<>();
+		for (ShopItemStack itm : product)
+			ret.add(itm.clone());
+		return ret;
+	}
+
+	/**
+	 * Returns the product items
 	 *
 	 * @return Product ItemStack List
 	 */
-    public List<ShopItemStack> getProduct() {
-		return product;
+	public List<ItemStack> getProductItemStacks() {
+		List<ItemStack> ret = new ArrayList<>();
+		for (ShopItemStack itm : product)
+			ret.add(itm.getItemStack().clone());
+		return ret;
+	}
+
+	/**
+	 * returns the cost item
+	 *
+	 * @return Cost ItemStack List
+	 */
+	public List<ShopItemStack> getCost() {
+		List<ShopItemStack> ret = new ArrayList<>();
+		for (ShopItemStack itm : cost)
+			ret.add(itm.clone());
+		return ret;
+	}
+
+	/**
+	 * Returns the cost items
+	 *
+	 * @return Cost ItemStack List
+	 */
+	public List<ItemStack> getCostItemStacks() {
+		List<ItemStack> ret = new ArrayList<>();
+		for (ShopItemStack itm : cost)
+			ret.add(itm.getItemStack().clone());
+		return ret;
 	}
 
 	/**
@@ -637,9 +715,16 @@ public class Shop implements Serializable {
 		if (utils == null)
 			utils = new Utils();
 		shopLoc.stringToWorld();
-		if (!shopType.isITrade() && chestLoc != null)
+		if (!getShopType().isITrade() && chestLoc != null) {
 			chestLoc.stringToWorld();
-		cost.removeIf(item -> item.getItemStack().getType().toString().endsWith("SHULKER_BOX") && getInventoryLocation().getBlock().getType().toString().endsWith("SHULKER_BOX"));
+			cost.removeIf(item -> item.getItemStack().getType().toString().endsWith("SHULKER_BOX") && getInventoryLocation().getBlock().getType().toString().endsWith("SHULKER_BOX"));
+		}
+
+		/* TODO Fix this after 2.4
+		 Removed since this ends up running getItems everytime a hopper trys to access a shop.
+		 Runs up to 3 times per second per hopper under a tradeshop with items inside
+		 Removing this caused errors with shops not being updated properly and causing fail messages during trades
+		 */
 		if (getShopSign() != null)
 			updateSign();
 	}
@@ -654,12 +739,13 @@ public class Shop implements Serializable {
 	}
 
 	/**
-	 * Saves the shop too file
+	 * Saves the shop to file
 	 */
 	public void saveShop() {
 		updateFullTradeCount();
 		utils.plugin.getDataStorage().saveShop(this);
-        updateUserFiles();
+		updateUserFiles();
+		updateSign();
 	}
 
 	/**
@@ -681,20 +767,22 @@ public class Shop implements Serializable {
 	 * Updates the text on the shops sign
 	 */
 	public void updateSign() {
-		if (((TradeShop) Bukkit.getPluginManager().getPlugin("TradeShop")).isFrozen()) return;
-		if (signChangeEvent != null)
+		if (signChangeEvent != null) {
 			updateSign(signChangeEvent);
-		else {
+			removeEvent();
+		} else {
 			Sign s = getShopSign();
 
-            String[] signLines = updateSignLines();
+			if (s != null) {
+				String[] signLines = updateSignLines();
 
-            for (int i = 0; i < 4; i++) {
-				if (signLines[i] != null && s != null)
-					s.setLine(i, signLines[i]);
+				for (int i = 0; i < 4; i++) {
+					if (signLines[i] != null)
+						s.setLine(i, signLines[i]);
+				}
+
+				s.update();
 			}
-
-			s.update();
 		}
 	}
 
@@ -813,29 +901,43 @@ public class Shop implements Serializable {
 	 *
 	 * @return true if shop opened
 	 */
-    public ShopStatus setOpen() {
-        setStatus(ShopStatus.OPEN);
-        updateStatus();
+	public ShopStatus setOpen() {
+		setStatus(ShopStatus.OPEN);
+		updateStatus();
 
 		saveShop();
 		updateSign();
-        return status;
-    }
+		return status;
+	}
 
-    /**
-     * Automatically updates a shops status if it is not CLOSED
-     */
-    public void updateStatus() {
-        if (!status.equals(ShopStatus.CLOSED)) {
-            if (!isMissingItems() && (chestLoc != null || shopType.equals(ShopType.ITRADE))) {
-                if (shopType.equals(ShopType.ITRADE) || (getChestAsSC() != null && getChestAsSC().hasStock(product)))
-                    setStatus(ShopStatus.OPEN);
-                else
-                    setStatus(ShopStatus.OUT_OF_STOCK);
-            } else {
-                setStatus(ShopStatus.INCOMPLETE);
-            }
-        }
+	/**
+	 * Checks if the shop has sufficient product stock to make a trade
+	 */
+	public boolean hasProductStock() {
+		return !shopType.isITrade() && hasProduct() && getChestAsSC() != null && getChestAsSC().hasStock(product);
+	}
+
+	/**
+	 * Checks if the shop has sufficient cost stock to make a trade(Use for BiTrade)
+	 */
+	public boolean hasCostStock() {
+		return !shopType.isITrade() && hasCost() && getChestAsSC() != null && getChestAsSC().hasStock(cost);
+	}
+
+	/**
+	 * Automatically updates a shops status if it is not CLOSED
+	 */
+	public void updateStatus() {
+		if (!status.equals(ShopStatus.CLOSED)) {
+			if (!isMissingItems() && (chestLoc != null || shopType.isITrade())) {
+				if (shopType.isITrade() || hasProductStock() || (shopType.isBiTrade() && hasCostStock()))
+					setStatus(ShopStatus.OPEN);
+				else
+					setStatus(ShopStatus.OUT_OF_STOCK);
+			} else {
+				setStatus(ShopStatus.INCOMPLETE);
+			}
+		}
     }
 
 	/**
@@ -1052,7 +1154,8 @@ public class Shop implements Serializable {
 	 * Updates shops cost list
 	 */
 	public void updateCost(List<ShopItemStack> updatedCostList) {
-		updatedCostList.removeIf(item -> item.getItemStack().getType().toString().endsWith("SHULKER_BOX") && getInventoryLocation().getBlock().getType().toString().endsWith("SHULKER_BOX"));
+		if (!getShopType().isITrade() && chestLoc != null)
+			updatedCostList.removeIf(item -> item.getItemStack().getType().toString().endsWith("SHULKER_BOX") && getInventoryLocation().getBlock().getType().toString().endsWith("SHULKER_BOX"));
 		cost = updatedCostList;
 		saveShop();
 		updateSign();

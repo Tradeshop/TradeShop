@@ -399,14 +399,24 @@ public class Utils {
 				}
 			}
 
-			for (ShopItemStack item : shop.getProduct()) {
-				if (!playerInventory.addItem(item.getItemStack()).isEmpty()) {
-                    return ExchangeStatus.PLAYER_NO_SPACE;
-                }
-            }
+			Inventory iTradeVirtualInventory = Bukkit.createInventory(null, Math.min((int) (Math.ceil(shop.getProduct().size() / 9.0) * 9) * multiplier, 54));
+			while (iTradeVirtualInventory.firstEmpty() != -1) {
+				for (ItemStack item : shop.getProductItemStacks()) {
+					item.setAmount(item.getMaxStackSize());
+					iTradeVirtualInventory.addItem(item);
+				}
+			}
 
-            return ExchangeStatus.SUCCESS; //Successfully completed trade
-        } else if (shop.getShopType() == ShopType.BITRADE && action == Action.LEFT_CLICK_BLOCK) { //BiTrade Reversed Trade
+			productItems = getItems(iTradeVirtualInventory, shop.getProduct(), multiplier);
+
+			for (ItemStack item : productItems) {
+				if (!playerInventory.addItem(item).isEmpty()) {
+					return ExchangeStatus.PLAYER_NO_SPACE;
+				}
+			}
+
+			return ExchangeStatus.SUCCESS; //Successfully completed trade
+		} else if (shop.getShopType() == ShopType.BITRADE && action == Action.LEFT_CLICK_BLOCK) { //BiTrade Reversed Trade
 
             //Method to find Cost items in player inventory and add to cost array
             costItems = getItems(playerInventory, shop.getProduct(), multiplier); //Reverse BiTrade, Product is Cost
@@ -474,29 +484,31 @@ public class Utils {
 		debugger.log("ShopTradeListener > Inventory Location Being Searched: " + (inventory.getLocation() != null ? inventory.getLocation().toString() : "null"), DebugLevels.TRADE);
 
 		for (ShopItemStack item : items) {
-			totalCount += item.getItemStack().getAmount() * multiplier;
-			int count = item.getItemStack().getAmount() * multiplier, traded;
+			totalCount += item.getAmount() * multiplier;
+			int count = item.getAmount() * multiplier;
 
 			debugger.log("ShopTradeListener > Item Material Being Searched for: " + item.getItemStack().getType().name(), DebugLevels.TRADE);
 			debugger.log("ShopTradeListener > Item count: " + count, DebugLevels.TRADE);
 
 			for (ItemStack storageItem : clone.getStorageContents()) {
-				boolean isSimilar = item.isSimilar(storageItem);
-				if (storageItem != null && isSimilar) {
+				if (storageItem != null) {
+					boolean isSimilar = item.isSimilar(storageItem.clone());
+					if (isSimilar) {
 
-					traded = Math.min(Math.min(storageItem.getAmount(), item.getItemStack().getMaxStackSize()), count);
+						int traded = Math.min(Math.min(storageItem.getAmount(), item.getItemStack().getMaxStackSize()), count);
 
-					storageItem.setAmount(traded);
+						storageItem.setAmount(traded);
 
-					clone.removeItem(storageItem);
-					ret.add(storageItem);
-					debugger.log("ShopTradeListener > Item traded: " + traded, DebugLevels.TRADE);
+						clone.removeItem(storageItem);
+						ret.add(storageItem);
+						debugger.log("ShopTradeListener > Item traded: " + traded, DebugLevels.TRADE);
 
-					count -= traded;
-					currentCount += traded;
-					debugger.log("ShopTradeListener > Item traded: " + count, DebugLevels.TRADE);
+						count -= traded;
+						currentCount += traded;
+						debugger.log("ShopTradeListener > Item traded: " + count, DebugLevels.TRADE);
+					}
+					debugger.log("ShopTradeListener > isSimilar: " + isSimilar, DebugLevels.NAME_COMPARE);
 				}
-				debugger.log("ShopTradeListener > isSimilar: " + isSimilar, DebugLevels.NAME_COMPARE);
 
 				if (currentCount >= totalCount) break;
 			}
@@ -507,7 +519,7 @@ public class Utils {
                 ret.clear();
                 ret.add(0, null);
 				ret.add(1, item.getItemStack());
-				ret.get(1).setAmount(item.getItemStack().getAmount() * multiplier);
+				ret.get(1).setAmount(item.getAmount() * multiplier);
             }
         }
 

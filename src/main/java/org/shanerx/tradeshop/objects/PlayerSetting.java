@@ -49,7 +49,7 @@ public class PlayerSetting implements Serializable {
     private final String uuidString;
     private final Set<String> ownedShops;
 
-    private boolean showInvolvedStatus;
+    private boolean showInvolvedStatus, adminEnabled = true;
 
     private int type = 0, multi = Setting.MULTI_TRADE_DEFAULT.getInt();
     private final Set<String> staffShops;
@@ -82,6 +82,14 @@ public class PlayerSetting implements Serializable {
         PlayerSetting playerSetting = new Gson().fromJson(serialized, PlayerSetting.class);
         playerSetting.load();
         return playerSetting;
+    }
+
+    public boolean isAdminEnabled() {
+        return adminEnabled;
+    }
+
+    public void setAdminEnabled(boolean adminEnabled) {
+        this.adminEnabled = adminEnabled;
     }
 
     public int getType() {

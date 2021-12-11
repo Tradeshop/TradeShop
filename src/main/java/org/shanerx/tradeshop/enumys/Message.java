@@ -36,11 +36,10 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.shanerx.tradeshop.TradeShop;
+import org.shanerx.tradeshop.utils.Tuple;
 import org.yaml.snakeyaml.Yaml;
 
 import java.io.*;
-import java.util.Collections;
-import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 
@@ -52,13 +51,14 @@ public enum Message {
     CHANGE_OPEN(MessageSectionKeys.NONE, "&aThe shop is now &l&bOPEN&r&a."),
     CONFIRM_TRADE(MessageSectionKeys.UNUSED, "&eTrade &6{AMOUNT1} {ITEM1} &efor &6{AMOUNT2} {ITEM2} &e?", "\\Unused\\"),
     EMPTY_TS_ON_SETUP(MessageSectionKeys.NONE, "&cTradeShop empty, please remember to fill it!", "Text to display when a player places a TradeSign above an empty chest:"),
-    EXISTING_SHOP(MessageSectionKeys.NONE, "&cYou may only have 1 shop per inventory block."),
+    EXISTING_SHOP(MessageSectionKeys.NONE, "&cThis storage or sign is already linked to a shop."),
     FEATURE_DISABLED(MessageSectionKeys.NONE, "&cThis feature has been disabled on this server!"),
     FULL_AMOUNT(MessageSectionKeys.UNUSED, "&cYou must have &e{AMOUNT} &cof a single type of &e{ITEM}&c!", "\\Unused\\"),
     HELD_EMPTY(MessageSectionKeys.NONE, "&eYou are currently holding nothing.", "Text to display when the player is not holding anything"),
     ILLEGAL_ITEM(MessageSectionKeys.NONE, "&cYou cannot use one or more of those items in shops.", "Text to display when a shop failed creation due to an illegal item "),
     NO_SHULKER_COST(MessageSectionKeys.NONE, "&cYou cannot add a Shulker Box as a cost when the shop uses it for storage.", "Text to display when a shop failed creation due to using a shulker box as cost when the shop uses it for storage: "),
     INSUFFICIENT_ITEMS(MessageSectionKeys.NONE, "&cYou do not have &e{AMOUNT} {ITEM}&c!", "Text to display when the player does not have enough items:"),
+    SHOP_INSUFFICIENT_ITEMS(MessageSectionKeys.NONE, "&cThis shop does not have enough &e{AMOUNT} {ITEM}&c to trade!", "Text to display when the shop does not have enough items:"),
     INVALID_ARGUMENTS(MessageSectionKeys.NONE, "&eTry &6/tradeshop help &eto display help!", "Text to display when invalid arguments are submitted through the \"/tradeshop\" command:"),
     INVALID_SIGN(MessageSectionKeys.UNUSED, "&cInvalid sign format!", "\\Unused\\"),
     INVALID_SUBCOMMAND(MessageSectionKeys.UNUSED, "&cInvalid sub-command. Cannot display usage.", "\\Unused\\"),
@@ -72,11 +72,11 @@ public enum Message {
     MULTI_UPDATE(MessageSectionKeys.NONE, "&aTrade multiplier has been updated to %amount%."),
     NO_CHEST(MessageSectionKeys.NONE, "&cYou need to put a chest under the sign!", "Text to display when a player attempts to place a sign without placing the chest first:"),
     NO_COMMAND_PERMISSION(MessageSectionKeys.NONE, "&aYou do not have permission to execute this command", "Text to display when a player attempts to run administrator commands:"),
-    NO_EDIT(MessageSectionKeys.NONE, "&cYou do not have permission to edit this shop."),
     NO_SHOP_PERMISSION(MessageSectionKeys.NONE, "&cYou do not have permission to edit that shop."),
     NO_SIGHTED_SHOP(MessageSectionKeys.NONE, "&cNo shop in range!", "Text to display when a player is too far from a shop"),
     NO_TS_CREATE_PERMISSION(MessageSectionKeys.NONE, "&cYou don't have permission to create TradeShops!", "Text to display when a player attempts to setup a shoptype they are not allowed to create:"),
     NO_TS_DESTROY(MessageSectionKeys.NONE, "&cYou may not destroy that TradeShop", "Text to display when a player attempts to destroy a shop they do not own:"),
+    DESTROY_SHOP_SIGN_FIRST(MessageSectionKeys.NONE, "&cYou must destroy the shops sign first.", "Text to display when a player attempts to destroy a block with a shop sign attached to it:"),
     NO_TS_OPEN(MessageSectionKeys.NONE, "&cThat TradeShop does not belong to you", "Text to display when a player attempts to open a shop they do not own nor have been granted access to (1.6):"),
     ON_TRADE(MessageSectionKeys.NONE, "&aYou have traded your &e{AMOUNT2} {ITEM2} &afor &e{AMOUNT1} {ITEM1} &awith {SELLER}", "Text to display upon a successful trade:"),
     PLAYER_FULL(MessageSectionKeys.NONE, "&cYour inventory is full, please make room before trading items!", "Text to display when the players inventory is too full to recieve the trade:"),
@@ -97,7 +97,6 @@ public enum Message {
     SHOP_EMPTY(MessageSectionKeys.NONE, "&cThis TradeShop is currently missing items to complete the trade!", "Text to display when the shop does not have enough stock:"),
     SHOP_FULL(MessageSectionKeys.NONE, "&cThis TradeShop is full, please contact the owner to get it emptied!", "Text to display when the shop storage is full:"),
     SHOP_FULL_AMOUNT(MessageSectionKeys.UNUSED, "&cThe shop does not have &e{AMOUNT} &cof a single type of &e{ITEM}&c!", "\\Unused\\"),
-    SHOP_INSUFFICIENT_ITEMS(MessageSectionKeys.NONE, "&cThis shop does not have &e{AMOUNT} {ITEM}&c!"),
     SHOP_ITEM_LIST(MessageSectionKeys.NONE, "&aThe shops %type%:\n%list%"),
     SHOP_TYPE_SWITCHED(MessageSectionKeys.NONE, "&aShop type has been switched to %newtype%."),
     SUCCESSFUL_SETUP(MessageSectionKeys.NONE, "&aYou have successfully setup a TradeShop!", "Text to display when a player successfully creates a TradeShop:"),
@@ -109,7 +108,9 @@ public enum Message {
     VIEW_PLAYER_LEVEL(MessageSectionKeys.NONE, "&e%player% has a level of %level%.", "Text to display when viewing a players level with /ts PlayerLevel"),
     SET_PLAYER_LEVEL(MessageSectionKeys.NONE, "&aYou have set the level of %player% to %level%!", "Text to display after setting a players level"),
     VARIOUS_ITEM_TYPE(MessageSectionKeys.NONE, "Various", "Text to display when a message uses an Item Type and the Type varies"),
-    TOGGLED_STATUS(MessageSectionKeys.NONE, "Toggled status: &c%status%");
+    TOGGLED_STATUS(MessageSectionKeys.NONE, "Toggled status: &c%status%"),
+    NO_SIGN_FOUND(MessageSectionKeys.NONE, "&cNo sign in range!", "Text to display when a player is too far from a sign"),
+    ADMIN_TOGGLED(MessageSectionKeys.NONE, "&aYour Admin mode is currently &e{STATE}&a.", "Text to display when an admin toggles or views their Admin abilities. \n# \"{STATE}\" will be replaced by the state that the player is in after the command.");
 
     private static final char COLOUR_CHAR = '&';
     private static final TradeShop plugin = (TradeShop) Bukkit.getPluginManager().getPlugin("TradeShop");
@@ -239,39 +240,62 @@ public enum Message {
         return colour(PREFIX + this);
     }
 
-    public void sendMessage(Player player, Map<String, String> replacements) {
-        String message = getPrefixed();
-        replacements.forEach(message::replaceAll);
 
-        if (getMessage().startsWith("#json ")) {
-            message.replaceFirst("#json ", "");
-            player.sendRawMessage(colour(message));
-        } else {
-            player.sendMessage(colour(message));
-        }
+    private void sendMessageDirect(CommandSender sendTo, String message) {
+        sendTo.sendMessage(colour(message));
+    }
+
+    //Not currently working
+    private void sendMessageDirectJson(Player sendTo, String message) {
+        sendTo.sendRawMessage(colour(message));
     }
 
     public void sendMessage(Player player) {
-        sendMessage(player, Collections.emptyMap());
+        String message = getPrefixed();
+        if (getMessage().startsWith("#json ")) {
+            message.replaceFirst("#json ", "");
+            sendMessageDirectJson(player, message);
+        } else {
+            sendMessageDirect(player, message);
+        }
     }
 
     public void sendMessage(CommandSender sender) {
-        sendMessage(sender, Collections.emptyMap());
+        sendMessageDirect(sender, getPrefixed());
     }
 
-    public void sendMessage(CommandSender sender, Map<String, String> replacements) {
+    @SafeVarargs
+    public final void sendMessage(Player player, Tuple<String, String>... replacements) {
+        String message = getPrefixed();
+        for (Tuple<String, String> replace : replacements) {
+            message = message.replace(replace.getLeft(), replace.getRight());
+        }
+
+        if (getMessage().startsWith("#json ")) {
+            message = message.replaceFirst("#json ", "");
+            sendMessageDirectJson(player, message);
+        } else {
+            sendMessageDirect(player, message);
+        }
+    }
+
+    @SafeVarargs
+    public final void sendMessage(CommandSender sender, Tuple<String, String>... replacements) {
         if (sender instanceof Player) {
             sendMessage((Player) sender, replacements);
             return;
         }
-        String message = getPrefixed();
-        replacements.forEach(message::replaceAll);
 
-        if (getMessage().startsWith("#json ")) {
-            message.replaceFirst("#json ", "");
+        String message = getPrefixed();
+        for (Tuple<String, String> replace : replacements) {
+            message = message.replace(replace.getLeft(), replace.getRight());
         }
 
-        sender.sendMessage(colour(message));
+        if (getMessage().startsWith("#json ")) {
+            message = message.replaceFirst("#json ", "");
+        }
+
+        sendMessageDirect(sender, message);
     }
 }
 

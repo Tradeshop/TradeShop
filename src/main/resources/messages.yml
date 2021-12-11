@@ -5,12 +5,14 @@ change-closed: '&cThe shop is now &l&bCLOSED&r&a.'
 change-open: '&aThe shop is now &l&bOPEN&r&a.'
 # Text to display when a player places a TradeSign above an empty chest:
 empty-ts-on-setup: '&cTradeShop empty, please remember to fill it!'
-existing-shop: '&cYou may only have 1 shop per inventory block.'
+existing-shop: '&cThis storage or sign is already linked to a shop.'
 feature-disabled: '&cThis feature has been disabled on this server!'
 # Text to display when the player is not holding anything
 held-empty: '&eYou are currently holding nothing.'
 # Text to display when a shop failed creation due to an illegal item
 illegal-item: '&cYou cannot use one or more of those items in shops.'
+# Text to display when a shop failed creation due to using a shulker box as cost when the shop uses it for storage:
+no-shulker-cost: '&cYou cannot add a Shulker Box as a cost when the shop uses it for storage.'
 # Text to display when the player does not have enough items:
 insufficient-items: '&cYou do not have &e{AMOUNT} {ITEM}&c!'
 # Text to display when invalid arguments are submitted through the "/tradeshop" command:
@@ -27,7 +29,6 @@ multi-update: '&aTrade multiplier has been updated to %amount%.'
 no-chest: '&cYou need to put a chest under the sign!'
 # Text to display when a player attempts to run administrator commands:
 no-command-permission: '&aYou do not have permission to execute this command'
-no-edit: '&cYou do not have permission to edit this shop.'
 no-shop-permission: '&cYou do not have permission to edit that shop.'
 # Text to display when a player is too far from a shop
 no-sighted-shop: '&cNo shop in range!'
@@ -55,7 +56,7 @@ setup-help: "\n&2Setting up a TradeShop is easy! Just make sure to follow these 
   \ and addProduct commands to add items to your shop"
 shop-closed: '&cThis shop is currently closed.'
 # Text to display when the shop does not have enough stock:
-shop-empty: '&cThis TradeShop is currently &emissing &citems to complete the trade!'
+shop-empty: '&cThis TradeShop is currently missing items to complete the trade!'
 # Text to display when the shop storage is full:
 shop-full: '&cThis TradeShop is full, please contact the owner to get it emptied!'
 shop-insufficient-items: '&cThis shop does not have &e{AMOUNT} {ITEM}&c!'
@@ -78,3 +79,11 @@ who-message: |-
   &2Owner: &e{OWNER}
   &2Managers: &e{MANAGERS}
   &2Members: &e{MEMBERS}
+# Text to display when viewing a players level with /ts PlayerLevel
+view-player-level: '&e%player% has a level of %level%.'
+# Text to display after setting a players level
+set-player-level: '&aYou have set the level of %player% to %level%!'
+# Text to display when a message uses an Item Type and the Type varies
+various-item-type: Various
+toggled-status: 'Toggled status: &c%status%'
+no-sign-found: '&cNo sign in range!", "Text to display when a player is too far from a sign"'

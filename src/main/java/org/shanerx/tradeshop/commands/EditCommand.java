@@ -35,6 +35,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BookMeta;
 import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.FireworkMeta;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.shanerx.tradeshop.TradeShop;
 import org.shanerx.tradeshop.enumys.Message;
 import org.shanerx.tradeshop.enumys.Permissions;
@@ -80,8 +81,8 @@ public class EditCommand extends CommandRunner {
 
         if (!(shop.getOwner().getUUID().equals(pSender.getUniqueId()) ||
                 shop.getManagersUUID().contains(pSender.getUniqueId()) ||
-                Permissions.hasPermission(pSender, Permissions.ADMIN))) {
-            sendMessage(Message.NO_EDIT.getPrefixed());
+                Permissions.isAdminEnabled(pSender))) {
+            command.sendMessage(Message.NO_SHOP_PERMISSION.getPrefixed());
             return;
         }
 
@@ -251,9 +252,21 @@ public class EditCommand extends CommandRunner {
     }
 
     private StaticGuiElement shopItemEditMenu(int index, boolean isCost) {
-        return new StaticGuiElement('e', (isCost ? costItems : productItems).get(index).getItemStack(), click2 -> {
-            ShopItemStack item = (isCost ? costItems : productItems).get(index),
-                    tempItem = item.clone();
+        ShopItemStack item = (isCost ? costItems : productItems).get(index).clone();
+        ItemStack tempStack = item.getItemStack();
+        ItemMeta tempMeta = tempStack.getItemMeta();
+        List<String> newLore = new ArrayList<>();
+        newLore.add(colorize("&8Amount &7» &f" + item.getAmount()));
+
+        if (tempMeta != null && tempMeta.hasLore()) {
+            newLore.add("");
+            newLore.addAll(tempMeta.getLore());
+        }
+
+        tempMeta.setLore(newLore);
+        tempStack.setItemMeta(tempMeta);
+
+        return new StaticGuiElement('e', tempStack, click2 -> {
             InventoryGui itemEdit = new InventoryGui(plugin, "Edit Cost Item", ITEM_LAYOUT);
             GuiElementGroup itemGroup = new GuiElementGroup('g');
 
@@ -262,7 +275,7 @@ public class EditCommand extends CommandRunner {
 
             // Save and Back
             itemEdit.addElement(new StaticGuiElement('s', new ItemStack(Material.ANVIL), click3 -> {
-                (isCost ? costItems : productItems).set((isCost ? costItems : productItems).indexOf(item), tempItem);
+                (isCost ? costItems : productItems).set(index, item);
                 InventoryGui.goBack(pSender);
                 return true;
             }, "Save Changes"));
@@ -283,36 +296,36 @@ public class EditCommand extends CommandRunner {
 
             //Add new item settings below
             if (item.getItemStack().getItemMeta() instanceof Damageable) {
-                itemGroup.addElement(numericalOption(ShopItemStackSettingKeys.COMPARE_DURABILITY, tempItem, new ItemStack[]{
+                itemGroup.addElement(numericalOption(ShopItemStackSettingKeys.COMPARE_DURABILITY, item, new ItemStack[]{
                         FALSE_ITEM, new ItemStack(Material.IRON_BLOCK), TRUE_ITEM, new ItemStack(Material.GOLD_BLOCK)
                 }));
             }
 
-            if (tempItem.getItemStack().getItemMeta() instanceof BookMeta) {
-                itemGroup.addElement(booleanOption(ShopItemStackSettingKeys.COMPARE_BOOK_AUTHOR, tempItem, TRUE_ITEM, FALSE_ITEM));
-                itemGroup.addElement(booleanOption(ShopItemStackSettingKeys.COMPARE_BOOK_PAGES, tempItem, TRUE_ITEM, FALSE_ITEM));
+            if (tempMeta instanceof BookMeta) {
+                itemGroup.addElement(booleanOption(ShopItemStackSettingKeys.COMPARE_BOOK_AUTHOR, item, TRUE_ITEM, FALSE_ITEM));
+                itemGroup.addElement(booleanOption(ShopItemStackSettingKeys.COMPARE_BOOK_PAGES, item, TRUE_ITEM, FALSE_ITEM));
             }
 
-            if (tempItem.getItemStack().getItemMeta() instanceof FireworkMeta) {
-                itemGroup.addElement(booleanOption(ShopItemStackSettingKeys.COMPARE_FIREWORK_DURATION, tempItem, TRUE_ITEM, FALSE_ITEM));
-                itemGroup.addElement(booleanOption(ShopItemStackSettingKeys.COMPARE_FIREWORK_EFFECTS, tempItem, TRUE_ITEM, FALSE_ITEM));
+            if (tempMeta instanceof FireworkMeta) {
+                itemGroup.addElement(booleanOption(ShopItemStackSettingKeys.COMPARE_FIREWORK_DURATION, item, TRUE_ITEM, FALSE_ITEM));
+                itemGroup.addElement(booleanOption(ShopItemStackSettingKeys.COMPARE_FIREWORK_EFFECTS, item, TRUE_ITEM, FALSE_ITEM));
             }
 
-            if (tempItem.getItemStack().getType().toString().endsWith("SHULKER_BOX")) {
-                itemGroup.addElement(booleanOption(ShopItemStackSettingKeys.COMPARE_SHULKER_INVENTORY, tempItem, TRUE_ITEM, FALSE_ITEM));
+            if (tempStack.getType().toString().endsWith("SHULKER_BOX")) {
+                itemGroup.addElement(booleanOption(ShopItemStackSettingKeys.COMPARE_SHULKER_INVENTORY, item, TRUE_ITEM, FALSE_ITEM));
             }
 
-            if (plugin.getVersion().isAtLeast(1, 17) && tempItem.getItemStack().getType().equals(Material.BUNDLE)) {
-                itemGroup.addElement(booleanOption(ShopItemStackSettingKeys.COMPARE_BUNDLE_INVENTORY, tempItem, TRUE_ITEM, FALSE_ITEM));
+            if (plugin.getVersion().isAtLeast(1, 17) && tempStack.getType().equals(Material.BUNDLE)) {
+                itemGroup.addElement(booleanOption(ShopItemStackSettingKeys.COMPARE_BUNDLE_INVENTORY, item, TRUE_ITEM, FALSE_ITEM));
             }
 
-            itemGroup.addElement(booleanOption(ShopItemStackSettingKeys.COMPARE_NAME, tempItem, TRUE_ITEM, FALSE_ITEM));
-            itemGroup.addElement(booleanOption(ShopItemStackSettingKeys.COMPARE_LORE, tempItem, TRUE_ITEM, FALSE_ITEM));
-            itemGroup.addElement(booleanOption(ShopItemStackSettingKeys.COMPARE_UNBREAKABLE, tempItem, TRUE_ITEM, FALSE_ITEM));
-            itemGroup.addElement(booleanOption(ShopItemStackSettingKeys.COMPARE_ENCHANTMENTS, tempItem, TRUE_ITEM, FALSE_ITEM));
-            itemGroup.addElement(booleanOption(ShopItemStackSettingKeys.COMPARE_ITEM_FLAGS, tempItem, TRUE_ITEM, FALSE_ITEM));
-            itemGroup.addElement(booleanOption(ShopItemStackSettingKeys.COMPARE_CUSTOM_MODEL_DATA, tempItem, TRUE_ITEM, FALSE_ITEM));
-            itemGroup.addElement(booleanOption(ShopItemStackSettingKeys.COMPARE_ATTRIBUTE_MODIFIER, tempItem, TRUE_ITEM, FALSE_ITEM));
+            itemGroup.addElement(booleanOption(ShopItemStackSettingKeys.COMPARE_NAME, item, TRUE_ITEM, FALSE_ITEM));
+            itemGroup.addElement(booleanOption(ShopItemStackSettingKeys.COMPARE_LORE, item, TRUE_ITEM, FALSE_ITEM));
+            itemGroup.addElement(booleanOption(ShopItemStackSettingKeys.COMPARE_UNBREAKABLE, item, TRUE_ITEM, FALSE_ITEM));
+            itemGroup.addElement(booleanOption(ShopItemStackSettingKeys.COMPARE_ENCHANTMENTS, item, TRUE_ITEM, FALSE_ITEM));
+            itemGroup.addElement(booleanOption(ShopItemStackSettingKeys.COMPARE_ITEM_FLAGS, item, TRUE_ITEM, FALSE_ITEM));
+            itemGroup.addElement(booleanOption(ShopItemStackSettingKeys.COMPARE_CUSTOM_MODEL_DATA, item, TRUE_ITEM, FALSE_ITEM));
+            itemGroup.addElement(booleanOption(ShopItemStackSettingKeys.COMPARE_ATTRIBUTE_MODIFIER, item, TRUE_ITEM, FALSE_ITEM));
 
 
             itemEdit.addElement(itemGroup);

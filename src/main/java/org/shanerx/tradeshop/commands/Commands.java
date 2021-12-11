@@ -23,11 +23,13 @@
  *
  */
 
-package org.shanerx.tradeshop.enumys;
+package org.shanerx.tradeshop.commands;
 
 import com.google.common.collect.Lists;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.shanerx.tradeshop.enumys.PermStatus;
+import org.shanerx.tradeshop.enumys.Permissions;
 
 import java.util.List;
 
@@ -40,13 +42,21 @@ import java.util.List;
 
 public enum Commands {
 
-	HELP(Lists.newArrayList("help", "?"), Permissions.HELP, 1, 2, false, "Display help message", "/tradeshop $cmd$ [command]"),
-	SETUP(Lists.newArrayList("setup", "start", "create", "make"), Permissions.HELP, 1, 1, false, "Display shop setup tutorial", "/tradeshop $cmd$"),
-	BUGS(Lists.newArrayList("bugs", "bug"), Permissions.NONE, 1, 1, false, "Report bugs to the developers", "/tradeshop $cmd$"),
-	PLAYER_LEVEL(Lists.newArrayList("playerlevel", "pl"), Permissions.MANAGE_PLUGIN, 2, 3, false, "If Internal Permissions is enable this allows the getting and setting of player permission levels.", "/tradeshop $cmd$ <name> <newlevel>"),
+	// Shop other management commands
+	OPEN(Lists.newArrayList("open"), Permissions.NONE, 1, 1, true, "Open shop", "/tradeshop $cmd$"),
+	CLOSE(Lists.newArrayList("close"), Permissions.NONE, 1, 1, true, "Close shop", "/tradeshop $cmd$"),
+	SWITCH(Lists.newArrayList("switch"), Permissions.EDIT, 1, 1, true, "Switch shop type", "/tradeshop $cmd$"),
+	EDIT(Lists.newArrayList("edit", "e"), Permissions.EDIT, 1, 1, true, "Opens Edit GUI for shop", "/tradeshop $cmd$"),
+	CREATE_TRADE(Lists.newArrayList("createtrade", "create", "cr"), Permissions.CREATE, 1, 1, true, "Create regular shop", "/tradeshop $cmd$"),
+	CREATE_BITRADE(Lists.newArrayList("createbitrade", "createbi", "crbi"), Permissions.CREATEBI, 1, 1, true, "Create BiTrade shop", "/tradeshop $cmd$"),
+	CREATE_ITRADE(Lists.newArrayList("createitrade", "createi", "cri"), Permissions.CREATEI, 1, 1, true, "Create iTrade shop", "/tradeshop $cmd$"),
+
+	// Shop user management commands
 	ADD_MANAGER(Lists.newArrayList("addManager"), Permissions.NONE, 2, 2, true, "Add manager to shop", "/tradeshop $cmd$ <name>"),
 	REMOVE_USER(Lists.newArrayList("removeUser", "removeManager", "removeMember"), Permissions.NONE, 2, 2, true, "Remove user from shop", "/tradeshop $cmd$ <Name>"),
 	ADD_MEMBER(Lists.newArrayList("addMember"), Permissions.NONE, 2, 2, true, "Add member to shop", "/tradeshop $cmd$ <name>"),
+
+	// Shop item management commands
 	ADD_PRODUCT(Lists.newArrayList("addProduct"), Permissions.NONE, 1, 3, true, "Add product to shop", "/tradeshop $cmd$ [Amount] [Material]"),
 	ADD_COST(Lists.newArrayList("addCost"), Permissions.NONE, 1, 3, true, "Add cost to shop", "/tradeshop $cmd$ [Amount] [Material]"),
 	SET_PRODUCT(Lists.newArrayList("setProduct"), Permissions.NONE, 1, 3, true, "Set product of shop ", "/tradeshop $cmd$ [Amount] [Material]"),
@@ -55,16 +65,23 @@ public enum Commands {
 	REMOVE_COST(Lists.newArrayList("removeCost", "delCost"), Permissions.NONE, 2, 2, true, "Removes a product from the shop", "/tradeshop $cmd$ <List #>"),
 	LIST_PRODUCT(Lists.newArrayList("listProduct"), Permissions.NONE, 1, 1, true, "Lists the products in the shop", "/tradeshop $cmd$"),
 	LIST_COST(Lists.newArrayList("listCost"), Permissions.NONE, 1, 1, true, "Lists the costs in a shop", "/tradeshop $cmd$"),
-	OPEN(Lists.newArrayList("open"), Permissions.NONE, 1, 1, true, "Open shop", "/tradeshop $cmd$"),
-	CLOSE(Lists.newArrayList("close"), Permissions.NONE, 1, 1, true, "Close shop", "/tradeshop $cmd$"),
+
+	// Shop info/Player commands
 	WHO(Lists.newArrayList("who"), Permissions.INFO, 1, 1, true, "Shop members of shop", "/tradeshop $cmd$"),
 	WHAT(Lists.newArrayList("what", "peek", "shop", "view"), Permissions.INFO, 1, 1, true, "Peek at shop inventory", "/tradeshop $cmd$"),
-	RELOAD(Lists.newArrayList("reload"), Permissions.MANAGE_PLUGIN, 1, 1, false, "Reload configuration files", "/tradeshop $cmd$"),
-	SWITCH(Lists.newArrayList("switch"), Permissions.EDIT, 1, 1, true, "Switch shop type", "/tradeshop $cmd$"),
 	MULTI(Lists.newArrayList("multi", "multiply", "many"), Permissions.NONE, 1, 2, true, "Changes trade multiplier for this login", "/tradeshop $cmd$ <Amount>"),
 	STATUS(Lists.newArrayList("status", "stats", "s"), Permissions.INFO, 1, 2, true, "Displays the status of all shops the player has a relation to", "/tradeshop $cmd$ [Name]"),
-	EDIT(Lists.newArrayList("edit", "e"), Permissions.NONE, 1, 1, true, "Opens Edit GUI for shop", "/tradeshop $cmd$"),
-	TOGGLE_STATUS(Lists.newArrayList("togglestatus", "togglemotd"), Permissions.NONE, 1, 1, true, "Toggles the join message containing the list of shops one is involved with", "/tradeshop togglestatus");
+	TOGGLE_STATUS(Lists.newArrayList("togglestatus", "togglemotd", "tstatus"), Permissions.INFO, 1, 1, true, "Toggles the join message containing the list of shops one is involved with", "/tradeshop togglestatus"),
+
+	// Other commands
+	HELP(Lists.newArrayList("help", "?"), Permissions.HELP, 1, 2, false, "Display help message", "/tradeshop $cmd$ [command]"),
+	SETUP(Lists.newArrayList("setup", "start", "create", "make"), Permissions.HELP, 1, 1, false, "Display shop setup tutorial", "/tradeshop $cmd$"),
+	BUGS(Lists.newArrayList("bugs", "bug"), Permissions.NONE, 1, 1, false, "Report bugs to the developers", "/tradeshop $cmd$"),
+	PLAYER_LEVEL(Lists.newArrayList("playerlevel", "pl"), Permissions.MANAGE_PLUGIN, 2, 3, false, "If Internal Permissions is enable this allows the getting and setting of player permission levels.", "/tradeshop $cmd$ <name> <newlevel>"),
+	TOGGLE_ADMIN(Lists.newArrayList("toggleadmin", "tadmin", "ta"), Permissions.ADMIN, 1, 1, true, "Toggles Admin mode for players with the admin permission", "/tradeshop $cmd$"),
+	ADMIN(Lists.newArrayList("admin"), Permissions.ADMIN, 1, 2, true, "Shows players their current admin mode or changes with optional variable", "/tradeshop $cmd$ [True/False]"),
+	RELOAD(Lists.newArrayList("reload"), Permissions.MANAGE_PLUGIN, 1, 1, false, "Reload configuration files", "/tradeshop $cmd$");
+
 
 	/**
 	 * Name of the permission

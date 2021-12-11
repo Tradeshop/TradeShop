@@ -53,6 +53,7 @@ import org.shanerx.tradeshop.objects.ShopChest;
 import org.shanerx.tradeshop.utils.Utils;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
@@ -76,11 +77,9 @@ public class ShopProtectionListener extends Utils implements Listener {
             return;
         }
 
-        if (event.isCancelled()) {
-            return;
-        } else if (event instanceof HopperShopAccessEvent) {
-            return;
-        } else if (!event.getInitiator().getType().equals(InventoryType.HOPPER)) {
+        if (event.isCancelled() ||
+                event instanceof HopperShopAccessEvent ||
+                !event.getInitiator().getType().equals(InventoryType.HOPPER)) {
             return;
         }
 
@@ -107,28 +106,29 @@ public class ShopProtectionListener extends Utils implements Listener {
             return;
         }
 
-        ((TradeShop) Bukkit.getPluginManager().getPlugin("TradeShop")).setFrozen(true);
         Shop shop = new ShopChest(invBlock.getLocation()).getShop();
+
+        boolean isForbidden = !Setting.findSetting(shop.getShopType().name() + (fromHopper ? "SHOP_HOPPER_IMPORT" : "SHOP_HOPPER_EXPORT")).getBoolean();
+        if (isForbidden) {
+            event.setCancelled(true);
+            return;
+        }
+
         debugger.log("ShopProtectionListener: Triggered > " + (fromHopper ? "FROM_HOPPER" : "TO_HOPPER"), DebugLevels.PROTECTION);
         debugger.log("ShopProtectionListener: Shop Location as SL > " + shop.getInventoryLocationAsSL().serialize(), DebugLevels.PROTECTION);
-        boolean isForbidden = !Setting.findSetting(shop.getShopType().name() + (fromHopper ? "SHOP_HOPPER_IMPORT" : "SHOP_HOPPER_EXPORT")).getBoolean();
-        debugger.log("ShopProtectionListener: isForbidden > " + isForbidden, DebugLevels.PROTECTION);
         debugger.log("ShopProtectionListener: checked hopper setting > " + shop.getShopType().name() + "SHOP_HOPPER_EXPORT", DebugLevels.PROTECTION);
         HopperShopAccessEvent hopperEvent = new HopperShopAccessEvent(
                 shop,
                 event.getSource(),
                 event.getDestination(),
                 event.getItem(),
-                isForbidden,
                 fromHopper ? HopperShopAccessEvent.HopperDirection.FROM_HOPPER : HopperShopAccessEvent.HopperDirection.TO_HOPPER
         );
         debugger.log("ShopProtectionListener: (TSAF) HopperEvent fired! ", DebugLevels.PROTECTION);
         Bukkit.getPluginManager().callEvent(hopperEvent);
         debugger.log("ShopProtectionListener: (TSAF) HopperEvent recovered! ", DebugLevels.PROTECTION);
         event.setCancelled(hopperEvent.isForbidden());
-        debugger.log("ShopProtectionListener: (TSAF) HopperEvent isCancelled: " + hopperEvent.isForbidden(), DebugLevels.PROTECTION);
-        debugger.log("ShopProtectionListener: (TSAF) HopperEvent isForbidden: " + isForbidden, DebugLevels.PROTECTION);
-        ((TradeShop) Bukkit.getPluginManager().getPlugin("TradeShop")).setFrozen(false);
+        debugger.log("ShopProtectionListener: (TSAF) HopperEvent isForbidden: " + hopperEvent.isForbidden(), DebugLevels.PROTECTION);
     }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
@@ -198,7 +198,7 @@ public class ShopProtectionListener extends Utils implements Listener {
             shop = Shop.loadShop((Sign) block.getState());
             if (shop == null)
                 return;
-            if (Permissions.hasPermission(player, Permissions.ADMIN) || player.getUniqueId().equals(shop.getOwner().getUUID())) {
+            if (Permissions.isAdminEnabled(player) || player.getUniqueId().equals(shop.getOwner().getUUID())) {
                 PlayerShopDestroyEvent destroyEvent = new PlayerShopDestroyEvent(player, shop);
                 Bukkit.getPluginManager().callEvent(destroyEvent);
                 if (destroyEvent.isCancelled()) {
@@ -220,7 +220,7 @@ public class ShopProtectionListener extends Utils implements Listener {
             shop = new ShopChest(block.getLocation()).getShop();
             if (shop == null)
                 return;
-            if (Permissions.hasPermission(player, Permissions.ADMIN) || player.getUniqueId().equals(shop.getOwner().getUUID())) {
+            if (Permissions.isAdminEnabled(player) || player.getUniqueId().equals(shop.getOwner().getUUID())) {
                 PlayerShopDestroyEvent destroyEvent = new PlayerShopDestroyEvent(player, shop);
                 Bukkit.getPluginManager().callEvent(destroyEvent);
                 if (destroyEvent.isCancelled()) {
@@ -243,9 +243,23 @@ public class ShopProtectionListener extends Utils implements Listener {
                 shop.saveShop();
                 return;
             }
-
             event.setCancelled(true);
             player.sendMessage(Message.NO_TS_DESTROY.getPrefixed());
+        } else if (!block.getType().name().contains("SIGN")) {
+            boolean ret = true;
+            for (BlockFace face : Arrays.asList(BlockFace.UP, BlockFace.NORTH, BlockFace.EAST, BlockFace.SOUTH, BlockFace.WEST)) {
+                Block temp = block.getRelative(face);
+                if (face.equals(BlockFace.UP) && temp.getType().name().contains("SIGN") && !temp.getType().name().contains("WALL_SIGN")) {
+                    ret = !ShopType.isShop(temp);
+                } else if (temp.getType().name().contains("WALL_SIGN") && ((Directional) temp.getBlockData()).getFacing().equals(face)) {
+                    ret = !ShopType.isShop(temp);
+                }
+            }
+            if (ret)
+                return;
+
+            event.setCancelled(true);
+            player.sendMessage(Message.DESTROY_SHOP_SIGN_FIRST.getPrefixed());
         }
     }
 
@@ -272,7 +286,7 @@ public class ShopProtectionListener extends Utils implements Listener {
                 return;
             }
 
-            if (!Permissions.hasPermission(e.getPlayer(), Permissions.ADMIN) && !shop.getUsersUUID().contains(e.getPlayer().getUniqueId())) {
+            if (!Permissions.isAdminEnabled(e.getPlayer()) && !shop.getUsersUUID().contains(e.getPlayer().getUniqueId())) {
                 openEvent.setCancelled(true);
             }
 

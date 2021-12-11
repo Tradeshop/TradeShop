@@ -38,12 +38,10 @@ import org.bukkit.inventory.ItemStack;
 import org.shanerx.tradeshop.TradeShop;
 import org.shanerx.tradeshop.enumys.*;
 import org.shanerx.tradeshop.framework.ShopChange;
-import org.shanerx.tradeshop.framework.events.PlayerShopChangeEvent;
-import org.shanerx.tradeshop.framework.events.PlayerShopCloseEvent;
-import org.shanerx.tradeshop.framework.events.PlayerShopOpenEvent;
-import org.shanerx.tradeshop.framework.events.TradeShopReloadEvent;
+import org.shanerx.tradeshop.framework.events.*;
 import org.shanerx.tradeshop.objects.*;
 import org.shanerx.tradeshop.utils.ObjectHolder;
+import org.shanerx.tradeshop.utils.Tuple;
 import org.shanerx.tradeshop.utils.Utils;
 import org.shanerx.tradeshop.utils.data.DataType;
 
@@ -78,15 +76,6 @@ public class CommandRunner extends Utils {
 	}
 
 	/**
-	 * Colors and sends the string to the sender
-	 *
-	 * @param message message to send to the sender
-	 */
-	public void sendMessage(String message) {
-		command.getSender().sendMessage(colorize(message));
-	}
-
-	/**
 	 * Builds and sends the sender the help message
 	 */
 	public void help() {
@@ -111,30 +100,30 @@ public class CommandRunner extends Utils {
 		}
 
 		sb.append("\n ");
-		sendMessage(colorize(sb.toString()));
+		command.sendMessage(colorize(sb.toString()));
 	}
 
 	public void usage(String subcmd) {
 		Commands cmd = Commands.getType(subcmd);
 		if (cmd == null) {
-			sendMessage(Message.colour(String.format("&4Cannot find usages for &c%s&r", subcmd)));
+			command.sendMessage(Message.colour(String.format("&4Cannot find usages for &c%s&r", subcmd)));
 			return;
 		}
-		sendMessage(Message.colour(String.format("&6Showing help for &c%s&r\n&bUsage:&e %s \n&bAliases: %s\n&bDescription:&e %s", subcmd, cmd.getUsage(), cmd.getAliases(), cmd.getDescription())));
+		command.sendMessage(Message.colour(String.format("&6Showing help for &c%s&r\n&bUsage:&e %s \n&bAliases: %s\n&bDescription:&e %s", subcmd, cmd.getUsage(), cmd.getAliases(), cmd.getDescription())));
 	}
 
 	/**
 	 * Sends the sender the bug message
 	 */
 	public void bugs() {
-		sendMessage("\n&a[&eTradeShop&a] \n&2To report any bugs to the author, either send a PM on &cSpigot &2- &egoo.gl/s6Jk23 &2or open an issue on &cGitHub &2-&e goo.gl/X4qqyg\n");
+		command.sendMessage("\n&a[&eTradeShop&a] \n&2To report any bugs to the author, either send a PM on &cSpigot &2- &egoo.gl/s6Jk23 &2or open an issue on &cGitHub &2-&e goo.gl/X4qqyg\n");
 	}
 
 	/**
 	 * Sends the sender the setup message
 	 */
 	public void setup() {
-		sendMessage(Message.SETUP_HELP.getPrefixed());
+		Message.SETUP_HELP.sendMessage(pSender);
 	}
 
 	/**
@@ -144,7 +133,7 @@ public class CommandRunner extends Utils {
 		plugin.getListManager().reload();
 		Message.reload();
 		Setting.reload();
-        plugin.getDebugger().reload();
+		plugin.getDebugger().reload();
 		try {
 			plugin.getDataStorage().reload(DataType.valueOf(Setting.DATA_STORAGE_TYPE.getString().toUpperCase()));
 		} catch (IllegalArgumentException iae) {
@@ -154,7 +143,7 @@ public class CommandRunner extends Utils {
 			return;
 		}
 
-		sendMessage(Setting.MESSAGE_PREFIX.getString() + "&6The configuration files have been reloaded!");
+		command.sendMessage(Setting.MESSAGE_PREFIX.getString() + "&6The configuration files have been reloaded!");
 		Bukkit.getPluginManager().callEvent(new TradeShopReloadEvent(plugin, command.getSender()));
 	}
 
@@ -170,12 +159,12 @@ public class CommandRunner extends Utils {
 		StringBuilder sb = new StringBuilder();
 		int counter = 1;
 
-        for (ShopItemStack itm : shop.getProduct()) {
-            sb.append(String.format("&b[&f%d&b]    &2- &f%s\n", counter, itm.getItemStack().hasItemMeta() && itm.getItemStack().getItemMeta().hasDisplayName() ? itm.getItemStack().getItemMeta().getDisplayName() : itm.getItemStack().getType().toString()));
+		for (ShopItemStack itm : shop.getProduct()) {
+			sb.append(String.format("&b[&f%d&b]    &2- &f%s\n", counter, itm.getItemStack().hasItemMeta() && itm.getItemStack().getItemMeta().hasDisplayName() ? itm.getItemStack().getItemMeta().getDisplayName() : itm.getItemStack().getType().toString()));
 			counter++;
 		}
 
-		sendMessage(Message.SHOP_ITEM_LIST.getPrefixed().replaceAll("%type%", "products").replaceAll("%list%", sb.toString()));
+		Message.SHOP_ITEM_LIST.sendMessage(pSender, new Tuple<>("%type%", "products"), new Tuple<>("%list%", sb.toString()));
 	}
 
 	/**
@@ -190,12 +179,12 @@ public class CommandRunner extends Utils {
 		StringBuilder sb = new StringBuilder();
 		int counter = 1;
 
-        for (ShopItemStack itm : shop.getCost()) {
-            sb.append(String.format("&b[&f%d&b]    &2- &f%s\n", counter, itm.getItemStack().hasItemMeta() && itm.getItemStack().getItemMeta().hasDisplayName() ? itm.getItemStack().getItemMeta().getDisplayName() : itm.getItemStack().getType().toString()));
+		for (ShopItemStack itm : shop.getCost()) {
+			sb.append(String.format("&b[&f%d&b]    &2- &f%s\n", counter, itm.getItemStack().hasItemMeta() && itm.getItemStack().getItemMeta().hasDisplayName() ? itm.getItemStack().getItemMeta().getDisplayName() : itm.getItemStack().getType().toString()));
 			counter++;
 		}
 
-		sendMessage(Message.SHOP_ITEM_LIST.getPrefixed().replaceAll("%type%", "products").replaceAll("%list%", sb.toString()));
+		Message.SHOP_ITEM_LIST.sendMessage(pSender, new Tuple<>("%type%", "costs"), new Tuple<>("%list%", sb.toString()));
 	}
 
 	/**
@@ -212,23 +201,23 @@ public class CommandRunner extends Utils {
 		if (isInt(command.getArgAt(1))) {
 			index = Integer.parseInt(command.getArgAt(1)) - 1;
 		} else {
-			sendMessage(Message.INVALID_ARGUMENTS.getPrefixed());
+			Message.INVALID_ARGUMENTS.sendMessage(pSender);
 			return;
 		}
 
 		if (!(shop.getOwner().getUUID().equals(pSender.getUniqueId()) || shop.getManagersUUID().contains(pSender.getUniqueId()))) {
-			sendMessage(Message.NO_SHOP_PERMISSION.getPrefixed());
+			Message.NO_SHOP_PERMISSION.sendMessage(pSender);
 			return;
 		}
-		
+
 		PlayerShopChangeEvent changeEvent = new PlayerShopChangeEvent(pSender, shop, ShopChange.REMOVE_PRODUCT, new ObjectHolder<Integer>(index));
 		Bukkit.getPluginManager().callEvent(changeEvent);
 		if (changeEvent.isCancelled()) return;
-		
+
 		if (shop.removeProduct(index))
-			sendMessage(Message.ITEM_REMOVED.getPrefixed());
+			Message.ITEM_REMOVED.sendMessage(pSender);
 		else
-			sendMessage(Message.ITEM_NOT_REMOVED.getPrefixed());
+			Message.ITEM_NOT_REMOVED.sendMessage(pSender);
 	}
 
 	/**
@@ -245,23 +234,23 @@ public class CommandRunner extends Utils {
 		if (isInt(command.getArgAt(1))) {
 			index = Integer.parseInt(command.getArgAt(1)) - 1;
 		} else {
-			sendMessage(Message.INVALID_ARGUMENTS.getPrefixed());
+			Message.INVALID_ARGUMENTS.sendMessage(pSender);
 			return;
 		}
 
 		if (!(shop.getOwner().getUUID().equals(pSender.getUniqueId()) || shop.getManagersUUID().contains(pSender.getUniqueId()))) {
-			sendMessage(Message.NO_SHOP_PERMISSION.getPrefixed());
+			Message.NO_SHOP_PERMISSION.sendMessage(pSender);
 			return;
 		}
-		
+
 		PlayerShopChangeEvent changeEvent = new PlayerShopChangeEvent(pSender, shop, ShopChange.REMOVE_COST, new ObjectHolder<Integer>(index));
 		Bukkit.getPluginManager().callEvent(changeEvent);
 		if (changeEvent.isCancelled()) return;
-		
+
 		if (shop.removeCost(index))
-			sendMessage(Message.ITEM_REMOVED.getPrefixed());
+			Message.ITEM_REMOVED.sendMessage(pSender);
 		else
-			sendMessage(Message.ITEM_NOT_REMOVED.getPrefixed());
+			Message.ITEM_NOT_REMOVED.sendMessage(pSender);
 	}
 
 	/**
@@ -294,7 +283,7 @@ public class CommandRunner extends Utils {
 		}
 
 		if (!(shop.getOwner().getUUID().equals(pSender.getUniqueId()) || shop.getManagersUUID().contains(pSender.getUniqueId()))) {
-			sendMessage(Message.NO_SHOP_PERMISSION.getPrefixed());
+			Message.NO_SHOP_PERMISSION.sendMessage(pSender);
 			return;
 		}
 
@@ -307,12 +296,17 @@ public class CommandRunner extends Utils {
 		}
 
 		if (itemInHand.getType() == Material.AIR) {
-			sendMessage(Message.HELD_EMPTY.getPrefixed());
+			Message.HELD_EMPTY.sendMessage(pSender);
 			return;
 		}
 
 		if (!isValidType(itemInHand.getType())) {
-			sendMessage(Message.ILLEGAL_ITEM.getPrefixed());
+			Message.ILLEGAL_ITEM.sendMessage(pSender);
+			return;
+		}
+
+		if (!(shop.getShopType().isITrade() && shop.getInventoryLocation() == null) && itemInHand.getType().toString().endsWith("SHULKER_BOX") && shop.getInventoryLocation().getBlock().getType().toString().endsWith("SHULKER_BOX")) {
+			Message.NO_SHULKER_COST.sendMessage(pSender);
 			return;
 		}
 
@@ -321,17 +315,17 @@ public class CommandRunner extends Utils {
 		}
 
 		if (Math.ceil((double) itemInHand.getAmount() / (double) itemInHand.getMaxStackSize()) > Setting.MAX_ITEMS_PER_TRADE_SIDE.getInt()) {
-			sendMessage(Message.TOO_MANY_ITEMS.getPrefixed().replaceAll("%side%", "products"));
+			Message.TOO_MANY_ITEMS.sendMessage(pSender, new Tuple<>("%side%", "products"));
 			return;
 		}
-		
+
 		PlayerShopChangeEvent changeEvent = new PlayerShopChangeEvent(pSender, shop, ShopChange.SET_PRODUCT, new ObjectHolder<ItemStack>(itemInHand));
 		Bukkit.getPluginManager().callEvent(changeEvent);
 		if (changeEvent.isCancelled()) return;
-		
+
 		shop.setProduct(itemInHand);
 
-		sendMessage(Message.ITEM_ADDED.getPrefixed());
+		Message.ITEM_ADDED.sendMessage(pSender);
 	}
 
 	/**
@@ -364,7 +358,7 @@ public class CommandRunner extends Utils {
 		}
 
 		if (!(shop.getOwner().getUUID().equals(pSender.getUniqueId()) || shop.getManagersUUID().contains(pSender.getUniqueId()))) {
-			sendMessage(Message.NO_SHOP_PERMISSION.getPrefixed());
+			Message.NO_SHOP_PERMISSION.sendMessage(pSender);
 			return;
 		}
 
@@ -377,12 +371,17 @@ public class CommandRunner extends Utils {
 		}
 
 		if (itemInHand.getType() == Material.AIR) {
-			sendMessage(Message.HELD_EMPTY.getPrefixed());
+			Message.HELD_EMPTY.sendMessage(pSender);
 			return;
 		}
 
 		if (!isValidType(itemInHand.getType())) {
-			sendMessage(Message.ILLEGAL_ITEM.getPrefixed());
+			Message.ILLEGAL_ITEM.sendMessage(pSender);
+			return;
+		}
+
+		if (!(shop.getShopType().isITrade() && shop.getInventoryLocation() == null) && itemInHand.getType().toString().endsWith("SHULKER_BOX") && shop.getInventoryLocation().getBlock().getType().toString().endsWith("SHULKER_BOX")) {
+			Message.NO_SHULKER_COST.sendMessage(pSender);
 			return;
 		}
 
@@ -391,17 +390,17 @@ public class CommandRunner extends Utils {
 		}
 
 		if (shop.getProduct().size() + Math.ceil((double) itemInHand.getAmount() / (double) itemInHand.getMaxStackSize()) > Setting.MAX_ITEMS_PER_TRADE_SIDE.getInt()) {
-			sendMessage(Message.TOO_MANY_ITEMS.getPrefixed().replaceAll("%side%", "products"));
+			Message.TOO_MANY_ITEMS.sendMessage(pSender, new Tuple<>("%side%", "products"));
 			return;
 		}
-		
+
 		PlayerShopChangeEvent changeEvent = new PlayerShopChangeEvent(pSender, shop, ShopChange.ADD_PRODUCT, new ObjectHolder<ItemStack>(itemInHand));
 		Bukkit.getPluginManager().callEvent(changeEvent);
 		if (changeEvent.isCancelled()) return;
-		
+
 		shop.addProduct(itemInHand);
 
-		sendMessage(Message.ITEM_ADDED.getPrefixed());
+		Message.ITEM_ADDED.sendMessage(pSender);
 	}
 
 	/**
@@ -434,49 +433,49 @@ public class CommandRunner extends Utils {
 		}
 
 		if (!(shop.getOwner().getUUID().equals(pSender.getUniqueId()) || shop.getManagersUUID().contains(pSender.getUniqueId()))) {
-			sendMessage(Message.NO_SHOP_PERMISSION.getPrefixed());
+			Message.NO_SHOP_PERMISSION.sendMessage(pSender);
 			return;
 		}
 
-		ItemStack itemInHand;
+		ItemStack costItem;
 
 		if (mat == null) {
-			itemInHand = pSender.getInventory().getItemInMainHand().clone();
+			costItem = pSender.getInventory().getItemInMainHand().clone();
 		} else {
-			itemInHand = new ItemStack(mat, 1);
+			costItem = new ItemStack(mat, 1);
 		}
 
-		if (itemInHand.getType() == Material.AIR) {
-			sendMessage(Message.HELD_EMPTY.getPrefixed());
+		if (costItem.getType() == Material.AIR) {
+			Message.HELD_EMPTY.sendMessage(pSender);
 			return;
 		}
 
-		if (!isValidType(itemInHand.getType())) {
-			sendMessage(Message.ILLEGAL_ITEM.getPrefixed());
+		if (!isValidType(costItem.getType())) {
+			Message.ILLEGAL_ITEM.sendMessage(pSender);
 			return;
 		}
 
-		if (itemInHand.getType().toString().endsWith("SHULKER_BOX") && shop.getInventoryLocation().getBlock().getType().toString().endsWith("SHULKER_BOX")) {
-			sendMessage(Message.NO_SHULKER_COST.getPrefixed());
+		if (!(shop.getShopType().isITrade() && shop.getInventoryLocation() == null) && costItem.getType().toString().endsWith("SHULKER_BOX") && shop.getInventoryLocation().getBlock().getType().toString().endsWith("SHULKER_BOX")) {
+			Message.NO_SHULKER_COST.sendMessage(pSender);
 			return;
 		}
 
 		if (amount > 0) {
-			itemInHand.setAmount(amount);
+			costItem.setAmount(amount);
 		}
 
-		if (Math.ceil((double) itemInHand.getAmount() / (double) itemInHand.getMaxStackSize()) > Setting.MAX_ITEMS_PER_TRADE_SIDE.getInt()) {
-			sendMessage(Message.TOO_MANY_ITEMS.getPrefixed().replaceAll("%side%", "costs"));
+		if (Math.ceil((double) costItem.getAmount() / (double) costItem.getMaxStackSize()) > Setting.MAX_ITEMS_PER_TRADE_SIDE.getInt()) {
+			Message.TOO_MANY_ITEMS.sendMessage(pSender, new Tuple<>("%side%", "costs"));
 			return;
 		}
-		
-		PlayerShopChangeEvent changeEvent = new PlayerShopChangeEvent(pSender, shop, ShopChange.SET_COST, new ObjectHolder<ItemStack>(itemInHand));
+
+		PlayerShopChangeEvent changeEvent = new PlayerShopChangeEvent(pSender, shop, ShopChange.SET_COST, new ObjectHolder<ItemStack>(costItem));
 		Bukkit.getPluginManager().callEvent(changeEvent);
 		if (changeEvent.isCancelled()) return;
-		
-		shop.setCost(itemInHand);
 
-		sendMessage(Message.ITEM_ADDED.getPrefixed());
+		shop.setCost(costItem);
+
+		Message.ITEM_ADDED.sendMessage(pSender);
 	}
 
 	/**
@@ -509,7 +508,7 @@ public class CommandRunner extends Utils {
 		}
 
 		if (!(shop.getOwner().getUUID().equals(pSender.getUniqueId()) || shop.getManagersUUID().contains(pSender.getUniqueId()))) {
-			sendMessage(Message.NO_SHOP_PERMISSION.getPrefixed());
+			Message.NO_SHOP_PERMISSION.sendMessage(pSender);
 			return;
 		}
 
@@ -522,17 +521,17 @@ public class CommandRunner extends Utils {
 		}
 
 		if (itemInHand.getType() == Material.AIR) {
-			sendMessage(Message.HELD_EMPTY.getPrefixed());
+			Message.HELD_EMPTY.sendMessage(pSender);
 			return;
 		}
 
 		if (!isValidType(itemInHand.getType())) {
-			sendMessage(Message.ILLEGAL_ITEM.getPrefixed());
+			Message.ILLEGAL_ITEM.sendMessage(pSender);
 			return;
 		}
 
-		if (itemInHand.getType().toString().endsWith("SHULKER_BOX") && shop.getInventoryLocation().getBlock().getType().toString().endsWith("SHULKER_BOX")) {
-			sendMessage(Message.NO_SHULKER_COST.getPrefixed());
+		if (!(shop.getShopType().isITrade() && shop.getInventoryLocation() == null) && itemInHand.getType().toString().endsWith("SHULKER_BOX") && shop.getInventoryLocation().getBlock().getType().toString().endsWith("SHULKER_BOX")) {
+			Message.NO_SHULKER_COST.sendMessage(pSender);
 			return;
 		}
 
@@ -541,17 +540,17 @@ public class CommandRunner extends Utils {
 		}
 
 		if (shop.getCost().size() + Math.ceil((double) itemInHand.getAmount() / (double) itemInHand.getMaxStackSize()) > Setting.MAX_ITEMS_PER_TRADE_SIDE.getInt()) {
-			sendMessage(Message.TOO_MANY_ITEMS.getPrefixed().replaceAll("%side%", "costs"));
+			Message.TOO_MANY_ITEMS.sendMessage(pSender, new Tuple<>("%side%", "costs"));
 			return;
 		}
-		
+
 		PlayerShopChangeEvent changeEvent = new PlayerShopChangeEvent(pSender, shop, ShopChange.ADD_COST, new ObjectHolder<ItemStack>(itemInHand));
 		Bukkit.getPluginManager().callEvent(changeEvent);
 		if (changeEvent.isCancelled()) return;
-		
+
 		shop.addCost(itemInHand);
 
-		sendMessage(Message.ITEM_ADDED.getPrefixed());
+		Message.ITEM_ADDED.sendMessage(pSender);
 	}
 
 	/**
@@ -565,29 +564,29 @@ public class CommandRunner extends Utils {
 
 		if (!(shop.getOwner().getUUID().equals(pSender.getUniqueId()) ||
 				shop.getManagersUUID().contains(pSender.getUniqueId()) ||
-				Permissions.hasPermission(pSender, Permissions.ADMIN))) {
-			sendMessage(Message.NO_EDIT.getPrefixed());
+				Permissions.isAdminEnabled(pSender))) {
+			Message.NO_SHOP_PERMISSION.sendMessage(pSender);
 			return;
 		}
-		
+
 		PlayerShopOpenEvent event = new PlayerShopOpenEvent(pSender, shop);
 		if (event.isCancelled()) return;
 
         ShopStatus status = shop.setOpen();
 
         switch (status) {
-            case OPEN:
-                sendMessage(Message.CHANGE_OPEN.getPrefixed());
-                break;
-            case INCOMPLETE:
-                if (shop.isMissingItems())
-                    sendMessage(Message.MISSING_ITEM.getPrefixed());
-                else if (shop.getChestAsSC() == null)
-                    sendMessage(Message.MISSING_CHEST.getPrefixed());
-                break;
-            case OUT_OF_STOCK:
-                sendMessage(Message.SHOP_EMPTY.getPrefixed());
-                break;
+			case OPEN:
+				Message.CHANGE_OPEN.sendMessage(pSender);
+				break;
+			case INCOMPLETE:
+				if (shop.isMissingItems())
+					Message.MISSING_ITEM.sendMessage(pSender);
+				else if (shop.getChestAsSC() == null)
+					Message.MISSING_CHEST.sendMessage(pSender);
+				break;
+			case OUT_OF_STOCK:
+				Message.SHOP_EMPTY.sendMessage(pSender);
+				break;
 		}
 	}
 
@@ -602,19 +601,19 @@ public class CommandRunner extends Utils {
 
 		if (!(shop.getOwner().getUUID().equals(pSender.getUniqueId()) ||
 				shop.getManagersUUID().contains(pSender.getUniqueId()) ||
-				Permissions.hasPermission(pSender, Permissions.ADMIN))) {
-			sendMessage(Message.NO_EDIT.getPrefixed());
+				Permissions.isAdminEnabled(pSender))) {
+			Message.NO_SHOP_PERMISSION.sendMessage(pSender);
 			return;
 		}
-		
+
 		PlayerShopCloseEvent event = new PlayerShopCloseEvent(pSender, shop);
 		if (event.isCancelled()) return;
 
-        shop.setStatus(ShopStatus.CLOSED);
-        shop.updateSign();
+		shop.setStatus(ShopStatus.CLOSED);
+		shop.updateSign();
 		shop.saveShop();
 
-		sendMessage(Message.CHANGE_CLOSED.getPrefixed());
+		Message.CHANGE_CLOSED.sendMessage(pSender);
 	}
 
 	/**
@@ -626,14 +625,32 @@ public class CommandRunner extends Utils {
 		if (shop == null)
 			return;
 
+		if (!Permissions.hasPermission(pSender, Permissions.EDIT)) {
+			Message.NO_COMMAND_PERMISSION.sendMessage(pSender);
+			return;
+		}
+
+		switch (shop.getShopType()) {
+			case TRADE:
+				if (!Permissions.hasPermission(pSender, Permissions.CREATEBI)) {
+					Message.NO_COMMAND_PERMISSION.sendMessage(pSender);
+					return;
+				}
+			case BITRADE:
+				if (!Permissions.hasPermission(pSender, Permissions.CREATE)) {
+					Message.NO_COMMAND_PERMISSION.sendMessage(pSender);
+					return;
+				}
+		}
+
 		if (!(shop.getOwner().getUUID().equals(pSender.getUniqueId()) || shop.getManagersUUID().contains(pSender.getUniqueId()))) {
-			sendMessage(Message.NO_EDIT.getPrefixed());
+			Message.NO_SHOP_PERMISSION.sendMessage(pSender);
 			return;
 		}
 
 		shop.switchType();
 
-		sendMessage(Message.SHOP_TYPE_SWITCHED.getPrefixed().replace("%newtype%", shop.getShopType().toHeader()));
+		Message.SHOP_TYPE_SWITCHED.sendMessage(pSender, new Tuple<>("%newtype%", shop.getShopType().toHeader()));
 	}
 
 	/**
@@ -649,10 +666,10 @@ public class CommandRunner extends Utils {
 			return;
 
 		if (shop.getShopType().isITrade()) {
-			sendMessage(Message.WHO_MESSAGE.getPrefixed()
-					.replace("{OWNER}", Setting.ITRADESHOP_OWNER.getString())
-					.replace("{MANAGERS}", "None")
-					.replace("{MEMBERS}", "None"));
+			Message.WHO_MESSAGE.sendMessage(pSender,
+					new Tuple<>("{OWNER}", Setting.ITRADESHOP_OWNER.getString()),
+					new Tuple<>("{MANAGERS}", "None"),
+					new Tuple<>("{MEMBERS}", "None"));
 			return;
 		}
 
@@ -683,10 +700,10 @@ public class CommandRunner extends Utils {
 		if (members.toString().equals("")) {
 			members = new StringBuilder("None");
 		}
-		sendMessage(Message.WHO_MESSAGE.getPrefixed()
-				.replace("{OWNER}", owner)
-				.replace("{MANAGERS}", managers.toString())
-				.replace("{MEMBERS}", members.toString()));
+		Message.WHO_MESSAGE.sendMessage(pSender,
+				new Tuple<>("{OWNER}", owner),
+				new Tuple<>("{MANAGERS}", managers.toString()),
+				new Tuple<>("{MEMBERS}", members.toString()));
 	}
 
 	/**
@@ -699,28 +716,28 @@ public class CommandRunner extends Utils {
 			return;
 
 		if (!shop.getOwner().getUUID().equals(pSender.getUniqueId())) {
-			sendMessage(Message.NO_SHOP_PERMISSION.getPrefixed());
+			Message.NO_SHOP_PERMISSION.sendMessage(pSender);
 			return;
 		}
 
 		OfflinePlayer target = Bukkit.getOfflinePlayer(command.getArgAt(1));
 		if (!target.hasPlayedBefore()) {
-			sendMessage(Message.PLAYER_NOT_FOUND.getPrefixed());
+			Message.PLAYER_NOT_FOUND.sendMessage(pSender);
 			return;
 		}
 
 		if (shop.getUsersUUID().contains(target.getUniqueId())) {
-			sendMessage(Message.UNSUCCESSFUL_SHOP_MEMBERS.getPrefixed());
+			Message.UNSUCCESSFUL_SHOP_MEMBERS.sendMessage(pSender);
 			return;
 		}
-		
+
 		PlayerShopChangeEvent changeEvent = new PlayerShopChangeEvent(pSender, shop, ShopChange.ADD_MANAGER, new ObjectHolder<OfflinePlayer>(target));
 		Bukkit.getPluginManager().callEvent(changeEvent);
 		if (changeEvent.isCancelled()) return;
-		
+
 		shop.addManager(target.getUniqueId());
 
-		sendMessage(Message.UPDATED_SHOP_MEMBERS.getPrefixed());
+		Message.UPDATED_SHOP_MEMBERS.sendMessage(pSender);
 	}
 
 	/**
@@ -733,26 +750,26 @@ public class CommandRunner extends Utils {
 			return;
 
 		if (!shop.getOwner().getUUID().equals(pSender.getUniqueId())) {
-			sendMessage(Message.NO_SHOP_PERMISSION.getPrefixed());
+			Message.NO_SHOP_PERMISSION.sendMessage(pSender);
 			return;
 		}
 
 		OfflinePlayer target = Bukkit.getOfflinePlayer(command.getArgAt(1));
 		if (!target.hasPlayedBefore()) {
-			sendMessage(Message.PLAYER_NOT_FOUND.getPrefixed());
+			Message.PLAYER_NOT_FOUND.sendMessage(pSender);
 			return;
 		}
-		
+
 		PlayerShopChangeEvent changeEvent = new PlayerShopChangeEvent(pSender, shop, ShopChange.REMOVE_USER, new ObjectHolder<OfflinePlayer>(target));
 		Bukkit.getPluginManager().callEvent(changeEvent);
 		if (changeEvent.isCancelled()) return;
-		
+
 		if (!shop.removeUser(target.getUniqueId())) {
-			sendMessage(Message.UNSUCCESSFUL_SHOP_MEMBERS.getPrefixed());
+			Message.UNSUCCESSFUL_SHOP_MEMBERS.sendMessage(pSender);
 			return;
 		}
-		
-		sendMessage(Message.UPDATED_SHOP_MEMBERS.getPrefixed());
+
+		Message.UPDATED_SHOP_MEMBERS.sendMessage(pSender);
 	}
 
 	/**
@@ -765,19 +782,19 @@ public class CommandRunner extends Utils {
 			return;
 
 		if (!shop.getOwner().getUUID().equals(pSender.getUniqueId())) {
-			sendMessage(Message.NO_SHOP_PERMISSION.getPrefixed());
+			Message.NO_SHOP_PERMISSION.sendMessage(pSender);
 			return;
 		}
 
 		OfflinePlayer target = Bukkit.getOfflinePlayer(command.getArgAt(1));
 		if (!target.hasPlayedBefore()) {
-			sendMessage(Message.PLAYER_NOT_FOUND.getPrefixed());
+			Message.PLAYER_NOT_FOUND.sendMessage(pSender);
 			return;
 		}
 
 
 		if (shop.getUsersUUID().contains(target.getUniqueId())) {
-			sendMessage(Message.UNSUCCESSFUL_SHOP_MEMBERS.getPrefixed());
+			Message.UNSUCCESSFUL_SHOP_MEMBERS.sendMessage(pSender);
 			return;
 		}
 
@@ -787,7 +804,7 @@ public class CommandRunner extends Utils {
 
 		shop.addMember(target.getUniqueId());
 
-		sendMessage(Message.UPDATED_SHOP_MEMBERS.getPrefixed());
+		Message.UPDATED_SHOP_MEMBERS.sendMessage(pSender);
 	}
 
 	/**
@@ -795,14 +812,14 @@ public class CommandRunner extends Utils {
 	 */
 	public void multi() {
         if (!Setting.ALLOW_MULTI_TRADE.getBoolean()) {
-            sendMessage(Message.FEATURE_DISABLED.getPrefixed());
-            return;
-        }
+			Message.FEATURE_DISABLED.sendMessage(pSender);
+			return;
+		}
 
         PlayerSetting playerSetting = plugin.getDataStorage().loadPlayer(pSender.getUniqueId());
 
 		if (command.argsSize() == 1) {
-			sendMessage(Message.MULTI_AMOUNT.getPrefixed().replaceAll("%amount%", String.valueOf(playerSetting.getMulti())));
+			Message.MULTI_AMOUNT.sendMessage(pSender, new Tuple<>("%amount%", String.valueOf(playerSetting.getMulti())));
 		} else {
             int amount = Setting.MULTI_TRADE_DEFAULT.getInt();
 
@@ -817,20 +834,169 @@ public class CommandRunner extends Utils {
 			playerSetting.setMulti(amount);
 			plugin.getDataStorage().savePlayer(playerSetting);
 
-			sendMessage(Message.MULTI_UPDATE.getPrefixed().replaceAll("%amount%", String.valueOf(amount)));
+			Message.MULTI_UPDATE.sendMessage(pSender, new Tuple<>("%amount%", String.valueOf(amount)));
 		}
 	}
 
+	/**
+	 * Changes the players with the ADMIN permission to toggle whether it is enabled for them
+	 */
+	public void toggleAdmin() {
+		PlayerSetting playerSetting = plugin.getDataStorage().loadPlayer(pSender.getUniqueId());
+
+		playerSetting.setAdminEnabled(!playerSetting.isAdminEnabled());
+		plugin.getDataStorage().savePlayer(playerSetting);
+
+		Message.ADMIN_TOGGLED.sendMessage(pSender, new Tuple<>("{STATE}", playerSetting.isAdminEnabled() ? "enabled" : "disabled"));
+	}
+
+	/**
+	 * Shows players their current admin mode or changes with optional variable
+	 */
+	public void admin() {
+		PlayerSetting playerSetting = plugin.getDataStorage().loadPlayer(pSender.getUniqueId());
+		boolean initialValue = playerSetting.isAdminEnabled();
+
+		if (command.hasArgAt(1)) {
+
+			switch (command.getArgAt(1).toLowerCase()) {
+				case "true":
+				case "t":
+					playerSetting.setAdminEnabled(true);
+					break;
+				case "false":
+				case "f":
+					playerSetting.setAdminEnabled(false);
+					break;
+			}
+
+			if (initialValue != playerSetting.isAdminEnabled())
+				plugin.getDataStorage().savePlayer(playerSetting);
+		}
+
+		Message.ADMIN_TOGGLED.sendMessage(pSender, new Tuple<>("{STATE}", playerSetting.isAdminEnabled() ? "enabled" : "disabled"));
+	}
+
+	/**
+	 * Toggles the join status message for the player
+	 */
 	public void toggleStatus() {
 		if (!Setting.ALLOW_TOGGLE_STATUS.getBoolean()) {
-			sendMessage(Message.FEATURE_DISABLED.getPrefixed());
+			Message.FEATURE_DISABLED.sendMessage(pSender);
 			return;
 		}
 
 		PlayerSetting playerSetting = plugin.getDataStorage().loadPlayer(pSender.getUniqueId());
 		playerSetting.setShowInvolvedStatus(!playerSetting.showInvolvedStatus());
 		plugin.getDataStorage().savePlayer(playerSetting);
-		sendMessage(Message.TOGGLED_STATUS.getPrefixed().replace("%status%", playerSetting.showInvolvedStatus() ? "on" : "off"));
+		Message.TOGGLED_STATUS.sendMessage(pSender, new Tuple<>("%status%", playerSetting.showInvolvedStatus() ? "on" : "off"));
+	}
+
+	/**
+	 * Create a regular shop from a sign in front of the player
+	 */
+	public void createTrade() {
+		Sign sign = findSign();
+
+		if (sign == null)
+			return;
+
+		createShop(sign, ShopType.TRADE);
+	}
+
+	/**
+	 * Create a BiTrade shop from a sign in front of the player
+	 */
+	public void createBiTrade() {
+		Sign sign = findSign();
+
+		if (sign == null)
+			return;
+
+		createShop(sign, ShopType.BITRADE);
+	}
+
+	/**
+	 * Create a iTrade shop from a sign in front of the player
+	 */
+	public void createITrade() {
+		Sign sign = findSign();
+
+		if (sign == null)
+			return;
+
+		createShop(sign, ShopType.ITRADE);
+	}
+
+
+	/**
+	 * Create a shop from a non-shop sign in front of the player
+	 *
+	 * @param shopSign sign to make into a shop
+	 * @param shopType type of shop to make
+	 */
+	private void createShop(Sign shopSign, ShopType shopType) {
+		if (ShopType.isShop(shopSign)) {
+			Message.EXISTING_SHOP.sendMessage(pSender);
+			return;
+		}
+
+		ShopUser owner = new ShopUser(pSender, ShopRole.OWNER);
+
+		if (!checkShopChest(shopSign.getBlock()) && !shopType.isITrade()) {
+			Message.NO_CHEST.sendMessage(pSender);
+			return;
+		}
+
+		if (Setting.MAX_SHOPS_PER_CHUNK.getInt() <= plugin.getDataStorage().getShopCountInChunk(shopSign.getChunk())) {
+			Message.TOO_MANY_CHESTS.sendMessage(pSender);
+			return;
+		}
+
+		ShopChest shopChest;
+		Shop shop;
+		Block chest = findShopChest(shopSign.getBlock());
+
+		if (!shopType.isITrade()) {
+			if (ShopChest.isShopChest(chest)) {
+				shopChest = new ShopChest(chest.getLocation());
+			} else {
+				shopChest = new ShopChest(chest, pSender.getUniqueId(), shopSign.getLocation());
+			}
+
+			if (shopChest.hasOwner() && !shopChest.getOwner().equals(owner.getUUID())) {
+				Message.NO_SHOP_PERMISSION.sendMessage(pSender);
+				return;
+			}
+
+			if (shopChest.hasShopSign() && !shopChest.getShopSign().getLocation().equals(shopSign.getLocation())) {
+				Message.EXISTING_SHOP.sendMessage(pSender);
+				return;
+			}
+
+			shop = new Shop(new Tuple<>(shopSign.getLocation(), shopChest.getChest().getLocation()), shopType, owner);
+			shopChest.setName();
+
+
+			if (shopChest.isEmpty() && shop.hasProduct()) {
+				Message.EMPTY_TS_ON_SETUP.sendMessage(pSender);
+			}
+		} else {
+			shop = new Shop(shopSign.getLocation(), shopType, owner);
+		}
+
+		PlayerShopCreateEvent shopCreateEvent = new PlayerShopCreateEvent(pSender, shop);
+		Bukkit.getPluginManager().callEvent(shopCreateEvent);
+		if (shopCreateEvent.isCancelled()) {
+			return;
+		}
+
+		shopSign.setLine(0, shopType.toHeader());
+		shopSign.update();
+
+		shop.saveShop();
+
+		Message.SUCCESSFUL_SETUP.sendMessage(pSender);
 	}
 
 	/**
@@ -840,9 +1006,9 @@ public class CommandRunner extends Utils {
 		if (Bukkit.getOfflinePlayer(command.getArgAt(1)).hasPlayedBefore()) {
 			PlayerSetting playerSetting = plugin.getDataStorage().loadPlayer(Bukkit.getOfflinePlayer(command.getArgAt(1)).getUniqueId());
 			if (command.argsSize() == 2) {
-				sendMessage(Message.VIEW_PLAYER_LEVEL.getMessage()
-						.replace("%player%", Bukkit.getOfflinePlayer(command.getArgAt(1)).getName())
-						.replace("%level%", playerSetting.getType() + ""));
+				Message.VIEW_PLAYER_LEVEL.sendMessage(pSender,
+						new Tuple<>("%player%", Bukkit.getOfflinePlayer(command.getArgAt(1)).getName()),
+						new Tuple<>("%level%", playerSetting.getType() + ""));
 			} else {
 				if (isInt(command.getArgAt(2))) {
 					int newLevel = Integer.parseInt(command.getArgAt(2));
@@ -850,24 +1016,24 @@ public class CommandRunner extends Utils {
 					playerSetting.setType(newLevel);
 					plugin.getDataStorage().savePlayer(playerSetting);
 
-					sendMessage(Message.SET_PLAYER_LEVEL.getMessage()
-							.replace("%player%", Bukkit.getOfflinePlayer(command.getArgAt(1)).getName())
-							.replace("%level%", playerSetting.getType() + ""));
+					Message.SET_PLAYER_LEVEL.sendMessage(pSender,
+							new Tuple<>("%player%", Bukkit.getOfflinePlayer(command.getArgAt(1)).getName()),
+							new Tuple<>("%level%", playerSetting.getType() + ""));
 				} else {
-					sendMessage(Message.INVALID_ARGUMENTS.getMessage());
+					Message.INVALID_ARGUMENTS.sendMessage(pSender);
 				}
 			}
 		} else {
-			sendMessage(Message.PLAYER_NOT_FOUND.getMessage());
+			Message.PLAYER_NOT_FOUND.sendMessage(pSender);
 		}
 	}
 
 	/**
-	 * Changes/Sets the players permission level if internal permissions is enabled
+	 * Shows the player the status of all shops they are involved with or the specified player is involved with
 	 */
 	public void status() {
 		if (command.hasArgAt(1)) {
-			if (!Permissions.hasPermission(pSender, Permissions.ADMIN)) {
+			if (!Permissions.isAdminEnabled(pSender)) {
 				Message.NO_COMMAND_PERMISSION.sendMessage(pSender);
 				return;
 			}
@@ -875,7 +1041,7 @@ public class CommandRunner extends Utils {
 				plugin.getDataStorage().loadPlayer(Bukkit.getOfflinePlayer(command.getArgAt(1)).getUniqueId())
 						.getInvolvedStatusesInventory().show(pSender.getPlayer());
 			} else {
-				sendMessage(Message.PLAYER_NOT_FOUND.getMessage());
+				Message.PLAYER_NOT_FOUND.sendMessage(pSender);
 			}
 		} else {
 			plugin.getDataStorage().loadPlayer(pSender.getUniqueId()).getInvolvedStatusesInventory().show(pSender.getPlayer());
@@ -889,7 +1055,7 @@ public class CommandRunner extends Utils {
 	 */
 	protected Shop findShop() {
 		if (pSender == null) {
-			sendMessage(Message.PLAYER_ONLY_COMMAND.getPrefixed());
+			Message.PLAYER_ONLY_COMMAND.sendMessage(pSender);
 			return null;
 		}
 
@@ -901,7 +1067,7 @@ public class CommandRunner extends Utils {
 			if (ShopType.isShop(b)) {
 				return Shop.loadShop((Sign) b.getState());
 
-            } else if (ShopChest.isShopChest(b)) {
+			} else if (ShopChest.isShopChest(b)) {
 				if (plugin.getDataStorage().getChestLinkage(new ShopLocation(b.getLocation())) != null)
 					return plugin.getDataStorage().loadShopFromStorage(new ShopLocation(b.getLocation()));
 
@@ -911,7 +1077,35 @@ public class CommandRunner extends Utils {
 				throw new NoSuchFieldException();
 
 		} catch (NoSuchFieldException ex) {
-			sendMessage(Message.NO_SIGHTED_SHOP.getPrefixed());
+			Message.NO_SIGHTED_SHOP.sendMessage(pSender);
+			return null;
+		}
+	}
+
+	/**
+	 * Returns the Sign the player is looking at
+	 *
+	 * @return null if Sign is not found, Sign object if it is
+	 */
+	protected Sign findSign() {
+		if (pSender == null) {
+			Message.PLAYER_ONLY_COMMAND.sendMessage(pSender);
+			return null;
+		}
+
+		Block b = pSender.getTargetBlockExact(Setting.MAX_EDIT_DISTANCE.getInt());
+		try {
+			if (b == null)
+				throw new NoSuchFieldException();
+
+			if (plugin.getSigns().getSignTypes().contains(b.getType())) {
+				return (Sign) b.getState();
+
+			} else
+				throw new NoSuchFieldException();
+
+		} catch (NoSuchFieldException ex) {
+			Message.NO_SIGN_FOUND.sendMessage(pSender);
 			return null;
 		}
 	}
