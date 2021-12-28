@@ -40,6 +40,7 @@ import org.bukkit.inventory.ItemStack;
 import org.shanerx.tradeshop.enumys.Message;
 import org.shanerx.tradeshop.enumys.Setting;
 import org.shanerx.tradeshop.enumys.ShopType;
+import org.shanerx.tradeshop.framework.events.PlayerPreTradeEvent;
 import org.shanerx.tradeshop.framework.events.PlayerPrepareTradeEvent;
 import org.shanerx.tradeshop.framework.events.PlayerSuccessfulTradeEvent;
 import org.shanerx.tradeshop.objects.Shop;
@@ -90,7 +91,7 @@ public class ShopTradeListener extends Utils implements Listener {
             return;
         }
 
-        PlayerPrepareTradeEvent preEvent = new PlayerPrepareTradeEvent(e.getPlayer(), shop.getCost(), shop.getProduct(), shop, e.getClickedBlock(), e.getBlockFace());
+        PlayerPreTradeEvent preEvent = new PlayerPreTradeEvent(e.getPlayer(), shop.getCost(), shop.getProduct(), shop, e.getClickedBlock(), e.getBlockFace());
         Bukkit.getPluginManager().callEvent(preEvent);
         if (preEvent.isCancelled()) return;
 
