@@ -38,6 +38,7 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.shanerx.tradeshop.enumys.Message;
+import org.shanerx.tradeshop.enumys.Permissions;
 import org.shanerx.tradeshop.enumys.Setting;
 import org.shanerx.tradeshop.enumys.ShopType;
 import org.shanerx.tradeshop.framework.events.PlayerPreTradeEvent;
@@ -60,6 +61,12 @@ public class ShopTradeListener extends Utils implements Listener {
             return;
 
         Player buyer = e.getPlayer();
+
+        if (Permissions.hasPermission(buyer, Permissions.PREVENT_TRADE)) {
+            Message.NO_TRADE_PERMISSION.sendMessage(buyer);
+            return;
+        }
+
         Shop shop;
         Sign s;
         BlockState chestState;
