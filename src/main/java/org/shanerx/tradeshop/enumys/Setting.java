@@ -36,14 +36,14 @@ import org.shanerx.tradeshop.TradeShop;
 import org.yaml.snakeyaml.Yaml;
 
 import java.io.*;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.logging.Level;
 
 public enum Setting {
 
-    CONFIG_VERSION(SettingSectionKeys.NONE, "config-version", 1.1, "", "\n"),
+    CONFIG_VERSION(SettingSectionKeys.NONE, "config-version", 1.2, "", "\n"),
 
     // System Options
     DATA_STORAGE_TYPE(SettingSectionKeys.SYSTEM_OPTIONS, "data-storage-type", "FLATFILE", "How would you like your servers data stored? (FLATFILE)"),
@@ -68,7 +68,6 @@ public enum Setting {
     ALLOWED_DIRECTIONS(SettingSectionKeys.GLOBAL_OPTIONS, "allowed-directions", new String[]{"DOWN", "WEST", "SOUTH", "EAST", "NORTH", "UP"}, "Directions an allowed shop can be from a sign. Allowed directions are:\n  # Up, Down, North, East, South, West"),
     ALLOWED_SHOPS(SettingSectionKeys.GLOBAL_OPTIONS, "allowed-shops", new String[]{"CHEST", "TRAPPED_CHEST", "SHULKER"}, "Inventories to allow for shops. Allowed blocks are:\n  # Chest, Trapped_Chest, Dropper, Hopper, Dispenser, Shulker, ..."),
     MAX_EDIT_DISTANCE(SettingSectionKeys.GLOBAL_OPTIONS, "max-edit-distance", 4, "Max distance a player can be from a shop to edit it"),
-    ILLEGAL_ITEMS(SettingSectionKeys.GLOBAL_OPTIONS, "illegal-items", new String[]{"Air", "Void_Air", "Cave_Air", "Bedrock", "Command_Block", "Barrier"}, "Material types that cannot be used in trades"),
     ALLOW_TOGGLE_STATUS(SettingSectionKeys.GLOBAL_OPTIONS, "allow-toggle-status", true, "Can players toggle view of involved shops?"),
     ALLOW_SIGN_BREAK(SettingSectionKeys.GLOBAL_OPTIONS, "allow-sign-break", false, "Should we allow anyone to destroy a shops sign?"),
     ALLOW_CHEST_BREAK(SettingSectionKeys.GLOBAL_OPTIONS, "allow-chest-break", false, "Should we allow anyone to destroy a shops storage?", "\n"),
@@ -77,6 +76,14 @@ public enum Setting {
     ALLOW_MULTI_TRADE(SettingSectionKeys.GLOBAL_MULTI_TRADE, "enable", true, "Should we allow multi trades with shift + click (true/false)"),
     MULTI_TRADE_DEFAULT(SettingSectionKeys.GLOBAL_MULTI_TRADE, "default-multi", 2, "Default multiplier for trades using shift + click"),
     MULTI_TRADE_MAX(SettingSectionKeys.GLOBAL_MULTI_TRADE, "max-multi", 6, "Maximum amount a player can set their multiplier to. Not recommended to set any higher than 6 as this can cause bugs with iTrade Shops", "\n"),
+
+    // Illegal Item Options
+    GLOBAL_ILLEGAL_ITEMS_TYPE(SettingSectionKeys.GLOBAL_ILLEGAL_ITEMS, "type", ListType.BLACKLIST.toString()),
+    GLOBAL_ILLEGAL_ITEMS_LIST(SettingSectionKeys.GLOBAL_ILLEGAL_ITEMS, "list", "[Bedrock, Command_Block, Barrier]", "", "\n"),
+    COST_ILLEGAL_ITEMS_TYPE(SettingSectionKeys.COST_ILLEGAL_ITEMS, "type", ListType.DISABLED.toString()),
+    COST_ILLEGAL_ITEMS_LIST(SettingSectionKeys.COST_ILLEGAL_ITEMS, "list", "[]", "", "\n"),
+    PRODUCT_ILLEGAL_ITEMS_TYPE(SettingSectionKeys.PRODUCT_ILLEGAL_ITEMS, "type", ListType.DISABLED.toString()),
+    PRODUCT_ILLEGAL_ITEMS_LIST(SettingSectionKeys.PRODUCT_ILLEGAL_ITEMS, "list", "[]", "", "\n"),
 
     // Shop Options
     MAX_SHOP_USERS(SettingSectionKeys.SHOP_OPTIONS, "max-shop-users", 5, "Maximum users(Managers/Members) a shop can have"),
@@ -136,14 +143,6 @@ public enum Setting {
         this.defaultValue = defaultValue;
         this.preComment = preComment;
         this.postComment = postComment;
-	}
-
-	public static ArrayList<String> getItemBlackList() {
-		ArrayList<String> blacklist = new ArrayList<>();
-		blacklist.add("air");
-		blacklist.addAll(Setting.ILLEGAL_ITEMS.getStringList());
-
-		return blacklist;
 	}
 
 	public static Setting findSetting(String search) {
@@ -305,7 +304,18 @@ public enum Setting {
 
             CONFIG_VERSION.setSetting(1.1);
         }
-		
+
+        if (CONFIG_VERSION.getDouble() < 1.2) {
+            if (config.contains("global-options.illegal-items")) {
+                config.set(GLOBAL_ILLEGAL_ITEMS_LIST.path, config.get("global-options.illegal-items"));
+                GLOBAL_ILLEGAL_ITEMS_LIST.setSetting(config.getStringList("global-options.illegal-items").removeAll(Arrays.asList("Air", "Void_Air", "Cave_Air")));
+                config.set("global-options.illegal-items", null);
+                changes = true;
+            }
+
+            CONFIG_VERSION.setSetting(1.2);
+        }
+
         if (changes)
             save();
     }

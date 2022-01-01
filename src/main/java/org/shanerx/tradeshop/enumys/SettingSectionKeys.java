@@ -25,6 +25,9 @@
 
 package org.shanerx.tradeshop.enumys;
 
+import java.util.Arrays;
+import java.util.stream.Collectors;
+
 public enum SettingSectionKeys {
 
     NONE("", ""),
@@ -36,11 +39,17 @@ public enum SettingSectionKeys {
     ITEM_OPTIONS("item-options", "Item-specific Options"),
     TRADE_SHOP_OPTIONS("trade-shop-options", "Trade Shop Options"),
     ITRADE_SHOP_OPTIONS("itrade-shop-options", "ITrade Shop Options"),
-    BITRADE_SHOP_OPTIONS("bitrade-shop-options", "BiTrade Shop Options");
+    BITRADE_SHOP_OPTIONS("bitrade-shop-options", "BiTrade Shop Options"),
+    ILLEGAL_ITEMS_OPTIONS("illegal-items-options", "", "", "Valid Types: " + Arrays.stream(ListType.values()).map(Enum::toString).collect(Collectors.joining(", "))),
+    GLOBAL_ILLEGAL_ITEMS(ILLEGAL_ITEMS_OPTIONS, "global-illegal-items", "", "List for illegal items for both Cost and Product", ""),
+    COST_ILLEGAL_ITEMS(ILLEGAL_ITEMS_OPTIONS, "cost-illegal-items", "", "List for illegal items for only Cost items", ""),
+    PRODUCT_ILLEGAL_ITEMS(ILLEGAL_ITEMS_OPTIONS, "product-illegal-items", "", "List for illegal items for only Product items", "");
 
     private final String key;
     private final String sectionHeader;
-    private String value_lead = "";
+    private String value_lead = "",
+            postComment = "",
+            preComment = "";
     private SettingSectionKeys parent;
 
     SettingSectionKeys(String key, String sectionHeader) {
@@ -58,6 +67,25 @@ public enum SettingSectionKeys {
             this.value_lead = parent.value_lead + "  ";
     }
 
+    SettingSectionKeys(String key, String sectionHeader, String preComment, String postComment) {
+        this.key = key;
+        this.sectionHeader = sectionHeader;
+        this.postComment = postComment;
+        this.preComment = preComment;
+        if (!key.isEmpty())
+            this.value_lead = parent.value_lead + "  ";
+    }
+
+    SettingSectionKeys(SettingSectionKeys parent, String key, String sectionHeader, String preComment, String postComment) {
+        this.key = key;
+        this.sectionHeader = sectionHeader;
+        this.parent = parent;
+        this.postComment = postComment;
+        this.preComment = preComment;
+        if (!key.isEmpty())
+            this.value_lead = parent.value_lead + "  ";
+    }
+
     public String getKey() {
         return !key.isEmpty() ? (parent != null ? parent.getKey() + "." + key + "." : key + ".") : "";
     }
@@ -67,26 +95,33 @@ public enum SettingSectionKeys {
     }
 
     public String getFormattedHeader() {
-        if (!sectionHeader.isEmpty() && !key.isEmpty()) {
+        if (!key.isEmpty()) {
             StringBuilder header = new StringBuilder();
-            header.append("|    ").append(sectionHeader).append("    |");
 
-            int line1Length = header.length();
+            //Create Header if one exists
+            if (!sectionHeader.isEmpty()) {
 
-            header.insert(0, "# ").append("\n").append("# ");
+                // Create First line of Header and count length for 2nd line
+                header.append("|    ").append(sectionHeader).append("    |");
+                int line1Length = header.length();
 
-            while (line1Length > 0) {
-                header.append("^");
-                line1Length--;
+                // Add Comment symbols and new lines
+                header.insert(0, "# ").append("\n").append("# ");
+
+                // Create second line
+                while (line1Length > 0) {
+                    header.append("^");
+                    line1Length--;
+                }
             }
 
+            // Create Json Section text line
             header.append("\n").append(getFileText()).append(":\n");
 
-            return header.toString();
-        } else if (sectionHeader.isEmpty() && !key.isEmpty()) {
-            StringBuilder header = new StringBuilder();
-
-            header.append(getFileText()).append(":\n");
+            // Add optional comment
+            if (!postComment.isEmpty()) {
+                header.append("# ").append(postComment).append("\n");
+            }
 
             return header.toString();
         }
