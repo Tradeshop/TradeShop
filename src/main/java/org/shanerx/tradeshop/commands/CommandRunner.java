@@ -130,9 +130,9 @@ public class CommandRunner extends Utils {
 	 * Reloads the plugin and sends success message
 	 */
 	public void reload() {
-		plugin.getListManager().reload();
 		Message.reload();
 		Setting.reload();
+		plugin.getListManager().reload();
 		plugin.getDebugger().reload();
 		try {
 			plugin.getDataStorage().reload(DataType.valueOf(Setting.DATA_STORAGE_TYPE.getString().toUpperCase()));
@@ -300,7 +300,7 @@ public class CommandRunner extends Utils {
 			return;
 		}
 
-		if (!isValidType(itemInHand.getType())) {
+		if (isIllegal(TradeItemType.PRODUCT, itemInHand.getType())) {
 			Message.ILLEGAL_ITEM.sendMessage(pSender);
 			return;
 		}
@@ -375,7 +375,7 @@ public class CommandRunner extends Utils {
 			return;
 		}
 
-		if (!isValidType(itemInHand.getType())) {
+		if (isIllegal(TradeItemType.PRODUCT, itemInHand.getType())) {
 			Message.ILLEGAL_ITEM.sendMessage(pSender);
 			return;
 		}
@@ -450,7 +450,7 @@ public class CommandRunner extends Utils {
 			return;
 		}
 
-		if (!isValidType(costItem.getType())) {
+		if (isIllegal(TradeItemType.COST, costItem.getType())) {
 			Message.ILLEGAL_ITEM.sendMessage(pSender);
 			return;
 		}
@@ -525,7 +525,7 @@ public class CommandRunner extends Utils {
 			return;
 		}
 
-		if (!isValidType(itemInHand.getType())) {
+		if (isIllegal(TradeItemType.COST, itemInHand.getType())) {
 			Message.ILLEGAL_ITEM.sendMessage(pSender);
 			return;
 		}

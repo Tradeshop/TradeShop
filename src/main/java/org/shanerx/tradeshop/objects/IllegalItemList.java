@@ -63,8 +63,15 @@ public class IllegalItemList {
     }
 
     public boolean isIllegal(Material mat) {
-        // If type is blacklist returns contains, if whitelist returns !contains
-        return type != ListType.DISABLED && (type == ListType.BLACKLIST) == list.contains(mat);
+        switch (type) {
+            case WHITELIST:
+                return !list.contains(mat);
+            case BLACKLIST:
+                return list.contains(mat);
+            case DISABLED:
+            default:
+                return false;
+        }
     }
 
     public void clear() {
@@ -83,5 +90,53 @@ public class IllegalItemList {
             add(Material.matchMaterial(colour + "_" + mat));
         }
 
+    }
+
+    public void checkAndAdd(String check) {
+        Material mat = Material.matchMaterial(check);
+        if (mat != null) {
+            add(mat);
+        } else {
+            switch (check.toLowerCase()) {
+                case "@banner":
+                    addColourSet("BANNER");
+                    addColourSet("WALL_BANNER");
+                    break;
+                case "@candle":
+                    addColourSet("CANDLE");
+                    break;
+                case "@carpet":
+                    add(Material.MOSS_CARPET);
+                    addColourSet("CARPET");
+                    break;
+                case "@concrete":
+                    addColourSet("CONCRETE");
+                    break;
+                case "@concrete_powder":
+                    addColourSet("CONCRETE_POWDER");
+                    break;
+                case "@dye":
+                    addColourSet("DYE");
+                    break;
+                case "@glazed_terracotta":
+                    addColourSet("GLAZED_TERRACOTTA");
+                    break;
+                case "@shulker_box":
+                    addColourSet("SHULKER_BOX");
+                    break;
+                case "@stained_glass":
+                    addColourSet("STAINED_GLASS");
+                    break;
+                case "@stained_glass_pane":
+                    addColourSet("STAINED_GLASS_PANE");
+                    break;
+                case "@terracotta":
+                    addColourSet("TERRACOTTA");
+                    break;
+                case "@wool":
+                    addColourSet("WOOL");
+                    break;
+            }
+        }
     }
 }

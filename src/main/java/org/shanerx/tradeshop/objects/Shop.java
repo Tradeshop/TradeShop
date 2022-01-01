@@ -36,10 +36,7 @@ import org.bukkit.event.block.SignChangeEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.shanerx.tradeshop.TradeShop;
-import org.shanerx.tradeshop.enumys.Setting;
-import org.shanerx.tradeshop.enumys.ShopRole;
-import org.shanerx.tradeshop.enumys.ShopStatus;
-import org.shanerx.tradeshop.enumys.ShopType;
+import org.shanerx.tradeshop.enumys.*;
 import org.shanerx.tradeshop.utils.Tuple;
 import org.shanerx.tradeshop.utils.Utils;
 
@@ -433,7 +430,7 @@ public class Shop implements Serializable {
 	 * @param newItem ItemStack to be set
 	 */
 	public void setCost(ItemStack newItem) {
-		if (!utils.isValidType(newItem.getType()))
+		if (utils.isIllegal(TradeItemType.COST, newItem.getType()))
 			return;
 
 		cost.clear();
@@ -447,7 +444,7 @@ public class Shop implements Serializable {
 	 * @param newItem ItemStack to be added
 	 */
 	public void addCost(ItemStack newItem) {
-		if (!utils.isValidType(newItem.getType()))
+		if (utils.isIllegal(TradeItemType.COST, newItem.getType()))
 			return;
 
 		/* Added stacks are separated by stack size
@@ -552,7 +549,7 @@ public class Shop implements Serializable {
 	 * @param newItem ItemStack to be added
 	 */
 	public void addProduct(ItemStack newItem) {
-		if (!utils.isValidType(newItem.getType()))
+		if (utils.isIllegal(TradeItemType.PRODUCT, newItem.getType()))
 			return;
 
 		/* Added stacks are separated by stack size
@@ -654,7 +651,7 @@ public class Shop implements Serializable {
 	 * @param newItem item to be set to product
 	 */
 	public void setProduct(ItemStack newItem) {
-		if (!utils.isValidType(newItem.getType()))
+		if (utils.isIllegal(TradeItemType.PRODUCT, newItem.getType()))
 			return;
 
 		product.clear();
@@ -1037,7 +1034,7 @@ public class Shop implements Serializable {
 	 */
 	public boolean areCostsValid() {
         for (ShopItemStack iS : cost) {
-            if (!utils.isValidType(iS.getItemStack().getType()))
+			if (utils.isIllegal(TradeItemType.COST, iS.getItemStack().getType()))
 				return false;
 		}
 
@@ -1051,7 +1048,7 @@ public class Shop implements Serializable {
 	 */
 	public boolean areProductsValid() {
         for (ShopItemStack iS : product) {
-            if (!utils.isValidType(iS.getItemStack().getType()))
+			if (utils.isIllegal(TradeItemType.PRODUCT, iS.getItemStack().getType()))
 				return false;
 		}
 
@@ -1152,6 +1149,8 @@ public class Shop implements Serializable {
 
 	/**
 	 * Updates shops cost list
+	 *
+	 * @param updatedCostList list to set as new CostList
 	 */
 	public void updateCost(List<ShopItemStack> updatedCostList) {
 		if (!getShopType().isITrade() && chestLoc != null)
@@ -1163,6 +1162,8 @@ public class Shop implements Serializable {
 
 	/**
 	 * Updates shops product list
+	 *
+	 * @param updatedProductList list to set as new ProductList
 	 */
 	public void updateProduct(List<ShopItemStack> updatedProductList) {
 		product = updatedProductList;

@@ -226,13 +226,14 @@ public class Utils {
 	}
 
 	/**
-	 * Checks whether or not it is non-blacklisted material.
+	 * Checks whether or not it is an illegal material.
 	 *
-	 * @param mat String to check
+	 * @param type What side of the trade the item is on
+	 * @param mat  String to check
 	 * @return returns true if valid material
 	 */
-	public boolean isValidType(Material mat) {
-		return !plugin.getListManager().isBlacklisted(mat);
+	public boolean isIllegal(TradeItemType type, Material mat) {
+		return plugin.getListManager().isIllegal(type, mat);
 	}
 
 	/**

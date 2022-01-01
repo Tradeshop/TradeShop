@@ -25,9 +25,6 @@
 
 package org.shanerx.tradeshop.enumys;
 
-import java.util.Arrays;
-import java.util.stream.Collectors;
-
 public enum SettingSectionKeys {
 
     NONE("", ""),
@@ -40,10 +37,10 @@ public enum SettingSectionKeys {
     TRADE_SHOP_OPTIONS("trade-shop-options", "Trade Shop Options"),
     ITRADE_SHOP_OPTIONS("itrade-shop-options", "ITrade Shop Options"),
     BITRADE_SHOP_OPTIONS("bitrade-shop-options", "BiTrade Shop Options"),
-    ILLEGAL_ITEMS_OPTIONS("illegal-items-options", "", "", "Valid Types: " + Arrays.stream(ListType.values()).map(Enum::toString).collect(Collectors.joining(", "))),
-    GLOBAL_ILLEGAL_ITEMS(ILLEGAL_ITEMS_OPTIONS, "global-illegal-items", "", "List for illegal items for both Cost and Product", ""),
-    COST_ILLEGAL_ITEMS(ILLEGAL_ITEMS_OPTIONS, "cost-illegal-items", "", "List for illegal items for only Cost items", ""),
-    PRODUCT_ILLEGAL_ITEMS(ILLEGAL_ITEMS_OPTIONS, "product-illegal-items", "", "List for illegal items for only Product items", "");
+    ILLEGAL_ITEM_OPTIONS("illegal-item-options", "Illegal Item Options", "", "Valid Types: DISABLED, BLACKLIST, WHITELIST\n"),
+    GLOBAL_ILLEGAL_ITEMS(ILLEGAL_ITEM_OPTIONS, "global-illegal-items", "", "List for illegal items for both Cost and Product", ""),
+    COST_ILLEGAL_ITEMS(ILLEGAL_ITEM_OPTIONS, "cost-illegal-items", "", "List for illegal items for only Cost items", ""),
+    PRODUCT_ILLEGAL_ITEMS(ILLEGAL_ITEM_OPTIONS, "product-illegal-items", "", "List for illegal items for only Product items", "");
 
     private final String key;
     private final String sectionHeader;
@@ -73,7 +70,7 @@ public enum SettingSectionKeys {
         this.postComment = postComment;
         this.preComment = preComment;
         if (!key.isEmpty())
-            this.value_lead = parent.value_lead + "  ";
+            this.value_lead = "  ";
     }
 
     SettingSectionKeys(SettingSectionKeys parent, String key, String sectionHeader, String preComment, String postComment) {
@@ -90,6 +87,10 @@ public enum SettingSectionKeys {
         return !key.isEmpty() ? (parent != null ? parent.getKey() + "." + key + "." : key + ".") : "";
     }
 
+    public String getParentValueLead() {
+        return hasParent() ? parent.getValueLead() : "";
+    }
+
     public String getValueLead() {
         return value_lead;
     }
@@ -102,25 +103,32 @@ public enum SettingSectionKeys {
             if (!sectionHeader.isEmpty()) {
 
                 // Create First line of Header and count length for 2nd line
-                header.append("|    ").append(sectionHeader).append("    |");
+                header.append(getParentValueLead()).append("|    ").append(sectionHeader).append("    |");
                 int line1Length = header.length();
 
                 // Add Comment symbols and new lines
-                header.insert(0, "# ").append("\n").append("# ");
+                header.insert(0, getParentValueLead() + "# ").append("\n").append(getParentValueLead()).append("# ");
 
                 // Create second line
                 while (line1Length > 0) {
                     header.append("^");
                     line1Length--;
                 }
+
+                header.append("\n");
+            }
+
+            // Add optional pre comment
+            if (!preComment.isEmpty()) {
+                header.append(getParentValueLead()).append("# ").append(preComment).append("\n");
             }
 
             // Create Json Section text line
-            header.append("\n").append(getFileText()).append(":\n");
+            header.append(getFileText()).append(":\n");
 
-            // Add optional comment
+            // Add optional post comment
             if (!postComment.isEmpty()) {
-                header.append("# ").append(postComment).append("\n");
+                header.append(getValueLead()).append("# ").append(postComment).append("\n");
             }
 
             return header.toString();
@@ -131,5 +139,13 @@ public enum SettingSectionKeys {
 
     public String getFileText() {
         return parent != null ? parent.value_lead + key : key;
+    }
+
+    public SettingSectionKeys getParent() {
+        return parent;
+    }
+
+    public boolean hasParent() {
+        return parent != null;
     }
 }

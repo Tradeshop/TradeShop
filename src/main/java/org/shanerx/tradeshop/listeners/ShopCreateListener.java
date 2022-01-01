@@ -35,10 +35,7 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.SignChangeEvent;
 import org.bukkit.inventory.ItemStack;
-import org.shanerx.tradeshop.enumys.Message;
-import org.shanerx.tradeshop.enumys.Setting;
-import org.shanerx.tradeshop.enumys.ShopRole;
-import org.shanerx.tradeshop.enumys.ShopType;
+import org.shanerx.tradeshop.enumys.*;
 import org.shanerx.tradeshop.framework.events.PlayerShopCreateEvent;
 import org.shanerx.tradeshop.objects.Shop;
 import org.shanerx.tradeshop.objects.ShopChest;
@@ -118,15 +115,15 @@ public class ShopCreateListener extends Utils implements Listener {
 
 		shop.setEvent(event);
 
-		ItemStack product = lineCheck(event.getLine(1)),
-				cost = lineCheck(event.getLine(2));
+		ItemStack product = lineCheck(TradeItemType.PRODUCT, event.getLine(1)),
+				cost = lineCheck(TradeItemType.COST, event.getLine(2));
 
 		if (product != null && shop.getProduct().isEmpty())
 			shop.setProduct(product);
 
 		if (cost != null && shop.getCost().isEmpty())
 			shop.setCost(cost);
-		
+
 		PlayerShopCreateEvent shopCreateEvent = new PlayerShopCreateEvent(p, shop);
 		Bukkit.getPluginManager().callEvent(shopCreateEvent);
 		if (shopCreateEvent.isCancelled()) {
@@ -141,7 +138,7 @@ public class ShopCreateListener extends Utils implements Listener {
 		p.sendMessage(Message.SUCCESSFUL_SETUP.getPrefixed());
 	}
 
-	private ItemStack lineCheck(String line) {
+	private ItemStack lineCheck(TradeItemType type, String line) {
 		if (line == null || line.equalsIgnoreCase("") || !line.contains(" ") || line.split(" ").length != 2)
 			return null;
 
@@ -157,7 +154,7 @@ public class ShopCreateListener extends Utils implements Listener {
 
 		ItemStack item = new ItemStack(Material.matchMaterial(info[1]), Integer.parseInt(info[0]));
 
-		if (plugin.getListManager().isBlacklisted(item.getType()))
+		if (plugin.getListManager().isIllegal(type, item.getType()))
 			return null;
 
 		return item;

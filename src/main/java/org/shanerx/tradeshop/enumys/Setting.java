@@ -43,6 +43,8 @@ import java.util.logging.Level;
 
 public enum Setting {
 
+    // PostComment " " adds single newline below setting and "\n" adds 2 newlines below
+
     CONFIG_VERSION(SettingSectionKeys.NONE, "config-version", 1.2, "", "\n"),
 
     // System Options
@@ -79,11 +81,11 @@ public enum Setting {
 
     // Illegal Item Options
     GLOBAL_ILLEGAL_ITEMS_TYPE(SettingSectionKeys.GLOBAL_ILLEGAL_ITEMS, "type", ListType.BLACKLIST.toString()),
-    GLOBAL_ILLEGAL_ITEMS_LIST(SettingSectionKeys.GLOBAL_ILLEGAL_ITEMS, "list", "[Bedrock, Command_Block, Barrier]", "", "\n"),
+    GLOBAL_ILLEGAL_ITEMS_LIST(SettingSectionKeys.GLOBAL_ILLEGAL_ITEMS, "list", new String[]{"Bedrock", "Command_Block", "Barrier"}, "", "\n"),
     COST_ILLEGAL_ITEMS_TYPE(SettingSectionKeys.COST_ILLEGAL_ITEMS, "type", ListType.DISABLED.toString()),
-    COST_ILLEGAL_ITEMS_LIST(SettingSectionKeys.COST_ILLEGAL_ITEMS, "list", "[]", "", "\n"),
+    COST_ILLEGAL_ITEMS_LIST(SettingSectionKeys.COST_ILLEGAL_ITEMS, "list", new String[]{}, "", "\n"),
     PRODUCT_ILLEGAL_ITEMS_TYPE(SettingSectionKeys.PRODUCT_ILLEGAL_ITEMS, "type", ListType.DISABLED.toString()),
-    PRODUCT_ILLEGAL_ITEMS_LIST(SettingSectionKeys.PRODUCT_ILLEGAL_ITEMS, "list", "[]", "", "\n"),
+    PRODUCT_ILLEGAL_ITEMS_LIST(SettingSectionKeys.PRODUCT_ILLEGAL_ITEMS, "list", new String[]{}, "", "\n"),
 
     // Shop Options
     MAX_SHOP_USERS(SettingSectionKeys.SHOP_OPTIONS, "max-shop-users", 5, "Maximum users(Managers/Members) a shop can have"),
@@ -96,19 +98,19 @@ public enum Setting {
     TRADESHOP_HEADER(SettingSectionKeys.TRADE_SHOP_OPTIONS, "header", "Trade", "The header that appears at the top of the shop signs, this is also what the player types to create the sign"),
     TRADESHOP_EXPLODE(SettingSectionKeys.TRADE_SHOP_OPTIONS, "allow-explode", false, "Can explosions damage the shop sign/storage (true/false)"),
     TRADESHOP_HOPPER_EXPORT(SettingSectionKeys.TRADE_SHOP_OPTIONS, "allow-hopper-export", false, "Can hoppers pull items from the shop storage (true/false)"),
-    TRADESHOP_HOPPER_IMPORT(SettingSectionKeys.TRADE_SHOP_OPTIONS, "allow-hopper-import", false, "Can hoppers push items into the shop storage (true/false)", "\n"),
+    TRADESHOP_HOPPER_IMPORT(SettingSectionKeys.TRADE_SHOP_OPTIONS, "allow-hopper-import", false, "Can hoppers push items into the shop storage (true/false)", " "),
 
     // ITrade Shop Options
     ITRADESHOP_OWNER(SettingSectionKeys.ITRADE_SHOP_OPTIONS, "owner", "Server Shop", "Name to put on the bottom of iTrade signs"),
     ITRADESHOP_HEADER(SettingSectionKeys.ITRADE_SHOP_OPTIONS, "header", "iTrade", "The header that appears at the top of the shop signs, this is also what the player types to create the sign"),
     ITRADESHOP_EXPLODE(SettingSectionKeys.ITRADE_SHOP_OPTIONS, "allow-explode", false, "Can explosions damage the shop sign (true/false)", ""),
-    ITRADESHOP_NO_COST_TEXT(SettingSectionKeys.ITRADE_SHOP_OPTIONS, "no-cost-text", "nothing", "What text should be used for successful trades when no cost is present", "\n"),
+    ITRADESHOP_NO_COST_TEXT(SettingSectionKeys.ITRADE_SHOP_OPTIONS, "no-cost-text", "nothing", "What text should be used for successful trades when no cost is present", " "),
 
     // BiTrade Shop Options
     BITRADESHOP_HEADER(SettingSectionKeys.BITRADE_SHOP_OPTIONS, "header", "BiTrade", "The header that appears at the top of the shop signs, this is also what the player types to create the sign"),
     BITRADESHOP_EXPLODE(SettingSectionKeys.BITRADE_SHOP_OPTIONS, "allow-explode", false, "Can explosions damage the shop sign/storage (true/false)"),
     BITRADESHOP_HOPPER_EXPORT(SettingSectionKeys.BITRADE_SHOP_OPTIONS, "allow-hopper-export", false, "Can hoppers pull items from the shop storage (true/false)"),
-    BITRADESHOP_HOPPER_IMPORT(SettingSectionKeys.BITRADE_SHOP_OPTIONS, "allow-hopper-import", false, "Can hoppers push items into the shop storage (true/false)", "\n");
+    BITRADESHOP_HOPPER_IMPORT(SettingSectionKeys.BITRADE_SHOP_OPTIONS, "allow-hopper-import", false, "Can hoppers push items into the shop storage (true/false)", " ");
 
 
     private static final TradeShop plugin = (TradeShop) Bukkit.getPluginManager().getPlugin("TradeShop");
@@ -179,6 +181,12 @@ public enum Setting {
 
                 for (Setting setting : values()) {
                     if (settingSectionKeys.contains(setting.sectionKey)) {
+                        SettingSectionKeys tempSectionKey = setting.sectionKey;
+                        while (tempSectionKey.hasParent() && settingSectionKeys.contains(tempSectionKey.getParent())) {
+                            data.append(tempSectionKey.getParent().getFormattedHeader());
+                            settingSectionKeys.remove(tempSectionKey.getParent());
+                            tempSectionKey = tempSectionKey.getParent();
+                        }
                         data.append(setting.sectionKey.getFormattedHeader());
                         settingSectionKeys.remove(setting.sectionKey);
                     }
