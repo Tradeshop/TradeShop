@@ -147,6 +147,10 @@ public class ListManager extends Utils {
 			globalList.add(Material.AIR);
 			globalList.add(Material.CAVE_AIR);
 			globalList.add(Material.VOID_AIR);
+		} else if (globalList.getType().equals(ListType.WHITELIST)) {
+			globalList.remove(Material.AIR);
+			globalList.remove(Material.CAVE_AIR);
+			globalList.remove(Material.VOID_AIR);
 		}
 
 		for (String str : Setting.GLOBAL_ILLEGAL_ITEMS_LIST.getStringList()) {

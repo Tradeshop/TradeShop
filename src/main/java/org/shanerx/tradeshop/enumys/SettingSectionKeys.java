@@ -68,7 +68,7 @@ public enum SettingSectionKeys {
         this.key = key;
         this.sectionHeader = sectionHeader;
         this.postComment = postComment;
-        this.preComment = preComment;
+        this.preComment = fixPreCommentNewLines(preComment);
         if (!key.isEmpty())
             this.value_lead = "  ";
     }
@@ -78,7 +78,7 @@ public enum SettingSectionKeys {
         this.sectionHeader = sectionHeader;
         this.parent = parent;
         this.postComment = postComment;
-        this.preComment = preComment;
+        this.preComment = fixPreCommentNewLines(preComment);
         if (!key.isEmpty())
             this.value_lead = parent.value_lead + "  ";
     }
@@ -147,5 +147,9 @@ public enum SettingSectionKeys {
 
     public boolean hasParent() {
         return parent != null;
+    }
+
+    private String fixPreCommentNewLines(String str) {
+        return str.replace("\n ", "\n" + getValueLead() + "# ");
     }
 }

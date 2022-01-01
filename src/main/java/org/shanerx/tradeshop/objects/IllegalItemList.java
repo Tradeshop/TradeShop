@@ -82,6 +82,10 @@ public class IllegalItemList {
         return list.add(mat);
     }
 
+    public boolean remove(Material mat) {
+        return list.remove(mat);
+    }
+
     public void addColourSet(String mat) {
         List<String> colourSet = Arrays.asList("BLACK", "RED", "GREEN", "BROWN", "BLUE", "PURPLE", "LIGHT_BLUE", "LIGHT_GRAY", "GRAY", "PINK", "LIME", "YELLOW", "CYAN", "MAGENTA", "ORANGE", "WHITE");
 
