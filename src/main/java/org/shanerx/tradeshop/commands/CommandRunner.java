@@ -205,7 +205,9 @@ public class CommandRunner extends Utils {
 			return;
 		}
 
-		if (!(shop.getOwner().getUUID().equals(pSender.getUniqueId()) || shop.getManagersUUID().contains(pSender.getUniqueId()))) {
+		if (!(shop.getOwner().getUUID().equals(pSender.getUniqueId())
+				|| shop.getManagersUUID().contains(pSender.getUniqueId())
+				|| (Setting.UNLIMITED_ADMIN.getBoolean() && Permissions.isAdminEnabled(pSender)))) {
 			Message.NO_SHOP_PERMISSION.sendMessage(pSender);
 			return;
 		}
@@ -238,7 +240,9 @@ public class CommandRunner extends Utils {
 			return;
 		}
 
-		if (!(shop.getOwner().getUUID().equals(pSender.getUniqueId()) || shop.getManagersUUID().contains(pSender.getUniqueId()))) {
+		if (!(shop.getOwner().getUUID().equals(pSender.getUniqueId())
+				|| shop.getManagersUUID().contains(pSender.getUniqueId())
+				|| (Setting.UNLIMITED_ADMIN.getBoolean() && Permissions.isAdminEnabled(pSender)))) {
 			Message.NO_SHOP_PERMISSION.sendMessage(pSender);
 			return;
 		}
@@ -282,7 +286,9 @@ public class CommandRunner extends Utils {
 			mat = Material.getMaterial(command.getArgAt(2).toUpperCase());
 		}
 
-		if (!(shop.getOwner().getUUID().equals(pSender.getUniqueId()) || shop.getManagersUUID().contains(pSender.getUniqueId()))) {
+		if (!(shop.getOwner().getUUID().equals(pSender.getUniqueId())
+				|| shop.getManagersUUID().contains(pSender.getUniqueId())
+				|| (Setting.UNLIMITED_ADMIN.getBoolean() && Permissions.isAdminEnabled(pSender)))) {
 			Message.NO_SHOP_PERMISSION.sendMessage(pSender);
 			return;
 		}
@@ -357,7 +363,9 @@ public class CommandRunner extends Utils {
 			mat = Material.getMaterial(command.getArgAt(2).toUpperCase());
 		}
 
-		if (!(shop.getOwner().getUUID().equals(pSender.getUniqueId()) || shop.getManagersUUID().contains(pSender.getUniqueId()))) {
+		if (!(shop.getOwner().getUUID().equals(pSender.getUniqueId())
+				|| shop.getManagersUUID().contains(pSender.getUniqueId())
+				|| (Setting.UNLIMITED_ADMIN.getBoolean() && Permissions.isAdminEnabled(pSender)))) {
 			Message.NO_SHOP_PERMISSION.sendMessage(pSender);
 			return;
 		}
@@ -432,7 +440,9 @@ public class CommandRunner extends Utils {
 			mat = Material.getMaterial(command.getArgAt(2).toUpperCase());
 		}
 
-		if (!(shop.getOwner().getUUID().equals(pSender.getUniqueId()) || shop.getManagersUUID().contains(pSender.getUniqueId()))) {
+		if (!(shop.getOwner().getUUID().equals(pSender.getUniqueId())
+				|| shop.getManagersUUID().contains(pSender.getUniqueId())
+				|| (Setting.UNLIMITED_ADMIN.getBoolean() && Permissions.isAdminEnabled(pSender)))) {
 			Message.NO_SHOP_PERMISSION.sendMessage(pSender);
 			return;
 		}
@@ -507,7 +517,9 @@ public class CommandRunner extends Utils {
 			mat = Material.getMaterial(command.getArgAt(2).toUpperCase());
 		}
 
-		if (!(shop.getOwner().getUUID().equals(pSender.getUniqueId()) || shop.getManagersUUID().contains(pSender.getUniqueId()))) {
+		if (!(shop.getOwner().getUUID().equals(pSender.getUniqueId())
+				|| shop.getManagersUUID().contains(pSender.getUniqueId())
+				|| (Setting.UNLIMITED_ADMIN.getBoolean() && Permissions.isAdminEnabled(pSender)))) {
 			Message.NO_SHOP_PERMISSION.sendMessage(pSender);
 			return;
 		}
@@ -643,7 +655,9 @@ public class CommandRunner extends Utils {
 				}
 		}
 
-		if (!(shop.getOwner().getUUID().equals(pSender.getUniqueId()) || shop.getManagersUUID().contains(pSender.getUniqueId()))) {
+		if (!(shop.getOwner().getUUID().equals(pSender.getUniqueId())
+				|| shop.getManagersUUID().contains(pSender.getUniqueId())
+				|| (Setting.UNLIMITED_ADMIN.getBoolean() && Permissions.isAdminEnabled(pSender)))) {
 			Message.NO_SHOP_PERMISSION.sendMessage(pSender);
 			return;
 		}
@@ -715,7 +729,8 @@ public class CommandRunner extends Utils {
 		if (shop == null)
 			return;
 
-		if (!shop.getOwner().getUUID().equals(pSender.getUniqueId())) {
+		if (!shop.getOwner().getUUID().equals(pSender.getUniqueId())
+				|| (Setting.UNLIMITED_ADMIN.getBoolean() && Permissions.isAdminEnabled(pSender))) {
 			Message.NO_SHOP_PERMISSION.sendMessage(pSender);
 			return;
 		}
@@ -749,7 +764,8 @@ public class CommandRunner extends Utils {
 		if (shop == null)
 			return;
 
-		if (!shop.getOwner().getUUID().equals(pSender.getUniqueId())) {
+		if (!shop.getOwner().getUUID().equals(pSender.getUniqueId())
+				|| (Setting.UNLIMITED_ADMIN.getBoolean() && Permissions.isAdminEnabled(pSender))) {
 			Message.NO_SHOP_PERMISSION.sendMessage(pSender);
 			return;
 		}
@@ -781,7 +797,8 @@ public class CommandRunner extends Utils {
 		if (shop == null)
 			return;
 
-		if (!shop.getOwner().getUUID().equals(pSender.getUniqueId())) {
+		if (!shop.getOwner().getUUID().equals(pSender.getUniqueId())
+				|| (Setting.UNLIMITED_ADMIN.getBoolean() && Permissions.isAdminEnabled(pSender))) {
 			Message.NO_SHOP_PERMISSION.sendMessage(pSender);
 			return;
 		}

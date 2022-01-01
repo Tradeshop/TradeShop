@@ -44,6 +44,7 @@ import java.util.logging.Level;
 public enum Setting {
 
     // PostComment " " adds single newline below setting and "\n" adds 2 newlines below
+    // PreComment `/n ` will have a new comment marker added after a sufficient space for proper formatting
 
     CONFIG_VERSION(SettingSectionKeys.NONE, "config-version", 1.2, "", "\n"),
 
@@ -52,23 +53,24 @@ public enum Setting {
     ENABLE_DEBUG(SettingSectionKeys.SYSTEM_OPTIONS, "enable-debug", 0, "What debug code should be run. This will add significant amounts of spam to the console/log, generally not used unless requested by Devs"),
     CHECK_UPDATES(SettingSectionKeys.SYSTEM_OPTIONS, "check-updates", true, "Should we check for updates when the server starts"),
     ALLOW_METRICS(SettingSectionKeys.SYSTEM_OPTIONS, "allow-metrics", true, "Allow us to connect anonymous metrics so we can see how our plugin is being used to better develop it"),
+    UNLIMITED_ADMIN(SettingSectionKeys.SYSTEM_OPTIONS, "unlimited-admin", false, "We do not recommend enabling this setting since any editing an admin should need to do can be done without this \n Should players with Admin permission be able to use any commands on any shops?"),
     USE_INTERNAL_PERMISSIONS(SettingSectionKeys.SYSTEM_OPTIONS, "use-internal-permissions", false, "Should our internal permission system be used? (Only enable if you aren't using a permission plugin)", "\n"),
 
     // Language Options
     MESSAGE_PREFIX(SettingSectionKeys.LANGUAGE_OPTIONS, "message-prefix", "&a[&eTradeShop&a] ", "The prefix the displays before all plugin messages", "\n"),
 
-    SHOP_GOOD_COLOUR(SettingSectionKeys.LANGUAGE_OPTIONS, "shop-good-colour", "&2", "Header Colours, if the codes are showing in the header, set to \"\"\n  # Color for successfully created and stocked signs"),
+    SHOP_GOOD_COLOUR(SettingSectionKeys.LANGUAGE_OPTIONS, "shop-good-colour", "&2", "Header Colours, if the codes are showing in the header, set to \"\"\n Color for successfully created and stocked signs"),
     SHOP_INCOMPLETE_COLOUR(SettingSectionKeys.LANGUAGE_OPTIONS, "shop-incomplete-colour", "&7", "Color for shops that are missing data to make trades"),
     SHOP_BAD_COLOUR(SettingSectionKeys.LANGUAGE_OPTIONS, "shop-bad-colour", "&4", "Color for shops that were not successfully created", "\n"),
 
-    SHOP_OPEN_STATUS(SettingSectionKeys.LANGUAGE_OPTIONS, "shop-open-status", "&a<Open>", "Status Text, What will be shown in the bottom line of shop sign for each status\n  # Open"),
+    SHOP_OPEN_STATUS(SettingSectionKeys.LANGUAGE_OPTIONS, "shop-open-status", "&a<Open>", "Status Text, What will be shown in the bottom line of shop sign for each status\n Open"),
     SHOP_CLOSED_STATUS(SettingSectionKeys.LANGUAGE_OPTIONS, "shop-closed-status", "&c<Closed>", "Closed"),
     SHOP_INCOMPLETE_STATUS(SettingSectionKeys.LANGUAGE_OPTIONS, "shop-incomplete-status", "&c<Incomplete>", "Incomplete"),
     SHOP_OUTOFSTOCK_STATUS(SettingSectionKeys.LANGUAGE_OPTIONS, "shop-outofstock-status", "&c<Out Of Stock>", "Out of Stock", "\n"),
 
     // Global Options
-    ALLOWED_DIRECTIONS(SettingSectionKeys.GLOBAL_OPTIONS, "allowed-directions", new String[]{"DOWN", "WEST", "SOUTH", "EAST", "NORTH", "UP"}, "Directions an allowed shop can be from a sign. Allowed directions are:\n  # Up, Down, North, East, South, West"),
-    ALLOWED_SHOPS(SettingSectionKeys.GLOBAL_OPTIONS, "allowed-shops", new String[]{"CHEST", "TRAPPED_CHEST", "SHULKER"}, "Inventories to allow for shops. Allowed blocks are:\n  # Chest, Trapped_Chest, Dropper, Hopper, Dispenser, Shulker, ..."),
+    ALLOWED_DIRECTIONS(SettingSectionKeys.GLOBAL_OPTIONS, "allowed-directions", new String[]{"DOWN", "WEST", "SOUTH", "EAST", "NORTH", "UP"}, "Directions an allowed shop can be from a sign. Allowed directions are:\n Up, Down, North, East, South, West"),
+    ALLOWED_SHOPS(SettingSectionKeys.GLOBAL_OPTIONS, "allowed-shops", new String[]{"CHEST", "TRAPPED_CHEST", "SHULKER"}, "Inventories to allow for shops. Allowed blocks are:\n Chest, Trapped_Chest, Dropper, Hopper, Dispenser, Shulker, ..."),
     MAX_EDIT_DISTANCE(SettingSectionKeys.GLOBAL_OPTIONS, "max-edit-distance", 4, "Max distance a player can be from a shop to edit it"),
     ALLOW_TOGGLE_STATUS(SettingSectionKeys.GLOBAL_OPTIONS, "allow-toggle-status", true, "Can players toggle view of involved shops?"),
     ALLOW_SIGN_BREAK(SettingSectionKeys.GLOBAL_OPTIONS, "allow-sign-break", false, "Should we allow anyone to destroy a shops sign?"),
@@ -81,11 +83,11 @@ public enum Setting {
 
     // Illegal Item Options
     GLOBAL_ILLEGAL_ITEMS_TYPE(SettingSectionKeys.GLOBAL_ILLEGAL_ITEMS, "type", ListType.BLACKLIST.toString()),
-    GLOBAL_ILLEGAL_ITEMS_LIST(SettingSectionKeys.GLOBAL_ILLEGAL_ITEMS, "list", new String[]{"Bedrock", "Command_Block", "Barrier"}, "", "\n"),
+    GLOBAL_ILLEGAL_ITEMS_LIST(SettingSectionKeys.GLOBAL_ILLEGAL_ITEMS, "list", new String[]{"Bedrock", "Command_Block", "Barrier"}, "", " "),
     COST_ILLEGAL_ITEMS_TYPE(SettingSectionKeys.COST_ILLEGAL_ITEMS, "type", ListType.DISABLED.toString()),
-    COST_ILLEGAL_ITEMS_LIST(SettingSectionKeys.COST_ILLEGAL_ITEMS, "list", new String[]{}, "", "\n"),
+    COST_ILLEGAL_ITEMS_LIST(SettingSectionKeys.COST_ILLEGAL_ITEMS, "list", new String[]{}, "", " "),
     PRODUCT_ILLEGAL_ITEMS_TYPE(SettingSectionKeys.PRODUCT_ILLEGAL_ITEMS, "type", ListType.DISABLED.toString()),
-    PRODUCT_ILLEGAL_ITEMS_LIST(SettingSectionKeys.PRODUCT_ILLEGAL_ITEMS, "list", new String[]{}, "", "\n"),
+    PRODUCT_ILLEGAL_ITEMS_LIST(SettingSectionKeys.PRODUCT_ILLEGAL_ITEMS, "list", new String[]{}, "", " "),
 
     // Shop Options
     MAX_SHOP_USERS(SettingSectionKeys.SHOP_OPTIONS, "max-shop-users", 5, "Maximum users(Managers/Members) a shop can have"),
@@ -98,19 +100,19 @@ public enum Setting {
     TRADESHOP_HEADER(SettingSectionKeys.TRADE_SHOP_OPTIONS, "header", "Trade", "The header that appears at the top of the shop signs, this is also what the player types to create the sign"),
     TRADESHOP_EXPLODE(SettingSectionKeys.TRADE_SHOP_OPTIONS, "allow-explode", false, "Can explosions damage the shop sign/storage (true/false)"),
     TRADESHOP_HOPPER_EXPORT(SettingSectionKeys.TRADE_SHOP_OPTIONS, "allow-hopper-export", false, "Can hoppers pull items from the shop storage (true/false)"),
-    TRADESHOP_HOPPER_IMPORT(SettingSectionKeys.TRADE_SHOP_OPTIONS, "allow-hopper-import", false, "Can hoppers push items into the shop storage (true/false)", " "),
+    TRADESHOP_HOPPER_IMPORT(SettingSectionKeys.TRADE_SHOP_OPTIONS, "allow-hopper-import", false, "Can hoppers push items into the shop storage (true/false)", "\n"),
 
     // ITrade Shop Options
     ITRADESHOP_OWNER(SettingSectionKeys.ITRADE_SHOP_OPTIONS, "owner", "Server Shop", "Name to put on the bottom of iTrade signs"),
     ITRADESHOP_HEADER(SettingSectionKeys.ITRADE_SHOP_OPTIONS, "header", "iTrade", "The header that appears at the top of the shop signs, this is also what the player types to create the sign"),
     ITRADESHOP_EXPLODE(SettingSectionKeys.ITRADE_SHOP_OPTIONS, "allow-explode", false, "Can explosions damage the shop sign (true/false)", ""),
-    ITRADESHOP_NO_COST_TEXT(SettingSectionKeys.ITRADE_SHOP_OPTIONS, "no-cost-text", "nothing", "What text should be used for successful trades when no cost is present", " "),
+    ITRADESHOP_NO_COST_TEXT(SettingSectionKeys.ITRADE_SHOP_OPTIONS, "no-cost-text", "nothing", "What text should be used for successful trades when no cost is present", "\n"),
 
     // BiTrade Shop Options
     BITRADESHOP_HEADER(SettingSectionKeys.BITRADE_SHOP_OPTIONS, "header", "BiTrade", "The header that appears at the top of the shop signs, this is also what the player types to create the sign"),
     BITRADESHOP_EXPLODE(SettingSectionKeys.BITRADE_SHOP_OPTIONS, "allow-explode", false, "Can explosions damage the shop sign/storage (true/false)"),
     BITRADESHOP_HOPPER_EXPORT(SettingSectionKeys.BITRADE_SHOP_OPTIONS, "allow-hopper-export", false, "Can hoppers pull items from the shop storage (true/false)"),
-    BITRADESHOP_HOPPER_IMPORT(SettingSectionKeys.BITRADE_SHOP_OPTIONS, "allow-hopper-import", false, "Can hoppers push items into the shop storage (true/false)", " ");
+    BITRADESHOP_HOPPER_IMPORT(SettingSectionKeys.BITRADE_SHOP_OPTIONS, "allow-hopper-import", false, "Can hoppers push items into the shop storage (true/false)", "\n");
 
 
     private static final TradeShop plugin = (TradeShop) Bukkit.getPluginManager().getPlugin("TradeShop");
@@ -135,7 +137,7 @@ public enum Setting {
         this.key = path;
         this.path = sectionKey.getKey() + path;
         this.defaultValue = defaultValue;
-        this.preComment = preComment;
+        this.preComment = fixPreCommentNewLines(preComment);
     }
 
     Setting(SettingSectionKeys sectionKey, String path, Object defaultValue, String preComment, String postComment) {
@@ -143,31 +145,35 @@ public enum Setting {
         this.key = path;
         this.path = sectionKey.getKey() + path;
         this.defaultValue = defaultValue;
-        this.preComment = preComment;
+        this.preComment = fixPreCommentNewLines(preComment);
         this.postComment = postComment;
-	}
+    }
 
-	public static Setting findSetting(String search) {
-		return valueOf(search.toUpperCase().replace("-", "_"));
-	}
+    public static Setting findSetting(String search) {
+        return valueOf(search.toUpperCase().replace("-", "_"));
+    }
 
-	private static void setDefaults() {
-		config = YamlConfiguration.loadConfiguration(file);
+    private static void setDefaults() {
+        config = YamlConfiguration.loadConfiguration(file);
 
         for (Setting set : Setting.values()) {
             addSetting(set.path, set.defaultValue);
         }
 
-		save();
-	}
+        save();
+    }
 
-	private static void addSetting(String node, Object value) {
-		if (config.get(node) == null) {
-			config.set(node, value);
-		}
-	}
+    private String fixPreCommentNewLines(String str) {
+        return str.replace("\n ", "\n" + sectionKey.getValueLead() + "# ");
+    }
 
-	private static void save() {
+    private static void addSetting(String node, Object value) {
+        if (config.get(node) == null) {
+            config.set(node, value);
+        }
+    }
+
+    private static void save() {
         Validate.notNull(file, "File cannot be null");
 
 		if (config != null)
