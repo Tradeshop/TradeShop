@@ -38,6 +38,24 @@
   ~ every time Maven executes the default goal(s).
 -->
 
+<!--
+  ~ ~~~~[ NOTE ON SELF-EXPIRATION ]~~~~
+  ~
+  ~ In order to force server admins not to linger too long on potentially buggy or dangerous DEV builds,
+  ~ such builds may be built with
+  ~
+  ~     mvn -P expiration
+  ~
+  ~ in order to include the file located at:
+  ~
+  ~     src/main/resources/builtdate.yml
+  ~
+  ~ If such a file is included, it will contain the compilation date as provided by Maven. Should the current
+  ~ date exceed this build date by a certain predefined lifetime (ie. 1 month) the plugin will refuse to load.
+  ~ The expiration profile should ONLY BE ENABLED for DEV BUILDS!
+  ~ It MUST NOT be used with any other kind of build (STABLE, BETA...).
+-->
+
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
@@ -54,7 +72,18 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.build.timestamp.format>yyyy-MM-dd'T'HH.mm.ss</maven.build.timestamp.format>
+        <timestamp>${maven.build.timestamp}</timestamp>
+        <builddate/> <!-- default value for non-DEV build -->
     </properties>
+
+    <profiles>
+        <profile>
+            <id>expiration</id> <!-- additional profile for DEV build -->
+            <properties>
+                <builddate>builddate.yml</builddate>
+            </properties>
+        </profile>
+    </profiles>
 
     <build>
         <defaultGoal>install</defaultGoal>
@@ -67,6 +96,7 @@
                 <directory>${basedir}/src/main/resources/</directory>
                 <includes>
                     <include>plugin.yml</include>
+                    <include>${builddate}</include>
                 </includes>
             </resource>
         </resources>
