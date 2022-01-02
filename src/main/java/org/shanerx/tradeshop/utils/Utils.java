@@ -56,7 +56,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
-import java.util.logging.Level;
 
 
 /**
@@ -346,10 +345,6 @@ public class Utils {
 	 */
 	public boolean checkShopChest(Block sign) {
 		return findShopChest(sign) != null;
-	}
-
-	public void log(String text) {
-		Bukkit.getLogger().log(Level.INFO, text);
 	}
 
 	/**

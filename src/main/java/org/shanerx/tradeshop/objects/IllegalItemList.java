@@ -26,12 +26,14 @@
 package org.shanerx.tradeshop.objects;
 
 import org.bukkit.Material;
+import org.shanerx.tradeshop.enumys.DebugLevels;
+import org.shanerx.tradeshop.utils.Utils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class IllegalItemList {
+public class IllegalItemList extends Utils {
 
     private ListType type;
     private ArrayList<Material> list;
@@ -78,6 +80,7 @@ public class IllegalItemList {
     }
 
     public boolean add(Material mat) {
+        debugger.log("Material being added to Illegal Item List: " + mat, DebugLevels.ILLEGAL_ITEMS_LIST);
         return list.add(mat);
     }
 
@@ -96,47 +99,51 @@ public class IllegalItemList {
     }
 
     public void checkAndAdd(String check) {
-        Material mat = Material.matchMaterial(check);
+        Material mat = null;
+        if (!(check.startsWith("$") && check.endsWith("^"))) {
+            mat = Material.matchMaterial(check);
+        }
+
         if (mat != null) {
             add(mat);
         } else {
             switch (check.toLowerCase()) {
-                case "@banner":
+                case "$banner^":
                     addColourSet("BANNER");
                     addColourSet("WALL_BANNER");
                     break;
-                case "@candle":
+                case "$candle^":
                     addColourSet("CANDLE");
                     break;
-                case "@carpet":
+                case "$carpet^":
                     add(Material.MOSS_CARPET);
                     addColourSet("CARPET");
                     break;
-                case "@concrete":
+                case "$concrete^":
                     addColourSet("CONCRETE");
                     break;
-                case "@concrete_powder":
+                case "$concrete_powder^":
                     addColourSet("CONCRETE_POWDER");
                     break;
-                case "@dye":
+                case "$dye^":
                     addColourSet("DYE");
                     break;
-                case "@glazed_terracotta":
+                case "$glazed_terracotta^":
                     addColourSet("GLAZED_TERRACOTTA");
                     break;
-                case "@shulker_box":
+                case "$shulker_box^":
                     addColourSet("SHULKER_BOX");
                     break;
-                case "@stained_glass":
+                case "$stained_glass^":
                     addColourSet("STAINED_GLASS");
                     break;
-                case "@stained_glass_pane":
+                case "$stained_glass_pane^":
                     addColourSet("STAINED_GLASS_PANE");
                     break;
-                case "@terracotta":
+                case "$terracotta^":
                     addColourSet("TERRACOTTA");
                     break;
-                case "@wool":
+                case "$wool^":
                     addColourSet("WOOL");
                     break;
             }

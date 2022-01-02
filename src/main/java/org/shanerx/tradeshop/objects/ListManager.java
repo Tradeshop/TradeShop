@@ -145,6 +145,7 @@ public class ListManager extends Utils {
 		if (globalList.getType().equals(IllegalItemList.ListType.DISABLED))
 			globalList.setType(IllegalItemList.ListType.BLACKLIST);
 
+		debugger.log("Loading GLOBAL Illegal Item List with mode:  " + globalList.getType(), DebugLevels.ILLEGAL_ITEMS_LIST);
 		if (globalList.getType().equals(IllegalItemList.ListType.BLACKLIST)) {
 			// Add non-removable blacklist items
 			globalList.add(Material.AIR);
@@ -160,10 +161,12 @@ public class ListManager extends Utils {
 			globalList.checkAndAdd(str);
 		}
 
+		debugger.log("Loading COST Illegal Item List with mode:  " + costList.getType(), DebugLevels.ILLEGAL_ITEMS_LIST);
 		for (String str : Setting.COST_ILLEGAL_ITEMS_LIST.getStringList()) {
 			costList.checkAndAdd(str);
 		}
 
+		debugger.log("Loading PRODUCT Illegal Item List with mode:  " + productList.getType(), DebugLevels.ILLEGAL_ITEMS_LIST);
 		for (String str : Setting.PRODUCT_ILLEGAL_ITEMS_LIST.getStringList()) {
 			productList.checkAndAdd(str);
 		}
@@ -200,25 +203,25 @@ public class ListManager extends Utils {
 	}
 
     private void updateInventoryMats() {
-        //Clears the list before updating
+		//Clears the list before updating
 		inventories.clear();
 
-        log("Inventory Materials from Config:");
-        log("Config String | Status | Matching Type");
+		debugger.log("Inventory Materials from Config:", DebugLevels.STARTUP);
+		debugger.log("Config String | Status | Matching Type", DebugLevels.STARTUP);
 
-        //For each String in the Allowed shops config setting, check if it is a valid inventory and add the ShopStorage.Storages object to the list
-        for (String str : Setting.ALLOWED_SHOPS.getStringList()) {
-            String logMsg = "- " + str;
-            String storageName = plugin.getStorages().isValidInventory(str);
-            if (storageName.length() > 0) {
-                ShopStorage.Storages storage = plugin.getStorages().getValidInventory(storageName);
-                inventories.add(storage);
-                logMsg += " | Valid | " + storage.name();
-            } else {
-                logMsg += " | InValid";
-            }
+		//For each String in the Allowed shops config setting, check if it is a valid inventory and add the ShopStorage.Storages object to the list
+		for (String str : Setting.ALLOWED_SHOPS.getStringList()) {
+			String logMsg = "- " + str;
+			String storageName = plugin.getStorages().isValidInventory(str);
+			if (storageName.length() > 0) {
+				ShopStorage.Storages storage = plugin.getStorages().getValidInventory(storageName);
+				inventories.add(storage);
+				logMsg += " | Valid | " + storage.name();
+			} else {
+				logMsg += " | InValid";
+			}
 
-            log(logMsg);
-        }
+			debugger.log(logMsg, DebugLevels.STARTUP);
+		}
 	}
 }
