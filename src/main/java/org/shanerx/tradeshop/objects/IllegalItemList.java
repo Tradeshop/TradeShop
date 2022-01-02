@@ -26,7 +26,6 @@
 package org.shanerx.tradeshop.objects;
 
 import org.bukkit.Material;
-import org.shanerx.tradeshop.enumys.ListType;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -142,5 +141,20 @@ public class IllegalItemList {
                     break;
             }
         }
+    }
+
+    public enum ListType {
+
+        BLACKLIST,
+        WHITELIST,
+        DISABLED
+
+    }
+
+    public enum TradeItemType {
+
+        COST,
+        PRODUCT
+
     }
 }

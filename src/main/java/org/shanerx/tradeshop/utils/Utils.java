@@ -40,13 +40,22 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.material.MaterialData;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.shanerx.tradeshop.TradeShop;
-import org.shanerx.tradeshop.enumys.*;
+import org.shanerx.tradeshop.enumys.DebugLevels;
+import org.shanerx.tradeshop.enumys.ExchangeStatus;
+import org.shanerx.tradeshop.enumys.Message;
+import org.shanerx.tradeshop.enumys.Setting;
+import org.shanerx.tradeshop.enumys.ShopType;
 import org.shanerx.tradeshop.objects.Debug;
+import org.shanerx.tradeshop.objects.IllegalItemList;
 import org.shanerx.tradeshop.objects.Shop;
 import org.shanerx.tradeshop.objects.ShopItemStack;
 import org.shanerx.tradeshop.objects.ShopLocation;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.UUID;
 import java.util.logging.Level;
 
 
@@ -232,7 +241,7 @@ public class Utils {
 	 * @param mat  String to check
 	 * @return returns true if valid material
 	 */
-	public boolean isIllegal(TradeItemType type, Material mat) {
+	public boolean isIllegal(IllegalItemList.TradeItemType type, Material mat) {
 		return plugin.getListManager().isIllegal(type, mat);
 	}
 

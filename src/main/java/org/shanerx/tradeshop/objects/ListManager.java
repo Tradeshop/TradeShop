@@ -28,7 +28,10 @@ package org.shanerx.tradeshop.objects;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
-import org.shanerx.tradeshop.enumys.*;
+import org.shanerx.tradeshop.enumys.DebugLevels;
+import org.shanerx.tradeshop.enumys.NonObtainableMaterials;
+import org.shanerx.tradeshop.enumys.Setting;
+import org.shanerx.tradeshop.enumys.ShopStorage;
 import org.shanerx.tradeshop.utils.Utils;
 
 import java.util.ArrayList;
@@ -37,9 +40,9 @@ import java.util.Arrays;
 @SuppressWarnings("unused")
 public class ListManager extends Utils {
 
-	private final IllegalItemList globalList = new IllegalItemList(ListType.DISABLED, new ArrayList<>());
-	private final IllegalItemList costList = new IllegalItemList(ListType.DISABLED, new ArrayList<>());
-	private final IllegalItemList productList = new IllegalItemList(ListType.DISABLED, new ArrayList<>());
+	private final IllegalItemList globalList = new IllegalItemList(IllegalItemList.ListType.DISABLED, new ArrayList<>());
+	private final IllegalItemList costList = new IllegalItemList(IllegalItemList.ListType.DISABLED, new ArrayList<>());
+	private final IllegalItemList productList = new IllegalItemList(IllegalItemList.ListType.DISABLED, new ArrayList<>());
 
 	private final ArrayList<BlockFace> directions = new ArrayList<>();
 	private final ArrayList<ShopStorage.Storages> inventories = new ArrayList<>();
@@ -76,11 +79,11 @@ public class ListManager extends Utils {
 		return gameMats;
 	}
 
-	public boolean isIllegal(TradeItemType type, Material mat) {
+	public boolean isIllegal(IllegalItemList.TradeItemType type, Material mat) {
 		if (globalList.isIllegal(mat))
 			return true;
 
-		if (type.equals(TradeItemType.COST))
+		if (type.equals(IllegalItemList.TradeItemType.COST))
 			return costList.isIllegal(mat);
 		else
 			return productList.isIllegal(mat);
@@ -139,15 +142,15 @@ public class ListManager extends Utils {
 		costList.setType(Setting.COST_ILLEGAL_ITEMS_TYPE.getString());
 		productList.setType(Setting.PRODUCT_ILLEGAL_ITEMS_TYPE.getString());
 
-		if (globalList.getType().equals(ListType.DISABLED))
-			globalList.setType(ListType.BLACKLIST);
+		if (globalList.getType().equals(IllegalItemList.ListType.DISABLED))
+			globalList.setType(IllegalItemList.ListType.BLACKLIST);
 
-		if (globalList.getType().equals(ListType.BLACKLIST)) {
+		if (globalList.getType().equals(IllegalItemList.ListType.BLACKLIST)) {
 			// Add non-removable blacklist items
 			globalList.add(Material.AIR);
 			globalList.add(Material.CAVE_AIR);
 			globalList.add(Material.VOID_AIR);
-		} else if (globalList.getType().equals(ListType.WHITELIST)) {
+		} else if (globalList.getType().equals(IllegalItemList.ListType.WHITELIST)) {
 			globalList.remove(Material.AIR);
 			globalList.remove(Material.CAVE_AIR);
 			globalList.remove(Material.VOID_AIR);

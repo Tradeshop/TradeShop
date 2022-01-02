@@ -33,9 +33,14 @@ import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.shanerx.tradeshop.TradeShop;
+import org.shanerx.tradeshop.objects.IllegalItemList;
 import org.yaml.snakeyaml.Yaml;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
@@ -82,11 +87,11 @@ public enum Setting {
     MULTI_TRADE_MAX(SettingSectionKeys.GLOBAL_MULTI_TRADE, "max-multi", 6, "Maximum amount a player can set their multiplier to. Not recommended to set any higher than 6 as this can cause bugs with iTrade Shops", "\n"),
 
     // Illegal Item Options
-    GLOBAL_ILLEGAL_ITEMS_TYPE(SettingSectionKeys.GLOBAL_ILLEGAL_ITEMS, "type", ListType.BLACKLIST.toString()),
+    GLOBAL_ILLEGAL_ITEMS_TYPE(SettingSectionKeys.GLOBAL_ILLEGAL_ITEMS, "type", IllegalItemList.ListType.BLACKLIST.toString()),
     GLOBAL_ILLEGAL_ITEMS_LIST(SettingSectionKeys.GLOBAL_ILLEGAL_ITEMS, "list", new String[]{"Bedrock", "Command_Block", "Barrier"}, "", " "),
-    COST_ILLEGAL_ITEMS_TYPE(SettingSectionKeys.COST_ILLEGAL_ITEMS, "type", ListType.DISABLED.toString()),
+    COST_ILLEGAL_ITEMS_TYPE(SettingSectionKeys.COST_ILLEGAL_ITEMS, "type", IllegalItemList.ListType.DISABLED.toString()),
     COST_ILLEGAL_ITEMS_LIST(SettingSectionKeys.COST_ILLEGAL_ITEMS, "list", new String[]{}, "", " "),
-    PRODUCT_ILLEGAL_ITEMS_TYPE(SettingSectionKeys.PRODUCT_ILLEGAL_ITEMS, "type", ListType.DISABLED.toString()),
+    PRODUCT_ILLEGAL_ITEMS_TYPE(SettingSectionKeys.PRODUCT_ILLEGAL_ITEMS, "type", IllegalItemList.ListType.DISABLED.toString()),
     PRODUCT_ILLEGAL_ITEMS_LIST(SettingSectionKeys.PRODUCT_ILLEGAL_ITEMS, "list", new String[]{}, "", " "),
 
     // Shop Options

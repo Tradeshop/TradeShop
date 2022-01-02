@@ -36,10 +36,27 @@ import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.shanerx.tradeshop.TradeShop;
-import org.shanerx.tradeshop.enumys.*;
+import org.shanerx.tradeshop.enumys.DebugLevels;
+import org.shanerx.tradeshop.enumys.Message;
+import org.shanerx.tradeshop.enumys.PermStatus;
+import org.shanerx.tradeshop.enumys.Permissions;
+import org.shanerx.tradeshop.enumys.Setting;
+import org.shanerx.tradeshop.enumys.ShopRole;
+import org.shanerx.tradeshop.enumys.ShopStatus;
+import org.shanerx.tradeshop.enumys.ShopType;
 import org.shanerx.tradeshop.framework.ShopChange;
-import org.shanerx.tradeshop.framework.events.*;
-import org.shanerx.tradeshop.objects.*;
+import org.shanerx.tradeshop.framework.events.PlayerShopChangeEvent;
+import org.shanerx.tradeshop.framework.events.PlayerShopCloseEvent;
+import org.shanerx.tradeshop.framework.events.PlayerShopCreateEvent;
+import org.shanerx.tradeshop.framework.events.PlayerShopOpenEvent;
+import org.shanerx.tradeshop.framework.events.TradeShopReloadEvent;
+import org.shanerx.tradeshop.objects.IllegalItemList;
+import org.shanerx.tradeshop.objects.PlayerSetting;
+import org.shanerx.tradeshop.objects.Shop;
+import org.shanerx.tradeshop.objects.ShopChest;
+import org.shanerx.tradeshop.objects.ShopItemStack;
+import org.shanerx.tradeshop.objects.ShopLocation;
+import org.shanerx.tradeshop.objects.ShopUser;
 import org.shanerx.tradeshop.utils.ObjectHolder;
 import org.shanerx.tradeshop.utils.Tuple;
 import org.shanerx.tradeshop.utils.Utils;
@@ -306,7 +323,7 @@ public class CommandRunner extends Utils {
 			return;
 		}
 
-		if (isIllegal(TradeItemType.PRODUCT, itemInHand.getType())) {
+		if (isIllegal(IllegalItemList.TradeItemType.PRODUCT, itemInHand.getType())) {
 			Message.ILLEGAL_ITEM.sendMessage(pSender);
 			return;
 		}
@@ -383,7 +400,7 @@ public class CommandRunner extends Utils {
 			return;
 		}
 
-		if (isIllegal(TradeItemType.PRODUCT, itemInHand.getType())) {
+		if (isIllegal(IllegalItemList.TradeItemType.PRODUCT, itemInHand.getType())) {
 			Message.ILLEGAL_ITEM.sendMessage(pSender);
 			return;
 		}
@@ -460,7 +477,7 @@ public class CommandRunner extends Utils {
 			return;
 		}
 
-		if (isIllegal(TradeItemType.COST, costItem.getType())) {
+		if (isIllegal(IllegalItemList.TradeItemType.COST, costItem.getType())) {
 			Message.ILLEGAL_ITEM.sendMessage(pSender);
 			return;
 		}
@@ -537,7 +554,7 @@ public class CommandRunner extends Utils {
 			return;
 		}
 
-		if (isIllegal(TradeItemType.COST, itemInHand.getType())) {
+		if (isIllegal(IllegalItemList.TradeItemType.COST, itemInHand.getType())) {
 			Message.ILLEGAL_ITEM.sendMessage(pSender);
 			return;
 		}
