@@ -29,6 +29,7 @@ import java.util.logging.Level;
 
 public enum DebugLevels {
 
+    DEV_EXPIRATION(-2, Level.SEVERE),
     DATA_ERROR(-1, Level.SEVERE),
     DISABLED(0, Level.INFO), // 0
     STARTUP(1, Level.INFO), // 1

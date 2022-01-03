@@ -69,4 +69,8 @@ public class Debug {
             Bukkit.getLogger().log(level.getLogLevel(), PREFIX.replace("%level%", level.getPrefix()) + message);
         }
     }
+
+    public String getFormattedPrefix(DebugLevels debugLevel) {
+        return PREFIX.replace("%level%", debugLevel.getPrefix());
+    }
 }

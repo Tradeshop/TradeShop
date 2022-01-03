@@ -44,12 +44,14 @@ import org.shanerx.tradeshop.listeners.ShopTradeListener;
 import org.shanerx.tradeshop.objects.Debug;
 import org.shanerx.tradeshop.objects.ListManager;
 import org.shanerx.tradeshop.utils.BukkitVersion;
+import org.shanerx.tradeshop.utils.Expirer;
 import org.shanerx.tradeshop.utils.Updater;
 import org.shanerx.tradeshop.utils.data.DataStorage;
 import org.shanerx.tradeshop.utils.data.DataType;
 
 public class TradeShop extends JavaPlugin {
 
+	private Expirer expirer = new Expirer(this);
 
 	private final NamespacedKey storageKey = new NamespacedKey(this, "tradeshop-storage-data");
 	private final NamespacedKey signKey = new NamespacedKey(this, "tradeshop-sign-data");
@@ -70,6 +72,10 @@ public class TradeShop extends JavaPlugin {
 
 	@Override
 	public void onEnable() {
+		if (!expirer.initiateDevExpiration()) {
+			expirer = null;
+		}
+
 		version = new BukkitVersion();
 
 		if (version.isBelow(1, 9)) {
