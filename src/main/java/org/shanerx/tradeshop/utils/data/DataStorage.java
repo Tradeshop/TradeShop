@@ -39,7 +39,6 @@ import java.io.File;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 import java.util.UUID;
 
 public class DataStorage extends Utils {
@@ -112,8 +111,12 @@ public class DataStorage extends Utils {
         int count = 0;
         switch (dataType) {
             case FLATFILE:
-                for (File file : Objects.requireNonNull(new File(plugin.getDataFolder().getAbsolutePath() + File.separator + "Data" + File.separator + world.getName()).listFiles())) {
-                    count += new JsonConfiguration(ShopChunk.deserialize(file.getName().replace(".json", ""))).getShopCount();
+                File folder = new File(plugin.getDataFolder().getAbsolutePath() + File.separator + "Data" + File.separator + world.getName());
+                if (folder.exists() && folder.listFiles() != null) {
+                    for (File file : folder.listFiles()) {
+                        if (file.getName().contains(world.getName()))
+                            count += new JsonConfiguration(ShopChunk.deserialize(file.getName().replace(".json", ""))).getShopCount();
+                    }
                 }
                 break;
             case SQLITE:

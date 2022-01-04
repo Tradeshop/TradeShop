@@ -258,6 +258,7 @@ public class ShopTradeListener extends Utils implements Listener {
             }
 
             Bukkit.getPluginManager().callEvent(new PlayerSuccessfulTradeEvent(buyer, costItems, productItems, shop, event.getClickedBlock(), event.getBlockFace()));
+            plugin.getMetricsManager().addTrade();
             return true; //Successfully completed trade
         } else if (shop.getShopType() == ShopType.BITRADE && action == Action.LEFT_CLICK_BLOCK) { //BiTrade Reversed Trade
 
@@ -328,6 +329,7 @@ public class ShopTradeListener extends Utils implements Listener {
             }
 
             Bukkit.getPluginManager().callEvent(new PlayerSuccessfulTradeEvent(buyer, costItems, productItems, shop, event.getClickedBlock(), event.getBlockFace()));
+            plugin.getMetricsManager().addTrade();
             return true; //Successfully completed trade
         } else {
             return false;

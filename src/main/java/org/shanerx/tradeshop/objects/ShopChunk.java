@@ -59,7 +59,7 @@ public class ShopChunk implements Serializable {
 			World world = Bukkit.getWorld(locA[1]);
 			if (world == null)
 				world = Bukkit.getWorld(locA[1].replace("-", "_"));
-			int x = Integer.parseInt(locA[2]), z = Integer.parseInt(locA[4]);
+			int x = Integer.parseInt(locA[2]), z = Integer.parseInt(locA[3]);
 
 			return world.getChunkAt(x, z);
 		}

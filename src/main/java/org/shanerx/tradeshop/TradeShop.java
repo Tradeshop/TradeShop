@@ -25,7 +25,6 @@
 
 package org.shanerx.tradeshop;
 
-import org.bstats.bukkit.Metrics;
 import org.bukkit.NamespacedKey;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -45,6 +44,7 @@ import org.shanerx.tradeshop.objects.Debug;
 import org.shanerx.tradeshop.objects.ListManager;
 import org.shanerx.tradeshop.utils.BukkitVersion;
 import org.shanerx.tradeshop.utils.Expirer;
+import org.shanerx.tradeshop.utils.MetricsManager;
 import org.shanerx.tradeshop.utils.Updater;
 import org.shanerx.tradeshop.utils.data.DataStorage;
 import org.shanerx.tradeshop.utils.data.DataType;
@@ -56,8 +56,7 @@ public class TradeShop extends JavaPlugin {
 	private final NamespacedKey storageKey = new NamespacedKey(this, "tradeshop-storage-data");
 	private final NamespacedKey signKey = new NamespacedKey(this, "tradeshop-sign-data");
 
-	private final int bStatsPluginID = 1690;
-	private Metrics metrics;
+	private MetricsManager metricsManager;
 
 	private boolean useInternalPerms = false;
 
@@ -123,9 +122,8 @@ public class TradeShop extends JavaPlugin {
 		}
 
 		if (Setting.ALLOW_METRICS.getBoolean()) {
-            metrics = new Metrics(this, bStatsPluginID);
+			metricsManager = new MetricsManager(this);
 			getLogger().info("Metrics successfully initialized!");
-
 		} else {
 			getLogger().warning("Metrics are disabled! Please consider enabling them to support the authors!");
 		}
@@ -172,13 +170,17 @@ public class TradeShop extends JavaPlugin {
 
     public Updater getUpdater() {
 		return new Updater(getDescription(), "https://api.spigotmc.org/legacy/update.php?resource=32762", "https://www.spigotmc.org/resources/tradeshop.32762/");
-    }
+	}
 
-    public Debug getDebugger() {
-        return debugger;
-    }
+	public Debug getDebugger() {
+		return debugger;
+	}
 
 	public DataStorage getDataStorage() {
 		return dataStorage;
+	}
+
+	public MetricsManager getMetricsManager() {
+		return metricsManager;
 	}
 }
