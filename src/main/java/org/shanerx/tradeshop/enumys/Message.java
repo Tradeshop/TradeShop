@@ -49,6 +49,8 @@ import java.util.logging.Level;
 
 public enum Message {
 
+    MESSAGE_VERSION(MessageSectionKeys.NONE, "1.0", "Version of the current config file.\n Do not change!", "\n"),
+
     AMOUNT_NOT_NUM(MessageSectionKeys.UNUSED, "&cYou should have an amount before each item.", "\\Unused\\"),
     BUY_FAILED_SIGN(MessageSectionKeys.UNUSED, "&cThis shop sign does not seem to be formatted correctly, please notify the owner.", "\\Unused\\"),
     CHANGE_CLOSED(MessageSectionKeys.NONE, "&cThe shop is now &l&bCLOSED&r&a."),
@@ -106,7 +108,7 @@ public enum Message {
     SHOP_TYPE_SWITCHED(MessageSectionKeys.NONE, "&aShop type has been switched to %newtype%."),
     SUCCESSFUL_SETUP(MessageSectionKeys.NONE, "&aYou have successfully setup a TradeShop!", "Text to display when a player successfully creates a TradeShop:"),
     TOO_MANY_CHESTS(MessageSectionKeys.NONE, "&cThere are too many shops in this chunk, you can not add another one."),
-    TOO_MANY_ITEMS(MessageSectionKeys.NONE, "&cThis trade can not take any more %side%!"),
+    TOO_MANY_ITEMS(MessageSectionKeys.NONE, "&cThis shop cannot take any more %side% items!"),
     UNSUCCESSFUL_SHOP_MEMBERS(MessageSectionKeys.NONE, "&aThat player is either already on the shop, or you have reached the maximum number of users!", "Text to display when shop users could not be updated"),
     UPDATED_SHOP_MEMBERS(MessageSectionKeys.NONE, "&aShop owners and members have been updated!", "Text to display when shop users have been updated successfully"),
     WHO_MESSAGE(MessageSectionKeys.NONE, "&6Shop users are:\n&2Owner: &e{OWNER}\n&2Managers: &e{MANAGERS}\n&2Members: &e{MEMBERS}", "Text to display when players use the who command"),
@@ -137,14 +139,14 @@ public enum Message {
     Message(MessageSectionKeys sectionKey, String defaultValue, String preComment) {
         this.sectionKey = sectionKey;
         this.defaultValue = defaultValue;
-        this.preComment = preComment;
+        this.preComment = fixCommentNewLines(preComment);
     }
 
     Message(MessageSectionKeys sectionKey, String defaultValue, String preComment, String postComment) {
         this.sectionKey = sectionKey;
         this.defaultValue = defaultValue;
-        this.preComment = preComment;
-        this.postComment = postComment;
+        this.preComment = fixCommentNewLines(preComment);
+        this.postComment = fixCommentNewLines(postComment);
     }
 
     public static void setDefaults() {
@@ -221,7 +223,36 @@ public enum Message {
         setDefaults();
         config = YamlConfiguration.loadConfiguration(file);
 
+        upgrade();
+
         PREFIX = Setting.MESSAGE_PREFIX.getString();
+    }
+
+    // Method to fix any values that have changed with updates
+    private static void upgrade() {
+        boolean changes = false;
+        double version = 0.0;
+        if (config.isDouble(MESSAGE_VERSION.getPath()))
+            version = config.getDouble(MESSAGE_VERSION.getPath());
+
+
+        //Changes if CONFIG_VERSION is below 1, then sets config version to 1.0
+        if (version < 1.0) {
+            if (TOO_MANY_ITEMS.getMessage().equals("&cThis trade can not take any more %side%!")) {
+                TOO_MANY_ITEMS.setMessage(TOO_MANY_ITEMS.defaultValue);
+                changes = true;
+                version = 1.1;
+            }
+        }
+
+        if (changes) {
+            MESSAGE_VERSION.setMessage("" + version);
+            save();
+        }
+    }
+
+    private void setMessage(Object obj) {
+        config.set(getPath(), obj);
     }
 
     public static String colour(String x) {
@@ -301,6 +332,10 @@ public enum Message {
         }
 
         sendMessageDirect(sender, message);
+    }
+
+    private String fixCommentNewLines(String str) {
+        return str.replace("\n ", "\n" + sectionKey.getValueLead() + "# ");
     }
 }
 

@@ -338,7 +338,7 @@ public class CommandRunner extends Utils {
 		}
 
 		if (Math.ceil((double) itemInHand.getAmount() / (double) itemInHand.getMaxStackSize()) > Setting.MAX_ITEMS_PER_TRADE_SIDE.getInt()) {
-			Message.TOO_MANY_ITEMS.sendMessage(pSender, new Tuple<>("%side%", "products"));
+			Message.TOO_MANY_ITEMS.sendMessage(pSender, new Tuple<>("%side%", "product"));
 			return;
 		}
 
@@ -415,7 +415,7 @@ public class CommandRunner extends Utils {
 		}
 
 		if (shop.getProduct().size() + Math.ceil((double) itemInHand.getAmount() / (double) itemInHand.getMaxStackSize()) > Setting.MAX_ITEMS_PER_TRADE_SIDE.getInt()) {
-			Message.TOO_MANY_ITEMS.sendMessage(pSender, new Tuple<>("%side%", "products"));
+			Message.TOO_MANY_ITEMS.sendMessage(pSender, new Tuple<>("%side%", "product"));
 			return;
 		}
 
@@ -492,7 +492,7 @@ public class CommandRunner extends Utils {
 		}
 
 		if (Math.ceil((double) costItem.getAmount() / (double) costItem.getMaxStackSize()) > Setting.MAX_ITEMS_PER_TRADE_SIDE.getInt()) {
-			Message.TOO_MANY_ITEMS.sendMessage(pSender, new Tuple<>("%side%", "costs"));
+			Message.TOO_MANY_ITEMS.sendMessage(pSender, new Tuple<>("%side%", "cost"));
 			return;
 		}
 
@@ -569,7 +569,7 @@ public class CommandRunner extends Utils {
 		}
 
 		if (shop.getCost().size() + Math.ceil((double) itemInHand.getAmount() / (double) itemInHand.getMaxStackSize()) > Setting.MAX_ITEMS_PER_TRADE_SIDE.getInt()) {
-			Message.TOO_MANY_ITEMS.sendMessage(pSender, new Tuple<>("%side%", "costs"));
+			Message.TOO_MANY_ITEMS.sendMessage(pSender, new Tuple<>("%side%", "cost"));
 			return;
 		}
 

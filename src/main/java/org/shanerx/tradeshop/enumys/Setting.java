@@ -142,7 +142,7 @@ public enum Setting {
         this.key = path;
         this.path = sectionKey.getKey() + path;
         this.defaultValue = defaultValue;
-        this.preComment = fixPreCommentNewLines(preComment);
+        this.preComment = fixCommentNewLines(preComment);
     }
 
     Setting(SettingSectionKeys sectionKey, String path, Object defaultValue, String preComment, String postComment) {
@@ -150,8 +150,8 @@ public enum Setting {
         this.key = path;
         this.path = sectionKey.getKey() + path;
         this.defaultValue = defaultValue;
-        this.preComment = fixPreCommentNewLines(preComment);
-        this.postComment = postComment;
+        this.preComment = fixCommentNewLines(preComment);
+        this.postComment = fixCommentNewLines(postComment);
     }
 
     public static Setting findSetting(String search) {
@@ -168,8 +168,25 @@ public enum Setting {
         save();
     }
 
-    private String fixPreCommentNewLines(String str) {
-        return str.replace("\n ", "\n" + sectionKey.getValueLead() + "# ");
+    public static void reload() {
+        try {
+            if (!plugin.getDataFolder().isDirectory()) {
+                plugin.getDataFolder().mkdirs();
+            }
+            if (!file.exists()) {
+                file.createNewFile();
+            }
+        } catch (IOException e) {
+            plugin.getLogger().log(Level.SEVERE, "Could not create Config file! Disabling plugin!", e);
+            plugin.getServer().getPluginManager().disablePlugin(plugin);
+        }
+
+        setDefaults();
+        config = YamlConfiguration.loadConfiguration(file);
+
+        upgrade();
+
+        plugin.setUseInternalPerms(USE_INTERNAL_PERMISSIONS.getBoolean());
     }
 
     private static void addSetting(String node, Object value) {
@@ -227,36 +244,10 @@ public enum Setting {
 			}
 	}
 
-	public static void reload() {
-		try {
-			if (!plugin.getDataFolder().isDirectory()) {
-				plugin.getDataFolder().mkdirs();
-			}
-			if (!file.exists()) {
-				file.createNewFile();
-            }
-        } catch (IOException e) {
-            plugin.getLogger().log(Level.SEVERE, "Could not create Config file! Disabling plugin!", e);
-            plugin.getServer().getPluginManager().disablePlugin(plugin);
-        }
-
-        fixUp();
-
-        setDefaults();
-        config = YamlConfiguration.loadConfiguration(file);
-
-        plugin.setUseInternalPerms(USE_INTERNAL_PERMISSIONS.getBoolean());
-    }
-
     // Method to fix any values that have changed with updates
-    private static void fixUp() {
+    private static void upgrade() {
         boolean changes = false;
-
-        //Changes if CONFIG_VERSION is below 1, then sets config version to 1.0
-        if (CONFIG_VERSION.getDouble() < 1.0) {
-            CONFIG_VERSION.setSetting(1.0);
-            changes = true;
-        }
+        double version = CONFIG_VERSION.getDouble();
 
         // 2.2.2 Changed enable debug from true/false to integer
         if (!config.isInt(ENABLE_DEBUG.path)) {
@@ -265,7 +256,7 @@ public enum Setting {
         }
 
         // 2.2.2 Better Sorted/potentially commented config
-        if (CONFIG_VERSION.getDouble() < 1.1) {
+        if (version < 1.1) {
             if (config.contains("itradeshop.owner")) {
                 config.set(ITRADESHOP_OWNER.path, config.get("itradeshop.owner"));
                 config.set("itradeshop.owner", null);
@@ -321,10 +312,10 @@ public enum Setting {
             }
 
 
-            CONFIG_VERSION.setSetting(1.1);
+            version = 1.1;
         }
 
-        if (CONFIG_VERSION.getDouble() < 1.2) {
+        if (version < 1.2) {
             if (config.contains("global-options.illegal-items")) {
                 config.set(GLOBAL_ILLEGAL_ITEMS_LIST.path, config.get("global-options.illegal-items"));
                 GLOBAL_ILLEGAL_ITEMS_LIST.setSetting(config.getStringList("global-options.illegal-items").removeAll(Arrays.asList("Air", "Void_Air", "Cave_Air")));
@@ -332,20 +323,26 @@ public enum Setting {
                 changes = true;
             }
 
-            CONFIG_VERSION.setSetting(1.2);
+            version = 1.2;
         }
 
-        if (changes)
+        if (changes) {
+            CONFIG_VERSION.setSetting(version);
             save();
+        }
     }
 
-	public static FileConfiguration getConfig() {
-		return config;
-	}
+    public static FileConfiguration getConfig() {
+        return config;
+    }
 
-	public String toPath() {
-		return path;
-	}
+    private String fixCommentNewLines(String str) {
+        return str.replace("\n ", "\n" + sectionKey.getValueLead() + "# ");
+    }
+
+    public String toPath() {
+        return path;
+    }
 
     public void setSetting(Object obj) {
         config.set(toPath(), obj);
@@ -355,9 +352,9 @@ public enum Setting {
         config.set(toPath(), null);
     }
 
-	public Object getSetting() {
-		return config.get(toPath());
-	}
+    public Object getSetting() {
+        return config.get(toPath());
+    }
 
 	public String getString() {
 		return config.getString(toPath());
