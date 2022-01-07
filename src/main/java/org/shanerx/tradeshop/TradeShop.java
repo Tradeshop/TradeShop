@@ -31,8 +31,6 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.shanerx.tradeshop.commands.CommandCaller;
 import org.shanerx.tradeshop.commands.CommandTabCaller;
 import org.shanerx.tradeshop.enumys.DebugLevels;
-import org.shanerx.tradeshop.enumys.Message;
-import org.shanerx.tradeshop.enumys.Setting;
 import org.shanerx.tradeshop.enumys.ShopSign;
 import org.shanerx.tradeshop.enumys.ShopStorage;
 import org.shanerx.tradeshop.listeners.JoinEventListener;
@@ -46,6 +44,9 @@ import org.shanerx.tradeshop.utils.BukkitVersion;
 import org.shanerx.tradeshop.utils.Expirer;
 import org.shanerx.tradeshop.utils.MetricsManager;
 import org.shanerx.tradeshop.utils.Updater;
+import org.shanerx.tradeshop.utils.configuration.MessagesController;
+import org.shanerx.tradeshop.utils.configuration.SettingsController;
+import org.shanerx.tradeshop.utils.configuration.SettingsEnum;
 import org.shanerx.tradeshop.utils.data.DataStorage;
 import org.shanerx.tradeshop.utils.data.DataType;
 
@@ -66,6 +67,9 @@ public class TradeShop extends JavaPlugin {
 	private BukkitVersion version;
 	private ShopSign signs;
 	private ShopStorage storages;
+
+	private SettingsController settings;
+	private MessagesController messages;
 
 	private Debug debugger;
 
@@ -89,15 +93,15 @@ public class TradeShop extends JavaPlugin {
 			return;
 		}
 
-		Setting.reload();
-		Message.reload();
+		settings = new SettingsController();
+		messages = new MessagesController();
 
 		debugger = new Debug();
 
 		try {
-			dataStorage = new DataStorage(DataType.valueOf(Setting.DATA_STORAGE_TYPE.getString().toUpperCase()));
+			dataStorage = new DataStorage(DataType.valueOf(settings.getValueAsString(SettingsEnum.DATA_STORAGE_TYPE).toUpperCase()));
 		} catch (IllegalArgumentException iae) {
-			debugger.log("Config value for data storage set to an invalid value: " + Setting.DATA_STORAGE_TYPE.getString(), DebugLevels.DATA_ERROR);
+			debugger.log("Config value for data storage set to an invalid value: " + settings.getValueAsString(SettingsEnum.DATA_STORAGE_TYPE), DebugLevels.DATA_ERROR);
 			debugger.log("TradeShop will now disable...", DebugLevels.DATA_ERROR);
 			getServer().getPluginManager().disablePlugin(this);
 			return;
@@ -117,11 +121,11 @@ public class TradeShop extends JavaPlugin {
 		getCommand("tradeshop").setExecutor(new CommandCaller(this));
 		getCommand("tradeshop").setTabCompleter(new CommandTabCaller(this));
 
-        if (Setting.CHECK_UPDATES.getBoolean()) {
+		if (settings.getValueAsBoolean(SettingsEnum.CHECK_UPDATES)) {
 			new Thread(() -> getUpdater().checkCurrentVersion()).start();
 		}
 
-		if (Setting.ALLOW_METRICS.getBoolean()) {
+		if (settings.getValueAsBoolean(SettingsEnum.ALLOW_METRICS)) {
 			metricsManager = new MetricsManager(this);
 			getLogger().info("Metrics successfully initialized!");
 		} else {
@@ -182,5 +186,13 @@ public class TradeShop extends JavaPlugin {
 
 	public MetricsManager getMetricsManager() {
 		return metricsManager;
+	}
+
+	public SettingsController getSettings() {
+		return settings;
+	}
+
+	public MessagesController getMessages() {
+		return messages;
 	}
 }

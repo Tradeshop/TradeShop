@@ -36,7 +36,6 @@ import org.bukkit.event.block.SignChangeEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.shanerx.tradeshop.TradeShop;
-import org.shanerx.tradeshop.enumys.Setting;
 import org.shanerx.tradeshop.enumys.ShopRole;
 import org.shanerx.tradeshop.enumys.ShopStatus;
 import org.shanerx.tradeshop.enumys.ShopType;

@@ -42,14 +42,14 @@ import org.bukkit.plugin.PluginDescriptionFile;
 import org.shanerx.tradeshop.TradeShop;
 import org.shanerx.tradeshop.enumys.DebugLevels;
 import org.shanerx.tradeshop.enumys.ExchangeStatus;
-import org.shanerx.tradeshop.enumys.Message;
-import org.shanerx.tradeshop.enumys.Setting;
 import org.shanerx.tradeshop.enumys.ShopType;
 import org.shanerx.tradeshop.objects.Debug;
 import org.shanerx.tradeshop.objects.IllegalItemList;
 import org.shanerx.tradeshop.objects.Shop;
 import org.shanerx.tradeshop.objects.ShopItemStack;
 import org.shanerx.tradeshop.objects.ShopLocation;
+import org.shanerx.tradeshop.utils.configuration.MessagesEnum;
+import org.shanerx.tradeshop.utils.configuration.SettingsEnum;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -205,7 +205,7 @@ public class Utils {
 	 * @param shop Shoptype enum to get header
 	 */
 	public void failedSignReset(SignChangeEvent e, ShopType shop) {
-		e.setLine(0, colorize(Setting.SHOP_BAD_COLOUR.getString() + shop.toString()));
+		e.setLine(0, colorize(plugin.getSettings().getValueAsString(SettingsEnum.SHOP_BAD_COLOUR) + shop.toString()));
 		e.setLine(1, "");
 		e.setLine(2, "");
 		e.setLine(3, "");
@@ -218,9 +218,9 @@ public class Utils {
 	 * @param shop Shoptype enum to get header
 	 * @param msg  The enum constant representing the error message
 	 */
-	public void failedSign(SignChangeEvent e, ShopType shop, Message msg) {
+	public void failedSign(SignChangeEvent e, ShopType shop, MessagesEnum msg) {
 		failedSignReset(e, shop);
-		e.getPlayer().sendMessage(colorize(Setting.MESSAGE_PREFIX.getString() + msg));
+		plugin.getMessages().sendMessage(msg, e.getPlayer());
 	}
 
 	/**
@@ -229,8 +229,8 @@ public class Utils {
 	 * @param e   Event to reset the sign for
 	 * @param msg The enum constant representing the error message
 	 */
-	public void failedTrade(PlayerInteractEvent e, Message msg) {
-		e.getPlayer().sendMessage(colorize(Setting.MESSAGE_PREFIX.getString() + msg));
+	public void failedTrade(PlayerInteractEvent e, MessagesEnum msg) {
+		plugin.getMessages().sendMessage(msg, e.getPlayer());
 	}
 
 	/**
