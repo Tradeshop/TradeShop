@@ -37,9 +37,7 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
-import org.shanerx.tradeshop.enumys.Message;
 import org.shanerx.tradeshop.enumys.Permissions;
-import org.shanerx.tradeshop.enumys.Setting;
 import org.shanerx.tradeshop.enumys.ShopType;
 import org.shanerx.tradeshop.framework.events.PlayerPreTradeEvent;
 import org.shanerx.tradeshop.framework.events.PlayerPrepareTradeEvent;
@@ -49,6 +47,8 @@ import org.shanerx.tradeshop.objects.ShopItemStack;
 import org.shanerx.tradeshop.objects.ShopLocation;
 import org.shanerx.tradeshop.utils.Tuple;
 import org.shanerx.tradeshop.utils.Utils;
+import org.shanerx.tradeshop.utils.config.Message;
+import org.shanerx.tradeshop.utils.config.Setting;
 
 import java.util.ArrayList;
 
@@ -77,7 +77,7 @@ public class ShopTradeListener extends Utils implements Listener {
             return;
         }
 
-        shop = plugin.getDataStorage().loadShopFromSign(new ShopLocation(s.getLocation()));
+        shop = PLUGIN.getDataStorage().loadShopFromSign(new ShopLocation(s.getLocation()));
 
         if (shop == null) {
             s.setLine(0, "");
@@ -132,7 +132,7 @@ public class ShopTradeListener extends Utils implements Listener {
         }
 
         if (buyer.isSneaking() && Setting.ALLOW_MULTI_TRADE.getBoolean()) {
-            multiplier = plugin.getDataStorage().loadPlayer(buyer.getUniqueId()).getMulti();
+            multiplier = PLUGIN.getDataStorage().loadPlayer(buyer.getUniqueId()).getMulti();
         }
 
         switch (shop.getStatus()) {
@@ -157,7 +157,7 @@ public class ShopTradeListener extends Utils implements Listener {
         if (event.isCancelled()) return;
 
         e.setCancelled(true);
-        shop = plugin.getDataStorage().loadShopFromSign(new ShopLocation(s.getLocation()));
+        shop = PLUGIN.getDataStorage().loadShopFromSign(new ShopLocation(s.getLocation()));
 
         switch (canExchangeAll(shop, buyer.getInventory(), multiplier, e.getAction())) {
             case SHOP_NO_PRODUCT:
@@ -258,7 +258,7 @@ public class ShopTradeListener extends Utils implements Listener {
             }
 
             Bukkit.getPluginManager().callEvent(new PlayerSuccessfulTradeEvent(buyer, costItems, productItems, shop, event.getClickedBlock(), event.getBlockFace()));
-            plugin.getMetricsManager().addTrade();
+            PLUGIN.getMetricsManager().addTrade();
             return true; //Successfully completed trade
         } else if (shop.getShopType() == ShopType.BITRADE && action == Action.LEFT_CLICK_BLOCK) { //BiTrade Reversed Trade
 
@@ -329,7 +329,7 @@ public class ShopTradeListener extends Utils implements Listener {
             }
 
             Bukkit.getPluginManager().callEvent(new PlayerSuccessfulTradeEvent(buyer, costItems, productItems, shop, event.getClickedBlock(), event.getBlockFace()));
-            plugin.getMetricsManager().addTrade();
+            PLUGIN.getMetricsManager().addTrade();
             return true; //Successfully completed trade
         } else {
             return false;

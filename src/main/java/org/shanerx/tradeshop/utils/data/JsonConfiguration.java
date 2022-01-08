@@ -69,7 +69,7 @@ public class JsonConfiguration extends Utils implements Serializable {
 		gson = new GsonBuilder().setPrettyPrinting().serializeNulls().create();
 		configType = 0;
 		ShopChunk chunk = new ShopChunk(c);
-		this.pluginFolder = plugin.getDataFolder().getAbsolutePath();
+		this.pluginFolder = PLUGIN.getDataFolder().getAbsolutePath();
 		this.path = this.pluginFolder + File.separator + "Data" + File.separator + chunk.getWorld().getName();
 		this.file = new File(path + File.separator + chunk.serialize() + ".json");
 		this.filePath = new File(path);
@@ -103,7 +103,7 @@ public class JsonConfiguration extends Utils implements Serializable {
 		gson = new GsonBuilder().setPrettyPrinting().serializeNulls().create();
 		configType = 1;
 		playerUUID = uuid;
-		this.pluginFolder = plugin.getDataFolder().getAbsolutePath();
+		this.pluginFolder = PLUGIN.getDataFolder().getAbsolutePath();
 		this.path = this.pluginFolder + File.separator + "Data" + File.separator + "Players";
 		this.file = new File(path + File.separator + uuid.toString() + ".json");
 		this.filePath = new File(path);
@@ -122,7 +122,7 @@ public class JsonConfiguration extends Utils implements Serializable {
 	public JsonConfiguration(World world) {
 		gson = new GsonBuilder().setPrettyPrinting().serializeNulls().create();
 		configType = 2;
-		this.pluginFolder = plugin.getDataFolder().getAbsolutePath();
+		this.pluginFolder = PLUGIN.getDataFolder().getAbsolutePath();
 		this.path = this.pluginFolder + File.separator + "Data" + File.separator + world.getName();
 		this.file = new File(path + File.separator + "chest_linkage.json");
 		this.filePath = new File(path);

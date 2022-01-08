@@ -32,6 +32,7 @@ import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
 import org.shanerx.tradeshop.TradeShop;
+import org.shanerx.tradeshop.utils.config.Setting;
 
 import java.io.Serializable;
 

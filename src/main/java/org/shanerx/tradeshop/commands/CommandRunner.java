@@ -37,10 +37,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.shanerx.tradeshop.TradeShop;
 import org.shanerx.tradeshop.enumys.DebugLevels;
-import org.shanerx.tradeshop.enumys.Message;
 import org.shanerx.tradeshop.enumys.PermStatus;
 import org.shanerx.tradeshop.enumys.Permissions;
-import org.shanerx.tradeshop.enumys.Setting;
 import org.shanerx.tradeshop.enumys.ShopRole;
 import org.shanerx.tradeshop.enumys.ShopStatus;
 import org.shanerx.tradeshop.enumys.ShopType;
@@ -60,6 +58,8 @@ import org.shanerx.tradeshop.objects.ShopUser;
 import org.shanerx.tradeshop.utils.ObjectHolder;
 import org.shanerx.tradeshop.utils.Tuple;
 import org.shanerx.tradeshop.utils.Utils;
+import org.shanerx.tradeshop.utils.config.Message;
+import org.shanerx.tradeshop.utils.config.Setting;
 import org.shanerx.tradeshop.utils.data.DataType;
 
 public class CommandRunner extends Utils {
@@ -112,7 +112,7 @@ public class CommandRunner extends Utils {
 
 		for (Commands c : Commands.values()) {
 			if (c.checkPerm(command.getSender()) == PermStatus.GOOD) {
-				sb.append(Message.colour(String.format("&b/ts %s  &f %s\n", c.getFirstName(), c.getDescription())));
+				sb.append(plugin.getMessageManager().colour(String.format("&b/ts %s  &f %s\n", c.getFirstName(), c.getDescription())));
 			}
 		}
 
@@ -123,10 +123,10 @@ public class CommandRunner extends Utils {
 	public void usage(String subcmd) {
 		Commands cmd = Commands.getType(subcmd);
 		if (cmd == null) {
-			command.sendMessage(Message.colour(String.format("&4Cannot find usages for &c%s&r", subcmd)));
+			command.sendMessage(plugin.getMessageManager().colour(String.format("&4Cannot find usages for &c%s&r", subcmd)));
 			return;
 		}
-		command.sendMessage(Message.colour(String.format("&6Showing help for &c%s&r\n&bUsage:&e %s \n&bAliases: %s\n&bDescription:&e %s", subcmd, cmd.getUsage(), cmd.getAliases(), cmd.getDescription())));
+		command.sendMessage(plugin.getMessageManager().colour(String.format("&6Showing help for &c%s&r\n&bUsage:&e %s \n&bAliases: %s\n&bDescription:&e %s", subcmd, cmd.getUsage(), cmd.getAliases(), cmd.getDescription())));
 	}
 
 	/**
@@ -147,8 +147,9 @@ public class CommandRunner extends Utils {
 	 * Reloads the plugin and sends success message
 	 */
 	public void reload() {
-		Message.reload();
-		Setting.reload();
+		plugin.getLanguage().reload();
+		plugin.getSettingManager().reload();
+		plugin.getMessageManager().reload();
 		plugin.getListManager().reload();
 		plugin.getDebugger().reload();
 		try {

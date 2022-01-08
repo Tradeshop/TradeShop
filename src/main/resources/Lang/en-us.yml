@@ -1,0 +1,327 @@
+message-section:
+  none:
+    header: ""
+  unused:
+    header: ""
+setting-section:
+  none:
+    header: ""
+  system-options:
+    header: "System Options"
+  language-options:
+    header: "Language Options"
+  global-options:
+    header: "Global Options"
+  global-multi-trade:
+    header: ""
+  shop-options:
+    header: "Shop Options"
+  trade-shop-options:
+    header: "Trade Shop Options"
+  itrade-shop-options:
+    header: "ITrade Shop Options"
+  bitrade-shop-options:
+    header: "BiTrade Shop Options"
+  illegal-item-options:
+    header: "Illegal Item Options"
+    pre-comment: ""
+    post-comment: "Valid Types: DISABLED, BLACKLIST, WHITELIST\n"
+  global-illegal-items:
+    header: ""
+    pre-comment: "List for illegal items for both Cost and Product"
+    post-comment: ""
+  cost-illegal-items:
+    header: ""
+    pre-comment: "List for illegal items for only Cost items"
+    post-comment: ""
+  product-illegal-items:
+    header: ""
+    pre-comment: "List for illegal items for only Product items"
+    post-comment: ""
+setting:
+  config-version:
+    pre-comment: ""
+    post-comment: "\n"
+  system-options:
+    data-storage-type:
+      pre-comment: "How would you like your servers data stored? (FLATFILE)"
+    enable-debug:
+      pre-comment: "What debug code should be run. This will add significant amounts of spam to the console/log, generally not used unless requested by Devs"
+    check-updates:
+      pre-comment: "Should we check for updates when the server starts"
+    allow-metrics:
+      pre-comment: "Allow us to connect anonymous metrics so we can see how our plugin is being used to better develop it"
+    unlimited-admin:
+      pre-comment: "We do not recommend enabling this setting since any editing an admin should need to do can be done without this.\n Should players with Admin permission be able to use any commands on any shops?"
+    use-internal-permissions:
+      pre-comment: "Should our internal permission system be used? (Only enable if you aren't using a permission plugin)"
+      post-comment: "\n"
+  language-options:
+    message-prefix:
+      pre-comment: "The prefix the displays before all plugin messages"
+      post-comment: "\n"
+    shop-good-colour:
+      pre-comment: "Header Colours, if the codes are showing in the header, set to \"\"\n Color for successfully created and stocked signs"
+    shop-incomplete-colour:
+      pre-comment: "Color for shops that are missing data to make trades"
+    shop-bad-colour:
+      pre-comment: "Color for shops that were not successfully created"
+      post-comment: "\n"
+    shop-open-status:
+      pre-comment: "Status Text, What will be shown in the bottom line of shop sign for each status\n Open"
+    shop-closed-status:
+      pre-comment: "Closed"
+    shop-incomplete-status:
+      pre-comment: "Incomplete"
+    shop-outofstock-status:
+      pre-comment: "Out of Stock"
+      post-comment: "\n"
+  global-options:
+    allowed-directions:
+      pre-comment: "Directions an allowed shop can be from a sign. Allowed directions are:\n Up, Down, North, East, South, West"
+    allowed-shops:
+      pre-comment: "Inventories to allow for shops. Allowed blocks are:\n Chest, Trapped_Chest, Dropper, Hopper, Dispenser, Shulker, ..."
+    max-edit-distance:
+      pre-comment: "Max distance a player can be from a shop to edit it"
+    allow-toggle-status:
+      pre-comment: "Can players toggle view of involved shops?"
+    allow-sign-break:
+      pre-comment: "Should we allow anyone to destroy a shops sign?"
+    allow-chest-break:
+      pre-comment: "Should we allow anyone to destroy a shops storage?"
+      post-comment: "\n"
+    multi-trade:
+      enable:
+        pre-comment: "Should we allow multi trades with shift + click (true/false)"
+      default-multi:
+        pre-comment: "Default multiplier for trades using shift + click"
+      max-multi:
+        pre-comment: "Maximum amount a player can set their multiplier to. Not recommended to set any higher than 6 as this can cause bugs with iTrade Shops"
+        post-comment: "\n"
+  illegal-item-options:
+    global-illegal-items:
+      type:
+        pre-comment: ""
+      list:
+        pre-comment: ""
+    cost-illegal-items:
+      type:
+        pre-comment: ""
+      list:
+        pre-comment: ""
+    product-illegal-items:
+      type:
+        pre-comment: ""
+      list:
+        pre-comment: ""
+  shop-options:
+    max-shop-users:
+      pre-comment: "Maximum users(Managers/Members) a shop can have"
+    max-shops-per-chunk:
+      pre-comment: "Maximum shops that can exist in a single chunk"
+    max-items-per-trade-side:
+      pre-comment: "Maximum amount of item stacks per side of trade"
+    allow-user-purchasing:
+      pre-comment: "Can players purchase from a shop in which they are a user of (true/false)"
+    multiple-items-on-sign:
+      pre-comment: "Text that shows on trade signs that contain more than 1 item"
+      post-comment: "\n"
+  trade-shop-options:
+    header:
+      pre-comment: "The header that appears at the top of the shop signs, this is also what the player types to create the sign"
+    allow-explode:
+      pre-comment: "Can explosions damage the shop sign/storage (true/false)"
+    allow-hopper-export:
+      pre-comment: "Can hoppers pull items from the shop storage (true/false)"
+    allow-hopper-import:
+      pre-comment: "Can hoppers push items into the shop storage (true/false)"
+      post-comment: "\n"
+  itrade-shop-options:
+    owner:
+      pre-comment: "Name to put on the bottom of iTrade signs"
+    header:
+      pre-comment: "The header that appears at the top of the shop signs, this is also what the player types to create the sign"
+    allow-explode:
+      pre-comment: "Can explosions damage the shop sign (true/false)"
+    no-cost-text:
+      pre-comment: "What text should be used for successful trades when no cost is present"
+      post-comment: "\n"
+  bitrade-shop-options:
+    header:
+      pre-comment: "The header that appears at the top of the shop signs, this is also what the player types to create the sign"
+    allow-explode:
+      pre-comment: "Can explosions damage the shop sign/storage (true/false)"
+    allow-hopper-export:
+      pre-comment: "Can hoppers pull items from the shop storage (true/false)"
+    allow-hopper-import:
+      pre-comment: "Can hoppers push items into the shop storage (true/false)"
+      post-comment: "\n"
+message:
+  message-version:
+    default: 0.0
+    pre-comment: "Version of the current config file.\n Do not change!"
+  language:
+    default: "en-us"
+    pre-comment: "This currently does not change anything in the message files, but is used in metrics so that we can see what languages we should try to provide built in support for in the future.\n Please use codes as listed at: https://www.andiamo.co.uk/resources/iso-language-codes/"
+    post-comment: "\n"
+  amount-not-num:
+    default: "&cYou should have an amount before each item."
+    pre-comment: "\\Unused\\"
+    post-comment:
+  buy-failed-sign:
+    default: "&cThis shop sign does not seem to be formatted correctly, please notify the owner."
+    pre-comment: "\\Unused\\"
+  change-closed:
+    default: "&cThe shop is now &l&bCLOSED&r&a."
+  change-open:
+    default: "&aThe shop is now &l&bOPEN&r&a."
+  confirm-trade:
+    default: "&eTrade &6{AMOUNT1} {ITEM1} &efor &6{AMOUNT2} {ITEM2} &e?"
+    pre-comment: "\\Unused\\"
+  empty-ts-on-setup:
+    default: "&cTradeShop empty, please remember to fill it!"
+    pre-comment: "Text to display when a player places a TradeSign above an empty chest:"
+  existing-shop:
+    default: "&cThis storage or sign is already linked to a shop."
+  feature-disabled:
+    default: "&cThis feature has been disabled on this server!"
+  full-amount:
+    default: "&cYou must have &e{AMOUNT} &cof a single type of &e{ITEM}&c!"
+    pre-comment: "\\Unused\\"
+  held-empty:
+    default: "&eYou are currently holding nothing."
+    pre-comment: "Text to display when the player is not holding anything"
+  illegal-item:
+    default: "&cYou cannot use one or more of those items in shops."
+    pre-comment: "Text to display when a shop failed creation due to an illegal item"
+  no-shulker-cost:
+    default: "&cYou cannot add a Shulker Box as a cost when the shop uses it for storage."
+    pre-comment: "Text to display when a shop failed creation due to using a shulker box as cost when the shop uses it for storage: "
+  insufficient-items:
+    default: "&cYou do not have &e{AMOUNT} {ITEM}&c!"
+    pre-comment: "Text to display when the player does not have enough items:"
+  shop-insufficient-items:
+    default: "&cThis shop does not have enough &e{AMOUNT} {ITEM}&c to trade!"
+    pre-comment: "Text to display when the shop does not have enough items:"
+  invalid-arguments:
+    default: "&eTry &6/tradeshop help &eto display help!"
+    pre-comment: "Text to display when invalid arguments are submitted through the \"/tradeshop\" command:"
+  invalid-sign:
+    default: "&cInvalid sign format!"
+    pre-comment: "\\Unused\\"
+  invalid-subcommand:
+    default: "&cInvalid sub-command. Cannot display usage."
+    pre-comment: "\\Unused\\"
+  item-added:
+    default: "&aItem successfully added to shop."
+  item-not-removed:
+    default: "&cItem could not be removed from shop."
+  item-removed:
+    default: "&aItem successfully removed to shop."
+  missing-chest:
+    default: "&cYour shop is missing a chest."
+  missing-item:
+    default: "&cYour sign is missing an item for trade."
+    pre-comment: "Text to display when a shop sign failed creation due to missing an item"
+  missing-shop:
+    default: "&cThere is not currently a shop here, please tell the owner or come back later!"
+    pre-comment: "\\Unused\\"
+  multi-amount:
+    default: "&aYour trade multiplier is %amount%."
+  multi-update:
+    default: "&aTrade multiplier has been updated to %amount%."
+  no-chest:
+    default: "&cYou need to put a chest under the sign!"
+    pre-comment: "Text to display when a player attempts to place a sign without placing the chest first:"
+  no-command-permission:
+    default: "&cYou do not have permission to execute this command"
+    pre-comment: "Text to display when a player attempts to run administrator commands:"
+  no-shop-permission:
+    default: "&cYou do not have permission to edit that shop."
+  no-trade-permission:
+    default: "&cYou do not have permission to trade with TradeShops"
+    pre-comment: "Text to display when a player attempts to trade while having the `Prevent Trade` permission:"
+  no-sighted-shop:
+    default: "&cNo shop in range!"
+    pre-comment: "Text to display when a player is too far from a shop"
+  no-ts-create-permission:
+    default: "&cYou don't have permission to create TradeShops!"
+    pre-comment: "Text to display when a player attempts to setup a shoptype they are not allowed to create:"
+  no-ts-destroy:
+    default: "&cYou may not destroy that TradeShop"
+    pre-comment: "Text to display when a player attempts to destroy a shop they do not own:"
+  destroy-shop-sign-first:
+    default: "&cYou must destroy the shops sign first."
+    pre-comment: "Text to display when a player attempts to destroy a block with a shop sign attached to it:"
+  no-ts-open:
+    default: "&cThat TradeShop does not belong to you"
+    pre-comment: "Text to display when a player attempts to open a shop they do not own nor have been granted access to (1.6):"
+  on-trade:
+    default: "&aYou have traded your &e{AMOUNT2} {ITEM2} &afor &e{AMOUNT1} {ITEM1} &awith {SELLER}"
+    pre-comment: "Text to display upon a successful trade:"
+  player-full:
+    default: "&cYour inventory is full, please make room before trading items!"
+    pre-comment: "Text to display when the players inventory is too full to recieve the trade:"
+  player-not-found:
+    default: "&cThat player could not be found."
+  player-only-command:
+    default: "&eThis command is only available to players."
+    pre-comment: "Text to display when console tries to use a player only command"
+  plugin-behind:
+    default: "&cThe server is running an old version of TradeShop, please update the plugin."
+  self-owned:
+    default: "&cYou cannot buy from a shop in which you are a user."
+    pre-comment: "Text to display when a player tries to buy form a shop in which they are a user"
+  setup-help:
+    default: "\n&2Setting up a TradeShop is easy! Just make sure to follow these steps:\n \nStep 1: &ePlace down a chest.\n&2Step 2: &ePlace a sign on top of or around the chest.\n&2Step 3: &eWrite the following on the sign\n&6 [%header%]\n&6&o-- Leave Blank --\n&6&o-- Leave Blank --\n&6&o-- Leave Blank --\n&2Step 4: &eUse the addCost and addProduct commands to add items to your shop"
+    pre-comment: "Text to display on \"/tradeshop setup\":"
+    post-comment:
+  shop-closed:
+    default: "&cThis shop is currently closed."
+  shop-empty:
+    default: "&cThis TradeShop is currently missing items to complete the trade!"
+    pre-comment: "Text to display when the shop does not have enough stock:"
+  shop-full:
+    default: "&cThis TradeShop is full, please contact the owner to get it emptied!"
+    pre-comment: "Text to display when the shop storage is full:"
+  shop-full-amount:
+    default: "&cThe shop does not have &e{AMOUNT} &cof a single type of &e{ITEM}&c!"
+    pre-comment: "\\Unused\\"
+  shop-item-list:
+    default: "&aThe shops %type%:\n%list%"
+  shop-type-switched:
+    default: "&aShop type has been switched to %newtype%."
+  successful-setup:
+    default: "&aYou have successfully setup a TradeShop!"
+    pre-comment: "Text to display when a player successfully creates a TradeShop:"
+  too-many-chests:
+    default: "&cThere are too many shops in this chunk, you can not add another one."
+  too-many-items:
+    default: "&cThis shop cannot take any more %side% items!"
+  unsuccessful-shop-members:
+    default: "&aThat player is either already on the shop, or you have reached the maximum number of users!"
+    pre-comment: "Text to display when shop users could not be updated"
+  updated-shop-members:
+    default: "&aShop owners and members have been updated!"
+    pre-comment: "Text to display when shop users have been updated successfully"
+  who-message:
+    default: "&6Shop users are:\n&2Owner: &e{OWNER}\n&2Managers: &e{MANAGERS}\n&2Members: &e{MEMBERS}"
+    pre-comment: "Text to display when players use the who command"
+  view-player-level:
+    default: "&e%player% has a level of %level%."
+    pre-comment: "Text to display when viewing a players level with /ts PlayerLevel"
+  set-player-level:
+    default: "&aYou have set the level of %player% to %level%!"
+    pre-comment: "Text to display after setting a players level"
+  various-item-type:
+    default: "Various"
+    pre-comment: "Text to display when a message uses an Item Type and the Type varies"
+  toggled-status:
+    default: "Toggled status: &c%status%"
+  no-sign-found:
+    default: "&cNo sign in range!"
+    pre-comment: "Text to display when a player is too far from a sign"
+  admin-toggled:
+    default: "&aYour Admin mode is currently &e{STATE}&a."
+    pre-comment: "Text to display when an admin toggles or views their Admin abilities. \n# \"{STATE}\" will be replaced by the state that the player is in after the command."
+  

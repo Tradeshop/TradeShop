@@ -37,7 +37,6 @@ import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.shanerx.tradeshop.TradeShop;
-import org.shanerx.tradeshop.enumys.Message;
 import org.shanerx.tradeshop.enumys.Permissions;
 import org.shanerx.tradeshop.enumys.ShopItemStackSettingKeys;
 import org.shanerx.tradeshop.enumys.ShopRole;
@@ -45,6 +44,7 @@ import org.shanerx.tradeshop.objects.Shop;
 import org.shanerx.tradeshop.objects.ShopItemStack;
 import org.shanerx.tradeshop.objects.ShopUser;
 import org.shanerx.tradeshop.utils.ObjectHolder;
+import org.shanerx.tradeshop.utils.config.Message;
 
 import java.util.ArrayList;
 import java.util.HashSet;

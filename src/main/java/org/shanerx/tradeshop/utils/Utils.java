@@ -42,19 +42,20 @@ import org.bukkit.plugin.PluginDescriptionFile;
 import org.shanerx.tradeshop.TradeShop;
 import org.shanerx.tradeshop.enumys.DebugLevels;
 import org.shanerx.tradeshop.enumys.ExchangeStatus;
-import org.shanerx.tradeshop.enumys.Message;
-import org.shanerx.tradeshop.enumys.Setting;
 import org.shanerx.tradeshop.enumys.ShopType;
 import org.shanerx.tradeshop.objects.Debug;
 import org.shanerx.tradeshop.objects.IllegalItemList;
 import org.shanerx.tradeshop.objects.Shop;
 import org.shanerx.tradeshop.objects.ShopItemStack;
 import org.shanerx.tradeshop.objects.ShopLocation;
+import org.shanerx.tradeshop.utils.config.Message;
+import org.shanerx.tradeshop.utils.config.Setting;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 
@@ -67,13 +68,13 @@ public class Utils {
 
 	private final UUID KOPUUID = UUID.fromString("daf79be7-bc1d-47d3-9896-f97b8d4cea7d");
 	private final UUID LORIUUID = UUID.fromString("e296bc43-2972-4111-9843-48fc32302fd4");
-	public final TradeShop plugin = (TradeShop) Bukkit.getPluginManager().getPlugin("TradeShop");
-	protected PluginDescriptionFile pdf = plugin.getDescription();
+	public final TradeShop PLUGIN = Objects.requireNonNull((TradeShop) Bukkit.getPluginManager().getPlugin("TradeShop"));
+	protected PluginDescriptionFile pdf = PLUGIN.getDescription();
 
 	public Debug debugger;
 
 	public Utils() {
-		debugger = plugin.getDebugger();
+		debugger = PLUGIN.getDebugger();
 	}
 
 	public UUID[] getMakers() {
@@ -241,7 +242,7 @@ public class Utils {
 	 * @return returns true if valid material
 	 */
 	public boolean isIllegal(IllegalItemList.TradeItemType type, Material mat) {
-		return plugin.getListManager().isIllegal(type, mat);
+		return PLUGIN.getListManager().isIllegal(type, mat);
 	}
 
 	/**
@@ -285,11 +286,11 @@ public class Utils {
 	 * @return the sign.
 	 */
 	public Sign findShopSign(Block chest) {
-		ShopLocation potentialLocation = plugin.getDataStorage().getChestLinkage(new ShopLocation(chest.getLocation()));
+		ShopLocation potentialLocation = PLUGIN.getDataStorage().getChestLinkage(new ShopLocation(chest.getLocation()));
 		if (potentialLocation != null && ShopType.isShop(potentialLocation.getLocation().getBlock()))
 			return (Sign) potentialLocation.getLocation().getBlock().getState();
 
-		ArrayList<BlockFace> faces = plugin.getListManager().getDirections();
+		ArrayList<BlockFace> faces = PLUGIN.getListManager().getDirections();
 		Collections.reverse(faces);
 		ArrayList<BlockFace> flatFaces = new ArrayList<>(Arrays.asList(BlockFace.NORTH, BlockFace.EAST, BlockFace.SOUTH, BlockFace.WEST));
 		boolean isDouble = false;
@@ -327,9 +328,9 @@ public class Utils {
 	 * @return the shop's inventory holder block.
 	 */
 	public Block findShopChest(Block sign) {
-        for (BlockFace face : plugin.getListManager().getDirections()) {
+		for (BlockFace face : PLUGIN.getListManager().getDirections()) {
 			Block relative = sign.getRelative(face);
-            if (plugin.getListManager().isInventory(relative)) {
+			if (PLUGIN.getListManager().isInventory(relative)) {
 				return relative;
 			}
 		}

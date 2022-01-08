@@ -36,12 +36,12 @@ import org.bukkit.event.block.SignChangeEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.shanerx.tradeshop.TradeShop;
-import org.shanerx.tradeshop.enumys.Setting;
 import org.shanerx.tradeshop.enumys.ShopRole;
 import org.shanerx.tradeshop.enumys.ShopStatus;
 import org.shanerx.tradeshop.enumys.ShopType;
 import org.shanerx.tradeshop.utils.Tuple;
 import org.shanerx.tradeshop.utils.Utils;
+import org.shanerx.tradeshop.utils.config.Setting;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -80,7 +80,7 @@ public class Shop implements Serializable {
 		shopLoc = new ShopLocation(locations.getLeft());
 		this.owner = owner;
 		chestLoc = new ShopLocation(locations.getRight());
-		utils.plugin.getDataStorage().addChestLinkage(chestLoc, shopLoc);
+		utils.PLUGIN.getDataStorage().addChestLinkage(chestLoc, shopLoc);
 		this.shopType = shopType;
 		managers = players.getLeft();
 		members = players.getRight();
@@ -105,7 +105,7 @@ public class Shop implements Serializable {
 		shopLoc = new ShopLocation(locations.getLeft());
 		this.owner = owner;
 		chestLoc = new ShopLocation(locations.getRight());
-		utils.plugin.getDataStorage().addChestLinkage(chestLoc, shopLoc);
+		utils.PLUGIN.getDataStorage().addChestLinkage(chestLoc, shopLoc);
 		this.shopType = shopType;
 		managers = Collections.emptyList();
 		members = Collections.emptyList();
@@ -157,7 +157,7 @@ public class Shop implements Serializable {
 	 * @return The shop from file
 	 */
 	public static Shop loadShop(ShopLocation loc) {
-		return new Utils().plugin.getDataStorage().loadShopFromSign(loc);
+		return new Utils().PLUGIN.getDataStorage().loadShopFromSign(loc);
 	}
 
 	/**
@@ -308,7 +308,7 @@ public class Shop implements Serializable {
      * Updates the saved player data for all users
      */
     private void updateUserFiles() {
-        TradeShop plugin = new Utils().plugin;
+		TradeShop plugin = new Utils().PLUGIN;
         for (UUID user : getUsersUUID()) {
             PlayerSetting playerSetting = plugin.getDataStorage().loadPlayer(user);
             playerSetting.updateShops(this);
@@ -320,7 +320,7 @@ public class Shop implements Serializable {
      * Removes this shop from all users
      */
     private void purgeFromUserFiles() {
-        TradeShop plugin = new Utils().plugin;
+		TradeShop plugin = new Utils().PLUGIN;
         for (UUID user : getUsersUUID()) {
             PlayerSetting playerSetting = plugin.getDataStorage().loadPlayer(user);
             playerSetting.removeShop(this);
@@ -402,7 +402,7 @@ public class Shop implements Serializable {
 	 */
 	public void setInventoryLocation(Location newLoc) {
 		chestLoc = new ShopLocation(newLoc);
-		utils.plugin.getDataStorage().addChestLinkage(chestLoc, shopLoc);
+		utils.PLUGIN.getDataStorage().addChestLinkage(chestLoc, shopLoc);
 	}
 
 	/**
@@ -748,7 +748,7 @@ public class Shop implements Serializable {
 	 */
 	public void saveShop() {
 		updateFullTradeCount();
-		utils.plugin.getDataStorage().saveShop(this);
+		utils.PLUGIN.getDataStorage().saveShop(this);
 		updateUserFiles();
 		updateSign();
 	}
@@ -878,7 +878,7 @@ public class Shop implements Serializable {
 	 */
 	public void removeStorage() {
 		if (hasStorage()) {
-			utils.plugin.getDataStorage().removeChestLinkage(chestLoc);
+			utils.PLUGIN.getDataStorage().removeChestLinkage(chestLoc);
 			chestLoc = null;
 		}
 	}
@@ -967,7 +967,7 @@ public class Shop implements Serializable {
     public void remove() {
         purgeFromUserFiles();
 		removeStorage();
-		utils.plugin.getDataStorage().removeShop(this);
+		utils.PLUGIN.getDataStorage().removeShop(this);
     }
 
 	/**

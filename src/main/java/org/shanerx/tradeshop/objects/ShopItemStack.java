@@ -256,7 +256,7 @@ public class ShopItemStack implements Serializable, Cloneable {
         }
 
         // If compareBundleInventory is on and version is above 1.17 also check Bundles
-        if (new Utils().plugin.getVersion().isAtLeast(1, 17) &&
+        if (new Utils().PLUGIN.getVersion().isAtLeast(1, 17) &&
                 itemStack.getType().equals(Material.BUNDLE) &&
                 getShopSettingAsBoolean(ShopItemStackSettingKeys.COMPARE_BUNDLE_INVENTORY)) {
             try {

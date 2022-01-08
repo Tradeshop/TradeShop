@@ -111,7 +111,7 @@ public class DataStorage extends Utils {
         int count = 0;
         switch (dataType) {
             case FLATFILE:
-                File folder = new File(plugin.getDataFolder().getAbsolutePath() + File.separator + "Data" + File.separator + world.getName());
+                File folder = new File(PLUGIN.getDataFolder().getAbsolutePath() + File.separator + "Data" + File.separator + world.getName());
                 if (folder.exists() && folder.listFiles() != null) {
                     for (File file : folder.listFiles()) {
                         if (file.getName().contains(world.getName()))

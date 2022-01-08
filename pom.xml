@@ -99,6 +99,11 @@
                     <include>${builddate}</include>
                 </includes>
             </resource>
+            <resource>
+                <targetPath>./Lang</targetPath>
+                <filtering>false</filtering>
+                <directory>${basedir}/src/main/resources/Lang</directory>
+            </resource>
         </resources>
 
         <plugins>

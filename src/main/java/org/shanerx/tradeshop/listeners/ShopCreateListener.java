@@ -35,8 +35,6 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.SignChangeEvent;
 import org.bukkit.inventory.ItemStack;
-import org.shanerx.tradeshop.enumys.Message;
-import org.shanerx.tradeshop.enumys.Setting;
 import org.shanerx.tradeshop.enumys.ShopRole;
 import org.shanerx.tradeshop.enumys.ShopType;
 import org.shanerx.tradeshop.framework.events.PlayerShopCreateEvent;
@@ -46,6 +44,8 @@ import org.shanerx.tradeshop.objects.ShopChest;
 import org.shanerx.tradeshop.objects.ShopUser;
 import org.shanerx.tradeshop.utils.Tuple;
 import org.shanerx.tradeshop.utils.Utils;
+import org.shanerx.tradeshop.utils.config.Message;
+import org.shanerx.tradeshop.utils.config.Setting;
 
 @SuppressWarnings("unused")
 public class ShopCreateListener extends Utils implements Listener {
@@ -80,7 +80,7 @@ public class ShopCreateListener extends Utils implements Listener {
 			return;
 		}
 
-		if (Setting.MAX_SHOPS_PER_CHUNK.getInt() <= plugin.getDataStorage().getShopCountInChunk(shopSign.getChunk())) {
+		if (Setting.MAX_SHOPS_PER_CHUNK.getInt() <= PLUGIN.getDataStorage().getShopCountInChunk(shopSign.getChunk())) {
 			failedSign(event, shopType, Message.TOO_MANY_CHESTS);
 			return;
 		}
@@ -158,7 +158,7 @@ public class ShopCreateListener extends Utils implements Listener {
 
 		ItemStack item = new ItemStack(Material.matchMaterial(info[1]), Integer.parseInt(info[0]));
 
-		if (plugin.getListManager().isIllegal(type, item.getType()))
+		if (PLUGIN.getListManager().isIllegal(type, item.getType()))
 			return null;
 
 		return item;

@@ -33,7 +33,8 @@ import org.bstats.charts.SimplePie;
 import org.bstats.charts.SingleLineChart;
 import org.bukkit.World;
 import org.shanerx.tradeshop.TradeShop;
-import org.shanerx.tradeshop.enumys.Setting;
+import org.shanerx.tradeshop.utils.config.Message;
+import org.shanerx.tradeshop.utils.config.Setting;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -199,6 +200,8 @@ public class MetricsManager {
 
     private void addOtherSettingMetrics() {
         metrics.addCustomChart(new SimplePie("data-storage-type", Setting.DATA_STORAGE_TYPE::getString));
+
+        metrics.addCustomChart(new SimplePie("language", Message.LANGUAGE::getString));
 
         metrics.addCustomChart(new SimplePie("max-shop-users", () -> {
             return String.valueOf(Setting.MAX_SHOP_USERS.getInt());

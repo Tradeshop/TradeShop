@@ -30,9 +30,9 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.shanerx.tradeshop.enumys.DebugLevels;
 import org.shanerx.tradeshop.enumys.NonObtainableMaterials;
-import org.shanerx.tradeshop.enumys.Setting;
 import org.shanerx.tradeshop.enumys.ShopStorage;
 import org.shanerx.tradeshop.utils.Utils;
+import org.shanerx.tradeshop.utils.config.Setting;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -129,7 +129,7 @@ public class ListManager extends Utils {
 		directions.clear();
 		addOnMats.clear();
 		gameMats.clear();
-		plugin.getDataStorage().clearChestLinkages();
+		PLUGIN.getDataStorage().clearChestLinkages();
 	}
 
 	private void updateIllegalLists() {
@@ -212,9 +212,9 @@ public class ListManager extends Utils {
 		//For each String in the Allowed shops config setting, check if it is a valid inventory and add the ShopStorage.Storages object to the list
 		for (String str : Setting.ALLOWED_SHOPS.getStringList()) {
 			String logMsg = "- " + str;
-			String storageName = plugin.getStorages().isValidInventory(str);
+			String storageName = PLUGIN.getStorages().isValidInventory(str);
 			if (storageName.length() > 0) {
-				ShopStorage.Storages storage = plugin.getStorages().getValidInventory(storageName);
+				ShopStorage.Storages storage = PLUGIN.getStorages().getValidInventory(storageName);
 				inventories.add(storage);
 				logMsg += " | Valid | " + storage.name();
 			} else {

@@ -31,8 +31,6 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.shanerx.tradeshop.commands.CommandCaller;
 import org.shanerx.tradeshop.commands.CommandTabCaller;
 import org.shanerx.tradeshop.enumys.DebugLevels;
-import org.shanerx.tradeshop.enumys.Message;
-import org.shanerx.tradeshop.enumys.Setting;
 import org.shanerx.tradeshop.enumys.ShopSign;
 import org.shanerx.tradeshop.enumys.ShopStorage;
 import org.shanerx.tradeshop.listeners.JoinEventListener;
@@ -46,6 +44,9 @@ import org.shanerx.tradeshop.utils.BukkitVersion;
 import org.shanerx.tradeshop.utils.Expirer;
 import org.shanerx.tradeshop.utils.MetricsManager;
 import org.shanerx.tradeshop.utils.Updater;
+import org.shanerx.tradeshop.utils.config.ConfigManager;
+import org.shanerx.tradeshop.utils.config.Language;
+import org.shanerx.tradeshop.utils.config.Setting;
 import org.shanerx.tradeshop.utils.data.DataStorage;
 import org.shanerx.tradeshop.utils.data.DataType;
 
@@ -63,6 +64,9 @@ public class TradeShop extends JavaPlugin {
 	private ListManager lists;
 	private DataStorage dataStorage;
 
+	private ConfigManager settingManager, messageManager;
+	private Language language;
+
 	private BukkitVersion version;
 	private ShopSign signs;
 	private ShopStorage storages;
@@ -75,44 +79,37 @@ public class TradeShop extends JavaPlugin {
 			expirer = null;
 		}
 
-		version = new BukkitVersion();
-
-		if (version.isBelow(1, 9)) {
+		if (getVersion().isBelow(1, 9)) {
 			getLogger().info("[TradeShop] Minecraft versions before 1.9 are not supported beyond TradeShop version 1.5.2!");
 			getServer().getPluginManager().disablePlugin(this);
 			return;
 		}
 
-		if (version.isBelow(1, 13)) {
+		if (getVersion().isBelow(1, 13)) {
 			getLogger().info("[TradeShop] Minecraft versions before 1.13 are not supported beyond TradeShop version 1.8.2!");
 			getServer().getPluginManager().disablePlugin(this);
 			return;
 		}
 
-		Setting.reload();
-		Message.reload();
+		getLanguage();
+		getSettingManager().reload();
+		getMessageManager().reload();
 
-		debugger = new Debug();
+		getDebugger();
 
-		try {
-			dataStorage = new DataStorage(DataType.valueOf(Setting.DATA_STORAGE_TYPE.getString().toUpperCase()));
-		} catch (IllegalArgumentException iae) {
-			debugger.log("Config value for data storage set to an invalid value: " + Setting.DATA_STORAGE_TYPE.getString(), DebugLevels.DATA_ERROR);
-			debugger.log("TradeShop will now disable...", DebugLevels.DATA_ERROR);
-			getServer().getPluginManager().disablePlugin(this);
+		if (getDataStorage() == null)
 			return;
-		}
 
-		signs = new ShopSign();
-		storages = new ShopStorage();
-		lists = new ListManager();
+		getSigns();
+		getStorages();
+		getListManager();
 
 		PluginManager pm = getServer().getPluginManager();
 		pm.registerEvents(new JoinEventListener(this), this);
 		pm.registerEvents(new ShopProtectionListener(this), this);
 		pm.registerEvents(new ShopCreateListener(), this);
 		pm.registerEvents(new ShopTradeListener(), this);
-        pm.registerEvents(new ShopRestockListener(this), this);
+		pm.registerEvents(new ShopRestockListener(this), this);
 
 		getCommand("tradeshop").setExecutor(new CommandCaller(this));
 		getCommand("tradeshop").setTabCompleter(new CommandTabCaller(this));
@@ -122,7 +119,7 @@ public class TradeShop extends JavaPlugin {
 		}
 
 		if (Setting.ALLOW_METRICS.getBoolean()) {
-			metricsManager = new MetricsManager(this);
+			getMetricsManager();
 			getLogger().info("Metrics successfully initialized!");
 		} else {
 			getLogger().warning("Metrics are disabled! Please consider enabling them to support the authors!");
@@ -131,9 +128,11 @@ public class TradeShop extends JavaPlugin {
 
 	@Override
 	public void onDisable() {
-		dataStorage.saveChestLinkages();
+		if (dataStorage != null)
+			dataStorage.saveChestLinkages();
 
-		getListManager().clearManager();
+		if (lists != null)
+			getListManager().clearManager();
 	}
 
 	public boolean useInternalPerms() {
@@ -153,34 +152,84 @@ public class TradeShop extends JavaPlugin {
 	}
 
 	public ListManager getListManager() {
-        return lists;
-    }
+		if (lists == null)
+			lists = new ListManager();
+
+		return lists;
+	}
 
     public BukkitVersion getVersion() {
-        return version;
-    }
+		if (version == null)
+			version = new BukkitVersion();
+
+		return version;
+	}
 
     public ShopSign getSigns() {
-        return signs;
-    }
+		if (signs == null)
+			signs = new ShopSign();
+
+		return signs;
+	}
 
     public ShopStorage getStorages() {
-        return storages;
-    }
+		if (storages == null)
+			storages = new ShopStorage();
+
+		return storages;
+	}
 
     public Updater getUpdater() {
 		return new Updater(getDescription(), "https://api.spigotmc.org/legacy/update.php?resource=32762", "https://www.spigotmc.org/resources/tradeshop.32762/");
 	}
 
 	public Debug getDebugger() {
+		if (debugger == null)
+			debugger = new Debug();
+
 		return debugger;
 	}
 
 	public DataStorage getDataStorage() {
+		if (dataStorage == null) {
+			try {
+				dataStorage = new DataStorage(DataType.valueOf(Setting.DATA_STORAGE_TYPE.getString().toUpperCase()));
+			} catch (IllegalArgumentException iae) {
+				debugger.log("Config value for data storage set to an invalid value: " + Setting.DATA_STORAGE_TYPE.getString(), DebugLevels.DATA_ERROR);
+				debugger.log("TradeShop will now disable...", DebugLevels.DATA_ERROR);
+				getServer().getPluginManager().disablePlugin(this);
+				return null;
+			}
+		}
+
 		return dataStorage;
 	}
 
 	public MetricsManager getMetricsManager() {
+		if (metricsManager == null)
+			metricsManager = new MetricsManager(this);
+
 		return metricsManager;
+	}
+
+	public ConfigManager getSettingManager() {
+		if (settingManager == null)
+			settingManager = new ConfigManager(this, ConfigManager.ConfigType.CONFIG);
+
+		return settingManager;
+	}
+
+	public ConfigManager getMessageManager() {
+		if (messageManager == null)
+			messageManager = new ConfigManager(this, ConfigManager.ConfigType.MESSAGES);
+
+		return messageManager;
+	}
+
+	public Language getLanguage() {
+		if (language == null)
+			language = new Language(this);
+
+		return language;
 	}
 }
