@@ -120,24 +120,40 @@ public class ShopChest extends Utils {
                     }
                     if (((Nameable) stateLeft).getCustomName().contains("$ ^Sign:l_")) {
                         ((Nameable) stateLeft).setCustomName(((Nameable) stateLeft).getCustomName().split("\\$ \\^")[0]);
-                        stateLeft.update();
-                    }
+						stateLeft.update();
+					}
 
-                } else if (((Nameable) bs).getCustomName().contains("$ ^Sign:l_")) {
-                    ((Nameable) bs).setCustomName(((Nameable) bs).getCustomName().split("\\$ \\^")[0]);
-                    bs.update();
-                }
-            }
-        }
+				} else if (((Nameable) bs).getCustomName().contains("$ ^Sign:l_")) {
+					((Nameable) bs).setCustomName(((Nameable) bs).getCustomName().split("\\$ \\^")[0]);
+					bs.update();
+				}
+			}
+		}
 	}
 
-    public static DoubleChest getDoubleChest(Block chest) {
-        try {
+	public static Block getOtherHalfOfDoubleChest(Block check) {
+		Block otherChest = null;
+		if (check.getState() instanceof Chest) {
+			Chest chest = (Chest) check.getState();
+			Location chestLoc = chest.getInventory().getLocation(), otherChestLoc = chest.getInventory().getLocation();
+			if (chestLoc.getX() - Math.floor(chestLoc.getX()) > 0) {
+				otherChestLoc.setX(check.getX() == Math.floor(chestLoc.getX()) ? Math.ceil(chestLoc.getX()) : Math.floor(chestLoc.getX()));
+			} else if (chestLoc.getZ() - Math.floor(chestLoc.getZ()) > 0) {
+				otherChestLoc.setZ(check.getX() == Math.floor(chestLoc.getZ()) ? Math.ceil(chestLoc.getZ()) : Math.floor(chestLoc.getZ()));
+			}
+			otherChest = otherChestLoc.getBlock();
+		}
+
+		return otherChest;
+	}
+
+	public static DoubleChest getDoubleChest(Block chest) {
+		try {
 			return (DoubleChest) ((Chest) chest.getState()).getInventory().getHolder();
-        } catch (ClassCastException | NullPointerException ex) {
-            return null;
-        }
-    }
+		} catch (ClassCastException | NullPointerException ex) {
+			return null;
+		}
+	}
 
 	public static boolean isDoubleChest(Block chest) {
         return getDoubleChest(chest) != null;
@@ -153,6 +169,7 @@ public class ShopChest extends Utils {
 					Container left = ((Container) dbl.getLeftSide()),
 							right = ((Container) dbl.getRightSide());
 					chest = left.getPersistentDataContainer().has(plugin.getSignKey(), PersistentDataType.STRING) ? left.getBlock() : right.getBlock();
+
 				} else
 					chest = block;
 			} catch (NullPointerException npe) {
@@ -194,6 +211,7 @@ public class ShopChest extends Utils {
 			} catch (IllegalWorldException e) {
 				shopSign = new ShopLocation(e.getLoc().getLocation(chest.getWorld()));
 			}
+
 			owner = UUID.fromString(chestData.get("Owner"));
 		}
 	}

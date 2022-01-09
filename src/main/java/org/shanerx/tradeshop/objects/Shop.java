@@ -723,6 +723,7 @@ public class Shop implements Serializable {
 		if (!getShopType().isITrade() && chestLoc != null) {
 			chestLoc.stringToWorld();
 			cost.removeIf(item -> item.getItemStack().getType().toString().endsWith("SHULKER_BOX") && getInventoryLocation().getBlock().getType().toString().endsWith("SHULKER_BOX"));
+			utils.PLUGIN.getDataStorage().addChestLinkage(chestLoc, shopLoc);
 		}
 
 		/* TODO Fix this after 2.4

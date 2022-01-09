@@ -164,20 +164,10 @@ message:
     default: "en-us"
     pre-comment: "This currently does not change anything in the message files, but is used in metrics so that we can see what languages we should try to provide built in support for in the future.\n Please use codes as listed at: https://www.andiamo.co.uk/resources/iso-language-codes/"
     post-comment: "\n"
-  amount-not-num:
-    default: "&cYou should have an amount before each item."
-    pre-comment: "\\Unused\\"
-    post-comment:
-  buy-failed-sign:
-    default: "&cThis shop sign does not seem to be formatted correctly, please notify the owner."
-    pre-comment: "\\Unused\\"
   change-closed:
     default: "&cThe shop is now &l&bCLOSED&r&a."
   change-open:
     default: "&aThe shop is now &l&bOPEN&r&a."
-  confirm-trade:
-    default: "&eTrade &6{AMOUNT1} {ITEM1} &efor &6{AMOUNT2} {ITEM2} &e?"
-    pre-comment: "\\Unused\\"
   empty-ts-on-setup:
     default: "&cTradeShop empty, please remember to fill it!"
     pre-comment: "Text to display when a player places a TradeSign above an empty chest:"
@@ -185,9 +175,6 @@ message:
     default: "&cThis storage or sign is already linked to a shop."
   feature-disabled:
     default: "&cThis feature has been disabled on this server!"
-  full-amount:
-    default: "&cYou must have &e{AMOUNT} &cof a single type of &e{ITEM}&c!"
-    pre-comment: "\\Unused\\"
   held-empty:
     default: "&eYou are currently holding nothing."
     pre-comment: "Text to display when the player is not holding anything"
@@ -206,12 +193,6 @@ message:
   invalid-arguments:
     default: "&eTry &6/tradeshop help &eto display help!"
     pre-comment: "Text to display when invalid arguments are submitted through the \"/tradeshop\" command:"
-  invalid-sign:
-    default: "&cInvalid sign format!"
-    pre-comment: "\\Unused\\"
-  invalid-subcommand:
-    default: "&cInvalid sub-command. Cannot display usage."
-    pre-comment: "\\Unused\\"
   item-added:
     default: "&aItem successfully added to shop."
   item-not-removed:
@@ -223,9 +204,6 @@ message:
   missing-item:
     default: "&cYour sign is missing an item for trade."
     pre-comment: "Text to display when a shop sign failed creation due to missing an item"
-  missing-shop:
-    default: "&cThere is not currently a shop here, please tell the owner or come back later!"
-    pre-comment: "\\Unused\\"
   multi-amount:
     default: "&aYour trade multiplier is %amount%."
   multi-update:
@@ -274,9 +252,8 @@ message:
     pre-comment: "Text to display when a player tries to buy form a shop in which they are a user"
   setup-help:
     default: "\n&2Setting up a TradeShop is easy! Just make sure to follow these steps:\n \nStep 1: &ePlace down a chest.\n&2Step 2: &ePlace a sign on top of or around the chest.\n&2Step 3: &eWrite the following on the sign\n&6 [%header%]\n&6&o-- Leave Blank --\n&6&o-- Leave Blank --\n&6&o-- Leave Blank --\n&2Step 4: &eUse the addCost and addProduct commands to add items to your shop"
-    pre-comment: "Text to display on \"/tradeshop setup\":"
-    post-comment:
-  shop-closed:
+  pre-comment: "Text to display on \"/tradeshop setup\":"
+    shop-closed:
     default: "&cThis shop is currently closed."
   shop-empty:
     default: "&cThis TradeShop is currently missing items to complete the trade!"

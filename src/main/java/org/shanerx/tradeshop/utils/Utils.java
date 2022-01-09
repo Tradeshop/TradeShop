@@ -46,6 +46,7 @@ import org.shanerx.tradeshop.enumys.ShopType;
 import org.shanerx.tradeshop.objects.Debug;
 import org.shanerx.tradeshop.objects.IllegalItemList;
 import org.shanerx.tradeshop.objects.Shop;
+import org.shanerx.tradeshop.objects.ShopChest;
 import org.shanerx.tradeshop.objects.ShopItemStack;
 import org.shanerx.tradeshop.objects.ShopLocation;
 import org.shanerx.tradeshop.utils.config.Message;
@@ -53,7 +54,6 @@ import org.shanerx.tradeshop.utils.config.Setting;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -290,30 +290,26 @@ public class Utils {
 		if (potentialLocation != null && ShopType.isShop(potentialLocation.getLocation().getBlock()))
 			return (Sign) potentialLocation.getLocation().getBlock().getState();
 
-		ArrayList<BlockFace> faces = PLUGIN.getListManager().getDirections();
-		Collections.reverse(faces);
-		ArrayList<BlockFace> flatFaces = new ArrayList<>(Arrays.asList(BlockFace.NORTH, BlockFace.EAST, BlockFace.SOUTH, BlockFace.WEST));
-		boolean isDouble = false;
-		BlockFace doubleSide = null;
+		ArrayList<BlockFace> faces = PLUGIN.getListManager().getDirections(),
+				flatFaces = new ArrayList<>(Arrays.asList(BlockFace.NORTH, BlockFace.EAST, BlockFace.SOUTH, BlockFace.WEST));
 
 		for (BlockFace face : faces) {
+			face = face.getOppositeFace(); // Check in the opposite direction that a sign would check
 			Block relative = chest.getRelative(face);
 			if (ShopType.isShop(relative)) {
+				if (ShopChest.isDoubleChest(chest)) {
+					PLUGIN.getDataStorage().addChestLinkage(new ShopLocation(ShopChest.getOtherHalfOfDoubleChest(chest).getLocation()), new ShopLocation(relative.getLocation()));
+				}
 				return (Sign) relative.getState();
 			} else if (flatFaces.contains(face) && (chest.getType().equals(Material.CHEST) || chest.getType().equals(Material.TRAPPED_CHEST))) {
-				if (relative.getType().equals(chest.getType())) {
-					isDouble = true;
-					doubleSide = face;
-				}
-			}
-		}
-
-		if (isDouble) {
-			chest = chest.getRelative(doubleSide);
-			for (BlockFace face : faces) {
-				Block relative = chest.getRelative(face);
-				if (ShopType.isShop(relative)) {
-					return (Sign) relative.getState();
+				if (relative.getType().equals(chest.getType()) && ShopChest.isDoubleChest(chest)) {
+					for (BlockFace face2 : faces) {
+						Block relative2 = chest.getRelative(face).getRelative(face2.getOppositeFace());
+						if (ShopType.isShop(relative2)) {
+							PLUGIN.getDataStorage().addChestLinkage(new ShopLocation(chest.getLocation()), new ShopLocation(relative2.getLocation()));
+							return (Sign) relative2.getState();
+						}
+					}
 				}
 			}
 		}

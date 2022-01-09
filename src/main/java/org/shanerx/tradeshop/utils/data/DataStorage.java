@@ -216,7 +216,7 @@ public class DataStorage extends Utils {
         }
     }
 
-    public void addChestLinkage(ShopLocation chestLocation, ShopLocation shopLocation) {
+    public void addLinkage(ShopLocation chestLocation, ShopLocation shopLocation) {
         if (chestLinkage.containsKey(chestLocation.getWorld())) {
             if (chestLinkage.get(chestLocation.getWorld()).containsKey(chestLocation.serialize()))
                 chestLinkage.get(chestLocation.getWorld()).replace(chestLocation.serialize(), shopLocation.serialize());
@@ -225,7 +225,25 @@ public class DataStorage extends Utils {
         } else {
             chestLinkage.put(chestLocation.getWorld(), Collections.singletonMap(chestLocation.serialize(), shopLocation.serialize()));
         }
+    }
+
+    public void addChestLinkage(ShopLocation chestLocation, ShopLocation shopLocation) {
+        loadChestLinkage(chestLocation.getWorld());
+
+        if (ShopChest.isDoubleChest(chestLocation.getLocation().getBlock())) {
+            ShopLocation otherSideLocation = new ShopLocation(ShopChest.getOtherHalfOfDoubleChest(chestLocation.getLocation().getBlock()).getLocation());
+            addLinkage(otherSideLocation, shopLocation);
+        }
+
+        addLinkage(chestLocation, shopLocation);
+
         saveChestLinkages();
+    }
+
+
+    public boolean hasChestLinkage(ShopLocation chestLocation) {
+        loadChestLinkage(chestLocation.getWorld());
+        return chestLinkage.containsKey(chestLocation.getWorld()) && chestLinkage.get(chestLocation.getWorld()).containsKey(chestLocation.serialize());
     }
 
     public void saveChestLinkages() {
