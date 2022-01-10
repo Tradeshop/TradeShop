@@ -129,7 +129,6 @@ public class ListManager extends Utils {
 		directions.clear();
 		addOnMats.clear();
 		gameMats.clear();
-		PLUGIN.getDataStorage().clearChestLinkages();
 	}
 
 	private void updateIllegalLists() {

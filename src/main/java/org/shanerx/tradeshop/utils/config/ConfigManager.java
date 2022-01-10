@@ -180,7 +180,7 @@ public class ConfigManager {
     }
 
     private void addKeyValue(String node, Object value) {
-        if (config.get(node) == null) {
+        if (config.get(node) == null || (config.get(node) != null && config.get(node).toString().isEmpty())) {
             config.set(node, value);
         }
     }

@@ -128,9 +128,6 @@ public class TradeShop extends JavaPlugin {
 
 	@Override
 	public void onDisable() {
-		if (dataStorage != null)
-			dataStorage.saveChestLinkages();
-
 		if (lists != null)
 			getListManager().clearManager();
 	}

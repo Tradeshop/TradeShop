@@ -32,6 +32,7 @@ import org.shanerx.tradeshop.TradeShop;
 import org.shanerx.tradeshop.utils.Tuple;
 import org.yaml.snakeyaml.Yaml;
 
+import java.util.Arrays;
 import java.util.Objects;
 
 public enum Message {
@@ -107,12 +108,24 @@ public enum Message {
         double version = MESSAGE_VERSION.getDouble();
         ConfigManager configManager = PLUGIN.getMessageManager();
 
-        //Changes if CONFIG_VERSION is below 1, then sets config version to 1.0
-        if (version < 1.0) {
+        //Changes if CONFIG_VERSION is below 1.1, then sets config version to 1.1
+        if (version < 1.1) {
             if (TOO_MANY_ITEMS.getString().equals("&cThis trade can not take any more %side%!")) {
                 TOO_MANY_ITEMS.setValue(PLUGIN.getLanguage().getDefault(Language.LangSection.MESSAGE, TOO_MANY_ITEMS.getPath()));
-                version = 1.1;
             }
+            version = 1.1;
+        }
+
+        //Changes if CONFIG_VERSION is below 1.2, then sets config version to 1.2
+        if (version < 1.2) {
+            Arrays.stream(values()).forEach((message) -> {
+                String str = message.getString().replace("{", "%").replace("}", "%");
+
+                if (!str.equals(message.getString()))
+                    message.setValue(str);
+
+            });
+            version = 1.2;
         }
 
         MESSAGE_VERSION.setValue(version);
@@ -214,7 +227,9 @@ public enum Message {
     public final void sendMessage(Player player, Tuple<String, String>... replacements) {
         String message = getPrefixed();
         for (Tuple<String, String> replace : replacements) {
-            message = message.replace(replace.getLeft(), replace.getRight());
+            message = message.replace(replace.getLeft().toUpperCase(), replace.getRight())
+                    .replace(replace.getLeft().toLowerCase(), replace.getRight())
+                    .replace(replace.getLeft(), replace.getRight());
         }
 
         if (getString().startsWith("#json ")) {
@@ -234,7 +249,9 @@ public enum Message {
 
         String message = getPrefixed();
         for (Tuple<String, String> replace : replacements) {
-            message = message.replace(replace.getLeft(), replace.getRight());
+            message = message.replace(replace.getLeft().toUpperCase(), replace.getRight())
+                    .replace(replace.getLeft().toLowerCase(), replace.getRight())
+                    .replace(replace.getLeft(), replace.getRight());
         }
 
         if (getString().startsWith("#json ")) {

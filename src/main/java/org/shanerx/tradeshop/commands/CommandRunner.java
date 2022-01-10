@@ -60,6 +60,7 @@ import org.shanerx.tradeshop.utils.Tuple;
 import org.shanerx.tradeshop.utils.Utils;
 import org.shanerx.tradeshop.utils.config.Message;
 import org.shanerx.tradeshop.utils.config.Setting;
+import org.shanerx.tradeshop.utils.config.Variable;
 import org.shanerx.tradeshop.utils.data.DataType;
 
 public class CommandRunner extends Utils {
@@ -178,11 +179,11 @@ public class CommandRunner extends Utils {
 		int counter = 1;
 
 		for (ShopItemStack itm : shop.getProduct()) {
-			sb.append(String.format("&b[&f%d&b]    &2- &f%s\n", counter, itm.getItemStack().hasItemMeta() && itm.getItemStack().getItemMeta().hasDisplayName() ? itm.getItemStack().getItemMeta().getDisplayName() : itm.getItemStack().getType().toString()));
+			sb.append(String.format("&b[&f%d&b]    &2- &f%s\n", counter, itm.getCleanItemName()));
 			counter++;
 		}
 
-		Message.SHOP_ITEM_LIST.sendMessage(pSender, new Tuple<>("%type%", "products"), new Tuple<>("%list%", sb.toString()));
+		Message.SHOP_ITEM_LIST.sendMessage(pSender, new Tuple<>(Variable.TYPE.toString(), "products"), new Tuple<>(Variable.LIST.toString(), sb.toString()));
 	}
 
 	/**
@@ -198,11 +199,11 @@ public class CommandRunner extends Utils {
 		int counter = 1;
 
 		for (ShopItemStack itm : shop.getCost()) {
-			sb.append(String.format("&b[&f%d&b]    &2- &f%s\n", counter, itm.getItemStack().hasItemMeta() && itm.getItemStack().getItemMeta().hasDisplayName() ? itm.getItemStack().getItemMeta().getDisplayName() : itm.getItemStack().getType().toString()));
+			sb.append(String.format("&b[&f%d&b]    &2- &f%s\n", counter, itm.getCleanItemName()));
 			counter++;
 		}
 
-		Message.SHOP_ITEM_LIST.sendMessage(pSender, new Tuple<>("%type%", "costs"), new Tuple<>("%list%", sb.toString()));
+		Message.SHOP_ITEM_LIST.sendMessage(pSender, new Tuple<>(Variable.TYPE.toString(), "costs"), new Tuple<>(Variable.LIST.toString(), sb.toString()));
 	}
 
 	/**
@@ -339,7 +340,7 @@ public class CommandRunner extends Utils {
 		}
 
 		if (Math.ceil((double) itemInHand.getAmount() / (double) itemInHand.getMaxStackSize()) > Setting.MAX_ITEMS_PER_TRADE_SIDE.getInt()) {
-			Message.TOO_MANY_ITEMS.sendMessage(pSender, new Tuple<>("%side%", "product"));
+			Message.TOO_MANY_ITEMS.sendMessage(pSender, new Tuple<>(Variable.SIDE.toString(), "product"));
 			return;
 		}
 
@@ -416,7 +417,7 @@ public class CommandRunner extends Utils {
 		}
 
 		if (shop.getProduct().size() + Math.ceil((double) itemInHand.getAmount() / (double) itemInHand.getMaxStackSize()) > Setting.MAX_ITEMS_PER_TRADE_SIDE.getInt()) {
-			Message.TOO_MANY_ITEMS.sendMessage(pSender, new Tuple<>("%side%", "product"));
+			Message.TOO_MANY_ITEMS.sendMessage(pSender, new Tuple<>(Variable.SIDE.toString(), "product"));
 			return;
 		}
 
@@ -493,7 +494,7 @@ public class CommandRunner extends Utils {
 		}
 
 		if (Math.ceil((double) costItem.getAmount() / (double) costItem.getMaxStackSize()) > Setting.MAX_ITEMS_PER_TRADE_SIDE.getInt()) {
-			Message.TOO_MANY_ITEMS.sendMessage(pSender, new Tuple<>("%side%", "cost"));
+			Message.TOO_MANY_ITEMS.sendMessage(pSender, new Tuple<>(Variable.SIDE.toString(), "cost"));
 			return;
 		}
 
@@ -570,7 +571,7 @@ public class CommandRunner extends Utils {
 		}
 
 		if (shop.getCost().size() + Math.ceil((double) itemInHand.getAmount() / (double) itemInHand.getMaxStackSize()) > Setting.MAX_ITEMS_PER_TRADE_SIDE.getInt()) {
-			Message.TOO_MANY_ITEMS.sendMessage(pSender, new Tuple<>("%side%", "cost"));
+			Message.TOO_MANY_ITEMS.sendMessage(pSender, new Tuple<>(Variable.SIDE.toString(), "cost"));
 			return;
 		}
 
@@ -682,7 +683,7 @@ public class CommandRunner extends Utils {
 
 		shop.switchType();
 
-		Message.SHOP_TYPE_SWITCHED.sendMessage(pSender, new Tuple<>("%newtype%", shop.getShopType().toHeader()));
+		Message.SHOP_TYPE_SWITCHED.sendMessage(pSender, new Tuple<>(Variable.NEW_TYPE.toString(), shop.getShopType().toHeader()));
 	}
 
 	/**
@@ -699,9 +700,9 @@ public class CommandRunner extends Utils {
 
 		if (shop.getShopType().isITrade()) {
 			Message.WHO_MESSAGE.sendMessage(pSender,
-					new Tuple<>("{OWNER}", Setting.ITRADESHOP_OWNER.getString()),
-					new Tuple<>("{MANAGERS}", "None"),
-					new Tuple<>("{MEMBERS}", "None"));
+					new Tuple<>(Variable.OWNER.toString(), Setting.ITRADESHOP_OWNER.getString()),
+					new Tuple<>(Variable.MANAGERS.toString(), "None"),
+					new Tuple<>(Variable.MEMBERS.toString(), "None"));
 			return;
 		}
 
@@ -733,9 +734,9 @@ public class CommandRunner extends Utils {
 			members = new StringBuilder("None");
 		}
 		Message.WHO_MESSAGE.sendMessage(pSender,
-				new Tuple<>("{OWNER}", owner),
-				new Tuple<>("{MANAGERS}", managers.toString()),
-				new Tuple<>("{MEMBERS}", members.toString()));
+				new Tuple<>(Variable.OWNER.toString(), owner),
+				new Tuple<>(Variable.MANAGERS.toString(), managers.toString()),
+				new Tuple<>(Variable.MEMBERS.toString(), members.toString()));
 	}
 
 	/**
@@ -854,7 +855,7 @@ public class CommandRunner extends Utils {
         PlayerSetting playerSetting = plugin.getDataStorage().loadPlayer(pSender.getUniqueId());
 
 		if (command.argsSize() == 1) {
-			Message.MULTI_AMOUNT.sendMessage(pSender, new Tuple<>("%amount%", String.valueOf(playerSetting.getMulti())));
+			Message.MULTI_AMOUNT.sendMessage(pSender, new Tuple<>(Variable.AMOUNT.toString(), String.valueOf(playerSetting.getMulti())));
 		} else {
             int amount = Setting.MULTI_TRADE_DEFAULT.getInt();
 
@@ -869,7 +870,7 @@ public class CommandRunner extends Utils {
 			playerSetting.setMulti(amount);
 			plugin.getDataStorage().savePlayer(playerSetting);
 
-			Message.MULTI_UPDATE.sendMessage(pSender, new Tuple<>("%amount%", String.valueOf(amount)));
+			Message.MULTI_UPDATE.sendMessage(pSender, new Tuple<>(Variable.AMOUNT.toString(), String.valueOf(amount)));
 		}
 	}
 
@@ -882,7 +883,7 @@ public class CommandRunner extends Utils {
 		playerSetting.setAdminEnabled(!playerSetting.isAdminEnabled());
 		plugin.getDataStorage().savePlayer(playerSetting);
 
-		Message.ADMIN_TOGGLED.sendMessage(pSender, new Tuple<>("{STATE}", playerSetting.isAdminEnabled() ? "enabled" : "disabled"));
+		Message.ADMIN_TOGGLED.sendMessage(pSender, new Tuple<>(Variable.STATE.toString(), playerSetting.isAdminEnabled() ? "enabled" : "disabled"));
 	}
 
 	/**
@@ -909,7 +910,7 @@ public class CommandRunner extends Utils {
 				plugin.getDataStorage().savePlayer(playerSetting);
 		}
 
-		Message.ADMIN_TOGGLED.sendMessage(pSender, new Tuple<>("{STATE}", playerSetting.isAdminEnabled() ? "enabled" : "disabled"));
+		Message.ADMIN_TOGGLED.sendMessage(pSender, new Tuple<>(Variable.STATE.toString(), playerSetting.isAdminEnabled() ? "enabled" : "disabled"));
 	}
 
 	/**
@@ -924,7 +925,7 @@ public class CommandRunner extends Utils {
 		PlayerSetting playerSetting = plugin.getDataStorage().loadPlayer(pSender.getUniqueId());
 		playerSetting.setShowInvolvedStatus(!playerSetting.showInvolvedStatus());
 		plugin.getDataStorage().savePlayer(playerSetting);
-		Message.TOGGLED_STATUS.sendMessage(pSender, new Tuple<>("%status%", playerSetting.showInvolvedStatus() ? "on" : "off"));
+		Message.TOGGLED_STATUS.sendMessage(pSender, new Tuple<>(Variable.STATUS.toString(), playerSetting.showInvolvedStatus() ? "on" : "off"));
 	}
 
 	/**
@@ -1042,8 +1043,8 @@ public class CommandRunner extends Utils {
 			PlayerSetting playerSetting = plugin.getDataStorage().loadPlayer(Bukkit.getOfflinePlayer(command.getArgAt(1)).getUniqueId());
 			if (command.argsSize() == 2) {
 				Message.VIEW_PLAYER_LEVEL.sendMessage(pSender,
-						new Tuple<>("%player%", Bukkit.getOfflinePlayer(command.getArgAt(1)).getName()),
-						new Tuple<>("%level%", playerSetting.getType() + ""));
+						new Tuple<>(Variable.PLAYER.toString(), Bukkit.getOfflinePlayer(command.getArgAt(1)).getName()),
+						new Tuple<>(Variable.LEVEL.toString(), playerSetting.getType() + ""));
 			} else {
 				if (isInt(command.getArgAt(2))) {
 					int newLevel = Integer.parseInt(command.getArgAt(2));
@@ -1052,8 +1053,8 @@ public class CommandRunner extends Utils {
 					plugin.getDataStorage().savePlayer(playerSetting);
 
 					Message.SET_PLAYER_LEVEL.sendMessage(pSender,
-							new Tuple<>("%player%", Bukkit.getOfflinePlayer(command.getArgAt(1)).getName()),
-							new Tuple<>("%level%", playerSetting.getType() + ""));
+							new Tuple<>(Variable.PLAYER.toString(), Bukkit.getOfflinePlayer(command.getArgAt(1)).getName()),
+							new Tuple<>(Variable.LEVEL.toString(), playerSetting.getType() + ""));
 				} else {
 					Message.INVALID_ARGUMENTS.sendMessage(pSender);
 				}

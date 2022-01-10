@@ -53,7 +53,7 @@ public class ShopChunk implements Serializable {
 		chunk = c;
 	}
 
-	public static Chunk deserialize(String loc) {
+	public static ShopChunk deserialize(String loc) {
 		if (loc.startsWith("c")) {
 			String[] locA = loc.contains(";;") ? loc.split(";;") : loc.split("_"); //Keep same as div
 			World world = Bukkit.getWorld(locA[1]);
@@ -61,7 +61,7 @@ public class ShopChunk implements Serializable {
 				world = Bukkit.getWorld(locA[1].replace("-", "_"));
 			int x = Integer.parseInt(locA[2]), z = Integer.parseInt(locA[3]);
 
-			return world.getChunkAt(x, z);
+			return new ShopChunk(world, x, z);
 		}
 
 		return null;

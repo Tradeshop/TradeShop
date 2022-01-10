@@ -26,6 +26,7 @@
 package org.shanerx.tradeshop.objects;
 
 import com.google.gson.Gson;
+import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
@@ -455,42 +456,21 @@ public class Shop implements Serializable {
 		if (utils.isIllegal(IllegalItemList.TradeItemType.COST, newItem.getType()))
 			return;
 
-		/* Added stacks are separated by stack size
-		int amount = newItem.getAmount();
-		List<ItemStack> items = new ArrayList<>();
-		while (amount > 0) {
-			if (newItem.getMaxStackSize() < amount) {
-				ItemStack itm = newItem.clone();
-				itm.setAmount(newItem.getMaxStackSize());
-				items.add(itm);
-				amount -= newItem.getMaxStackSize();
-			} else {
-				ItemStack itm = newItem.clone();
-				itm.setAmount(amount);
-				items.add(itm);
-				amount = 0;
-			}
-		}
-
-		items.forEach((ItemStack iS) -> cost.add(new ShopItemStack(iS)));
-
-		 */
-
 		///* Added stacks are not separated and are added ontop of existing similar stacks
-		ShopItemStack toAddShopItemStack = new ShopItemStack(newItem),
-				toRemoveShopItemStack = null;
+		ShopItemStack toAddShopItemStack = new ShopItemStack(newItem);
+		int toRemoveShopItemStack = -1;
 
 
-		for (ShopItemStack shopItemStack : getCost()) {
-			if (shopItemStack.getItemStack().getType().equals(newItem.getType()) && shopItemStack.isSimilar(newItem)) {
-				toRemoveShopItemStack = shopItemStack;
-				toAddShopItemStack = shopItemStack.clone();
-				toAddShopItemStack.setAmount(shopItemStack.getAmount() + newItem.getAmount());
+		for (int i = 0; i < getCost().size(); i++) {
+			if (getCost().get(i).getItemStack().getType().equals(newItem.getType()) && getCost().get(i).isSimilar(newItem)) {
+				toRemoveShopItemStack = i;
+				toAddShopItemStack = getCost().get(i).clone();
+				toAddShopItemStack.setAmount(getCost().get(i).getAmount() + newItem.getAmount());
 				break;
 			}
 		}
 
-		if (toRemoveShopItemStack != null)
+		if (toRemoveShopItemStack > -1)
 			cost.remove(toRemoveShopItemStack);
 
 		cost.add(toAddShopItemStack);
@@ -560,42 +540,21 @@ public class Shop implements Serializable {
 		if (utils.isIllegal(IllegalItemList.TradeItemType.PRODUCT, newItem.getType()))
 			return;
 
-		/* Added stacks are separated by stack size
-		int amount = newItem.getAmount();
-		List<ItemStack> items = new ArrayList<>();
-		while (amount > 0) {
-			if (newItem.getMaxStackSize() < amount) {
-				ItemStack itm = newItem.clone();
-				itm.setAmount(newItem.getMaxStackSize());
-				items.add(itm);
-				amount -= newItem.getMaxStackSize();
-			} else {
-				ItemStack itm = newItem.clone();
-				itm.setAmount(amount);
-				items.add(itm);
-				amount -= amount;
-			}
-		}
-
-        items.forEach((ItemStack iS) -> product.add(new ShopItemStack(iS)));
-        */
-
-
 		///* Added stacks are not separated and are added ontop of existing similar stacks
-		ShopItemStack toAddShopItemStack = new ShopItemStack(newItem),
-				toRemoveShopItemStack = null;
+		ShopItemStack toAddShopItemStack = new ShopItemStack(newItem);
+		int toRemoveShopItemStack = -1;
 
 
-		for (ShopItemStack shopItemStack : getProduct()) {
-			if (shopItemStack.getItemStack().getType().equals(newItem.getType()) && shopItemStack.isSimilar(newItem)) {
-				toRemoveShopItemStack = shopItemStack;
-				toAddShopItemStack = shopItemStack.clone();
-				toAddShopItemStack.setAmount(shopItemStack.getAmount() + newItem.getAmount());
+		for (int i = 0; i < getProduct().size(); i++) {
+			if (getProduct().get(i).getItemStack().getType().equals(newItem.getType()) && getProduct().get(i).isSimilar(newItem)) {
+				toRemoveShopItemStack = i;
+				toAddShopItemStack = getProduct().get(i).clone();
+				toAddShopItemStack.setAmount(getProduct().get(i).getAmount() + newItem.getAmount());
 				break;
 			}
 		}
 
-		if (toRemoveShopItemStack != null)
+		if (toRemoveShopItemStack > -1)
 			product.remove(toRemoveShopItemStack);
 
 		product.add(toAddShopItemStack);
@@ -829,12 +788,12 @@ public class Shop implements Serializable {
 			sb.append(item.getItemStack().getAmount());
 			sb.append(" ");
 
-			sb.append(item.getItemName());
+			sb.append(item.getCleanItemName());
 
 			signLines[1] = sb.substring(0, Math.min(sb.length(), 15));
 
         } else {
-            signLines[1] = Setting.MULTIPLE_ITEMS_ON_SIGN.getString();
+			signLines[1] = Setting.MULTIPLE_ITEMS_ON_SIGN.getString().replace("%amount%", "");
         }
 
 		if (cost.isEmpty()) {
@@ -847,19 +806,22 @@ public class Shop implements Serializable {
 			sb.append(item.getItemStack().getAmount());
 			sb.append(" ");
 
-			sb.append(item.getItemName());
+			sb.append(item.getCleanItemName());
 
 			signLines[2] = sb.substring(0, Math.min(sb.length(), 15));
-        } else {
-            signLines[2] = Setting.MULTIPLE_ITEMS_ON_SIGN.getString();
-        }
+		} else {
+			signLines[2] = Setting.MULTIPLE_ITEMS_ON_SIGN.getString();
+		}
 
-        updateStatus();
+		signLines[1] = ChatColor.stripColor(signLines[1]);
+		signLines[2] = ChatColor.stripColor(signLines[2]);
 
-        signLines[3] = status.getLine();
+		updateStatus();
 
-        return signLines;
-    }
+		signLines[3] = status.getLine();
+
+		return signLines;
+	}
 
 	/**
 	 * Returns the shops inventory as a BlockState
@@ -967,7 +929,6 @@ public class Shop implements Serializable {
 	 */
     public void remove() {
         purgeFromUserFiles();
-		removeStorage();
 		utils.PLUGIN.getDataStorage().removeShop(this);
     }
 

@@ -28,6 +28,7 @@ package org.shanerx.tradeshop.objects;
 import com.google.common.collect.Lists;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import net.md_5.bungee.api.ChatColor;
 import org.bukkit.FireworkEffect;
 import org.bukkit.Material;
 import org.bukkit.block.ShulkerBox;
@@ -491,6 +492,12 @@ public class ShopItemStack implements Serializable, Cloneable {
         return itemStack.hasItemMeta() && itemStack.getItemMeta().hasDisplayName() ?
                 itemStack.getItemMeta().getDisplayName() :
                 itemStack.getType().toString();
+    }
+
+    public String getCleanItemName() {
+        return ChatColor.stripColor(itemStack.hasItemMeta() && itemStack.getItemMeta().hasDisplayName() ?
+                itemStack.getItemMeta().getDisplayName() :
+                itemStack.getType().toString());
     }
 
     public String serialize() {

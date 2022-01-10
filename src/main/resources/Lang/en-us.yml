@@ -124,7 +124,7 @@ setting:
     allow-user-purchasing:
       pre-comment: "Can players purchase from a shop in which they are a user of (true/false)"
     multiple-items-on-sign:
-      pre-comment: "Text that shows on trade signs that contain more than 1 item"
+      pre-comment: "Text that shows on trade signs that contain more than 1 item\n Available variables are: %AMOUNT%"
       post-comment: "\n"
   trade-shop-options:
     header:
@@ -185,10 +185,10 @@ message:
     default: "&cYou cannot add a Shulker Box as a cost when the shop uses it for storage."
     pre-comment: "Text to display when a shop failed creation due to using a shulker box as cost when the shop uses it for storage: "
   insufficient-items:
-    default: "&cYou do not have &e{AMOUNT} {ITEM}&c!"
+    default: "&cYou do not have &e%AMOUNT% %ITEM%&c!"
     pre-comment: "Text to display when the player does not have enough items:"
   shop-insufficient-items:
-    default: "&cThis shop does not have enough &e{AMOUNT} {ITEM}&c to trade!"
+    default: "&cThis shop does not have enough &e%AMOUNT% %ITEM%&c to trade!"
     pre-comment: "Text to display when the shop does not have enough items:"
   invalid-arguments:
     default: "&eTry &6/tradeshop help &eto display help!"
@@ -205,9 +205,9 @@ message:
     default: "&cYour sign is missing an item for trade."
     pre-comment: "Text to display when a shop sign failed creation due to missing an item"
   multi-amount:
-    default: "&aYour trade multiplier is %amount%."
+    default: "&aYour trade multiplier is %AMOUNT%."
   multi-update:
-    default: "&aTrade multiplier has been updated to %amount%."
+    default: "&aTrade multiplier has been updated to %AMOUNT%."
   no-chest:
     default: "&cYou need to put a chest under the sign!"
     pre-comment: "Text to display when a player attempts to place a sign without placing the chest first:"
@@ -233,9 +233,9 @@ message:
     pre-comment: "Text to display when a player attempts to destroy a block with a shop sign attached to it:"
   no-ts-open:
     default: "&cThat TradeShop does not belong to you"
-    pre-comment: "Text to display when a player attempts to open a shop they do not own nor have been granted access to (1.6):"
+    pre-comment: "Text to display when a player attempts to open a shop they do not own nor have been granted access to:"
   on-trade:
-    default: "&aYou have traded your &e{AMOUNT2} {ITEM2} &afor &e{AMOUNT1} {ITEM1} &awith {SELLER}"
+    default: "&aYou have traded your &e%AMOUNT2% %ITEM2% &afor &e%AMOUNT1% %ITEM1% &awith %SELLER%"
     pre-comment: "Text to display upon a successful trade:"
   player-full:
     default: "&cYour inventory is full, please make room before trading items!"
@@ -251,9 +251,9 @@ message:
     default: "&cYou cannot buy from a shop in which you are a user."
     pre-comment: "Text to display when a player tries to buy form a shop in which they are a user"
   setup-help:
-    default: "\n&2Setting up a TradeShop is easy! Just make sure to follow these steps:\n \nStep 1: &ePlace down a chest.\n&2Step 2: &ePlace a sign on top of or around the chest.\n&2Step 3: &eWrite the following on the sign\n&6 [%header%]\n&6&o-- Leave Blank --\n&6&o-- Leave Blank --\n&6&o-- Leave Blank --\n&2Step 4: &eUse the addCost and addProduct commands to add items to your shop"
-  pre-comment: "Text to display on \"/tradeshop setup\":"
-    shop-closed:
+    default: "\n&2Setting up a TradeShop is easy! Just make sure to follow these steps:\n \nStep 1: &ePlace down a chest.\n&2Step 2: &ePlace a sign on top of or around the chest.\n&2Step 3: &eWrite the following on the sign\n&6 [%HEADER%]\n&6&o-- Leave Blank --\n&6&o-- Leave Blank --\n&6&o-- Leave Blank --\n&2Step 4: &eUse the addCost and addProduct commands to add items to your shop"
+    pre-comment: "Text to display on \"/tradeshop setup\":"
+  shop-closed:
     default: "&cThis shop is currently closed."
   shop-empty:
     default: "&cThis TradeShop is currently missing items to complete the trade!"
@@ -261,20 +261,18 @@ message:
   shop-full:
     default: "&cThis TradeShop is full, please contact the owner to get it emptied!"
     pre-comment: "Text to display when the shop storage is full:"
-  shop-full-amount:
-    default: "&cThe shop does not have &e{AMOUNT} &cof a single type of &e{ITEM}&c!"
-    pre-comment: "\\Unused\\"
   shop-item-list:
-    default: "&aThe shops %type%:\n%list%"
+    default: "&aThe shops %TYPE%:\n%LIST%"
   shop-type-switched:
-    default: "&aShop type has been switched to %newtype%."
+    default: "&aShop type has been switched to %NEWTYPE%."
+    pre-comment: "Text to display when a player uses '/ts toggle'\n Available variables are: %TYPE% %NEWTYPE%"
   successful-setup:
     default: "&aYou have successfully setup a TradeShop!"
     pre-comment: "Text to display when a player successfully creates a TradeShop:"
   too-many-chests:
     default: "&cThere are too many shops in this chunk, you can not add another one."
   too-many-items:
-    default: "&cThis shop cannot take any more %side% items!"
+    default: "&cThis shop cannot take any more %SIDE% items!"
   unsuccessful-shop-members:
     default: "&aThat player is either already on the shop, or you have reached the maximum number of users!"
     pre-comment: "Text to display when shop users could not be updated"
@@ -282,23 +280,23 @@ message:
     default: "&aShop owners and members have been updated!"
     pre-comment: "Text to display when shop users have been updated successfully"
   who-message:
-    default: "&6Shop users are:\n&2Owner: &e{OWNER}\n&2Managers: &e{MANAGERS}\n&2Members: &e{MEMBERS}"
+    default: "&6Shop users are:\n&2Owner: &e%OWNER%\n&2Managers: &e%MANAGERS%\n&2Members: &e%MEMBERS%"
     pre-comment: "Text to display when players use the who command"
   view-player-level:
-    default: "&e%player% has a level of %level%."
+    default: "&e%PLAYER% has a level of %LEVEL%."
     pre-comment: "Text to display when viewing a players level with /ts PlayerLevel"
   set-player-level:
-    default: "&aYou have set the level of %player% to %level%!"
+    default: "&aYou have set the level of %PLAYER% to %LEVEL%!"
     pre-comment: "Text to display after setting a players level"
   various-item-type:
     default: "Various"
     pre-comment: "Text to display when a message uses an Item Type and the Type varies"
   toggled-status:
-    default: "Toggled status: &c%status%"
+    default: "Toggled status: &c%STATUS%"
   no-sign-found:
     default: "&cNo sign in range!"
     pre-comment: "Text to display when a player is too far from a sign"
   admin-toggled:
-    default: "&aYour Admin mode is currently &e{STATE}&a."
-    pre-comment: "Text to display when an admin toggles or views their Admin abilities. \n# \"{STATE}\" will be replaced by the state that the player is in after the command."
+    default: "&aYour Admin mode is currently &e%STATE%&a."
+    pre-comment: "Text to display when an admin toggles or views their Admin abilities. \n# \"%STATE%\" will be replaced by the state that the player is in after the command."
   
