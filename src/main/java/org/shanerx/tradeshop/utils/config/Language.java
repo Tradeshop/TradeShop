@@ -27,20 +27,22 @@ package org.shanerx.tradeshop.utils.config;
 
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.shanerx.tradeshop.TradeShop;
+import org.shanerx.tradeshop.enumys.DebugLevels;
 
 import java.io.File;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Objects;
 
 public class Language {
 
-    private final String LANG_FILE = "Lang" + File.separator,
+    private final String LANG_FILE = "Lang/",//.replace("/", File.separator), // Not replacing since getResource and Windows File Separator don't seem to be compatible
             defaultLang = "en-us";
     private final TradeShop PLUGIN;
     private String lang = defaultLang;
     private YamlConfiguration langYAML;
+    private boolean loaded = false;
 
     public Language(TradeShop plugin) {
         this.PLUGIN = plugin;
@@ -56,7 +58,16 @@ public class Language {
             changeLang(messageConfig.getString("language"));
         }
 
-        langYAML = YamlConfiguration.loadConfiguration(new InputStreamReader(Objects.requireNonNull(PLUGIN.getResource(LANG_FILE + lang + ".yml"))));
+        InputStream is = PLUGIN.getResource(LANG_FILE + lang + ".yml");
+
+        if (is != null) {
+            langYAML = YamlConfiguration.loadConfiguration(new InputStreamReader(is));
+        } else {
+            PLUGIN.getDebugger().log("Lang file `" + LANG_FILE + lang + ".yml" + "` could not be loaded.", DebugLevels.DATA_ERROR);
+            loaded = false;
+        }
+
+        loaded = true;
     }
 
     public void changeLang(String newLang) {
@@ -94,6 +105,10 @@ public class Language {
 
     public String getPostComment(LangSection section, String path) {
         return langYAML.getString(section + "." + path + ".post-comment", "");
+    }
+
+    public boolean isLoaded() {
+        return loaded;
     }
 
 

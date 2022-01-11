@@ -92,6 +92,11 @@ public class TradeShop extends JavaPlugin {
 		}
 
 		getLanguage();
+		if (!language.isLoaded()) {
+			getServer().getPluginManager().disablePlugin(this);
+			return;
+		}
+
 		getSettingManager().reload();
 		getMessageManager().reload();
 
