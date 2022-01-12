@@ -48,7 +48,7 @@ public class ConfigManager {
 
     private final TradeShop PLUGIN;
     private final ConfigType configType;
-    private File file;
+    private final File file;
     private FileConfiguration config;
 
 
@@ -56,15 +56,7 @@ public class ConfigManager {
         this.PLUGIN = plugin;
         this.configType = configType;
 
-        switch (configType) {
-            case CONFIG:
-                file = new File(PLUGIN.getDataFolder(), "config.yml");
-                break;
-            case MESSAGES:
-                file = new File(PLUGIN.getDataFolder(), "messages.yml");
-                break;
-        }
-
+        file = new File(PLUGIN.getDataFolder(), configType.toFileName());
 
         load();
     }
@@ -177,6 +169,9 @@ public class ConfigManager {
             } catch (IOException e) {
                 e.printStackTrace();
             }
+
+
+        config = YamlConfiguration.loadConfiguration(file);
     }
 
     private void addKeyValue(String node, Object value) {
@@ -195,6 +190,10 @@ public class ConfigManager {
         @Override
         public String toString() {
             return CaseFormat.UPPER_UNDERSCORE.to(CaseFormat.UPPER_CAMEL, name());
+        }
+
+        public String toFileName() {
+            return name().toLowerCase() + ".yml";
         }
     }
 
