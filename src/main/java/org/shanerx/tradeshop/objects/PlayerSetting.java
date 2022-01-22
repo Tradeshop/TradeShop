@@ -39,6 +39,7 @@ import org.shanerx.tradeshop.utils.Utils;
 import org.shanerx.tradeshop.utils.config.Setting;
 
 import java.io.Serializable;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -126,6 +127,11 @@ public class PlayerSetting implements Serializable {
         staffShops.remove(shop.getShopLocationAsSL().serialize());
     }
 
+    public void removeShop(String shop) {
+        ownedShops.remove(shop);
+        staffShops.remove(shop);
+    }
+
     public void updateShops(Shop shop) {
         if (!shop.getUsersUUID().contains(uuid))
             removeShop(shop);
@@ -153,13 +159,16 @@ public class PlayerSetting implements Serializable {
     }
 
     public String getInvolvedStatusesString() {
+        Set<String> nullShops = new HashSet<>();
         StringBuilder sb = new StringBuilder();
         sb.append("&eStatus of your shops: \n");
         sb.append("&eShop Role &f| &eType &f| &eAvailable Trades &f| &eLocation &f| &eInventory Status\n&b");
         if (getOwnedShops().size() > 0) {
             getOwnedShops().forEach(s -> {
                 Shop shop = utils.PLUGIN.getDataStorage().loadShopFromSign(ShopLocation.deserialize(s));
-                if (shop.checkRole(uuid) != ShopRole.SHOPPER) {
+                if (shop == null) {
+                    nullShops.add(s);
+                } else if (shop.checkRole(uuid) != ShopRole.SHOPPER) {
                     sb.append(shop.checkRole(uuid).toString()).append(" &f|&a ");
                     sb.append(shop.getShopType().toString()).append(" &f|&b ");
                     sb.append(shop.getAvailableTrades()).append(" &f|&d ");
@@ -171,7 +180,9 @@ public class PlayerSetting implements Serializable {
         if (getStaffShops().size() > 0) {
             getStaffShops().forEach(s -> {
                 Shop shop = utils.PLUGIN.getDataStorage().loadShopFromSign(ShopLocation.deserialize(s));
-                if (shop.checkRole(uuid) != ShopRole.SHOPPER) {
+                if (shop == null) {
+                    nullShops.add(s);
+                } else if (shop.checkRole(uuid) != ShopRole.SHOPPER) {
                     sb.append(shop.checkRole(uuid).toString()).append(" &f|&a ");
                     sb.append(shop.getShopType().toString()).append(" &f|&b ");
                     sb.append(shop.getAvailableTrades()).append(" &f|&d ");
@@ -180,18 +191,23 @@ public class PlayerSetting implements Serializable {
                 }
             });
         }
+
+        nullShops.forEach(this::removeShop);
 
         sb.deleteCharAt(sb.lastIndexOf("\n"));
         return utils.colorize(sb.toString());
     }
 
     public InventoryGui getInvolvedStatusesInventory() {
+        Set<String> nullShops = new HashSet<>();
         InventoryGui gui = new InventoryGui(utils.PLUGIN, Bukkit.getOfflinePlayer(uuid).getName() + "'s Shops", new String[]{"ggggggggg", "ggggggggg", " fp   ln "});
         GuiElementGroup group = new GuiElementGroup('g');
         if (getOwnedShops().size() > 0) {
             getOwnedShops().forEach(s -> {
                 Shop shop = utils.PLUGIN.getDataStorage().loadShopFromSign(ShopLocation.deserialize(s));
-                if (shop.checkRole(uuid) != ShopRole.SHOPPER) {
+                if (shop == null) {
+                    nullShops.add(s);
+                } else if (shop.checkRole(uuid) != ShopRole.SHOPPER) {
                     group.addElement(new StaticGuiElement('e',
                             new ItemStack(shop.getInventoryLocation() != null ?
                                     shop.getInventoryLocation().getBlock().getType() :
@@ -211,7 +227,9 @@ public class PlayerSetting implements Serializable {
         if (getStaffShops().size() > 0) {
             getStaffShops().forEach(s -> {
                 Shop shop = utils.PLUGIN.getDataStorage().loadShopFromSign(ShopLocation.deserialize(s));
-                if (shop.checkRole(uuid) != ShopRole.SHOPPER) {
+                if (shop == null) {
+                    nullShops.add(s);
+                } else if (shop.checkRole(uuid) != ShopRole.SHOPPER) {
                     group.addElement(new StaticGuiElement('e',
                             new ItemStack(shop.getInventoryLocation() != null ?
                                     shop.getInventoryLocation().getBlock().getType() :
@@ -228,6 +246,9 @@ public class PlayerSetting implements Serializable {
                 }
             });
         }
+
+        nullShops.forEach(this::removeShop);
+
         gui.addElement(group);
 
         // First page
