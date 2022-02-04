@@ -65,9 +65,23 @@ public class Language {
         } else {
             PLUGIN.getDebugger().log("Lang file `" + LANG_FILE + lang + ".yml" + "` could not be loaded.", DebugLevels.DATA_ERROR);
             loaded = false;
+            return;
         }
 
         loaded = true;
+    }
+
+    private Object getDefaultLangValue(String path) {
+        InputStream defaultIs = PLUGIN.getResource(LANG_FILE + defaultLang + ".yml");
+        YamlConfiguration defaultLangYAML;
+
+        if (defaultIs != null) {
+            defaultLangYAML = YamlConfiguration.loadConfiguration(new InputStreamReader(defaultIs));
+        } else {
+            PLUGIN.getDebugger().log("Lang file `" + LANG_FILE + defaultLang + ".yml" + "` could not be loaded.", DebugLevels.DATA_ERROR);
+        }
+
+        return langYAML.get(path, "");
     }
 
     public void changeLang(String newLang) {
@@ -92,19 +106,23 @@ public class Language {
     }
 
     public String getHeader(LangSection section, String path) {
-        return langYAML.getString(section + "." + path + ".header", "");
+        String fullPath = section + "." + path + ".header";
+        return langYAML.getString(fullPath);
     }
 
     public Object getDefault(LangSection section, String path) {
-        return langYAML.get(section + "." + path + ".default", "");
+        String fullPath = section + "." + path + ".default", defaultValue = langYAML.getString(fullPath);
+        return defaultValue != null ? defaultValue : getDefaultLangValue(fullPath).toString();
     }
 
     public String getPreComment(LangSection section, String path) {
-        return langYAML.getString(section + "." + path + ".pre-comment", "");
+        String fullPath = section + "." + path + ".pre-comment";
+        return langYAML.getString(fullPath);
     }
 
     public String getPostComment(LangSection section, String path) {
-        return langYAML.getString(section + "." + path + ".post-comment", "");
+        String fullPath = section + "." + path + ".post-comment";
+        return langYAML.getString(fullPath);
     }
 
     public boolean isLoaded() {
