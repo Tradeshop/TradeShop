@@ -107,7 +107,7 @@ public class Language {
 
     public String getHeader(LangSection section, String path) {
         String fullPath = section + "." + path + ".header";
-        return langYAML.getString(fullPath);
+        return langYAML.getString(fullPath, "");
     }
 
     public Object getDefault(LangSection section, String path) {
@@ -117,12 +117,12 @@ public class Language {
 
     public String getPreComment(LangSection section, String path) {
         String fullPath = section + "." + path + ".pre-comment";
-        return langYAML.getString(fullPath);
+        return langYAML.getString(fullPath, "");
     }
 
     public String getPostComment(LangSection section, String path) {
         String fullPath = section + "." + path + ".post-comment";
-        return langYAML.getString(fullPath);
+        return langYAML.getString(fullPath, "");
     }
 
     public boolean isLoaded() {
