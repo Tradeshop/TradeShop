@@ -1,7 +1,7 @@
 ##########################
 #    TradeShop Config    #
 ##########################
-config-version: 1.1
+config-version: 1.2
 
 
 # |    System Options    |
@@ -9,12 +9,15 @@ config-version: 1.1
 system-options:
   # How would you like your servers data stored? (FLATFILE)
   data-storage-type: FLATFILE
-  # What debug code should be run. This will add significant amounts of spam to the console/log, generally not used unless requested by Devs (must be a whole number)
+  # What debug code should be run. This will add significant amounts of spam to the console/log, generally not used unless requested by Devs
   enable-debug: 0
   # Should we check for updates when the server starts
   check-updates: true
   # Allow us to connect anonymous metrics so we can see how our plugin is being used to better develop it
   allow-metrics: true
+  # We do not recommend enabling this setting since any editing an admin should need to do can be done without this.
+  # Should players with Admin permission be able to use any commands on any shops?
+  unlimited-admin: false
   # Should our internal permission system be used? (Only enable if you aren't using a permission plugin)
   use-internal-permissions: false
 
@@ -55,49 +58,41 @@ global-options:
   # Inventories to allow for shops. Allowed blocks are:
   # Chest, Trapped_Chest, Dropper, Hopper, Dispenser, Shulker, ...
   allowed-shops: [ CHEST, TRAPPED_CHEST, SHULKER ]
-  # Max distance a player can be from a shop to edit it (must be a whole number)
+  # Max distance a player can be from a shop to edit it
   max-edit-distance: 4
-  # Material types that cannot be used in trades
-  illegal-items: [ Air, Void_Air, Cave_Air, Bedrock, Command_Block, Barrier ]
   # Can players toggle view of involved shops?
   allow-toggle-status: true
-  # Should the sign be protected from being broken by other players?
+  # Should we allow anyone to destroy a shops sign?
   allow-sign-break: false
-  # Should the chest be protected from being broken by other players?
+  # Should we allow anyone to destroy a shops storage?
   allow-chest-break: false
 
 
   multi-trade:
     # Should we allow multi trades with shift + click (true/false)
     enable: true
-    # Default multiplier for trades using shift + click (must be a whole number)
+    # Default multiplier for trades using shift + click
     default-multi: 2
-    # Maximum amount a player can set their multiplier to, reset upon leaving (must be a whole number)
+    # Maximum amount a player can set their multiplier to. Not recommended to set any higher than 6 as this can cause bugs with iTrade Shops
     max-multi: 6
 
 
 # |    Shop Options    |
 # ^^^^^^^^^^^^^^^^^^^^^^
 shop-options:
-  # Maximum users a shop can have (must be a whole number)
+  # Maximum users(Managers/Members) a shop can have
   max-shop-users: 5
-  # Maximum shops that can exist in a single chunk (must be a whole number)
+  # Maximum shops that can exist in a single chunk
   max-shops-per-chunk: 128
-  # Maximum amount of item stacks per side of trade (must be a whole number)
+  # Maximum amount of item stacks per side of trade
   max-items-per-trade-side: 6
   # Can players purchase from a shop in which they are a user of (true/false)
   allow-user-purchasing: false
   # Text that shows on trade signs that contain more than 1 item
+  # Available variables are: %AMOUNT%
   multiple-items-on-sign: Use '/ts what'
 
 
-# |    Item-specific Options    |
-# ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-item-options:
-  # Must trades involving a firework rocket match the correct flight duration?
-  firework-compare-duration: true
-  # Must trades involving a firework rocket match the exact firework effects?
-  firework-compare-effects: false
 # |    Trade Shop Options    |
 # ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 trade-shop-options:
@@ -120,6 +115,8 @@ itrade-shop-options:
   header: iTrade
   # Can explosions damage the shop sign (true/false)
   allow-explode: false
+  # What text should be used for successful trades when no cost is present
+  no-cost-text: nothing
 
 
 # |    BiTrade Shop Options    |
@@ -135,3 +132,20 @@ bitrade-shop-options:
   allow-hopper-import: false
 
 
+# |    Illegal Item Options    |
+# ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+illegal-item-options:
+  # Valid Types: DISABLED, BLACKLIST, WHITELIST
+
+  # List for illegal items for both Cost and Product
+  global-illegal-items:
+    type: BLACKLIST
+    list: [ Bedrock, Command_Block, Barrier ]
+  # List for illegal items for only Cost items
+  cost-illegal-items:
+    type: DISABLED
+    list: [ ]
+  # List for illegal items for only Product items
+  product-illegal-items:
+    type: DISABLED
+    list: [ ]
