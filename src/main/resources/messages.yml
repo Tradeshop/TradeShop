@@ -1,6 +1,14 @@
-###########################
-#    TradeShop Messages   #
-###########################
+############################
+#    TradeShop Messages    #
+############################
+# Version of the current config file.
+# Do not change!
+message-version: 1.2
+# This currently does not change anything in the message files, but is used in metrics so that we can see what languages we should try to provide built in support for in the future.
+# Please use codes as listed at: https://www.andiamo.co.uk/resources/iso-language-codes/
+language: en-us
+
+
 change-closed: '&cThe shop is now &l&bCLOSED&r&a.'
 change-open: '&aThe shop is now &l&bOPEN&r&a.'
 # Text to display when a player places a TradeSign above an empty chest:
@@ -14,7 +22,9 @@ illegal-item: '&cYou cannot use one or more of those items in shops.'
 # Text to display when a shop failed creation due to using a shulker box as cost when the shop uses it for storage:
 no-shulker-cost: '&cYou cannot add a Shulker Box as a cost when the shop uses it for storage.'
 # Text to display when the player does not have enough items:
-insufficient-items: '&cYou do not have &e{AMOUNT} {ITEM}&c!'
+insufficient-items: '&cYou do not have &e%AMOUNT% %ITEM%&c!'
+# Text to display when the shop does not have enough items:
+shop-insufficient-items: '&cThis shop does not have enough &e%AMOUNT% %ITEM%&c to trade!'
 # Text to display when invalid arguments are submitted through the "/tradeshop" command:
 invalid-arguments: '&eTry &6/tradeshop help &eto display help!'
 item-added: '&aItem successfully added to shop.'
@@ -23,23 +33,27 @@ item-removed: '&aItem successfully removed to shop.'
 missing-chest: '&cYour shop is missing a chest.'
 # Text to display when a shop sign failed creation due to missing an item
 missing-item: '&cYour sign is missing an item for trade.'
-multi-amount: '&aYour trade multiplier is %amount%.'
-multi-update: '&aTrade multiplier has been updated to %amount%.'
+multi-amount: '&aYour trade multiplier is %AMOUNT%.'
+multi-update: '&aTrade multiplier has been updated to %AMOUNT%.'
 # Text to display when a player attempts to place a sign without placing the chest first:
 no-chest: '&cYou need to put a chest under the sign!'
 # Text to display when a player attempts to run administrator commands:
-no-command-permission: '&aYou do not have permission to execute this command'
+no-command-permission: '&cYou do not have permission to execute this command'
 no-shop-permission: '&cYou do not have permission to edit that shop.'
+# Text to display when a player attempts to trade while having the `Prevent Trade` permission:
+no-trade-permission: '&cYou do not have permission to trade with TradeShops'
 # Text to display when a player is too far from a shop
 no-sighted-shop: '&cNo shop in range!'
 # Text to display when a player attempts to setup a shoptype they are not allowed to create:
 no-ts-create-permission: '&cYou don''t have permission to create TradeShops!'
 # Text to display when a player attempts to destroy a shop they do not own:
 no-ts-destroy: '&cYou may not destroy that TradeShop'
-# Text to display when a player attempts to open a shop they do not own nor have been granted access to (1.6):
+# Text to display when a player attempts to destroy a block with a shop sign attached to it:
+destroy-shop-sign-first: '&cYou must destroy the shops sign first.'
+# Text to display when a player attempts to open a shop they do not own nor have been granted access to:
 no-ts-open: '&cThat TradeShop does not belong to you'
 # Text to display upon a successful trade:
-on-trade: '&aYou have traded your &e{AMOUNT2} {ITEM2} &afor &e{AMOUNT1} {ITEM1} &awith {SELLER}'
+on-trade: '&aYou have traded your &e%AMOUNT2% %ITEM2% &afor &e%AMOUNT1% %ITEM1% &awith %SELLER%'
 # Text to display when the players inventory is too full to recieve the trade:
 player-full: '&cYour inventory is full, please make room before trading items!'
 player-not-found: '&cThat player could not be found.'
@@ -51,23 +65,24 @@ self-owned: '&cYou cannot buy from a shop in which you are a user.'
 # Text to display on "/tradeshop setup":
 setup-help: "\n&2Setting up a TradeShop is easy! Just make sure to follow these steps:\n \nStep\
   \ 1: &ePlace down a chest.\n&2Step 2: &ePlace a sign on top of or around the chest.\n\
-  &2Step 3: &eWrite the following on the sign\n&6     [%header%]\n&6&o-- Leave Blank\
-  \ --\n&6&o-- Leave Blank --\n&6&o-- Leave Blank --\n&2Step 4: &eUse the addCost\
-  \ and addProduct commands to add items to your shop"
+  &2Step 3: &eWrite the following on the sign\n&6 [%HEADER%]\n&6&o-- Leave Blank --\n\
+  &6&o-- Leave Blank --\n&6&o-- Leave Blank --\n&2Step 4: &eUse the addCost and addProduct\
+  \ commands to add items to your shop"
 shop-closed: '&cThis shop is currently closed.'
 # Text to display when the shop does not have enough stock:
 shop-empty: '&cThis TradeShop is currently missing items to complete the trade!'
 # Text to display when the shop storage is full:
 shop-full: '&cThis TradeShop is full, please contact the owner to get it emptied!'
-shop-insufficient-items: '&cThis shop does not have &e{AMOUNT} {ITEM}&c!'
 shop-item-list: |-
-  &aThe shops %type%:
-  %list%
-shop-type-switched: '&aShop type has been switched to %newtype%.'
+  &aThe shops %TYPE%:
+  %LIST%
+# Text to display when a player uses '/ts toggle'
+# Available variables are: %TYPE% %NEWTYPE%
+shop-type-switched: '&aShop type has been switched to %NEWTYPE%.'
 # Text to display when a player successfully creates a TradeShop:
 successful-setup: '&aYou have successfully setup a TradeShop!'
 too-many-chests: '&cThere are too many shops in this chunk, you can not add another one.'
-too-many-items: '&cThis trade can not take any more %side%!'
+too-many-items: '&cThis shop cannot take any more %SIDE% items!'
 # Text to display when shop users could not be updated
 unsuccessful-shop-members: '&aThat player is either already on the shop, or you have reached the maximum number
   of users!'
@@ -76,14 +91,18 @@ updated-shop-members: '&aShop owners and members have been updated!'
 # Text to display when players use the who command
 who-message: |-
   &6Shop users are:
-  &2Owner: &e{OWNER}
-  &2Managers: &e{MANAGERS}
-  &2Members: &e{MEMBERS}
+  &2Owner: &e%OWNER%
+  &2Managers: &e%MANAGERS%
+  &2Members: &e%MEMBERS%
 # Text to display when viewing a players level with /ts PlayerLevel
-view-player-level: '&e%player% has a level of %level%.'
+view-player-level: '&e%PLAYER% has a level of %LEVEL%.'
 # Text to display after setting a players level
-set-player-level: '&aYou have set the level of %player% to %level%!'
+set-player-level: '&aYou have set the level of %PLAYER% to %LEVEL%!'
 # Text to display when a message uses an Item Type and the Type varies
 various-item-type: Various
-toggled-status: 'Toggled status: &c%status%'
-no-sign-found: '&cNo sign in range!", "Text to display when a player is too far from a sign"'
+toggled-status: 'Toggled status: &c%STATUS%'
+# Text to display when a player is too far from a sign
+no-sign-found: '&cNo sign in range!'
+# Text to display when an admin toggles or views their Admin abilities.
+# "%STATE%" will be replaced by the state that the player is in after the command.
+admin-toggled: '&aYour Admin mode is currently &e%STATE%&a.'

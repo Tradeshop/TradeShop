@@ -30,9 +30,9 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.shanerx.tradeshop.enumys.DebugLevels;
 import org.shanerx.tradeshop.enumys.NonObtainableMaterials;
-import org.shanerx.tradeshop.enumys.Setting;
 import org.shanerx.tradeshop.enumys.ShopStorage;
 import org.shanerx.tradeshop.utils.Utils;
+import org.shanerx.tradeshop.utils.config.Setting;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -40,7 +40,10 @@ import java.util.Arrays;
 @SuppressWarnings("unused")
 public class ListManager extends Utils {
 
-	private final ArrayList<Material> blacklist = new ArrayList<>();
+	private final IllegalItemList globalList = new IllegalItemList(IllegalItemList.ListType.DISABLED, new ArrayList<>());
+	private final IllegalItemList costList = new IllegalItemList(IllegalItemList.ListType.DISABLED, new ArrayList<>());
+	private final IllegalItemList productList = new IllegalItemList(IllegalItemList.ListType.DISABLED, new ArrayList<>());
+
 	private final ArrayList<BlockFace> directions = new ArrayList<>();
 	private final ArrayList<ShopStorage.Storages> inventories = new ArrayList<>();
 	private final ArrayList<String> gameMats = new ArrayList<>();
@@ -56,30 +59,44 @@ public class ListManager extends Utils {
 		return directions;
 	}
 
-    public ArrayList<ShopStorage.Storages> getInventories() {
+	public ArrayList<ShopStorage.Storages> getInventories() {
 		return inventories;
 	}
 
-	public ArrayList<Material> getBlacklist() {
-		return blacklist;
+	public IllegalItemList getGlobalList() {
+		return globalList;
+	}
+
+	public IllegalItemList getCostList() {
+		return costList;
+	}
+
+	public IllegalItemList getProductList() {
+		return productList;
 	}
 
 	public ArrayList<String> getGameMats() {
 		return gameMats;
 	}
 
-	public boolean isBlacklisted(Material mat) {
-		return blacklist.contains(mat);
+	public boolean isIllegal(IllegalItemList.TradeItemType type, Material mat) {
+		if (globalList.isIllegal(mat))
+			return true;
+
+		if (type.equals(IllegalItemList.TradeItemType.COST))
+			return costList.isIllegal(mat);
+		else
+			return productList.isIllegal(mat);
 	}
 
 	public boolean isDirection(BlockFace face) {
 		return directions.contains(face);
 	}
 
-    public boolean isInventory(Block block) {
-        //Get blocks Material and strip all non-alpha chars
-        Material blockMaterial = block.getType();
-        Boolean found = false;
+	public boolean isInventory(Block block) {
+		//Get blocks Material and strip all non-alpha chars
+		Material blockMaterial = block.getType();
+		Boolean found = false;
 
 		debugger.log("isInventory Block Material: " + blockMaterial.name(), DebugLevels.LIST_MANAGER);
 
@@ -97,32 +114,60 @@ public class ListManager extends Utils {
 
 	public void reload() {
         //Reloads any lists that need reloading
-		updateBlacklist();
+		updateIllegalLists();
 		updateDirections();
         updateInventoryMats();
         setGameMatList();
 	}
 
 	public void clearManager() {
-        // Clears all lists, Only use if plugin is shutting down
+		// Clears all lists, Only use if plugin is shutting down
 		inventories.clear();
-		blacklist.clear();
+		globalList.clear();
+		costList.clear();
+		productList.clear();
 		directions.clear();
-        addOnMats.clear();
-        gameMats.clear();
-		plugin.getDataStorage().clearChestLinkages();
+		addOnMats.clear();
+		gameMats.clear();
 	}
 
-	private void updateBlacklist() {
+	private void updateIllegalLists() {
 		//Clears list before regenerating
-		blacklist.clear();
+		globalList.clear();
+		costList.clear();
+		productList.clear();
 
-		//Gets the Material object for each sting in the config Blacklist and adds it to the Blacklist
-		//If the string is not a Material, ignores it
-		for (String str : Setting.getItemBlackList()) {
-			Material mat = Material.matchMaterial(str);
-			if (mat != null)
-				blacklist.add(mat);
+		globalList.setType(Setting.GLOBAL_ILLEGAL_ITEMS_TYPE.getString());
+		costList.setType(Setting.COST_ILLEGAL_ITEMS_TYPE.getString());
+		productList.setType(Setting.PRODUCT_ILLEGAL_ITEMS_TYPE.getString());
+
+		if (globalList.getType().equals(IllegalItemList.ListType.DISABLED))
+			globalList.setType(IllegalItemList.ListType.BLACKLIST);
+
+		debugger.log("Loading GLOBAL Illegal Item List with mode:  " + globalList.getType(), DebugLevels.ILLEGAL_ITEMS_LIST);
+		if (globalList.getType().equals(IllegalItemList.ListType.BLACKLIST)) {
+			// Add non-removable blacklist items
+			globalList.add(Material.AIR);
+			globalList.add(Material.CAVE_AIR);
+			globalList.add(Material.VOID_AIR);
+		} else if (globalList.getType().equals(IllegalItemList.ListType.WHITELIST)) {
+			globalList.remove(Material.AIR);
+			globalList.remove(Material.CAVE_AIR);
+			globalList.remove(Material.VOID_AIR);
+		}
+
+		for (String str : Setting.GLOBAL_ILLEGAL_ITEMS_LIST.getStringList()) {
+			globalList.checkAndAdd(str);
+		}
+
+		debugger.log("Loading COST Illegal Item List with mode:  " + costList.getType(), DebugLevels.ILLEGAL_ITEMS_LIST);
+		for (String str : Setting.COST_ILLEGAL_ITEMS_LIST.getStringList()) {
+			costList.checkAndAdd(str);
+		}
+
+		debugger.log("Loading PRODUCT Illegal Item List with mode:  " + productList.getType(), DebugLevels.ILLEGAL_ITEMS_LIST);
+		for (String str : Setting.PRODUCT_ILLEGAL_ITEMS_LIST.getStringList()) {
+			productList.checkAndAdd(str);
 		}
 	}
 
@@ -131,7 +176,10 @@ public class ListManager extends Utils {
 
 		//Adds each Material from Minecraft to a list for command tab complete
 		for (Material mat : Material.values()) {
-			gameMats.add(mat.toString());
+			// Only add the material if it isn't BlackListed
+			if (!globalList.isIllegal(mat)) {
+				gameMats.add(mat.toString());
+			}
 		}
 
 		// Remove all non obtainable materials that we have found
@@ -154,25 +202,25 @@ public class ListManager extends Utils {
 	}
 
     private void updateInventoryMats() {
-        //Clears the list before updating
+		//Clears the list before updating
 		inventories.clear();
 
-        log("Inventory Materials from Config:");
-        log("Config String | Status | Matching Type");
+		debugger.log("Inventory Materials from Config:", DebugLevels.STARTUP);
+		debugger.log("Config String | Status | Matching Type", DebugLevels.STARTUP);
 
-        //For each String in the Allowed shops config setting, check if it is a valid inventory and add the ShopStorage.Storages object to the list
-        for (String str : Setting.ALLOWED_SHOPS.getStringList()) {
-            String logMsg = "- " + str;
-            String storageName = plugin.getStorages().isValidInventory(str);
-            if (storageName.length() > 0) {
-                ShopStorage.Storages storage = plugin.getStorages().getValidInventory(storageName);
-                inventories.add(storage);
-                logMsg += " | Valid | " + storage.name();
-            } else {
-                logMsg += " | InValid";
-            }
+		//For each String in the Allowed shops config setting, check if it is a valid inventory and add the ShopStorage.Storages object to the list
+		for (String str : Setting.ALLOWED_SHOPS.getStringList()) {
+			String logMsg = "- " + str;
+			String storageName = PLUGIN.getStorages().isValidInventory(str);
+			if (storageName.length() > 0) {
+				ShopStorage.Storages storage = PLUGIN.getStorages().getValidInventory(storageName);
+				inventories.add(storage);
+				logMsg += " | Valid | " + storage.name();
+			} else {
+				logMsg += " | InValid";
+			}
 
-            log(logMsg);
-        }
+			debugger.log(logMsg, DebugLevels.STARTUP);
+		}
 	}
 }

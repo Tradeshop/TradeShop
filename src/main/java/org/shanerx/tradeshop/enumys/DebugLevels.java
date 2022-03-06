@@ -29,13 +29,14 @@ import java.util.logging.Level;
 
 public enum DebugLevels {
 
+    DEV_EXPIRATION(-2, Level.SEVERE),
     DATA_ERROR(-1, Level.SEVERE),
     DISABLED(0, Level.INFO), // 0
-    LIST_MANAGER(1, Level.WARNING), // 1
-    STARTUP(2, Level.INFO), // 2
+    STARTUP(1, Level.INFO), // 1
+    ILLEGAL_ITEMS_LIST(2, Level.INFO), // 2
     PROTECTION(3, Level.WARNING), // 4
     TRADE(4, Level.WARNING), // 8
-    INVENTORY_CLOSE_NPE(5, Level.WARNING), // 16
+    LIST_MANAGER(5, Level.WARNING), // 16
     ITEM_COMPARE(6, Level.WARNING), // 32
     NAME_COMPARE(7, Level.WARNING), // 64
     SHULKERS_SUCK(8, Level.WARNING), // 128

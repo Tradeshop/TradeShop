@@ -27,7 +27,7 @@ package org.shanerx.tradeshop.objects;
 
 import org.bukkit.Bukkit;
 import org.shanerx.tradeshop.enumys.DebugLevels;
-import org.shanerx.tradeshop.enumys.Setting;
+import org.shanerx.tradeshop.utils.config.Setting;
 
 import java.util.logging.Level;
 
@@ -68,5 +68,9 @@ public class Debug {
         } else if (level.getPosition() < 0) {
             Bukkit.getLogger().log(level.getLogLevel(), PREFIX.replace("%level%", level.getPrefix()) + message);
         }
+    }
+
+    public String getFormattedPrefix(DebugLevels debugLevel) {
+        return PREFIX.replace("%level%", debugLevel.getPrefix());
     }
 }

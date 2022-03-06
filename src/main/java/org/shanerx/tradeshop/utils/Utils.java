@@ -40,14 +40,23 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.material.MaterialData;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.shanerx.tradeshop.TradeShop;
-import org.shanerx.tradeshop.enumys.*;
+import org.shanerx.tradeshop.enumys.DebugLevels;
+import org.shanerx.tradeshop.enumys.ExchangeStatus;
+import org.shanerx.tradeshop.enumys.ShopType;
 import org.shanerx.tradeshop.objects.Debug;
+import org.shanerx.tradeshop.objects.IllegalItemList;
 import org.shanerx.tradeshop.objects.Shop;
+import org.shanerx.tradeshop.objects.ShopChest;
 import org.shanerx.tradeshop.objects.ShopItemStack;
 import org.shanerx.tradeshop.objects.ShopLocation;
+import org.shanerx.tradeshop.utils.config.Message;
+import org.shanerx.tradeshop.utils.config.Setting;
 
-import java.util.*;
-import java.util.logging.Level;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
+import java.util.UUID;
 
 
 /**
@@ -59,13 +68,13 @@ public class Utils {
 
 	private final UUID KOPUUID = UUID.fromString("daf79be7-bc1d-47d3-9896-f97b8d4cea7d");
 	private final UUID LORIUUID = UUID.fromString("e296bc43-2972-4111-9843-48fc32302fd4");
-	public final TradeShop plugin = (TradeShop) Bukkit.getPluginManager().getPlugin("TradeShop");
-	protected PluginDescriptionFile pdf = plugin.getDescription();
+	public final TradeShop PLUGIN = Objects.requireNonNull((TradeShop) Bukkit.getPluginManager().getPlugin("TradeShop"));
+	protected PluginDescriptionFile pdf = PLUGIN.getDescription();
 
 	public Debug debugger;
 
 	public Utils() {
-		debugger = plugin.getDebugger();
+		debugger = PLUGIN.getDebugger();
 	}
 
 	public UUID[] getMakers() {
@@ -226,13 +235,14 @@ public class Utils {
 	}
 
 	/**
-	 * Checks whether or not it is non-blacklisted material.
+	 * Checks whether or not it is an illegal material.
 	 *
-	 * @param mat String to check
+	 * @param type What side of the trade the item is on
+	 * @param mat  String to check
 	 * @return returns true if valid material
 	 */
-	public boolean isValidType(Material mat) {
-		return !plugin.getListManager().isBlacklisted(mat);
+	public boolean isIllegal(IllegalItemList.TradeItemType type, Material mat) {
+		return PLUGIN.getListManager().isIllegal(type, mat);
 	}
 
 	/**
@@ -276,34 +286,30 @@ public class Utils {
 	 * @return the sign.
 	 */
 	public Sign findShopSign(Block chest) {
-		ShopLocation potentialLocation = plugin.getDataStorage().getChestLinkage(new ShopLocation(chest.getLocation()));
+		ShopLocation potentialLocation = PLUGIN.getDataStorage().getChestLinkage(new ShopLocation(chest.getLocation()));
 		if (potentialLocation != null && ShopType.isShop(potentialLocation.getLocation().getBlock()))
 			return (Sign) potentialLocation.getLocation().getBlock().getState();
 
-		ArrayList<BlockFace> faces = plugin.getListManager().getDirections();
-		Collections.reverse(faces);
-		ArrayList<BlockFace> flatFaces = new ArrayList<>(Arrays.asList(BlockFace.NORTH, BlockFace.EAST, BlockFace.SOUTH, BlockFace.WEST));
-		boolean isDouble = false;
-		BlockFace doubleSide = null;
+		ArrayList<BlockFace> faces = PLUGIN.getListManager().getDirections(),
+				flatFaces = new ArrayList<>(Arrays.asList(BlockFace.NORTH, BlockFace.EAST, BlockFace.SOUTH, BlockFace.WEST));
 
 		for (BlockFace face : faces) {
+			face = face.getOppositeFace(); // Check in the opposite direction that a sign would check
 			Block relative = chest.getRelative(face);
 			if (ShopType.isShop(relative)) {
+				if (ShopChest.isDoubleChest(chest)) {
+					PLUGIN.getDataStorage().addChestLinkage(new ShopLocation(ShopChest.getOtherHalfOfDoubleChest(chest).getLocation()), new ShopLocation(relative.getLocation()));
+				}
 				return (Sign) relative.getState();
 			} else if (flatFaces.contains(face) && (chest.getType().equals(Material.CHEST) || chest.getType().equals(Material.TRAPPED_CHEST))) {
-				if (relative.getType().equals(chest.getType())) {
-					isDouble = true;
-					doubleSide = face;
-				}
-			}
-		}
-
-		if (isDouble) {
-			chest = chest.getRelative(doubleSide);
-			for (BlockFace face : faces) {
-				Block relative = chest.getRelative(face);
-				if (ShopType.isShop(relative)) {
-					return (Sign) relative.getState();
+				if (relative.getType().equals(chest.getType()) && ShopChest.isDoubleChest(chest)) {
+					for (BlockFace face2 : faces) {
+						Block relative2 = chest.getRelative(face).getRelative(face2.getOppositeFace());
+						if (ShopType.isShop(relative2)) {
+							PLUGIN.getDataStorage().addChestLinkage(new ShopLocation(chest.getLocation()), new ShopLocation(relative2.getLocation()));
+							return (Sign) relative2.getState();
+						}
+					}
 				}
 			}
 		}
@@ -318,9 +324,9 @@ public class Utils {
 	 * @return the shop's inventory holder block.
 	 */
 	public Block findShopChest(Block sign) {
-        for (BlockFace face : plugin.getListManager().getDirections()) {
+		for (BlockFace face : PLUGIN.getListManager().getDirections()) {
 			Block relative = sign.getRelative(face);
-            if (plugin.getListManager().isInventory(relative)) {
+			if (PLUGIN.getListManager().isInventory(relative)) {
 				return relative;
 			}
 		}
@@ -336,10 +342,6 @@ public class Utils {
 	 */
 	public boolean checkShopChest(Block sign) {
 		return findShopChest(sign) != null;
-	}
-
-	public void log(String text) {
-		Bukkit.getLogger().log(Level.INFO, text);
 	}
 
 	/**

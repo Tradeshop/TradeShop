@@ -48,6 +48,8 @@ public enum Permissions {
 
 	MANAGE_PLUGIN("manage-plugin", 2),
 
+	PREVENT_TRADE("prevent-trade", -1),
+
 	NONE("", 0);
 
 	private final static TradeShop plugin = (TradeShop) Bukkit.getPluginManager().getPlugin("TradeShop");

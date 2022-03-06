@@ -26,6 +26,7 @@
 package org.shanerx.tradeshop.objects;
 
 import com.google.gson.Gson;
+import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
@@ -36,15 +37,20 @@ import org.bukkit.event.block.SignChangeEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.shanerx.tradeshop.TradeShop;
-import org.shanerx.tradeshop.enumys.Setting;
 import org.shanerx.tradeshop.enumys.ShopRole;
 import org.shanerx.tradeshop.enumys.ShopStatus;
 import org.shanerx.tradeshop.enumys.ShopType;
 import org.shanerx.tradeshop.utils.Tuple;
 import org.shanerx.tradeshop.utils.Utils;
+import org.shanerx.tradeshop.utils.config.Setting;
 
 import java.io.Serializable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 public class Shop implements Serializable {
@@ -75,7 +81,7 @@ public class Shop implements Serializable {
 		shopLoc = new ShopLocation(locations.getLeft());
 		this.owner = owner;
 		chestLoc = new ShopLocation(locations.getRight());
-		utils.plugin.getDataStorage().addChestLinkage(chestLoc, shopLoc);
+		utils.PLUGIN.getDataStorage().addChestLinkage(chestLoc, shopLoc);
 		this.shopType = shopType;
 		managers = players.getLeft();
 		members = players.getRight();
@@ -100,7 +106,7 @@ public class Shop implements Serializable {
 		shopLoc = new ShopLocation(locations.getLeft());
 		this.owner = owner;
 		chestLoc = new ShopLocation(locations.getRight());
-		utils.plugin.getDataStorage().addChestLinkage(chestLoc, shopLoc);
+		utils.PLUGIN.getDataStorage().addChestLinkage(chestLoc, shopLoc);
 		this.shopType = shopType;
 		managers = Collections.emptyList();
 		members = Collections.emptyList();
@@ -152,7 +158,7 @@ public class Shop implements Serializable {
 	 * @return The shop from file
 	 */
 	public static Shop loadShop(ShopLocation loc) {
-		return new Utils().plugin.getDataStorage().loadShopFromSign(loc);
+		return new Utils().PLUGIN.getDataStorage().loadShopFromSign(loc);
 	}
 
 	/**
@@ -303,7 +309,7 @@ public class Shop implements Serializable {
      * Updates the saved player data for all users
      */
     private void updateUserFiles() {
-        TradeShop plugin = new Utils().plugin;
+		TradeShop plugin = new Utils().PLUGIN;
         for (UUID user : getUsersUUID()) {
             PlayerSetting playerSetting = plugin.getDataStorage().loadPlayer(user);
             playerSetting.updateShops(this);
@@ -315,7 +321,7 @@ public class Shop implements Serializable {
      * Removes this shop from all users
      */
     private void purgeFromUserFiles() {
-        TradeShop plugin = new Utils().plugin;
+		TradeShop plugin = new Utils().PLUGIN;
         for (UUID user : getUsersUUID()) {
             PlayerSetting playerSetting = plugin.getDataStorage().loadPlayer(user);
             playerSetting.removeShop(this);
@@ -397,7 +403,7 @@ public class Shop implements Serializable {
 	 */
 	public void setInventoryLocation(Location newLoc) {
 		chestLoc = new ShopLocation(newLoc);
-		utils.plugin.getDataStorage().addChestLinkage(chestLoc, shopLoc);
+		utils.PLUGIN.getDataStorage().addChestLinkage(chestLoc, shopLoc);
 	}
 
 	/**
@@ -433,7 +439,7 @@ public class Shop implements Serializable {
 	 * @param newItem ItemStack to be set
 	 */
 	public void setCost(ItemStack newItem) {
-		if (!utils.isValidType(newItem.getType()))
+		if (utils.isIllegal(IllegalItemList.TradeItemType.COST, newItem.getType()))
 			return;
 
 		cost.clear();
@@ -447,45 +453,24 @@ public class Shop implements Serializable {
 	 * @param newItem ItemStack to be added
 	 */
 	public void addCost(ItemStack newItem) {
-		if (!utils.isValidType(newItem.getType()))
+		if (utils.isIllegal(IllegalItemList.TradeItemType.COST, newItem.getType()))
 			return;
 
-		/* Added stacks are separated by stack size
-		int amount = newItem.getAmount();
-		List<ItemStack> items = new ArrayList<>();
-		while (amount > 0) {
-			if (newItem.getMaxStackSize() < amount) {
-				ItemStack itm = newItem.clone();
-				itm.setAmount(newItem.getMaxStackSize());
-				items.add(itm);
-				amount -= newItem.getMaxStackSize();
-			} else {
-				ItemStack itm = newItem.clone();
-				itm.setAmount(amount);
-				items.add(itm);
-				amount = 0;
-			}
-		}
-
-		items.forEach((ItemStack iS) -> cost.add(new ShopItemStack(iS)));
-
-		 */
-
 		///* Added stacks are not separated and are added ontop of existing similar stacks
-		ShopItemStack toAddShopItemStack = new ShopItemStack(newItem),
-				toRemoveShopItemStack = null;
+		ShopItemStack toAddShopItemStack = new ShopItemStack(newItem);
+		int toRemoveShopItemStack = -1;
 
 
-		for (ShopItemStack shopItemStack : getCost()) {
-			if (shopItemStack.getItemStack().getType().equals(newItem.getType()) && shopItemStack.isSimilar(newItem)) {
-				toRemoveShopItemStack = shopItemStack;
-				toAddShopItemStack = shopItemStack.clone();
-				toAddShopItemStack.setAmount(shopItemStack.getAmount() + newItem.getAmount());
+		for (int i = 0; i < getCost().size(); i++) {
+			if (getCost().get(i).getItemStack().getType().equals(newItem.getType()) && getCost().get(i).isSimilar(newItem)) {
+				toRemoveShopItemStack = i;
+				toAddShopItemStack = getCost().get(i).clone();
+				toAddShopItemStack.setAmount(getCost().get(i).getAmount() + newItem.getAmount());
 				break;
 			}
 		}
 
-		if (toRemoveShopItemStack != null)
+		if (toRemoveShopItemStack > -1)
 			cost.remove(toRemoveShopItemStack);
 
 		cost.add(toAddShopItemStack);
@@ -552,45 +537,24 @@ public class Shop implements Serializable {
 	 * @param newItem ItemStack to be added
 	 */
 	public void addProduct(ItemStack newItem) {
-		if (!utils.isValidType(newItem.getType()))
+		if (utils.isIllegal(IllegalItemList.TradeItemType.PRODUCT, newItem.getType()))
 			return;
 
-		/* Added stacks are separated by stack size
-		int amount = newItem.getAmount();
-		List<ItemStack> items = new ArrayList<>();
-		while (amount > 0) {
-			if (newItem.getMaxStackSize() < amount) {
-				ItemStack itm = newItem.clone();
-				itm.setAmount(newItem.getMaxStackSize());
-				items.add(itm);
-				amount -= newItem.getMaxStackSize();
-			} else {
-				ItemStack itm = newItem.clone();
-				itm.setAmount(amount);
-				items.add(itm);
-				amount -= amount;
-			}
-		}
-
-        items.forEach((ItemStack iS) -> product.add(new ShopItemStack(iS)));
-        */
-
-
 		///* Added stacks are not separated and are added ontop of existing similar stacks
-		ShopItemStack toAddShopItemStack = new ShopItemStack(newItem),
-				toRemoveShopItemStack = null;
+		ShopItemStack toAddShopItemStack = new ShopItemStack(newItem);
+		int toRemoveShopItemStack = -1;
 
 
-		for (ShopItemStack shopItemStack : getProduct()) {
-			if (shopItemStack.getItemStack().getType().equals(newItem.getType()) && shopItemStack.isSimilar(newItem)) {
-				toRemoveShopItemStack = shopItemStack;
-				toAddShopItemStack = shopItemStack.clone();
-				toAddShopItemStack.setAmount(shopItemStack.getAmount() + newItem.getAmount());
+		for (int i = 0; i < getProduct().size(); i++) {
+			if (getProduct().get(i).getItemStack().getType().equals(newItem.getType()) && getProduct().get(i).isSimilar(newItem)) {
+				toRemoveShopItemStack = i;
+				toAddShopItemStack = getProduct().get(i).clone();
+				toAddShopItemStack.setAmount(getProduct().get(i).getAmount() + newItem.getAmount());
 				break;
 			}
 		}
 
-		if (toRemoveShopItemStack != null)
+		if (toRemoveShopItemStack > -1)
 			product.remove(toRemoveShopItemStack);
 
 		product.add(toAddShopItemStack);
@@ -654,7 +618,7 @@ public class Shop implements Serializable {
 	 * @param newItem item to be set to product
 	 */
 	public void setProduct(ItemStack newItem) {
-		if (!utils.isValidType(newItem.getType()))
+		if (utils.isIllegal(IllegalItemList.TradeItemType.PRODUCT, newItem.getType()))
 			return;
 
 		product.clear();
@@ -718,6 +682,7 @@ public class Shop implements Serializable {
 		if (!getShopType().isITrade() && chestLoc != null) {
 			chestLoc.stringToWorld();
 			cost.removeIf(item -> item.getItemStack().getType().toString().endsWith("SHULKER_BOX") && getInventoryLocation().getBlock().getType().toString().endsWith("SHULKER_BOX"));
+			utils.PLUGIN.getDataStorage().addChestLinkage(chestLoc, shopLoc);
 		}
 
 		/* TODO Fix this after 2.4
@@ -743,7 +708,7 @@ public class Shop implements Serializable {
 	 */
 	public void saveShop() {
 		updateFullTradeCount();
-		utils.plugin.getDataStorage().saveShop(this);
+		utils.PLUGIN.getDataStorage().saveShop(this);
 		updateUserFiles();
 		updateSign();
 	}
@@ -823,12 +788,12 @@ public class Shop implements Serializable {
 			sb.append(item.getItemStack().getAmount());
 			sb.append(" ");
 
-			sb.append(item.getItemName());
+			sb.append(item.getCleanItemName());
 
 			signLines[1] = sb.substring(0, Math.min(sb.length(), 15));
 
         } else {
-            signLines[1] = Setting.MULTIPLE_ITEMS_ON_SIGN.getString();
+			signLines[1] = Setting.MULTIPLE_ITEMS_ON_SIGN.getString().replace("%amount%", "");
         }
 
 		if (cost.isEmpty()) {
@@ -841,19 +806,22 @@ public class Shop implements Serializable {
 			sb.append(item.getItemStack().getAmount());
 			sb.append(" ");
 
-			sb.append(item.getItemName());
+			sb.append(item.getCleanItemName());
 
 			signLines[2] = sb.substring(0, Math.min(sb.length(), 15));
-        } else {
-            signLines[2] = Setting.MULTIPLE_ITEMS_ON_SIGN.getString();
-        }
+		} else {
+			signLines[2] = Setting.MULTIPLE_ITEMS_ON_SIGN.getString();
+		}
 
-        updateStatus();
+		signLines[1] = ChatColor.stripColor(signLines[1]);
+		signLines[2] = ChatColor.stripColor(signLines[2]);
 
-        signLines[3] = status.getLine();
+		updateStatus();
 
-        return signLines;
-    }
+		signLines[3] = status.getLine();
+
+		return signLines;
+	}
 
 	/**
 	 * Returns the shops inventory as a BlockState
@@ -873,7 +841,7 @@ public class Shop implements Serializable {
 	 */
 	public void removeStorage() {
 		if (hasStorage()) {
-			utils.plugin.getDataStorage().removeChestLinkage(chestLoc);
+			utils.PLUGIN.getDataStorage().removeChestLinkage(chestLoc);
 			chestLoc = null;
 		}
 	}
@@ -961,8 +929,7 @@ public class Shop implements Serializable {
 	 */
     public void remove() {
         purgeFromUserFiles();
-		removeStorage();
-		utils.plugin.getDataStorage().removeShop(this);
+		utils.PLUGIN.getDataStorage().removeShop(this);
     }
 
 	/**
@@ -1036,8 +1003,8 @@ public class Shop implements Serializable {
 	 * @return true if all costs are valid
 	 */
 	public boolean areCostsValid() {
-        for (ShopItemStack iS : cost) {
-            if (!utils.isValidType(iS.getItemStack().getType()))
+		for (ShopItemStack iS : cost) {
+			if (utils.isIllegal(IllegalItemList.TradeItemType.COST, iS.getItemStack().getType()))
 				return false;
 		}
 
@@ -1051,7 +1018,7 @@ public class Shop implements Serializable {
 	 */
 	public boolean areProductsValid() {
         for (ShopItemStack iS : product) {
-            if (!utils.isValidType(iS.getItemStack().getType()))
+			if (utils.isIllegal(IllegalItemList.TradeItemType.PRODUCT, iS.getItemStack().getType()))
 				return false;
 		}
 
@@ -1152,6 +1119,8 @@ public class Shop implements Serializable {
 
 	/**
 	 * Updates shops cost list
+	 *
+	 * @param updatedCostList list to set as new CostList
 	 */
 	public void updateCost(List<ShopItemStack> updatedCostList) {
 		if (!getShopType().isITrade() && chestLoc != null)
@@ -1163,6 +1132,8 @@ public class Shop implements Serializable {
 
 	/**
 	 * Updates shops product list
+	 *
+	 * @param updatedProductList list to set as new ProductList
 	 */
 	public void updateProduct(List<ShopItemStack> updatedProductList) {
 		product = updatedProductList;

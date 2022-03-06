@@ -29,7 +29,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.shanerx.tradeshop.TradeShop;
-import org.shanerx.tradeshop.enumys.Message;
+import org.shanerx.tradeshop.utils.config.Message;
 
 /**
  * This class is used for calling command methods from CommandRunner
@@ -39,9 +39,6 @@ import org.shanerx.tradeshop.enumys.Message;
 public class CommandCaller implements CommandExecutor {
 
 	private final TradeShop plugin;
-	private CommandPass cmdPass;
-	private Commands command;
-	private CommandRunner cmdRnnr;
 
 	public CommandCaller(TradeShop instance) {
 		plugin = instance;
@@ -49,30 +46,30 @@ public class CommandCaller implements CommandExecutor {
 
 	@Override
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
-		cmdPass = new CommandPass(sender, cmd, label, args);
-		command = Commands.getType(cmdPass.getArgAt(0));
+		CommandPass cmdPass = new CommandPass(sender, cmd, label, args);
+		Commands command = Commands.getType(cmdPass.getArgAt(0));
 
 		if (!cmdPass.hasArgs() || command == null) {
-			sender.sendMessage(Message.INVALID_ARGUMENTS.getPrefixed());
+			Message.INVALID_ARGUMENTS.sendMessage(sender);
 			return true;
 
 		}
 
 		switch (command.checkPerm(sender)) {
 			case NO_PERM:
-				sender.sendMessage(Message.NO_COMMAND_PERMISSION.getPrefixed());
+				Message.NO_COMMAND_PERMISSION.sendMessage(sender);
 				return true;
 			case PLAYER_ONLY:
-				sender.sendMessage(Message.PLAYER_ONLY_COMMAND.getPrefixed());
+				Message.PLAYER_ONLY_COMMAND.sendMessage(sender);
 				return true;
 		}
 
 		if (command.getMinArgs() > args.length || command.getMaxArgs() < args.length) {
-			sender.sendMessage(Message.INVALID_ARGUMENTS.getPrefixed());
+			Message.INVALID_ARGUMENTS.sendMessage(sender);
 			return true;
 		}
 
-		cmdRnnr = new CommandRunner(plugin, cmdPass);
+		CommandRunner cmdRnnr = new CommandRunner(plugin, cmdPass);
 
 		switch (command) {
 			case HELP:

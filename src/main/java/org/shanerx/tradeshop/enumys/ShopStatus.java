@@ -26,6 +26,7 @@
 package org.shanerx.tradeshop.enumys;
 
 import org.bukkit.ChatColor;
+import org.shanerx.tradeshop.utils.config.Setting;
 
 public enum ShopStatus {
 
@@ -34,20 +35,20 @@ public enum ShopStatus {
     INCOMPLETE("&c<Incomplete>", Setting.SHOP_INCOMPLETE_STATUS, false),
     OUT_OF_STOCK("&c<Out Of Stock>", Setting.SHOP_OUTOFSTOCK_STATUS, false);
 
-	private static final char COLOUR_CHAR = '&';
-    private String label;
-    private boolean tradingAllowed;
-    private Setting labelEnum;
+    private static final char COLOUR_CHAR = '&';
+    private final String label;
+    private final boolean tradingAllowed;
+    private final Setting labelEnum;
 
     ShopStatus(String label, Setting labelEnum, boolean tradingAllowed) {
         this.label = label;
         this.labelEnum = labelEnum;
         this.tradingAllowed = tradingAllowed;
-	}
+    }
 
-	public static String colorize(String x) {
-		return ChatColor.translateAlternateColorCodes(COLOUR_CHAR, x);
-	}
+    public static String colorize(String x) {
+        return ChatColor.translateAlternateColorCodes(COLOUR_CHAR, x);
+    }
 
 	@Override
 	public String toString() {

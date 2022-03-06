@@ -28,11 +28,18 @@ package org.shanerx.tradeshop.objects;
 import com.google.common.collect.Lists;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import net.md_5.bungee.api.ChatColor;
 import org.bukkit.FireworkEffect;
 import org.bukkit.Material;
 import org.bukkit.block.ShulkerBox;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.*;
+import org.bukkit.inventory.meta.BlockStateMeta;
+import org.bukkit.inventory.meta.BookMeta;
+import org.bukkit.inventory.meta.BundleMeta;
+import org.bukkit.inventory.meta.Damageable;
+import org.bukkit.inventory.meta.EnchantmentStorageMeta;
+import org.bukkit.inventory.meta.FireworkMeta;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.util.io.BukkitObjectInputStream;
 import org.bukkit.util.io.BukkitObjectOutputStream;
 import org.shanerx.tradeshop.enumys.DebugLevels;
@@ -250,7 +257,7 @@ public class ShopItemStack implements Serializable, Cloneable {
         }
 
         // If compareBundleInventory is on and version is above 1.17 also check Bundles
-        if (new Utils().plugin.getVersion().isAtLeast(1, 17) &&
+        if (new Utils().PLUGIN.getVersion().isAtLeast(1, 17) &&
                 itemStack.getType().equals(Material.BUNDLE) &&
                 getShopSettingAsBoolean(ShopItemStackSettingKeys.COMPARE_BUNDLE_INVENTORY)) {
             try {
@@ -485,6 +492,12 @@ public class ShopItemStack implements Serializable, Cloneable {
         return itemStack.hasItemMeta() && itemStack.getItemMeta().hasDisplayName() ?
                 itemStack.getItemMeta().getDisplayName() :
                 itemStack.getType().toString();
+    }
+
+    public String getCleanItemName() {
+        return ChatColor.stripColor(itemStack.hasItemMeta() && itemStack.getItemMeta().hasDisplayName() ?
+                itemStack.getItemMeta().getDisplayName() :
+                itemStack.getType().toString());
     }
 
     public String serialize() {
