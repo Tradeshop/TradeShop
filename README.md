@@ -12,9 +12,9 @@ This plugin manages how players trade one item for another. The concept behind i
 > **Authors:** Lori00 / ShanerX & KillerOfPie<br/>
 > **Name:** TradeShop<br/>
 > **Version:** v2.3.2-STABLE<br/>
-> **Tested MC versions:** MC-1.8.X, 1.9.X, 1.10.X, 1.11.x, 1.12.x, 1.13.x, 1.14.x, 1.15.x <br/>
+> **Tested MC versions:** MC-1.8.X, 1.9.X, 1.10.X, 1.11.x, 1.12.x, 1.13.x, 1.14.x, 1.15.x, 1.16.x, 1.17.x, 1.18.x <br/>
 
->*Please see [the wiki](https://github.com/SparklingComet/TradeShop/wiki) for more information regarding supported versions.*
+>*Please see [the wiki](https://github.com/Tradeshop/TradeShop/wiki/Version-Support) for more information regarding supported versions.*
 
 ## Downloads
 You may download the latest version from the [plugin's resource page on SpigotMC](https://www.spigotmc.org/resources/32762/).
