@@ -40,6 +40,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.material.MaterialData;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.shanerx.tradeshop.TradeShop;
+import org.shanerx.tradeshop.enumys.DebugLevels;
 import org.shanerx.tradeshop.enumys.ExchangeStatus;
 import org.shanerx.tradeshop.enumys.ShopType;
 import org.shanerx.tradeshop.objects.Debug;
@@ -479,12 +480,16 @@ public class Utils {
 
 	//Returns an arraylist of the itemstacks to be removed/added, if it could not get enough of an item, will return index 0 as null and index 1 as item it could not get enough of
 	public ArrayList<ItemStack> getItems(Inventory inventory, List<ShopItemStack> search, int multiplier) {
-		Map<ShopItemStack, Integer> storage = new HashMap<>(), found = new HashMap<>();
+		Map<ItemStack, Integer> storage = new HashMap<>(), found = new HashMap<>();
 		ArrayList<ItemStack> good = new ArrayList<ItemStack>(), bad = new ArrayList<ItemStack>();
+
+		debugger.log("ShopTradeListener > Search List: " + search, DebugLevels.TRADE);
+
+		bad.add(null);
 
 		for (ItemStack itemStack : inventory.getStorageContents()) {
 			if (itemStack != null) {
-				ShopItemStack tempItemStack = new ShopItemStack(itemStack.clone());
+				ItemStack tempItemStack = itemStack.clone();
 				int amount = tempItemStack.getAmount();
 				tempItemStack.setAmount(1);
 
@@ -493,25 +498,27 @@ public class Utils {
 			}
 		}
 
+		debugger.log("ShopTradeListener > Storage List: " + storage, DebugLevels.TRADE);
+
 		int totalCount = 0, currentCount = 0;
 
 		for (ShopItemStack item : search) {
 			int count = item.getAmount() * multiplier;
 			totalCount += count;
 
-			for (ShopItemStack storageItem : storage.keySet()) {
-				boolean isSimilar = item.isSimilar(storageItem.getItemStack());
+			for (ItemStack storageItem : storage.keySet()) {
+				boolean isSimilar = item.isSimilar(storageItem);
 				if (isSimilar) {
 					int taken = Math.min(storage.get(storageItem), count);
 
-					if (found.putIfAbsent(item, taken) != null)
-						found.put(item, storage.get(item) + taken);
+					if (found.putIfAbsent(item.getItemStack(), taken) != null)
+						found.put(item.getItemStack(), storage.get(storageItem) + taken);
 
 					storage.put(storageItem, storage.get(storageItem) - taken);
 
-					ItemStack goodItem = storageItem.getItemStack();
+					ItemStack goodItem = storageItem;
 					goodItem.setAmount(taken);
-					bad.add(goodItem);
+					good.add(goodItem);
 
 					count -= taken;
 					currentCount += taken;
@@ -527,11 +534,10 @@ public class Utils {
 			}
 		}
 
-		if (currentCount != totalCount) {
-			bad.add(0, null);
-			return bad;
-		}
+		debugger.log("ShopTradeListener > Good List: " + good, DebugLevels.TRADE);
+		debugger.log("ShopTradeListener > Bad List: " + bad, DebugLevels.TRADE);
+		debugger.log("ShopTradeListener > Return Status: " + (currentCount != totalCount ? "bad" : "good"), DebugLevels.TRADE);
 
-		return good;
+		return currentCount != totalCount ? bad : good;
 	}
 }

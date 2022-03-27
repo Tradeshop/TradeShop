@@ -504,6 +504,13 @@ public class ShopItemStack implements Serializable, Cloneable {
         return new Gson().toJson(this);
     }
 
+    @Override
+    public String toString() {
+        return "ShopItemStack{" +
+                "itemStack=" + getItemStack() +
+                ", shopSettings=" + shopSettings +
+                '}';
+    }
 
     /**
      *
