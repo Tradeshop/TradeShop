@@ -50,6 +50,8 @@ import org.shanerx.tradeshop.utils.config.Setting;
 import org.shanerx.tradeshop.utils.data.DataStorage;
 import org.shanerx.tradeshop.utils.data.DataType;
 
+import java.time.Instant;
+
 public class TradeShop extends JavaPlugin {
 
 	private Expirer expirer = new Expirer(this);
@@ -75,6 +77,8 @@ public class TradeShop extends JavaPlugin {
 
 	@Override
 	public void onEnable() {
+		getLogger().info("[TradeShop] EpochSecond: " + Instant.now().getEpochSecond());
+		getLogger().info("[TradeShop] Max EpochSecond: " + Instant.MAX.getEpochSecond());
 		if (!expirer.initiateDevExpiration()) {
 			expirer = null;
 		}

@@ -57,6 +57,7 @@ import org.shanerx.tradeshop.utils.Utils;
 import org.shanerx.tradeshop.utils.config.Message;
 import org.shanerx.tradeshop.utils.config.Setting;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -73,6 +74,14 @@ public class ShopProtectionListener extends Utils implements Listener {
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onInventoryMoveItem(InventoryMoveItemEvent event) {
 
+        boolean output = Instant.now().getEpochSecond() % 5 == 0;
+        double epochKey = Instant.now().getEpochSecond() % 10000;
+        StringBuilder timingOut = new StringBuilder();
+
+        if (output) { // TODO: Remove
+            timingOut.append("\nHopper Timing Start " + epochKey + "-001: " + Instant.now().getNano());
+        }
+
         //If all Hopper Settings should be allowed, ignore event
         if (Setting.BITRADESHOP_HOPPER_EXPORT.getBoolean() &&
                 Setting.BITRADESHOP_HOPPER_IMPORT.getBoolean() &&
@@ -82,10 +91,18 @@ public class ShopProtectionListener extends Utils implements Listener {
             return;
         }
 
+        if (output) { // TODO: Remove
+            timingOut.append("\nHopper Timing " + epochKey + "-002: " + Instant.now().getNano());
+        }
+
         if (event.isCancelled() ||
                 event instanceof HopperShopAccessEvent ||
                 !event.getInitiator().getType().equals(InventoryType.HOPPER)) {
             return;
+        }
+
+        if (output) { // TODO: Remove
+            timingOut.append("\nHopper Timing " + epochKey + "-003: " + Instant.now().getNano());
         }
 
         boolean fromHopper;
@@ -93,17 +110,20 @@ public class ShopProtectionListener extends Utils implements Listener {
         Location srcLoc = event.getSource().getLocation();
         Location destLoc = event.getDestination().getLocation();
 
+        //Locations available but unknown if hoppers
+
         if (srcLoc == null || destLoc == null) {
             return;
-        }
-        else if (plugin.getListManager().isInventory(srcLoc.getBlock())) {
+        } else if (plugin.getListManager().isInventory(srcLoc.getBlock())) {
             fromHopper = false;
-        }
-        else if (plugin.getListManager().isInventory(destLoc.getBlock())) {
+        } else if (plugin.getListManager().isInventory(destLoc.getBlock())) {
             fromHopper = true;
-        }
-        else {
+        } else {
             return;
+        }
+
+        if (output) { // TODO: Remove
+            timingOut.append("\nHopper Timing " + epochKey + "-004: " + Instant.now().getNano());
         }
 
         Block invBlock = (fromHopper ? event.getDestination() : event.getSource()).getLocation().getBlock();
@@ -111,12 +131,24 @@ public class ShopProtectionListener extends Utils implements Listener {
             return;
         }
 
+        /*
+        if(output) { // TODO: Remove
+            timingOut.append("\nHopper Timing " + epochKey + "-005: " + Instant.now().getNano());
+        }
+
         Shop shop = new ShopChest(invBlock.getLocation()).getShop();
 
         boolean isForbidden = !Setting.findSetting(shop.getShopType().name() + (fromHopper ? "SHOP_HOPPER_IMPORT" : "SHOP_HOPPER_EXPORT")).getBoolean();
         if (isForbidden) {
             event.setCancelled(true);
+            if(output) {
+                debugger.log("Hopper Timing: " + epochKey + ":>" + timingOut.toString(), DebugLevels.HOPPER_TIMINGS);
+            }
             return;
+        }
+
+        if(output) { // TODO: Remove
+            timingOut.append("\nHopper Timing " + epochKey + "-006: " + Instant.now().getNano());
         }
 
         debugger.log("ShopProtectionListener: Triggered > " + (fromHopper ? "FROM_HOPPER" : "TO_HOPPER"), DebugLevels.PROTECTION);
@@ -134,6 +166,12 @@ public class ShopProtectionListener extends Utils implements Listener {
         debugger.log("ShopProtectionListener: (TSAF) HopperEvent recovered! ", DebugLevels.PROTECTION);
         event.setCancelled(hopperEvent.isForbidden());
         debugger.log("ShopProtectionListener: (TSAF) HopperEvent isForbidden: " + hopperEvent.isForbidden(), DebugLevels.PROTECTION);
+        */
+
+        if (output) { // TODO: Remove
+            timingOut.append("\nHopper Timing Final" + epochKey + "-007: " + Instant.now().getNano());
+            debugger.log("Hopper Timing: " + epochKey + ":>" + timingOut, DebugLevels.HOPPER_TIMINGS);
+        }
     }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)

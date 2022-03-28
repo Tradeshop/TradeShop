@@ -40,7 +40,8 @@ public enum DebugLevels {
     ITEM_COMPARE(6, Level.WARNING), // 32
     NAME_COMPARE(7, Level.WARNING), // 64
     SHULKERS_SUCK(8, Level.WARNING), // 128
-    ENCHANT_CHECKS(9, Level.WARNING) // 256
+    ENCHANT_CHECKS(9, Level.WARNING), // 256
+    HOPPER_TIMINGS(10, Level.WARNING) // 512
 
     ;
 

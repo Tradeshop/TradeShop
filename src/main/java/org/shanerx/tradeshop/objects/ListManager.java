@@ -49,11 +49,87 @@ public class ListManager extends Utils {
 	private final ArrayList<String> gameMats = new ArrayList<>();
 	private final ArrayList<String> addOnMats = new ArrayList<>();
 
+	// TO-DO: Hopper Test
+	//Tuple<Location, Boolean> Location of Hopper, FromHopper
+	//Tuple<Boolean, Instant> Transfer Okay, Time of last update
+	//private final Map<Tuple<Location, Boolean>, Tuple<Boolean, Instant>> hopperList = new HashMap<>();
+	//private final long hopperUpdate = 5, hopperRelease = 25;
+
 
 	public ListManager() {
 		reload();
 		setGameMatList();
 	}
+
+	/*public boolean hopperCheck(InventoryMoveItemEvent hopperEvent, Location location, boolean fromHopper) {
+		Tuple<Location, Boolean> searchID = new Tuple<>(location, fromHopper);
+		if(hopperList.containsKey(searchID)) {
+			Tuple<Boolean, Instant> hopperItem = hopperList.get(searchID);
+			if(hopperItem.getRight().plusSeconds(hopperUpdate).isBefore(Instant.now())) { // needs to update
+				return hopperUpdate(hopperEvent, searchID);
+			} else {
+				return hopperItem.getLeft();
+			}
+		} else {
+			return hopperUpdate(hopperEvent, searchID);
+		}
+	}
+
+	public boolean hopperUpdate(InventoryMoveItemEvent hopperEvent, Tuple<Location, Boolean> searchID) {
+		boolean ret = true;
+		Block invBlock = (searchID.getRight() ? hopperEvent.getDestination() : hopperEvent.getSource()).getLocation().getBlock();
+		if (!ShopChest.isShopChest(invBlock)) {
+			hopperList.put(searchID, new Tuple<>(false, Instant.now()));
+			return false;
+		}
+
+		Shop shop = new ShopChest(invBlock.getLocation()).getShop();
+
+		boolean isForbidden = !Setting.findSetting(shop.getShopType().name() + (searchID.getRight() ? "SHOP_HOPPER_IMPORT" : "SHOP_HOPPER_EXPORT")).getBoolean();
+		if (isForbidden) {
+			hopperList.put(searchID, new Tuple<>(false, Instant.now()));
+			return false;
+		}
+
+		debugger.log("ShopProtectionListener: Triggered > " + (searchID.getRight() ? "FROM_HOPPER" : "TO_HOPPER"), DebugLevels.PROTECTION);
+		debugger.log("ShopProtectionListener: Shop Location as SL > " + shop.getInventoryLocationAsSL().serialize(), DebugLevels.PROTECTION);
+		debugger.log("ShopProtectionListener: checked hopper setting > " + shop.getShopType().name() + "SHOP_HOPPER_EXPORT", DebugLevels.PROTECTION);
+		HopperShopAccessEvent newHopperEvent = new HopperShopAccessEvent(
+				shop,
+				hopperEvent.getSource(),
+				hopperEvent.getDestination(),
+				hopperEvent.getItem(),
+				searchID.getRight() ? HopperShopAccessEvent.HopperDirection.FROM_HOPPER : HopperShopAccessEvent.HopperDirection.TO_HOPPER
+		);
+		debugger.log("ShopProtectionListener: (TSAF) HopperEvent fired! ", DebugLevels.PROTECTION);
+		Bukkit.getPluginManager().callEvent(newHopperEvent);
+		debugger.log("ShopProtectionListener: (TSAF) HopperEvent recovered! ", DebugLevels.PROTECTION);
+		hopperEvent.setCancelled(newHopperEvent.isForbidden());
+		debugger.log("ShopProtectionListener: (TSAF) HopperEvent isForbidden: " + newHopperEvent.isForbidden(), DebugLevels.PROTECTION);
+
+		hopperList.put(searchID, new Tuple<>(true, Instant.now()));
+
+		return ret;
+	}
+
+	public void hopperRemove(Location location) {
+		hopperList.remove(new Tuple<>(location, true));
+		hopperList.remove(new Tuple<>(location, false));
+	}
+
+	public void hopperClean() {
+		ArrayList<Tuple<Location, Boolean>> idList = new ArrayList<>();
+		hopperList.forEach((k, v) -> {
+			if(v.getRight().plusSeconds(hopperRelease).isBefore(Instant.now()))
+				idList.add(k);
+		});
+
+		for (Tuple<Location, Boolean> searchID:idList) {
+			hopperList.remove(searchID);
+		}
+	}
+*/
+
 
 	public ArrayList<BlockFace> getDirections() {
 		return directions;
