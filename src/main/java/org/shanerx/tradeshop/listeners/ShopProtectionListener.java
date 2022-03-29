@@ -82,6 +82,13 @@ public class ShopProtectionListener extends Utils implements Listener {
             return;
         }
 
+        Boolean skip = plugin.getListManager().canSkipHopper(event.getInitiator().getLocation());
+
+        if (skip != null) {
+            event.setCancelled(skip);
+            return;
+        }
+
         boolean fromHopper;
 
         fromHopper = event.getInitiator().equals(event.getSource());
@@ -92,14 +99,17 @@ public class ShopProtectionListener extends Utils implements Listener {
         try {
             invBlock = (fromHopper ? event.getDestination() : event.getSource()).getLocation().getBlock();
         } catch (NullPointerException ignored) {
+            plugin.getListManager().addSkippableHopper(event.getInitiator().getLocation(), false);
             return;
         }
 
         if (!plugin.getListManager().isInventory(invBlock)) {
+            plugin.getListManager().addSkippableHopper(event.getInitiator().getLocation(), false);
             return;
         }
 
         if (!ShopChest.isShopChest(invBlock)) {
+            plugin.getListManager().addSkippableHopper(event.getInitiator().getLocation(), false);
             return;
         }
 
@@ -108,6 +118,7 @@ public class ShopProtectionListener extends Utils implements Listener {
         boolean isForbidden = !Setting.findSetting(shop.getShopType().name() + "SHOP_HOPPER_" + (fromHopper ? "IMPORT" : "EXPORT")).getBoolean();
         if (isForbidden) {
             event.setCancelled(true);
+            plugin.getListManager().addSkippableHopper(event.getInitiator().getLocation(), true);
             return;
         }
 
@@ -125,6 +136,7 @@ public class ShopProtectionListener extends Utils implements Listener {
         Bukkit.getPluginManager().callEvent(hopperEvent);
         debugger.log("ShopProtectionListener: (TSAF) HopperEvent recovered! ", DebugLevels.PROTECTION);
         event.setCancelled(hopperEvent.isForbidden());
+        plugin.getListManager().addSkippableHopper(event.getInitiator().getLocation(), hopperEvent.isForbidden());
         debugger.log("ShopProtectionListener: (TSAF) HopperEvent isForbidden: " + hopperEvent.isForbidden(), DebugLevels.PROTECTION);
     }
 
