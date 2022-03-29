@@ -386,7 +386,7 @@ public class Utils {
             shopInventory.setContents(shopInv.getStorageContents().clone());
         }
 
-		ArrayList<ItemStack> costItems, productItems;
+		List<ItemStack> costItems, productItems;
 
         if (shop.getShopType() == ShopType.ITRADE) { //ITrade trade
 
@@ -479,7 +479,7 @@ public class Utils {
 	}
 
 	//Returns an arraylist of the itemstacks to be removed/added, if it could not get enough of an item, will return index 0 as null and index 1 as item it could not get enough of
-	public ArrayList<ItemStack> getItems(Inventory inventory, List<ShopItemStack> search, int multiplier) {
+	public List<ItemStack> getItems(Inventory inventory, List<ShopItemStack> search, int multiplier) {
 		Map<ItemStack, Integer> storage = new HashMap<>(), found = new HashMap<>();
 		ArrayList<ItemStack> good = new ArrayList<ItemStack>(), bad = new ArrayList<ItemStack>();
 

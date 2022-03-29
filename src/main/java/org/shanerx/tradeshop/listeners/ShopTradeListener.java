@@ -52,6 +52,7 @@ import org.shanerx.tradeshop.utils.config.Setting;
 import org.shanerx.tradeshop.utils.config.Variable;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class ShopTradeListener extends Utils implements Listener {
 
@@ -220,7 +221,7 @@ public class ShopTradeListener extends Utils implements Listener {
 
     private boolean tradeAllItems(Shop shop, int multiplier, PlayerInteractEvent event, Player buyer) {
         Action action = event.getAction();
-        ArrayList<ItemStack> costItems = new ArrayList<>(), productItems = new ArrayList<>();
+        List<ItemStack> costItems = new ArrayList<>(), productItems = new ArrayList<>();
         Inventory shopInventory = shop.hasStorage() ? shop.getChestAsSC().getInventory() : null;
         Inventory playerInventory = buyer.getInventory();
 
