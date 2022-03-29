@@ -73,7 +73,22 @@ public class ShopChest extends Utils {
 	}
 
 	public static boolean isShopChest(Block checking) {
-		plugin.getDebugger().log("isShopChest checking Block at " + new ShopLocation(checking.getLocation()).serialize() + "", DebugLevels.PROTECTION);
+		try {
+			if (isDoubleChest(checking)) {
+				DoubleChest dbl = getDoubleChest(checking);
+
+				return ((Container) dbl.getLeftSide()).getPersistentDataContainer().has(plugin.getSignKey(), PersistentDataType.STRING) ||
+						((Container) dbl.getRightSide()).getPersistentDataContainer().has(plugin.getSignKey(), PersistentDataType.STRING);
+			}
+			boolean conHas = ((Container) checking.getState()).getPersistentDataContainer().has(plugin.getSignKey(), PersistentDataType.STRING);
+			return conHas;
+		} catch (NullPointerException | ClassCastException ex) {
+			plugin.getDebugger().log("NPE thrown during isShopChest by: \n" + ex.getCause(), DebugLevels.PROTECTION);
+		}
+		return false;
+
+		// Old MoveEvent Est ~50mspt
+		/*plugin.getDebugger().log("isShopChest checking Block at " + new ShopLocation(checking.getLocation()).serialize() + "", DebugLevels.PROTECTION);
         try {
             if (isDoubleChest(checking)) {
                 DoubleChest dbl = getDoubleChest(checking);
@@ -93,7 +108,7 @@ public class ShopChest extends Utils {
         } catch (NullPointerException | ClassCastException ex) {
 			plugin.getDebugger().log("NPE thrown during isShopChest by: \n" + ex.getCause(), DebugLevels.PROTECTION);
         }
-        return false;
+        return false;*/
     }
 
     public static boolean isShopChest(Inventory checking) {

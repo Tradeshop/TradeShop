@@ -60,6 +60,7 @@ public class TradeShop extends JavaPlugin {
 	private MetricsManager metricsManager;
 
 	private boolean useInternalPerms = false;
+	private boolean skipHopperProtection = false;
 
 	private ListManager lists;
 	private DataStorage dataStorage;
@@ -143,6 +144,14 @@ public class TradeShop extends JavaPlugin {
 
 	public void setUseInternalPerms(boolean useInternalPerms) {
 		this.useInternalPerms = useInternalPerms;
+	}
+
+	public boolean doSkipHopperProtection() {
+		return skipHopperProtection;
+	}
+
+	public void setSkipHopperProtection(boolean skipHopperProtection) {
+		this.skipHopperProtection = skipHopperProtection;
 	}
 
 	public NamespacedKey getStorageKey() {
