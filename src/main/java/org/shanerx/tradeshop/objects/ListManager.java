@@ -25,17 +25,22 @@
 
 package org.shanerx.tradeshop.objects;
 
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.shanerx.tradeshop.enumys.DebugLevels;
 import org.shanerx.tradeshop.enumys.NonObtainableMaterials;
 import org.shanerx.tradeshop.enumys.ShopStorage;
+import org.shanerx.tradeshop.utils.Tuple;
 import org.shanerx.tradeshop.utils.Utils;
 import org.shanerx.tradeshop.utils.config.Setting;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 @SuppressWarnings("unused")
 public class ListManager extends Utils {
@@ -50,85 +55,71 @@ public class ListManager extends Utils {
 	private final ArrayList<String> addOnMats = new ArrayList<>();
 
 	// TO-DO: Hopper Test
-	//Tuple<Location, Boolean> Location of Hopper, FromHopper
+	//Tuple<Location, Location> Source Location, Destination Location
 	//Tuple<Boolean, Instant> Transfer Okay, Time of last update
-	//private final Map<Tuple<Location, Boolean>, Tuple<Boolean, Instant>> hopperList = new HashMap<>();
-	//private final long hopperUpdate = 5, hopperRelease = 25;
+	private final Map<Tuple<Location, Location>, Tuple<Boolean, Instant>> hopperList = new HashMap<>();
+	private final long hopperUpdate = 5, hopperRelease = 60 * 20; //Release = 60s * 20tps
 
 
 	public ListManager() {
 		reload();
 		setGameMatList();
+
+		PLUGIN.getServer().getScheduler().runTaskTimerAsynchronously(PLUGIN, new Runnable() {
+			@Override
+			public void run() {
+				debugger.log("Hopper Cache is being Cleaned.", DebugLevels.HOPPER_TIMINGS);
+				hopperClean();
+				debugger.log("Hopper Cache has been Cleaned.", DebugLevels.HOPPER_TIMINGS);
+			}
+		}, hopperRelease, hopperRelease);
 	}
 
-	/*public boolean hopperCheck(InventoryMoveItemEvent hopperEvent, Location location, boolean fromHopper) {
-		Tuple<Location, Boolean> searchID = new Tuple<>(location, fromHopper);
-		if(hopperList.containsKey(searchID)) {
+	public Boolean hopperCheck(Tuple<Location, Location> searchID) {
+		if (hopperList.containsKey(searchID)) {
 			Tuple<Boolean, Instant> hopperItem = hopperList.get(searchID);
-			if(hopperItem.getRight().plusSeconds(hopperUpdate).isBefore(Instant.now())) { // needs to update
-				return hopperUpdate(hopperEvent, searchID);
+			if (hopperItem.getRight().plusSeconds(hopperUpdate / 2).isBefore(Instant.now())) { // try to update after half-time has elapsed to prevent removal
+				return hopperPut(searchID, hopperItem);
 			} else {
 				return hopperItem.getLeft();
 			}
 		} else {
-			return hopperUpdate(hopperEvent, searchID);
+			return null;
 		}
 	}
 
-	public boolean hopperUpdate(InventoryMoveItemEvent hopperEvent, Tuple<Location, Boolean> searchID) {
-		boolean ret = true;
-		Block invBlock = (searchID.getRight() ? hopperEvent.getDestination() : hopperEvent.getSource()).getLocation().getBlock();
-		if (!ShopChest.isShopChest(invBlock)) {
-			hopperList.put(searchID, new Tuple<>(false, Instant.now()));
-			return false;
-		}
-
-		Shop shop = new ShopChest(invBlock.getLocation()).getShop();
-
-		boolean isForbidden = !Setting.findSetting(shop.getShopType().name() + (searchID.getRight() ? "SHOP_HOPPER_IMPORT" : "SHOP_HOPPER_EXPORT")).getBoolean();
-		if (isForbidden) {
-			hopperList.put(searchID, new Tuple<>(false, Instant.now()));
-			return false;
-		}
-
-		debugger.log("ShopProtectionListener: Triggered > " + (searchID.getRight() ? "FROM_HOPPER" : "TO_HOPPER"), DebugLevels.PROTECTION);
-		debugger.log("ShopProtectionListener: Shop Location as SL > " + shop.getInventoryLocationAsSL().serialize(), DebugLevels.PROTECTION);
-		debugger.log("ShopProtectionListener: checked hopper setting > " + shop.getShopType().name() + "SHOP_HOPPER_EXPORT", DebugLevels.PROTECTION);
-		HopperShopAccessEvent newHopperEvent = new HopperShopAccessEvent(
-				shop,
-				hopperEvent.getSource(),
-				hopperEvent.getDestination(),
-				hopperEvent.getItem(),
-				searchID.getRight() ? HopperShopAccessEvent.HopperDirection.FROM_HOPPER : HopperShopAccessEvent.HopperDirection.TO_HOPPER
-		);
-		debugger.log("ShopProtectionListener: (TSAF) HopperEvent fired! ", DebugLevels.PROTECTION);
-		Bukkit.getPluginManager().callEvent(newHopperEvent);
-		debugger.log("ShopProtectionListener: (TSAF) HopperEvent recovered! ", DebugLevels.PROTECTION);
-		hopperEvent.setCancelled(newHopperEvent.isForbidden());
-		debugger.log("ShopProtectionListener: (TSAF) HopperEvent isForbidden: " + newHopperEvent.isForbidden(), DebugLevels.PROTECTION);
-
-		hopperList.put(searchID, new Tuple<>(true, Instant.now()));
-
-		return ret;
+	public boolean hopperPut(Tuple<Location, Location> searchID, Tuple<Boolean, Instant> value) {
+		hopperList.put(searchID, value);
+		return value.getLeft();
 	}
 
-	public void hopperRemove(Location location) {
-		hopperList.remove(new Tuple<>(location, true));
-		hopperList.remove(new Tuple<>(location, false));
+	public void hopperRemove(Tuple<Location, Location> searchID) {
+		hopperList.remove(searchID);
 	}
 
-	public void hopperClean() {
-		ArrayList<Tuple<Location, Boolean>> idList = new ArrayList<>();
-		hopperList.forEach((k, v) -> {
-			if(v.getRight().plusSeconds(hopperRelease).isBefore(Instant.now()))
+	public void hopperPurge(Location location) {
+		ArrayList<Tuple<Location, Location>> idList = new ArrayList<>();
+		hopperList.keySet().forEach((k) -> {
+			if (k.getLeft().equals(location) || k.getRight().equals(location))
 				idList.add(k);
 		});
 
-		for (Tuple<Location, Boolean> searchID:idList) {
+		for (Tuple<Location, Location> searchID : idList) {
 			hopperList.remove(searchID);
 		}
 	}
-*/
+
+	public void hopperClean() {
+		ArrayList<Tuple<Location, Location>> idList = new ArrayList<>();
+		hopperList.forEach((k, v) -> {
+			if (v.getRight().plusSeconds(hopperRelease).isBefore(Instant.now()))
+				idList.add(k);
+		});
+
+		for (Tuple<Location, Location> searchID : idList) {
+			hopperList.remove(searchID);
+		}
+	}
 
 
 	public ArrayList<BlockFace> getDirections() {
@@ -193,7 +184,8 @@ public class ListManager extends Utils {
 		updateIllegalLists();
 		updateDirections();
         updateInventoryMats();
-        setGameMatList();
+		setGameMatList();
+		hopperClean();
 	}
 
 	public void clearManager() {

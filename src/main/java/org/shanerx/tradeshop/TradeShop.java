@@ -75,6 +75,17 @@ public class TradeShop extends JavaPlugin {
 
 	private Debug debugger;
 
+	private boolean skipHopperProtections = false;
+
+	public boolean doSkipHopperProtections() {
+		return skipHopperProtections;
+	}
+
+	public void setSkipHopperProtections(boolean skipHopperProtections) {
+		this.skipHopperProtections = skipHopperProtections;
+	}
+
+
 	@Override
 	public void onEnable() {
 		getLogger().info("[TradeShop] EpochSecond: " + Instant.now().getEpochSecond());

@@ -164,6 +164,13 @@ public class CommandRunner extends Utils {
 
 		command.sendMessage(Setting.MESSAGE_PREFIX.getString() + "&6The configuration files have been reloaded!");
 		Bukkit.getPluginManager().callEvent(new TradeShopReloadEvent(plugin, command.getSender()));
+
+		//If all Hopper Settings should be allowed, ignore event
+		plugin.setSkipHopperProtections(
+				Setting.BITRADESHOP_HOPPER_EXPORT.getBoolean() &&
+						Setting.BITRADESHOP_HOPPER_IMPORT.getBoolean() &&
+						Setting.TRADESHOP_HOPPER_IMPORT.getBoolean() &&
+						Setting.TRADESHOP_HOPPER_EXPORT.getBoolean());
 	}
 
 	/**

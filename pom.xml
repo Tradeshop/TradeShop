@@ -222,5 +222,12 @@
             <version>3.3.2</version>
             <type>maven-plugin</type>
         </dependency>
+
+        <!--Temporary for checking size of the hopper Cache -->
+        <dependency>
+            <groupId>org.openjdk.jol</groupId>
+            <artifactId>jol-core</artifactId>
+            <version>0.10</version>
+        </dependency>
     </dependencies>
 </project>

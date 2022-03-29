@@ -53,6 +53,7 @@ import org.shanerx.tradeshop.framework.events.PlayerShopInventoryOpenEvent;
 import org.shanerx.tradeshop.objects.Shop;
 import org.shanerx.tradeshop.objects.ShopChest;
 import org.shanerx.tradeshop.objects.ShopLocation;
+import org.shanerx.tradeshop.utils.Tuple;
 import org.shanerx.tradeshop.utils.Utils;
 import org.shanerx.tradeshop.utils.config.Message;
 import org.shanerx.tradeshop.utils.config.Setting;
@@ -71,39 +72,55 @@ public class ShopProtectionListener extends Utils implements Listener {
         plugin = instance;
     }
 
+    private int nanoMath(int t, int t2) {
+        if (t > t2)
+            t = 999999999 - t;
+
+        return t2 - t;
+    }
+
+    private String nanoDiff(int t, int t2) {
+        return String.format("%.6f", (nanoMath(t, t2)) / 1000000.0) + "ms";
+    }
+
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onInventoryMoveItem(InventoryMoveItemEvent event) {
 
-        boolean output = Instant.now().getEpochSecond() % 5 == 0;
-        double epochKey = Instant.now().getEpochSecond() % 10000;
+        Instant now = Instant.now();
+        boolean output = now.getEpochSecond() % 5 == 0 && now.getNano() % 500000 == 0;
+        double epochKey = (now.getEpochSecond() % 10000) + ((((now.getNano() % 1000.0) + 1000) / 1000.0) - 1);
+        int nanoOffset = now.getNano();
         StringBuilder timingOut = new StringBuilder();
 
-        if (output) { // TODO: Remove
-            timingOut.append("\nHopper Timing Start " + epochKey + "-001: " + Instant.now().getNano());
-        }
+        // TODO: Remove
+        timingOut.append("\nHopper Timing Start ").append(epochKey).append("-001: ").append("0.000000ms"); //0ms
+
 
         //If all Hopper Settings should be allowed, ignore event
-        if (Setting.BITRADESHOP_HOPPER_EXPORT.getBoolean() &&
-                Setting.BITRADESHOP_HOPPER_IMPORT.getBoolean() &&
-                Setting.TRADESHOP_HOPPER_IMPORT.getBoolean() &&
-                Setting.TRADESHOP_HOPPER_EXPORT.getBoolean()) {
-
+        if (plugin.doSkipHopperProtections()) {
             return;
         }
 
-        if (output) { // TODO: Remove
-            timingOut.append("\nHopper Timing " + epochKey + "-002: " + Instant.now().getNano());
-        }
+        // TODO: Remove
+        now = Instant.now();
+        timingOut.append("\nHopper Timing ").append(epochKey).append("-002: ").append(nanoDiff(nanoOffset, now.getNano())); //+0.000742ms
+        nanoOffset = now.getNano();
 
         if (event.isCancelled() ||
                 event instanceof HopperShopAccessEvent ||
                 !event.getInitiator().getType().equals(InventoryType.HOPPER)) {
+            if (output) {
+                now = Instant.now();
+                timingOut.append("\nHopper Timing ").append(epochKey).append("-002;B: ").append(nanoDiff(nanoOffset, now.getNano())); //+?
+                debugger.log("Hopper Timing: " + epochKey + ":>" + timingOut, DebugLevels.HOPPER_TIMINGS);
+            }
             return;
         }
 
-        if (output) { // TODO: Remove
-            timingOut.append("\nHopper Timing " + epochKey + "-003: " + Instant.now().getNano());
-        }
+        // TODO: Remove
+        now = Instant.now();
+        timingOut.append("\nHopper Timing ").append(epochKey).append("-003: ").append(nanoDiff(nanoOffset, now.getNano())); //+0.000919ms
+        nanoOffset = now.getNano();
 
         boolean fromHopper;
 
@@ -113,43 +130,99 @@ public class ShopProtectionListener extends Utils implements Listener {
         //Locations available but unknown if hoppers
 
         if (srcLoc == null || destLoc == null) {
+            if (output) { // TODO: Remove
+                now = Instant.now();
+                timingOut.append("\nHopper Timing ").append(epochKey).append("-003;B: ").append(nanoDiff(nanoOffset, now.getNano())); //+?
+                debugger.log("Hopper Timing: " + epochKey + ":>" + timingOut, DebugLevels.HOPPER_TIMINGS);
+            }
             return;
         } else if (plugin.getListManager().isInventory(srcLoc.getBlock())) {
             fromHopper = false;
         } else if (plugin.getListManager().isInventory(destLoc.getBlock())) {
             fromHopper = true;
         } else {
-            return;
-        }
-
-        if (output) { // TODO: Remove
-            timingOut.append("\nHopper Timing " + epochKey + "-004: " + Instant.now().getNano());
-        }
-
-        Block invBlock = (fromHopper ? event.getDestination() : event.getSource()).getLocation().getBlock();
-        if (!ShopChest.isShopChest(invBlock)) {
-            return;
-        }
-
-        /*
-        if(output) { // TODO: Remove
-            timingOut.append("\nHopper Timing " + epochKey + "-005: " + Instant.now().getNano());
-        }
-
-        Shop shop = new ShopChest(invBlock.getLocation()).getShop();
-
-        boolean isForbidden = !Setting.findSetting(shop.getShopType().name() + (fromHopper ? "SHOP_HOPPER_IMPORT" : "SHOP_HOPPER_EXPORT")).getBoolean();
-        if (isForbidden) {
-            event.setCancelled(true);
-            if(output) {
-                debugger.log("Hopper Timing: " + epochKey + ":>" + timingOut.toString(), DebugLevels.HOPPER_TIMINGS);
+            if (output) { // TODO: Remove
+                now = Instant.now();
+                timingOut.append("\nHopper Timing ").append(epochKey).append("-003;C: ").append(nanoDiff(nanoOffset, now.getNano())); //+0.006299ms
+                debugger.log("Hopper Timing: " + epochKey + ":>" + timingOut, DebugLevels.HOPPER_TIMINGS);
             }
             return;
         }
 
-        if(output) { // TODO: Remove
-            timingOut.append("\nHopper Timing " + epochKey + "-006: " + Instant.now().getNano());
+        // TODO: Remove
+        now = Instant.now();
+        timingOut.append("\nHopper Timing ").append(epochKey).append("-004: ").append(nanoDiff(nanoOffset, now.getNano())); //+0.005094ms
+        nanoOffset = now.getNano();
+
+        Tuple<Location, Location> searchID = new Tuple<>(event.getSource().getLocation(), event.getDestination().getLocation());
+        Boolean cachedState = plugin.getListManager().hopperCheck(searchID);
+
+        if (cachedState != null) {
+            event.setCancelled(cachedState);
+            if (output) {  // TODO: Remove
+                now = Instant.now();
+                timingOut.append("\nHopper Timing Cache-Out ").append(epochKey).append("-004;B: ").append(nanoDiff(nanoOffset, now.getNano())); //+?
+                debugger.log("Hopper Timing: " + epochKey + ":>" + timingOut, DebugLevels.HOPPER_TIMINGS);
+            }
+            return;
         }
+
+        // TODO: Remove
+        now = Instant.now();
+        timingOut.append("\nHopper Timing ").append(epochKey).append("-004;C: ").append(nanoDiff(nanoOffset, now.getNano())); //+0.010800ms
+        nanoOffset = now.getNano();
+
+        Block invBlock = (fromHopper ? destLoc : srcLoc).getBlock();
+        if (!ShopChest.isShopChest(invBlock)) {
+            //plugin.getListManager().hopperPut(searchID, new Tuple<>(false, Instant.now()));
+            if (output) {  // TODO: Remove
+                now = Instant.now();
+                timingOut.append("\nHopper Timing ").append(epochKey).append("-004;D: ").append(nanoDiff(nanoOffset, now.getNano())); //+0.017681ms
+                debugger.log("Hopper Timing: " + epochKey + ":>" + timingOut, DebugLevels.HOPPER_TIMINGS);
+            }
+            return;
+        }
+
+        // TODO: Remove
+        now = Instant.now();
+        timingOut.append("\nHopper Timing ").append(epochKey).append("-005: ").append(nanoDiff(nanoOffset, now.getNano())); //+0.061283ms
+        nanoOffset = now.getNano();
+
+        Shop shop = new ShopChest(invBlock.getLocation()).getShop();
+
+        // TODO: Remove
+        now = Instant.now();
+        timingOut.append("\nHopper Timing ").append(epochKey).append("-005;A: ").append(nanoDiff(nanoOffset, now.getNano())); //+0.061283ms
+        nanoOffset = now.getNano();
+
+        boolean isForbidden = !Setting.findSetting(shop.getShopType().name() + "SHOP_HOPPER_" + (fromHopper ? "IMPORT" : "EXPORT")).getBoolean();
+
+        // TODO: Remove
+        now = Instant.now();
+        timingOut.append("\nHopper Timing ").append(epochKey).append("-005;B: ").append(nanoDiff(nanoOffset, now.getNano())); //+0.061283ms
+        nanoOffset = now.getNano();
+
+        if (isForbidden) {
+            event.setCancelled(true);
+
+            // TODO: Remvoe
+            now = Instant.now();
+            timingOut.append("\nHopper Timing ").append(epochKey).append("-006: ").append(nanoDiff(nanoOffset, now.getNano())); //+?
+            nanoOffset = now.getNano();
+
+            //plugin.getListManager().hopperPut(searchID, new Tuple<>(true, Instant.now()));
+
+            //TODO: Remove
+            now = Instant.now();
+            timingOut.append("\nHopper Timing ").append(epochKey).append("-006;B: ").append(nanoDiff(nanoOffset, now.getNano())); //+?
+            debugger.log("Hopper Timing: " + epochKey + ":>" + timingOut, DebugLevels.HOPPER_TIMINGS);
+            return;
+        }
+
+        // TODO: Remove
+        now = Instant.now();
+        timingOut.append("\nHopper Timing ").append(epochKey).append("-006;C: ").append(nanoDiff(nanoOffset, now.getNano())); //+?
+        nanoOffset = now.getNano();
 
         debugger.log("ShopProtectionListener: Triggered > " + (fromHopper ? "FROM_HOPPER" : "TO_HOPPER"), DebugLevels.PROTECTION);
         debugger.log("ShopProtectionListener: Shop Location as SL > " + shop.getInventoryLocationAsSL().serialize(), DebugLevels.PROTECTION);
@@ -166,12 +239,12 @@ public class ShopProtectionListener extends Utils implements Listener {
         debugger.log("ShopProtectionListener: (TSAF) HopperEvent recovered! ", DebugLevels.PROTECTION);
         event.setCancelled(hopperEvent.isForbidden());
         debugger.log("ShopProtectionListener: (TSAF) HopperEvent isForbidden: " + hopperEvent.isForbidden(), DebugLevels.PROTECTION);
-        */
 
-        if (output) { // TODO: Remove
-            timingOut.append("\nHopper Timing Final" + epochKey + "-007: " + Instant.now().getNano());
-            debugger.log("Hopper Timing: " + epochKey + ":>" + timingOut, DebugLevels.HOPPER_TIMINGS);
-        }
+
+        // TODO: Remove
+        now = Instant.now();
+        timingOut.append("\nHopper Timing Final").append(epochKey).append("-007: ").append(nanoDiff(nanoOffset, now.getNano())); //+?
+        debugger.log("Hopper Timing: " + epochKey + ":>" + timingOut, DebugLevels.HOPPER_TIMINGS);
     }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
