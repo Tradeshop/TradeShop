@@ -28,12 +28,20 @@ package org.shanerx.tradeshop.utils.config;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 import org.shanerx.tradeshop.TradeShop;
+import org.shanerx.tradeshop.objects.Debug;
+import org.shanerx.tradeshop.objects.ShopItemStack;
 import org.shanerx.tradeshop.utils.Tuple;
+import org.shanerx.tradeshop.utils.Utils;
 import org.yaml.snakeyaml.Yaml;
 
 import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public enum Message {
 
@@ -90,11 +98,12 @@ public enum Message {
     VARIOUS_ITEM_TYPE(MessageSection.NONE, "various-item-type"),
     TOGGLED_STATUS(MessageSection.NONE, "toggled-status"),
     NO_SIGN_FOUND(MessageSection.NONE, "no-sign-found"),
-    ADMIN_TOGGLED(MessageSection.NONE, "admin-toggled");
+    ADMIN_TOGGLED(MessageSection.NONE, "admin-toggled"),
+    FAILED_TRADE(MessageSection.NONE, "failed-trade");
 
     public static final TradeShop PLUGIN = Objects.requireNonNull((TradeShop) Bukkit.getPluginManager().getPlugin("TradeShop"));
 
-    private final String key, path;
+    private final String key, path, MULTILINEREGEX = "[{](&V&=)[^}]*[}]";
     private final MessageSection section;
 
     Message(MessageSection section, String key) {
@@ -108,7 +117,7 @@ public enum Message {
         double version = MESSAGE_VERSION.getDouble();
         ConfigManager configManager = PLUGIN.getMessageManager();
 
-        //Changes if CONFIG_VERSION is below 1.1, then sets config version to 1.1
+        //Changes if CONFIG_VERSION is below 1.1, then update to 1.1
         if (version < 1.1) {
             if (TOO_MANY_ITEMS.getString().equals("&cThis trade can not take any more %side%!")) {
                 TOO_MANY_ITEMS.setValue(PLUGIN.getLanguage().getDefault(Language.LangSection.MESSAGE, TOO_MANY_ITEMS.getPath()));
@@ -116,7 +125,7 @@ public enum Message {
             version = 1.1;
         }
 
-        //Changes if CONFIG_VERSION is below 1.2, then sets config version to 1.2
+        //Changes if CONFIG_VERSION is below 1.2, then update to 1.2
         if (version < 1.2) {
             Arrays.stream(values()).forEach((message) -> {
                 String str = message.getString().replace("{", "%").replace("}", "%");
@@ -126,6 +135,22 @@ public enum Message {
 
             });
             version = 1.2;
+        }
+
+        //Changes if CONFIG_VERSION is below 1.3, then update to 1.3
+        if (version < 1.3) {
+            if (INSUFFICIENT_ITEMS.getString().equals("&cYou do not have &e%AMOUNT% %ITEM%&c!")) {
+                INSUFFICIENT_ITEMS.setValue(PLUGIN.getLanguage().getDefault(Language.LangSection.MESSAGE, INSUFFICIENT_ITEMS.getPath()));
+            }
+            if (SHOP_INSUFFICIENT_ITEMS.getString().equals("&cThis shop does not have enough &e%AMOUNT% %ITEM%&c to trade!")) {
+                SHOP_INSUFFICIENT_ITEMS.setValue(PLUGIN.getLanguage().getDefault(Language.LangSection.MESSAGE, SHOP_INSUFFICIENT_ITEMS.getPath()));
+            }
+            if (ON_TRADE.getString().equals("&aYou have traded your &e%AMOUNT2% %ITEM2% &afor &e%AMOUNT1% %ITEM1% &awith %SELLER%")) {
+                ON_TRADE.setValue(PLUGIN.getLanguage().getDefault(Language.LangSection.MESSAGE, ON_TRADE.getPath()));
+            }
+
+
+            version = 1.3;
         }
 
         MESSAGE_VERSION.setValue(version);
@@ -234,6 +259,53 @@ public enum Message {
 
         if (getString().startsWith("#json ")) {
             message = message.replaceFirst("#json ", "");
+            sendMessageDirectJson(player, message);
+        } else {
+            sendMessageDirect(player, message);
+        }
+    }
+
+    @SafeVarargs
+    public final void sendItemMultiLineMessage(Player player, Map<Variable, List<ItemStack>> itemsToFill, Tuple<String, String>... replacements) {
+        if (itemsToFill.isEmpty()) {
+            sendMessage(player, replacements);
+            return;
+        }
+
+        boolean isJson = getString().startsWith("#json ");
+        String message = getPrefixed().replaceFirst("#json ", "");
+
+        Debug debug = new Utils().debugger;
+
+        for (Map.Entry<Variable, List<ItemStack>> entry : itemsToFill.entrySet()) {
+            Pattern pattern = Pattern.compile(MULTILINEREGEX.replace("&V&", entry.getKey().toString()));
+            Matcher matcher = pattern.matcher(message);
+
+            if (entry.getValue().get(0) == null) {
+                entry.getValue().remove(0);
+            }
+
+            while (matcher.find()) {
+                StringBuilder itemList = new StringBuilder();
+                String found = matcher.group(), format = found.replaceAll("[{}]", "").split("=")[1];
+
+                for (ItemStack itm : entry.getValue()) {
+                    itemList.append("\n")
+                            .append(format.replace(Variable.ITEM.toString(), ShopItemStack.getCleanItemName(itm))
+                                    .replace(Variable.AMOUNT.toString(), itm.getAmount() + ""));
+                }
+
+                message = message.replace(found, itemList.toString());
+            }
+        }
+
+        for (Tuple<String, String> replace : replacements) {
+            message = message.replace(replace.getLeft().toUpperCase(), replace.getRight())
+                    .replace(replace.getLeft().toLowerCase(), replace.getRight())
+                    .replace(replace.getLeft(), replace.getRight());
+        }
+
+        if (isJson) {
             sendMessageDirectJson(player, message);
         } else {
             sendMessageDirect(player, message);

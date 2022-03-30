@@ -348,7 +348,6 @@ public class Shop implements Serializable {
         }
 
         saveShop();
-        updateSign();
 
         return ret;
     }
@@ -710,7 +709,6 @@ public class Shop implements Serializable {
 		updateFullTradeCount();
 		utils.PLUGIN.getDataStorage().saveShop(this);
 		updateUserFiles();
-		updateSign();
 	}
 
 	/**
@@ -882,14 +880,14 @@ public class Shop implements Serializable {
 	 * Checks if the shop has sufficient product stock to make a trade
 	 */
 	public boolean hasProductStock() {
-		return !shopType.isITrade() && hasProduct() && getChestAsSC() != null && getChestAsSC().hasStock(product);
+		return !shopType.isITrade() && hasProduct() && getChestAsSC() != null && getChestAsSC().hasStock(getProduct());
 	}
 
 	/**
 	 * Checks if the shop has sufficient cost stock to make a trade(Use for BiTrade)
 	 */
 	public boolean hasCostStock() {
-		return !shopType.isITrade() && hasCost() && getChestAsSC() != null && getChestAsSC().hasStock(cost);
+		return !shopType.isITrade() && hasCost() && getChestAsSC() != null && getChestAsSC().hasStock(getCost());
 	}
 
 	/**
@@ -1003,12 +1001,7 @@ public class Shop implements Serializable {
 	 * @return true if all costs are valid
 	 */
 	public boolean areCostsValid() {
-		for (ShopItemStack iS : cost) {
-			if (utils.isIllegal(IllegalItemList.TradeItemType.COST, iS.getItemStack().getType()))
-				return false;
-		}
-
-		return true;
+		return areItemsValid(IllegalItemList.TradeItemType.COST, cost);
 	}
 
 	/**
@@ -1017,8 +1010,19 @@ public class Shop implements Serializable {
 	 * @return true if all products are valid
 	 */
 	public boolean areProductsValid() {
-        for (ShopItemStack iS : product) {
-			if (utils.isIllegal(IllegalItemList.TradeItemType.PRODUCT, iS.getItemStack().getType()))
+		return areItemsValid(IllegalItemList.TradeItemType.PRODUCT, product);
+	}
+
+	/**
+	 * Checks if all Items in the list are valid for trade
+	 *
+	 * @param tradeItemType Should Illegal Items be checked as Costs or Products
+	 * @param items         List<ShopItemStack> to check
+	 * @return true if all products are valid
+	 */
+	private boolean areItemsValid(IllegalItemList.TradeItemType tradeItemType, List<ShopItemStack> items) {
+		for (ShopItemStack iS : items) {
+			if (utils.isIllegal(tradeItemType, iS.getItemStack().getType()))
 				return false;
 		}
 

@@ -39,8 +39,6 @@ public class ObjectHolder<Type> {
 
 	@Override
 	public String toString() {
-		return "ObjectHolder{" +
-				"obj=" + obj +
-				'}';
+		return obj.toString();
 	}
 }

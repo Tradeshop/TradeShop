@@ -355,47 +355,56 @@ public class Utils {
 	 * @return true if shop has enough cost to make trade
 	 */
 	public Boolean checkInventory(Inventory inv, List<ShopItemStack> itemList, int multiplier) {
-		return getItems(inv, itemList, multiplier).get(0) != null;
-    }
-	
-	
+		return getItems(inv.getStorageContents(), itemList, multiplier).get(0) != null;
+	}
+
+	/**
+	 * Returns a 'bad' list with index 0 being `null`
+	 *
+	 * @return list with index 0 being `null`
+	 */
+	public List<ItemStack> createBadList() {
+		List<ItemStack> badList = new ArrayList<>();
+		badList.add(null);
+		return badList;
+	}
+
 
 	/**
 	 * Checks whether a trade can take place.
 	 *
-     * @param shop       the Shop object the player is trading with
-     * @param playerInv  the Inventory object representing the inventory that is subject to the transaction.
+	 * @param shop       the Shop object the player is trading with
+	 * @param playerInv  the storageContents of the player inventory that is subject to the transaction.
 	 * @param multiplier the multiplier for the trade
 	 * @param action     the action from the event
 	 * @return Exchange status with appropriate response
 	 */
-    public ExchangeStatus canExchangeAll(Shop shop, Inventory playerInv, int multiplier, Action action) {
+	public Tuple<ExchangeStatus, List<ItemStack>> canExchangeAll(Shop shop, Inventory playerInv, int multiplier, Action action) {
+		if (shop.getShopType() != ShopType.BITRADE && action == Action.LEFT_CLICK_BLOCK) {
+			return new Tuple<>(ExchangeStatus.NOT_TRADE, createBadList());
+		}
+
 		Inventory playerInventory = Bukkit.createInventory(null, playerInv.getStorageContents().length);
 		playerInventory.setContents(playerInv.getStorageContents().clone());
 
-        if (shop.getShopType() != ShopType.BITRADE && action == Action.LEFT_CLICK_BLOCK) {
-            return ExchangeStatus.NOT_TRADE;
-        }
+		Inventory shopInventory = null;
 
-        Inventory shopInv = null;
-        Inventory shopInventory = null;
-
-        if (shop.getShopType() != ShopType.ITRADE) {
-            shopInv = shop.getChestAsSC().getInventory();
-            shopInventory = Bukkit.createInventory(null, shopInv.getStorageContents().length);
-            shopInventory.setContents(shopInv.getStorageContents().clone());
-        }
+		if (shop.getShopType() != ShopType.ITRADE) {
+			Inventory shopInv = shop.getChestAsSC().getInventory();
+			shopInventory = Bukkit.createInventory(null, shopInv.getStorageContents().length);
+			shopInventory.setContents(shopInv.getStorageContents().clone());
+		}
 
 		List<ItemStack> costItems, productItems;
 
-        if (shop.getShopType() == ShopType.ITRADE) { //ITrade trade
+		if (shop.getShopType() == ShopType.ITRADE) { //ITrade trade
 
 			//Method to find Cost items in player inventory and add to cost array
-			costItems = getItems(playerInventory, shop.getCost(), multiplier);
+			costItems = getItems(playerInventory.getStorageContents(), shop.getCost(), multiplier);
 
 			if (!costItems.isEmpty()) {
 				if (costItems.get(0) == null) {
-					return ExchangeStatus.PLAYER_NO_COST;
+					return new Tuple<>(ExchangeStatus.PLAYER_NO_COST, costItems);
 				}
 
 				for (ItemStack item : costItems) {
@@ -411,42 +420,42 @@ public class Utils {
 				}
 			}
 
-			productItems = getItems(iTradeVirtualInventory, shop.getProduct(), multiplier);
+			productItems = getItems(iTradeVirtualInventory.getStorageContents(), shop.getProduct(), multiplier);
 
 			for (ItemStack item : productItems) {
 				if (!playerInventory.addItem(item).isEmpty()) {
-					return ExchangeStatus.PLAYER_NO_SPACE;
+					return new Tuple<>(ExchangeStatus.PLAYER_NO_SPACE, createBadList());
 				}
 			}
 
-			return ExchangeStatus.SUCCESS; //Successfully completed trade
+			return new Tuple<>(ExchangeStatus.SUCCESS, createBadList()); //Successfully completed trade
 		} else if (shop.getShopType() == ShopType.BITRADE && action == Action.LEFT_CLICK_BLOCK) { //BiTrade Reversed Trade
 
             //Method to find Cost items in player inventory and add to cost array
-            costItems = getItems(playerInventory, shop.getProduct(), multiplier); //Reverse BiTrade, Product is Cost
-            if (costItems.get(0) == null) {
-                return ExchangeStatus.PLAYER_NO_COST;
+			costItems = getItems(playerInventory.getStorageContents(), shop.getProduct(), multiplier); //Reverse BiTrade, Product is Cost
+			if (costItems.get(0) == null) {
+				return new Tuple<>(ExchangeStatus.PLAYER_NO_COST, costItems);
             }
 
             //Method to find Product items in shop inventory and add to product array
-            productItems = getItems(shopInventory, shop.getCost(), multiplier); //Reverse BiTrade, Cost is Product
+			productItems = getItems(shopInventory.getStorageContents(), shop.getCost(), multiplier); //Reverse BiTrade, Cost is Product
             if (productItems.get(0) == null) {
-                shop.updateStatus();
-                return ExchangeStatus.SHOP_NO_PRODUCT;
+				shop.updateStatus();
+				return new Tuple<>(ExchangeStatus.SHOP_NO_PRODUCT, productItems);
             }
         } else { // Normal Trade
 
             //Method to find Cost items in player inventory and add to cost array
-            costItems = getItems(playerInventory, shop.getCost(), multiplier);
-            if (costItems.get(0) == null) {
-                return ExchangeStatus.PLAYER_NO_COST;
+			costItems = getItems(playerInventory.getStorageContents(), shop.getCost(), multiplier);
+			if (costItems.get(0) == null) {
+				return new Tuple<>(ExchangeStatus.PLAYER_NO_COST, costItems);
             }
 
             //Method to find Product items in shop inventory and add to product array
-            productItems = getItems(shopInventory, shop.getProduct(), multiplier);
+			productItems = getItems(shopInventory.getStorageContents(), shop.getProduct(), multiplier);
             if (productItems.get(0) == null) {
-                shop.updateStatus();
-                return ExchangeStatus.SHOP_NO_PRODUCT;
+				shop.updateStatus();
+				return new Tuple<>(ExchangeStatus.SHOP_NO_PRODUCT, productItems);
             }
 
         }
@@ -464,30 +473,35 @@ public class Utils {
         //For loop to put cost items in shop inventory
         for (ItemStack item : costItems) {
             if (!shopInventory.addItem(item).isEmpty()) {
-                return ExchangeStatus.SHOP_NO_SPACE;
-            }
-        }
+				return new Tuple<>(ExchangeStatus.SHOP_NO_SPACE, createBadList());
+			}
+		}
 
-        //For loop to put product items in player inventory
-        for (ItemStack item : productItems) {
-            if (!playerInventory.addItem(item).isEmpty()) {
-                return ExchangeStatus.PLAYER_NO_SPACE;
-            }
-        }
+		//For loop to put product items in player inventory
+		for (ItemStack item : productItems) {
+			if (!playerInventory.addItem(item).isEmpty()) {
+				return new Tuple<>(ExchangeStatus.PLAYER_NO_SPACE, createBadList());
+			}
+		}
 
-        return ExchangeStatus.SUCCESS; //Successfully completed trade
+		return new Tuple<>(ExchangeStatus.SUCCESS, createBadList()); //Successfully completed trade
 	}
 
-	//Returns an arraylist of the itemstacks to be removed/added, if it could not get enough of an item, will return index 0 as null and index 1 as item it could not get enough of
-	public List<ItemStack> getItems(Inventory inventory, List<ShopItemStack> search, int multiplier) {
+	/**
+	 * Returns an arraylist of the ItemStack Objects to be removed/added, if it could not get enough of any items, it will return index 0 as null, followed by ItemStack Objects that could not be retrieved
+	 *
+	 * @param storageContents the storage contents of the inventory being checked
+	 * @param search          List of ShopItemStack Objects that need to be retrieved
+	 * @param multiplier      the multiplier for the trade
+	 * @return List of ItemStack Objects to pull from inventory or if not enough; index 0 as null, followed by ItemStack Objects that could not be retrieved
+	 */
+	public List<ItemStack> getItems(ItemStack[] storageContents, List<ShopItemStack> search, int multiplier) {
 		Map<ItemStack, Integer> storage = new HashMap<>(), found = new HashMap<>();
-		ArrayList<ItemStack> good = new ArrayList<ItemStack>(), bad = new ArrayList<ItemStack>();
+		List<ItemStack> good = new ArrayList<ItemStack>(), bad = createBadList();
 
-		debugger.log("ShopTradeListener > Search List: " + search, DebugLevels.TRADE);
+		debugger.log("Utils > getItems > Search List: " + search, DebugLevels.TRADE);
 
-		bad.add(null);
-
-		for (ItemStack itemStack : inventory.getStorageContents()) {
+		for (ItemStack itemStack : storageContents.clone()) {
 			if (itemStack != null) {
 				ItemStack tempItemStack = itemStack.clone();
 				int amount = tempItemStack.getAmount();
@@ -498,7 +512,7 @@ public class Utils {
 			}
 		}
 
-		debugger.log("ShopTradeListener > Storage List: " + storage, DebugLevels.TRADE);
+		debugger.log("Utils > getItems > Storage List: " + storage, DebugLevels.TRADE);
 
 		int totalCount = 0, currentCount = 0;
 
@@ -534,9 +548,9 @@ public class Utils {
 			}
 		}
 
-		debugger.log("ShopTradeListener > Good List: " + good, DebugLevels.TRADE);
-		debugger.log("ShopTradeListener > Bad List: " + bad, DebugLevels.TRADE);
-		debugger.log("ShopTradeListener > Return Status: " + (currentCount != totalCount ? "bad" : "good"), DebugLevels.TRADE);
+		debugger.log("Utils > getItems > Good List: " + good, DebugLevels.TRADE);
+		debugger.log("Utils > getItems > Bad List: " + bad, DebugLevels.TRADE);
+		debugger.log("Utils > getItems > Return Status: " + (currentCount != totalCount ? "bad" : "good"), DebugLevels.TRADE);
 
 		return currentCount != totalCount ? bad : good;
 	}

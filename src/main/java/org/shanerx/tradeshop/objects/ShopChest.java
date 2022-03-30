@@ -207,7 +207,7 @@ public class ShopChest extends Utils {
 	}
 
 	public boolean hasStock(List<ShopItemStack> itemToCheck) {
-		return itemToCheck.size() > 0 && getItems(getInventory(), itemToCheck, 1).get(0) != null;
+		return itemToCheck.size() > 0 && getItems(getInventory().getStorageContents(), itemToCheck, 1).get(0) != null;
 	}
 
 	public void loadFromName() {

@@ -41,7 +41,10 @@ public enum Variable {
     PLAYER,
     LEVEL,
     STATUS,
-    STATE;
+    STATE,
+    MISSING_ITEMS,
+    RECEIVED_LINES,
+    GIVEN_LINES;
 
     final String SURROUND = "%";
 

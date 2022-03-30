@@ -145,6 +145,8 @@ setting:
       pre-comment: "Can explosions damage the shop sign (true/false)"
     no-cost-text:
       pre-comment: "What text should be used for successful trades when no cost is present"
+    no-cost-amount:
+      pre-comment: "What amount should be used for successful trades when no cost is present(must be greater than 0)"
       post-comment: "\n"
   bitrade-shop-options:
     header:
@@ -185,10 +187,10 @@ message:
     default: "&cYou cannot add a Shulker Box as a cost when the shop uses it for storage."
     pre-comment: "Text to display when a shop failed creation due to using a shulker box as cost when the shop uses it for storage: "
   insufficient-items:
-    default: "&cYou do not have &e%AMOUNT% %ITEM%&c!"
+    default: "&cYou are missing the below items for the trade! \n{%MISSINGITEMS%=  &e%AMOUNT% %ITEM%}"
     pre-comment: "Text to display when the player does not have enough items:"
   shop-insufficient-items:
-    default: "&cThis shop does not have enough &e%AMOUNT% %ITEM%&c to trade!"
+    default: "&cThis shop is missing the below items for the trade! \n{%MISSINGITEMS%=  &e%AMOUNT% %ITEM%}"
     pre-comment: "Text to display when the shop does not have enough items:"
   invalid-arguments:
     default: "&eTry &6/tradeshop help &eto display help!"
@@ -235,7 +237,7 @@ message:
     default: "&cThat TradeShop does not belong to you"
     pre-comment: "Text to display when a player attempts to open a shop they do not own nor have been granted access to:"
   on-trade:
-    default: "&aYou have traded your &e%AMOUNT2% %ITEM2% &afor &e%AMOUNT1% %ITEM1% &awith %SELLER%"
+    default: "&aYou have traded with %SELLER% receiving: \n{%RECEIVEDLINES%=  &e%AMOUNT% %ITEM%} \n&aIn exchange for: \n{%GIVENLINES%=  &e%AMOUNT% %ITEM%}"
     pre-comment: "Text to display upon a successful trade:"
   player-full:
     default: "&cYour inventory is full, please make room before trading items!"
@@ -299,4 +301,7 @@ message:
   admin-toggled:
     default: "&aYour Admin mode is currently &e%STATE%&a."
     pre-comment: "Text to display when an admin toggles or views their Admin abilities. \n# \"%STATE%\" will be replaced by the state that the player is in after the command."
+  failed-trade:
+    default: "&cThe Trade has failed for unknown reasons, please notify an Admin or submit a bug report using '/ts bug'!"
+    pre-comment: "Text to display when a player is too far from a sign"
   

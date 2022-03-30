@@ -100,6 +100,7 @@ public enum Setting {
     ITRADESHOP_HEADER(SettingSection.ITRADE_SHOP_OPTIONS, "header", "iTrade"),
     ITRADESHOP_EXPLODE(SettingSection.ITRADE_SHOP_OPTIONS, "allow-explode", false),
     ITRADESHOP_NO_COST_TEXT(SettingSection.ITRADE_SHOP_OPTIONS, "no-cost-text", "nothing"),
+    ITRADESHOP_NO_COST_AMOUNT(SettingSection.ITRADE_SHOP_OPTIONS, "no-cost-amount", "1"),
 
     // BiTrade Shop Options
     BITRADESHOP_HEADER(SettingSection.BITRADE_SHOP_OPTIONS, "header", "BiTrade"),
