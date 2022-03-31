@@ -43,37 +43,75 @@ import java.util.UUID;
 public class DataStorage extends Utils {
 
     private transient DataType dataType;
+    private final transient DataCache dataCache;
 
     public DataStorage(DataType dataType) {
+        dataCache = new DataCache();
         reload(dataType);
     }
 
     public void reload(DataType dataType) {
         this.dataType = dataType;
         debugger.log("Data storage set to: " + dataType.name(), DebugLevels.DISABLED);
+        dataCache.invalidateCaches();
     }
 
     public Shop loadShopFromSign(ShopLocation sign) {
+        // Cache Loading
+        if (dataCache.isInCache(CacheType.SHOP, sign)) {
+            return dataCache.getShopFromCache(sign);
+        }
+
+        Shop shop = null;
+
+        // DataType specific loading
         switch (dataType) {
             case FLATFILE:
-                return new ShopConfiguration(new ShopChunk(sign.getChunk())).load(sign);
+                shop = new ShopConfiguration(new ShopChunk(sign.getChunk())).load(sign);
+                break;
             case SQLITE:
-                return null; //TODO add SQLITE support
+                //TODO add SQLITE support
+                break;
         }
-        return null;
+
+        if (shop != null) {
+            dataCache.putInCache(CacheType.SHOP, shop.getShopLocationAsSL(), shop);
+        }
+
+        return shop;
     }
 
     public Shop loadShopFromStorage(ShopLocation chest) {
+        // Cache Loading
+        if (dataCache.isInCache(CacheType.LINKAGE, chest)) {
+            ShopLocation linkedShop = dataCache.getLinkageFromCache(chest);
+            if (dataCache.isInCache(CacheType.SHOP, linkedShop)) {
+                return dataCache.getShopFromCache(dataCache.getLinkageFromCache(linkedShop));
+            }
+        }
+
+        Shop shop = null;
+
+        // DataType specific loading
         switch (dataType) {
             case FLATFILE:
-                return loadShopFromSign(new LinkageConfiguration(chest.getWorld()).getLinkedShop(chest));
+                shop = loadShopFromSign(new LinkageConfiguration(chest.getWorld()).getLinkedShop(chest));
+                break;
             case SQLITE:
-                return null; //TODO add SQLITE support
+                //TODO add SQLITE support
+                break;
         }
-        return null;
+
+        if (shop != null) {
+            dataCache.putInCache(CacheType.SHOP, shop.getShopLocationAsSL(), shop);
+        }
+
+        return shop;
     }
 
     public void saveShop(Shop shop) {
+        dataCache.putInCache(CacheType.SHOP, shop.getShopLocationAsSL(), shop);
+
         switch (dataType) {
             case FLATFILE:
                 new ShopConfiguration(new ShopChunk(shop.getShopLocation().getChunk())).save(shop);
@@ -85,6 +123,9 @@ public class DataStorage extends Utils {
     }
 
     public void removeShop(Shop shop) {
+        dataCache.removeFromCache(CacheType.SHOP, shop.getShopLocationAsSL());
+        dataCache.removeLinkagesForShop(shop.getShopLocationAsSL());
+
         switch (dataType) {
             case FLATFILE:
                 new ShopConfiguration(new ShopChunk(shop.getShopLocation().getChunk())).remove(shop.getShopLocationAsSL());
@@ -126,7 +167,13 @@ public class DataStorage extends Utils {
     }
 
     public PlayerSetting loadPlayer(UUID uuid) {
+        // Cache Loading
+        if (dataCache.isInCache(CacheType.PLAYER, uuid)) {
+            return dataCache.getPlayerFromCache(uuid);
+        }
+
         PlayerSetting playerSetting = null;
+
         switch (dataType) {
             case FLATFILE:
                 playerSetting = new PlayerConfiguration(uuid).load();
@@ -137,10 +184,17 @@ public class DataStorage extends Utils {
         }
 
         //If playerSetting data not find create new and return
-        return playerSetting != null ? playerSetting : new PlayerSetting(uuid);
+        if (playerSetting == null) {
+            playerSetting = new PlayerSetting(uuid);
+        }
+
+        dataCache.putInCache(CacheType.PLAYER, uuid, playerSetting);
+        return playerSetting;
     }
 
     public void savePlayer(PlayerSetting playerSetting) {
+        dataCache.putInCache(CacheType.PLAYER, playerSetting.getUuid(), playerSetting);
+
         switch (dataType) {
             case FLATFILE:
                 new PlayerConfiguration(playerSetting.getUuid()).save(playerSetting);
@@ -151,10 +205,12 @@ public class DataStorage extends Utils {
         }
     }
 
-    public void removePlayer(PlayerSetting playerSetting) {
+    public void removePlayer(UUID uuid) {
+        dataCache.removeFromCache(CacheType.PLAYER, uuid);
+
         switch (dataType) {
             case FLATFILE:
-                new PlayerConfiguration(playerSetting.getUuid()).remove();
+                new PlayerConfiguration(uuid).remove();
                 break;
             case SQLITE:
                 //TODO add SQLITE support
@@ -163,18 +219,32 @@ public class DataStorage extends Utils {
     }
 
     public ShopLocation getChestLinkage(ShopLocation chestLocation) {
+        // Cache Loading
+        if (dataCache.isInCache(CacheType.LINKAGE, chestLocation)) {
+            return dataCache.getLinkageFromCache(chestLocation);
+        }
+
+        ShopLocation shopLocation = null;
+
         switch (dataType) {
             case FLATFILE:
-                return new LinkageConfiguration(chestLocation.getWorld()).getLinkedShop(chestLocation);
+                shopLocation = new LinkageConfiguration(chestLocation.getWorld()).getLinkedShop(chestLocation);
+                break;
             case SQLITE:
                 //TODO add SQLITE support
                 break;
         }
 
-        return null;
+        if (shopLocation != null) {
+            dataCache.putInCache(CacheType.LINKAGE, chestLocation, shopLocation);
+        }
+
+        return shopLocation;
     }
 
     public void addChestLinkage(ShopLocation chestLocation, ShopLocation shopLocation) {
+        dataCache.putInCache(CacheType.LINKAGE, chestLocation, shopLocation);
+
         switch (dataType) {
             case FLATFILE:
                 new LinkageConfiguration(chestLocation.getWorld()).add(chestLocation, shopLocation);
@@ -185,6 +255,8 @@ public class DataStorage extends Utils {
     }
 
     public void removeChestLinkage(ShopLocation chestLocation) {
+        dataCache.removeFromCache(CacheType.LINKAGE, chestLocation);
+
         switch (dataType) {
             case FLATFILE:
                 new LinkageConfiguration(chestLocation.getWorld()).removeChest(chestLocation);
@@ -194,3 +266,4 @@ public class DataStorage extends Utils {
         }
     }
 }
+

@@ -73,6 +73,10 @@ public class ShopChest extends Utils {
 	}
 
 	public static boolean isShopChest(Block checking) {
+
+		// Potentially jump out by accessing the cache but relying on the cache does not help when checking for items that are not attached to shops
+		//plugin.getDataStorage().getChestLinkage(new ShopLocation(checking.getLocation()));
+
 		try {
 			if (isDoubleChest(checking)) {
 				DoubleChest dbl = getDoubleChest(checking);
