@@ -27,6 +27,7 @@ package org.shanerx.tradeshop.utils.data;
 
 enum CacheType {
     SHOP,
+    SHOP_LOCATION,
     LINKAGE,
     PLAYER
 }

@@ -25,6 +25,7 @@
 
 package org.shanerx.tradeshop.utils.data;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.World;
 import org.shanerx.tradeshop.enumys.DebugLevels;
@@ -38,6 +39,10 @@ import org.shanerx.tradeshop.utils.data.Json.PlayerConfiguration;
 import org.shanerx.tradeshop.utils.data.Json.ShopConfiguration;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 public class DataStorage extends Utils {
@@ -46,7 +51,7 @@ public class DataStorage extends Utils {
     private final transient DataCache dataCache;
 
     public DataStorage(DataType dataType) {
-        dataCache = new DataCache();
+        dataCache = new DataCache(this);
         reload(dataType);
     }
 
@@ -61,21 +66,22 @@ public class DataStorage extends Utils {
         if (dataCache.isInCache(CacheType.SHOP, sign)) {
             return dataCache.getShopFromCache(sign);
         }
-
         Shop shop = null;
 
-        // DataType specific loading
-        switch (dataType) {
-            case FLATFILE:
-                shop = new ShopConfiguration(new ShopChunk(sign.getChunk())).load(sign);
-                break;
-            case SQLITE:
-                //TODO add SQLITE support
-                break;
-        }
+        if (dataCache.isLocationShop(sign)) {
+            // DataType specific loading
+            switch (dataType) {
+                case FLATFILE:
+                    shop = new ShopConfiguration(new ShopChunk(sign.getChunk())).load(sign);
+                    break;
+                case SQLITE:
+                    //TODO add SQLITE support
+                    break;
+            }
 
-        if (shop != null) {
-            dataCache.putInCache(CacheType.SHOP, shop.getShopLocationAsSL(), shop);
+            if (shop != null) {
+                dataCache.putInCache(CacheType.SHOP, shop.getShopLocationAsSL(), shop);
+            }
         }
 
         return shop;
@@ -164,6 +170,57 @@ public class DataStorage extends Utils {
                 break;
         }
         return count;
+    }
+
+    public List<ShopLocation> getAllShopLocations() {
+        List<ShopLocation> shops = new ArrayList<>();
+
+        switch (dataType) {
+            case FLATFILE:
+                File folder = new File(PLUGIN.getDataFolder().getAbsolutePath() + File.separator + "Data");
+                if (folder.exists() && folder.listFiles() != null) {
+                    for (File file : folder.listFiles()) {
+                        World world = Bukkit.getWorld(file.getName());
+                        if (file.exists() && file.listFiles() != null && world != null) {
+                            for (File file2 : file.listFiles()) {
+                                if (file2.getName().contains(world.getName())) {
+                                    ShopChunk sc = ShopChunk.deserialize(file2.getName().replace(".json", ""));
+                                    if (sc != null) {
+                                        shops.addAll(new ShopConfiguration(sc).getShops());
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                break;
+            case SQLITE:
+                //TODO add SQLITE support
+                break;
+        }
+        return shops;
+    }
+
+    public Map<ShopLocation, ShopLocation> getAllChestLinkages() {
+        Map<ShopLocation, ShopLocation> allLinkageData = new HashMap<>();
+
+        switch (dataType) {
+            case FLATFILE:
+                File folder = new File(PLUGIN.getDataFolder().getAbsolutePath() + File.separator + "Data");
+                if (folder.exists() && folder.listFiles() != null) {
+                    for (File file : folder.listFiles()) {
+                        World world = Bukkit.getWorld(file.getName());
+                        if (file.exists() && file.listFiles() != null && world != null) {
+                            allLinkageData.putAll(new LinkageConfiguration(world).getLinkageData());
+                        }
+                    }
+                }
+                break;
+            case SQLITE:
+                //TODO add SQLITE support
+                break;
+        }
+        return allLinkageData;
     }
 
     public PlayerSetting loadPlayer(UUID uuid) {
@@ -264,6 +321,10 @@ public class DataStorage extends Utils {
                 //TODO add SQLITE support
                 break;
         }
+    }
+
+    public DataCache getDataCache() {
+        return dataCache;
     }
 }
 

@@ -126,6 +126,18 @@ public class ShopConfiguration extends JsonConfiguration {
         return jsonObj.size();
     }
 
+    public List<ShopLocation> getShops() {
+        List<ShopLocation> shopLocations = new ArrayList<>();
+        for (String key : jsonObj.keySet()) {
+            ShopLocation sl = ShopLocation.deserialize(key);
+            if (sl != null) {
+                shopLocations.add(sl);
+            }
+        }
+
+        return shopLocations;
+    }
+
     private List<ShopItemStack> b64OverstackFixer(String oldB64) {
         ShopItemStack oldStack = new ShopItemStack(oldB64);
 

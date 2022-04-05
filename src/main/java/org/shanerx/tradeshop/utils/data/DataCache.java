@@ -27,47 +27,64 @@ package org.shanerx.tradeshop.utils.data;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
+import org.bukkit.Location;
 import org.shanerx.tradeshop.objects.PlayerSetting;
 import org.shanerx.tradeshop.objects.Shop;
 import org.shanerx.tradeshop.objects.ShopLocation;
 
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 public class DataCache {
 
-    private transient Cache<ShopLocation, Shop> shopCache;
-    private transient Cache<ShopLocation, ShopLocation> linkageCache;
-    private transient Cache<UUID, PlayerSetting> playerCache;
+    private final transient DataStorage dataStorage;
 
-    public DataCache() {
+    private transient List<ShopLocation> shopLocations;
+    private transient Map<ShopLocation, ShopLocation> linkageCache;
+
+    private transient Cache<ShopLocation, Shop> shopCache;
+    private transient Cache<UUID, PlayerSetting> playerCache;
+    private transient Cache<Location, Boolean> skippableHoppers; //second data type doesn't matter and isn't used, boolean chosen as it is the smallest
+
+    public DataCache(DataStorage dataStorage) {
+        this.dataStorage = dataStorage;
         buildCaches();
     }
 
     private void buildCaches() {
+        shopLocations = dataStorage.getAllShopLocations();
+        linkageCache = dataStorage.getAllChestLinkages();
+
         shopCache = CacheBuilder.newBuilder()
                 .maximumSize(100)
                 .expireAfterAccess(10, TimeUnit.MINUTES)
-                .build();
-        linkageCache = CacheBuilder.newBuilder()
-                .maximumSize(500)
-                .expireAfterAccess(60, TimeUnit.MINUTES)
                 .build();
         playerCache = CacheBuilder.newBuilder()
                 .maximumSize(150)
                 .expireAfterAccess(60, TimeUnit.MINUTES)
                 .build();
+        skippableHoppers = CacheBuilder.newBuilder()
+                .maximumSize(100000)
+                .expireAfterAccess(3000, TimeUnit.MILLISECONDS)
+                .build();
     }
 
     protected void putInCache(CacheType cacheType, Object key, Object value) {
-        if (key == null || value == null) {
+        if (key == null) {
             return;
         }
 
         switch (cacheType) {
+            case SHOP_LOCATION:
+                if (key instanceof ShopLocation && value == null) {
+                    shopLocations.add((ShopLocation) key);
+                }
             case SHOP:
                 if (key instanceof ShopLocation && value instanceof Shop) {
                     shopCache.put((ShopLocation) key, (Shop) value);
+                    shopLocations.add((ShopLocation) key);
                 }
             case LINKAGE:
                 if (key instanceof ShopLocation && value instanceof ShopLocation) {
@@ -86,13 +103,17 @@ public class DataCache {
         }
 
         switch (cacheType) {
+            case SHOP_LOCATION:
+                if (key instanceof ShopLocation) {
+                    return shopLocations.contains(key);
+                }
             case SHOP:
                 if (key instanceof ShopLocation) {
                     return shopCache.getIfPresent(key);
                 }
             case LINKAGE:
                 if (key instanceof ShopLocation) {
-                    return linkageCache.getIfPresent(key);
+                    return linkageCache.get(key);
                 }
             case PLAYER:
                 if (key instanceof UUID) {
@@ -101,6 +122,10 @@ public class DataCache {
         }
 
         return null;
+    }
+
+    protected Boolean isLocationShop(ShopLocation key) {
+        return key == null ? null : (Boolean) getFromCache(CacheType.SHOP_LOCATION, key);
     }
 
     protected ShopLocation getLinkageFromCache(ShopLocation key) {
@@ -121,6 +146,10 @@ public class DataCache {
         }
 
         switch (cacheType) {
+            case SHOP_LOCATION:
+                if (key instanceof ShopLocation) {
+                    return shopLocations.contains(key);
+                }
             case SHOP:
                 if (key instanceof ShopLocation) {
                     return getShopFromCache((ShopLocation) key) != null;
@@ -144,13 +173,18 @@ public class DataCache {
         }
 
         switch (cacheType) {
+            case SHOP_LOCATION:
+                if (key instanceof ShopLocation) {
+                    shopLocations.remove(key);
+                }
             case SHOP:
                 if (key instanceof ShopLocation) {
                     shopCache.invalidate(key);
+                    shopLocations.remove(key);
                 }
             case LINKAGE:
                 if (key instanceof ShopLocation) {
-                    linkageCache.invalidate(key);
+                    linkageCache.remove(key);
                 }
             case PLAYER:
                 if (key instanceof UUID) {
@@ -160,7 +194,7 @@ public class DataCache {
     }
 
     protected void removeLinkagesForShop(ShopLocation valueLocation) {
-        linkageCache.asMap().forEach((key, value) -> {
+        linkageCache.forEach((key, value) -> {
             if (value.equals(valueLocation))
                 removeFromCache(CacheType.LINKAGE, key);
         });
@@ -168,8 +202,24 @@ public class DataCache {
 
     protected void invalidateCaches() {
         shopCache.invalidateAll();
-        linkageCache.invalidateAll();
         playerCache.invalidateAll();
+        skippableHoppers.invalidateAll();
+        shopLocations.clear();
+        linkageCache.clear();
+
+        shopLocations = dataStorage.getAllShopLocations();
+        linkageCache = dataStorage.getAllChestLinkages();
+    }
+
+    public Boolean canSkipHopper(Location location) {
+        if (skippableHoppers.getIfPresent(location) == null)
+            return null;
+        else
+            return skippableHoppers.getIfPresent(location);
+    }
+
+    public void addSkippableHopper(Location location, boolean shouldBlock) {
+        skippableHoppers.put(location, shouldBlock);
     }
 
 }

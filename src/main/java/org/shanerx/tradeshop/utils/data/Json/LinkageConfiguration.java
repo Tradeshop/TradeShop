@@ -51,8 +51,12 @@ public class LinkageConfiguration extends JsonConfiguration {
             linkageData = new HashMap<>();
     }
 
-    public Map<String, String> getLinkageData() {
-        return linkageData;
+    public Map<ShopLocation, ShopLocation> getLinkageData() {
+        Map<ShopLocation, ShopLocation> linkageDataAsSL = new HashMap<>();
+
+        linkageData.forEach((k, v) -> linkageDataAsSL.put(ShopLocation.deserialize(k), ShopLocation.deserialize(v)));
+
+        return linkageDataAsSL;
     }
 
     public ShopLocation getLinkedShop(ShopLocation chestLocation) {

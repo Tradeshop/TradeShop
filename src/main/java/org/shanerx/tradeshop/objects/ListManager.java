@@ -25,9 +25,6 @@
 
 package org.shanerx.tradeshop.objects;
 
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
-import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -39,7 +36,6 @@ import org.shanerx.tradeshop.utils.config.Setting;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.concurrent.TimeUnit;
 
 @SuppressWarnings("unused")
 public class ListManager extends Utils {
@@ -53,32 +49,11 @@ public class ListManager extends Utils {
 	private final ArrayList<String> gameMats = new ArrayList<>();
 	private final ArrayList<String> addOnMats = new ArrayList<>();
 
-	private Cache<Location, Boolean> skippableHoppers; //second data type doesn't matter and isn't used, boolean chosen as it is the smallest
-
 
 	public ListManager() {
 		reload();
 		setGameMatList();
 	}
-
-	private void initSkippableHoppers() {
-		skippableHoppers = CacheBuilder.newBuilder()
-				.maximumSize(100000)
-				.expireAfterAccess(1000, TimeUnit.MILLISECONDS)
-				.build();
-	}
-
-	public Boolean canSkipHopper(Location location) {
-		if (skippableHoppers.getIfPresent(location) == null)
-			return null;
-		else
-			return skippableHoppers.getIfPresent(location);
-	}
-
-	public void addSkippableHopper(Location location, boolean shouldBlock) {
-		skippableHoppers.put(location, shouldBlock);
-	}
-
 
 	public ArrayList<BlockFace> getDirections() {
 		return directions;
@@ -143,7 +118,6 @@ public class ListManager extends Utils {
 		updateDirections();
         updateInventoryMats();
 		setGameMatList();
-		initSkippableHoppers();
 	}
 
 	public void clearManager() {
