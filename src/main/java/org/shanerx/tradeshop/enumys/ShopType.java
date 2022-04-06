@@ -32,6 +32,7 @@ import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
 import org.shanerx.tradeshop.TradeShop;
+import org.shanerx.tradeshop.objects.ShopLocation;
 import org.shanerx.tradeshop.utils.config.Setting;
 
 import java.io.Serializable;
@@ -55,12 +56,14 @@ public enum ShopType implements Serializable {
 	}
 
 	public static boolean isShop(Sign s) {
-		return getType(s) != null;
+		return plugin.getDataStorage().getDataCache().isLocationShop(new ShopLocation(s.getLocation())) ||
+				getType(s) != null;
 	}
 
 	public static boolean isShop(Block b) {
 		if (b != null && plugin.getSigns().getSignTypes().contains(b.getType())) {
-			return getType((Sign) b.getState()) != null;
+			return plugin.getDataStorage().getDataCache().isLocationShop(new ShopLocation(b.getLocation())) ||
+					getType((Sign) b.getState()) != null;
 		}
 
 		return false;

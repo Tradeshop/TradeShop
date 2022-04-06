@@ -28,6 +28,7 @@ package org.shanerx.tradeshop.utils.data;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import org.bukkit.Location;
+import org.shanerx.tradeshop.enumys.DebugLevels;
 import org.shanerx.tradeshop.objects.PlayerSetting;
 import org.shanerx.tradeshop.objects.Shop;
 import org.shanerx.tradeshop.objects.ShopLocation;
@@ -41,8 +42,8 @@ public class DataCache {
 
     private final transient DataStorage dataStorage;
 
-    private transient List<ShopLocation> shopLocations;
-    private transient Map<ShopLocation, ShopLocation> linkageCache;
+    private transient List<String> shopLocations;
+    private transient Map<String, String> linkageCache;
 
     private transient Cache<ShopLocation, Shop> shopCache;
     private transient Cache<UUID, PlayerSetting> playerCache;
@@ -54,8 +55,7 @@ public class DataCache {
     }
 
     private void buildCaches() {
-        shopLocations = dataStorage.getAllShopLocations();
-        linkageCache = dataStorage.getAllChestLinkages();
+        reloadStaticCaches();
 
         shopCache = CacheBuilder.newBuilder()
                 .maximumSize(100)
@@ -79,16 +79,16 @@ public class DataCache {
         switch (cacheType) {
             case SHOP_LOCATION:
                 if (key instanceof ShopLocation && value == null) {
-                    shopLocations.add((ShopLocation) key);
+                    shopLocations.add(((ShopLocation) key).serialize());
                 }
             case SHOP:
                 if (key instanceof ShopLocation && value instanceof Shop) {
                     shopCache.put((ShopLocation) key, (Shop) value);
-                    shopLocations.add((ShopLocation) key);
+                    shopLocations.add(((ShopLocation) key).serialize());
                 }
             case LINKAGE:
                 if (key instanceof ShopLocation && value instanceof ShopLocation) {
-                    linkageCache.put((ShopLocation) key, (ShopLocation) value);
+                    linkageCache.put(((ShopLocation) key).serialize(), ((ShopLocation) value).serialize());
                 }
             case PLAYER:
                 if (key instanceof UUID && value instanceof PlayerSetting) {
@@ -105,7 +105,7 @@ public class DataCache {
         switch (cacheType) {
             case SHOP_LOCATION:
                 if (key instanceof ShopLocation) {
-                    return shopLocations.contains(key);
+                    return shopLocations.contains(((ShopLocation) key).serialize());
                 }
             case SHOP:
                 if (key instanceof ShopLocation) {
@@ -113,7 +113,7 @@ public class DataCache {
                 }
             case LINKAGE:
                 if (key instanceof ShopLocation) {
-                    return linkageCache.get(key);
+                    return linkageCache.get(((ShopLocation) key).serialize());
                 }
             case PLAYER:
                 if (key instanceof UUID) {
@@ -124,11 +124,12 @@ public class DataCache {
         return null;
     }
 
-    protected Boolean isLocationShop(ShopLocation key) {
+    public Boolean isLocationShop(ShopLocation key) {
+        dataStorage.debugger.log("isLocationShop >" + key + "<: " + getFromCache(CacheType.SHOP_LOCATION, key), DebugLevels.STATIC_CACHING);
         return key == null ? null : (Boolean) getFromCache(CacheType.SHOP_LOCATION, key);
     }
 
-    protected ShopLocation getLinkageFromCache(ShopLocation key) {
+    public ShopLocation getLinkageFromCache(ShopLocation key) {
         return key == null ? null : (ShopLocation) getFromCache(CacheType.LINKAGE, key);
     }
 
@@ -148,7 +149,7 @@ public class DataCache {
         switch (cacheType) {
             case SHOP_LOCATION:
                 if (key instanceof ShopLocation) {
-                    return shopLocations.contains(key);
+                    return shopLocations.contains(((ShopLocation) key).serialize());
                 }
             case SHOP:
                 if (key instanceof ShopLocation) {
@@ -175,16 +176,16 @@ public class DataCache {
         switch (cacheType) {
             case SHOP_LOCATION:
                 if (key instanceof ShopLocation) {
-                    shopLocations.remove(key);
+                    shopLocations.remove(((ShopLocation) key).serialize());
                 }
             case SHOP:
                 if (key instanceof ShopLocation) {
                     shopCache.invalidate(key);
-                    shopLocations.remove(key);
+                    shopLocations.remove(((ShopLocation) key).serialize());
                 }
             case LINKAGE:
                 if (key instanceof ShopLocation) {
-                    linkageCache.remove(key);
+                    linkageCache.remove(((ShopLocation) key).serialize());
                 }
             case PLAYER:
                 if (key instanceof UUID) {
@@ -195,7 +196,7 @@ public class DataCache {
 
     protected void removeLinkagesForShop(ShopLocation valueLocation) {
         linkageCache.forEach((key, value) -> {
-            if (value.equals(valueLocation))
+            if (value.equals(valueLocation.serialize()))
                 removeFromCache(CacheType.LINKAGE, key);
         });
     }
@@ -204,11 +205,21 @@ public class DataCache {
         shopCache.invalidateAll();
         playerCache.invalidateAll();
         skippableHoppers.invalidateAll();
-        shopLocations.clear();
-        linkageCache.clear();
 
+        reloadStaticCaches();
+    }
+
+    protected void reloadStaticCaches() {
         shopLocations = dataStorage.getAllShopLocations();
         linkageCache = dataStorage.getAllChestLinkages();
+
+        dataStorage.debugger.log(("Shop Locations Cache: \n" + shopLocations.toString() + "\nLinkage Cache: \n" + linkageCache.toString())
+                        .replace("[", "")
+                        .replace("]", "")
+                        .replace("{", "")
+                        .replace("}", "")
+                        .replace(", ", "\n"),
+                DebugLevels.STATIC_CACHING);
     }
 
     public Boolean canSkipHopper(Location location) {

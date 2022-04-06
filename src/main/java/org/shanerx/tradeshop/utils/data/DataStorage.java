@@ -48,27 +48,30 @@ import java.util.UUID;
 public class DataStorage extends Utils {
 
     private transient DataType dataType;
-    private final transient DataCache dataCache;
+    private transient DataCache dataCache;
 
     public DataStorage(DataType dataType) {
-        dataCache = new DataCache(this);
         reload(dataType);
     }
 
     public void reload(DataType dataType) {
         this.dataType = dataType;
         debugger.log("Data storage set to: " + dataType.name(), DebugLevels.DISABLED);
-        dataCache.invalidateCaches();
+
+        if (dataCache != null) {
+            dataCache.invalidateCaches();
+        }
+
     }
 
     public Shop loadShopFromSign(ShopLocation sign) {
         // Cache Loading
-        if (dataCache.isInCache(CacheType.SHOP, sign)) {
-            return dataCache.getShopFromCache(sign);
+        if (getDataCache().isInCache(CacheType.SHOP, sign)) {
+            return getDataCache().getShopFromCache(sign);
         }
         Shop shop = null;
 
-        if (dataCache.isLocationShop(sign)) {
+        if (getDataCache().isLocationShop(sign)) {
             // DataType specific loading
             switch (dataType) {
                 case FLATFILE:
@@ -80,7 +83,7 @@ public class DataStorage extends Utils {
             }
 
             if (shop != null) {
-                dataCache.putInCache(CacheType.SHOP, shop.getShopLocationAsSL(), shop);
+                getDataCache().putInCache(CacheType.SHOP, shop.getShopLocationAsSL(), shop);
             }
         }
 
@@ -89,34 +92,40 @@ public class DataStorage extends Utils {
 
     public Shop loadShopFromStorage(ShopLocation chest) {
         // Cache Loading
-        if (dataCache.isInCache(CacheType.LINKAGE, chest)) {
-            ShopLocation linkedShop = dataCache.getLinkageFromCache(chest);
-            if (dataCache.isInCache(CacheType.SHOP, linkedShop)) {
-                return dataCache.getShopFromCache(dataCache.getLinkageFromCache(linkedShop));
+        ShopLocation linkedShop = null;
+
+        if (getDataCache().isInCache(CacheType.LINKAGE, chest)) {
+            linkedShop = getDataCache().getLinkageFromCache(chest);
+            if (getDataCache().isInCache(CacheType.SHOP, linkedShop)) {
+                return getDataCache().getShopFromCache(getDataCache().getLinkageFromCache(linkedShop));
             }
         }
 
         Shop shop = null;
-
-        // DataType specific loading
-        switch (dataType) {
-            case FLATFILE:
-                shop = loadShopFromSign(new LinkageConfiguration(chest.getWorld()).getLinkedShop(chest));
-                break;
-            case SQLITE:
-                //TODO add SQLITE support
-                break;
+        if (linkedShop == null) {
+            // DataType specific loading
+            switch (dataType) {
+                case FLATFILE:
+                    linkedShop = new LinkageConfiguration(chest.getWorld()).getLinkedShop(chest);
+                    break;
+                case SQLITE:
+                    //TODO add SQLITE support
+                    break;
+            }
         }
 
+        shop = loadShopFromSign(linkedShop);
+
+
         if (shop != null) {
-            dataCache.putInCache(CacheType.SHOP, shop.getShopLocationAsSL(), shop);
+            getDataCache().putInCache(CacheType.SHOP, shop.getShopLocationAsSL(), shop);
         }
 
         return shop;
     }
 
     public void saveShop(Shop shop) {
-        dataCache.putInCache(CacheType.SHOP, shop.getShopLocationAsSL(), shop);
+        getDataCache().putInCache(CacheType.SHOP, shop.getShopLocationAsSL(), shop);
 
         switch (dataType) {
             case FLATFILE:
@@ -129,8 +138,8 @@ public class DataStorage extends Utils {
     }
 
     public void removeShop(Shop shop) {
-        dataCache.removeFromCache(CacheType.SHOP, shop.getShopLocationAsSL());
-        dataCache.removeLinkagesForShop(shop.getShopLocationAsSL());
+        getDataCache().removeFromCache(CacheType.SHOP, shop.getShopLocationAsSL());
+        getDataCache().removeLinkagesForShop(shop.getShopLocationAsSL());
 
         switch (dataType) {
             case FLATFILE:
@@ -172,8 +181,8 @@ public class DataStorage extends Utils {
         return count;
     }
 
-    public List<ShopLocation> getAllShopLocations() {
-        List<ShopLocation> shops = new ArrayList<>();
+    public List<String> getAllShopLocations() {
+        List<String> shops = new ArrayList<>();
 
         switch (dataType) {
             case FLATFILE:
@@ -186,7 +195,7 @@ public class DataStorage extends Utils {
                                 if (file2.getName().contains(world.getName())) {
                                     ShopChunk sc = ShopChunk.deserialize(file2.getName().replace(".json", ""));
                                     if (sc != null) {
-                                        shops.addAll(new ShopConfiguration(sc).getShops());
+                                        new ShopConfiguration(sc).getShops().forEach((key) -> shops.add(key.serialize()));
                                     }
                                 }
                             }
@@ -201,8 +210,8 @@ public class DataStorage extends Utils {
         return shops;
     }
 
-    public Map<ShopLocation, ShopLocation> getAllChestLinkages() {
-        Map<ShopLocation, ShopLocation> allLinkageData = new HashMap<>();
+    public Map<String, String> getAllChestLinkages() {
+        Map<String, String> allLinkageData = new HashMap<>();
 
         switch (dataType) {
             case FLATFILE:
@@ -225,8 +234,8 @@ public class DataStorage extends Utils {
 
     public PlayerSetting loadPlayer(UUID uuid) {
         // Cache Loading
-        if (dataCache.isInCache(CacheType.PLAYER, uuid)) {
-            return dataCache.getPlayerFromCache(uuid);
+        if (getDataCache().isInCache(CacheType.PLAYER, uuid)) {
+            return getDataCache().getPlayerFromCache(uuid);
         }
 
         PlayerSetting playerSetting = null;
@@ -245,12 +254,12 @@ public class DataStorage extends Utils {
             playerSetting = new PlayerSetting(uuid);
         }
 
-        dataCache.putInCache(CacheType.PLAYER, uuid, playerSetting);
+        getDataCache().putInCache(CacheType.PLAYER, uuid, playerSetting);
         return playerSetting;
     }
 
     public void savePlayer(PlayerSetting playerSetting) {
-        dataCache.putInCache(CacheType.PLAYER, playerSetting.getUuid(), playerSetting);
+        getDataCache().putInCache(CacheType.PLAYER, playerSetting.getUuid(), playerSetting);
 
         switch (dataType) {
             case FLATFILE:
@@ -263,7 +272,7 @@ public class DataStorage extends Utils {
     }
 
     public void removePlayer(UUID uuid) {
-        dataCache.removeFromCache(CacheType.PLAYER, uuid);
+        getDataCache().removeFromCache(CacheType.PLAYER, uuid);
 
         switch (dataType) {
             case FLATFILE:
@@ -277,8 +286,8 @@ public class DataStorage extends Utils {
 
     public ShopLocation getChestLinkage(ShopLocation chestLocation) {
         // Cache Loading
-        if (dataCache.isInCache(CacheType.LINKAGE, chestLocation)) {
-            return dataCache.getLinkageFromCache(chestLocation);
+        if (getDataCache().isInCache(CacheType.LINKAGE, chestLocation)) {
+            return getDataCache().getLinkageFromCache(chestLocation);
         }
 
         ShopLocation shopLocation = null;
@@ -293,14 +302,14 @@ public class DataStorage extends Utils {
         }
 
         if (shopLocation != null) {
-            dataCache.putInCache(CacheType.LINKAGE, chestLocation, shopLocation);
+            getDataCache().putInCache(CacheType.LINKAGE, chestLocation, shopLocation);
         }
 
         return shopLocation;
     }
 
     public void addChestLinkage(ShopLocation chestLocation, ShopLocation shopLocation) {
-        dataCache.putInCache(CacheType.LINKAGE, chestLocation, shopLocation);
+        getDataCache().putInCache(CacheType.LINKAGE, chestLocation, shopLocation);
 
         switch (dataType) {
             case FLATFILE:
@@ -312,7 +321,7 @@ public class DataStorage extends Utils {
     }
 
     public void removeChestLinkage(ShopLocation chestLocation) {
-        dataCache.removeFromCache(CacheType.LINKAGE, chestLocation);
+        getDataCache().removeFromCache(CacheType.LINKAGE, chestLocation);
 
         switch (dataType) {
             case FLATFILE:
@@ -324,6 +333,10 @@ public class DataStorage extends Utils {
     }
 
     public DataCache getDataCache() {
+        if (dataCache == null) {
+            dataCache = new DataCache(this);
+        }
+
         return dataCache;
     }
 }
