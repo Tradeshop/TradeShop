@@ -285,14 +285,14 @@ public class DataStorage extends Utils {
     }
 
     public ShopLocation getChestLinkage(ShopLocation chestLocation) {
-        // Cache Loading
-        if (getDataCache().isInCache(CacheType.LINKAGE, chestLocation)) {
-            return getDataCache().getLinkageFromCache(chestLocation);
-        }
-
         ShopLocation shopLocation = null;
 
-        switch (dataType) {
+        // Cache Loading
+        if (getDataCache().isInCache(CacheType.LINKAGE, chestLocation)) {
+            shopLocation = getDataCache().getLinkageFromCache(chestLocation);
+        }
+
+        /*switch (dataType) {
             case FLATFILE:
                 shopLocation = new LinkageConfiguration(chestLocation.getWorld()).getLinkedShop(chestLocation);
                 break;
@@ -303,7 +303,7 @@ public class DataStorage extends Utils {
 
         if (shopLocation != null) {
             getDataCache().putInCache(CacheType.LINKAGE, chestLocation, shopLocation);
-        }
+        }*/
 
         return shopLocation;
     }

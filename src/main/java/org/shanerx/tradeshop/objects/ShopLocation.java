@@ -59,6 +59,10 @@ public class ShopLocation implements Serializable {
 	}
 
 	public static ShopLocation deserialize(String loc) {
+		if (loc == null) {
+			return null;
+		}
+
 		if (loc.startsWith("l")) {
 			String[] locA = loc.contains("::") ? loc.split("::") : loc.split("_"); //Keep same as div
 			double x = Double.parseDouble(locA[2]), y = Double.parseDouble(locA[3]), z = Double.parseDouble(locA[4]);

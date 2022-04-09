@@ -47,7 +47,7 @@ public class DataCache {
 
     private transient Cache<ShopLocation, Shop> shopCache;
     private transient Cache<UUID, PlayerSetting> playerCache;
-    private transient Cache<Location, Boolean> skippableHoppers; //second data type doesn't matter and isn't used, boolean chosen as it is the smallest
+    private transient Cache<Location, Boolean> skippableHoppers;
 
     public DataCache(DataStorage dataStorage) {
         this.dataStorage = dataStorage;
@@ -113,7 +113,7 @@ public class DataCache {
                 }
             case LINKAGE:
                 if (key instanceof ShopLocation) {
-                    return linkageCache.get(((ShopLocation) key).serialize());
+                    return ShopLocation.deserialize(linkageCache.get(((ShopLocation) key).serialize()));
                 }
             case PLAYER:
                 if (key instanceof UUID) {

@@ -72,7 +72,7 @@ public class ShopProtectionListener extends Utils implements Listener {
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onInventoryMoveItem(InventoryMoveItemEvent event) {
 
-        //If all Hopper Settings should be allowed, ignore event
+        //If all Hopper Protections are disabled, ignore event
         if (plugin.doSkipHopperProtection()) {
             return;
         }

@@ -75,9 +75,18 @@ public class ShopChest extends Utils {
 	public static boolean isShopChest(Block checking) {
 
 		// Potentially jump out by accessing the cache but relying on the cache does not help when checking for items that are not attached to shops
-		//plugin.getDataStorage().getChestLinkage(new ShopLocation(checking.getLocation()));
+		//ShopLocation sl = plugin.getDataStorage().getChestLinkage(new ShopLocation(checking.getLocation()));
 
-		try {
+		return plugin.getDataStorage().getChestLinkage(new ShopLocation(checking.getLocation())) != null;
+
+		/*if(sl != null) {
+			return true;
+		}
+		*/
+
+		/*try {
+			plugin.getDebugger().log("Using non-cached checking for: " + checking.getLocation(), DebugLevels.STATIC_CACHING);
+
 			if (isDoubleChest(checking)) {
 				DoubleChest dbl = getDoubleChest(checking);
 
@@ -89,30 +98,7 @@ public class ShopChest extends Utils {
 		} catch (NullPointerException | ClassCastException ex) {
 			plugin.getDebugger().log("NPE thrown during isShopChest by: \n" + ex.getCause(), DebugLevels.PROTECTION);
 		}
-		return false;
-
-		// Old MoveEvent Est ~50mspt
-		/*plugin.getDebugger().log("isShopChest checking Block at " + new ShopLocation(checking.getLocation()).serialize() + "", DebugLevels.PROTECTION);
-        try {
-            if (isDoubleChest(checking)) {
-                DoubleChest dbl = getDoubleChest(checking);
-				boolean leftHas = ((Container) dbl.getLeftSide()).getPersistentDataContainer().has(plugin.getSignKey(), PersistentDataType.STRING),
-						rightHas = ((Container) dbl.getRightSide()).getPersistentDataContainer().has(plugin.getSignKey(), PersistentDataType.STRING);
-
-				plugin.getDebugger().log("Block is DoubleChest", DebugLevels.PROTECTION);
-				plugin.getDebugger().log("Left side PerData: " + (leftHas ? ((Container) dbl.getLeftSide()).getPersistentDataContainer().get(plugin.getSignKey(), PersistentDataType.STRING) : "null"), DebugLevels.PROTECTION);
-				plugin.getDebugger().log("Right side PerData: " + (rightHas ? ((Container) dbl.getRightSide()).getPersistentDataContainer().get(plugin.getSignKey(), PersistentDataType.STRING) : "null"), DebugLevels.PROTECTION);
-
-				return leftHas || rightHas;
-            }
-			boolean conHas = ((Container) checking.getState()).getPersistentDataContainer().has(plugin.getSignKey(), PersistentDataType.STRING);
-			plugin.getDebugger().log("Block is SINGLE inventory", DebugLevels.PROTECTION);
-			plugin.getDebugger().log("Storage Block PerData: " + (conHas ? ((Container) checking.getState()).getPersistentDataContainer().get(plugin.getSignKey(), PersistentDataType.STRING) : "null"), DebugLevels.PROTECTION);
-			return conHas;
-        } catch (NullPointerException | ClassCastException ex) {
-			plugin.getDebugger().log("NPE thrown during isShopChest by: \n" + ex.getCause(), DebugLevels.PROTECTION);
-        }
-        return false;*/
+		return false;*/
     }
 
     public static boolean isShopChest(Inventory checking) {
@@ -215,7 +201,7 @@ public class ShopChest extends Utils {
 	}
 
 	public void loadFromName() {
-		if (isShopChest(chest)) {
+		if (isShopChest(chest) && ((Container) chest.getState()).getPersistentDataContainer().get(plugin.getSignKey(), PersistentDataType.STRING) != null) {
 			String[] name = ((Container) chest.getState()).getPersistentDataContainer().get(plugin.getSignKey(), PersistentDataType.STRING)
 					.replaceAll("Sign:", "Sign" + titleSeparator).replaceAll("Owner:", "Owner" + titleSeparator)
 					.split(sectionSeparator);
