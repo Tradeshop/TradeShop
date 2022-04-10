@@ -115,10 +115,9 @@ public enum Message {
     // Method to fix any values that have changed with updates
     static void upgrade() {
         double version = MESSAGE_VERSION.getDouble();
-        ConfigManager configManager = PLUGIN.getMessageManager();
 
         //Changes if CONFIG_VERSION is below 1.1, then update to 1.1
-        if (version < 1.1) {
+        if (checkVersion(version, 1.1)) {
             if (TOO_MANY_ITEMS.getString().equals("&cThis trade can not take any more %side%!")) {
                 TOO_MANY_ITEMS.setValue(PLUGIN.getLanguage().getDefault(Language.LangSection.MESSAGE, TOO_MANY_ITEMS.getPath()));
             }
@@ -126,7 +125,7 @@ public enum Message {
         }
 
         //Changes if CONFIG_VERSION is below 1.2, then update to 1.2
-        if (version < 1.2) {
+        if (checkVersion(version, 1.2)) {
             Arrays.stream(values()).forEach((message) -> {
                 String str = message.getString().replace("{", "%").replace("}", "%");
 
@@ -138,7 +137,7 @@ public enum Message {
         }
 
         //Changes if CONFIG_VERSION is below 1.3, then update to 1.3
-        if (version < 1.3) {
+        if (checkVersion(version, 1.3)) {
             if (INSUFFICIENT_ITEMS.getString().equals("&cYou do not have &e%AMOUNT% %ITEM%&c!")) {
                 INSUFFICIENT_ITEMS.setValue(PLUGIN.getLanguage().getDefault(Language.LangSection.MESSAGE, INSUFFICIENT_ITEMS.getPath()));
             }
@@ -153,7 +152,11 @@ public enum Message {
             version = 1.3;
         }
 
-        MESSAGE_VERSION.setValue(version);
+        MESSAGE_VERSION.setValue(version != 0.0 ? version : 1.3);
+    }
+
+    private static boolean checkVersion(double version, double maxVersion) {
+        return version > 0.0 && version < maxVersion;
     }
 
     private void setValue(Object obj) {
