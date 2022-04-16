@@ -29,6 +29,7 @@ import com.google.common.collect.Lists;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import net.md_5.bungee.api.ChatColor;
+import org.apache.commons.lang.WordUtils;
 import org.bukkit.FireworkEffect;
 import org.bukkit.Material;
 import org.bukkit.block.ShulkerBox;
@@ -494,16 +495,32 @@ public class ShopItemStack implements Serializable, Cloneable {
                 itemStack.getType().toString();
     }
 
-    public String getCleanItemName() {
+    static public String getCleanItemName(ItemStack itemStack) {
+        BookMeta bookmeta = itemStack.hasItemMeta() && itemStack.getItemMeta() instanceof BookMeta ? ((BookMeta) itemStack.getItemMeta()) : null;
+
+        if (bookmeta != null)
+            return bookmeta.getTitle();
+
         return ChatColor.stripColor(itemStack.hasItemMeta() && itemStack.getItemMeta().hasDisplayName() ?
                 itemStack.getItemMeta().getDisplayName() :
-                itemStack.getType().toString());
+                WordUtils.capitalizeFully(itemStack.getType().toString().replace("_", " ")));
+    }
+
+    public String getCleanItemName() {
+        return ShopItemStack.getCleanItemName(itemStack);
     }
 
     public String serialize() {
         return new Gson().toJson(this);
     }
 
+    @Override
+    public String toString() {
+        return "ShopItemStack{" +
+                "itemStack=" + getItemStack() +
+                ", shopSettings=" + shopSettings +
+                '}';
+    }
 
     /**
      *

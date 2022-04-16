@@ -109,6 +109,12 @@ public class ConfigManager {
         }
 
         save();
+
+        PLUGIN.setSkipHopperProtection(
+                Setting.BITRADESHOP_HOPPER_EXPORT.getBoolean() &&
+                        Setting.BITRADESHOP_HOPPER_IMPORT.getBoolean() &&
+                        Setting.TRADESHOP_HOPPER_IMPORT.getBoolean() &&
+                        Setting.TRADESHOP_HOPPER_EXPORT.getBoolean());
     }
 
     public void setDefaults() {

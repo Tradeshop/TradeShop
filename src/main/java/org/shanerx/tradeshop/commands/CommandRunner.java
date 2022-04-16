@@ -141,7 +141,7 @@ public class CommandRunner extends Utils {
 	 * Sends the sender the setup message
 	 */
 	public void setup() {
-		Message.SETUP_HELP.sendMessage(pSender);
+		Message.SETUP_HELP.sendMessage(pSender, new Tuple<>(Variable.HEADER.toString(), Setting.TRADESHOP_HEADER.getString()));
 	}
 
 	/**

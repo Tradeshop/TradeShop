@@ -26,7 +26,6 @@
 package org.shanerx.tradeshop.listeners;
 
 import org.bukkit.Bukkit;
-import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.Sign;
@@ -74,48 +73,52 @@ public class ShopProtectionListener extends Utils implements Listener {
     public void onInventoryMoveItem(InventoryMoveItemEvent event) {
 
         //If all Hopper Settings should be allowed, ignore event
-        if (Setting.BITRADESHOP_HOPPER_EXPORT.getBoolean() &&
-                Setting.BITRADESHOP_HOPPER_IMPORT.getBoolean() &&
-                Setting.TRADESHOP_HOPPER_IMPORT.getBoolean() &&
-                Setting.TRADESHOP_HOPPER_EXPORT.getBoolean()) {
-
+        if (plugin.doSkipHopperProtection()) {
             return;
         }
 
-        if (event.isCancelled() ||
-                event instanceof HopperShopAccessEvent ||
+        if (event instanceof HopperShopAccessEvent ||
                 !event.getInitiator().getType().equals(InventoryType.HOPPER)) {
+            return;
+        }
+
+        Boolean skip = plugin.getListManager().canSkipHopper(event.getInitiator().getLocation());
+
+        if (skip != null) {
+            event.setCancelled(skip);
             return;
         }
 
         boolean fromHopper;
 
-        Location srcLoc = event.getSource().getLocation();
-        Location destLoc = event.getDestination().getLocation();
+        fromHopper = event.getInitiator().equals(event.getSource());
 
-        if (srcLoc == null || destLoc == null) {
-            return;
-        }
-        else if (plugin.getListManager().isInventory(srcLoc.getBlock())) {
-            fromHopper = false;
-        }
-        else if (plugin.getListManager().isInventory(destLoc.getBlock())) {
-            fromHopper = true;
-        }
-        else {
+        Block invBlock;
+
+        // Ignore below warning, try/catch is for this NPE since It should almost never happen with previous checks I believe this is faster than a if null
+        try {
+            invBlock = (fromHopper ? event.getDestination() : event.getSource()).getLocation().getBlock();
+        } catch (NullPointerException ignored) {
+            plugin.getListManager().addSkippableHopper(event.getInitiator().getLocation(), false);
             return;
         }
 
-        Block invBlock = (fromHopper ? event.getDestination() : event.getSource()).getLocation().getBlock();
+        if (!plugin.getListManager().isInventory(invBlock)) {
+            plugin.getListManager().addSkippableHopper(event.getInitiator().getLocation(), false);
+            return;
+        }
+
         if (!ShopChest.isShopChest(invBlock)) {
+            plugin.getListManager().addSkippableHopper(event.getInitiator().getLocation(), false);
             return;
         }
 
-        Shop shop = new ShopChest(invBlock.getLocation()).getShop();
+        Shop shop = plugin.getDataStorage().loadShopFromStorage(new ShopLocation(invBlock.getLocation()));
 
-        boolean isForbidden = !Setting.findSetting(shop.getShopType().name() + (fromHopper ? "SHOP_HOPPER_IMPORT" : "SHOP_HOPPER_EXPORT")).getBoolean();
+        boolean isForbidden = !Setting.findSetting(shop.getShopType().name() + "SHOP_HOPPER_" + (fromHopper ? "IMPORT" : "EXPORT")).getBoolean();
         if (isForbidden) {
             event.setCancelled(true);
+            plugin.getListManager().addSkippableHopper(event.getInitiator().getLocation(), true);
             return;
         }
 
@@ -133,7 +136,11 @@ public class ShopProtectionListener extends Utils implements Listener {
         Bukkit.getPluginManager().callEvent(hopperEvent);
         debugger.log("ShopProtectionListener: (TSAF) HopperEvent recovered! ", DebugLevels.PROTECTION);
         event.setCancelled(hopperEvent.isForbidden());
+        plugin.getListManager().addSkippableHopper(event.getInitiator().getLocation(), hopperEvent.isForbidden());
         debugger.log("ShopProtectionListener: (TSAF) HopperEvent isForbidden: " + hopperEvent.isForbidden(), DebugLevels.PROTECTION);
+        shop.updateStatus();
+        shop.updateSign();
+        shop.saveShop();
     }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
