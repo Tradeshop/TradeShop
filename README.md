@@ -7,7 +7,7 @@
 > https://tradeshop.github.io/
 
 ## Description
-This plugin manages how players trade one item for another. The concept behind it is very simple, you just place a chest and a sign on top, then write all the information on the sign.
+This plugin manages how players trade one item for another. The concept behind it is very simple, you just place a chest and a sign on top, then write all the information on the sign. A more visually pleasing introduction is offered on the [Overview page on SpigotMC](https://www.spigotmc.org/resources/32762/).
 
 > **Authors:** Lori00 / ShanerX & KillerOfPie<br/>
 > **Name:** TradeShop<br/>
