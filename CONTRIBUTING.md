@@ -1,3 +1,5 @@
+# Contributing to TradeShop
+
 Hey there,
 
 thanks for your interest in the TradeShop plugin.
@@ -13,5 +15,5 @@ please reach out to the Developers on [Discord](https://discord.gg/qzdSUnw) or, 
 
 Thanks!
 
-Kind regards,
+Kind regards,\
 TradeShop Dev Team
