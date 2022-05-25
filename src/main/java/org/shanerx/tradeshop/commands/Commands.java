@@ -28,8 +28,8 @@ package org.shanerx.tradeshop.commands;
 import com.google.common.collect.Lists;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.shanerx.tradeshop.enumys.PermStatus;
-import org.shanerx.tradeshop.enumys.Permissions;
+import org.shanerx.tradeshop.player.PermStatus;
+import org.shanerx.tradeshop.player.Permissions;
 
 import java.util.List;
 

@@ -29,10 +29,10 @@ import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
 import org.shanerx.tradeshop.TradeShop;
-import org.shanerx.tradeshop.enumys.ShopType;
-import org.shanerx.tradeshop.objects.Shop;
+import org.shanerx.tradeshop.data.config.Setting;
+import org.shanerx.tradeshop.shop.Shop;
+import org.shanerx.tradeshop.shop.ShopType;
 import org.shanerx.tradeshop.utils.Utils;
-import org.shanerx.tradeshop.utils.config.Setting;
 
 import java.util.ArrayList;
 import java.util.Arrays;

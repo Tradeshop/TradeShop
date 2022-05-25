@@ -33,8 +33,8 @@ import org.bstats.charts.SimplePie;
 import org.bstats.charts.SingleLineChart;
 import org.bukkit.World;
 import org.shanerx.tradeshop.TradeShop;
-import org.shanerx.tradeshop.utils.config.Message;
-import org.shanerx.tradeshop.utils.config.Setting;
+import org.shanerx.tradeshop.data.config.Message;
+import org.shanerx.tradeshop.data.config.Setting;
 
 import java.util.Arrays;
 import java.util.HashMap;

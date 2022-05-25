@@ -29,7 +29,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.shanerx.tradeshop.TradeShop;
-import org.shanerx.tradeshop.utils.config.Message;
+import org.shanerx.tradeshop.data.config.Message;
 
 /**
  * This class is used for calling command methods from CommandRunner

@@ -29,7 +29,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.player.PlayerEvent;
-import org.shanerx.tradeshop.objects.Shop;
+import org.shanerx.tradeshop.shop.Shop;
 
 /**
  * This class represents the event being fired  upon shop creation. It implements {@link org.bukkit.event.Cancellable},
@@ -39,7 +39,7 @@ public class PlayerShopDestroyEvent extends PlayerEvent implements Cancellable {
 	
 	private static final HandlerList handlers = new HandlerList();
     private boolean cancelled, destroyBlock;
-	private Shop shop;
+	private final Shop shop;
 	
 	/**
 	 * Constructor for the object.
