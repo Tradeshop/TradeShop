@@ -23,7 +23,7 @@
  *
  */
 
-package org.shanerx.tradeshop.commands;
+package org.shanerx.tradeshop.commands.commandrunners;
 
 import com.google.common.collect.Iterables;
 import de.themoep.inventorygui.GuiElementGroup;
@@ -37,7 +37,9 @@ import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.shanerx.tradeshop.TradeShop;
+import org.shanerx.tradeshop.commands.CommandPass;
 import org.shanerx.tradeshop.data.config.Message;
+import org.shanerx.tradeshop.item.ShopItemSide;
 import org.shanerx.tradeshop.item.ShopItemStack;
 import org.shanerx.tradeshop.item.ShopItemStackSettingKeys;
 import org.shanerx.tradeshop.player.Permissions;
@@ -51,7 +53,12 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-public class EditCommand extends CommandRunner {
+/**
+ * Implementation of GUICommand for the `edit` command
+ *
+ * @since 2.3.0
+ */
+public class EditCommand extends GUICommand {
 
     private Shop shop;
     private InventoryGui mainMenu,
@@ -170,7 +177,7 @@ public class EditCommand extends CommandRunner {
             costEdit = new InventoryGui(plugin, "Edit Costs", EDIT_LAYOUT);
             costItems = new ArrayList<>();
             costItemsRemoval = new ArrayList<>();
-            for (ShopItemStack item : shop.getCost()) {
+            for (ShopItemStack item : shop.getSideList(ShopItemSide.COST)) {
                 costItems.add(item.clone());
                 costItemsRemoval.add(false);
             }
@@ -191,7 +198,7 @@ public class EditCommand extends CommandRunner {
                     if (costItemsRemoval.get(i))
                         costItems.remove(i);
                 }
-                shop.updateCost(costItems);
+                shop.updateSide(ShopItemSide.COST, costItems);
                 InventoryGui.goBack(pSender);
                 return true;
             }, "Save Changes"));
@@ -211,7 +218,7 @@ public class EditCommand extends CommandRunner {
             productEdit = new InventoryGui(plugin, "Edit Products", EDIT_LAYOUT);
             productItems = new ArrayList<>();
             productItemsRemoval = new ArrayList<>();
-            for (ShopItemStack item : shop.getProduct()) {
+            for (ShopItemStack item : shop.getSideList(ShopItemSide.PRODUCT)) {
                 productItems.add(item.clone());
                 productItemsRemoval.add(false);
             }
@@ -232,7 +239,7 @@ public class EditCommand extends CommandRunner {
                     if (productItemsRemoval.get(i))
                         productItems.remove(i);
                 }
-                shop.updateProduct(productItems);
+                shop.updateSide(ShopItemSide.PRODUCT, productItems);
                 InventoryGui.goBack(pSender);
                 return true;
             }, "Save Changes"));
@@ -250,6 +257,10 @@ public class EditCommand extends CommandRunner {
 
         mainMenu.show(pSender);
     }
+
+
+    //region Util Methods
+    //------------------------------------------------------------------------------------------------------------------
 
     private StaticGuiElement shopItemEditMenu(int index, boolean isCost) {
         ShopItemStack item = (isCost ? costItems : productItems).get(index).clone();
@@ -392,4 +403,7 @@ public class EditCommand extends CommandRunner {
                         "State: False"
                 ));
     }
+
+    //------------------------------------------------------------------------------------------------------------------
+    //endregion
 }

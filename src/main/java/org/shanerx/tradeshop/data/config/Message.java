@@ -55,7 +55,7 @@ public enum Message {
     FEATURE_DISABLED(MessageSection.NONE, "feature-disabled"),
     HELD_EMPTY(MessageSection.NONE, "held-empty"),
     ILLEGAL_ITEM(MessageSection.NONE, "illegal-item"),
-    NO_SHULKER_COST(MessageSection.NONE, "no-shulker-cost"),
+    NO_SHULKER_ITEM(MessageSection.NONE, "no-shulker-item"),
     INSUFFICIENT_ITEMS(MessageSection.NONE, "insufficient-items"),
     SHOP_INSUFFICIENT_ITEMS(MessageSection.NONE, "shop-insufficient-items"),
     INVALID_ARGUMENTS(MessageSection.NONE, "invalid-arguments"),

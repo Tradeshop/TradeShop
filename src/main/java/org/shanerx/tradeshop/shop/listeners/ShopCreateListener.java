@@ -38,7 +38,7 @@ import org.bukkit.inventory.ItemStack;
 import org.shanerx.tradeshop.data.config.Message;
 import org.shanerx.tradeshop.data.config.Setting;
 import org.shanerx.tradeshop.framework.events.PlayerShopCreateEvent;
-import org.shanerx.tradeshop.item.IllegalItemList;
+import org.shanerx.tradeshop.item.ShopItemSide;
 import org.shanerx.tradeshop.player.ShopRole;
 import org.shanerx.tradeshop.player.ShopUser;
 import org.shanerx.tradeshop.shop.Shop;
@@ -110,7 +110,7 @@ public class ShopCreateListener extends Utils implements Listener {
 			shopChest.setName();
 
 
-			if (shopChest.isEmpty() && shop.hasProduct()) {
+			if (shopChest.isEmpty() && shop.hasSide(ShopItemSide.PRODUCT)) {
 				p.sendMessage(Message.EMPTY_TS_ON_SETUP.getPrefixed());
 			}
 		} else {
@@ -119,14 +119,14 @@ public class ShopCreateListener extends Utils implements Listener {
 
 		shop.setEvent(event);
 
-		ItemStack product = lineCheck(IllegalItemList.TradeItemType.PRODUCT, event.getLine(1)),
-				cost = lineCheck(IllegalItemList.TradeItemType.COST, event.getLine(2));
+		ItemStack product = lineCheck(ShopItemSide.PRODUCT, event.getLine(1)),
+				cost = lineCheck(ShopItemSide.COST, event.getLine(2));
 
-		if (product != null && shop.getProduct().isEmpty())
-			shop.setProduct(product);
+		if (product != null && !shop.hasSide(ShopItemSide.PRODUCT))
+			shop.setSideItems(ShopItemSide.PRODUCT, product);
 
-		if (cost != null && shop.getCost().isEmpty())
-			shop.setCost(cost);
+		if (cost != null && !shop.hasSide(ShopItemSide.COST))
+			shop.setSideItems(ShopItemSide.COST, cost);
 
 		PlayerShopCreateEvent shopCreateEvent = new PlayerShopCreateEvent(p, shop);
 		Bukkit.getPluginManager().callEvent(shopCreateEvent);
@@ -142,7 +142,7 @@ public class ShopCreateListener extends Utils implements Listener {
 		p.sendMessage(Message.SUCCESSFUL_SETUP.getPrefixed());
 	}
 
-	private ItemStack lineCheck(IllegalItemList.TradeItemType type, String line) {
+	private ItemStack lineCheck(ShopItemSide side, String line) {
 		if (line == null || line.equalsIgnoreCase("") || !line.contains(" ") || line.split(" ").length != 2)
 			return null;
 
@@ -158,7 +158,7 @@ public class ShopCreateListener extends Utils implements Listener {
 
 		ItemStack item = new ItemStack(Material.matchMaterial(info[1]), Integer.parseInt(info[0]));
 
-		if (PLUGIN.getListManager().isIllegal(type, item.getType()))
+		if (PLUGIN.getListManager().isIllegal(side, item.getType()))
 			return null;
 
 		return item;

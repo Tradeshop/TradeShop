@@ -38,7 +38,7 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.shanerx.tradeshop.TradeShop;
 import org.shanerx.tradeshop.data.config.Setting;
-import org.shanerx.tradeshop.item.IllegalItemList;
+import org.shanerx.tradeshop.item.ShopItemSide;
 import org.shanerx.tradeshop.item.ShopItemStack;
 import org.shanerx.tradeshop.player.PlayerSetting;
 import org.shanerx.tradeshop.player.ShopRole;
@@ -436,215 +436,12 @@ public class Shop implements Serializable {
 	}
 
 	/**
-	 * Sets the cost item
-	 *
-	 * @param newItem ItemStack to be set
-	 */
-	public void setCost(ItemStack newItem) {
-		if (utils.isIllegal(IllegalItemList.TradeItemType.COST, newItem.getType()))
-			return;
-
-		cost.clear();
-
-		addCost(newItem);
-	}
-
-	/**
-	 * Adds more cost items
-	 *
-	 * @param newItem ItemStack to be added
-	 */
-	public void addCost(ItemStack newItem) {
-		if (utils.isIllegal(IllegalItemList.TradeItemType.COST, newItem.getType()))
-			return;
-
-		///* Added stacks are not separated and are added ontop of existing similar stacks
-		ShopItemStack toAddShopItemStack = new ShopItemStack(newItem);
-		int toRemoveShopItemStack = -1;
-
-
-		for (int i = 0; i < getCost().size(); i++) {
-			if (getCost().get(i).getItemStack().getType().equals(newItem.getType()) && getCost().get(i).isSimilar(newItem)) {
-				toRemoveShopItemStack = i;
-				toAddShopItemStack = getCost().get(i).clone();
-				toAddShopItemStack.setAmount(getCost().get(i).getAmount() + newItem.getAmount());
-				break;
-			}
-		}
-
-		if (toRemoveShopItemStack > -1)
-			cost.remove(toRemoveShopItemStack);
-
-		cost.add(toAddShopItemStack);
-		//*/
-
-
-		if (!getShopType().isITrade() && chestLoc != null)
-			cost.removeIf(item -> item.getItemStack().getType().toString().endsWith("SHULKER_BOX") && getInventoryLocation().getBlock().getType().toString().endsWith("SHULKER_BOX"));
-
-		saveShop();
-		updateSign();
-	}
-
-	/**
-	 * Removes the cost item at the index
-	 *
-	 * @param index index of item to remove
-	 *
-	 * @return true if Cost is removed
-	 */
-	public boolean removeCost(int index) {
-		try {
-			cost.remove(index);
-
-			saveShop();
-			updateSign();
-			return true;
-		} catch (IndexOutOfBoundsException ex) {
-			return false;
-		}
-	}
-
-	/**
-	 * Checks if shop has product
-	 *
-	 * @return True if product != null
-	 */
-	public boolean hasProduct() {
-		return product.size() > 0;
-	}
-
-	/**
-	 * Checks if shop has cost
-	 *
-	 * @return True if cost != null
-	 */
-	public boolean hasCost() {
-		return cost.size() > 0;
-	}
-
-
-	/**
 	 * Returns the amount of trades the shop could do when last accessed
 	 *
 	 * @return amount of trades the shop can do
 	 */
 	public int getAvailableTrades() {
 		return availableTrades;
-	}
-
-	/**
-	 * Adds more product items
-	 *
-	 * @param newItem ItemStack to be added
-	 */
-	public void addProduct(ItemStack newItem) {
-		if (utils.isIllegal(IllegalItemList.TradeItemType.PRODUCT, newItem.getType()))
-			return;
-
-		///* Added stacks are not separated and are added ontop of existing similar stacks
-		ShopItemStack toAddShopItemStack = new ShopItemStack(newItem);
-		int toRemoveShopItemStack = -1;
-
-
-		for (int i = 0; i < getProduct().size(); i++) {
-			if (getProduct().get(i).getItemStack().getType().equals(newItem.getType()) && getProduct().get(i).isSimilar(newItem)) {
-				toRemoveShopItemStack = i;
-				toAddShopItemStack = getProduct().get(i).clone();
-				toAddShopItemStack.setAmount(getProduct().get(i).getAmount() + newItem.getAmount());
-				break;
-			}
-		}
-
-		if (toRemoveShopItemStack > -1)
-			product.remove(toRemoveShopItemStack);
-
-		product.add(toAddShopItemStack);
-		//*/
-
-		saveShop();
-		updateSign();
-	}
-
-	/**
-	 * Returns the product items
-	 *
-	 * @return Product ShopItemStack List
-	 */
-	public List<ShopItemStack> getProduct() {
-		List<ShopItemStack> ret = new ArrayList<>();
-		for (ShopItemStack itm : product)
-			ret.add(itm.clone());
-		return ret;
-	}
-
-	/**
-	 * Returns the product items
-	 *
-	 * @return Product ItemStack List
-	 */
-	public List<ItemStack> getProductItemStacks() {
-		List<ItemStack> ret = new ArrayList<>();
-		for (ShopItemStack itm : product)
-			ret.add(itm.getItemStack().clone());
-		return ret;
-	}
-
-	/**
-	 * returns the cost item
-	 *
-	 * @return Cost ItemStack List
-	 */
-	public List<ShopItemStack> getCost() {
-		List<ShopItemStack> ret = new ArrayList<>();
-		for (ShopItemStack itm : cost)
-			ret.add(itm.clone());
-		return ret;
-	}
-
-	/**
-	 * Returns the cost items
-	 *
-	 * @return Cost ItemStack List
-	 */
-	public List<ItemStack> getCostItemStacks() {
-		List<ItemStack> ret = new ArrayList<>();
-		for (ShopItemStack itm : cost)
-			ret.add(itm.getItemStack().clone());
-		return ret;
-	}
-
-	/**
-	 * Sets the product item
-	 *
-	 * @param newItem item to be set to product
-	 */
-	public void setProduct(ItemStack newItem) {
-		if (utils.isIllegal(IllegalItemList.TradeItemType.PRODUCT, newItem.getType()))
-			return;
-
-		product.clear();
-
-		addProduct(newItem);
-	}
-
-	/**
-	 * Removes the product item at the index
-	 *
-	 * @param index index of item to remove
-	 *
-	 * @return true if Product is removed
-	 */
-	public boolean removeProduct(int index) {
-		if (product.size() > index) {
-			product.remove(index);
-
-			saveShop();
-			updateSign();
-			return true;
-		}
-
-		return false;
 	}
 
 	/**
@@ -880,26 +677,12 @@ public class Shop implements Serializable {
 	}
 
 	/**
-	 * Checks if the shop has sufficient product stock to make a trade
-	 */
-	public boolean hasProductStock() {
-		return !shopType.isITrade() && hasProduct() && getChestAsSC() != null && getChestAsSC().hasStock(getProduct());
-	}
-
-	/**
-	 * Checks if the shop has sufficient cost stock to make a trade(Use for BiTrade)
-	 */
-	public boolean hasCostStock() {
-		return !shopType.isITrade() && hasCost() && getChestAsSC() != null && getChestAsSC().hasStock(getCost());
-	}
-
-	/**
 	 * Automatically updates a shops status if it is not CLOSED
 	 */
 	public void updateStatus() {
 		if (!status.equals(ShopStatus.CLOSED)) {
 			if (!isMissingItems() && (chestLoc != null || shopType.isITrade())) {
-				if (shopType.isITrade() || hasProductStock() || (shopType.isBiTrade() && hasCostStock()))
+				if (shopType.isITrade() || hasSideStock(ShopItemSide.PRODUCT) || (shopType.isBiTrade() && hasSideStock(ShopItemSide.COST)))
 					setStatus(ShopStatus.OPEN);
 				else
 					setStatus(ShopStatus.OUT_OF_STOCK);
@@ -999,59 +782,19 @@ public class Shop implements Serializable {
 	}
 
 	/**
-	 * Checks if all Costs in the list are valid for trade
-	 *
-	 * @return true if all costs are valid
-	 */
-	public boolean areCostsValid() {
-		return areItemsValid(IllegalItemList.TradeItemType.COST, cost);
-	}
-
-	/**
-	 * Checks if all Products in the list are valid for trade
-	 *
-	 * @return true if all products are valid
-	 */
-	public boolean areProductsValid() {
-		return areItemsValid(IllegalItemList.TradeItemType.PRODUCT, product);
-	}
-
-	/**
 	 * Checks if all Items in the list are valid for trade
 	 *
-	 * @param tradeItemType Should Illegal Items be checked as Costs or Products
-	 * @param items         List<ShopItemStack> to check
+	 * @param side  Which side of the trade should be checked for illegal items
+	 * @param items List<ShopItemStack> to check
 	 * @return true if all products are valid
 	 */
-	private boolean areItemsValid(IllegalItemList.TradeItemType tradeItemType, List<ShopItemStack> items) {
+	private boolean areItemsValid(ShopItemSide side, List<ShopItemStack> items) {
 		for (ShopItemStack iS : items) {
-			if (utils.isIllegal(tradeItemType, iS.getItemStack().getType()))
+			if (utils.isIllegal(side, iS.getItemStack().getType()))
 				return false;
 		}
 
 		return true;
-	}
-
-	/**
-	 * Returns true if shop has enough product to make trade
-	 *
-	 * @param multiplier multiplier to use for check
-	 * @return true if shop has enough product to make trade
-	 */
-	public Boolean checkProduct(int multiplier) {
-		setStorageInventory();
-		return utils.checkInventory(storageInv, product, multiplier);
-	}
-
-	/**
-	 * Returns true if shop has enough cost to make trade
-	 *
-	 * @param multiplier multiplier to use for check
-	 * @return true if shop has enough cost to make trade
-	 */
-	public Boolean checkCost(int multiplier) {
-		setStorageInventory();
-		return utils.checkInventory(storageInv, cost, multiplier);
 	}
 
 	/**
@@ -1076,7 +819,7 @@ public class Shop implements Serializable {
 	 * Updates the number of trades the shop can make
 	 */
 	public void updateFullTradeCount() {
-		if (!hasStorage() || !hasProduct()) {
+		if (!hasStorage() || !hasSide(ShopItemSide.PRODUCT)) {
 			availableTrades = 0;
 			return;
 		}
@@ -1087,7 +830,7 @@ public class Shop implements Serializable {
 		clone.setContents(shopInventory.getStorageContents());
 		int totalCount = 0, currentCount = 0;
 
-		for (ShopItemStack item : getProduct()) {
+		for (ShopItemStack item : getSideList(ShopItemSide.PRODUCT)) {
 			totalCount += item.getItemStack().getAmount();
 			int traded;
 			for (ItemStack storageItem : clone.getStorageContents()) {
@@ -1124,27 +867,172 @@ public class Shop implements Serializable {
 		saveShop();
 	}
 
+	//region Item Management - Methods for adding/deleting/updating/viewing Cost and Product lists
+	//------------------------------------------------------------------------------------------------------------------
+
 	/**
-	 * Updates shops cost list
+	 * Checks if shop has items on specified side
 	 *
-	 * @param updatedCostList list to set as new CostList
+	 * @return True if side != null
 	 */
-	public void updateCost(List<ShopItemStack> updatedCostList) {
+	public boolean hasSide(ShopItemSide side) {
+		return getSide(side).size() > 0;
+	}
+
+	/**
+	 * Returns the ItemStacks on specified side
+	 *
+	 * @param side Side to get ItemStacks form
+	 * @return ItemStack List
+	 */
+	public List<ItemStack> getSideItemStacks(ShopItemSide side) {
+		List<ItemStack> ret = new ArrayList<>();
+		for (ShopItemStack itm : getSide(side))
+			ret.add(itm.getItemStack().clone());
+		return ret;
+	}
+
+	/**
+	 * Returns the appropriate list for the side of the trade for object internal use
+	 *
+	 * @return Side ShopItemStack List
+	 */
+	private List<ShopItemStack> getSide(ShopItemSide side) {
+		return side.equals(ShopItemSide.PRODUCT) ? product : cost;
+	}
+
+	/**
+	 * Returns a list of the items on the shops specified side
+	 *
+	 * @param side Side to get items for
+	 * @return Side ShopItemStack List
+	 */
+	public List<ShopItemStack> getSideList(ShopItemSide side) {
+		return getSideList(side, false);
+	}
+
+	/**
+	 * Returns a list of the items on the shops specified side, or the opposite side it doBiTradeAlternate is true
+	 *
+	 * @param side               Side to get items for
+	 * @param doBiTradeAlternate Should side be flipped(for biTrade + Left Click)
+	 * @return Side ShopItemStack List
+	 */
+	public List<ShopItemStack> getSideList(ShopItemSide side, boolean doBiTradeAlternate) {
+		List<ShopItemStack> ret = new ArrayList<>();
+		for (ShopItemStack itm : getSide(doBiTradeAlternate ? side.getReverse() : side))
+			ret.add(itm.clone());
+		return ret;
+	}
+
+	/**
+	 * Removes the item at the index of the specified side
+	 *
+	 * @param side  side of the trade to remove item from
+	 * @param index index of item to remove
+	 * @return true if Item is removed from the specified Side
+	 */
+	public boolean removeSideIndex(ShopItemSide side, int index) {
+		if (getSide(side).size() > index) {
+			getSide(side).remove(index);
+
+			saveShop();
+			updateSign();
+			return true;
+		}
+
+		return false;
+	}
+
+	/**
+	 * Sets the Item for the specified side of the trade
+	 *
+	 * @param side    Side of the trade to set
+	 * @param newItem ItemStack to be set
+	 */
+	public void setSideItems(ShopItemSide side, ItemStack newItem) {
+		if (utils.isIllegal(side, newItem.getType()))
+			return;
+
+		getSide(side).clear();
+
+		addSideItem(side, newItem);
+	}
+
+	/**
+	 * Adds more items to the specified side
+	 *
+	 * @param side    Side to add items to
+	 * @param newItem ItemStack to be added
+	 */
+	public void addSideItem(ShopItemSide side, ItemStack newItem) {
+		if (utils.isIllegal(side, newItem.getType()))
+			return;
+
+		///* Added stacks are not separated and are added ontop of existing similar stacks
+		ShopItemStack toAddShopItemStack = new ShopItemStack(newItem);
+		int toRemoveShopItemStack = -1;
+
+
+		for (int i = 0; i < getSide(side).size(); i++) {
+			if (getSideList(side).get(i).getItemStack().getType().equals(newItem.getType()) && getSideList(side).get(i).isSimilar(newItem)) {
+				toRemoveShopItemStack = i;
+				toAddShopItemStack = getSideList(side).get(i).clone();
+				toAddShopItemStack.setAmount(getSideList(side).get(i).getAmount() + newItem.getAmount());
+				break;
+			}
+		}
+
+		if (toRemoveShopItemStack > -1)
+			getSide(side).remove(toRemoveShopItemStack);
+
+		getSide(side).add(toAddShopItemStack);
+		//*/
+
+
 		if (!getShopType().isITrade() && chestLoc != null)
-			updatedCostList.removeIf(item -> item.getItemStack().getType().toString().endsWith("SHULKER_BOX") && getInventoryLocation().getBlock().getType().toString().endsWith("SHULKER_BOX"));
-		cost = updatedCostList;
+			getSide(side).removeIf(item -> item.getItemStack().getType().toString().endsWith("SHULKER_BOX") && getInventoryLocation().getBlock().getType().toString().endsWith("SHULKER_BOX"));
+
 		saveShop();
 		updateSign();
 	}
 
 	/**
-	 * Updates shops product list
-	 *
-	 * @param updatedProductList list to set as new ProductList
+	 * Checks if the shop has sufficient stock to make a trade on specified side
 	 */
-	public void updateProduct(List<ShopItemStack> updatedProductList) {
-		product = updatedProductList;
+	public boolean hasSideStock(ShopItemSide side) {
+		return !shopType.isITrade() && hasSide(side) && getChestAsSC() != null && getChestAsSC().hasStock(getSideList(side));
+	}
+
+	/**
+	 * Checks if all Items on the specified side are valid for trade
+	 *
+	 * @param side Side to check
+	 * @return true if all Items are valid
+	 */
+	public boolean isSideValid(ShopItemSide side) {
+		return areItemsValid(side, getSideList(side));
+	}
+
+	/**
+	 * Updates list on specified side
+	 *
+	 * @param side            Side to be updated
+	 * @param updatedCostList list to set as new CostList
+	 */
+	public void updateSide(ShopItemSide side, List<ShopItemStack> updatedCostList) {
+		if (!getShopType().isITrade() && chestLoc != null)
+			updatedCostList.removeIf(item -> item.getItemStack().getType().toString().endsWith("SHULKER_BOX") && getInventoryLocation().getBlock().getType().toString().endsWith("SHULKER_BOX"));
+		if (side.equals(ShopItemSide.PRODUCT)) {
+			product = updatedCostList;
+		} else {
+			cost = updatedCostList;
+		}
+
 		saveShop();
 		updateSign();
 	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	//endregion
 }

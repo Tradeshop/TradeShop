@@ -183,9 +183,9 @@ message:
   illegal-item:
     default: "&cYou cannot use one or more of those items in shops."
     pre-comment: "Text to display when a shop failed creation due to an illegal item"
-  no-shulker-cost:
-    default: "&cYou cannot add a Shulker Box as a cost when the shop uses it for storage."
-    pre-comment: "Text to display when a shop failed creation due to using a shulker box as cost when the shop uses it for storage: "
+  no-shulker-item:
+    default: "&cYou cannot add a Shulker Box when the shop uses it for storage."
+    pre-comment: "Text to display when a shop failed creation due to using a shulker box when the shop uses it for storage: "
   insufficient-items:
     default: "&cYou are missing the below items for the trade! \n{%MISSINGITEMS%=  &e%AMOUNT% %ITEM%}"
     pre-comment: "Text to display when the player does not have enough items:"

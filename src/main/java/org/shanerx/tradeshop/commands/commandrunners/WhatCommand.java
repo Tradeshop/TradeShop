@@ -23,7 +23,7 @@
  *
  */
 
-package org.shanerx.tradeshop.commands;
+package org.shanerx.tradeshop.commands.commandrunners;
 
 import de.themoep.inventorygui.GuiElementGroup;
 import de.themoep.inventorygui.InventoryGui;
@@ -35,8 +35,10 @@ import org.bukkit.inventory.meta.BookMeta;
 import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.shanerx.tradeshop.TradeShop;
+import org.shanerx.tradeshop.commands.CommandPass;
 import org.shanerx.tradeshop.data.config.Message;
 import org.shanerx.tradeshop.data.config.Setting;
+import org.shanerx.tradeshop.item.ShopItemSide;
 import org.shanerx.tradeshop.item.ShopItemStack;
 import org.shanerx.tradeshop.item.ShopItemStackSettingKeys;
 import org.shanerx.tradeshop.player.Permissions;
@@ -46,7 +48,12 @@ import org.shanerx.tradeshop.shop.ShopType;
 import java.util.ArrayList;
 import java.util.List;
 
-public class WhatCommand extends CommandRunner {
+/**
+ * Implementation of GUICommand for the `what` command
+ *
+ * @since 2.3.0
+ */
+public class WhatCommand extends GUICommand {
 
     public WhatCommand(TradeShop instance, CommandPass command) {
         super(instance, command);
@@ -75,11 +82,11 @@ public class WhatCommand extends CommandRunner {
 
         gui.setFiller(new ItemStack(Material.LIGHT_GRAY_STAINED_GLASS_PANE, 1));
 
-        for (ShopItemStack item : shop.getCost()) {
+        for (ShopItemStack item : shop.getSideList(ShopItemSide.COST)) {
             costGroup.addElement(shopitemViewMenu(item));
         }
 
-        for (ShopItemStack item : shop.getProduct()) {
+        for (ShopItemStack item : shop.getSideList(ShopItemSide.PRODUCT)) {
             productGroup.addElement(shopitemViewMenu(item));
         }
 
@@ -100,6 +107,10 @@ public class WhatCommand extends CommandRunner {
 
         gui.show(pSender);
     }
+
+
+    //region Util Methods
+    //------------------------------------------------------------------------------------------------------------------
 
     private ItemStack settingItem(boolean state) {
         return state ? new ItemStack(Material.EMERALD_BLOCK) : new ItemStack(Material.REDSTONE_BLOCK);
@@ -187,4 +198,7 @@ public class WhatCommand extends CommandRunner {
             return true;
         });
     }
+
+    //------------------------------------------------------------------------------------------------------------------
+    //endregion
 }

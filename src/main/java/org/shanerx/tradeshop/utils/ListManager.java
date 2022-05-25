@@ -34,6 +34,7 @@ import org.bukkit.block.BlockFace;
 import org.shanerx.tradeshop.data.config.Setting;
 import org.shanerx.tradeshop.item.IllegalItemList;
 import org.shanerx.tradeshop.item.NonObtainableMaterials;
+import org.shanerx.tradeshop.item.ShopItemSide;
 import org.shanerx.tradeshop.shop.ShopStorage;
 import org.shanerx.tradeshop.utils.debug.DebugLevels;
 
@@ -104,14 +105,11 @@ public class ListManager extends Utils {
 		return gameMats;
 	}
 
-	public boolean isIllegal(IllegalItemList.TradeItemType type, Material mat) {
+	public boolean isIllegal(ShopItemSide side, Material mat) {
 		if (globalList.isIllegal(mat))
 			return true;
 
-		if (type.equals(IllegalItemList.TradeItemType.COST))
-			return costList.isIllegal(mat);
-		else
-			return productList.isIllegal(mat);
+		return side.equals(ShopItemSide.COST) ? costList.isIllegal(mat) : productList.isIllegal(mat);
 	}
 
 	public boolean isDirection(BlockFace face) {

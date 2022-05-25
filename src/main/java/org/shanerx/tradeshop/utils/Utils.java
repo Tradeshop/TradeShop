@@ -42,7 +42,7 @@ import org.bukkit.plugin.PluginDescriptionFile;
 import org.shanerx.tradeshop.TradeShop;
 import org.shanerx.tradeshop.data.config.Message;
 import org.shanerx.tradeshop.data.config.Setting;
-import org.shanerx.tradeshop.item.IllegalItemList;
+import org.shanerx.tradeshop.item.ShopItemSide;
 import org.shanerx.tradeshop.item.ShopItemStack;
 import org.shanerx.tradeshop.shop.ExchangeStatus;
 import org.shanerx.tradeshop.shop.Shop;
@@ -240,12 +240,12 @@ public class Utils {
 	/**
 	 * Checks whether or not it is an illegal material.
 	 *
-	 * @param type What side of the trade the item is on
+	 * @param side What side of the trade the item is on
 	 * @param mat  String to check
 	 * @return returns true if valid material
 	 */
-	public boolean isIllegal(IllegalItemList.TradeItemType type, Material mat) {
-		return PLUGIN.getListManager().isIllegal(type, mat);
+	public boolean isIllegal(ShopItemSide side, Material mat) {
+		return PLUGIN.getListManager().isIllegal(side, mat);
 	}
 
 	/**
@@ -401,7 +401,7 @@ public class Utils {
 		if (shop.getShopType() == ShopType.ITRADE) { //ITrade trade
 
 			//Method to find Cost items in player inventory and add to cost array
-			costItems = getItems(playerInventory.getStorageContents(), shop.getCost(), multiplier);
+			costItems = getItems(playerInventory.getStorageContents(), shop.getSideList(ShopItemSide.COST), multiplier);
 
 			if (!costItems.isEmpty()) {
 				if (costItems.get(0) == null) {
@@ -413,15 +413,15 @@ public class Utils {
 				}
 			}
 
-			Inventory iTradeVirtualInventory = Bukkit.createInventory(null, Math.min((int) (Math.ceil(shop.getProduct().size() / 9.0) * 9) * multiplier, 54));
+			Inventory iTradeVirtualInventory = Bukkit.createInventory(null, Math.min((int) (Math.ceil(shop.getSideList(ShopItemSide.PRODUCT).size() / 9.0) * 9) * multiplier, 54));
 			while (iTradeVirtualInventory.firstEmpty() != -1) {
-				for (ItemStack item : shop.getProductItemStacks()) {
+				for (ItemStack item : shop.getSideItemStacks(ShopItemSide.PRODUCT)) {
 					item.setAmount(item.getMaxStackSize());
 					iTradeVirtualInventory.addItem(item);
 				}
 			}
 
-			productItems = getItems(iTradeVirtualInventory.getStorageContents(), shop.getProduct(), multiplier);
+			productItems = getItems(iTradeVirtualInventory.getStorageContents(), shop.getSideList(ShopItemSide.PRODUCT), multiplier);
 
 			for (ItemStack item : productItems) {
 				if (!playerInventory.addItem(item).isEmpty()) {
@@ -433,13 +433,13 @@ public class Utils {
 		} else if (shop.getShopType() == ShopType.BITRADE && action == Action.LEFT_CLICK_BLOCK) { //BiTrade Reversed Trade
 
             //Method to find Cost items in player inventory and add to cost array
-			costItems = getItems(playerInventory.getStorageContents(), shop.getProduct(), multiplier); //Reverse BiTrade, Product is Cost
+			costItems = getItems(playerInventory.getStorageContents(), shop.getSideList(ShopItemSide.PRODUCT), multiplier); //Reverse BiTrade, Product is Cost
 			if (costItems.get(0) == null) {
 				return new Tuple<>(ExchangeStatus.PLAYER_NO_COST, costItems);
             }
 
             //Method to find Product items in shop inventory and add to product array
-			productItems = getItems(shopInventory.getStorageContents(), shop.getCost(), multiplier); //Reverse BiTrade, Cost is Product
+			productItems = getItems(shopInventory.getStorageContents(), shop.getSideList(ShopItemSide.COST), multiplier); //Reverse BiTrade, Cost is Product
             if (productItems.get(0) == null) {
 				shop.updateStatus();
 				return new Tuple<>(ExchangeStatus.SHOP_NO_PRODUCT, productItems);
@@ -447,13 +447,13 @@ public class Utils {
         } else { // Normal Trade
 
             //Method to find Cost items in player inventory and add to cost array
-			costItems = getItems(playerInventory.getStorageContents(), shop.getCost(), multiplier);
+			costItems = getItems(playerInventory.getStorageContents(), shop.getSideList(ShopItemSide.COST), multiplier);
 			if (costItems.get(0) == null) {
 				return new Tuple<>(ExchangeStatus.PLAYER_NO_COST, costItems);
             }
 
             //Method to find Product items in shop inventory and add to product array
-			productItems = getItems(shopInventory.getStorageContents(), shop.getProduct(), multiplier);
+			productItems = getItems(shopInventory.getStorageContents(), shop.getSideList(ShopItemSide.PRODUCT), multiplier);
             if (productItems.get(0) == null) {
 				shop.updateStatus();
 				return new Tuple<>(ExchangeStatus.SHOP_NO_PRODUCT, productItems);

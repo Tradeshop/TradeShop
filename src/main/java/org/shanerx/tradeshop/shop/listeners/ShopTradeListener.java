@@ -45,6 +45,7 @@ import org.shanerx.tradeshop.data.config.Variable;
 import org.shanerx.tradeshop.framework.events.PlayerPreTradeEvent;
 import org.shanerx.tradeshop.framework.events.PlayerPrepareTradeEvent;
 import org.shanerx.tradeshop.framework.events.PlayerSuccessfulTradeEvent;
+import org.shanerx.tradeshop.item.ShopItemSide;
 import org.shanerx.tradeshop.player.Permissions;
 import org.shanerx.tradeshop.shop.ExchangeStatus;
 import org.shanerx.tradeshop.shop.Shop;
@@ -103,7 +104,7 @@ public class ShopTradeListener extends Utils implements Listener {
             return;
         }
 
-        PlayerPreTradeEvent preEvent = new PlayerPreTradeEvent(e.getPlayer(), shop.getCost(), shop.getProduct(), shop, e.getClickedBlock(), e.getBlockFace());
+        PlayerPreTradeEvent preEvent = new PlayerPreTradeEvent(e.getPlayer(), shop.getSideList(ShopItemSide.COST), shop.getSideList(ShopItemSide.PRODUCT), shop, e.getClickedBlock(), e.getBlockFace());
         Bukkit.getPluginManager().callEvent(preEvent);
         if (preEvent.isCancelled()) return;
 
@@ -116,7 +117,7 @@ public class ShopTradeListener extends Utils implements Listener {
             return;
         }
 
-        if (!(shop.areProductsValid() && shop.areCostsValid())) {
+        if (!(shop.isSideValid(ShopItemSide.PRODUCT) && shop.isSideValid(ShopItemSide.COST))) {
             Message.ILLEGAL_ITEM.sendMessage(buyer);
             return;
         }
@@ -138,14 +139,14 @@ public class ShopTradeListener extends Utils implements Listener {
                     break;
                 }
 
-                List<ItemStack> searchResult = getItems(shop.getChestAsSC().getInventory().getStorageContents(), doBiTradeAlternate ? shop.getCost() : shop.getProduct(), multiplier);
+                List<ItemStack> searchResult = getItems(shop.getChestAsSC().getInventory().getStorageContents(), shop.getSideList(ShopItemSide.PRODUCT, doBiTradeAlternate), multiplier);
                 Message.SHOP_INSUFFICIENT_ITEMS.sendItemMultiLineMessage(buyer, Collections.singletonMap(Variable.MISSING_ITEMS, searchResult));
                 return;
             case OPEN:
                 break;
         }
 
-        PlayerPrepareTradeEvent event = new PlayerPrepareTradeEvent(e.getPlayer(), shop.getCost(), shop.getProduct(), shop, e.getClickedBlock(), e.getBlockFace());
+        PlayerPrepareTradeEvent event = new PlayerPrepareTradeEvent(e.getPlayer(), shop.getSideList(ShopItemSide.COST), shop.getSideList(ShopItemSide.PRODUCT), shop, e.getClickedBlock(), e.getBlockFace());
         Bukkit.getPluginManager().callEvent(event);
         if (event.isCancelled()) return;
 
@@ -202,8 +203,8 @@ public class ShopTradeListener extends Utils implements Listener {
 
         if (shop.getShopType() == ShopType.ITRADE && action.equals(Action.RIGHT_CLICK_BLOCK)) { //ITrade trade
 
-            if (!shop.getCost().isEmpty()) {
-                costItems = getItems(playerInventory.getStorageContents(), shop.getCost(), multiplier);
+            if (shop.hasSide(ShopItemSide.COST)) {
+                costItems = getItems(playerInventory.getStorageContents(), shop.getSideList(ShopItemSide.COST), multiplier);
                 if (costItems.get(0) == null) {
                     ItemStack item = costItems.get(1);
                     Message.INSUFFICIENT_ITEMS.sendItemMultiLineMessage(buyer, Collections.singletonMap(Variable.MISSING_ITEMS, costItems));
@@ -225,15 +226,15 @@ public class ShopTradeListener extends Utils implements Listener {
                 costItems.add(noCostITradeItem);
             }
 
-            Inventory iTradeVirtualInventory = Bukkit.createInventory(null, Math.min((int) (Math.ceil(shop.getProduct().size() / 9.0) * 9) * multiplier, 54));
+            Inventory iTradeVirtualInventory = Bukkit.createInventory(null, Math.min((int) (Math.ceil(shop.getSideList(ShopItemSide.PRODUCT).size() / 9.0) * 9) * multiplier, 54));
             while (iTradeVirtualInventory.firstEmpty() != -1) {
-                for (ItemStack item : shop.getProductItemStacks()) {
+                for (ItemStack item : shop.getSideItemStacks(ShopItemSide.PRODUCT)) {
                     item.setAmount(item.getMaxStackSize());
                     iTradeVirtualInventory.addItem(item);
                 }
             }
 
-            productItems = getItems(iTradeVirtualInventory.getStorageContents(), shop.getProduct(), multiplier);
+            productItems = getItems(iTradeVirtualInventory.getStorageContents(), shop.getSideList(ShopItemSide.PRODUCT), multiplier);
 
             for (ItemStack item : productItems) {
                 playerInventory.addItem(item);
@@ -245,7 +246,7 @@ public class ShopTradeListener extends Utils implements Listener {
         } else if (shop.getShopType() == ShopType.BITRADE && action == Action.LEFT_CLICK_BLOCK) { //BiTrade Reversed Trade
 
             //Method to find Cost items in player inventory and add to cost array
-            costItems = getItems(playerInventory.getStorageContents(), shop.getProduct(), multiplier); //Reverse BiTrade, Product is Cost
+            costItems = getItems(playerInventory.getStorageContents(), shop.getSideList(ShopItemSide.PRODUCT), multiplier); //Reverse BiTrade, Product is Cost
             if (costItems.get(0) == null) {
                 ItemStack item = costItems.get(1);
                 Message.INSUFFICIENT_ITEMS.sendItemMultiLineMessage(buyer, Collections.singletonMap(Variable.MISSING_ITEMS, costItems));
@@ -253,7 +254,7 @@ public class ShopTradeListener extends Utils implements Listener {
             }
 
             //Method to find Product items in shop inventory and add to product array
-            productItems = getItems(shopInventory.getStorageContents(), shop.getCost(), multiplier); //Reverse BiTrade, Cost is Product
+            productItems = getItems(shopInventory.getStorageContents(), shop.getSideList(ShopItemSide.COST), multiplier); //Reverse BiTrade, Cost is Product
             if (productItems.get(0) == null) {
                 ItemStack item = productItems.get(1);
                 shop.updateStatus();
@@ -263,7 +264,7 @@ public class ShopTradeListener extends Utils implements Listener {
         } else if (action.equals(Action.RIGHT_CLICK_BLOCK)) { // Normal Trade
 
             //Method to find Cost items in player inventory and add to cost array
-            costItems = getItems(playerInventory.getStorageContents(), shop.getCost(), multiplier);
+            costItems = getItems(playerInventory.getStorageContents(), shop.getSideList(ShopItemSide.COST), multiplier);
             if (costItems.get(0) == null) {
                 ItemStack item = costItems.get(1);
                 Message.INSUFFICIENT_ITEMS.sendItemMultiLineMessage(buyer, Collections.singletonMap(Variable.MISSING_ITEMS, costItems));
@@ -271,7 +272,7 @@ public class ShopTradeListener extends Utils implements Listener {
             }
 
             //Method to find Product items in shop inventory and add to product array
-            productItems = getItems(shopInventory.getStorageContents(), shop.getProduct(), multiplier);
+            productItems = getItems(shopInventory.getStorageContents(), shop.getSideList(ShopItemSide.PRODUCT), multiplier);
             if (productItems.get(0) == null) {
                 ItemStack item = productItems.get(1);
                 shop.updateStatus();

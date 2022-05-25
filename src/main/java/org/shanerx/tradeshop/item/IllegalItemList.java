@@ -157,11 +157,4 @@ public class IllegalItemList extends Utils {
         DISABLED
 
     }
-
-    public enum TradeItemType {
-
-        COST,
-        PRODUCT
-
-    }
 }
