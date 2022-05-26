@@ -432,48 +432,48 @@ public class Utils {
 			return new Tuple<>(ExchangeStatus.SUCCESS, createBadList()); //Successfully completed trade
 		} else if (shop.getShopType() == ShopType.BITRADE && action == Action.LEFT_CLICK_BLOCK) { //BiTrade Reversed Trade
 
-            //Method to find Cost items in player inventory and add to cost array
+			//Method to find Cost items in player inventory and add to cost array
 			costItems = getItems(playerInventory.getStorageContents(), shop.getSideList(ShopItemSide.PRODUCT), multiplier); //Reverse BiTrade, Product is Cost
 			if (costItems.get(0) == null) {
 				return new Tuple<>(ExchangeStatus.PLAYER_NO_COST, costItems);
-            }
+			}
 
-            //Method to find Product items in shop inventory and add to product array
+			//Method to find Product items in shop inventory and add to product array
 			productItems = getItems(shopInventory.getStorageContents(), shop.getSideList(ShopItemSide.COST), multiplier); //Reverse BiTrade, Cost is Product
-            if (productItems.get(0) == null) {
+			if (productItems.get(0) == null) {
 				shop.updateStatus();
 				return new Tuple<>(ExchangeStatus.SHOP_NO_PRODUCT, productItems);
-            }
-        } else { // Normal Trade
+			}
+		} else { // Normal Trade
 
-            //Method to find Cost items in player inventory and add to cost array
+			//Method to find Cost items in player inventory and add to cost array
 			costItems = getItems(playerInventory.getStorageContents(), shop.getSideList(ShopItemSide.COST), multiplier);
 			if (costItems.get(0) == null) {
 				return new Tuple<>(ExchangeStatus.PLAYER_NO_COST, costItems);
-            }
+			}
 
-            //Method to find Product items in shop inventory and add to product array
+			//Method to find Product items in shop inventory and add to product array
 			productItems = getItems(shopInventory.getStorageContents(), shop.getSideList(ShopItemSide.PRODUCT), multiplier);
-            if (productItems.get(0) == null) {
+			if (productItems.get(0) == null) {
 				shop.updateStatus();
 				return new Tuple<>(ExchangeStatus.SHOP_NO_PRODUCT, productItems);
-            }
+			}
 
-        }
+		}
 
-        //For loop to remove cost items from player inventory
-        for (ItemStack item : costItems) {
-            playerInventory.removeItem(item);
-        }
+		//For loop to remove cost items from player inventory
+		for (ItemStack item : costItems) {
+			playerInventory.removeItem(item);
+		}
 
-        //For loop to remove product items from shop inventory
-        for (ItemStack item : productItems) {
-            shopInventory.removeItem(item);
-        }
+		//For loop to remove product items from shop inventory
+		for (ItemStack item : productItems) {
+			shopInventory.removeItem(item);
+		}
 
-        //For loop to put cost items in shop inventory
-        for (ItemStack item : costItems) {
-            if (!shopInventory.addItem(item).isEmpty()) {
+		//For loop to put cost items in shop inventory
+		for (ItemStack item : costItems) {
+			if (!shopInventory.addItem(item).isEmpty()) {
 				return new Tuple<>(ExchangeStatus.SHOP_NO_SPACE, createBadList());
 			}
 		}
@@ -560,6 +560,7 @@ public class Utils {
 	 * Returns the smallest integer passed to it
 	 *
 	 * @param values list of integers to compare against each other
+	 *
 	 * @return smallest integer
 	 */
 	public int megaMin(int... values) {
@@ -569,5 +570,23 @@ public class Utils {
 		}
 
 		return min;
+	}
+
+	/**
+	 * Converts string to boolean based on acceptable responses
+	 *
+	 * @param check String to convert to boolean
+	 * @return true if acceptable string was found
+	 */
+	public boolean toBool(String check) {
+		switch (check.toLowerCase()) {
+			case "true":
+			case "t":
+			case "yes":
+			case "y":
+				return true;
+			default:
+				return false;
+		}
 	}
 }

@@ -52,9 +52,9 @@ public enum Commands {
 	CREATE_ITRADE(Lists.newArrayList("createitrade", "createi", "cri"), Permissions.CREATEI, 1, 1, true, "Create iTrade shop", "/tradeshop $cmd$"),
 
 	// Shop user management commands
-	ADD_MANAGER(Lists.newArrayList("addManager"), Permissions.NONE, 2, 2, true, "Add manager to shop", "/tradeshop $cmd$ <name>"),
-	REMOVE_USER(Lists.newArrayList("removeUser", "removeManager", "removeMember"), Permissions.NONE, 2, 2, true, "Remove user from shop", "/tradeshop $cmd$ <Name>"),
-	ADD_MEMBER(Lists.newArrayList("addMember"), Permissions.NONE, 2, 2, true, "Add member to shop", "/tradeshop $cmd$ <name>"),
+	ADD_MANAGER(Lists.newArrayList("addManager"), Permissions.NONE, 2, 3, true, "Add manager to shop", "/tradeshop $cmd$ <name> [all shops]"),
+	REMOVE_USER(Lists.newArrayList("removeUser", "removeManager", "removeMember"), Permissions.NONE, 2, 3, true, "Remove user from shop", "/tradeshop $cmd$ <Name> [all shops]"),
+	ADD_MEMBER(Lists.newArrayList("addMember"), Permissions.NONE, 2, 3, true, "Add member to shop", "/tradeshop $cmd$ <name> [all shops]"),
 
 	// Shop item management commands
 	ADD_PRODUCT(Lists.newArrayList("addProduct"), Permissions.NONE, 1, 3, true, "Add product to shop", "/tradeshop $cmd$ [Amount] [Material]"),

@@ -40,7 +40,9 @@ import org.shanerx.tradeshop.commands.commandrunners.ShopItemCommand;
 import org.shanerx.tradeshop.commands.commandrunners.ShopUserCommand;
 import org.shanerx.tradeshop.commands.commandrunners.WhatCommand;
 import org.shanerx.tradeshop.data.config.Message;
+import org.shanerx.tradeshop.framework.ShopChange;
 import org.shanerx.tradeshop.item.ShopItemSide;
+import org.shanerx.tradeshop.player.ShopRole;
 
 /**
  * This class is used for calling command methods from CommandRunner
@@ -117,13 +119,13 @@ public class CommandCaller implements CommandExecutor {
 				new ShopUserCommand(plugin, cmdPass).who();
 				break;
 			case ADD_MANAGER:
-				new ShopUserCommand(plugin, cmdPass).addManager();
+				new ShopUserCommand(plugin, cmdPass).editUser(ShopRole.MANAGER, ShopChange.ADD_MANAGER);
 				break;
 			case REMOVE_USER:
-				new ShopUserCommand(plugin, cmdPass).removeUser();
+				new ShopUserCommand(plugin, cmdPass).editUser(ShopRole.SHOPPER, ShopChange.REMOVE_USER);
 				break;
 			case ADD_MEMBER:
-				new ShopUserCommand(plugin, cmdPass).addMember();
+				new ShopUserCommand(plugin, cmdPass).editUser(ShopRole.MEMBER, ShopChange.ADD_MEMBER);
 				break;
 			case MULTI:
 				new GeneralPlayerCommand(plugin, cmdPass).multi();

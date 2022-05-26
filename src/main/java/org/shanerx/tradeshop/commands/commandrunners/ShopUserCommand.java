@@ -38,8 +38,33 @@ import org.shanerx.tradeshop.player.Permissions;
 import org.shanerx.tradeshop.player.ShopRole;
 import org.shanerx.tradeshop.player.ShopUser;
 import org.shanerx.tradeshop.shop.Shop;
+import org.shanerx.tradeshop.shoplocation.ShopLocation;
 import org.shanerx.tradeshop.utils.objects.ObjectHolder;
 import org.shanerx.tradeshop.utils.objects.Tuple;
+
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
+enum UserOperationStatus {
+    SUCCESSFUL(Message.UPDATED_SHOP_USERS_SUCCESSFUL),
+    FAILED_CAPACITY(Message.UPDATED_SHOP_USERS_FAILED_CAPACITY),
+    FAILED_EXISTING(Message.UPDATED_SHOP_USERS_FAILED_EXISTING),
+    FAILED_MISSING(Message.UPDATED_SHOP_USERS_FAILED_MISSING);
+
+    private final Message text;
+
+    UserOperationStatus(Message text) {
+        this.text = text;
+    }
+
+    @Override
+    public String toString() {
+        return text.toString();
+    }
+}
 
 /**
  * Implementation of CommandRunner for commands that view/change shop users
@@ -47,6 +72,8 @@ import org.shanerx.tradeshop.utils.objects.Tuple;
  * @since 2.6.0
  */
 public class ShopUserCommand extends CommandRunner {
+
+    private OfflinePlayer target;
 
     public ShopUserCommand(TradeShop instance, CommandPass command) {
         super(instance, command);
@@ -106,106 +133,100 @@ public class ShopUserCommand extends CommandRunner {
     }
 
     /**
-     * Adds the specified player to the shop as a manager
+     * Adds or Removes the specified player to/from the shop as the specified role
      */
-    public void addManager() {
-        Shop shop = findShop();
+    public void editUser(ShopRole role, ShopChange change) {
+        boolean applyAllOwned = command.hasArgAt(2) && toBool(command.getArgAt(2));
+        Set<Shop> ownedShops = new HashSet<>();
+        Map<String, String> updateStatuses = new HashMap<>();
 
-        if (shop == null)
-            return;
+        Shop tempShop = shopUserCommandStart(applyAllOwned);
 
-        if (!shop.getOwner().getUUID().equals(pSender.getUniqueId())
-                || (Setting.UNLIMITED_ADMIN.getBoolean() && Permissions.isAdminEnabled(pSender))) {
-            Message.NO_SHOP_PERMISSION.sendMessage(pSender);
-            return;
-        }
-
-        OfflinePlayer target = Bukkit.getOfflinePlayer(command.getArgAt(1));
-        if (!target.hasPlayedBefore()) {
-            Message.PLAYER_NOT_FOUND.sendMessage(pSender);
+        if (tempShop == null && target == null) {
             return;
         }
 
-        if (shop.getUsersUUID().contains(target.getUniqueId())) {
-            Message.UNSUCCESSFUL_SHOP_MEMBERS.sendMessage(pSender);
-            return;
+        if (applyAllOwned) {
+            for (String location : plugin.getDataStorage().loadPlayer(pSender.getUniqueId()).getOwnedShops()) {
+                ownedShops.add(plugin.getDataStorage().loadShopFromSign(ShopLocation.deserialize(location)));
+            }
+        } else {
+            ownedShops.add(tempShop);
         }
 
-        PlayerShopChangeEvent changeEvent = new PlayerShopChangeEvent(pSender, shop, ShopChange.ADD_MANAGER, new ObjectHolder<OfflinePlayer>(target));
-        Bukkit.getPluginManager().callEvent(changeEvent);
-        if (changeEvent.isCancelled()) return;
+        for (Shop shop : ownedShops) {
+            if (shop.getUsersUUID().contains(target.getUniqueId()) && change != ShopChange.REMOVE_USER) {
+                updateStatuses.put(shop.getShopLocationAsSL().serialize(), UserOperationStatus.FAILED_EXISTING.toString());
+                break;
+            } else if (!shop.getUsersUUID().contains(target.getUniqueId()) && change == ShopChange.REMOVE_USER) {
+                updateStatuses.put(shop.getShopLocationAsSL().serialize(), UserOperationStatus.FAILED_MISSING.toString());
+                break;
+            } else if (shop.getUsers(ShopRole.MANAGER, ShopRole.MEMBER).size() >= Setting.MAX_SHOP_USERS.getInt() && change != ShopChange.REMOVE_USER) {
+                updateStatuses.put(shop.getShopLocationAsSL().serialize(), UserOperationStatus.FAILED_CAPACITY.toString());
+                break;
+            }
 
-        shop.addUser(target.getUniqueId(), ShopRole.MANAGER);
+            PlayerShopChangeEvent changeEvent = new PlayerShopChangeEvent(pSender, shop, change, new ObjectHolder<OfflinePlayer>(target));
+            Bukkit.getPluginManager().callEvent(changeEvent);
+            if (changeEvent.isCancelled()) return;
 
-        Message.UPDATED_SHOP_MEMBERS.sendMessage(pSender);
+            switch (change) {
+                case ADD_MEMBER:
+                case ADD_MANAGER:
+                    shop.addUser(target.getUniqueId(), role);
+                    break;
+                case REMOVE_USER:
+                    shop.removeUser(target.getUniqueId());
+                    break;
+            }
+
+            updateStatuses.put(shop.getShopLocationAsSL().serialize(), UserOperationStatus.SUCCESSFUL.toString());
+        }
+
+        Message.UPDATED_SHOP_USERS.sendUserEditMultiLineMessage(pSender, Collections.singletonMap(Variable.UPDATED_SHOPS, updateStatuses));
     }
+
+
+    //region Util Methods
+    //------------------------------------------------------------------------------------------------------------------
 
     /**
-     * Removes the specified player from the shop if they currently are a manager
+     * Checks if targeted player exists and if player is looking at a shop while not targetting all owned shops
+     *
+     * @param applyAllOwned Is Player targetting all owned shops
+     * @return shop if found or null if not needed; returning null while setting target to null indicates failure, command should respond with an immediate blank return.
      */
-    public void removeUser() {
-        Shop shop = findShop();
-
-        if (shop == null)
-            return;
-
-        if (!shop.getOwner().getUUID().equals(pSender.getUniqueId())
-                || (Setting.UNLIMITED_ADMIN.getBoolean() && Permissions.isAdminEnabled(pSender))) {
-            Message.NO_SHOP_PERMISSION.sendMessage(pSender);
-            return;
-        }
-
-        OfflinePlayer target = Bukkit.getOfflinePlayer(command.getArgAt(1));
+    private Shop shopUserCommandStart(boolean applyAllOwned) {
+        target = Bukkit.getOfflinePlayer(command.getArgAt(1));
         if (!target.hasPlayedBefore()) {
             Message.PLAYER_NOT_FOUND.sendMessage(pSender);
-            return;
+            target = null;
+            return null;
         }
 
-        PlayerShopChangeEvent changeEvent = new PlayerShopChangeEvent(pSender, shop, ShopChange.REMOVE_USER, new ObjectHolder<OfflinePlayer>(target));
-        Bukkit.getPluginManager().callEvent(changeEvent);
-        if (changeEvent.isCancelled()) return;
+        if (!applyAllOwned) {
+            Shop shop = findShop();
 
-        if (!shop.removeUser(target.getUniqueId())) {
-            Message.UNSUCCESSFUL_SHOP_MEMBERS.sendMessage(pSender);
-            return;
+            if (shop == null) {
+                Message.NO_SIGHTED_SHOP.sendMessage(pSender);
+                target = null;
+                return null;
+            }
+
+            if (!shop.getOwner().getUUID().equals(pSender.getUniqueId())
+                    || (Setting.UNLIMITED_ADMIN.getBoolean() && Permissions.isAdminEnabled(pSender))) {
+                Message.NO_SHOP_PERMISSION.sendMessage(pSender);
+                target = null;
+                return null;
+            }
+
+            return shop;
         }
 
-        Message.UPDATED_SHOP_MEMBERS.sendMessage(pSender);
+        return null;
     }
 
-    /**
-     * Adds the specified player to the shop as a member
-     */
-    public void addMember() {
-        Shop shop = findShop();
 
-        if (shop == null)
-            return;
-
-        if (!shop.getOwner().getUUID().equals(pSender.getUniqueId())
-                || (Setting.UNLIMITED_ADMIN.getBoolean() && Permissions.isAdminEnabled(pSender))) {
-            Message.NO_SHOP_PERMISSION.sendMessage(pSender);
-            return;
-        }
-
-        OfflinePlayer target = Bukkit.getOfflinePlayer(command.getArgAt(1));
-        if (!target.hasPlayedBefore()) {
-            Message.PLAYER_NOT_FOUND.sendMessage(pSender);
-            return;
-        }
-
-
-        if (shop.getUsersUUID().contains(target.getUniqueId())) {
-            Message.UNSUCCESSFUL_SHOP_MEMBERS.sendMessage(pSender);
-            return;
-        }
-
-        PlayerShopChangeEvent changeEvent = new PlayerShopChangeEvent(pSender, shop, ShopChange.ADD_MEMBER, new ObjectHolder<OfflinePlayer>(target));
-        Bukkit.getPluginManager().callEvent(changeEvent);
-        if (changeEvent.isCancelled()) return;
-
-        shop.addUser(target.getUniqueId(), ShopRole.MEMBER);
-
-        Message.UPDATED_SHOP_MEMBERS.sendMessage(pSender);
-    }
+    //------------------------------------------------------------------------------------------------------------------
+    //endregion
 }

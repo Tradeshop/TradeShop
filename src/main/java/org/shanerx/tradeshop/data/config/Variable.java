@@ -44,7 +44,9 @@ public enum Variable {
     STATE,
     MISSING_ITEMS,
     RECEIVED_LINES,
-    GIVEN_LINES;
+    GIVEN_LINES,
+    UPDATED_SHOPS,
+    SHOP;
 
     final String SURROUND = "%";
 

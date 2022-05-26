@@ -670,6 +670,9 @@ public class Shop implements Serializable {
 	 * @return true if player has been added
 	 */
 	public boolean addUser(UUID newUser, ShopRole role) {
+		if (getUsers(ShopRole.MANAGER, ShopRole.MEMBER).size() >= Setting.MAX_SHOP_USERS.getInt())
+			return false;
+
 		boolean ret = false;
 		if (!getUsersUUID().contains(newUser)) {
 			switch (role) {
@@ -693,16 +696,7 @@ public class Shop implements Serializable {
 	public void updateShopUsers(Set<ShopUser> updatedUserSet) {
 		for (ShopUser user : updatedUserSet) {
 			removeUser(user.getUUID());
-			switch (user.getRole()) {
-				case MANAGER:
-					managers.add(user.getUUID());
-					break;
-				case MEMBER:
-					members.add(user.getUUID());
-					break;
-				default:
-					break;
-			}
+			addUser(user.getUUID(), user.getRole());
 		}
 		saveShop();
 	}

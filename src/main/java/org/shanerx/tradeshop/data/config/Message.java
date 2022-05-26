@@ -91,7 +91,11 @@ public enum Message {
     TOO_MANY_CHESTS(MessageSection.NONE, "too-many-chests"),
     TOO_MANY_ITEMS(MessageSection.NONE, "too-many-items"),
     UNSUCCESSFUL_SHOP_MEMBERS(MessageSection.NONE, "unsuccessful-shop-members"),
-    UPDATED_SHOP_MEMBERS(MessageSection.NONE, "updated-shop-members"),
+    UPDATED_SHOP_USERS(MessageSection.NONE, "updated-shop-users"),
+    UPDATED_SHOP_USERS_SUCCESSFUL(MessageSection.NONE, "pdated-shop-users-successful"),
+    UPDATED_SHOP_USERS_FAILED_CAPACITY(MessageSection.NONE, "updated-shop-users-failed-capacity"),
+    UPDATED_SHOP_USERS_FAILED_EXISTING(MessageSection.NONE, "updated-shop-users-failed-existing"),
+    UPDATED_SHOP_USERS_FAILED_MISSING(MessageSection.NONE, "updated-shop-users-failed-missing"),
     WHO_MESSAGE(MessageSection.NONE, "who-message"),
     VIEW_PLAYER_LEVEL(MessageSection.NONE, "view-player-level"),
     SET_PLAYER_LEVEL(MessageSection.NONE, "set-player-level"),
@@ -297,6 +301,52 @@ public enum Message {
                             .append(format.replace(Variable.ITEM.toString(), ShopItemStack.getCleanItemName(itm))
                                     .replace(Variable.AMOUNT.toString(), itm.getAmount() + ""));
                 }
+
+                message = message.replace(found, itemList.toString());
+            }
+        }
+
+        for (Tuple<String, String> replace : replacements) {
+            message = message.replace(replace.getLeft().toUpperCase(), replace.getRight())
+                    .replace(replace.getLeft().toLowerCase(), replace.getRight())
+                    .replace(replace.getLeft(), replace.getRight());
+        }
+
+        if (isJson) {
+            sendMessageDirectJson(player, message);
+        } else {
+            sendMessageDirect(player, message);
+        }
+    }
+
+    @SafeVarargs
+    public final void sendUserEditMultiLineMessage(Player player, Map<Variable, Map<String, String>> valuesToFill, Tuple<String, String>... replacements) {
+        if (valuesToFill.isEmpty()) {
+            sendMessage(player, replacements);
+            return;
+        }
+
+        boolean isJson = getString().startsWith("#json ");
+        String message = getPrefixed().replaceFirst("#json ", "");
+
+        Debug debug = new Utils().debugger;
+
+        for (Map.Entry<Variable, Map<String, String>> entry : valuesToFill.entrySet()) {
+            Pattern pattern = Pattern.compile(MULTILINEREGEX.replace("&V&", entry.getKey().toString()));
+            Matcher matcher = pattern.matcher(message);
+
+            if (entry.getValue().get(0) == null) {
+                entry.getValue().remove(0);
+            }
+
+            while (matcher.find()) {
+                StringBuilder itemList = new StringBuilder();
+                String found = matcher.group(), format = found.replaceAll("[{}]", "").split("=")[1];
+
+                entry.getValue().forEach((k, v) -> {
+                    itemList.append("\n")
+                            .append(format.replace(Variable.SHOP.toString(), k).replace(Variable.STATUS.toString(), v));
+                });
 
                 message = message.replace(found, itemList.toString());
             }
