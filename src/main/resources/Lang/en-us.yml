@@ -275,9 +275,6 @@ message:
     default: "&cThere are too many shops in this chunk, you can not add another one."
   too-many-items:
     default: "&cThis shop cannot take any more %SIDE% items!"
-  unsuccessful-shop-members:
-    default: "&aThat player is either already on the shop, or you have reached the maximum number of users!"
-    pre-comment: "Text to display when shop users could not be updated"
   updated-shop-users:
     default: "&aShop users have tried to update for the below shops! \n{%UPDATED_SHOPS%=  %SHOP% -|- %STATUS%}"
     pre-comment: "Text to display when shop users have been updated."

@@ -90,7 +90,6 @@ public enum Message {
     SUCCESSFUL_SETUP(MessageSection.NONE, "successful-setup"),
     TOO_MANY_CHESTS(MessageSection.NONE, "too-many-chests"),
     TOO_MANY_ITEMS(MessageSection.NONE, "too-many-items"),
-    UNSUCCESSFUL_SHOP_MEMBERS(MessageSection.NONE, "unsuccessful-shop-members"),
     UPDATED_SHOP_USERS(MessageSection.NONE, "updated-shop-users"),
     UPDATED_SHOP_USERS_SUCCESSFUL(MessageSection.NONE, "pdated-shop-users-successful"),
     UPDATED_SHOP_USERS_FAILED_CAPACITY(MessageSection.NONE, "updated-shop-users-failed-capacity"),
