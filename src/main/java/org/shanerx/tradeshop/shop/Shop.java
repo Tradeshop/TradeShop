@@ -82,17 +82,22 @@ public class Shop implements Serializable {
 	public Shop(Tuple<Location, Location> locations, ShopType shopType, ShopUser owner, Tuple<List<UUID>, List<UUID>> players, Tuple<ItemStack, ItemStack> items) {
 		shopLoc = new ShopLocation(locations.getLeft());
 		this.owner = owner;
-		chestLoc = new ShopLocation(locations.getRight());
-		utils.PLUGIN.getDataStorage().addChestLinkage(chestLoc, shopLoc);
+
+		if (locations.getRight() != null) {
+			chestLoc = new ShopLocation(locations.getRight());
+			utils.PLUGIN.getDataStorage().addChestLinkage(chestLoc, shopLoc);
+		}
+
 		this.shopType = shopType;
-		managers = players.getLeft();
-		members = players.getRight();
+
+		managers = players.getLeft() == null ? Collections.emptyList() : players.getLeft();
+		members = players.getRight() == null ? Collections.emptyList() : players.getRight();
 
 		product = new ArrayList<>();
 		cost = new ArrayList<>();
 
-        product.add(new ShopItemStack(items.getLeft()));
-        cost.add(new ShopItemStack(items.getRight()));
+		if (items.getLeft() != null) product.add(new ShopItemStack(items.getLeft()));
+		if (items.getRight() != null) cost.add(new ShopItemStack(items.getRight()));
 
 		fixAfterLoad();
 	}
@@ -105,18 +110,7 @@ public class Shop implements Serializable {
 	 * @param shopType  Type of the shop as ShopType
 	 */
 	public Shop(Tuple<Location, Location> locations, ShopType shopType, ShopUser owner) {
-		shopLoc = new ShopLocation(locations.getLeft());
-		this.owner = owner;
-		chestLoc = new ShopLocation(locations.getRight());
-		utils.PLUGIN.getDataStorage().addChestLinkage(chestLoc, shopLoc);
-		this.shopType = shopType;
-		managers = Collections.emptyList();
-		members = Collections.emptyList();
-
-		product = new ArrayList<>();
-		cost = new ArrayList<>();
-
-		fixAfterLoad();
+		this(locations, shopType, owner, new Tuple<>(null, null), new Tuple<>(null, null));
 	}
 
 	/**
@@ -127,16 +121,7 @@ public class Shop implements Serializable {
 	 * @param shopType Type of the shop as ShopType
 	 */
 	public Shop(Location location, ShopType shopType, ShopUser owner) {
-		shopLoc = new ShopLocation(location);
-		this.owner = owner;
-		this.shopType = shopType;
-		managers = Collections.emptyList();
-		members = Collections.emptyList();
-
-		product = new ArrayList<>();
-		cost = new ArrayList<>();
-
-		fixAfterLoad();
+		this(new Tuple<>(location, null), shopType, owner, new Tuple<>(null, null), new Tuple<>(null, null));
 	}
 
 	/**
@@ -307,11 +292,6 @@ public class Shop implements Serializable {
 			utils.PLUGIN.getDataStorage().addChestLinkage(chestLoc, shopLoc);
 		}
 
-		/* TODO Fix this after 2.4
-		 Removed since this ends up running getItems everytime a hopper trys to access a shop.
-		 Runs up to 3 times per second per hopper under a tradeshop with items inside
-		 Removing this caused errors with shops not being updated properly and causing fail messages during trades
-		 */
 		if (getShopSign() != null)
 			updateSign();
 	}
