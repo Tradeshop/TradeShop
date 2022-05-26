@@ -524,7 +524,7 @@ public class Utils {
 			for (ItemStack storageItem : storage.keySet()) {
 				boolean isSimilar = item.isSimilar(storageItem);
 				if (isSimilar) {
-					int taken = Math.min(storage.get(storageItem), count);
+					int taken = megaMin(storage.get(storageItem), count, storageItem.getMaxStackSize());
 
 					if (found.putIfAbsent(item.getItemStack(), taken) != null)
 						found.put(item.getItemStack(), storage.get(storageItem) + taken);
@@ -554,5 +554,20 @@ public class Utils {
 		debugger.log("Utils > getItems > Return Status: " + (currentCount != totalCount ? "bad" : "good"), DebugLevels.TRADE);
 
 		return currentCount != totalCount ? bad : good;
+	}
+
+	/**
+	 * Returns the smallest integer passed to it
+	 *
+	 * @param values list of integers to compare against each other
+	 * @return smallest integer
+	 */
+	public int megaMin(int... values) {
+		int min = values[0];
+		for (int i : values) {
+			min = Math.min(i, min);
+		}
+
+		return min;
 	}
 }
