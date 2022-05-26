@@ -49,7 +49,6 @@ import org.shanerx.tradeshop.utils.objects.Tuple;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -175,24 +174,6 @@ public class Shop implements Serializable {
 	}
 
 	/**
-	 * Returns the shops owner
-	 *
-	 * @return ShopUser object of owner
-	 */
-	public ShopUser getOwner() {
-		return owner;
-	}
-
-	/**
-	 * Sets the owner (don't know if this will ever be used)
-	 *
-	 * @param owner The new owner of the shop
-	 */
-	public void setOwner(ShopUser owner) {
-		this.owner = owner;
-	}
-
-	/**
 	 * Sets the storageInventory
 	 */
 	public void setStorageInventory() {
@@ -219,44 +200,6 @@ public class Shop implements Serializable {
 	}
 
 	/**
-	 * Returns the managers
-	 *
-	 * @return List of managers as ShopUser
-	 */
-	public List<ShopUser> getManagers() {
-		List<ShopUser> tempManagers = new ArrayList<>();
-
-		for (UUID user : managers) {
-			tempManagers.add(new ShopUser(user, ShopRole.MANAGER));
-		}
-
-		return tempManagers;
-	}
-
-	/**
-	 * Sets the managers
-	 *
-	 * @param managers the managers to be set to the shop
-	 */
-	public void setManagers(List<UUID> managers) {
-		this.managers = managers;
-	}
-
-	/**
-	 * Returns a list of all users for the shop, including; owners, managers, and members.
-	 *
-	 * @return the sign.
-	 */
-	public List<ShopUser> getUsers() {
-		List<ShopUser> users = new ArrayList<>();
-		users.add(owner);
-		users.addAll(getManagers());
-		users.addAll(getMembers());
-
-		return users;
-	}
-
-	/**
 	 * Returns the storage block as a ShopChest
 	 *
 	 * @return Shop storage as ShopChest
@@ -267,126 +210,6 @@ public class Shop implements Serializable {
         } catch (NullPointerException ex) {
             return null;
         }
-	}
-
-	/**
-	 * Gets the members of the shop as ShopUser
-	 *
-	 * @return List of members as ShopUser
-	 */
-	public List<ShopUser> getMembers() {
-		List<ShopUser> tempMembers = new ArrayList<>();
-
-		for (UUID user : members) {
-			tempMembers.add(new ShopUser(user, ShopRole.MEMBER));
-		}
-
-		return tempMembers;
-	}
-
-	/**
-	 * Sets the members
-	 *
-	 * @param members the members to be set to the shop
-	 */
-	public void setMembers(List<UUID> members) {
-		this.members = members;
-	}
-
-	/**
-	 * Adds a manager to the shop
-	 *
-	 * @param newManager the player to be added as a shopUser object
-	 * @return true if player has been added
-	 */
-	public boolean addManager(UUID newManager) {
-		if (!getUsersUUID().contains(newManager)) {
-			managers.add(newManager);
-			saveShop();
-			return true;
-		}
-		return false;
-	}
-
-    /**
-     * Updates the saved player data for all users
-     */
-    private void updateUserFiles() {
-		TradeShop plugin = new Utils().PLUGIN;
-        for (UUID user : getUsersUUID()) {
-            PlayerSetting playerSetting = plugin.getDataStorage().loadPlayer(user);
-            playerSetting.updateShops(this);
-            plugin.getDataStorage().savePlayer(playerSetting);
-        }
-    }
-
-    /**
-     * Removes this shop from all users
-     */
-    private void purgeFromUserFiles() {
-		TradeShop plugin = new Utils().PLUGIN;
-        for (UUID user : getUsersUUID()) {
-            PlayerSetting playerSetting = plugin.getDataStorage().loadPlayer(user);
-            playerSetting.removeShop(this);
-            plugin.getDataStorage().savePlayer(playerSetting);
-        }
-    }
-
-	/**
-	 * Removes a user from the shop
-	 *
-	 * @param oldUser the UUID of the player to be removed
-	 * @return true if user was removed
-	 */
-    public boolean removeUser(UUID oldUser) {
-        boolean ret = false;
-        if (getManagersUUID().contains(oldUser)) {
-            managers.remove(oldUser);
-            ret = true;
-        }
-
-        if (getMembersUUID().contains(oldUser)) {
-            members.remove(oldUser);
-            ret = true;
-        }
-
-        saveShop();
-
-        return ret;
-    }
-
-	/**
-	 * Adds a member to the shop
-	 *
-	 * @param newMember the player to be added as a shopUser object
-	 * @return true if player has been added
-	 */
-	public boolean addMember(UUID newMember) {
-		if (!getUsersUUID().contains(newMember)) {
-			members.add(newMember);
-			saveShop();
-			return true;
-		}
-
-		return false;
-	}
-
-	/**
-	 * Returns a list of managers uuid
-	 *
-	 * @return List of all managers uuid
-	 */
-	public List<UUID> getManagersUUID() {
-		return managers;
-	}
-
-	/**
-	 * Returns a list of all members uuid
-	 *
-	 * @return list of member uuid
-	 */
-	public List<UUID> getMembersUUID() {
-		return members;
 	}
 
 	/**
@@ -491,15 +314,6 @@ public class Shop implements Serializable {
 		 */
 		if (getShopSign() != null)
 			updateSign();
-	}
-
-	/**
-	 * Gets all users of shop as UUID List
-	 *
-	 * @return List of all users as UUIDs
-	 */
-	public List<UUID> getUsersUUID() {
-		return getUsers().stream().map(ShopUser::getUUID).collect(Collectors.toList());
 	}
 
 	/**
@@ -693,15 +507,6 @@ public class Shop implements Serializable {
     }
 
 	/**
-	 * Checks if shop has necessary items to make a trade
-	 *
-	 * @return true if items are missing
-	 */
-	public boolean isMissingItems() {
-		return shopType.equals(ShopType.ITRADE) ? product.isEmpty() : product.isEmpty() || cost.isEmpty();
-	}
-
-	/**
 	 * Sets the shops status to closed
 	 */
     public void setStatus(ShopStatus newStatus) {
@@ -739,49 +544,6 @@ public class Shop implements Serializable {
 	}
 
 	/**
-	 * Returns a list of Managers' names
-	 *
-	 * @return List of Managers' names
-	 */
-	public List<String> getManagersNames() {
-		List<String> names = Arrays.asList(new String[getManagers().size()]);
-
-		for (int i = 0; i < getManagers().size(); i++) {
-			names.set(i, getManagers().get(i).getName());
-		}
-
-		return names;
-	}
-
-	/**
-	 * Returns a list of Members' names
-	 *
-	 * @return List of Members' names
-	 */
-	public List<String> getMembersNames() {
-		List<String> names = Arrays.asList(new String[getMembers().size()]);
-
-		for (int i = 0; i < getMembers().size(); i++) {
-			names.set(i, getMembers().get(i).getName());
-		}
-
-		return names;
-	}
-
-	/**
-	 * Returns a list of Members' and Managers' names
-	 *
-	 * @return List of Members' and Managers' names
-	 */
-	public List<String> getUserNames() {
-		List<String> users = new ArrayList<>();
-		users.addAll(getManagersNames());
-		users.addAll(getMembersNames());
-
-		return users;
-	}
-
-	/**
 	 * Checks if all Items in the list are valid for trade
 	 *
 	 * @param side  Which side of the trade should be checked for illegal items
@@ -795,24 +557,6 @@ public class Shop implements Serializable {
 		}
 
 		return true;
-	}
-
-	/**
-	 * Returns the ShopRole of the supplied UUID
-	 *
-	 * @param uuidToCheck uuid to check for role of
-	 * @return the ShopRole of the supplied UUID
-	 */
-	public ShopRole checkRole(UUID uuidToCheck) {
-		if (owner.getUUID().equals(uuidToCheck)) {
-			return ShopRole.OWNER;
-		} else if (managers.contains(uuidToCheck)) {
-			return ShopRole.MANAGER;
-		} else if (members.contains(uuidToCheck)) {
-			return ShopRole.MEMBER;
-		} else {
-			return ShopRole.SHOPPER;
-		}
 	}
 
 	/**
@@ -847,6 +591,122 @@ public class Shop implements Serializable {
 		availableTrades = currentCount == 0 || totalCount == 0 ? 0 : currentCount / totalCount;
 	}
 
+	//region User Management - Methods for adding/deleting/updating/viewing a shops users
+	//------------------------------------------------------------------------------------------------------------------
+
+	/**
+	 * Returns a list of all users for the shop based on specified roles.
+	 *
+	 * @param roles role to get users with
+	 * @return list of ShopUsers.
+	 */
+	public List<ShopUser> getUsers(ShopRole... roles) {
+		List<ShopUser> users = new ArrayList<>();
+		for (ShopRole role : roles) {
+			switch (role) {
+				case MEMBER:
+					members.forEach(uuid -> users.add(new ShopUser(uuid, ShopRole.MEMBER)));
+					break;
+				case MANAGER:
+					members.forEach(uuid -> users.add(new ShopUser(uuid, ShopRole.MANAGER)));
+					break;
+				case OWNER:
+					users.add(owner);
+					break;
+			}
+		}
+
+		return users;
+	}
+
+	/**
+	 * Returns a list of all user names for the shop based on specified roles.
+	 *
+	 * @param roles role to get users with
+	 * @return List of specified users names
+	 */
+	public List<String> getUserNames(ShopRole... roles) {
+		return getUsers(roles).stream().map(ShopUser::getName).collect(Collectors.toList());
+	}
+
+	/**
+	 * Returns a list of all user UUIDs for the shop based on specified roles.
+	 *
+	 * @param roles role to get users with
+	 * @return List of specified users names
+	 */
+	public List<UUID> getUsersUUID(ShopRole... roles) {
+		List<UUID> users = new ArrayList<>();
+		for (ShopRole role : roles) {
+			switch (role) {
+				case MEMBER:
+					users.addAll(members);
+					break;
+				case MANAGER:
+					users.addAll(managers);
+					break;
+				case OWNER:
+					users.add(owner.getUUID());
+					break;
+			}
+		}
+
+		return users;
+	}
+
+	/**
+	 * Returns true if the shop has users of the specified role
+	 *
+	 * @param role role to check for users
+	 * @return true if users exist
+	 */
+	public boolean hasUsers(ShopRole role) {
+		return !getUsers(role).isEmpty();
+	}
+
+	/**
+	 * Returns the shops owner
+	 *
+	 * @return ShopUser object of owner
+	 */
+	public ShopUser getOwner() {
+		return owner;
+	}
+
+	/**
+	 * Sets the owner (don't know if this will ever be used)
+	 *
+	 * @param owner The new owner of the shop
+	 */
+	public void setOwner(ShopUser owner) {
+		this.owner = owner;
+	}
+
+	/**
+	 * Adds a user to the shop with the specified role
+	 *
+	 * @param newUser the player to be added as a shopUser object
+	 * @param role    role to set thge player to
+	 * @return true if player has been added
+	 */
+	public boolean addUser(UUID newUser, ShopRole role) {
+		boolean ret = false;
+		if (!getUsersUUID().contains(newUser)) {
+			switch (role) {
+				case MANAGER:
+					managers.add(newUser);
+					ret = true;
+				case MEMBER:
+					members.add(newUser);
+					ret = true;
+			}
+		}
+
+		if (ret) saveShop();
+
+		return ret;
+	}
+
 	/**
 	 * Updates all shop users
 	 */
@@ -867,6 +727,98 @@ public class Shop implements Serializable {
 		saveShop();
 	}
 
+	/**
+	 * Returns the ShopRole of the supplied UUID
+	 *
+	 * @param uuidToCheck uuid to check for role of
+	 * @return the ShopRole of the supplied UUID
+	 */
+	public ShopRole checkRole(UUID uuidToCheck) {
+		if (owner.getUUID().equals(uuidToCheck)) {
+			return ShopRole.OWNER;
+		} else if (managers.contains(uuidToCheck)) {
+			return ShopRole.MANAGER;
+		} else if (members.contains(uuidToCheck)) {
+			return ShopRole.MEMBER;
+		} else {
+			return ShopRole.SHOPPER;
+		}
+	}
+
+	/**
+	 * Removes a user from the shop
+	 *
+	 * @param oldUser the UUID of the player to be removed
+	 * @return true if user was removed
+	 */
+	public boolean removeUser(UUID oldUser) {
+		boolean ret = false;
+		if (getUsersUUID(ShopRole.MANAGER).contains(oldUser)) {
+			managers.remove(oldUser);
+			ret = true;
+		}
+
+		if (getUsersUUID(ShopRole.MEMBER).contains(oldUser)) {
+			members.remove(oldUser);
+			ret = true;
+		}
+
+		saveShop();
+
+		return ret;
+	}
+
+	/**
+	 * Sets the a list of users to a role
+	 *
+	 * @param users the managers to be set to the shop
+	 */
+	public boolean setUsers(List<UUID> users, ShopRole role) {
+		boolean ret = false;
+		switch (role) {
+			case MANAGER:
+				users.forEach(this::removeUser);
+				managers = users;
+				ret = true;
+			case MEMBER:
+				users.forEach(this::removeUser);
+				members = users;
+				ret = true;
+		}
+
+		if (ret) saveShop();
+
+		return ret;
+	}
+
+	/**
+	 * Updates the saved player data for all users
+	 */
+	private void updateUserFiles() {
+		TradeShop plugin = new Utils().PLUGIN;
+		for (UUID user : getUsersUUID()) {
+			PlayerSetting playerSetting = plugin.getDataStorage().loadPlayer(user);
+			playerSetting.updateShops(this);
+			plugin.getDataStorage().savePlayer(playerSetting);
+		}
+	}
+
+	/**
+	 * Removes this shop from all users
+	 */
+	private void purgeFromUserFiles() {
+		TradeShop plugin = new Utils().PLUGIN;
+		for (UUID user : getUsersUUID()) {
+			PlayerSetting playerSetting = plugin.getDataStorage().loadPlayer(user);
+			playerSetting.removeShop(this);
+			plugin.getDataStorage().savePlayer(playerSetting);
+		}
+	}
+
+
+	//------------------------------------------------------------------------------------------------------------------
+	//endregion
+
 	//region Item Management - Methods for adding/deleting/updating/viewing Cost and Product lists
 	//------------------------------------------------------------------------------------------------------------------
 
@@ -877,6 +829,15 @@ public class Shop implements Serializable {
 	 */
 	public boolean hasSide(ShopItemSide side) {
 		return getSide(side).size() > 0;
+	}
+
+	/**
+	 * Checks if shop has necessary items to make a trade
+	 *
+	 * @return true if items are missing
+	 */
+	public boolean isMissingItems() {
+		return shopType.equals(ShopType.ITRADE) ? product.isEmpty() : product.isEmpty() || cost.isEmpty();
 	}
 
 	/**

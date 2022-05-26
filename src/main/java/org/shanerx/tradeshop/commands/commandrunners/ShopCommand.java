@@ -33,6 +33,7 @@ import org.shanerx.tradeshop.data.config.Variable;
 import org.shanerx.tradeshop.framework.events.PlayerShopCloseEvent;
 import org.shanerx.tradeshop.framework.events.PlayerShopOpenEvent;
 import org.shanerx.tradeshop.player.Permissions;
+import org.shanerx.tradeshop.player.ShopRole;
 import org.shanerx.tradeshop.shop.Shop;
 import org.shanerx.tradeshop.shop.ShopStatus;
 import org.shanerx.tradeshop.utils.objects.Tuple;
@@ -52,9 +53,8 @@ public class ShopCommand extends CommandRunner {
         if (shop == null)
             return;
 
-        if (!(shop.getOwner().getUUID().equals(pSender.getUniqueId()) ||
-                shop.getManagersUUID().contains(pSender.getUniqueId()) ||
-                Permissions.isAdminEnabled(pSender))) {
+        if (!(shop.getUsersUUID(ShopRole.MANAGER, ShopRole.OWNER).contains(pSender.getUniqueId())
+                || Permissions.isAdminEnabled(pSender))) {
             Message.NO_SHOP_PERMISSION.sendMessage(pSender);
             return;
         }
@@ -89,9 +89,8 @@ public class ShopCommand extends CommandRunner {
         if (shop == null)
             return;
 
-        if (!(shop.getOwner().getUUID().equals(pSender.getUniqueId()) ||
-                shop.getManagersUUID().contains(pSender.getUniqueId()) ||
-                Permissions.isAdminEnabled(pSender))) {
+        if (!(shop.getUsersUUID(ShopRole.MANAGER, ShopRole.OWNER).contains(pSender.getUniqueId())
+                || Permissions.isAdminEnabled(pSender))) {
             Message.NO_SHOP_PERMISSION.sendMessage(pSender);
             return;
         }
@@ -133,8 +132,7 @@ public class ShopCommand extends CommandRunner {
                 }
         }
 
-        if (!(shop.getOwner().getUUID().equals(pSender.getUniqueId())
-                || shop.getManagersUUID().contains(pSender.getUniqueId())
+        if (!(shop.getUsersUUID(ShopRole.MANAGER, ShopRole.OWNER).contains(pSender.getUniqueId())
                 || (Setting.UNLIMITED_ADMIN.getBoolean() && Permissions.isAdminEnabled(pSender)))) {
             Message.NO_SHOP_PERMISSION.sendMessage(pSender);
             return;

@@ -35,6 +35,7 @@ import org.shanerx.tradeshop.data.config.Variable;
 import org.shanerx.tradeshop.framework.ShopChange;
 import org.shanerx.tradeshop.framework.events.PlayerShopChangeEvent;
 import org.shanerx.tradeshop.player.Permissions;
+import org.shanerx.tradeshop.player.ShopRole;
 import org.shanerx.tradeshop.player.ShopUser;
 import org.shanerx.tradeshop.shop.Shop;
 import org.shanerx.tradeshop.utils.objects.ObjectHolder;
@@ -74,8 +75,8 @@ public class ShopUserCommand extends CommandRunner {
         if (shop.getOwner() != null)
             owner = shop.getOwner().getName();
 
-        if (shop.getManagers().size() > 0) {
-            for (ShopUser usr : shop.getManagers()) {
+        if (shop.hasUsers(ShopRole.MANAGER)) {
+            for (ShopUser usr : shop.getUsers(ShopRole.MANAGER)) {
                 if (managers.toString().equals(""))
                     managers = new StringBuilder(usr.getName());
                 else
@@ -83,8 +84,8 @@ public class ShopUserCommand extends CommandRunner {
             }
         }
 
-        if (shop.getMembers().size() > 0) {
-            for (ShopUser usr : shop.getMembers()) {
+        if (shop.hasUsers(ShopRole.MEMBER)) {
+            for (ShopUser usr : shop.getUsers(ShopRole.MEMBER)) {
                 if (members.toString().equals(""))
                     members = new StringBuilder(usr.getName());
                 else
@@ -134,7 +135,7 @@ public class ShopUserCommand extends CommandRunner {
         Bukkit.getPluginManager().callEvent(changeEvent);
         if (changeEvent.isCancelled()) return;
 
-        shop.addManager(target.getUniqueId());
+        shop.addUser(target.getUniqueId(), ShopRole.MANAGER);
 
         Message.UPDATED_SHOP_MEMBERS.sendMessage(pSender);
     }
@@ -203,7 +204,7 @@ public class ShopUserCommand extends CommandRunner {
         Bukkit.getPluginManager().callEvent(changeEvent);
         if (changeEvent.isCancelled()) return;
 
-        shop.addMember(target.getUniqueId());
+        shop.addUser(target.getUniqueId(), ShopRole.MEMBER);
 
         Message.UPDATED_SHOP_MEMBERS.sendMessage(pSender);
     }

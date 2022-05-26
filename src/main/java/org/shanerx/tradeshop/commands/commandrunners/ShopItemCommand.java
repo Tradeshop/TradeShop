@@ -38,6 +38,7 @@ import org.shanerx.tradeshop.framework.events.PlayerShopChangeEvent;
 import org.shanerx.tradeshop.item.ShopItemSide;
 import org.shanerx.tradeshop.item.ShopItemStack;
 import org.shanerx.tradeshop.player.Permissions;
+import org.shanerx.tradeshop.player.ShopRole;
 import org.shanerx.tradeshop.shop.Shop;
 import org.shanerx.tradeshop.utils.objects.ObjectHolder;
 import org.shanerx.tradeshop.utils.objects.Tuple;
@@ -89,8 +90,7 @@ public class ShopItemCommand extends CommandRunner {
             return;
         }
 
-        if (!(shop.getOwner().getUUID().equals(pSender.getUniqueId())
-                || shop.getManagersUUID().contains(pSender.getUniqueId())
+        if (!(shop.getUsersUUID(ShopRole.MANAGER, ShopRole.OWNER).contains(pSender.getUniqueId())
                 || (Setting.UNLIMITED_ADMIN.getBoolean() && Permissions.isAdminEnabled(pSender)))) {
             Message.NO_SHOP_PERMISSION.sendMessage(pSender);
             return;
@@ -135,8 +135,7 @@ public class ShopItemCommand extends CommandRunner {
             mat = Material.getMaterial(command.getArgAt(2).toUpperCase());
         }
 
-        if (!(shop.getOwner().getUUID().equals(pSender.getUniqueId())
-                || shop.getManagersUUID().contains(pSender.getUniqueId())
+        if (!(shop.getUsersUUID(ShopRole.MANAGER, ShopRole.OWNER).contains(pSender.getUniqueId())
                 || (Setting.UNLIMITED_ADMIN.getBoolean() && Permissions.isAdminEnabled(pSender)))) {
             Message.NO_SHOP_PERMISSION.sendMessage(pSender);
             return;
@@ -212,8 +211,7 @@ public class ShopItemCommand extends CommandRunner {
             mat = Material.getMaterial(command.getArgAt(2).toUpperCase());
         }
 
-        if (!(shop.getOwner().getUUID().equals(pSender.getUniqueId())
-                || shop.getManagersUUID().contains(pSender.getUniqueId())
+        if (!(shop.getUsersUUID(ShopRole.MANAGER, ShopRole.OWNER).contains(pSender.getUniqueId())
                 || (Setting.UNLIMITED_ADMIN.getBoolean() && Permissions.isAdminEnabled(pSender)))) {
             Message.NO_SHOP_PERMISSION.sendMessage(pSender);
             return;

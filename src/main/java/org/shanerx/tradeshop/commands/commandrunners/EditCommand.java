@@ -25,7 +25,6 @@
 
 package org.shanerx.tradeshop.commands.commandrunners;
 
-import com.google.common.collect.Iterables;
 import de.themoep.inventorygui.GuiElementGroup;
 import de.themoep.inventorygui.GuiStateElement;
 import de.themoep.inventorygui.InventoryGui;
@@ -86,9 +85,8 @@ public class EditCommand extends GUICommand {
         if (shop == null)
             return;
 
-        if (!(shop.getOwner().getUUID().equals(pSender.getUniqueId()) ||
-                shop.getManagersUUID().contains(pSender.getUniqueId()) ||
-                Permissions.isAdminEnabled(pSender))) {
+        if (!(shop.getUsersUUID(ShopRole.MANAGER, ShopRole.OWNER).contains(pSender.getUniqueId())
+                || Permissions.isAdminEnabled(pSender))) {
             command.sendMessage(Message.NO_SHOP_PERMISSION.getPrefixed());
             return;
         }
@@ -126,7 +124,7 @@ public class EditCommand extends GUICommand {
                     return true;
                 }, "Save Changes"));
 
-                for (ShopUser user : Iterables.concat(shop.getManagers(), shop.getMembers())) {
+                for (ShopUser user : shop.getUsers(ShopRole.MANAGER, ShopRole.MEMBER)) {
                     shopUsers.add(user);
                     userGroup.addElement(new GuiStateElement('e',
                             user.getRole().toString(),
@@ -164,7 +162,7 @@ public class EditCommand extends GUICommand {
 
                 }
             } else {
-                for (ShopUser user : Iterables.concat(shop.getManagers(), shop.getMembers())) {
+                for (ShopUser user : shop.getUsers(ShopRole.MANAGER, ShopRole.MEMBER)) {
                     userGroup.addElement(new StaticGuiElement('e', user.getHead(), user.getName(), "Position: " + user.getRole().toString()));
                 }
             }
