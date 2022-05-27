@@ -92,6 +92,7 @@ public enum Message {
     TOO_MANY_ITEMS(MessageSection.NONE, "too-many-items"),
     UPDATED_SHOP_USERS(MessageSection.NONE, "updated-shop-users"),
     UPDATED_SHOP_USERS_SUCCESSFUL(MessageSection.NONE, "pdated-shop-users-successful"),
+    UPDATED_SHOP_USERS_FAILED(MessageSection.NONE, "updated-shop-users-failed"),
     UPDATED_SHOP_USERS_FAILED_CAPACITY(MessageSection.NONE, "updated-shop-users-failed-capacity"),
     UPDATED_SHOP_USERS_FAILED_EXISTING(MessageSection.NONE, "updated-shop-users-failed-existing"),
     UPDATED_SHOP_USERS_FAILED_MISSING(MessageSection.NONE, "updated-shop-users-failed-missing"),

@@ -581,17 +581,35 @@ public class Shop implements Serializable {
 	 * @return list of ShopUsers.
 	 */
 	public List<ShopUser> getUsers(ShopRole... roles) {
+		return getUsersExcluding(Collections.emptyList(), roles);
+	}
+
+	/**
+	 * Returns a list of all users for the shop based on specified roles. Will exclude any users in the list.
+	 *
+	 * @param excludedPlayers player UUIDs to exclude from the results
+	 * @param roles           role to get users with
+	 * @return list of ShopUsers.
+	 */
+	public List<ShopUser> getUsersExcluding(List<UUID> excludedPlayers, ShopRole... roles) {
 		List<ShopUser> users = new ArrayList<>();
 		for (ShopRole role : roles) {
 			switch (role) {
 				case MEMBER:
-					members.forEach(uuid -> users.add(new ShopUser(uuid, ShopRole.MEMBER)));
+					members.forEach(uuid -> {
+						if (!excludedPlayers.contains(uuid))
+							users.add(new ShopUser(uuid, ShopRole.MEMBER));
+					});
 					break;
 				case MANAGER:
-					members.forEach(uuid -> users.add(new ShopUser(uuid, ShopRole.MANAGER)));
+					members.forEach(uuid -> {
+						if (!excludedPlayers.contains(uuid))
+							users.add(new ShopUser(uuid, ShopRole.MANAGER));
+					});
 					break;
 				case OWNER:
-					users.add(owner);
+					if (!excludedPlayers.contains(owner.getUUID()))
+						users.add(owner);
 					break;
 			}
 		}
@@ -663,9 +681,20 @@ public class Shop implements Serializable {
 	}
 
 	/**
+	 * Sets a user to the shop with the specified role after removing it if it was already on the shop
+	 *
+	 * @param newUser the player to be set
+	 * @param role    role to set thge player to
+	 * @return true if player has been set
+	 */
+	public boolean setUser(UUID newUser, ShopRole role) {
+		return removeUser(newUser) && addUser(newUser, role);
+	}
+
+	/**
 	 * Adds a user to the shop with the specified role
 	 *
-	 * @param newUser the player to be added as a shopUser object
+	 * @param newUser the player to be added
 	 * @param role    role to set thge player to
 	 * @return true if player has been added
 	 */

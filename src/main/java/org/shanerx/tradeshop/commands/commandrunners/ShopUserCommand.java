@@ -50,6 +50,7 @@ import java.util.Set;
 
 enum UserOperationStatus {
     SUCCESSFUL(Message.UPDATED_SHOP_USERS_SUCCESSFUL),
+    FAILED(Message.UPDATED_SHOP_USERS_FAILED),
     FAILED_CAPACITY(Message.UPDATED_SHOP_USERS_FAILED_CAPACITY),
     FAILED_EXISTING(Message.UPDATED_SHOP_USERS_FAILED_EXISTING),
     FAILED_MISSING(Message.UPDATED_SHOP_USERS_FAILED_MISSING);
@@ -155,32 +156,59 @@ public class ShopUserCommand extends CommandRunner {
         }
 
         for (Shop shop : ownedShops) {
-            if (shop.getUsersUUID().contains(target.getUniqueId()) && change != ShopChange.REMOVE_USER) {
-                updateStatuses.put(shop.getShopLocationAsSL().serialize(), UserOperationStatus.FAILED_EXISTING.toString());
-                break;
-            } else if (!shop.getUsersUUID().contains(target.getUniqueId()) && change == ShopChange.REMOVE_USER) {
-                updateStatuses.put(shop.getShopLocationAsSL().serialize(), UserOperationStatus.FAILED_MISSING.toString());
-                break;
-            } else if (shop.getUsers(ShopRole.MANAGER, ShopRole.MEMBER).size() >= Setting.MAX_SHOP_USERS.getInt() && change != ShopChange.REMOVE_USER) {
-                updateStatuses.put(shop.getShopLocationAsSL().serialize(), UserOperationStatus.FAILED_CAPACITY.toString());
-                break;
+            eachOwnedShop:
+            {
+                switch (change) {
+                    case REMOVE_USER:
+                        if (!shop.getUsersUUID().contains(target.getUniqueId())) {
+                            updateStatuses.put(shop.getShopLocationAsSL().serialize(), UserOperationStatus.FAILED_MISSING.toString());
+                            break eachOwnedShop;
+                        }
+                        break;
+                    case ADD_MANAGER:
+                    case ADD_MEMBER:
+                        if (shop.getUsersUUID().contains(target.getUniqueId())) {
+                            updateStatuses.put(shop.getShopLocationAsSL().serialize(), UserOperationStatus.FAILED_EXISTING.toString());
+                            break eachOwnedShop;
+                        } else if (shop.getUsers(ShopRole.MANAGER, ShopRole.MEMBER).size() >= Setting.MAX_SHOP_USERS.getInt()) {
+                            updateStatuses.put(shop.getShopLocationAsSL().serialize(), UserOperationStatus.FAILED_CAPACITY.toString());
+                            break eachOwnedShop;
+                        }
+                        break;
+                    case SET_MANAGER:
+                    case SET_MEMBER:
+                        if (shop.getUsersExcluding(Collections.singletonList(target.getUniqueId()), ShopRole.MANAGER, ShopRole.MEMBER).size() >= Setting.MAX_SHOP_USERS.getInt()) {
+                            updateStatuses.put(shop.getShopLocationAsSL().serialize(), UserOperationStatus.FAILED_CAPACITY.toString());
+                            break eachOwnedShop;
+                        }
+                        break;
+                }
+
+                PlayerShopChangeEvent changeEvent = new PlayerShopChangeEvent(pSender, shop, change, new ObjectHolder<OfflinePlayer>(target));
+                Bukkit.getPluginManager().callEvent(changeEvent);
+                if (changeEvent.isCancelled()) return;
+
+                boolean success = false;
+
+                switch (change) {
+                    case SET_MANAGER:
+                    case SET_MEMBER:
+                        success = shop.setUser(target.getUniqueId(), role);
+                        break;
+                    case ADD_MEMBER:
+                    case ADD_MANAGER:
+                        success = shop.addUser(target.getUniqueId(), role);
+                        break;
+                    case REMOVE_USER:
+                        success = shop.removeUser(target.getUniqueId());
+                        break;
+                }
+
+                if (success)
+                    updateStatuses.put(shop.getShopLocationAsSL().serialize(), UserOperationStatus.SUCCESSFUL.toString());
+                else
+                    updateStatuses.put(shop.getShopLocationAsSL().serialize(), UserOperationStatus.FAILED.toString());
             }
-
-            PlayerShopChangeEvent changeEvent = new PlayerShopChangeEvent(pSender, shop, change, new ObjectHolder<OfflinePlayer>(target));
-            Bukkit.getPluginManager().callEvent(changeEvent);
-            if (changeEvent.isCancelled()) return;
-
-            switch (change) {
-                case ADD_MEMBER:
-                case ADD_MANAGER:
-                    shop.addUser(target.getUniqueId(), role);
-                    break;
-                case REMOVE_USER:
-                    shop.removeUser(target.getUniqueId());
-                    break;
-            }
-
-            updateStatuses.put(shop.getShopLocationAsSL().serialize(), UserOperationStatus.SUCCESSFUL.toString());
         }
 
         Message.UPDATED_SHOP_USERS.sendUserEditMultiLineMessage(pSender, Collections.singletonMap(Variable.UPDATED_SHOPS, updateStatuses));

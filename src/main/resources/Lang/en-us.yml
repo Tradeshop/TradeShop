@@ -281,15 +281,18 @@ message:
   updated-shop-users-successful:
     default: "&aSuccessful"
     pre-comment: "Text to display when shop users have been updated successfully."
+  updated-shop-users-failed:
+    default: "&cFailed"
+    pre-comment: "Text to display when shop users could not be added for an unknown reason."
   updated-shop-users-failed-capacity:
     default: "&cMax Capacity"
-    pre-comment: "Text to display when shop users have been added but the max amount of users is already on the shop."
+    pre-comment: "Text to display when shop users could not be added due to the shop having max user capacity."
   updated-shop-users-failed-existing:
     default: "&ePlayer Exists"
-    pre-comment: "Text to display when shop users have been added and the player is already on the shop."
+    pre-comment: "Text to display when shop users could not be added because they are already a user on the shop."
   updated-shop-users-failed-missing:
     default: "&ePlayer Missing"
-    pre-comment: "Text to display when shop users have been removed and the player was not on the shop."
+    pre-comment: "Text to display when shop users could not be removed because the user was not on the shop."
   who-message:
     default: "&6Shop users are:\n&2Owner: &e%OWNER%\n&2Managers: &e%MANAGERS%\n&2Members: &e%MEMBERS%"
     pre-comment: "Text to display when players use the who command"

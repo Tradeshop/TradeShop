@@ -118,14 +118,20 @@ public class CommandCaller implements CommandExecutor {
 			case WHO:
 				new ShopUserCommand(plugin, cmdPass).who();
 				break;
-			case ADD_MANAGER:
-				new ShopUserCommand(plugin, cmdPass).editUser(ShopRole.MANAGER, ShopChange.ADD_MANAGER);
-				break;
 			case REMOVE_USER:
 				new ShopUserCommand(plugin, cmdPass).editUser(ShopRole.SHOPPER, ShopChange.REMOVE_USER);
 				break;
+			case ADD_MANAGER:
+				new ShopUserCommand(plugin, cmdPass).editUser(ShopRole.MANAGER, ShopChange.ADD_MANAGER);
+				break;
 			case ADD_MEMBER:
 				new ShopUserCommand(plugin, cmdPass).editUser(ShopRole.MEMBER, ShopChange.ADD_MEMBER);
+				break;
+			case SET_MANAGER:
+				new ShopUserCommand(plugin, cmdPass).editUser(ShopRole.MANAGER, ShopChange.SET_MANAGER);
+				break;
+			case SET_MEMBER:
+				new ShopUserCommand(plugin, cmdPass).editUser(ShopRole.MEMBER, ShopChange.SET_MEMBER);
 				break;
 			case MULTI:
 				new GeneralPlayerCommand(plugin, cmdPass).multi();
