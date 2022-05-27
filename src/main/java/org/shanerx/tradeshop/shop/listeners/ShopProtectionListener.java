@@ -135,12 +135,20 @@ public class ShopProtectionListener extends Utils implements Listener {
         debugger.log("ShopProtectionListener: (TSAF) HopperEvent fired! ", DebugLevels.PROTECTION);
         Bukkit.getPluginManager().callEvent(hopperEvent);
         debugger.log("ShopProtectionListener: (TSAF) HopperEvent recovered! ", DebugLevels.PROTECTION);
+        debugger.log("ShopProtectionListener: (TSAF) HopperEvent isForbidden: " + hopperEvent.isForbidden(), DebugLevels.PROTECTION);
         event.setCancelled(hopperEvent.isForbidden());
         plugin.getListManager().addSkippableHopper(event.getInitiator().getLocation(), hopperEvent.isForbidden());
-        debugger.log("ShopProtectionListener: (TSAF) HopperEvent isForbidden: " + hopperEvent.isForbidden(), DebugLevels.PROTECTION);
-        shop.updateStatus();
-        shop.updateSign();
-        shop.saveShop();
+
+        if (!hopperEvent.isForbidden()) {
+            Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
+                @Override
+                public void run() {
+                    shop.updateSign();
+                    shop.saveShop();
+                }
+            }, 2L);
+
+        }
     }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
