@@ -31,9 +31,9 @@ import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.Sign;
+import org.bukkit.entity.Player;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.SignChangeEvent;
-import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -42,8 +42,11 @@ import org.bukkit.plugin.PluginDescriptionFile;
 import org.shanerx.tradeshop.TradeShop;
 import org.shanerx.tradeshop.data.config.Message;
 import org.shanerx.tradeshop.data.config.Setting;
+import org.shanerx.tradeshop.framework.events.PlayerShopCreateEvent;
 import org.shanerx.tradeshop.item.ShopItemSide;
 import org.shanerx.tradeshop.item.ShopItemStack;
+import org.shanerx.tradeshop.player.ShopRole;
+import org.shanerx.tradeshop.player.ShopUser;
 import org.shanerx.tradeshop.shop.ExchangeStatus;
 import org.shanerx.tradeshop.shop.Shop;
 import org.shanerx.tradeshop.shop.ShopChest;
@@ -213,28 +216,6 @@ public class Utils {
 		e.setLine(1, "");
 		e.setLine(2, "");
 		e.setLine(3, "");
-	}
-
-	/**
-	 * Sets the event sign to a failed creation sign
-	 *
-	 * @param e    event where shop creation failed
-	 * @param shop Shoptype enum to get header
-	 * @param msg  The enum constant representing the error message
-	 */
-	public void failedSign(SignChangeEvent e, ShopType shop, Message msg) {
-		failedSignReset(e, shop);
-		e.getPlayer().sendMessage(colorize(Setting.MESSAGE_PREFIX.getString() + msg));
-	}
-
-	/**
-	 * Sets the event sign to a failed creation sign
-	 *
-	 * @param e   Event to reset the sign for
-	 * @param msg The enum constant representing the error message
-	 */
-	public void failedTrade(PlayerInteractEvent e, Message msg) {
-		e.getPlayer().sendMessage(colorize(Setting.MESSAGE_PREFIX.getString() + msg));
 	}
 
 	/**
@@ -486,6 +467,125 @@ public class Utils {
 		}
 
 		return new Tuple<>(ExchangeStatus.SUCCESS, createBadList()); //Successfully completed trade
+	}
+
+	/**
+	 * Create a shop from a non-shop sign in front of the player
+	 *
+	 * @param shopSign sign to make into a shop
+	 * @param creator  player that is creating the shop
+	 * @param shopType type of shop to make
+	 * @param cost     initial cost item for shop
+	 * @param product  initial product item for shop
+	 * @param event    SignUpdateEvent if being called from sign creation
+	 * @return returns the shop object that was created
+	 */
+	public Shop createShop(Sign shopSign, Player creator, ShopType shopType, ItemStack cost, ItemStack product, SignChangeEvent event) {
+		if (ShopType.isShop(shopSign)) {
+			Message.EXISTING_SHOP.sendMessage(creator);
+			return null;
+		}
+
+		ShopUser owner = new ShopUser(creator, ShopRole.OWNER);
+
+		if (!checkShopChest(shopSign.getBlock()) && !shopType.isITrade()) {
+			Message.NO_CHEST.sendMessage(creator);
+			return null;
+		}
+
+		if (Setting.MAX_SHOPS_PER_CHUNK.getInt() <= PLUGIN.getDataStorage().getShopCountInChunk(shopSign.getChunk())) {
+			Message.TOO_MANY_CHESTS.sendMessage(creator);
+			return null;
+		}
+
+		ShopChest shopChest;
+		Shop shop;
+		Block chest = findShopChest(shopSign.getBlock());
+
+		if (!shopType.isITrade()) {
+			if (ShopChest.isShopChest(chest)) {
+				shopChest = new ShopChest(chest.getLocation());
+			} else {
+				shopChest = new ShopChest(chest, creator.getUniqueId(), shopSign.getLocation());
+			}
+
+			if (shopChest.hasOwner() && !shopChest.getOwner().equals(owner.getUUID())) {
+				Message.NO_SHOP_PERMISSION.sendMessage(creator);
+				return null;
+			}
+
+			if (shopChest.hasShopSign() && !shopChest.getShopSign().getLocation().equals(shopSign.getLocation())) {
+				Message.EXISTING_SHOP.sendMessage(creator);
+				return null;
+			}
+
+			shop = new Shop(new Tuple<>(shopSign.getLocation(), shopChest.getChest().getLocation()), shopType, owner);
+			shopChest.setName();
+
+			if (cost != null && !shop.hasSide(ShopItemSide.COST))
+				shop.setSideItems(ShopItemSide.COST, cost);
+
+			if (product != null && !shop.hasSide(ShopItemSide.PRODUCT))
+				shop.setSideItems(ShopItemSide.PRODUCT, product);
+
+			if (shopChest.isEmpty() && shop.hasSide(ShopItemSide.PRODUCT)) {
+				Message.EMPTY_TS_ON_SETUP.sendMessage(creator);
+			}
+		} else {
+			shop = new Shop(shopSign.getLocation(), shopType, owner);
+		}
+
+		debugger.log("-----Pre-Event-----", DebugLevels.SHOP_CREATION);
+		debugger.log(shop.toDebug(), DebugLevels.SHOP_CREATION);
+
+
+		debugger.log("-----Post-Event-----", DebugLevels.SHOP_CREATION);
+		PlayerShopCreateEvent shopCreateEvent = new PlayerShopCreateEvent(creator, shop);
+		Bukkit.getPluginManager().callEvent(shopCreateEvent);
+		if (shopCreateEvent.isCancelled()) {
+			debugger.log("Creation Failed!", DebugLevels.SHOP_CREATION);
+			return null;
+		}
+
+		shop.saveShop();
+
+		if (event != null) {
+			shop.updateSign(event);
+			debugger.log("Event Sign Lines: \n" + event.getLine(0) + "\n" + event.getLine(1) + "\n" + event.getLine(2) + "\n" + event.getLine(3), DebugLevels.SHOP_CREATION);
+		} else {
+			shop.updateSign(shopSign);
+			debugger.log("Sign Lines: \n" + shopSign.getLine(0) + "\n" + shopSign.getLine(1) + "\n" + shopSign.getLine(2) + "\n" + shopSign.getLine(3), DebugLevels.SHOP_CREATION);
+		}
+
+		Message.SUCCESSFUL_SETUP.sendMessage(creator);
+		debugger.log("Creation Successful!", DebugLevels.SHOP_CREATION);
+		return shop;
+	}
+
+	/**
+	 * Create a shop from a non-shop sign in front of the player
+	 *
+	 * @param shopSign sign to make into a shop
+	 * @param creator  player that is creating the shop
+	 * @param shopType type of shop to make
+	 * @return returns the shop object that was created
+	 */
+	public Shop createShop(Sign shopSign, Player creator, ShopType shopType) {
+		return createShop(shopSign, creator, shopType, null, null, null);
+	}
+
+	/**
+	 * Create a shop from a non-shop sign in front of the player
+	 *
+	 * @param shopSign sign to make into a shop
+	 * @param creator  player that is creating the shop
+	 * @param shopType type of shop to make
+	 * @param cost     initial cost item for shop
+	 * @param product  initial product item for shop
+	 * @return returns the shop object that was created
+	 */
+	public Shop createShop(Sign shopSign, Player creator, ShopType shopType, ItemStack cost, ItemStack product) {
+		return createShop(shopSign, creator, shopType, cost, product, null);
 	}
 
 	/**

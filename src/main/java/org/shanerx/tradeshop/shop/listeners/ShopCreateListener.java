@@ -25,9 +25,7 @@
 
 package org.shanerx.tradeshop.shop.listeners;
 
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -35,17 +33,10 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.SignChangeEvent;
 import org.bukkit.inventory.ItemStack;
-import org.shanerx.tradeshop.data.config.Message;
-import org.shanerx.tradeshop.data.config.Setting;
-import org.shanerx.tradeshop.framework.events.PlayerShopCreateEvent;
 import org.shanerx.tradeshop.item.ShopItemSide;
-import org.shanerx.tradeshop.player.ShopRole;
-import org.shanerx.tradeshop.player.ShopUser;
 import org.shanerx.tradeshop.shop.Shop;
-import org.shanerx.tradeshop.shop.ShopChest;
 import org.shanerx.tradeshop.shop.ShopType;
 import org.shanerx.tradeshop.utils.Utils;
-import org.shanerx.tradeshop.utils.objects.Tuple;
 
 @SuppressWarnings("unused")
 public class ShopCreateListener extends Utils implements Listener {
@@ -68,78 +59,16 @@ public class ShopCreateListener extends Utils implements Listener {
 
 		ShopType shopType = ShopType.getType(shopSign);
 		Player p = event.getPlayer();
-		ShopUser owner = new ShopUser(p, ShopRole.OWNER);
 
-		if (!shopType.checkPerm(p)) {
-			failedSign(event, shopType, Message.NO_TS_CREATE_PERMISSION);
-			return;
+		// Clear the first line since we already know it is going to be a Shop, and we have the type to pass separately
+		// Required as the createShop method needs to make sure the first line is blank for commands to avoid overwriting existing shops
+		shopSign.setLine(0, "");
+
+		Shop shop = createShop(shopSign, p, shopType, lineCheck(ShopItemSide.COST, event.getLine(2)), lineCheck(ShopItemSide.PRODUCT, event.getLine(1)), event);
+
+		if (shop == null) {
+			failedSignReset(event, shopType);
 		}
-
-		if (!checkShopChest(shopSign.getBlock()) && !shopType.isITrade()) {
-			failedSign(event, shopType, Message.NO_CHEST);
-			return;
-		}
-
-		if (Setting.MAX_SHOPS_PER_CHUNK.getInt() <= PLUGIN.getDataStorage().getShopCountInChunk(shopSign.getChunk())) {
-			failedSign(event, shopType, Message.TOO_MANY_CHESTS);
-			return;
-		}
-
-		ShopChest shopChest;
-		Shop shop;
-		Block chest = findShopChest(event.getBlock());
-
-		if (!shopType.isITrade()) {
-			if (ShopChest.isShopChest(chest)) {
-				shopChest = new ShopChest(chest.getLocation());
-			} else {
-				shopChest = new ShopChest(chest, p.getUniqueId(), shopSign.getLocation());
-			}
-
-			if (shopChest.hasOwner() && !shopChest.getOwner().equals(owner.getUUID())) {
-				failedSign(event, shopType, Message.NO_SHOP_PERMISSION);
-				return;
-			}
-
-			if (shopChest.hasShopSign() && !shopChest.getShopSign().getLocation().equals(shopSign.getLocation())) {
-				failedSign(event, shopType, Message.EXISTING_SHOP);
-				return;
-			}
-
-			shop = new Shop(new Tuple<>(shopSign.getLocation(), shopChest.getChest().getLocation()), shopType, owner);
-			shopChest.setName();
-
-
-			if (shopChest.isEmpty() && shop.hasSide(ShopItemSide.PRODUCT)) {
-				p.sendMessage(Message.EMPTY_TS_ON_SETUP.getPrefixed());
-			}
-		} else {
-			shop = new Shop(shopSign.getLocation(), shopType, owner);
-		}
-
-		shop.setEvent(event);
-
-		ItemStack product = lineCheck(ShopItemSide.PRODUCT, event.getLine(1)),
-				cost = lineCheck(ShopItemSide.COST, event.getLine(2));
-
-		if (product != null && !shop.hasSide(ShopItemSide.PRODUCT))
-			shop.setSideItems(ShopItemSide.PRODUCT, product);
-
-		if (cost != null && !shop.hasSide(ShopItemSide.COST))
-			shop.setSideItems(ShopItemSide.COST, cost);
-
-		PlayerShopCreateEvent shopCreateEvent = new PlayerShopCreateEvent(p, shop);
-		Bukkit.getPluginManager().callEvent(shopCreateEvent);
-		if (shopCreateEvent.isCancelled()) {
-			event.setCancelled(true);
-			return;
-		}
-
-		shop.updateSign(event);
-		shop.removeEvent();
-		shop.saveShop();
-
-		p.sendMessage(Message.SUCCESSFUL_SETUP.getPrefixed());
 	}
 
 	private ItemStack lineCheck(ShopItemSide side, String line) {

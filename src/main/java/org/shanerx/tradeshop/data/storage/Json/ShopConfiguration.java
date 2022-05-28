@@ -126,6 +126,14 @@ public class ShopConfiguration extends JsonConfiguration {
         return jsonObj.size();
     }
 
+
+    /**
+     * Turns old overstacked itemstacks into individual stacks in a list
+     *
+     * @param oldB64 old B64 string to check/fix
+     * @return new list of ItemStacks
+     * @deprecated
+     */
     private List<ShopItemStack> b64OverstackFixer(String oldB64) {
         ShopItemStack oldStack = new ShopItemStack(oldB64);
 

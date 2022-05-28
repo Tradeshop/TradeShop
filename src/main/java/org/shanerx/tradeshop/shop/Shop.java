@@ -43,6 +43,7 @@ import org.shanerx.tradeshop.item.ShopItemStack;
 import org.shanerx.tradeshop.player.PlayerSetting;
 import org.shanerx.tradeshop.player.ShopRole;
 import org.shanerx.tradeshop.player.ShopUser;
+import org.shanerx.tradeshop.shoplocation.ShopChunk;
 import org.shanerx.tradeshop.shoplocation.ShopLocation;
 import org.shanerx.tradeshop.utils.Utils;
 import org.shanerx.tradeshop.utils.objects.Tuple;
@@ -63,7 +64,6 @@ public class Shop implements Serializable {
 	private final ShopLocation shopLoc;
 	private List<ShopItemStack> product, cost;
 	private ShopLocation chestLoc;
-	private transient SignChangeEvent signChangeEvent;
 	private transient Inventory storageInv;
 	private transient Utils utils = new Utils();
 	private ShopStatus status = ShopStatus.INCOMPLETE;
@@ -166,22 +166,6 @@ public class Shop implements Serializable {
 			storageInv = ((Container) getStorage()).getInventory();
 		else
 			storageInv = null;
-	}
-
-	/**
-	 * Adds the sign change event to the shop to be used during sign update
-	 *
-	 * @param event The SignChangeEvent to hold
-	 */
-	public void setEvent(SignChangeEvent event) {
-		this.signChangeEvent = event;
-	}
-
-	/**
-	 * Removes the SignChangeEvent from the shop(Should be done before leaving the event)
-	 */
-	public void removeEvent() {
-		this.signChangeEvent = null;
 	}
 
 	/**
@@ -297,6 +281,37 @@ public class Shop implements Serializable {
 	}
 
 	/**
+	 * Generates a semi readable output of the shop object for debug output
+	 *
+	 * @return Return String for debug output
+	 */
+	public String toDebug() {
+		StringBuilder sb = new StringBuilder();
+		sb.append("Shop Debug: \n");
+		sb.append("Shop Chunk: ").append(new ShopChunk(shopLoc.getChunk()).serialize()).append("\n");
+		sb.append("Sign Location: ").append(shopLoc.serialize()).append("\n");
+		sb.append("Shop Type: ").append((isMissingItems() ? Setting.SHOP_INCOMPLETE_COLOUR : Setting.SHOP_GOOD_COLOUR).getString() + shopType.toHeader()).append("\n");
+		sb.append("Shop Status: ").append(status.getLine()).append("\n");
+		sb.append("Storage Location: ").append(hasStorage() ? getInventoryLocationAsSL().serialize() : "N/A").append("\n");
+		sb.append("Storage Type: ").append(hasStorage() ? getStorage().getType().toString() : "N/A").append("\n");
+		sb.append("Owner: ").append(owner.getName()).append(" | ").append(owner.getUUID()).append("\n");
+		sb.append("Managers: ").append(managers.isEmpty() ? "N/A" : managers.size()).append("\n");
+		if (!managers.isEmpty())
+			getUsers(ShopRole.MANAGER).forEach(manager -> sb.append("          ").append(manager.getName()).append(" | ").append(manager.getUUID()).append("\n"));
+		sb.append("Members: ").append(members.isEmpty() ? "N/A" : members.size()).append("\n");
+		if (!members.isEmpty())
+			getUsers(ShopRole.MEMBER).forEach(member -> sb.append("         ").append(member.getName()).append(" | ").append(member.getUUID()).append("\n"));
+		sb.append("Products: ").append(product.isEmpty() ? "N/A" : product.size()).append("\n");
+		if (!product.isEmpty())
+			product.forEach(productItem -> sb.append("          ").append(productItem.toConsoleText()).append("\n"));
+		sb.append("Costs: ").append(cost.isEmpty() ? "N/A" : cost.size()).append("\n");
+		if (!cost.isEmpty())
+			cost.forEach(costItem -> sb.append("       ").append(costItem.toConsoleText()).append("\n"));
+
+		return utils.colorize(sb.toString());
+	}
+
+	/**
 	 * Saves the shop to file
 	 */
 	public void saveShop() {
@@ -324,36 +339,48 @@ public class Shop implements Serializable {
 	 * Updates the text on the shops sign
 	 */
 	public void updateSign() {
-		if (signChangeEvent != null) {
-			updateSign(signChangeEvent);
-			removeEvent();
-		} else {
-			Sign s = getShopSign();
+		Sign s = getShopSign();
 
-			if (s != null) {
-				String[] signLines = updateSignLines();
+		if (s == null)
+			return;
 
-				for (int i = 0; i < 4; i++) {
-					if (signLines[i] != null)
-						s.setLine(i, signLines[i]);
-				}
+		String[] signLines = updateSignLines();
 
-				s.update();
-			}
+		for (int i = 0; i < 4; i++) {
+			s.setLine(i, signLines[i]);
+		}
+
+		s.update();
+	}
+
+	/**
+	 * Updates the text on the shops sign using the events sign if it matches location
+	 */
+	public void updateSign(SignChangeEvent event) {
+		if (event == null || !event.getBlock().getLocation().equals(getShopLocation()))
+			return;
+
+		String[] signLines = updateSignLines();
+
+		for (int i = 0; i < 4; i++) {
+			event.setLine(i, signLines[i]);
 		}
 	}
 
 	/**
-     * Updates the text on the shops sign during SignChangeEvent
-	 *
-	 * @param signEvent SignEvent to update the sign for
+	 * Updates the text on the shops sign using the passed sign if it matches location
 	 */
-	public void updateSign(SignChangeEvent signEvent) {
-        String[] signLines = updateSignLines();
+	public void updateSign(Sign sign) {
+		if (sign == null || !sign.getLocation().equals(getShopLocation()))
+			return;
 
-        for (int i = 0; i < 4; i++) {
-            signEvent.setLine(i, signLines[i]);
+		String[] signLines = updateSignLines();
+
+		for (int i = 0; i < 4; i++) {
+			sign.setLine(i, signLines[i]);
 		}
+
+		sign.update();
 	}
 
     /**
@@ -364,11 +391,7 @@ public class Shop implements Serializable {
     private String[] updateSignLines() {
 		String[] signLines = new String[4];
 
-        if (isMissingItems()) {
-            signLines[0] = utils.colorize(Setting.SHOP_INCOMPLETE_COLOUR.getString() + shopType.toHeader());
-        } else {
-            signLines[0] = utils.colorize(Setting.SHOP_GOOD_COLOUR.getString() + shopType.toHeader());
-        }
+		signLines[0] = utils.colorize((isMissingItems() ? Setting.SHOP_INCOMPLETE_COLOUR : Setting.SHOP_GOOD_COLOUR).getString() + shopType.toHeader());
 
 		if (product.isEmpty()) {
 			signLines[1] = "";
@@ -411,6 +434,11 @@ public class Shop implements Serializable {
 		updateStatus();
 
 		signLines[3] = status.getLine();
+
+		for (int i = 0; i < 4; i++) {
+			if (signLines[i] == null)
+				signLines[i] = " ";
+		}
 
 		return signLines;
 	}

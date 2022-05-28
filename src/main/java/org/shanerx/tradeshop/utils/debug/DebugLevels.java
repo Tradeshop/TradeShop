@@ -41,7 +41,8 @@ public enum DebugLevels {
     NAME_COMPARE(7, Level.WARNING), // 64
     SHULKERS_SUCK(8, Level.WARNING), // 128
     ENCHANT_CHECKS(9, Level.WARNING), // 256
-    OUTPUT(10, Level.WARNING) //512
+    OUTPUT(10, Level.WARNING), // 512
+    SHOP_CREATION(11, Level.INFO) // 1024
     ;
 
     //position is what value to check for this level in the binary string -1.

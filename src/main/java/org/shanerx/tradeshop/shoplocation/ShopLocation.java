@@ -67,7 +67,7 @@ public class ShopLocation implements Serializable {
 				world = Bukkit.getWorld(locA[1].replace("-", "_"));
 			if (world == null) {
 				throw new IllegalWorldException("Cannot find world " + locA[1], new WorldlessLocation(x, y, z));
-				// Not to maintainer: do NOT remove this aritificial error, it is supposed to be catched elsewhere
+				// Not to maintainer: do NOT remove this artificial error, it is supposed to be caught elsewhere
 				// (Temporary fix for metadata world renaming bug until metadata is removed entirely)
 			}
 

@@ -25,21 +25,13 @@
 
 package org.shanerx.tradeshop.commands.commandrunners;
 
-import org.bukkit.Bukkit;
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
 import org.shanerx.tradeshop.TradeShop;
 import org.shanerx.tradeshop.commands.CommandPass;
 import org.shanerx.tradeshop.data.config.Message;
 import org.shanerx.tradeshop.data.config.Setting;
-import org.shanerx.tradeshop.framework.events.PlayerShopCreateEvent;
-import org.shanerx.tradeshop.item.ShopItemSide;
-import org.shanerx.tradeshop.player.ShopRole;
-import org.shanerx.tradeshop.player.ShopUser;
-import org.shanerx.tradeshop.shop.Shop;
-import org.shanerx.tradeshop.shop.ShopChest;
 import org.shanerx.tradeshop.shop.ShopType;
-import org.shanerx.tradeshop.utils.objects.Tuple;
 
 /**
  * Implementation of CommandRunner for plugin commands that create new shops
@@ -61,7 +53,7 @@ public class CreateCommand extends CommandRunner {
         if (sign == null)
             return;
 
-        createShop(sign, ShopType.TRADE);
+        createShop(sign, pSender, ShopType.TRADE);
     }
 
     /**
@@ -73,7 +65,7 @@ public class CreateCommand extends CommandRunner {
         if (sign == null)
             return;
 
-        createShop(sign, ShopType.BITRADE);
+        createShop(sign, pSender, ShopType.BITRADE);
     }
 
     /**
@@ -85,80 +77,8 @@ public class CreateCommand extends CommandRunner {
         if (sign == null)
             return;
 
-        createShop(sign, ShopType.ITRADE);
+        createShop(sign, pSender, ShopType.ITRADE);
     }
-
-
-    /**
-     * Create a shop from a non-shop sign in front of the player
-     *
-     * @param shopSign sign to make into a shop
-     * @param shopType type of shop to make
-     */
-    private void createShop(Sign shopSign, ShopType shopType) {
-        if (ShopType.isShop(shopSign)) {
-            Message.EXISTING_SHOP.sendMessage(pSender);
-            return;
-        }
-
-        ShopUser owner = new ShopUser(pSender, ShopRole.OWNER);
-
-        if (!checkShopChest(shopSign.getBlock()) && !shopType.isITrade()) {
-            Message.NO_CHEST.sendMessage(pSender);
-            return;
-        }
-
-        if (Setting.MAX_SHOPS_PER_CHUNK.getInt() <= plugin.getDataStorage().getShopCountInChunk(shopSign.getChunk())) {
-            Message.TOO_MANY_CHESTS.sendMessage(pSender);
-            return;
-        }
-
-        ShopChest shopChest;
-        Shop shop;
-        Block chest = findShopChest(shopSign.getBlock());
-
-        if (!shopType.isITrade()) {
-            if (ShopChest.isShopChest(chest)) {
-                shopChest = new ShopChest(chest.getLocation());
-            } else {
-                shopChest = new ShopChest(chest, pSender.getUniqueId(), shopSign.getLocation());
-            }
-
-            if (shopChest.hasOwner() && !shopChest.getOwner().equals(owner.getUUID())) {
-                Message.NO_SHOP_PERMISSION.sendMessage(pSender);
-                return;
-            }
-
-            if (shopChest.hasShopSign() && !shopChest.getShopSign().getLocation().equals(shopSign.getLocation())) {
-                Message.EXISTING_SHOP.sendMessage(pSender);
-                return;
-            }
-
-            shop = new Shop(new Tuple<>(shopSign.getLocation(), shopChest.getChest().getLocation()), shopType, owner);
-            shopChest.setName();
-
-
-            if (shopChest.isEmpty() && shop.hasSide(ShopItemSide.PRODUCT)) {
-                Message.EMPTY_TS_ON_SETUP.sendMessage(pSender);
-            }
-        } else {
-            shop = new Shop(shopSign.getLocation(), shopType, owner);
-        }
-
-        PlayerShopCreateEvent shopCreateEvent = new PlayerShopCreateEvent(pSender, shop);
-        Bukkit.getPluginManager().callEvent(shopCreateEvent);
-        if (shopCreateEvent.isCancelled()) {
-            return;
-        }
-
-        shopSign.setLine(0, shopType.toHeader());
-        shopSign.update();
-
-        shop.saveShop();
-
-        Message.SUCCESSFUL_SETUP.sendMessage(pSender);
-    }
-
 
     //region Util Methods
     //------------------------------------------------------------------------------------------------------------------
