@@ -132,21 +132,26 @@ public class ShopItemStack implements Serializable, Cloneable {
     }
 
     public boolean getShopSettingAsBoolean(ShopItemStackSettingKeys key) {
-        try {
-            ObjectHolder<?> tempObj = shopSettings.get(key);
-            return shopSettings.containsKey(key) ? (Boolean) tempObj.getObject() : (Boolean) key.getDefaultValue().getObject();
-        } catch (ClassCastException | NullPointerException e) {
-            return (Boolean) key.getDefaultValue().getObject();
+        if (key.isUserEditable()) {
+            try {
+                ObjectHolder<?> tempObj = shopSettings.get(key);
+                return shopSettings.containsKey(key) ? (Boolean) tempObj.getObject() : (Boolean) key.getDefaultValue().getObject();
+            } catch (ClassCastException | NullPointerException ignored) {
+            }
         }
+        return (Boolean) key.getDefaultValue().getObject();
     }
 
     public int getShopSettingAsInteger(ShopItemStackSettingKeys key) {
-        try {
-            ObjectHolder<?> tempObj = shopSettings.get(key);
-            return shopSettings.containsKey(key) ? (Integer) tempObj.getObject() : (Integer) key.getDefaultValue().getObject();
-        } catch (ClassCastException | NullPointerException e) {
-            return (Integer) key.getDefaultValue().getObject();
+        if (key.isUserEditable()) {
+            try {
+                ObjectHolder<?> tempObj = shopSettings.get(key);
+                return shopSettings.containsKey(key) ? (Integer) tempObj.getObject() : (Integer) key.getDefaultValue().getObject();
+            } catch (ClassCastException | NullPointerException ignored) {
+            }
         }
+
+        return (Integer) key.getDefaultValue().getObject();
     }
 
     private void buildMap() {
@@ -508,6 +513,45 @@ public class ShopItemStack implements Serializable, Cloneable {
 
     public String getCleanItemName() {
         return ShopItemStack.getCleanItemName(itemStack);
+    }
+
+    public String getStateString(ShopItemStackSettingKeys key) {
+        return getStateString(shopSettings.get(key));
+    }
+
+    public String getStateString(ObjectHolder<?> stateSetting) {
+        try {
+            String ret = "";
+            if (stateSetting.isBoolean()) {
+                if ((Boolean) stateSetting.getObject()) {
+                    ret = "True";
+                } else {
+                    ret = "False";
+                }
+            } else if (stateSetting.isInteger() || stateSetting.isDouble()) {
+                switch (stateSetting.isDouble() ? ((Double) stateSetting.getObject()).intValue() : (Integer) stateSetting.getObject()) {
+                    case 2:
+                        ret = ">=";
+                        break;
+                    case 1:
+                        ret = "==";
+                        break;
+                    case 0:
+                        ret = "<=";
+                        break;
+                    case -1:
+                    default:
+                        ret = "False";
+                }
+            }
+
+            if (ret.length() < 2)
+                ret = "Unknown";
+
+            return "State: " + ret;
+        } catch (ClassCastException ex) {
+            return "State: ERROR";
+        }
     }
 
     public String serialize() {

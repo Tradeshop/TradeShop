@@ -25,31 +25,38 @@
 
 package org.shanerx.tradeshop.item;
 
+import org.bukkit.Material;
+import org.bukkit.inventory.ItemStack;
+import org.shanerx.tradeshop.data.config.Setting;
 import org.shanerx.tradeshop.utils.objects.ObjectHolder;
 
 public enum ShopItemStackSettingKeys {
 
     //New per shop settings and their default value should be added below and will be added to the shops
 
-    COMPARE_DURABILITY(new ObjectHolder<>(1)), // -1 == 'off', 0 == '<=', 1 == '==', 2 == '>='
-    COMPARE_ENCHANTMENTS(new ObjectHolder<>(true)),
-    COMPARE_NAME(new ObjectHolder<>(true)),
-    COMPARE_LORE(new ObjectHolder<>(true)),
-    COMPARE_CUSTOM_MODEL_DATA(new ObjectHolder<>(true)),
-    COMPARE_ITEM_FLAGS(new ObjectHolder<>(true)),
-    COMPARE_UNBREAKABLE(new ObjectHolder<>(true)),
-    COMPARE_ATTRIBUTE_MODIFIER(new ObjectHolder<>(true)),
-    COMPARE_BOOK_AUTHOR(new ObjectHolder<>(true)),
-    COMPARE_BOOK_PAGES(new ObjectHolder<>(true)),
-    COMPARE_SHULKER_INVENTORY(new ObjectHolder<>(true)),
-    COMPARE_BUNDLE_INVENTORY(new ObjectHolder<>(true)),
-    COMPARE_FIREWORK_DURATION(new ObjectHolder<>(true)),
-    COMPARE_FIREWORK_EFFECTS(new ObjectHolder<>(true));
+    COMPARE_DURABILITY(new ObjectHolder<>(Setting.COMPARE_DURABILITY_DEFAULT.getInt()), new ItemStack(Material.DAMAGED_ANVIL)), // -1 == 'off', 0 == '<=', 1 == '==', 2 == '>='
+    COMPARE_ENCHANTMENTS(new ObjectHolder<>(Setting.COMPARE_ENCHANTMENTS_DEFAULT.getBoolean()), new ItemStack(Material.ENCHANTED_BOOK)),
+    COMPARE_NAME(new ObjectHolder<>(Setting.COMPARE_NAME_DEFAULT.getBoolean()), new ItemStack(Material.NAME_TAG)),
+    COMPARE_LORE(new ObjectHolder<>(Setting.COMPARE_LORE_DEFAULT.getBoolean()), new ItemStack(Material.BOOK)),
+    COMPARE_CUSTOM_MODEL_DATA(new ObjectHolder<>(Setting.COMPARE_CUSTOM_MODEL_DATA_DEFAULT.getBoolean()), new ItemStack(Material.STICK)),
+    COMPARE_ITEM_FLAGS(new ObjectHolder<>(Setting.COMPARE_ITEM_FLAGS_DEFAULT.getBoolean()), new ItemStack(Material.WHITE_BANNER)),
+    COMPARE_UNBREAKABLE(new ObjectHolder<>(Setting.COMPARE_UNBREAKABLE_DEFAULT.getBoolean()), new ItemStack(Material.BEDROCK)),
+    COMPARE_ATTRIBUTE_MODIFIER(new ObjectHolder<>(Setting.COMPARE_ATTRIBUTE_MODIFIER_DEFAULT.getBoolean()), new ItemStack(Material.BARRIER)),
+    COMPARE_BOOK_AUTHOR(new ObjectHolder<>(Setting.COMPARE_BOOK_AUTHOR_DEFAULT.getBoolean()), new ItemStack(Material.PLAYER_HEAD)),
+    COMPARE_BOOK_PAGES(new ObjectHolder<>(Setting.COMPARE_BOOK_PAGES_DEFAULT.getBoolean()), new ItemStack(Material.PAPER)),
+    COMPARE_SHULKER_INVENTORY(new ObjectHolder<>(Setting.COMPARE_SHULKER_INVENTORY_DEFAULT.getBoolean()), new ItemStack(Material.CHEST_MINECART)),
+    COMPARE_BUNDLE_INVENTORY(new ObjectHolder<>(Setting.COMPARE_BUNDLE_INVENTORY_DEFAULT.getBoolean()), new ItemStack(Material.CHEST_MINECART)),
+    COMPARE_FIREWORK_DURATION(new ObjectHolder<>(Setting.COMPARE_FIREWORK_DURATION_DEFAULT.getBoolean()), new ItemStack(Material.GUNPOWDER)),
+    COMPARE_FIREWORK_EFFECTS(new ObjectHolder<>(Setting.COMPARE_FIREWORK_EFFECTS_DEFAULT.getBoolean()), new ItemStack(Material.FIREWORK_STAR));
 
     private final ObjectHolder<?> defaultValue;
+    private final boolean userEditable;
+    private final ItemStack displayItem;
 
-    ShopItemStackSettingKeys(ObjectHolder<?> defaultValue) {
+    ShopItemStackSettingKeys(ObjectHolder<?> defaultValue, ItemStack displayItem) {
         this.defaultValue = defaultValue;
+        this.userEditable = Setting.findSetting(this.name() + "_USER_EDITABLE").getBoolean();
+        this.displayItem = displayItem;
     }
 
     public ObjectHolder<?> getDefaultValue() {
@@ -76,5 +83,13 @@ public enum ShopItemStackSettingKeys {
         //removes any Leading/Trailing spaces and returns
         return ret.toString().trim();
 
+    }
+
+    public boolean isUserEditable() {
+        return userEditable;
+    }
+
+    public ItemStack getDisplayItem() {
+        return displayItem;
     }
 }

@@ -212,7 +212,12 @@ public class ConfigManager {
                 // if o1's parent is o2 then o2 goes first
             } else if (o1.getParent() == o2) {
                 return 1;
-                // if neither of the above are true and one Section has a parent and the other doesn't, then the one without the parent goes first
+                // if neither is the parent of the other but one Section has a parent and the other doesn't
+            } else if (o1.hasParent() != o2.hasParent()) {
+                return o1.hasParent() ? compare(o1.getParent(), o2) : compare(o1, o2.getParent()); // compare existing parent to other section
+                // if both have parents but they aren't the same parent
+            } else if (o1.getParent() != null && !o1.getParent().equals(o2.getParent())) {
+                return compare(o1.getParent(), o2.getParent()); // compare the parents of both
             }
 
             // Otherwise, compare weight
@@ -229,9 +234,12 @@ public class ConfigManager {
                 // if o1's parent is o2 then o2 goes first
             } else if (o1.getParent() == o2) {
                 return 1;
-                // if neither of the above are true and one Section has a parent and the other doesn't, then the one without the parent goes first
+                // if neither is the parent of the other but one Section has a parent and the other doesn't
             } else if (o1.hasParent() != o2.hasParent()) {
-                return o1.hasParent() ? 1 : -1;
+                return o1.hasParent() ? compare(o1.getParent(), o2) : compare(o1, o2.getParent()); // compare existing parent to other section
+                // if both have parents but they aren't the same parent
+            } else if (o1.getParent() != null && !o1.getParent().equals(o2.getParent())) {
+                return compare(o1.getParent(), o2.getParent()); // compare the parents of both
             }
 
             // Otherwise, compare weight

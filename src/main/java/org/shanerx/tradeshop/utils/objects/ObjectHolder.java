@@ -27,18 +27,34 @@ package org.shanerx.tradeshop.utils.objects;
 
 public class ObjectHolder<Type> {
 
-	private final Type obj;
+    private final Type obj;
 
-	public ObjectHolder(Type obj) {
-		this.obj = obj;
-	}
+    public ObjectHolder(Type obj) {
+        this.obj = obj;
+    }
 
-	public Type getObject() {
-		return obj;
-	}
+    public Type getObject() {
+        return obj;
+    }
 
-	@Override
-	public String toString() {
-		return obj.toString();
-	}
+    public boolean isBoolean() {
+        return obj instanceof Boolean;
+    }
+
+    public boolean isInteger() {
+        return obj instanceof Integer;
+    }
+
+    public boolean isDouble() {
+        return obj instanceof Double;
+    }
+
+    public boolean isString() {
+        return obj instanceof String;
+    }
+
+    @Override
+    public String toString() {
+        return obj.toString();
+    }
 }

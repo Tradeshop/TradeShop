@@ -31,22 +31,15 @@ import de.themoep.inventorygui.StaticGuiElement;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.BookMeta;
-import org.bukkit.inventory.meta.Damageable;
-import org.bukkit.inventory.meta.ItemMeta;
 import org.shanerx.tradeshop.TradeShop;
 import org.shanerx.tradeshop.commands.CommandPass;
 import org.shanerx.tradeshop.data.config.Message;
 import org.shanerx.tradeshop.data.config.Setting;
 import org.shanerx.tradeshop.item.ShopItemSide;
 import org.shanerx.tradeshop.item.ShopItemStack;
-import org.shanerx.tradeshop.item.ShopItemStackSettingKeys;
 import org.shanerx.tradeshop.player.Permissions;
 import org.shanerx.tradeshop.shop.Shop;
 import org.shanerx.tradeshop.shop.ShopType;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Implementation of GUICommand for the `what` command
@@ -78,16 +71,29 @@ public class WhatCommand extends GUICommand {
                 Bukkit.getOfflinePlayer(shop.getOwner().getUUID()).getName() + "'s Shop"),
                 WHAT_MENU);
 
-        GuiElementGroup costGroup = new GuiElementGroup('a'), productGroup = new GuiElementGroup('b');
+        GuiElementGroup costGroup = new GuiElementGroup('q'), productGroup = new GuiElementGroup('e');
 
         gui.setFiller(new ItemStack(Material.LIGHT_GRAY_STAINED_GLASS_PANE, 1));
 
-        for (ShopItemStack item : shop.getSideList(ShopItemSide.COST)) {
-            costGroup.addElement(shopitemViewMenu(item));
+        if (costItems.isEmpty()) {
+            for (ShopItemStack item : shop.getSideList(ShopItemSide.COST)) {
+                costItems.add(item.clone());
+            }
         }
 
-        for (ShopItemStack item : shop.getSideList(ShopItemSide.PRODUCT)) {
-            productGroup.addElement(shopitemViewMenu(item));
+        if (productItems.isEmpty()) {
+            for (ShopItemStack item : shop.getSideList(ShopItemSide.PRODUCT)) {
+                productItems.add(item.clone());
+            }
+        }
+
+
+        for (int i = 0; i < costItems.size(); i++) {
+            costGroup.addElement(itemSettingMenu(i, ShopItemSide.COST, false));
+        }
+
+        for (int i = 0; i < productItems.size(); i++) {
+            productGroup.addElement(itemSettingMenu(i, ShopItemSide.PRODUCT, false));
         }
 
         gui.addElement(new StaticGuiElement('1', new ItemStack(Material.LIME_STAINED_GLASS_PANE),
@@ -100,105 +106,11 @@ public class WhatCommand extends GUICommand {
                 "Cost", "This is the item", "that you give to", "make the trade."));
         gui.addElement(new StaticGuiElement('5', new ItemStack(Material.GRASS_BLOCK),
                 "Product", "This is the item", "that you receive", "from the trade."));
-        gui.addElement(PREV_BUTTON);
-        gui.addElement(NEXT_BUTTON);
+        gui.addElement(getPrevButton());
+        gui.addElement(getNextButton());
         gui.addElement(costGroup);
         gui.addElement(productGroup);
 
         gui.show(pSender);
     }
-
-
-    //region Util Methods
-    //------------------------------------------------------------------------------------------------------------------
-
-    private ItemStack settingItem(boolean state) {
-        return state ? new ItemStack(Material.EMERALD_BLOCK) : new ItemStack(Material.REDSTONE_BLOCK);
-    }
-
-    private ItemStack settingItem(int state) {
-        switch (state) {
-            case -1:
-                return new ItemStack(Material.REDSTONE_BLOCK);
-            case 0:
-                return new ItemStack(Material.IRON_BLOCK);
-            case 1:
-            default:
-                return new ItemStack(Material.EMERALD_BLOCK);
-            case 2:
-                return new ItemStack(Material.GOLD_BLOCK);
-        }
-    }
-
-    private String stateText(int state) {
-        switch (state) {
-            case -1:
-                return "False";
-            case 0:
-                return "<=";
-            case 1:
-            default:
-                return "==";
-            case 2:
-                return ">=";
-        }
-    }
-
-    private StaticGuiElement shopitemViewMenu(ShopItemStack item) {
-        ItemStack tempStack = item.getItemStack().clone();
-        ItemMeta tempMeta = tempStack.getItemMeta();
-        List<String> newLore = new ArrayList<>();
-        newLore.add("Amount: " + item.getAmount());
-
-        if (tempMeta != null && tempMeta.hasLore()) {
-            newLore.add("");
-            newLore.addAll(tempMeta.getLore());
-        }
-
-        tempMeta.setLore(newLore);
-        tempStack.setItemMeta(tempMeta);
-        return new StaticGuiElement('e', tempStack, click2 -> {
-            InventoryGui itemView = new InventoryGui(plugin, "Edit Cost Item", ITEM_LAYOUT);
-            GuiElementGroup itemGroup = new GuiElementGroup('g');
-
-            itemView.addElement(BACK_BUTTON);
-
-            itemView.addElement(new StaticGuiElement('a', new ItemStack(Material.BLACK_STAINED_GLASS_PANE), " "));
-
-            itemGroup.addElement(new StaticGuiElement('e', tempStack));
-
-            itemGroup.addElement(new StaticGuiElement('e', settingItem(item.getShopSettingAsBoolean(ShopItemStackSettingKeys.COMPARE_NAME)), "Compare Name", "State: " + item.getShopSettingAsBoolean(ShopItemStackSettingKeys.COMPARE_NAME)));
-            itemGroup.addElement(new StaticGuiElement('e', settingItem(item.getShopSettingAsBoolean(ShopItemStackSettingKeys.COMPARE_LORE)), "Compare Lore", "State: " + item.getShopSettingAsBoolean(ShopItemStackSettingKeys.COMPARE_LORE)));
-
-            if (item.getItemStack().getType().toString().endsWith("SHULKER_BOX")) {
-                itemGroup.addElement(new StaticGuiElement('e', settingItem(item.getShopSettingAsBoolean(ShopItemStackSettingKeys.COMPARE_SHULKER_INVENTORY)), "Compare Shulker Inventory", "State: " + item.getShopSettingAsBoolean(ShopItemStackSettingKeys.COMPARE_SHULKER_INVENTORY)));
-            }
-
-            if (item.getItemStack().getItemMeta() instanceof Damageable) {
-                itemGroup.addElement(new StaticGuiElement('e', settingItem(item.getShopSettingAsInteger(ShopItemStackSettingKeys.COMPARE_DURABILITY)), "Compare Durability", "State: " + stateText(item.getShopSettingAsInteger(ShopItemStackSettingKeys.COMPARE_DURABILITY))));
-            }
-
-            itemGroup.addElement(new StaticGuiElement('e', settingItem(item.getShopSettingAsBoolean(ShopItemStackSettingKeys.COMPARE_ENCHANTMENTS)), "Compare Enchantments", "State: " + item.getShopSettingAsBoolean(ShopItemStackSettingKeys.COMPARE_ENCHANTMENTS)));
-
-            itemGroup.addElement(new StaticGuiElement('e', settingItem(item.getShopSettingAsBoolean(ShopItemStackSettingKeys.COMPARE_UNBREAKABLE)), "Compare Unbreakable", "State: " + item.getShopSettingAsBoolean(ShopItemStackSettingKeys.COMPARE_UNBREAKABLE)));
-
-            if (item.getItemStack().getItemMeta() instanceof BookMeta) {
-                itemGroup.addElement(new StaticGuiElement('e', settingItem(item.getShopSettingAsBoolean(ShopItemStackSettingKeys.COMPARE_BOOK_AUTHOR)), "Compare Book Author", "State: " + item.getShopSettingAsBoolean(ShopItemStackSettingKeys.COMPARE_BOOK_AUTHOR)));
-                itemGroup.addElement(new StaticGuiElement('e', settingItem(item.getShopSettingAsBoolean(ShopItemStackSettingKeys.COMPARE_BOOK_PAGES)), "Compare Book Pages", "State: " + item.getShopSettingAsBoolean(ShopItemStackSettingKeys.COMPARE_BOOK_PAGES)));
-            }
-
-            itemGroup.addElement(new StaticGuiElement('e', settingItem(item.getShopSettingAsBoolean(ShopItemStackSettingKeys.COMPARE_ITEM_FLAGS)), "Compare Item Flags", "State: " + item.getShopSettingAsBoolean(ShopItemStackSettingKeys.COMPARE_ITEM_FLAGS)));
-
-            itemGroup.addElement(new StaticGuiElement('e', settingItem(item.getShopSettingAsBoolean(ShopItemStackSettingKeys.COMPARE_CUSTOM_MODEL_DATA)), "Compare Custom Model Data", "State: " + item.getShopSettingAsBoolean(ShopItemStackSettingKeys.COMPARE_CUSTOM_MODEL_DATA)));
-
-            itemGroup.addElement(new StaticGuiElement('e', settingItem(item.getShopSettingAsBoolean(ShopItemStackSettingKeys.COMPARE_ATTRIBUTE_MODIFIER)), "Compare Attribute Modifier", "State: " + item.getShopSettingAsBoolean(ShopItemStackSettingKeys.COMPARE_ATTRIBUTE_MODIFIER)));
-
-            itemView.addElement(itemGroup);
-            itemView.show(pSender);
-            return true;
-        });
-    }
-
-    //------------------------------------------------------------------------------------------------------------------
-    //endregion
 }

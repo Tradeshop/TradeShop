@@ -31,25 +31,17 @@ import de.themoep.inventorygui.InventoryGui;
 import de.themoep.inventorygui.StaticGuiElement;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.BookMeta;
-import org.bukkit.inventory.meta.Damageable;
-import org.bukkit.inventory.meta.FireworkMeta;
-import org.bukkit.inventory.meta.ItemMeta;
 import org.shanerx.tradeshop.TradeShop;
 import org.shanerx.tradeshop.commands.CommandPass;
 import org.shanerx.tradeshop.data.config.Message;
 import org.shanerx.tradeshop.item.ShopItemSide;
 import org.shanerx.tradeshop.item.ShopItemStack;
-import org.shanerx.tradeshop.item.ShopItemStackSettingKeys;
 import org.shanerx.tradeshop.player.Permissions;
 import org.shanerx.tradeshop.player.ShopRole;
 import org.shanerx.tradeshop.player.ShopUser;
 import org.shanerx.tradeshop.shop.Shop;
-import org.shanerx.tradeshop.utils.objects.ObjectHolder;
 
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 /**
@@ -64,12 +56,6 @@ public class EditCommand extends GUICommand {
             userEdit,
             costEdit,
             productEdit;
-    private List<ShopItemStack> costItems,
-            productItems;
-    private List<Boolean> costItemsRemoval,
-            productItemsRemoval;
-    public final ItemStack TRUE_ITEM = new ItemStack(Material.EMERALD_BLOCK);
-    public final ItemStack FALSE_ITEM = new ItemStack(Material.REDSTONE_BLOCK);
 
 
     public EditCommand(TradeShop instance, CommandPass command) {
@@ -102,13 +88,13 @@ public class EditCommand extends GUICommand {
             GuiElementGroup userGroup = new GuiElementGroup('g');
 
             // Previous page
-            userEdit.addElement(PREV_BUTTON);
+            userEdit.addElement(getPrevButton());
 
             // Next page
-            userEdit.addElement(NEXT_BUTTON);
+            userEdit.addElement(getNextButton());
 
             // Cancel and Back
-            userEdit.addElement(CANCEL_BUTTON);
+            userEdit.addElement(getBackButton(true));
 
             userEdit.addElement(new StaticGuiElement('a', new ItemStack(Material.BLUE_STAINED_GLASS_PANE), " "));
 
@@ -137,7 +123,7 @@ public class EditCommand extends GUICommand {
                                     user.getHead(),
                                     user.getName(),
                                     "Position: MANAGER",
-                                    "Click here to change to Member."),
+                                    "Click to cycle the player to Member."),
                             new GuiStateElement.State(change -> {
                                 shopUsers.remove(user);
                                 user.setRole(ShopRole.MEMBER);
@@ -147,7 +133,7 @@ public class EditCommand extends GUICommand {
                                     user.getHead(),
                                     user.getName(),
                                     "Position: MEMBER",
-                                    "Click here to remove this player."),
+                                    "Click to cycle the player to Removed."),
                             new GuiStateElement.State(change -> {
                                 shopUsers.remove(user);
                                 user.setRole(ShopRole.SHOPPER);
@@ -157,7 +143,7 @@ public class EditCommand extends GUICommand {
                                     new ItemStack(Material.BARRIER),
                                     user.getName(),
                                     "Position: NONE",
-                                    "Click here to add the player as a Manager.")
+                                    "Click to cycle the player to Manager.")
                     ));
 
                 }
@@ -173,22 +159,22 @@ public class EditCommand extends GUICommand {
 
         mainMenu.addElement(new StaticGuiElement('b', new ItemStack(Material.GOLD_NUGGET), click -> {
             costEdit = new InventoryGui(plugin, "Edit Costs", EDIT_LAYOUT);
-            costItems = new ArrayList<>();
-            costItemsRemoval = new ArrayList<>();
-            for (ShopItemStack item : shop.getSideList(ShopItemSide.COST)) {
-                costItems.add(item.clone());
-                costItemsRemoval.add(false);
+            if (costItems.isEmpty()) {
+                for (ShopItemStack item : shop.getSideList(ShopItemSide.COST)) {
+                    costItems.add(item.clone());
+                    costItemsRemoval.add(false);
+                }
             }
             GuiElementGroup costGroup = new GuiElementGroup('g');
 
             // Previous page
-            costEdit.addElement(PREV_BUTTON);
+            costEdit.addElement(getPrevButton());
 
             // Next page
-            costEdit.addElement(NEXT_BUTTON);
+            costEdit.addElement(getNextButton());
 
             // Cancel and Back
-            costEdit.addElement(CANCEL_BUTTON);
+            costEdit.addElement(getBackButton(true));
 
             // Save and Back
             costEdit.addElement(new StaticGuiElement('s', new ItemStack(Material.ANVIL), click3 -> {
@@ -204,7 +190,7 @@ public class EditCommand extends GUICommand {
             costEdit.addElement(new StaticGuiElement('a', new ItemStack(Material.YELLOW_STAINED_GLASS_PANE), " "));
 
             for (int i = 0; i < costItems.size(); i++) {
-                costGroup.addElement(shopItemEditMenu(i, true));
+                costGroup.addElement(itemSettingMenu(i, ShopItemSide.COST, true));
             }
 
             costEdit.addElement(costGroup);
@@ -214,22 +200,22 @@ public class EditCommand extends GUICommand {
 
         mainMenu.addElement(new StaticGuiElement('c', new ItemStack(Material.GRASS_BLOCK), click -> {
             productEdit = new InventoryGui(plugin, "Edit Products", EDIT_LAYOUT);
-            productItems = new ArrayList<>();
-            productItemsRemoval = new ArrayList<>();
-            for (ShopItemStack item : shop.getSideList(ShopItemSide.PRODUCT)) {
-                productItems.add(item.clone());
-                productItemsRemoval.add(false);
+            if (productItems.isEmpty()) {
+                for (ShopItemStack item : shop.getSideList(ShopItemSide.PRODUCT)) {
+                    productItems.add(item.clone());
+                    productItemsRemoval.add(false);
+                }
             }
             GuiElementGroup productGroup = new GuiElementGroup('g');
 
             // Previous page
-            productEdit.addElement(PREV_BUTTON);
+            productEdit.addElement(getPrevButton());
 
             // Next page
-            productEdit.addElement(NEXT_BUTTON);
+            productEdit.addElement(getNextButton());
 
             // Cancel and Back
-            productEdit.addElement(CANCEL_BUTTON);
+            productEdit.addElement(getBackButton(true));
 
             // Save and Back
             productEdit.addElement(new StaticGuiElement('s', new ItemStack(Material.ANVIL), click3 -> {
@@ -245,7 +231,7 @@ public class EditCommand extends GUICommand {
             productEdit.addElement(new StaticGuiElement('a', new ItemStack(Material.YELLOW_STAINED_GLASS_PANE), " "));
 
             for (int i = 0; i < productItems.size(); i++) {
-                productGroup.addElement(shopItemEditMenu(i, false));
+                productGroup.addElement(itemSettingMenu(i, ShopItemSide.PRODUCT, true));
             }
 
             productEdit.addElement(productGroup);
@@ -255,153 +241,4 @@ public class EditCommand extends GUICommand {
 
         mainMenu.show(pSender);
     }
-
-
-    //region Util Methods
-    //------------------------------------------------------------------------------------------------------------------
-
-    private StaticGuiElement shopItemEditMenu(int index, boolean isCost) {
-        ShopItemStack item = (isCost ? costItems : productItems).get(index).clone();
-        ItemStack tempStack = item.getItemStack();
-        ItemMeta tempMeta = tempStack.getItemMeta();
-        List<String> newLore = new ArrayList<>();
-        newLore.add(colorize("&8Amount &7» &f" + item.getAmount()));
-
-        if (tempMeta != null && tempMeta.hasLore()) {
-            newLore.add("");
-            newLore.addAll(tempMeta.getLore());
-        }
-
-        tempMeta.setLore(newLore);
-        tempStack.setItemMeta(tempMeta);
-
-        return new StaticGuiElement('e', tempStack, click2 -> {
-            InventoryGui itemEdit = new InventoryGui(plugin, "Edit Cost Item", ITEM_LAYOUT);
-            GuiElementGroup itemGroup = new GuiElementGroup('g');
-
-            // Cancel and Back
-            itemEdit.addElement(CANCEL_BUTTON);
-
-            // Save and Back
-            itemEdit.addElement(new StaticGuiElement('s', new ItemStack(Material.ANVIL), click3 -> {
-                (isCost ? costItems : productItems).set(index, item);
-                InventoryGui.goBack(pSender);
-                return true;
-            }, "Save Changes"));
-
-            itemEdit.addElement(new StaticGuiElement('a', new ItemStack(Material.YELLOW_STAINED_GLASS_PANE), " "));
-
-            itemGroup.addElement(new GuiStateElement('e',
-                    (isCost ? costItemsRemoval : productItemsRemoval).get(index) + "",
-                    new GuiStateElement.State(change -> (isCost ? costItemsRemoval : productItemsRemoval).set(index, true),
-                            "true",
-                            new ItemStack(Material.BARRIER),
-                            item.getItemName()),
-                    new GuiStateElement.State(change -> (isCost ? costItemsRemoval : productItemsRemoval).set(index, false),
-                            "false",
-                            item.getItemStack())
-
-            ));
-
-            //Add new item settings below
-            if (item.getItemStack().getItemMeta() instanceof Damageable) {
-                itemGroup.addElement(numericalOption(ShopItemStackSettingKeys.COMPARE_DURABILITY, item, new ItemStack[]{
-                        FALSE_ITEM, new ItemStack(Material.IRON_BLOCK), TRUE_ITEM, new ItemStack(Material.GOLD_BLOCK)
-                }));
-            }
-
-            if (tempMeta instanceof BookMeta) {
-                itemGroup.addElement(booleanOption(ShopItemStackSettingKeys.COMPARE_BOOK_AUTHOR, item, TRUE_ITEM, FALSE_ITEM));
-                itemGroup.addElement(booleanOption(ShopItemStackSettingKeys.COMPARE_BOOK_PAGES, item, TRUE_ITEM, FALSE_ITEM));
-            }
-
-            if (tempMeta instanceof FireworkMeta) {
-                itemGroup.addElement(booleanOption(ShopItemStackSettingKeys.COMPARE_FIREWORK_DURATION, item, TRUE_ITEM, FALSE_ITEM));
-                itemGroup.addElement(booleanOption(ShopItemStackSettingKeys.COMPARE_FIREWORK_EFFECTS, item, TRUE_ITEM, FALSE_ITEM));
-            }
-
-            if (tempStack.getType().toString().endsWith("SHULKER_BOX")) {
-                itemGroup.addElement(booleanOption(ShopItemStackSettingKeys.COMPARE_SHULKER_INVENTORY, item, TRUE_ITEM, FALSE_ITEM));
-            }
-
-            if (plugin.getVersion().isAtLeast(1, 17) && tempStack.getType().equals(Material.BUNDLE)) {
-                itemGroup.addElement(booleanOption(ShopItemStackSettingKeys.COMPARE_BUNDLE_INVENTORY, item, TRUE_ITEM, FALSE_ITEM));
-            }
-
-            itemGroup.addElement(booleanOption(ShopItemStackSettingKeys.COMPARE_NAME, item, TRUE_ITEM, FALSE_ITEM));
-            itemGroup.addElement(booleanOption(ShopItemStackSettingKeys.COMPARE_LORE, item, TRUE_ITEM, FALSE_ITEM));
-            itemGroup.addElement(booleanOption(ShopItemStackSettingKeys.COMPARE_UNBREAKABLE, item, TRUE_ITEM, FALSE_ITEM));
-            itemGroup.addElement(booleanOption(ShopItemStackSettingKeys.COMPARE_ENCHANTMENTS, item, TRUE_ITEM, FALSE_ITEM));
-            itemGroup.addElement(booleanOption(ShopItemStackSettingKeys.COMPARE_ITEM_FLAGS, item, TRUE_ITEM, FALSE_ITEM));
-            itemGroup.addElement(booleanOption(ShopItemStackSettingKeys.COMPARE_CUSTOM_MODEL_DATA, item, TRUE_ITEM, FALSE_ITEM));
-            itemGroup.addElement(booleanOption(ShopItemStackSettingKeys.COMPARE_ATTRIBUTE_MODIFIER, item, TRUE_ITEM, FALSE_ITEM));
-
-
-            itemEdit.addElement(itemGroup);
-            itemEdit.show(pSender);
-            return true;
-        });
-    }
-
-    private GuiStateElement numericalOption(ShopItemStackSettingKeys setting, ShopItemStack tempItem, ItemStack[] indexedTempItem) {
-
-        return new GuiStateElement('e',
-                String.valueOf(tempItem.getShopSettingAsInteger(setting)),
-                new GuiStateElement.State(change -> {
-                    tempItem.setShopSettings(setting, new ObjectHolder<>(2));
-                },
-                        "2",
-                        indexedTempItem[3],
-                        setting.makeReadable(),
-                        "State: >="),
-
-                new GuiStateElement.State(change -> {
-                    tempItem.setShopSettings(setting, new ObjectHolder<>(-1));
-                },
-                        "-1",
-                        indexedTempItem[0],
-                        setting.makeReadable(),
-                        "State: False"),
-
-                new GuiStateElement.State(change -> {
-                    tempItem.setShopSettings(setting, new ObjectHolder<>(0));
-                },
-                        "0",
-                        indexedTempItem[1],
-                        setting.makeReadable(),
-                        "State: <="),
-
-                new GuiStateElement.State(change -> {
-                    tempItem.setShopSettings(setting, new ObjectHolder<>(1));
-                },
-                        "1",
-                        indexedTempItem[2],
-                        setting.makeReadable(),
-                        "State: =="
-
-                ));
-    }
-
-    private GuiStateElement booleanOption(ShopItemStackSettingKeys setting, ShopItemStack tempItem, ItemStack trueTempItem, ItemStack falseTempItem) {
-        return new GuiStateElement('e',
-                String.valueOf(tempItem.getShopSettingAsBoolean(setting)),
-                new GuiStateElement.State(change -> {
-                    tempItem.setShopSettings(setting, new ObjectHolder<>(true));
-                },
-                        "true",
-                        trueTempItem,
-                        setting.makeReadable(),
-                        "State: True"),
-                new GuiStateElement.State(change -> {
-                    tempItem.setShopSettings(setting, new ObjectHolder<>(false));
-                },
-                        "false",
-                        falseTempItem,
-                        setting.makeReadable(),
-                        "State: False"
-                ));
-    }
-
-    //------------------------------------------------------------------------------------------------------------------
-    //endregion
 }

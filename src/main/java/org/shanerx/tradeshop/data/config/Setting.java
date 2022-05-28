@@ -74,20 +74,44 @@ public enum Setting {
     MULTI_TRADE_DEFAULT(SettingSection.GLOBAL_MULTI_TRADE, "default-multi", 2),
     MULTI_TRADE_MAX(SettingSection.GLOBAL_MULTI_TRADE, "max-multi", 6),
 
-    // Illegal Item Options
-    GLOBAL_ILLEGAL_ITEMS_TYPE(SettingSection.GLOBAL_ILLEGAL_ITEMS, "type", IllegalItemList.ListType.BLACKLIST.toString()),
-    GLOBAL_ILLEGAL_ITEMS_LIST(SettingSection.GLOBAL_ILLEGAL_ITEMS, "list", new String[]{"Bedrock", "Command_Block", "Barrier"}),
-    COST_ILLEGAL_ITEMS_TYPE(SettingSection.COST_ILLEGAL_ITEMS, "type", IllegalItemList.ListType.DISABLED.toString()),
-    COST_ILLEGAL_ITEMS_LIST(SettingSection.COST_ILLEGAL_ITEMS, "list", new String[]{}),
-    PRODUCT_ILLEGAL_ITEMS_TYPE(SettingSection.PRODUCT_ILLEGAL_ITEMS, "type", IllegalItemList.ListType.DISABLED.toString()),
-    PRODUCT_ILLEGAL_ITEMS_LIST(SettingSection.PRODUCT_ILLEGAL_ITEMS, "list", new String[]{}),
-
     // Shop Options
     MAX_SHOP_USERS(SettingSection.SHOP_OPTIONS, "max-shop-users", 5),
     MAX_SHOPS_PER_CHUNK(SettingSection.SHOP_OPTIONS, "max-shops-per-chunk", 128),
     MAX_ITEMS_PER_TRADE_SIDE(SettingSection.SHOP_OPTIONS, "max-items-per-trade-side", 6),
     ALLOW_USER_PURCHASING(SettingSection.SHOP_OPTIONS, "allow-user-purchasing", false),
     MULTIPLE_ITEMS_ON_SIGN(SettingSection.SHOP_OPTIONS, "multiple-items-on-sign", "Use '/ts what'"),
+
+    //Shop Item Default Setting Options
+    COMPARE_DURABILITY_DEFAULT(SettingSection.COMPARE_DURABILITY, "default", 1),
+    COMPARE_ENCHANTMENTS_DEFAULT(SettingSection.COMPARE_ENCHANTMENTS, "default", true),
+    COMPARE_NAME_DEFAULT(SettingSection.COMPARE_NAME, "default", true),
+    COMPARE_LORE_DEFAULT(SettingSection.COMPARE_LORE, "default", true),
+    COMPARE_CUSTOM_MODEL_DATA_DEFAULT(SettingSection.COMPARE_CUSTOM_MODEL_DATA, "default", true),
+    COMPARE_ITEM_FLAGS_DEFAULT(SettingSection.COMPARE_ITEM_FLAGS, "default", true),
+    COMPARE_UNBREAKABLE_DEFAULT(SettingSection.COMPARE_UNBREAKABLE, "default", true),
+    COMPARE_ATTRIBUTE_MODIFIER_DEFAULT(SettingSection.COMPARE_ATTRIBUTE_MODIFIER, "default", true),
+    COMPARE_BOOK_AUTHOR_DEFAULT(SettingSection.COMPARE_BOOK_AUTHOR, "default", true),
+    COMPARE_BOOK_PAGES_DEFAULT(SettingSection.COMPARE_BOOK_PAGES, "default", true),
+    COMPARE_SHULKER_INVENTORY_DEFAULT(SettingSection.COMPARE_SHULKER_INVENTORY, "default", true),
+    COMPARE_BUNDLE_INVENTORY_DEFAULT(SettingSection.COMPARE_BUNDLE_INVENTORY, "default", true),
+    COMPARE_FIREWORK_DURATION_DEFAULT(SettingSection.COMPARE_FIREWORK_DURATION, "default", true),
+    COMPARE_FIREWORK_EFFECTS_DEFAULT(SettingSection.COMPARE_FIREWORK_EFFECTS, "default", true),
+
+    //Shop Item Setting User Editable Options
+    COMPARE_DURABILITY_USER_EDITABLE(SettingSection.COMPARE_DURABILITY, "user-editable", true),
+    COMPARE_ENCHANTMENTS_USER_EDITABLE(SettingSection.COMPARE_ENCHANTMENTS, "user-editable", true),
+    COMPARE_NAME_USER_EDITABLE(SettingSection.COMPARE_NAME, "user-editable", true),
+    COMPARE_LORE_USER_EDITABLE(SettingSection.COMPARE_LORE, "user-editable", true),
+    COMPARE_CUSTOM_MODEL_DATA_USER_EDITABLE(SettingSection.COMPARE_CUSTOM_MODEL_DATA, "user-editable", true),
+    COMPARE_ITEM_FLAGS_USER_EDITABLE(SettingSection.COMPARE_ITEM_FLAGS, "user-editable", true),
+    COMPARE_UNBREAKABLE_USER_EDITABLE(SettingSection.COMPARE_UNBREAKABLE, "user-editable", true),
+    COMPARE_ATTRIBUTE_MODIFIER_USER_EDITABLE(SettingSection.COMPARE_ATTRIBUTE_MODIFIER, "user-editable", true),
+    COMPARE_BOOK_AUTHOR_USER_EDITABLE(SettingSection.COMPARE_BOOK_AUTHOR, "user-editable", true),
+    COMPARE_BOOK_PAGES_USER_EDITABLE(SettingSection.COMPARE_BOOK_PAGES, "user-editable", true),
+    COMPARE_SHULKER_INVENTORY_USER_EDITABLE(SettingSection.COMPARE_SHULKER_INVENTORY, "user-editable", true),
+    COMPARE_BUNDLE_INVENTORY_USER_EDITABLE(SettingSection.COMPARE_BUNDLE_INVENTORY, "user-editable", true),
+    COMPARE_FIREWORK_DURATION_USER_EDITABLE(SettingSection.COMPARE_FIREWORK_DURATION, "user-editable", true),
+    COMPARE_FIREWORK_EFFECTS_USER_EDITABLE(SettingSection.COMPARE_FIREWORK_EFFECTS, "user-editable", true),
 
     // Trade Shop Options
     TRADESHOP_HEADER(SettingSection.TRADE_SHOP_OPTIONS, "header", "Trade"),
@@ -106,7 +130,15 @@ public enum Setting {
     BITRADESHOP_HEADER(SettingSection.BITRADE_SHOP_OPTIONS, "header", "BiTrade"),
     BITRADESHOP_EXPLODE(SettingSection.BITRADE_SHOP_OPTIONS, "allow-explode", false),
     BITRADESHOP_HOPPER_EXPORT(SettingSection.BITRADE_SHOP_OPTIONS, "allow-hopper-export", false),
-    BITRADESHOP_HOPPER_IMPORT(SettingSection.BITRADE_SHOP_OPTIONS, "allow-hopper-import", false);
+    BITRADESHOP_HOPPER_IMPORT(SettingSection.BITRADE_SHOP_OPTIONS, "allow-hopper-import", false),
+
+    // Illegal Item Options
+    GLOBAL_ILLEGAL_ITEMS_TYPE(SettingSection.GLOBAL_ILLEGAL_ITEMS, "type", IllegalItemList.ListType.BLACKLIST.toString()),
+    GLOBAL_ILLEGAL_ITEMS_LIST(SettingSection.GLOBAL_ILLEGAL_ITEMS, "list", new String[]{"Bedrock", "Command_Block", "Barrier"}),
+    COST_ILLEGAL_ITEMS_TYPE(SettingSection.COST_ILLEGAL_ITEMS, "type", IllegalItemList.ListType.DISABLED.toString()),
+    COST_ILLEGAL_ITEMS_LIST(SettingSection.COST_ILLEGAL_ITEMS, "list", new String[]{}),
+    PRODUCT_ILLEGAL_ITEMS_TYPE(SettingSection.PRODUCT_ILLEGAL_ITEMS, "type", IllegalItemList.ListType.DISABLED.toString()),
+    PRODUCT_ILLEGAL_ITEMS_LIST(SettingSection.PRODUCT_ILLEGAL_ITEMS, "list", new String[]{});
 
     public static final TradeShop PLUGIN = Objects.requireNonNull((TradeShop) Bukkit.getPluginManager().getPlugin("TradeShop"));
 
