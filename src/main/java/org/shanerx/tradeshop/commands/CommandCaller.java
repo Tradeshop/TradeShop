@@ -154,9 +154,6 @@ public class CommandCaller implements CommandExecutor {
 			case REMOVE_COST:
 				new ShopItemCommand(plugin, cmdPass, ShopItemSide.COST).removeSide();
 				break;
-			case PLAYER_LEVEL:
-				new AdminCommand(plugin, cmdPass).playerLevel();
-				break;
 			case STATUS:
 				new GeneralPlayerCommand(plugin, cmdPass).status();
 				break;

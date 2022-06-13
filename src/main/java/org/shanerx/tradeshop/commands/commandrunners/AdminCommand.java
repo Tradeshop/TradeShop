@@ -108,33 +108,4 @@ public class AdminCommand extends CommandRunner {
 
         Message.ADMIN_TOGGLED.sendMessage(pSender, new Tuple<>(Variable.STATE.toString(), playerSetting.isAdminEnabled() ? "enabled" : "disabled"));
     }
-
-    /**
-     * Changes/Sets the players permission level if internal permissions is enabled
-     */
-    public void playerLevel() {
-        if (Bukkit.getOfflinePlayer(command.getArgAt(1)).hasPlayedBefore()) {
-            PlayerSetting playerSetting = plugin.getDataStorage().loadPlayer(Bukkit.getOfflinePlayer(command.getArgAt(1)).getUniqueId());
-            if (command.argsSize() == 2) {
-                Message.VIEW_PLAYER_LEVEL.sendMessage(pSender,
-                        new Tuple<>(Variable.PLAYER.toString(), Bukkit.getOfflinePlayer(command.getArgAt(1)).getName()),
-                        new Tuple<>(Variable.LEVEL.toString(), playerSetting.getType() + ""));
-            } else {
-                if (isInt(command.getArgAt(2))) {
-                    int newLevel = Integer.parseInt(command.getArgAt(2));
-
-                    playerSetting.setType(newLevel);
-                    plugin.getDataStorage().savePlayer(playerSetting);
-
-                    Message.SET_PLAYER_LEVEL.sendMessage(pSender,
-                            new Tuple<>(Variable.PLAYER.toString(), Bukkit.getOfflinePlayer(command.getArgAt(1)).getName()),
-                            new Tuple<>(Variable.LEVEL.toString(), playerSetting.getType() + ""));
-                } else {
-                    Message.INVALID_ARGUMENTS.sendMessage(pSender);
-                }
-            }
-        } else {
-            Message.PLAYER_NOT_FOUND.sendMessage(pSender);
-        }
-    }
 }
