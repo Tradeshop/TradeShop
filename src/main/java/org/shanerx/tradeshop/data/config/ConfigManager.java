@@ -29,6 +29,7 @@ import com.google.common.base.CaseFormat;
 import com.google.common.base.Charsets;
 import com.google.common.io.Files;
 import org.apache.commons.lang.Validate;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -41,8 +42,10 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.logging.Level;
 
 public class ConfigManager {
@@ -78,7 +81,7 @@ public class ConfigManager {
         return ChatColor.translateAlternateColorCodes('&', toColour);
     }
 
-    public void load() {
+    public boolean load() {
         try {
             if (!PLUGIN.getDataFolder().isDirectory()) {
                 PLUGIN.getDataFolder().mkdirs();
@@ -93,23 +96,24 @@ public class ConfigManager {
 
         config = YamlConfiguration.loadConfiguration(file);
 
-        setDefaults();
+        return setDefaults();
     }
 
     public void reload() {
-        load();
+        Set<Boolean> hasUpgraded = new HashSet<>();
+        hasUpgraded.add(load());
 
         switch (configType) {
             case CONFIG:
-                Setting.upgrade();
+                hasUpgraded.add(Setting.upgrade());
                 PLUGIN.setUseInternalPerms(Setting.USE_INTERNAL_PERMISSIONS.getBoolean());
                 break;
             case MESSAGES:
-                Message.upgrade();
+                hasUpgraded.add(Message.upgrade());
                 break;
         }
 
-        save();
+        save(hasUpgraded.contains(true));
 
         PLUGIN.setSkipHopperProtection(
                 Setting.BITRADESHOP_HOPPER_EXPORT.getBoolean() &&
@@ -118,15 +122,28 @@ public class ConfigManager {
                         Setting.TRADESHOP_HOPPER_EXPORT.getBoolean());
     }
 
-    public void setDefaults() {
+    public boolean setDefaults() {
+        Set<Boolean> hasUpgraded = new HashSet<>();
+
         switch (configType) {
             case CONFIG:
-                Arrays.stream(Setting.values()).forEach((setting) -> addKeyValue(setting.getPath(), setting.getDefaultValue()));
+                Arrays.stream(Setting.values()).forEach((setting) -> hasUpgraded.add(addKeyValue(setting.getPath(), setting.getDefaultValue())));
                 break;
             case MESSAGES:
-                Arrays.stream(Message.values()).forEach((message) -> addKeyValue(message.getPath(), message.getDefaultValue()));
+                Arrays.stream(Message.values()).forEach((message) -> hasUpgraded.add(addKeyValue(message.getPath(), message.getDefaultValue())));
                 break;
         }
+
+        return hasUpgraded.contains(true);
+    }
+
+    /**
+     * Saves the file if passed boolean is true
+     *
+     * @param shouldSave true if save should proceed
+     */
+    public void save(boolean shouldSave) {
+        if (shouldSave) save();
     }
 
     public void save() {
@@ -181,17 +198,22 @@ public class ConfigManager {
         config = YamlConfiguration.loadConfiguration(file);
     }
 
-    private void addKeyValue(String node, Object value) {
+    private boolean addKeyValue(String node, Object value) {
         if (value instanceof Map) {
             for (Map.Entry entry : ((Map<?, ?>) value).entrySet()) {
                 String newNode = node + "." + entry.getKey().toString();
                 if (config.get(newNode) == null || (config.get(newNode) != null && config.get(newNode).toString().isEmpty())) {
+                    Bukkit.getLogger().log(Level.WARNING, "TS reload issue ->\n" + newNode + " = " + config.get(newNode).toString() + " | " + entry.getValue().toString());
                     config.set(newNode, entry.getValue().toString());
+                    return true;
                 }
             }
         } else if (config.get(node) == null || (config.get(node) != null && config.get(node).toString().isEmpty())) {
             config.set(node, value);
+            return true;
         }
+
+        return false;
     }
 
     public enum ConfigType {

@@ -725,7 +725,8 @@ public class Shop implements Serializable {
 	 * @return true if player has been set
 	 */
 	public boolean setUser(UUID newUser, ShopRole role) {
-		return removeUser(newUser) && addUser(newUser, role);
+		removeUser(newUser);
+		return addUser(newUser, role);
 	}
 
 	/**

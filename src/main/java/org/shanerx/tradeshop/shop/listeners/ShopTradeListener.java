@@ -134,6 +134,7 @@ public class ShopTradeListener extends Utils implements Listener {
                 return;
             case INCOMPLETE:
                 Message.SHOP_EMPTY.sendMessage(buyer);
+                return;
             case OUT_OF_STOCK:
                 if (shop.getShopType() == ShopType.ITRADE) {
                     break;
@@ -142,8 +143,6 @@ public class ShopTradeListener extends Utils implements Listener {
                 if (shop.hasSide(ShopItemSide.PRODUCT)) {
                     List<ItemStack> searchResult = getItems(shop.getChestAsSC().getInventory().getStorageContents(), shop.getSideList(ShopItemSide.PRODUCT, doBiTradeAlternate), multiplier);
                     Message.SHOP_INSUFFICIENT_ITEMS.sendItemMultiLineMessage(buyer, Collections.singletonMap(Variable.MISSING_ITEMS, searchResult));
-                } else {
-                    Message.SHOP_EMPTY.sendMessage(buyer);
                 }
                 return;
             case OPEN:

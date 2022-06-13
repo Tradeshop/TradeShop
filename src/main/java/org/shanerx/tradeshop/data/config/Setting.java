@@ -32,8 +32,10 @@ import org.shanerx.tradeshop.shop.ShopSign;
 import org.yaml.snakeyaml.Yaml;
 
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public enum Setting {
 
@@ -170,8 +172,9 @@ public enum Setting {
     }
 
     // Method to fix any values that have changed with updates
-    static void upgrade() {
+    static boolean upgrade() {
         double version = CONFIG_VERSION.getDouble();
+        Set<Boolean> hasUpgraded = new HashSet<>(); // Uses this instead of a boolean to later replace below ifs with boolean return methods...
         ConfigManager configManager = PLUGIN.getSettingManager();
 
         // 2.2.2 Changed enable debug from true/false to integer
@@ -184,46 +187,55 @@ public enum Setting {
             if (configManager.getConfig().contains("itradeshop.owner")) {
                 configManager.getConfig().set(ITRADESHOP_OWNER.path, configManager.getConfig().get("itradeshop.owner"));
                 configManager.getConfig().set("itradeshop.owner", null);
+                hasUpgraded.add(true);
             }
 
             if (configManager.getConfig().contains("itradeshop.header")) {
                 configManager.getConfig().set(ITRADESHOP_HEADER.path, configManager.getConfig().get("itradeshop.header"));
                 configManager.getConfig().set("itradeshop.header", null);
+                hasUpgraded.add(true);
             }
 
             if (configManager.getConfig().contains("itradeshop.allow-explode")) {
                 configManager.getConfig().set(ITRADESHOP_EXPLODE.path, configManager.getConfig().get("itradeshop.allow-explode"));
                 configManager.getConfig().set("itradeshop.allow-explode", null);
+                hasUpgraded.add(true);
             }
 
             if (configManager.getConfig().contains("tradeshop.header")) {
                 configManager.getConfig().set(TRADESHOP_HEADER.path, configManager.getConfig().get("tradeshop.header"));
                 configManager.getConfig().set("tradeshop.header", null);
+                hasUpgraded.add(true);
             }
 
             if (configManager.getConfig().contains("tradeshop.allow-explode")) {
                 configManager.getConfig().set(TRADESHOP_EXPLODE.path, configManager.getConfig().get("tradeshop.allow-explode"));
                 configManager.getConfig().set("tradeshop.allow-explode", null);
+                hasUpgraded.add(true);
             }
 
             if (configManager.getConfig().contains("tradeshop.allow-hopper-export")) {
                 configManager.getConfig().set(TRADESHOP_HOPPER_EXPORT.path, configManager.getConfig().get("tradeshop.allow-hopper-export"));
                 configManager.getConfig().set("tradeshop.allow-hopper-export", null);
+                hasUpgraded.add(true);
             }
 
             if (configManager.getConfig().contains("bitradeshop.header")) {
                 configManager.getConfig().set(BITRADESHOP_HEADER.path, configManager.getConfig().get("bitradeshop.header"));
                 configManager.getConfig().set("bitradeshop.header", null);
+                hasUpgraded.add(true);
             }
 
             if (configManager.getConfig().contains("bitradeshop.allow-explode")) {
                 configManager.getConfig().set(BITRADESHOP_EXPLODE.path, configManager.getConfig().get("bitradeshop.allow-explode"));
                 configManager.getConfig().set("bitradeshop.allow-explode", null);
+                hasUpgraded.add(true);
             }
 
             if (configManager.getConfig().contains("bitradeshop.allow-hopper-export")) {
                 configManager.getConfig().set(BITRADESHOP_HOPPER_EXPORT.path, configManager.getConfig().get("bitradeshop.allow-hopper-export"));
                 configManager.getConfig().set("bitradeshop.allow-hopper-export", null);
+                hasUpgraded.add(true);
             }
 
 
@@ -235,12 +247,15 @@ public enum Setting {
                 configManager.getConfig().set(GLOBAL_ILLEGAL_ITEMS_LIST.path, configManager.getConfig().get("global-options.illegal-items"));
                 GLOBAL_ILLEGAL_ITEMS_LIST.setValue(configManager.getConfig().getStringList("global-options.illegal-items").removeAll(Arrays.asList("Air", "Void_Air", "Cave_Air")));
                 configManager.getConfig().set("global-options.illegal-items", null);
+                hasUpgraded.add(true);
             }
 
             version = 1.2;
         }
 
         CONFIG_VERSION.setValue(version);
+
+        return hasUpgraded.contains(true);
     }
 
     public String getKey() {
@@ -253,6 +268,10 @@ public enum Setting {
 
     public String getMappedString(String subKey) {
         return PLUGIN.getSettingManager().getConfig().getConfigurationSection(getPath()).getString(subKey.toLowerCase().replace("_", "-"));
+    }
+
+    public boolean getMappedBoolean(String subKey) {
+        return PLUGIN.getSettingManager().getConfig().getConfigurationSection(getPath()).getBoolean(subKey.toLowerCase().replace("_", "-"));
     }
 
     public String getPostComment() {
@@ -281,7 +300,7 @@ public enum Setting {
         if (defaultValue instanceof Map) {
             keyOutput.append(section.getSectionLead()).append(getKey()).append(":\n");
             for (Map.Entry entry : ((Map<?, ?>) defaultValue).entrySet()) {
-                keyOutput.append(section.getSectionLead() + "  ").append(entry.getKey().toString()).append(": ").append(new Yaml().dump(entry.getValue()));
+                keyOutput.append(section.getSectionLead() + "    ").append(entry.getKey().toString()).append(": ").append(new Yaml().dump(entry.getValue()));
             }
         } else {
             keyOutput.append(section.getSectionLead()).append(getKey()).append(": ").append(new Yaml().dump(getSetting()));
@@ -301,6 +320,11 @@ public enum Setting {
         PLUGIN.getSettingManager().getConfig().set(getPath(), obj);
     }
 
+    public void setMappedValue(String subKey, Object obj) {
+        String newNode = getPath() + "." + subKey;
+        PLUGIN.getSettingManager().getConfig().set(newNode, obj);
+    }
+
     public void clearSetting() {
         PLUGIN.getSettingManager().getConfig().set(getPath(), null);
     }
@@ -309,7 +333,7 @@ public enum Setting {
         return PLUGIN.getSettingManager().getConfig().get(getPath());
     }
 
-	public String getString() {
+    public String getString() {
         return PLUGIN.getSettingManager().getConfig().getString(getPath());
 	}
 

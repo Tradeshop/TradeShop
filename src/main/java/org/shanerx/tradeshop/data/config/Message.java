@@ -37,9 +37,11 @@ import org.shanerx.tradeshop.utils.objects.Tuple;
 import org.yaml.snakeyaml.Yaml;
 
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -117,13 +119,15 @@ public enum Message {
     }
 
     // Method to fix any values that have changed with updates
-    static void upgrade() {
+    static boolean upgrade() {
         double version = MESSAGE_VERSION.getDouble();
+        Set<Boolean> hasUpgraded = new HashSet<>(); // Uses this instead of a boolean to later replace below ifs with boolean return methods...
 
         //Changes if CONFIG_VERSION is below 1.1, then update to 1.1
         if (checkVersion(version, 1.1)) {
             if (TOO_MANY_ITEMS.getString().equals("&cThis trade can not take any more %side%!")) {
                 TOO_MANY_ITEMS.setValue(PLUGIN.getLanguage().getDefault(Language.LangSection.MESSAGE, TOO_MANY_ITEMS.getPath()));
+                hasUpgraded.add(true);
             }
             version = 1.1;
         }
@@ -133,8 +137,10 @@ public enum Message {
             Arrays.stream(values()).forEach((message) -> {
                 String str = message.getString().replace("{", "%").replace("}", "%");
 
-                if (!str.equals(message.getString()))
+                if (!str.equals(message.getString())) {
                     message.setValue(str);
+                    hasUpgraded.add(true);
+                }
 
             });
             version = 1.2;
@@ -144,12 +150,15 @@ public enum Message {
         if (checkVersion(version, 1.3)) {
             if (INSUFFICIENT_ITEMS.getString().equals("&cYou do not have &e%AMOUNT% %ITEM%&c!")) {
                 INSUFFICIENT_ITEMS.setValue(PLUGIN.getLanguage().getDefault(Language.LangSection.MESSAGE, INSUFFICIENT_ITEMS.getPath()));
+                hasUpgraded.add(true);
             }
             if (SHOP_INSUFFICIENT_ITEMS.getString().equals("&cThis shop does not have enough &e%AMOUNT% %ITEM%&c to trade!")) {
                 SHOP_INSUFFICIENT_ITEMS.setValue(PLUGIN.getLanguage().getDefault(Language.LangSection.MESSAGE, SHOP_INSUFFICIENT_ITEMS.getPath()));
+                hasUpgraded.add(true);
             }
             if (ON_TRADE.getString().equals("&aYou have traded your &e%AMOUNT2% %ITEM2% &afor &e%AMOUNT1% %ITEM1% &awith %SELLER%")) {
                 ON_TRADE.setValue(PLUGIN.getLanguage().getDefault(Language.LangSection.MESSAGE, ON_TRADE.getPath()));
+                hasUpgraded.add(true);
             }
 
 
@@ -157,6 +166,8 @@ public enum Message {
         }
 
         MESSAGE_VERSION.setValue(version != 0.0 ? version : 1.3);
+
+        return hasUpgraded.contains(true);
     }
 
     private static boolean checkVersion(double version, double maxVersion) {
