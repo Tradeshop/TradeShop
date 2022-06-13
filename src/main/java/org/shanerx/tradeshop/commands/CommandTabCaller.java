@@ -75,6 +75,8 @@ public class CommandTabCaller implements TabCompleter {
 					return tabCompleter.fillShopPlayer();
 				case ADD_MANAGER:
 				case ADD_MEMBER:
+				case SET_MEMBER:
+				case SET_MANAGER:
 				case PLAYER_LEVEL:
 					return tabCompleter.fillServerPlayer();
 				default:

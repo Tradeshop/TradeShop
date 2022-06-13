@@ -60,6 +60,8 @@ setting-section:
   compare-firework-effects:
     header: ""
     pre-comment: "Compare Firework Effects"
+  shop-sign-options:
+    header: "Shop Sign Options"
   trade-shop-options:
     header: "Trade Shop Options"
   itrade-shop-options:
@@ -240,7 +242,11 @@ setting:
         default:
           pre-comment: ""
         user-editable:
-          pre-comment: ""
+          post-comment: "\n"
+  shop-sign-options:
+    sign-default-colours:
+      pre-comment: "What colour should be used for line 2/3 on shop signs per each material type."
+      post-comment: "\n"
   trade-shop-options:
     header:
       pre-comment: "The header that appears at the top of the shop signs, this is also what the player types to create the sign"
@@ -391,7 +397,7 @@ message:
   too-many-items:
     default: "&cThis shop cannot take any more %SIDE% items!"
   updated-shop-users:
-    default: "&aShop users have tried to update for the below shops! \n{%UPDATED_SHOPS%=  %SHOP% -|- %STATUS%}"
+    default: "&aShop users have tried to update for the below shops! \n{%UPDATEDSHOPS%=  %SHOP% -|- %STATUS%}"
     pre-comment: "Text to display when shop users have been updated."
   updated-shop-users-successful:
     default: "&aSuccessful"

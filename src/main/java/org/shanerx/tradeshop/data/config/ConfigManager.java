@@ -42,6 +42,7 @@ import java.io.Writer;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.logging.Level;
 
 public class ConfigManager {
@@ -154,13 +155,13 @@ public class ConfigManager {
                 switch (configType) {
                     case CONFIG:
                         Arrays.stream(SettingSection.values()).sorted(new CompareSettingSections()).forEach((section) -> outputMap.put(section.getPath(), section.getFileString()));
-                        Arrays.stream(Setting.values()).forEach((section) -> outputMap.put(section.getSection().getPath(),
-                                outputMap.getOrDefault(section.getSection().getPath(), "") + section.getFileString()));
+                        Arrays.stream(Setting.values()).forEach((setting) -> outputMap.put(setting.getSection().getPath(),
+                                outputMap.getOrDefault(setting.getSection().getPath(), "") + setting.getFileString()));
                         break;
                     case MESSAGES:
                         Arrays.stream(MessageSection.values()).sorted(new CompareMessageSections()).forEach((section) -> outputMap.put(section.getPath(), section.getFileString()));
-                        Arrays.stream(Message.values()).forEach((section) -> outputMap.put(section.getSection().getPath(),
-                                outputMap.getOrDefault(section.getSection().getPath(), "") + section.getFileString()));
+                        Arrays.stream(Message.values()).forEach((message) -> outputMap.put(message.getSection().getPath(),
+                                outputMap.getOrDefault(message.getSection().getPath(), "") + message.getFileString()));
                         break;
                 }
 
@@ -181,7 +182,14 @@ public class ConfigManager {
     }
 
     private void addKeyValue(String node, Object value) {
-        if (config.get(node) == null || (config.get(node) != null && config.get(node).toString().isEmpty())) {
+        if (value instanceof Map) {
+            for (Map.Entry entry : ((Map<?, ?>) value).entrySet()) {
+                String newNode = node + "." + entry.getKey().toString();
+                if (config.get(newNode) == null || (config.get(newNode) != null && config.get(newNode).toString().isEmpty())) {
+                    config.set(newNode, entry.getValue().toString());
+                }
+            }
+        } else if (config.get(node) == null || (config.get(node) != null && config.get(node).toString().isEmpty())) {
             config.set(node, value);
         }
     }

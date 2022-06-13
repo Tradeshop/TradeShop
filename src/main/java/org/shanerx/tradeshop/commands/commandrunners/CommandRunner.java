@@ -64,7 +64,6 @@ public class CommandRunner extends Utils {
 	 */
 	protected Shop findShop() {
 		if (pSender == null) {
-			Message.PLAYER_ONLY_COMMAND.sendMessage(pSender);
 			return null;
 		}
 

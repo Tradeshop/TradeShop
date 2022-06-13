@@ -28,11 +28,12 @@ package org.shanerx.tradeshop.data.config;
 import org.bukkit.Bukkit;
 import org.shanerx.tradeshop.TradeShop;
 import org.shanerx.tradeshop.item.IllegalItemList;
+import org.shanerx.tradeshop.shop.ShopSign;
 import org.yaml.snakeyaml.Yaml;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
+import java.util.Map;
 
 public enum Setting {
 
@@ -81,7 +82,8 @@ public enum Setting {
     ALLOW_USER_PURCHASING(SettingSection.SHOP_OPTIONS, "allow-user-purchasing", false),
     MULTIPLE_ITEMS_ON_SIGN(SettingSection.SHOP_OPTIONS, "multiple-items-on-sign", "Use '/ts what'"),
 
-    //Shop Item Default Setting Options
+    //region Shop Item Settings
+    //------------------------------------------------------------------------------------------------------------------
     COMPARE_DURABILITY_DEFAULT(SettingSection.COMPARE_DURABILITY, "default", 1),
     COMPARE_ENCHANTMENTS_DEFAULT(SettingSection.COMPARE_ENCHANTMENTS, "default", true),
     COMPARE_NAME_DEFAULT(SettingSection.COMPARE_NAME, "default", true),
@@ -113,6 +115,16 @@ public enum Setting {
     COMPARE_FIREWORK_DURATION_USER_EDITABLE(SettingSection.COMPARE_FIREWORK_DURATION, "user-editable", true),
     COMPARE_FIREWORK_EFFECTS_USER_EDITABLE(SettingSection.COMPARE_FIREWORK_EFFECTS, "user-editable", true),
 
+    //------------------------------------------------------------------------------------------------------------------
+    //endregion
+
+    //region Shop Sign Settings
+    //------------------------------------------------------------------------------------------------------------------
+    SHOP_SIGN_DEFAULT_COLOURS(SettingSection.SHOP_SIGN_OPTIONS, "sign-default-colours", ShopSign.getDefaultColourMap()),
+
+    //------------------------------------------------------------------------------------------------------------------
+    //endregion
+
     // Trade Shop Options
     TRADESHOP_HEADER(SettingSection.TRADE_SHOP_OPTIONS, "header", "Trade"),
     TRADESHOP_EXPLODE(SettingSection.TRADE_SHOP_OPTIONS, "allow-explode", false),
@@ -140,7 +152,7 @@ public enum Setting {
     PRODUCT_ILLEGAL_ITEMS_TYPE(SettingSection.PRODUCT_ILLEGAL_ITEMS, "type", IllegalItemList.ListType.DISABLED.toString()),
     PRODUCT_ILLEGAL_ITEMS_LIST(SettingSection.PRODUCT_ILLEGAL_ITEMS, "list", new String[]{});
 
-    public static final TradeShop PLUGIN = Objects.requireNonNull((TradeShop) Bukkit.getPluginManager().getPlugin("TradeShop"));
+    public static final TradeShop PLUGIN = (TradeShop) Bukkit.getPluginManager().getPlugin("TradeShop");
 
     private final String key, path;
     private final Object defaultValue;
@@ -239,6 +251,10 @@ public enum Setting {
         return defaultValue;
     }
 
+    public String getMappedString(String subKey) {
+        return PLUGIN.getSettingManager().getConfig().getConfigurationSection(getPath()).getString(subKey.toLowerCase().replace("_", "-"));
+    }
+
     public String getPostComment() {
         return PLUGIN.getLanguage().getPostComment(Language.LangSection.SETTING, path);
     }
@@ -262,7 +278,14 @@ public enum Setting {
             keyOutput.append(section.getSectionLead()).append("# ").append(PLUGIN.getSettingManager().fixCommentNewLines(section.getSectionLead(), getPreComment())).append("\n");
         }
 
-        keyOutput.append(section.getSectionLead()).append(getKey()).append(": ").append(new Yaml().dump(getSetting()));
+        if (defaultValue instanceof Map) {
+            keyOutput.append(section.getSectionLead()).append(getKey()).append(":\n");
+            for (Map.Entry entry : ((Map<?, ?>) defaultValue).entrySet()) {
+                keyOutput.append(section.getSectionLead() + "  ").append(entry.getKey().toString()).append(": ").append(new Yaml().dump(entry.getValue()));
+            }
+        } else {
+            keyOutput.append(section.getSectionLead()).append(getKey()).append(": ").append(new Yaml().dump(getSetting()));
+        }
 
         if (!getPostComment().isEmpty()) {
             if (getPostComment().equals(" ") || getPostComment().equals("\n"))

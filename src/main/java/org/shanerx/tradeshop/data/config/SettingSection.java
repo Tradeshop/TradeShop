@@ -32,35 +32,44 @@ import java.util.Objects;
 
 public enum SettingSection {
 
+    //Weight for primary Sections should start at 0 and each sub-section should start at increments of 50
+
     NONE(0, ""),
     SYSTEM_OPTIONS(1, "system-options"),
     LANGUAGE_OPTIONS(2, "language-options"),
     GLOBAL_OPTIONS(3, "global-options"),
-    GLOBAL_MULTI_TRADE(0, GLOBAL_OPTIONS, "multi-trade"),
+    GLOBAL_MULTI_TRADE(50, GLOBAL_OPTIONS, "multi-trade"),
     SHOP_OPTIONS(4, "shop-options"),
-    SHOP_ITEM_DEFAULT_SETTINGS_OPTIONS(0, SHOP_OPTIONS, "shop-item-default-settings-options"),
-    COMPARE_DURABILITY(0, SHOP_ITEM_DEFAULT_SETTINGS_OPTIONS, "compare-durability"),
-    COMPARE_ENCHANTMENTS(1, SHOP_ITEM_DEFAULT_SETTINGS_OPTIONS, "compare-enchantments"),
-    COMPARE_NAME(2, SHOP_ITEM_DEFAULT_SETTINGS_OPTIONS, "compare-name"),
-    COMPARE_LORE(3, SHOP_ITEM_DEFAULT_SETTINGS_OPTIONS, "compare-lore"),
-    COMPARE_CUSTOM_MODEL_DATA(4, SHOP_ITEM_DEFAULT_SETTINGS_OPTIONS, "compare-custom-data-model"),
-    COMPARE_ITEM_FLAGS(5, SHOP_ITEM_DEFAULT_SETTINGS_OPTIONS, "compare-item-flags"),
-    COMPARE_UNBREAKABLE(6, SHOP_ITEM_DEFAULT_SETTINGS_OPTIONS, "compare-unbreakable"),
-    COMPARE_ATTRIBUTE_MODIFIER(7, SHOP_ITEM_DEFAULT_SETTINGS_OPTIONS, "compare-attribute-modifier"),
-    COMPARE_BOOK_AUTHOR(8, SHOP_ITEM_DEFAULT_SETTINGS_OPTIONS, "compare-book-author"),
-    COMPARE_BOOK_PAGES(9, SHOP_ITEM_DEFAULT_SETTINGS_OPTIONS, "compare-book-pages"),
-    COMPARE_SHULKER_INVENTORY(10, SHOP_ITEM_DEFAULT_SETTINGS_OPTIONS, "compare-shulker-inventory"),
-    COMPARE_BUNDLE_INVENTORY(11, SHOP_ITEM_DEFAULT_SETTINGS_OPTIONS, "compare-bundle-inventory"),
-    COMPARE_FIREWORK_DURATION(12, SHOP_ITEM_DEFAULT_SETTINGS_OPTIONS, "compare-firework-duration"),
-    COMPARE_FIREWORK_EFFECTS(13, SHOP_ITEM_DEFAULT_SETTINGS_OPTIONS, "compare-firework-effects"),
+
+    //region Shop Item Settings
+    //------------------------------------------------------------------------------------------------------------------
+    SHOP_ITEM_SETTINGS(50, SHOP_OPTIONS, "shop-item-default-settings-options"),
+    COMPARE_DURABILITY(100, SHOP_ITEM_SETTINGS, "compare-durability"),
+    COMPARE_ENCHANTMENTS(101, SHOP_ITEM_SETTINGS, "compare-enchantments"),
+    COMPARE_NAME(102, SHOP_ITEM_SETTINGS, "compare-name"),
+    COMPARE_LORE(103, SHOP_ITEM_SETTINGS, "compare-lore"),
+    COMPARE_CUSTOM_MODEL_DATA(104, SHOP_ITEM_SETTINGS, "compare-custom-data-model"),
+    COMPARE_ITEM_FLAGS(105, SHOP_ITEM_SETTINGS, "compare-item-flags"),
+    COMPARE_UNBREAKABLE(106, SHOP_ITEM_SETTINGS, "compare-unbreakable"),
+    COMPARE_ATTRIBUTE_MODIFIER(107, SHOP_ITEM_SETTINGS, "compare-attribute-modifier"),
+    COMPARE_BOOK_AUTHOR(108, SHOP_ITEM_SETTINGS, "compare-book-author"),
+    COMPARE_BOOK_PAGES(109, SHOP_ITEM_SETTINGS, "compare-book-pages"),
+    COMPARE_SHULKER_INVENTORY(110, SHOP_ITEM_SETTINGS, "compare-shulker-inventory"),
+    COMPARE_BUNDLE_INVENTORY(111, SHOP_ITEM_SETTINGS, "compare-bundle-inventory"),
+    COMPARE_FIREWORK_DURATION(112, SHOP_ITEM_SETTINGS, "compare-firework-duration"),
+    COMPARE_FIREWORK_EFFECTS(113, SHOP_ITEM_SETTINGS, "compare-firework-effects"),
+    //------------------------------------------------------------------------------------------------------------------
+    //endregion
+
+    SHOP_SIGN_OPTIONS(5, "shop-sign-options"),
 
     TRADE_SHOP_OPTIONS(6, "trade-shop-options"),
     ITRADE_SHOP_OPTIONS(7, "itrade-shop-options"),
     BITRADE_SHOP_OPTIONS(8, "bitrade-shop-options"),
     ILLEGAL_ITEM_OPTIONS(9, "illegal-item-options"),
-    GLOBAL_ILLEGAL_ITEMS(0, ILLEGAL_ITEM_OPTIONS, "global-illegal-items"),
-    COST_ILLEGAL_ITEMS(1, ILLEGAL_ITEM_OPTIONS, "cost-illegal-items"),
-    PRODUCT_ILLEGAL_ITEMS(2, ILLEGAL_ITEM_OPTIONS, "product-illegal-items");
+    GLOBAL_ILLEGAL_ITEMS(50, ILLEGAL_ITEM_OPTIONS, "global-illegal-items"),
+    COST_ILLEGAL_ITEMS(51, ILLEGAL_ITEM_OPTIONS, "cost-illegal-items"),
+    PRODUCT_ILLEGAL_ITEMS(52, ILLEGAL_ITEM_OPTIONS, "product-illegal-items");
 
     public static final TradeShop PLUGIN = Objects.requireNonNull((TradeShop) Bukkit.getPluginManager().getPlugin("TradeShop"));
 

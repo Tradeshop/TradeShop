@@ -32,33 +32,30 @@ import org.shanerx.tradeshop.utils.versionmanagement.BukkitVersion;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 enum Signs {
-    SIGN("", "1.13.2"),
-    OAK_SIGN("1.14.0", ""),
-    SPRUCE_SIGN("1.14.0", ""),
-    BIRCH_SIGN("1.14.0", ""),
-    JUNGLE_SIGN("1.14.0", ""),
-    ACACIA_SIGN("1.14.0", ""),
-    DARK_OAK_SIGN("1.14.0", ""),
-    CRIMSON_SIGN("1.16.0", ""),
-    WARPED_SIGN("1.16.0", ""),
-    WALL_SIGN("", "1.13.2"),
-    OAK_WALL_SIGN("1.14.0", ""),
-    SPRUCE_WALL_SIGN("1.14.0", ""),
-    BIRCH_WALL_SIGN("1.14.0", ""),
-    JUNGLE_WALL_SIGN("1.14.0", ""),
-    ACACIA_WALL_SIGN("1.14.0", ""),
-    DARK_OAK_WALL_SIGN("1.14.0", ""),
-    CRIMSON_WALL_SIGN("1.16.0", ""),
-    WARPED_WALL_SIGN("1.16.0", "");
+    SIGN("", "1.13.2", "&0"),
+    OAK_SIGN("1.14.0", "", "&0"),
+    SPRUCE_SIGN("1.14.0", "", "&0"),
+    BIRCH_SIGN("1.14.0", "", "&0"),
+    JUNGLE_SIGN("1.14.0", "", "&0"),
+    ACACIA_SIGN("1.14.0", "", "&0"),
+    DARK_OAK_SIGN("1.14.0", "", "&f"),
+    CRIMSON_SIGN("1.16.0", "", "&0"),
+    WARPED_SIGN("1.16.0", "", "&0"),
+    MANGROVE_SIGN("1.19.0", "", "&0");
 
     private final List<Integer> minVer = Arrays.asList(new Integer[3]);
     private final List<Integer> maxVer = Arrays.asList(new Integer[3]);
     private boolean hasMin = true, hasMax = true;
+    private final String defaultColour;
 
-    Signs(String minVersion, String maxVersion) {
+    Signs(String minVersion, String maxVersion, String defaultColour) {
+        this.defaultColour = defaultColour;
+
         if (minVersion.equalsIgnoreCase(""))
             hasMin = false;
 
@@ -104,6 +101,13 @@ enum Signs {
         return hasMaxVersion() ? getMaxVer().get(0) + "." + getMaxVer().get(1) + "." + getMaxVer().get(2) : "None";
     }
 
+    public static Signs match(Material mat) {
+        return valueOf(mat.toString().replace("WALL_", ""));
+    }
+
+    public String getDefaultColour() {
+        return defaultColour;
+    }
 }
 
 public class ShopSign extends Utils {
@@ -124,16 +128,32 @@ public class ShopSign extends Utils {
                 pass = false;
             }
 
-            if (pass)
+            if (pass) {
                 signTypes.add(Material.matchMaterial(type.toString()));
+                signTypes.add(Material.matchMaterial(type.toString().toUpperCase().replace("_SIGN", "_WALL_SIGN")));
+            }
         }
-
-
     }
 
     public List<Material> getSignTypes() {
         return signTypes;
     }
 
+    public static Map<String, String> getDefaultColourMap() {
+        final BukkitVersion version = new BukkitVersion();
+        Map<String, String> colourMap = new HashMap<>();
 
+        for (Signs value : Signs.values()) {
+            String key = value.name().toLowerCase().replace("_", "-");
+
+            colourMap.put(key, value.getDefaultColour());
+
+            if (value.hasMinVersion() && version.isBelow(value.getMinVer().get(0), value.getMinVer().get(1), value.getMinVer().get(2)))
+                colourMap.remove(key);
+            if (value.hasMaxVersion() && version.isAbove(value.getMaxVer().get(0), value.getMaxVer().get(1), value.getMaxVer().get(2)))
+                colourMap.remove(key);
+        }
+
+        return colourMap;
+    }
 }

@@ -59,7 +59,7 @@ import java.util.stream.Collectors;
 public class Shop implements Serializable {
 
 	private ShopUser owner;
-	private List<UUID> managers, members;
+	private Set<UUID> managers, members;
 	private ShopType shopType;
 	private final ShopLocation shopLoc;
 	private List<ShopItemStack> product, cost;
@@ -79,7 +79,7 @@ public class Shop implements Serializable {
 	 * @param items     Items to go into the shop as Tuple, left = Product, right = Cost
 	 * @param players   Users to be added to the shop as Tuple, left = Managers, right = Members
 	 */
-	public Shop(Tuple<Location, Location> locations, ShopType shopType, ShopUser owner, Tuple<List<UUID>, List<UUID>> players, Tuple<ItemStack, ItemStack> items) {
+	public Shop(Tuple<Location, Location> locations, ShopType shopType, ShopUser owner, Tuple<Set<UUID>, Set<UUID>> players, Tuple<ItemStack, ItemStack> items) {
 		shopLoc = new ShopLocation(locations.getLeft());
 		this.owner = owner;
 
@@ -90,8 +90,8 @@ public class Shop implements Serializable {
 
 		this.shopType = shopType;
 
-		managers = players.getLeft() == null ? Collections.emptyList() : players.getLeft();
-		members = players.getRight() == null ? Collections.emptyList() : players.getRight();
+		managers = players.getLeft() == null ? Collections.emptySet() : players.getLeft();
+		members = players.getRight() == null ? Collections.emptySet() : players.getRight();
 
 		product = new ArrayList<>();
 		cost = new ArrayList<>();
@@ -321,6 +321,15 @@ public class Shop implements Serializable {
 	}
 
 	/**
+	 * Saves the shop to file if passed boolean is true
+	 *
+	 * @param shouldSave true if save should proceed
+	 */
+	public void saveShop(boolean shouldSave) {
+		if (shouldSave) saveShop();
+	}
+
+	/**
 	 * Returns the shops sign as a Sign
 	 *
 	 * @return Shop sign as Sign
@@ -344,7 +353,7 @@ public class Shop implements Serializable {
 		if (s == null)
 			return;
 
-		String[] signLines = updateSignLines();
+		String[] signLines = updateSignLines(Setting.SHOP_SIGN_DEFAULT_COLOURS.getMappedString(Signs.match(s.getType()).name()));
 
 		for (int i = 0; i < 4; i++) {
 			s.setLine(i, signLines[i]);
@@ -360,7 +369,7 @@ public class Shop implements Serializable {
 		if (event == null || !event.getBlock().getLocation().equals(getShopLocation()))
 			return;
 
-		String[] signLines = updateSignLines();
+		String[] signLines = updateSignLines(Setting.SHOP_SIGN_DEFAULT_COLOURS.getMappedString(Signs.match(event.getBlock().getType()).name()));
 
 		for (int i = 0; i < 4; i++) {
 			event.setLine(i, signLines[i]);
@@ -374,7 +383,7 @@ public class Shop implements Serializable {
 		if (sign == null || !sign.getLocation().equals(getShopLocation()))
 			return;
 
-		String[] signLines = updateSignLines();
+		String[] signLines = updateSignLines(Setting.SHOP_SIGN_DEFAULT_COLOURS.getMappedString(Signs.match(sign.getType()).name()));
 
 		for (int i = 0; i < 4; i++) {
 			sign.setLine(i, signLines[i]);
@@ -383,12 +392,12 @@ public class Shop implements Serializable {
 		sign.update();
 	}
 
-    /**
-     * Updates the text for the shop signs
-     *
-     * @return String array containing updated sign lines to be set
-     */
-    private String[] updateSignLines() {
+	/**
+	 * Updates the text for the shop signs
+	 *
+	 * @return String array containing updated sign lines to be set
+	 */
+	private String[] updateSignLines(String defaultColour) {
 		String[] signLines = new String[4];
 
 		signLines[0] = utils.colorize((isMissingItems() ? Setting.SHOP_INCOMPLETE_COLOUR : Setting.SHOP_GOOD_COLOUR).getString() + shopType.toHeader());
@@ -405,10 +414,10 @@ public class Shop implements Serializable {
 
 			sb.append(item.getCleanItemName());
 
-			signLines[1] = sb.substring(0, Math.min(sb.length(), 15));
+			signLines[1] = utils.colorize(defaultColour + sb.substring(0, Math.min(sb.length(), 15)));
 
-        } else {
-			signLines[1] = Setting.MULTIPLE_ITEMS_ON_SIGN.getString().replace("%amount%", "");
+		} else {
+			signLines[1] = utils.colorize(defaultColour + Setting.MULTIPLE_ITEMS_ON_SIGN.getString().replace("%amount%", ""));
         }
 
 		if (cost.isEmpty()) {
@@ -428,8 +437,8 @@ public class Shop implements Serializable {
 			signLines[2] = Setting.MULTIPLE_ITEMS_ON_SIGN.getString();
 		}
 
-		signLines[1] = ChatColor.stripColor(signLines[1]);
-		signLines[2] = ChatColor.stripColor(signLines[2]);
+		signLines[1] = utils.colorize(defaultColour + ChatColor.stripColor(signLines[1]));
+		signLines[2] = utils.colorize(defaultColour + ChatColor.stripColor(signLines[2]));
 
 		updateStatus();
 
@@ -742,7 +751,7 @@ public class Shop implements Serializable {
 			}
 		}
 
-		if (ret) saveShop();
+		saveShop(ret);
 
 		return ret;
 	}
@@ -794,7 +803,7 @@ public class Shop implements Serializable {
 			ret = true;
 		}
 
-		saveShop();
+		saveShop(ret);
 
 		return ret;
 	}
@@ -804,7 +813,7 @@ public class Shop implements Serializable {
 	 *
 	 * @param users the managers to be set to the shop
 	 */
-	public boolean setUsers(List<UUID> users, ShopRole role) {
+	public boolean setUsers(Set<UUID> users, ShopRole role) {
 		boolean ret = false;
 		switch (role) {
 			case MANAGER:
@@ -817,7 +826,7 @@ public class Shop implements Serializable {
 				ret = true;
 		}
 
-		if (ret) saveShop();
+		saveShop(ret);
 
 		return ret;
 	}
