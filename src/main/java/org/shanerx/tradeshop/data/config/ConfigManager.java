@@ -29,7 +29,6 @@ import com.google.common.base.CaseFormat;
 import com.google.common.base.Charsets;
 import com.google.common.io.Files;
 import org.apache.commons.lang.Validate;
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -203,7 +202,6 @@ public class ConfigManager {
             for (Map.Entry entry : ((Map<?, ?>) value).entrySet()) {
                 String newNode = node + "." + entry.getKey().toString();
                 if (config.get(newNode) == null || (config.get(newNode) != null && config.get(newNode).toString().isEmpty())) {
-                    Bukkit.getLogger().log(Level.WARNING, "TS reload issue ->\n" + newNode + " = " + config.get(newNode).toString() + " | " + entry.getValue().toString());
                     config.set(newNode, entry.getValue().toString());
                     return true;
                 }
