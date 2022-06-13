@@ -49,6 +49,7 @@ import org.shanerx.tradeshop.framework.events.HopperShopAccessEvent;
 import org.shanerx.tradeshop.framework.events.PlayerShopDestroyEvent;
 import org.shanerx.tradeshop.framework.events.PlayerShopInventoryOpenEvent;
 import org.shanerx.tradeshop.player.Permissions;
+import org.shanerx.tradeshop.player.ShopRole;
 import org.shanerx.tradeshop.shop.Shop;
 import org.shanerx.tradeshop.shop.ShopChest;
 import org.shanerx.tradeshop.shop.ShopType;
@@ -309,7 +310,7 @@ public class ShopProtectionListener extends Utils implements Listener {
                 return;
             }
 
-            if (!Permissions.isAdminEnabled(e.getPlayer()) && !shop.getUsersUUID().contains(e.getPlayer().getUniqueId())) {
+            if (!Permissions.isAdminEnabled(e.getPlayer()) && !shop.getUsersUUID(ShopRole.OWNER, ShopRole.MANAGER, ShopRole.MEMBER).contains(e.getPlayer().getUniqueId())) {
                 openEvent.setCancelled(true);
             }
 
@@ -342,7 +343,7 @@ public class ShopProtectionListener extends Utils implements Listener {
         if (shop.getShopType().isITrade())
             return;
 
-        if (shop.getUsersUUID().contains(event.getPlayer().getUniqueId())) {
+        if (shop.getUsersUUID(ShopRole.OWNER, ShopRole.MANAGER).contains(event.getPlayer().getUniqueId())) {
             if (!shop.hasStorage()) {
                 new ShopChest(block, shop.getOwner().getUUID(), shopSign.getLocation()).setEventName(event);
                 shop.setInventoryLocation(block.getLocation());

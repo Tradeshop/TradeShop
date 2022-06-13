@@ -35,39 +35,35 @@ import org.shanerx.tradeshop.utils.Utils;
 import org.shanerx.tradeshop.utils.debug.DebugLevels;
 
 public enum Permissions {
-	//Available defaultState options are: `true`, `false`, `op`, and `not_op`
 
-	HELP("help", 0, "true"),
+	HELP("help", PermissionDefault.TRUE),
 
-	CREATE("create", 0, "true"),
+	CREATE("create", PermissionDefault.TRUE),
 
-	CREATEI("create.infinite", 1, "op"),
+	CREATEI("create.infinite", PermissionDefault.OP),
 
-	CREATEBI("create.bi", 0, "true"),
+	CREATEBI("create.bi", PermissionDefault.TRUE),
 
-	ADMIN("admin", 1, "op"),
+	ADMIN("admin", PermissionDefault.OP),
 
-	EDIT("edit", 0, "true"), // non admin perm
+	EDIT("edit", PermissionDefault.TRUE), // non admin perm
 
-	INFO("info", 0, "true"),
+	INFO("info", PermissionDefault.TRUE),
 
-	MANAGE_PLUGIN("manage-plugin", 2, "op"),
+	MANAGE_PLUGIN("manage-plugin", PermissionDefault.OP),
 
-	PREVENT_TRADE("prevent-trade", -1, "false"),
+	TRADE("trade", PermissionDefault.TRUE),
 
-	TRADE("trade", 0, "true"),
-
-	NONE("", 0, "true");
+	NONE("", PermissionDefault.TRUE);
 
 	private final static TradeShop plugin = (TradeShop) Bukkit.getPluginManager().getPlugin("TradeShop");
 	private final Utils utils = new Utils();
 	private final String key;
-	private final int level;
-	private final String defaultState, description;
+	private final PermissionDefault defaultState;
+	private final String description;
 
-	Permissions(String key, int level, String defaultState) {
+	Permissions(String key, PermissionDefault defaultState) {
 		this.key = key;
-		this.level = level;
 		this.defaultState = defaultState;
 		this.description = utils.PLUGIN.getLanguage().getString(Language.LangSection.PERMISSION, name().toLowerCase().replace("_", "-"), "description");
 	}
@@ -83,38 +79,28 @@ public enum Permissions {
 
 	public static void registerPermissions() {
 		for (Permissions perm : values()) {
-			Permission permission = perm.getPerm();
-			Bukkit.getPluginManager().addPermission(permission);
-			plugin.getDebugger().log("Permission registered: " + permission, DebugLevels.STARTUP);
+			if (!perm.equals(Permissions.NONE)) {
+				Permission permission = perm.getPerm();
+				Bukkit.getPluginManager().addPermission(permission);
+				plugin.getDebugger().log("Permission registered: " + permission.getName() + " | State: " + permission.getDefault(), DebugLevels.STARTUP);
+			}
 		}
+
+		StringBuilder str = new StringBuilder();
+		str.append("defaultPermissions: \n");
+		Bukkit.getPluginManager().getDefaultPermissions(false).forEach((perm) -> str.append(perm.getName()).append("\n"));
+		plugin.getDebugger().log(str.toString(), DebugLevels.STARTUP);
 	}
 
 	public static boolean hasPermission(Player player, Permissions permission) {
-		if (plugin.useInternalPerms()) {
-			return plugin.getDataStorage().loadPlayer(player.getUniqueId()).getType() >= permission.getLevel();
-		} else {
-			return permission.equals(Permissions.NONE) || player.hasPermission(permission.getPerm());
-		}
+		return permission.equals(Permissions.NONE) || player.hasPermission(permission.getPerm());
 	}
-
 
 	public static boolean isAdminEnabled(Player player) {
 		return hasPermission(player, Permissions.ADMIN) && plugin.getDataStorage().loadPlayer(player.getUniqueId()).isAdminEnabled();
 	}
 
 	public Permission getPerm() {
-		return new Permission(toString(), getDescription(), getDefaultState());
-	}
-
-	public int getLevel() {
-		return level;
-	}
-
-	public PermissionDefault getDefaultState() {
-		return PermissionDefault.valueOf(defaultState);
-	}
-
-	public String getDescription() {
-		return description;
+		return new Permission(toString(), description, defaultState);
 	}
 }

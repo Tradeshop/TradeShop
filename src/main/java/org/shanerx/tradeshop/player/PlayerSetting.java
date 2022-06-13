@@ -53,7 +53,7 @@ public class PlayerSetting implements Serializable {
 
     private boolean showInvolvedStatus, adminEnabled = true;
 
-    private int type = 0, multi = Setting.MULTI_TRADE_DEFAULT.getInt();
+    private int multi = Setting.MULTI_TRADE_DEFAULT.getInt();
     private final Set<String> staffShops;
     private transient Utils utils = new Utils();
 
@@ -61,7 +61,6 @@ public class PlayerSetting implements Serializable {
         this.uuid = playerUUID;
         this.uuidString = uuid.toString();
 
-        if (data.containsKey("type")) type = data.get("type");
         if (data.containsKey("multi")) multi = data.get("multi");
 
         ownedShops = Sets.newHashSet();
@@ -94,14 +93,6 @@ public class PlayerSetting implements Serializable {
         this.adminEnabled = adminEnabled;
     }
 
-    public int getType() {
-        return type;
-    }
-
-    public void setType(int type) {
-        this.type = type;
-    }
-
     public int getMulti() {
         return multi;
     }
@@ -118,7 +109,7 @@ public class PlayerSetting implements Serializable {
         if (shop.getOwner().getUUID().equals(uuid) &&
                 !ownedShops.contains(shop.getShopLocationAsSL().serialize()))
             ownedShops.add(shop.getShopLocationAsSL().serialize());
-        else if (shop.getUsersUUID().contains(uuid) &&
+        else if (shop.getUsersUUID(ShopRole.MANAGER, ShopRole.MEMBER).contains(uuid) &&
                 !ownedShops.contains(shop.getShopLocationAsSL().serialize()))
             staffShops.add(shop.getShopLocationAsSL().serialize());
     }
@@ -133,8 +124,8 @@ public class PlayerSetting implements Serializable {
         staffShops.remove(shop);
     }
 
-    public void updateShops(Shop shop) {
-        if (!shop.getUsersUUID().contains(uuid))
+    public void updateShop(Shop shop) {
+        if (!shop.getUsersUUID(ShopRole.OWNER, ShopRole.MANAGER, ShopRole.MEMBER).contains(uuid))
             removeShop(shop);
         else
             addShop(shop);

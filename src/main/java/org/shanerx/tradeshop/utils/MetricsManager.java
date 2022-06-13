@@ -102,7 +102,6 @@ public class MetricsManager {
                 Map<String, int[]> map = new HashMap<>();
                 List<Setting> booleanSettingList = Arrays.asList(Setting.CHECK_UPDATES,
                         Setting.UNLIMITED_ADMIN,
-                        Setting.USE_INTERNAL_PERMISSIONS,
                         Setting.ALLOW_TOGGLE_STATUS,
                         Setting.ALLOW_SIGN_BREAK,
                         Setting.ALLOW_CHEST_BREAK,
@@ -223,7 +222,6 @@ public class MetricsManager {
     private void addFeaturePieMetrics() {
         List<Setting> booleanSettingList = Arrays.asList(Setting.CHECK_UPDATES,
                 Setting.UNLIMITED_ADMIN,
-                Setting.USE_INTERNAL_PERMISSIONS,
                 Setting.ALLOW_TOGGLE_STATUS,
                 Setting.ALLOW_SIGN_BREAK,
                 Setting.ALLOW_CHEST_BREAK,

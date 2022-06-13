@@ -741,7 +741,7 @@ public class Shop implements Serializable {
 			return false;
 
 		boolean ret = false;
-		if (!getUsersUUID().contains(newUser)) {
+		if (!getUsersUUID(ShopRole.MANAGER, ShopRole.MEMBER).contains(newUser)) {
 			switch (role) {
 				case MANAGER:
 					managers.add(newUser);
@@ -837,9 +837,9 @@ public class Shop implements Serializable {
 	 */
 	private void updateUserFiles() {
 		TradeShop plugin = new Utils().PLUGIN;
-		for (UUID user : getUsersUUID()) {
+		for (UUID user : getUsersUUID(ShopRole.OWNER, ShopRole.MANAGER, ShopRole.MEMBER)) {
 			PlayerSetting playerSetting = plugin.getDataStorage().loadPlayer(user);
-			playerSetting.updateShops(this);
+			playerSetting.updateShop(this);
 			plugin.getDataStorage().savePlayer(playerSetting);
 		}
 	}
@@ -849,7 +849,7 @@ public class Shop implements Serializable {
 	 */
 	private void purgeFromUserFiles() {
 		TradeShop plugin = new Utils().PLUGIN;
-		for (UUID user : getUsersUUID()) {
+		for (UUID user : getUsersUUID(ShopRole.OWNER, ShopRole.MANAGER, ShopRole.MEMBER)) {
 			PlayerSetting playerSetting = plugin.getDataStorage().loadPlayer(user);
 			playerSetting.removeShop(this);
 			plugin.getDataStorage().savePlayer(playerSetting);

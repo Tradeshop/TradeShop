@@ -486,6 +486,11 @@ public class Utils {
 			return null;
 		}
 
+		if (!shopType.checkPerm(creator)) {
+			Message.NO_TS_CREATE_PERMISSION.sendMessage(creator);
+			return null;
+		}
+
 		ShopUser owner = new ShopUser(creator, ShopRole.OWNER);
 
 		if (!checkShopChest(shopSign.getBlock()) && !shopType.isITrade()) {

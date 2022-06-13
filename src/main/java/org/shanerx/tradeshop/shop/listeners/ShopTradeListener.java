@@ -47,6 +47,7 @@ import org.shanerx.tradeshop.framework.events.PlayerPrepareTradeEvent;
 import org.shanerx.tradeshop.framework.events.PlayerSuccessfulTradeEvent;
 import org.shanerx.tradeshop.item.ShopItemSide;
 import org.shanerx.tradeshop.player.Permissions;
+import org.shanerx.tradeshop.player.ShopRole;
 import org.shanerx.tradeshop.shop.ExchangeStatus;
 import org.shanerx.tradeshop.shop.Shop;
 import org.shanerx.tradeshop.shop.ShopType;
@@ -90,7 +91,7 @@ public class ShopTradeListener extends Utils implements Listener {
             return;
         }
 
-        if (Permissions.hasPermission(buyer, Permissions.PREVENT_TRADE) && !buyer.isOp()) {
+        if (!Permissions.hasPermission(buyer, Permissions.TRADE)) {
             Message.NO_TRADE_PERMISSION.sendMessage(buyer);
             return;
         }
@@ -99,7 +100,7 @@ public class ShopTradeListener extends Utils implements Listener {
             return;
         }
 
-        if (!shop.getShopType().equals(ShopType.ITRADE) && shop.getUsersUUID().contains(buyer.getUniqueId()) && !Setting.ALLOW_USER_PURCHASING.getBoolean()) {
+        if (!shop.getShopType().equals(ShopType.ITRADE) && shop.getUsersUUID(ShopRole.OWNER, ShopRole.MANAGER, ShopRole.MEMBER).contains(buyer.getUniqueId()) && !Setting.ALLOW_USER_PURCHASING.getBoolean()) {
             Message.SELF_OWNED.sendMessage(buyer);
             return;
         }

@@ -50,7 +50,6 @@ public enum Setting {
     CHECK_UPDATES(SettingSection.SYSTEM_OPTIONS, "check-updates", true),
     ALLOW_METRICS(SettingSection.SYSTEM_OPTIONS, "allow-metrics", true),
     UNLIMITED_ADMIN(SettingSection.SYSTEM_OPTIONS, "unlimited-admin", false),
-    USE_INTERNAL_PERMISSIONS(SettingSection.SYSTEM_OPTIONS, "use-internal-permissions", false),
 
     // Language Options
     MESSAGE_PREFIX(SettingSection.LANGUAGE_OPTIONS, "message-prefix", "&a[&eTradeShop&a] "),

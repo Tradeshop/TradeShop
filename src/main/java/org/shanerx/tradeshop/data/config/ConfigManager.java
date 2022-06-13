@@ -105,7 +105,6 @@ public class ConfigManager {
         switch (configType) {
             case CONFIG:
                 hasUpgraded.add(Setting.upgrade());
-                PLUGIN.setUseInternalPerms(Setting.USE_INTERNAL_PERMISSIONS.getBoolean());
                 break;
             case MESSAGES:
                 hasUpgraded.add(Message.upgrade());

@@ -160,14 +160,14 @@ public class ShopUserCommand extends CommandRunner {
             {
                 switch (change) {
                     case REMOVE_USER:
-                        if (!shop.getUsersUUID().contains(target.getUniqueId())) {
+                        if (!shop.getUsersUUID(ShopRole.MANAGER, ShopRole.MEMBER).contains(target.getUniqueId())) {
                             updateStatuses.put(shop.getShopLocationAsSL().serialize(), UserOperationStatus.FAILED_MISSING.toString());
                             break eachOwnedShop;
                         }
                         break;
                     case ADD_MANAGER:
                     case ADD_MEMBER:
-                        if (shop.getUsersUUID().contains(target.getUniqueId())) {
+                        if (shop.getUsersUUID(ShopRole.MANAGER, ShopRole.MEMBER).contains(target.getUniqueId())) {
                             updateStatuses.put(shop.getShopLocationAsSL().serialize(), UserOperationStatus.FAILED_EXISTING.toString());
                             break eachOwnedShop;
                         } else if (shop.getUsers(ShopRole.MANAGER, ShopRole.MEMBER).size() >= Setting.MAX_SHOP_USERS.getInt()) {

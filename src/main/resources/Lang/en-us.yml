@@ -99,9 +99,6 @@ setting:
       pre-comment: "Allow us to connect anonymous metrics so we can see how our plugin is being used to better develop it"
     unlimited-admin:
       pre-comment: "We do not recommend enabling this setting since any editing an admin should need to do can be done without this.\n Should players with Admin permission be able to use any commands on any shops?"
-    use-internal-permissions:
-      pre-comment: "Should our internal permission system be used? (Only enable if you aren't using a permission plugin)"
-      post-comment: "\n"
   language-options:
     message-prefix:
       pre-comment: "The prefix the displays before all plugin messages"
@@ -341,12 +338,12 @@ message:
     default: "&cYou do not have permission to edit that shop."
   no-trade-permission:
     default: "&cYou do not have permission to trade with TradeShops"
-    pre-comment: "Text to display when a player attempts to trade while having the `Prevent Trade` permission:"
+    pre-comment: "Text to display when a player attempts to trade while not having the `Trade` permission:"
   no-sighted-shop:
     default: "&cNo shop in range!"
     pre-comment: "Text to display when a player is too far from a shop"
   no-ts-create-permission:
-    default: "&cYou don't have permission to create TradeShops!"
+    default: "&cYou don't have permission to create this type of TradeShop!"
     pre-comment: "Text to display when a player attempts to setup a shoptype they are not allowed to create:"
   no-ts-destroy:
     default: "&cYou may not destroy that TradeShop"

@@ -59,8 +59,6 @@ public class TradeShop extends JavaPlugin {
 	private final NamespacedKey signKey = new NamespacedKey(this, "tradeshop-sign-data");
 
 	private MetricsManager metricsManager;
-
-	private boolean useInternalPerms = false;
 	private boolean skipHopperProtection = false;
 
 	private ListManager lists;
@@ -139,14 +137,6 @@ public class TradeShop extends JavaPlugin {
 	public void onDisable() {
 		if (lists != null)
 			getListManager().clearManager();
-	}
-
-	public boolean useInternalPerms() {
-		return useInternalPerms;
-	}
-
-	public void setUseInternalPerms(boolean useInternalPerms) {
-		this.useInternalPerms = useInternalPerms;
 	}
 
 	public boolean doSkipHopperProtection() {
