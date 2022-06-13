@@ -28,37 +28,48 @@ package org.shanerx.tradeshop.player;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.permissions.Permission;
+import org.bukkit.permissions.PermissionDefault;
 import org.shanerx.tradeshop.TradeShop;
+import org.shanerx.tradeshop.data.config.Language;
+import org.shanerx.tradeshop.utils.Utils;
+import org.shanerx.tradeshop.utils.debug.DebugLevels;
 
 public enum Permissions {
+	//Available defaultState options are: `true`, `false`, `op`, and `not_op`
 
-	HELP("help", 0),
+	HELP("help", 0, "true"),
 
-	CREATE("create", 0),
+	CREATE("create", 0, "true"),
 
-	CREATEI("create.infinite", 1),
+	CREATEI("create.infinite", 1, "op"),
 
-	CREATEBI("create.bi", 0),
+	CREATEBI("create.bi", 0, "true"),
 
-	ADMIN("admin", 1),
+	ADMIN("admin", 1, "op"),
 
-	EDIT("edit", 0), // non admin perm
+	EDIT("edit", 0, "true"), // non admin perm
 
-	INFO("info", 0),
+	INFO("info", 0, "true"),
 
-	MANAGE_PLUGIN("manage-plugin", 2),
+	MANAGE_PLUGIN("manage-plugin", 2, "op"),
 
-	PREVENT_TRADE("prevent-trade", -1),
+	PREVENT_TRADE("prevent-trade", -1, "false"),
 
-	NONE("", 0);
+	TRADE("trade", 0, "true"),
+
+	NONE("", 0, "true");
 
 	private final static TradeShop plugin = (TradeShop) Bukkit.getPluginManager().getPlugin("TradeShop");
+	private final Utils utils = new Utils();
 	private final String key;
 	private final int level;
+	private final String defaultState, description;
 
-	Permissions(String key, int level) {
+	Permissions(String key, int level, String defaultState) {
 		this.key = key;
 		this.level = level;
+		this.defaultState = defaultState;
+		this.description = utils.PLUGIN.getLanguage().getString(Language.LangSection.PERMISSION, name().toLowerCase().replace("_", "-"), "description");
 	}
 
 	@Override
@@ -70,8 +81,12 @@ public enum Permissions {
 		return this.toString();
 	}
 
-	public Permission getPerm() {
-		return new Permission(toString());
+	public static void registerPermissions() {
+		for (Permissions perm : values()) {
+			Permission permission = perm.getPerm();
+			Bukkit.getPluginManager().addPermission(permission);
+			plugin.getDebugger().log("Permission registered: " + permission, DebugLevels.STARTUP);
+		}
 	}
 
 	public static boolean hasPermission(Player player, Permissions permission) {
@@ -87,7 +102,19 @@ public enum Permissions {
 		return hasPermission(player, Permissions.ADMIN) && plugin.getDataStorage().loadPlayer(player.getUniqueId()).isAdminEnabled();
 	}
 
+	public Permission getPerm() {
+		return new Permission(toString(), getDescription(), getDefaultState());
+	}
+
 	public int getLevel() {
 		return level;
+	}
+
+	public PermissionDefault getDefaultState() {
+		return PermissionDefault.valueOf(defaultState);
+	}
+
+	public String getDescription() {
+		return description;
 	}
 }

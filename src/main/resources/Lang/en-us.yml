@@ -437,4 +437,24 @@ message:
   failed-trade:
     default: "&cThe Trade has failed for unknown reasons, please notify an Admin or submit a bug report using '/ts bug'!"
     pre-comment: "Text to display when a player is too far from a sign"
-  
+permission:
+  help:
+    description: 'Allows players to view the help menu containing only commands they have permission to use.'
+  create:
+    description: 'Allows players to create standard `Trade` Shops.'
+  createi:
+    description: 'Allows players to create infinite `iTrade` Shops.'
+  createbi:
+    description: 'Allows players to create bi-directional `biTrade` Shops.'
+  admin:
+    description: 'Allows players to use administrator commands as well as giving administrator access to Shop storages. The player must also enable admin mode through commands when they wish to use these privileges.'
+  edit:
+    description: 'Allows players to use the edit gui on shops they have created or have a sufficient role for.'
+  info:
+    description: 'Allows players to use informational commands on any shops they can see.'
+  manage-plugin:
+    description: 'Allows players to use commands that provide plugin management.'
+  prevent-trade:
+    description: 'Depreciated, please remove `trade` permission instead.'
+  trade:
+    description: 'Allows players to trade with TradeShops.'

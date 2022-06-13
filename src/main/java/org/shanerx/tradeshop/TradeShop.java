@@ -36,6 +36,7 @@ import org.shanerx.tradeshop.data.config.Setting;
 import org.shanerx.tradeshop.data.storage.DataStorage;
 import org.shanerx.tradeshop.data.storage.DataType;
 import org.shanerx.tradeshop.player.JoinEventListener;
+import org.shanerx.tradeshop.player.Permissions;
 import org.shanerx.tradeshop.shop.ShopSign;
 import org.shanerx.tradeshop.shop.ShopStorage;
 import org.shanerx.tradeshop.shop.listeners.ShopCreateListener;
@@ -102,6 +103,8 @@ public class TradeShop extends JavaPlugin {
 		getMessageManager().reload();
 
 		getDebugger();
+
+		Permissions.registerPermissions();
 
 		if (getDataStorage() == null)
 			return;

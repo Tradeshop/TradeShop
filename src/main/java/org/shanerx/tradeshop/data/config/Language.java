@@ -106,23 +106,29 @@ public class Language {
     }
 
     public String getHeader(LangSection section, String path) {
-        String fullPath = section + "." + path + ".header";
-        return langYAML.getString(fullPath, "");
+        return getString(section, path, "header");
     }
 
-    public Object getDefault(LangSection section, String path) {
-        String fullPath = section + "." + path + ".default", defaultValue = langYAML.getString(fullPath);
-        return defaultValue != null ? defaultValue : getDefaultLangValue(fullPath).toString();
+    public String getDefault(LangSection section, String path) {
+        return getStringOrDefault(section, path, "default");
     }
 
     public String getPreComment(LangSection section, String path) {
-        String fullPath = section + "." + path + ".pre-comment";
-        return langYAML.getString(fullPath, "");
+        return getString(section, path, "pre-comment");
     }
 
     public String getPostComment(LangSection section, String path) {
-        String fullPath = section + "." + path + ".post-comment";
+        return getString(section, path, "post-comment");
+    }
+
+    public String getString(LangSection section, String key, String field) {
+        String fullPath = section + "." + key + "." + field;
         return langYAML.getString(fullPath, "");
+    }
+
+    public String getStringOrDefault(LangSection section, String key, String field) {
+        String fullPath = section + "." + key + "." + field, value = getString(section, key, field);
+        return value != null ? value : getDefaultLangValue(fullPath).toString();
     }
 
     public boolean isLoaded() {
@@ -134,7 +140,8 @@ public class Language {
         MESSAGE_SECTION,
         MESSAGE,
         SETTING_SECTION,
-        SETTING;
+        SETTING,
+        PERMISSION;
 
         LangSection() {
         }
