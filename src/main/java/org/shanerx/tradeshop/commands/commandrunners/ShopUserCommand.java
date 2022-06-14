@@ -137,7 +137,7 @@ public class ShopUserCommand extends CommandRunner {
      * Adds or Removes the specified player to/from the shop as the specified role
      */
     public void editUser(ShopRole role, ShopChange change) {
-        boolean applyAllOwned = command.hasArgAt(2) && toBool(command.getArgAt(2));
+        boolean applyAllOwned = command.hasArgAt(2) && command.getArgAt(2).length() > 0 && toBool(command.getArgAt(2));
         Set<Shop> ownedShops = new HashSet<>();
         Map<String, String> updateStatuses = new HashMap<>();
 
@@ -236,7 +236,7 @@ public class ShopUserCommand extends CommandRunner {
             Shop shop = findShop();
 
             if (shop == null) {
-                Message.NO_SIGHTED_SHOP.sendMessage(pSender);
+                // Message.NO_SIGHTED_SHOP.sendMessage(pSender); // Message is sent by findShop()
                 target = null;
                 return null;
             }

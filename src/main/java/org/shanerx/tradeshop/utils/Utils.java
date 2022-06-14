@@ -689,6 +689,7 @@ public class Utils {
 			case "t":
 			case "yes":
 			case "y":
+			case "all":
 				return true;
 			default:
 				return false;
