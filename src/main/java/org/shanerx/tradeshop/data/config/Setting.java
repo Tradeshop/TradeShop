@@ -28,10 +28,13 @@ package org.shanerx.tradeshop.data.config;
 import org.bukkit.Bukkit;
 import org.shanerx.tradeshop.TradeShop;
 import org.shanerx.tradeshop.item.IllegalItemList;
+import org.shanerx.tradeshop.item.ShopItemStackSettingKeys;
 import org.shanerx.tradeshop.shop.ShopSign;
 import org.yaml.snakeyaml.Yaml;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -83,48 +86,9 @@ public enum Setting {
     ALLOW_USER_PURCHASING(SettingSection.SHOP_OPTIONS, "allow-user-purchasing", false),
     MULTIPLE_ITEMS_ON_SIGN(SettingSection.SHOP_OPTIONS, "multiple-items-on-sign", "Use '/ts what'"),
 
-    //region Shop Item Settings
-    //------------------------------------------------------------------------------------------------------------------
-    COMPARE_DURABILITY_DEFAULT(SettingSection.COMPARE_DURABILITY, "default", 1),
-    COMPARE_ENCHANTMENTS_DEFAULT(SettingSection.COMPARE_ENCHANTMENTS, "default", true),
-    COMPARE_NAME_DEFAULT(SettingSection.COMPARE_NAME, "default", true),
-    COMPARE_LORE_DEFAULT(SettingSection.COMPARE_LORE, "default", true),
-    COMPARE_CUSTOM_MODEL_DATA_DEFAULT(SettingSection.COMPARE_CUSTOM_MODEL_DATA, "default", true),
-    COMPARE_ITEM_FLAGS_DEFAULT(SettingSection.COMPARE_ITEM_FLAGS, "default", true),
-    COMPARE_UNBREAKABLE_DEFAULT(SettingSection.COMPARE_UNBREAKABLE, "default", true),
-    COMPARE_ATTRIBUTE_MODIFIER_DEFAULT(SettingSection.COMPARE_ATTRIBUTE_MODIFIER, "default", true),
-    COMPARE_BOOK_AUTHOR_DEFAULT(SettingSection.COMPARE_BOOK_AUTHOR, "default", true),
-    COMPARE_BOOK_PAGES_DEFAULT(SettingSection.COMPARE_BOOK_PAGES, "default", true),
-    COMPARE_SHULKER_INVENTORY_DEFAULT(SettingSection.COMPARE_SHULKER_INVENTORY, "default", true),
-    COMPARE_BUNDLE_INVENTORY_DEFAULT(SettingSection.COMPARE_BUNDLE_INVENTORY, "default", true),
-    COMPARE_FIREWORK_DURATION_DEFAULT(SettingSection.COMPARE_FIREWORK_DURATION, "default", true),
-    COMPARE_FIREWORK_EFFECTS_DEFAULT(SettingSection.COMPARE_FIREWORK_EFFECTS, "default", true),
+    SHOP_PER_ITEM_SETTINGS(SettingSection.SHOP_ITEM_OPTIONS, "shop-per-item-settings", ShopItemStackSettingKeys.getDefaultConfigMap()),
 
-    //Shop Item Setting User Editable Options
-    COMPARE_DURABILITY_USER_EDITABLE(SettingSection.COMPARE_DURABILITY, "user-editable", true),
-    COMPARE_ENCHANTMENTS_USER_EDITABLE(SettingSection.COMPARE_ENCHANTMENTS, "user-editable", true),
-    COMPARE_NAME_USER_EDITABLE(SettingSection.COMPARE_NAME, "user-editable", true),
-    COMPARE_LORE_USER_EDITABLE(SettingSection.COMPARE_LORE, "user-editable", true),
-    COMPARE_CUSTOM_MODEL_DATA_USER_EDITABLE(SettingSection.COMPARE_CUSTOM_MODEL_DATA, "user-editable", true),
-    COMPARE_ITEM_FLAGS_USER_EDITABLE(SettingSection.COMPARE_ITEM_FLAGS, "user-editable", true),
-    COMPARE_UNBREAKABLE_USER_EDITABLE(SettingSection.COMPARE_UNBREAKABLE, "user-editable", true),
-    COMPARE_ATTRIBUTE_MODIFIER_USER_EDITABLE(SettingSection.COMPARE_ATTRIBUTE_MODIFIER, "user-editable", true),
-    COMPARE_BOOK_AUTHOR_USER_EDITABLE(SettingSection.COMPARE_BOOK_AUTHOR, "user-editable", true),
-    COMPARE_BOOK_PAGES_USER_EDITABLE(SettingSection.COMPARE_BOOK_PAGES, "user-editable", true),
-    COMPARE_SHULKER_INVENTORY_USER_EDITABLE(SettingSection.COMPARE_SHULKER_INVENTORY, "user-editable", true),
-    COMPARE_BUNDLE_INVENTORY_USER_EDITABLE(SettingSection.COMPARE_BUNDLE_INVENTORY, "user-editable", true),
-    COMPARE_FIREWORK_DURATION_USER_EDITABLE(SettingSection.COMPARE_FIREWORK_DURATION, "user-editable", true),
-    COMPARE_FIREWORK_EFFECTS_USER_EDITABLE(SettingSection.COMPARE_FIREWORK_EFFECTS, "user-editable", true),
-
-    //------------------------------------------------------------------------------------------------------------------
-    //endregion
-
-    //region Shop Sign Settings
-    //------------------------------------------------------------------------------------------------------------------
     SHOP_SIGN_DEFAULT_COLOURS(SettingSection.SHOP_SIGN_OPTIONS, "sign-default-colours", ShopSign.getDefaultColourMap()),
-
-    //------------------------------------------------------------------------------------------------------------------
-    //endregion
 
     // Trade Shop Options
     TRADESHOP_HEADER(SettingSection.TRADE_SHOP_OPTIONS, "header", "Trade"),
@@ -158,6 +122,8 @@ public enum Setting {
     private final String key, path;
     private final Object defaultValue;
     private final SettingSection section;
+
+    private final String leadIncrease = "  ";
 
     Setting(SettingSection section, String key, Object defaultValue) {
         this.section = section;
@@ -273,6 +239,10 @@ public enum Setting {
         return PLUGIN.getSettingManager().getConfig().getConfigurationSection(getPath()).getBoolean(subKey.toLowerCase().replace("_", "-"));
     }
 
+    public Object getMappedObject(String subKey) {
+        return PLUGIN.getSettingManager().getConfig().getConfigurationSection(getPath()).get(subKey.toLowerCase().replace("_", "-"));
+    }
+
     public String getPostComment() {
         return PLUGIN.getLanguage().getPostComment(Language.LangSection.SETTING, path);
     }
@@ -289,6 +259,27 @@ public enum Setting {
         return path;
     }
 
+    private String processMapValue(Map<?, ?> valueMap, String localLead) {
+        StringBuilder processed = new StringBuilder();
+
+        List<Object> sortedKeys = new ArrayList<>(valueMap.keySet());
+        Collections.sort(sortedKeys, (o1, o2) -> o1.toString().compareTo(o1.toString()));
+
+        //PLUGIN.getDebugger().log("Sorted Value: " + sortedValue +"\nValue: " + valueMap, DebugLevels.DATA_ERROR);
+
+        for (Object key : sortedKeys) {
+            Object value = valueMap.get(key);
+            if (value instanceof Map) {
+                processed.append(localLead).append(getKey()).append(":\n");
+                processed.append(processMapValue(((Map<?, ?>) value), localLead + leadIncrease));
+            } else {
+                processed.append(localLead).append(key.toString()).append(": ").append(new Yaml().dump(value));
+            }
+        }
+
+        return processed.toString();
+    }
+
     public String getFileString() {
         StringBuilder keyOutput = new StringBuilder();
 
@@ -298,9 +289,7 @@ public enum Setting {
 
         if (defaultValue instanceof Map) {
             keyOutput.append(section.getSectionLead()).append(getKey()).append(":\n");
-            for (Map.Entry entry : ((Map<?, ?>) defaultValue).entrySet()) {
-                keyOutput.append(section.getSectionLead() + "    ").append(entry.getKey().toString()).append(": ").append(new Yaml().dump(entry.getValue()));
-            }
+            keyOutput.append(processMapValue(((Map<?, ?>) defaultValue), section.getSectionLead() + leadIncrease));
         } else {
             keyOutput.append(section.getSectionLead()).append(getKey()).append(": ").append(new Yaml().dump(getSetting()));
         }

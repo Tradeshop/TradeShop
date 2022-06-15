@@ -30,37 +30,50 @@ import org.bukkit.inventory.ItemStack;
 import org.shanerx.tradeshop.data.config.Setting;
 import org.shanerx.tradeshop.utils.objects.ObjectHolder;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public enum ShopItemStackSettingKeys {
 
     //New per shop settings and their default value should be added below and will be added to the shops
 
-    COMPARE_DURABILITY(new ObjectHolder<>(Setting.COMPARE_DURABILITY_DEFAULT.getInt()), new ItemStack(Material.DAMAGED_ANVIL)), // -1 == 'off', 0 == '<=', 1 == '==', 2 == '>='
-    COMPARE_ENCHANTMENTS(new ObjectHolder<>(Setting.COMPARE_ENCHANTMENTS_DEFAULT.getBoolean()), new ItemStack(Material.ENCHANTED_BOOK)),
-    COMPARE_NAME(new ObjectHolder<>(Setting.COMPARE_NAME_DEFAULT.getBoolean()), new ItemStack(Material.NAME_TAG)),
-    COMPARE_LORE(new ObjectHolder<>(Setting.COMPARE_LORE_DEFAULT.getBoolean()), new ItemStack(Material.BOOK)),
-    COMPARE_CUSTOM_MODEL_DATA(new ObjectHolder<>(Setting.COMPARE_CUSTOM_MODEL_DATA_DEFAULT.getBoolean()), new ItemStack(Material.STICK)),
-    COMPARE_ITEM_FLAGS(new ObjectHolder<>(Setting.COMPARE_ITEM_FLAGS_DEFAULT.getBoolean()), new ItemStack(Material.WHITE_BANNER)),
-    COMPARE_UNBREAKABLE(new ObjectHolder<>(Setting.COMPARE_UNBREAKABLE_DEFAULT.getBoolean()), new ItemStack(Material.BEDROCK)),
-    COMPARE_ATTRIBUTE_MODIFIER(new ObjectHolder<>(Setting.COMPARE_ATTRIBUTE_MODIFIER_DEFAULT.getBoolean()), new ItemStack(Material.BARRIER)),
-    COMPARE_BOOK_AUTHOR(new ObjectHolder<>(Setting.COMPARE_BOOK_AUTHOR_DEFAULT.getBoolean()), new ItemStack(Material.PLAYER_HEAD)),
-    COMPARE_BOOK_PAGES(new ObjectHolder<>(Setting.COMPARE_BOOK_PAGES_DEFAULT.getBoolean()), new ItemStack(Material.PAPER)),
-    COMPARE_SHULKER_INVENTORY(new ObjectHolder<>(Setting.COMPARE_SHULKER_INVENTORY_DEFAULT.getBoolean()), new ItemStack(Material.CHEST_MINECART)),
-    COMPARE_BUNDLE_INVENTORY(new ObjectHolder<>(Setting.COMPARE_BUNDLE_INVENTORY_DEFAULT.getBoolean()), new ItemStack(Material.CHEST_MINECART)),
-    COMPARE_FIREWORK_DURATION(new ObjectHolder<>(Setting.COMPARE_FIREWORK_DURATION_DEFAULT.getBoolean()), new ItemStack(Material.GUNPOWDER)),
-    COMPARE_FIREWORK_EFFECTS(new ObjectHolder<>(Setting.COMPARE_FIREWORK_EFFECTS_DEFAULT.getBoolean()), new ItemStack(Material.FIREWORK_STAR));
+    COMPARE_DURABILITY(new ItemStack(Material.DAMAGED_ANVIL), 1), // -1 == 'off', 0 == '<=', 1 == '==', 2 == '>='
+    COMPARE_ENCHANTMENTS(new ItemStack(Material.ENCHANTED_BOOK), true),
+    COMPARE_NAME(new ItemStack(Material.NAME_TAG), true),
+    COMPARE_LORE(new ItemStack(Material.BOOK), true),
+    COMPARE_CUSTOM_MODEL_DATA(new ItemStack(Material.STICK), true),
+    COMPARE_ITEM_FLAGS(new ItemStack(Material.WHITE_BANNER), true),
+    COMPARE_UNBREAKABLE(new ItemStack(Material.BEDROCK), true),
+    COMPARE_ATTRIBUTE_MODIFIER(new ItemStack(Material.BARRIER), true),
+    COMPARE_BOOK_AUTHOR(new ItemStack(Material.PLAYER_HEAD), true),
+    COMPARE_BOOK_PAGES(new ItemStack(Material.PAPER), true),
+    COMPARE_SHULKER_INVENTORY(new ItemStack(Material.CHEST_MINECART), true),
+    COMPARE_BUNDLE_INVENTORY(new ItemStack(Material.CHEST_MINECART), true),
+    COMPARE_FIREWORK_DURATION(new ItemStack(Material.GUNPOWDER), true),
+    COMPARE_FIREWORK_EFFECTS(new ItemStack(Material.FIREWORK_STAR), true);
 
-    private final ObjectHolder<?> defaultValue;
-    private final boolean userEditable;
     private final ItemStack displayItem;
+    private static final String defaultKey = "default", userEditableKey = "userEditable";
+    private final Object preConfigDefault;
 
-    ShopItemStackSettingKeys(ObjectHolder<?> defaultValue, ItemStack displayItem) {
-        this.defaultValue = defaultValue;
-        this.userEditable = Setting.findSetting(this.name() + "_USER_EDITABLE").getBoolean();
+    ShopItemStackSettingKeys(ItemStack displayItem, Object preConfigDefault) {
         this.displayItem = displayItem;
+        this.preConfigDefault = preConfigDefault;
     }
 
-    public ObjectHolder<?> getDefaultValue() {
-        return defaultValue;
+    public static Map<String, Object> getDefaultConfigMap() {
+        Map<String, Object> configMap = new HashMap<>();
+
+        for (ShopItemStackSettingKeys value : values()) {
+            String key = value.getConfigName();
+            Map<String, Object> subConfigMap = new HashMap<>();
+            subConfigMap.put(defaultKey, value.preConfigDefault);
+            subConfigMap.put(userEditableKey, true);
+
+            configMap.put(key, subConfigMap);
+        }
+
+        return configMap;
     }
 
     public String makeReadable() {
@@ -85,11 +98,19 @@ public enum ShopItemStackSettingKeys {
 
     }
 
-    public boolean isUserEditable() {
-        return userEditable;
+    public ObjectHolder<?> getDefaultValue() {
+        return new ObjectHolder<>(Setting.SHOP_PER_ITEM_SETTINGS.getMappedObject(getConfigName() + "." + defaultKey));
     }
 
     public ItemStack getDisplayItem() {
         return displayItem;
+    }
+
+    public boolean isUserEditable() {
+        return Setting.SHOP_PER_ITEM_SETTINGS.getMappedBoolean(getConfigName() + "." + userEditableKey);
+    }
+
+    public String getConfigName() {
+        return name().toLowerCase().replace("_", "-");
     }
 }

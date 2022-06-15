@@ -41,32 +41,14 @@ public enum SettingSection {
     GLOBAL_MULTI_TRADE(50, GLOBAL_OPTIONS, "multi-trade"),
     SHOP_OPTIONS(4, "shop-options"),
 
-    //region Shop Item Settings
-    //------------------------------------------------------------------------------------------------------------------
-    SHOP_ITEM_SETTINGS(50, SHOP_OPTIONS, "shop-item-default-settings-options"),
-    COMPARE_DURABILITY(100, SHOP_ITEM_SETTINGS, "compare-durability"),
-    COMPARE_ENCHANTMENTS(101, SHOP_ITEM_SETTINGS, "compare-enchantments"),
-    COMPARE_NAME(102, SHOP_ITEM_SETTINGS, "compare-name"),
-    COMPARE_LORE(103, SHOP_ITEM_SETTINGS, "compare-lore"),
-    COMPARE_CUSTOM_MODEL_DATA(104, SHOP_ITEM_SETTINGS, "compare-custom-data-model"),
-    COMPARE_ITEM_FLAGS(105, SHOP_ITEM_SETTINGS, "compare-item-flags"),
-    COMPARE_UNBREAKABLE(106, SHOP_ITEM_SETTINGS, "compare-unbreakable"),
-    COMPARE_ATTRIBUTE_MODIFIER(107, SHOP_ITEM_SETTINGS, "compare-attribute-modifier"),
-    COMPARE_BOOK_AUTHOR(108, SHOP_ITEM_SETTINGS, "compare-book-author"),
-    COMPARE_BOOK_PAGES(109, SHOP_ITEM_SETTINGS, "compare-book-pages"),
-    COMPARE_SHULKER_INVENTORY(110, SHOP_ITEM_SETTINGS, "compare-shulker-inventory"),
-    COMPARE_BUNDLE_INVENTORY(111, SHOP_ITEM_SETTINGS, "compare-bundle-inventory"),
-    COMPARE_FIREWORK_DURATION(112, SHOP_ITEM_SETTINGS, "compare-firework-duration"),
-    COMPARE_FIREWORK_EFFECTS(113, SHOP_ITEM_SETTINGS, "compare-firework-effects"),
-    //------------------------------------------------------------------------------------------------------------------
-    //endregion
+    SHOP_ITEM_OPTIONS(5, SHOP_OPTIONS, "shop-per-item-options"),
 
-    SHOP_SIGN_OPTIONS(5, "shop-sign-options"),
+    SHOP_SIGN_OPTIONS(6, "shop-sign-options"),
 
-    TRADE_SHOP_OPTIONS(6, "trade-shop-options"),
-    ITRADE_SHOP_OPTIONS(7, "itrade-shop-options"),
-    BITRADE_SHOP_OPTIONS(8, "bitrade-shop-options"),
-    ILLEGAL_ITEM_OPTIONS(9, "illegal-item-options"),
+    TRADE_SHOP_OPTIONS(7, "trade-shop-options"),
+    ITRADE_SHOP_OPTIONS(8, "itrade-shop-options"),
+    BITRADE_SHOP_OPTIONS(9, "bitrade-shop-options"),
+    ILLEGAL_ITEM_OPTIONS(10, "illegal-item-options"),
     GLOBAL_ILLEGAL_ITEMS(50, ILLEGAL_ITEM_OPTIONS, "global-illegal-items"),
     COST_ILLEGAL_ITEMS(51, ILLEGAL_ITEM_OPTIONS, "cost-illegal-items"),
     PRODUCT_ILLEGAL_ITEMS(52, ILLEGAL_ITEM_OPTIONS, "product-illegal-items");
@@ -85,7 +67,7 @@ public enum SettingSection {
         this.weight = weight;
         this.key = key;
         this.parent = parent;
-        this.lineLead = !key.isEmpty() ? parent != null ? parent.lineLead + "  " : "  " : "";
+        this.lineLead = !key.isEmpty() ? "  " : "";
     }
 
     public String getKey() {
@@ -113,15 +95,15 @@ public enum SettingSection {
     }
 
     public String getPostComment() {
-        return PLUGIN.getLanguage().getPostComment(Language.LangSection.SETTING_SECTION, name().toLowerCase().replace("_", "-"));
+        return PLUGIN.getLanguage().getPostComment(Language.LangSection.SETTING_SECTION, key);
     }
 
     public String getPreComment() {
-        return PLUGIN.getLanguage().getPreComment(Language.LangSection.SETTING_SECTION, name().toLowerCase().replace("_", "-"));
+        return PLUGIN.getLanguage().getPreComment(Language.LangSection.SETTING_SECTION, key);
     }
 
     public String getSectionHeader() {
-        return PLUGIN.getLanguage().getHeader(Language.LangSection.SETTING_SECTION, name().toLowerCase().replace("_", "-"));
+        return PLUGIN.getLanguage().getHeader(Language.LangSection.SETTING_SECTION, key);
     }
 
     public String getFileString() {
@@ -155,7 +137,7 @@ public enum SettingSection {
             }
 
             // Add Sections Key line
-            sectionHeader.append(getLineLead()).append(getKey()).append(": ").append("\n");
+            sectionHeader.append(getLineLead()).append(getKey()).append(": \n");
 
             // If Section has a Post Comment add it
             if (!getPostComment().isEmpty()) {

@@ -16,50 +16,8 @@ setting-section:
     header: ""
   shop-options:
     header: "Shop Options"
-  shop-item-default-settings-options:
-    header: "Shop Item Default Settings Options"
-  compare-durability:
-    header: ""
-    pre-comment: "Compare Durability"
-  compare-enchantments:
-    header: ""
-    pre-comment: "Compare Enchantments"
-  compare-name:
-    header: ""
-    pre-comment: "Compare Name"
-  compare-lore:
-    header: ""
-    pre-comment: "Compare Lore"
-  compare-custom-data-model:
-    header: ""
-    pre-comment: "Compare Custom Data Model"
-  compare-item-flags:
-    header: ""
-    pre-comment: "Compare Item Flags"
-  compare-unbreakable:
-    header: ""
-    pre-comment: "Compare Unbreakable"
-  compare-attribute-modifier:
-    header: ""
-    pre-comment: "Compare Attribute Modifier"
-  compare-book-author:
-    header: ""
-    pre-comment: "Compare Book Author"
-  compare-book-pages:
-    header: ""
-    pre-comment: "Compare Book Pages"
-  compare-shulker-inventory:
-    header: ""
-    pre-comment: "Compare Shulker Inventory"
-  compare-bundle-inventory:
-    header: ""
-    pre-comment: "Compare Bundle Inventory"
-  compare-firework-duration:
-    header: ""
-    pre-comment: "Compare Firework Duration"
-  compare-firework-effects:
-    header: ""
-    pre-comment: "Compare Firework Effects"
+  shop-per-item-options:
+    header: "Shop Per Item Options"
   shop-sign-options:
     header: "Shop Sign Options"
   trade-shop-options:
@@ -169,77 +127,9 @@ setting:
     multiple-items-on-sign:
       pre-comment: "Text that shows on trade signs that contain more than 1 item\n Available variables are: %AMOUNT%"
       post-comment: "\n"
-    shop-item-default-settings-options:
-      compare-durability:
-        default:
-          pre-comment: ""
-        user-editable:
-          pre-comment: ""
-      compare-enchantments:
-        default:
-          pre-comment: ""
-        user-editable:
-          pre-comment: ""
-      compare-name:
-        default:
-          pre-comment: ""
-        user-editable:
-          pre-comment: ""
-      compare-lore:
-        default:
-          pre-comment: ""
-        user-editable:
-          pre-comment: ""
-      compare-custom-data-model:
-        default:
-          pre-comment: ""
-        user-editable:
-          pre-comment: ""
-      compare-item-flags:
-        default:
-          pre-comment: ""
-        user-editable:
-          pre-comment: ""
-      compare-unbreakable:
-        default:
-          pre-comment: ""
-        user-editable:
-          pre-comment: ""
-      compare-attribute-modifier:
-        default:
-          pre-comment: ""
-        user-editable:
-          pre-comment: ""
-      compare-book-author:
-        default:
-          pre-comment: ""
-        user-editable:
-          pre-comment: ""
-      compare-book-pages:
-        default:
-          pre-comment: ""
-        user-editable:
-          pre-comment: ""
-      compare-shulker-inventory:
-        default:
-          pre-comment: ""
-        user-editable:
-          pre-comment: ""
-      compare-bundle-inventory:
-        default:
-          pre-comment: ""
-        user-editable:
-          pre-comment: ""
-      compare-firework-duration:
-        default:
-          pre-comment: ""
-        user-editable:
-          pre-comment: ""
-      compare-firework-effects:
-        default:
-          pre-comment: ""
-        user-editable:
-          post-comment: "\n"
+    shop-per-item-options:
+      shop-per-item-settings:
+        post-comment: "\n"
   shop-sign-options:
     sign-default-colours:
       pre-comment: "What colour should be used for line 2/3 on shop signs per each material type."
