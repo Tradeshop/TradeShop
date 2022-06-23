@@ -100,6 +100,8 @@ public class TradeShop extends JavaPlugin {
 		getSettingManager().reload();
 		getMessageManager().reload();
 
+		getSettingManager().updateSkipHoppers();
+
 		getDebugger();
 
 		Permissions.registerPermissions();

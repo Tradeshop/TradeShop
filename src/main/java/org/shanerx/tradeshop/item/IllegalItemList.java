@@ -80,7 +80,7 @@ public class IllegalItemList extends Utils {
     }
 
     public boolean add(Material mat) {
-        debugger.log("Material being added to Illegal Item List: " + mat, DebugLevels.ILLEGAL_ITEMS_LIST);
+        PLUGIN.getDebugger().log("Material being added to Illegal Item List: " + mat, DebugLevels.ILLEGAL_ITEMS_LIST);
         return list.add(mat);
     }
 

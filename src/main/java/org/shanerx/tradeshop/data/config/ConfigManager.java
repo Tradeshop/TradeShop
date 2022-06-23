@@ -33,6 +33,8 @@ import org.bukkit.ChatColor;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.shanerx.tradeshop.TradeShop;
+import org.shanerx.tradeshop.shop.ShopSettingKeys;
+import org.shanerx.tradeshop.shop.ShopType;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -113,11 +115,25 @@ public class ConfigManager {
 
         save(hasUpgraded.contains(true));
 
-        PLUGIN.setSkipHopperProtection(
-                Setting.BITRADESHOP_HOPPER_EXPORT.getBoolean() &&
-                        Setting.BITRADESHOP_HOPPER_IMPORT.getBoolean() &&
-                        Setting.TRADESHOP_HOPPER_IMPORT.getBoolean() &&
-                        Setting.TRADESHOP_HOPPER_EXPORT.getBoolean());
+        updateSkipHoppers();
+    }
+
+    public void updateSkipHoppers() {
+        try {
+            Set<Boolean> skipCheck = new HashSet<>();
+            skipCheck.add(ShopSettingKeys.HOPPER_EXPORT.getDefaultValue(ShopType.TRADE).asBoolean());
+            skipCheck.add(ShopSettingKeys.HOPPER_IMPORT.getDefaultValue(ShopType.TRADE).asBoolean());
+            skipCheck.add(ShopSettingKeys.HOPPER_EXPORT.getDefaultValue(ShopType.BITRADE).asBoolean());
+            skipCheck.add(ShopSettingKeys.HOPPER_IMPORT.getDefaultValue(ShopType.BITRADE).asBoolean());
+            skipCheck.add(!ShopSettingKeys.HOPPER_EXPORT.isUserEditable(ShopType.TRADE));
+            skipCheck.add(!ShopSettingKeys.HOPPER_IMPORT.isUserEditable(ShopType.TRADE));
+            skipCheck.add(!ShopSettingKeys.HOPPER_EXPORT.isUserEditable(ShopType.BITRADE));
+            skipCheck.add(!ShopSettingKeys.HOPPER_IMPORT.isUserEditable(ShopType.BITRADE));
+            skipCheck.remove(true);
+
+            PLUGIN.setSkipHopperProtection(!skipCheck.contains(false));
+        } catch (NullPointerException ignored) {
+        }
     }
 
     public boolean setDefaults() {

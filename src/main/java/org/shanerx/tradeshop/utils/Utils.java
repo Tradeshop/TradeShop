@@ -52,7 +52,6 @@ import org.shanerx.tradeshop.shop.Shop;
 import org.shanerx.tradeshop.shop.ShopChest;
 import org.shanerx.tradeshop.shop.ShopType;
 import org.shanerx.tradeshop.shoplocation.ShopLocation;
-import org.shanerx.tradeshop.utils.debug.Debug;
 import org.shanerx.tradeshop.utils.debug.DebugLevels;
 import org.shanerx.tradeshop.utils.objects.Tuple;
 
@@ -77,10 +76,7 @@ public class Utils {
 	public final TradeShop PLUGIN = Objects.requireNonNull((TradeShop) Bukkit.getPluginManager().getPlugin("TradeShop"));
 	protected PluginDescriptionFile pdf = PLUGIN.getDescription();
 
-	public Debug debugger;
-
 	public Utils() {
-		debugger = PLUGIN.getDebugger();
 	}
 
 	public UUID[] getMakers() {
@@ -371,80 +367,44 @@ public class Utils {
 
 		Inventory shopInventory = null;
 
-		if (shop.getShopType() != ShopType.ITRADE) {
+		if (shop.getShopType().equals(ShopType.ITRADE)) {
+			shopInventory = Bukkit.createInventory(null, Math.min((int) (Math.ceil(shop.getSideList(ShopItemSide.PRODUCT).size() / 9.0) * 9) * multiplier, 54));
+			while (shopInventory.firstEmpty() != -1) {
+				for (ItemStack item : shop.getSideItemStacks(ShopItemSide.PRODUCT)) {
+					item.setAmount(item.getMaxStackSize());
+					shopInventory.addItem(item);
+				}
+			}
+		} else {
 			Inventory shopInv = shop.getChestAsSC().getInventory();
 			shopInventory = Bukkit.createInventory(null, shopInv.getStorageContents().length);
 			shopInventory.setContents(shopInv.getStorageContents().clone());
 		}
 
-		List<ItemStack> costItems, productItems;
+		List<ItemStack> costItems = new ArrayList<>(), productItems;
 
-		if (shop.getShopType() == ShopType.ITRADE) { //ITrade trade
+		boolean isBi = shop.getShopType().equals(ShopType.BITRADE) && action.equals(Action.LEFT_CLICK_BLOCK);
 
-			//Method to find Cost items in player inventory and add to cost array
-			costItems = getItems(playerInventory.getStorageContents(), shop.getSideList(ShopItemSide.COST), multiplier);
-
-			if (!costItems.isEmpty()) {
-				if (costItems.get(0) == null) {
-					return new Tuple<>(ExchangeStatus.PLAYER_NO_COST, costItems);
-				}
-
-				for (ItemStack item : costItems) {
-					playerInventory.removeItem(item);
-				}
-			}
-
-			Inventory iTradeVirtualInventory = Bukkit.createInventory(null, Math.min((int) (Math.ceil(shop.getSideList(ShopItemSide.PRODUCT).size() / 9.0) * 9) * multiplier, 54));
-			while (iTradeVirtualInventory.firstEmpty() != -1) {
-				for (ItemStack item : shop.getSideItemStacks(ShopItemSide.PRODUCT)) {
-					item.setAmount(item.getMaxStackSize());
-					iTradeVirtualInventory.addItem(item);
-				}
-			}
-
-			productItems = getItems(iTradeVirtualInventory.getStorageContents(), shop.getSideList(ShopItemSide.PRODUCT), multiplier);
-
-			for (ItemStack item : productItems) {
-				if (!playerInventory.addItem(item).isEmpty()) {
-					return new Tuple<>(ExchangeStatus.PLAYER_NO_SPACE, createBadList());
-				}
-			}
-
-			return new Tuple<>(ExchangeStatus.SUCCESS, createBadList()); //Successfully completed trade
-		} else if (shop.getShopType() == ShopType.BITRADE && action == Action.LEFT_CLICK_BLOCK) { //BiTrade Reversed Trade
-
-			//Method to find Cost items in player inventory and add to cost array
-			costItems = getItems(playerInventory.getStorageContents(), shop.getSideList(ShopItemSide.PRODUCT), multiplier); //Reverse BiTrade, Product is Cost
+		//Method to find Cost items in player inventory and add to cost array
+		if (!shop.isNoCost() || shop.hasSide(ShopItemSide.COST)) {
+			costItems = getItems(playerInventory.getStorageContents(), shop.getSideList(ShopItemSide.COST, isBi), multiplier);
 			if (costItems.get(0) == null) {
 				return new Tuple<>(ExchangeStatus.PLAYER_NO_COST, costItems);
 			}
-
-			//Method to find Product items in shop inventory and add to product array
-			productItems = getItems(shopInventory.getStorageContents(), shop.getSideList(ShopItemSide.COST), multiplier); //Reverse BiTrade, Cost is Product
-			if (productItems.get(0) == null) {
-				shop.updateStatus();
-				return new Tuple<>(ExchangeStatus.SHOP_NO_PRODUCT, productItems);
-			}
-		} else { // Normal Trade
-
-			//Method to find Cost items in player inventory and add to cost array
-			costItems = getItems(playerInventory.getStorageContents(), shop.getSideList(ShopItemSide.COST), multiplier);
-			if (costItems.get(0) == null) {
-				return new Tuple<>(ExchangeStatus.PLAYER_NO_COST, costItems);
-			}
-
-			//Method to find Product items in shop inventory and add to product array
-			productItems = getItems(shopInventory.getStorageContents(), shop.getSideList(ShopItemSide.PRODUCT), multiplier);
-			if (productItems.get(0) == null) {
-				shop.updateStatus();
-				return new Tuple<>(ExchangeStatus.SHOP_NO_PRODUCT, productItems);
-			}
-
 		}
 
-		//For loop to remove cost items from player inventory
-		for (ItemStack item : costItems) {
-			playerInventory.removeItem(item);
+		//Method to find Product items in shop inventory and add to product array
+		productItems = getItems(shopInventory.getStorageContents(), shop.getSideList(ShopItemSide.PRODUCT, isBi), multiplier);
+		if (productItems.get(0) == null) {
+			shop.updateStatus();
+			return new Tuple<>(ExchangeStatus.SHOP_NO_PRODUCT, productItems);
+		}
+
+		if (costItems.size() > 0) {
+			//For loop to remove cost items from player inventory
+			for (ItemStack item : costItems) {
+				playerInventory.removeItem(item);
+			}
 		}
 
 		//For loop to remove product items from shop inventory
@@ -452,10 +412,12 @@ public class Utils {
 			shopInventory.removeItem(item);
 		}
 
-		//For loop to put cost items in shop inventory
-		for (ItemStack item : costItems) {
-			if (!shopInventory.addItem(item).isEmpty()) {
-				return new Tuple<>(ExchangeStatus.SHOP_NO_SPACE, createBadList());
+		if (costItems.size() > 0) {
+			//For loop to put cost items in shop inventory
+			for (ItemStack item : costItems) {
+				if (!shopInventory.addItem(item).isEmpty()) {
+					return new Tuple<>(ExchangeStatus.SHOP_NO_SPACE, createBadList());
+				}
 			}
 		}
 
@@ -540,15 +502,15 @@ public class Utils {
 			shop = new Shop(shopSign.getLocation(), shopType, owner);
 		}
 
-		debugger.log("-----Pre-Event-----", DebugLevels.SHOP_CREATION);
-		debugger.log(shop.toDebug(), DebugLevels.SHOP_CREATION);
+		PLUGIN.getDebugger().log("-----Pre-Event-----", DebugLevels.SHOP_CREATION);
+		PLUGIN.getDebugger().log(shop.toDebug(), DebugLevels.SHOP_CREATION);
 
 
-		debugger.log("-----Post-Event-----", DebugLevels.SHOP_CREATION);
+		PLUGIN.getDebugger().log("-----Post-Event-----", DebugLevels.SHOP_CREATION);
 		PlayerShopCreateEvent shopCreateEvent = new PlayerShopCreateEvent(creator, shop);
 		Bukkit.getPluginManager().callEvent(shopCreateEvent);
 		if (shopCreateEvent.isCancelled()) {
-			debugger.log("Creation Failed!", DebugLevels.SHOP_CREATION);
+			PLUGIN.getDebugger().log("Creation Failed!", DebugLevels.SHOP_CREATION);
 			return null;
 		}
 
@@ -556,14 +518,14 @@ public class Utils {
 
 		if (event != null) {
 			shop.updateSign(event);
-			debugger.log("Event Sign Lines: \n" + event.getLine(0) + "\n" + event.getLine(1) + "\n" + event.getLine(2) + "\n" + event.getLine(3), DebugLevels.SHOP_CREATION);
+			PLUGIN.getDebugger().log("Event Sign Lines: \n" + event.getLine(0) + "\n" + event.getLine(1) + "\n" + event.getLine(2) + "\n" + event.getLine(3), DebugLevels.SHOP_CREATION);
 		} else {
 			shop.updateSign(shopSign);
-			debugger.log("Sign Lines: \n" + shopSign.getLine(0) + "\n" + shopSign.getLine(1) + "\n" + shopSign.getLine(2) + "\n" + shopSign.getLine(3), DebugLevels.SHOP_CREATION);
+			PLUGIN.getDebugger().log("Sign Lines: \n" + shopSign.getLine(0) + "\n" + shopSign.getLine(1) + "\n" + shopSign.getLine(2) + "\n" + shopSign.getLine(3), DebugLevels.SHOP_CREATION);
 		}
 
 		Message.SUCCESSFUL_SETUP.sendMessage(creator);
-		debugger.log("Creation Successful!", DebugLevels.SHOP_CREATION);
+		PLUGIN.getDebugger().log("Creation Successful!", DebugLevels.SHOP_CREATION);
 		return shop;
 	}
 
@@ -605,7 +567,7 @@ public class Utils {
 		Map<ItemStack, Integer> storage = new HashMap<>(), found = new HashMap<>();
 		List<ItemStack> good = new ArrayList<ItemStack>(), bad = createBadList();
 
-		debugger.log("Utils > getItems > Search List: " + search, DebugLevels.TRADE);
+		PLUGIN.getDebugger().log("Utils > getItems > Search List: " + search, DebugLevels.TRADE);
 
 		for (ItemStack itemStack : storageContents.clone()) {
 			if (itemStack != null) {
@@ -618,7 +580,7 @@ public class Utils {
 			}
 		}
 
-		debugger.log("Utils > getItems > Storage List: " + storage, DebugLevels.TRADE);
+		PLUGIN.getDebugger().log("Utils > getItems > Storage List: " + storage, DebugLevels.TRADE);
 
 		int totalCount = 0, currentCount = 0;
 
@@ -654,9 +616,9 @@ public class Utils {
 			}
 		}
 
-		debugger.log("Utils > getItems > Good List: " + good, DebugLevels.TRADE);
-		debugger.log("Utils > getItems > Bad List: " + bad, DebugLevels.TRADE);
-		debugger.log("Utils > getItems > Return Status: " + (currentCount != totalCount ? "bad" : "good"), DebugLevels.TRADE);
+		PLUGIN.getDebugger().log("Utils > getItems > Good List: " + good, DebugLevels.TRADE);
+		PLUGIN.getDebugger().log("Utils > getItems > Bad List: " + bad, DebugLevels.TRADE);
+		PLUGIN.getDebugger().log("Utils > getItems > Return Status: " + (currentCount != totalCount ? "bad" : "good"), DebugLevels.TRADE);
 
 		return currentCount != totalCount ? bad : good;
 	}

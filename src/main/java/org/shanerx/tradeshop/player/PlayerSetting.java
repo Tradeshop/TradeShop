@@ -36,6 +36,7 @@ import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.shanerx.tradeshop.data.config.Setting;
 import org.shanerx.tradeshop.shop.Shop;
+import org.shanerx.tradeshop.shoplocation.IllegalWorldException;
 import org.shanerx.tradeshop.shoplocation.ShopLocation;
 import org.shanerx.tradeshop.utils.Utils;
 
@@ -157,29 +158,37 @@ public class PlayerSetting implements Serializable {
         sb.append("&eShop Role &f| &eType &f| &eAvailable Trades &f| &eLocation &f| &eInventory Status\n&b");
         if (getOwnedShops().size() > 0) {
             getOwnedShops().forEach(s -> {
-                Shop shop = utils.PLUGIN.getDataStorage().loadShopFromSign(ShopLocation.deserialize(s));
-                if (shop == null) {
-                    nullShops.add(s);
-                } else if (shop.checkRole(uuid) != ShopRole.SHOPPER) {
-                    sb.append(shop.checkRole(uuid).toString()).append(" &f|&a ");
-                    sb.append(shop.getShopType().toString()).append(" &f|&b ");
-                    sb.append(shop.getAvailableTrades()).append(" &f|&d ");
-                    sb.append(s).append(" &f| ");
-                    sb.append(shop.getStatus().getLine()).append("\n&b");
+                try {
+                    Shop shop = utils.PLUGIN.getDataStorage().loadShopFromSign(ShopLocation.deserialize(s));
+                    if (shop == null) {
+                        nullShops.add(s);
+                    } else if (shop.checkRole(uuid) != ShopRole.SHOPPER) {
+                        sb.append(shop.checkRole(uuid).toString()).append(" &f|&a ");
+                        sb.append(shop.getShopType().toString()).append(" &f|&b ");
+                        sb.append(shop.getAvailableTrades()).append(" &f|&d ");
+                        sb.append(s).append(" &f| ");
+                        sb.append(shop.getStatus().getLine()).append("\n&b");
+                    }
+                } catch (IllegalWorldException ignored) {
+                    //Prevents IllegalWorldException when a player has shops in a world that is not loaded, They are not removed in case the world is loaded again...
                 }
             });
         }
         if (getStaffShops().size() > 0) {
             getStaffShops().forEach(s -> {
-                Shop shop = utils.PLUGIN.getDataStorage().loadShopFromSign(ShopLocation.deserialize(s));
-                if (shop == null) {
-                    nullShops.add(s);
-                } else if (shop.checkRole(uuid) != ShopRole.SHOPPER) {
-                    sb.append(shop.checkRole(uuid).toString()).append(" &f|&a ");
-                    sb.append(shop.getShopType().toString()).append(" &f|&b ");
-                    sb.append(shop.getAvailableTrades()).append(" &f|&d ");
-                    sb.append(s).append(" &f| ");
-                    sb.append(shop.getStatus().getLine()).append("\n&b");
+                try {
+                    Shop shop = utils.PLUGIN.getDataStorage().loadShopFromSign(ShopLocation.deserialize(s));
+                    if (shop == null) {
+                        nullShops.add(s);
+                    } else if (shop.checkRole(uuid) != ShopRole.SHOPPER) {
+                        sb.append(shop.checkRole(uuid).toString()).append(" &f|&a ");
+                        sb.append(shop.getShopType().toString()).append(" &f|&b ");
+                        sb.append(shop.getAvailableTrades()).append(" &f|&d ");
+                        sb.append(s).append(" &f| ");
+                        sb.append(shop.getStatus().getLine()).append("\n&b");
+                    }
+                } catch (IllegalWorldException ignored) {
+                    //Prevents IllegalWorldException when a player has shops in a world that is not loaded, They are not removed in case the world is loaded again...
                 }
             });
         }
@@ -196,45 +205,53 @@ public class PlayerSetting implements Serializable {
         GuiElementGroup group = new GuiElementGroup('g');
         if (getOwnedShops().size() > 0) {
             getOwnedShops().forEach(s -> {
-                Shop shop = utils.PLUGIN.getDataStorage().loadShopFromSign(ShopLocation.deserialize(s));
-                if (shop == null) {
-                    nullShops.add(s);
-                } else if (shop.checkRole(uuid) != ShopRole.SHOPPER) {
-                    group.addElement(new StaticGuiElement('e',
-                            new ItemStack(shop.getInventoryLocation() != null ?
-                                    shop.getInventoryLocation().getBlock().getType() :
-                                    Material.getMaterial(shop.getShopLocation().getBlock().getType().toString().replaceAll("WALL_", ""))),
-                            Math.min(shop.getAvailableTrades(), 64),
-                            click -> {
-                                return true; //Prevents clicking the item from doing anything, required parameter when using amount
-                            },
-                            utils.colorize("&d" + s),
-                            utils.colorize("&a" + shop.getShopType().toString()),
-                            utils.colorize("&b" + shop.checkRole(uuid).toString()),
-                            utils.colorize("&bAvailable Trades: " + shop.getAvailableTrades()),
-                            utils.colorize(shop.getStatus().getLine())));
+                try {
+                    Shop shop = utils.PLUGIN.getDataStorage().loadShopFromSign(ShopLocation.deserialize(s));
+                    if (shop == null) {
+                        nullShops.add(s);
+                    } else if (shop.checkRole(uuid) != ShopRole.SHOPPER) {
+                        group.addElement(new StaticGuiElement('e',
+                                new ItemStack(shop.getInventoryLocation() != null ?
+                                        shop.getInventoryLocation().getBlock().getType() :
+                                        Material.getMaterial(shop.getShopLocation().getBlock().getType().toString().replaceAll("WALL_", ""))),
+                                Math.min(shop.getAvailableTrades(), 64),
+                                click -> {
+                                    return true; //Prevents clicking the item from doing anything, required parameter when using amount
+                                },
+                                utils.colorize("&d" + s),
+                                utils.colorize("&a" + shop.getShopType().toString()),
+                                utils.colorize("&b" + shop.checkRole(uuid).toString()),
+                                utils.colorize("&bAvailable Trades: " + shop.getAvailableTrades()),
+                                utils.colorize(shop.getStatus().getLine())));
+                    }
+                } catch (IllegalWorldException ignored) {
+                    //Prevents IllegalWorldException when a player has shops in a world that is not loaded, They are not removed in case the world is loaded again...
                 }
             });
         }
         if (getStaffShops().size() > 0) {
             getStaffShops().forEach(s -> {
-                Shop shop = utils.PLUGIN.getDataStorage().loadShopFromSign(ShopLocation.deserialize(s));
-                if (shop == null) {
-                    nullShops.add(s);
-                } else if (shop.checkRole(uuid) != ShopRole.SHOPPER) {
-                    group.addElement(new StaticGuiElement('e',
-                            new ItemStack(shop.getInventoryLocation() != null ?
-                                    shop.getInventoryLocation().getBlock().getType() :
-                                    Material.getMaterial(shop.getShopLocation().getBlock().getType().toString().replaceAll("WALL_", ""))),
-                            Math.min(shop.getAvailableTrades(), 64),
-                            click -> {
-                                return true; //Prevents clicking the item from doing anything, required parameter when using amount
-                            },
-                            utils.colorize("&d" + s),
-                            utils.colorize("&a" + shop.getShopType().toString()),
-                            utils.colorize("&b" + shop.checkRole(uuid).toString()),
-                            utils.colorize("&bAvailable Trades: " + shop.getAvailableTrades()),
-                            utils.colorize(shop.getStatus().getLine())));
+                try {
+                    Shop shop = utils.PLUGIN.getDataStorage().loadShopFromSign(ShopLocation.deserialize(s));
+                    if (shop == null) {
+                        nullShops.add(s);
+                    } else if (shop.checkRole(uuid) != ShopRole.SHOPPER) {
+                        group.addElement(new StaticGuiElement('e',
+                                new ItemStack(shop.getInventoryLocation() != null ?
+                                        shop.getInventoryLocation().getBlock().getType() :
+                                        Material.getMaterial(shop.getShopLocation().getBlock().getType().toString().replaceAll("WALL_", ""))),
+                                Math.min(shop.getAvailableTrades(), 64),
+                                click -> {
+                                    return true; //Prevents clicking the item from doing anything, required parameter when using amount
+                                },
+                                utils.colorize("&d" + s),
+                                utils.colorize("&a" + shop.getShopType().toString()),
+                                utils.colorize("&b" + shop.checkRole(uuid).toString()),
+                                utils.colorize("&bAvailable Trades: " + shop.getAvailableTrades()),
+                                utils.colorize(shop.getStatus().getLine())));
+                    }
+                } catch (IllegalWorldException ignored) {
+                    //Prevents IllegalWorldException when a player has shops in a world that is not loaded, They are not removed in case the world is loaded again...
                 }
             });
         }

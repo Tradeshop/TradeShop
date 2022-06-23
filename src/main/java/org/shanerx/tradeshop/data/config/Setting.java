@@ -29,7 +29,9 @@ import org.bukkit.Bukkit;
 import org.shanerx.tradeshop.TradeShop;
 import org.shanerx.tradeshop.item.IllegalItemList;
 import org.shanerx.tradeshop.item.ShopItemStackSettingKeys;
+import org.shanerx.tradeshop.shop.ShopSettingKeys;
 import org.shanerx.tradeshop.shop.ShopSign;
+import org.shanerx.tradeshop.shop.ShopType;
 import org.yaml.snakeyaml.Yaml;
 
 import java.util.ArrayList;
@@ -45,7 +47,7 @@ public enum Setting {
     // PostComment " " adds single newline below setting and "\n" adds 2 newlines below
     // PreComment `/n ` will have a new comment marker added after a sufficient space for proper formatting
 
-    CONFIG_VERSION(SettingSection.NONE, "config-version", 0.0),
+    CONFIG_VERSION(SettingSection.NONE, "config-version", 1.3),
 
     // System Options
     DATA_STORAGE_TYPE(SettingSection.SYSTEM_OPTIONS, "data-storage-type", "FLATFILE"),
@@ -85,6 +87,8 @@ public enum Setting {
     MAX_ITEMS_PER_TRADE_SIDE(SettingSection.SHOP_OPTIONS, "max-items-per-trade-side", 6),
     ALLOW_USER_PURCHASING(SettingSection.SHOP_OPTIONS, "allow-user-purchasing", false),
     MULTIPLE_ITEMS_ON_SIGN(SettingSection.SHOP_OPTIONS, "multiple-items-on-sign", "Use '/ts what'"),
+    NO_COST_TEXT(SettingSection.SHOP_OPTIONS, "no-cost-text", "nothing"),
+    NO_COST_AMOUNT(SettingSection.SHOP_OPTIONS, "no-cost-amount", "1"),
 
     SHOP_PER_ITEM_SETTINGS(SettingSection.SHOP_ITEM_OPTIONS, "shop-per-item-settings", ShopItemStackSettingKeys.getDefaultConfigMap()),
 
@@ -93,21 +97,18 @@ public enum Setting {
     // Trade Shop Options
     TRADESHOP_HEADER(SettingSection.TRADE_SHOP_OPTIONS, "header", "Trade"),
     TRADESHOP_EXPLODE(SettingSection.TRADE_SHOP_OPTIONS, "allow-explode", false),
-    TRADESHOP_HOPPER_EXPORT(SettingSection.TRADE_SHOP_OPTIONS, "allow-hopper-export", false),
-    TRADESHOP_HOPPER_IMPORT(SettingSection.TRADE_SHOP_OPTIONS, "allow-hopper-import", false),
+    TRADE_PER_SHOP_SETTINGS(SettingSection.TRADE_SHOP_OPTIONS, "trade-per-shop-settings", ShopSettingKeys.getSettingConfigMap(ShopType.TRADE)),
 
     // ITrade Shop Options
     ITRADESHOP_OWNER(SettingSection.ITRADE_SHOP_OPTIONS, "owner", "Server Shop"),
     ITRADESHOP_HEADER(SettingSection.ITRADE_SHOP_OPTIONS, "header", "iTrade"),
     ITRADESHOP_EXPLODE(SettingSection.ITRADE_SHOP_OPTIONS, "allow-explode", false),
-    ITRADESHOP_NO_COST_TEXT(SettingSection.ITRADE_SHOP_OPTIONS, "no-cost-text", "nothing"),
-    ITRADESHOP_NO_COST_AMOUNT(SettingSection.ITRADE_SHOP_OPTIONS, "no-cost-amount", "1"),
+    ITRADE_PER_SHOP_SETTINGS(SettingSection.ITRADE_SHOP_OPTIONS, "itrade-per-shop-settings", ShopSettingKeys.getSettingConfigMap(ShopType.ITRADE)),
 
     // BiTrade Shop Options
     BITRADESHOP_HEADER(SettingSection.BITRADE_SHOP_OPTIONS, "header", "BiTrade"),
     BITRADESHOP_EXPLODE(SettingSection.BITRADE_SHOP_OPTIONS, "allow-explode", false),
-    BITRADESHOP_HOPPER_EXPORT(SettingSection.BITRADE_SHOP_OPTIONS, "allow-hopper-export", false),
-    BITRADESHOP_HOPPER_IMPORT(SettingSection.BITRADE_SHOP_OPTIONS, "allow-hopper-import", false),
+    BITRADE_PER_SHOP_SETTINGS(SettingSection.BITRADE_SHOP_OPTIONS, "bitrade-per-shop-settings", ShopSettingKeys.getSettingConfigMap(ShopType.BITRADE)),
 
     // Illegal Item Options
     GLOBAL_ILLEGAL_ITEMS_TYPE(SettingSection.GLOBAL_ILLEGAL_ITEMS, "type", IllegalItemList.ListType.BLACKLIST.toString()),
@@ -180,7 +181,7 @@ public enum Setting {
             }
 
             if (configManager.getConfig().contains("tradeshop.allow-hopper-export")) {
-                configManager.getConfig().set(TRADESHOP_HOPPER_EXPORT.path, configManager.getConfig().get("tradeshop.allow-hopper-export"));
+                configManager.getConfig().set("trade-shop-options.allow-hopper-export", configManager.getConfig().get("tradeshop.allow-hopper-export"));
                 configManager.getConfig().set("tradeshop.allow-hopper-export", null);
                 hasUpgraded.add(true);
             }
@@ -198,7 +199,7 @@ public enum Setting {
             }
 
             if (configManager.getConfig().contains("bitradeshop.allow-hopper-export")) {
-                configManager.getConfig().set(BITRADESHOP_HOPPER_EXPORT.path, configManager.getConfig().get("bitradeshop.allow-hopper-export"));
+                configManager.getConfig().set("bitrade-shop-options.allow-hopper-export", configManager.getConfig().get("bitradeshop.allow-hopper-export"));
                 configManager.getConfig().set("bitradeshop.allow-hopper-export", null);
                 hasUpgraded.add(true);
             }
@@ -218,6 +219,52 @@ public enum Setting {
             version = 1.2;
         }
 
+        if (version < 1.3) {
+            String oldKey = "itrade-shop-options.no-cost-text";
+            if (configManager.getConfig().contains(oldKey)) {
+                configManager.getConfig().set(NO_COST_TEXT.path, configManager.getConfig().get(oldKey));
+                configManager.getConfig().set(oldKey, null);
+                hasUpgraded.add(true);
+            }
+
+            oldKey = "itrade-shop-options.no-cost-amount";
+            if (configManager.getConfig().contains(oldKey)) {
+                configManager.getConfig().set(NO_COST_AMOUNT.path, configManager.getConfig().get(oldKey));
+                configManager.getConfig().set(oldKey, null);
+                hasUpgraded.add(true);
+            }
+
+            oldKey = "bitrade-shop-options.allow-hopper-export";
+            if (configManager.getConfig().contains(oldKey)) {
+                configManager.getConfig().set(BITRADE_PER_SHOP_SETTINGS.getPath() + ".allow-hopper-export", configManager.getConfig().get(oldKey));
+                configManager.getConfig().set(oldKey, null);
+                hasUpgraded.add(true);
+            }
+
+            oldKey = "bitrade-shop-options.allow-hopper-import";//
+            if (configManager.getConfig().contains(oldKey)) {
+                configManager.getConfig().set(BITRADE_PER_SHOP_SETTINGS.getPath() + ".allow-hopper-import", configManager.getConfig().get(oldKey));
+                configManager.getConfig().set(oldKey, null);
+                hasUpgraded.add(true);
+            }
+
+            oldKey = "trade-shop-options.allow-hopper-export";//
+            if (configManager.getConfig().contains(oldKey)) {
+                configManager.getConfig().set(TRADE_PER_SHOP_SETTINGS.getPath() + ".allow-hopper-export", configManager.getConfig().get(oldKey));
+                configManager.getConfig().set(oldKey, null);
+                hasUpgraded.add(true);
+            }
+
+            oldKey = "trade-shop-options.allow-hopper-import";//
+            if (configManager.getConfig().contains(oldKey)) {
+                configManager.getConfig().set(TRADE_PER_SHOP_SETTINGS.getPath() + ".allow-hopper-import", configManager.getConfig().get(oldKey));
+                configManager.getConfig().set(oldKey, null);
+                hasUpgraded.add(true);
+            }
+
+            version = 1.3;
+        }
+
         CONFIG_VERSION.setValue(version);
 
         return hasUpgraded.contains(true);
@@ -232,15 +279,15 @@ public enum Setting {
     }
 
     public String getMappedString(String subKey) {
-        return PLUGIN.getSettingManager().getConfig().getConfigurationSection(getPath()).getString(subKey.toLowerCase().replace("_", "-"));
+        return PLUGIN.getSettingManager().getConfig().getConfigurationSection(getPath()).getString(subKey.replace("_", "-"));
     }
 
     public boolean getMappedBoolean(String subKey) {
-        return PLUGIN.getSettingManager().getConfig().getConfigurationSection(getPath()).getBoolean(subKey.toLowerCase().replace("_", "-"));
+        return PLUGIN.getSettingManager().getConfig().getConfigurationSection(getPath()).getBoolean(subKey.replace("_", "-"));
     }
 
     public Object getMappedObject(String subKey) {
-        return PLUGIN.getSettingManager().getConfig().getConfigurationSection(getPath()).get(subKey.toLowerCase().replace("_", "-"));
+        return PLUGIN.getSettingManager().getConfig().getConfigurationSection(getPath()).get(subKey.replace("_", "-"));
     }
 
     public String getPostComment() {
@@ -270,7 +317,7 @@ public enum Setting {
         for (Object key : sortedKeys) {
             Object value = valueMap.get(key);
             if (value instanceof Map) {
-                processed.append(localLead).append(getKey()).append(":\n");
+                processed.append(localLead).append(key.toString()).append(":\n");
                 processed.append(processMapValue(((Map<?, ?>) value), localLead + leadIncrease));
             } else {
                 processed.append(localLead).append(key.toString()).append(": ").append(new Yaml().dump(value));

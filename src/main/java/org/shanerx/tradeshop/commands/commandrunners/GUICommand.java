@@ -58,9 +58,10 @@ public class GUICommand extends CommandRunner {
     //------------------------------------------------------------------------------------------------------------------
 
 
-    protected final String[] MENU_LAYOUT = {"a b c"},
+    protected final String[] MENU_LAYOUT = {"ad bc"},
             EDIT_LAYOUT = {"aggggggga", "ap c s na"},
             ITEM_LAYOUT = {"u ggggggg", "j hhhhhhh", "ap cbs na"},
+            SETTING_LAYOUT = {"ggggggggg", "hhhhhhhhh", "ap cbs na"},
             WHAT_MENU = {"141125333", "1qqq2eee3", "11p123n33"};
     protected List<ShopItemStack> costItems = new ArrayList<>(),
             productItems = new ArrayList<>();
@@ -99,11 +100,11 @@ public class GUICommand extends CommandRunner {
             GuiElementGroup itemGroup = new GuiElementGroup('g'),
                     settingGroup = new GuiElementGroup('h');
 
-            // Cancel and Back
-            itemEdit.addElement(getBackButton(true));
+            // Add Cancel button when editable and Back button when not - Goes to previous screen without saving changes
+            itemEdit.addElement(getBackButton(editable));
 
-            // Save and Back
-            itemEdit.addElement(new StaticGuiElement('s', new ItemStack(Material.ANVIL), click3 -> {
+            // Add Save button only when editable - Saves and Goes to previous screen
+            if (editable) itemEdit.addElement(new StaticGuiElement('s', new ItemStack(Material.ANVIL), click3 -> {
                 (side.equals(ShopItemSide.COST) ? costItems : productItems).set(index, item);
                 InventoryGui.goBack(pSender);
                 return true;

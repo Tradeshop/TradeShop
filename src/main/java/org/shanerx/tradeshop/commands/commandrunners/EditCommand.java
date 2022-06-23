@@ -25,6 +25,7 @@
 
 package org.shanerx.tradeshop.commands.commandrunners;
 
+import de.themoep.inventorygui.GuiElement;
 import de.themoep.inventorygui.GuiElementGroup;
 import de.themoep.inventorygui.GuiStateElement;
 import de.themoep.inventorygui.InventoryGui;
@@ -40,8 +41,12 @@ import org.shanerx.tradeshop.player.Permissions;
 import org.shanerx.tradeshop.player.ShopRole;
 import org.shanerx.tradeshop.player.ShopUser;
 import org.shanerx.tradeshop.shop.Shop;
+import org.shanerx.tradeshop.shop.ShopSettingKeys;
+import org.shanerx.tradeshop.utils.objects.ObjectHolder;
 
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -55,7 +60,8 @@ public class EditCommand extends GUICommand {
     private InventoryGui mainMenu,
             userEdit,
             costEdit,
-            productEdit;
+            productEdit,
+            settingEdit;
 
 
     public EditCommand(TradeShop instance, CommandPass command) {
@@ -82,7 +88,87 @@ public class EditCommand extends GUICommand {
         mainMenu.setFiller(new ItemStack(Material.LIGHT_GRAY_STAINED_GLASS_PANE, 1));
 
         // ShopUser edit menu, currently can only change/remove. Adding only available through commands
-        mainMenu.addElement(new StaticGuiElement('a', new ItemStack(Material.PLAYER_HEAD), click -> {
+        mainMenu.addElement(editUserMenu('a'));
+
+        mainMenu.addElement(editCostMenu('b'));
+
+        mainMenu.addElement(editProductMenu('c'));
+
+        mainMenu.addElement(editSettingsMenu('d'));
+
+        mainMenu.show(pSender);
+    }
+
+    private GuiElement editSettingsMenu(char slotChar) {
+        return new StaticGuiElement(slotChar, new ItemStack(Material.CRAFTING_TABLE), click -> {
+            Map<ShopSettingKeys, ObjectHolder<?>> changedSettings = new HashMap<>();
+
+            settingEdit = new InventoryGui(plugin, "Edit Shop Settings", SETTING_LAYOUT);
+            GuiElementGroup viewGroup = new GuiElementGroup('g'),
+                    changeGroup = new GuiElementGroup('h');
+
+            shop.getShopSettings().forEach((key, value) -> {
+                viewGroup.addElement(new StaticGuiElement('e', key.getDisplayItem(), key.makeReadable(), value.toString()));
+
+                ObjectHolder<?> state = shop.getShopSetting(key);
+                if (!(state == null || state.getObject() == null)) {
+                    if (state.isBoolean()) {
+                        if (key.isUserEditable(shop.getShopType())) {
+                            changeGroup.addElement(new GuiStateElement('e',
+                                    state.asBoolean().toString(),
+                                    new GuiStateElement.State(change -> {
+                                        if (!state.asBoolean())
+                                            changedSettings.put(key, new ObjectHolder<>(true));
+                                        else
+                                            changedSettings.remove(key);
+                                    },
+                                            "true",
+                                            getBooleanItem(true),
+                                            key.makeReadable(),
+                                            "State: True"
+                                    ),
+                                    new GuiStateElement.State(change -> {
+                                        if (state.asBoolean())
+                                            changedSettings.put(key, new ObjectHolder<>(false));
+                                        else
+                                            changedSettings.remove(key);
+                                    },
+                                            "false",
+                                            getBooleanItem(false),
+                                            key.makeReadable(),
+                                            "State: False"
+                                    )));
+                        } else {
+                            changeGroup.addElement(new StaticGuiElement('e', getBooleanItem(state.asBoolean()), key.makeReadable(), value.toString()));
+                        }
+
+
+                    } // Add else-if later if other type settings are added...
+                }
+            });
+
+            // Add Cancel Button - Cancels changes and Goes to previous screen
+            settingEdit.addElement(getBackButton(true));
+
+            // Add Save Button - Saves and Goes to previous menu
+            settingEdit.addElement(new StaticGuiElement('s', new ItemStack(Material.ANVIL), click3 -> {
+                shop.setShopSettings(changedSettings);
+                shop.saveShop(changedSettings.size() > 0);
+                InventoryGui.goBack(pSender);
+                return true;
+            }, "Save Changes"));
+
+            settingEdit.addElement(new StaticGuiElement('a', new ItemStack(Material.YELLOW_STAINED_GLASS_PANE), " "));
+
+            settingEdit.addElements(getNextButton(), getPrevButton(), viewGroup, changeGroup);
+
+            settingEdit.show(pSender);
+            return true;
+        }, colorize("&eEdit Shop Settings"));
+    }
+
+    private GuiElement editUserMenu(char slotChar) {
+        return new StaticGuiElement(slotChar, new ItemStack(Material.PLAYER_HEAD), click -> {
             userEdit = new InventoryGui(plugin, "Edit Users", EDIT_LAYOUT);
             Set<ShopUser> shopUsers = new HashSet<>();
             GuiElementGroup userGroup = new GuiElementGroup('g');
@@ -155,9 +241,11 @@ public class EditCommand extends GUICommand {
             userEdit.addElement(userGroup);
             userEdit.show(pSender);
             return true;
-        }, "Edit Shop Users"));
+        }, colorize("&eEdit Shop Users"));
+    }
 
-        mainMenu.addElement(new StaticGuiElement('b', new ItemStack(Material.GOLD_NUGGET), click -> {
+    private GuiElement editCostMenu(char slotChar) {
+        return new StaticGuiElement(slotChar, new ItemStack(Material.GOLD_NUGGET), click -> {
             costEdit = new InventoryGui(plugin, "Edit Costs", EDIT_LAYOUT);
             if (costItems.isEmpty()) {
                 for (ShopItemStack item : shop.getSideList(ShopItemSide.COST)) {
@@ -196,9 +284,11 @@ public class EditCommand extends GUICommand {
             costEdit.addElement(costGroup);
             costEdit.show(pSender);
             return true;
-        }, "Edit Shop Costs"));
+        }, colorize("&eEdit Shop Costs"));
+    }
 
-        mainMenu.addElement(new StaticGuiElement('c', new ItemStack(Material.GRASS_BLOCK), click -> {
+    private GuiElement editProductMenu(char slotChar) {
+        return new StaticGuiElement(slotChar, new ItemStack(Material.GRASS_BLOCK), click -> {
             productEdit = new InventoryGui(plugin, "Edit Products", EDIT_LAYOUT);
             if (productItems.isEmpty()) {
                 for (ShopItemStack item : shop.getSideList(ShopItemSide.PRODUCT)) {
@@ -237,8 +327,6 @@ public class EditCommand extends GUICommand {
             productEdit.addElement(productGroup);
             productEdit.show(pSender);
             return true;
-        }, "Edit Shop Products"));
-
-        mainMenu.show(pSender);
+        }, colorize("&eEdit Shop Products"));
     }
 }

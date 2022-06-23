@@ -55,6 +55,7 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 
 public class ShopItemStack implements Serializable, Cloneable {
@@ -64,32 +65,32 @@ public class ShopItemStack implements Serializable, Cloneable {
 
     private String itemStackB64;
 
-    private HashMap<ShopItemStackSettingKeys, ObjectHolder<?>> shopSettings;
+    private Map<ShopItemStackSettingKeys, ObjectHolder<?>> itemSettings;
 
     public ShopItemStack(ItemStack itemStack) {
         this.itemStack = itemStack;
-        shopSettings = new HashMap<>();
+        itemSettings = new HashMap<>();
         buildMap();
         toBase64();
     }
 
     public ShopItemStack(ItemStack itemStack, HashMap<ShopItemStackSettingKeys, ObjectHolder<?>> settingMap) {
         this.itemStack = itemStack;
-        this.shopSettings = settingMap;
+        this.itemSettings = settingMap;
         buildMap();
         toBase64();
     }
 
     public ShopItemStack(String itemStackB64) {
         this.itemStackB64 = itemStackB64;
-        shopSettings = new HashMap<>();
+        itemSettings = new HashMap<>();
         buildMap();
         fromBase64();
     }
 
     public ShopItemStack(String itemStackB64, HashMap<ShopItemStackSettingKeys, ObjectHolder<?>> settingMap) {
         this.itemStackB64 = itemStackB64;
-        this.shopSettings = settingMap;
+        this.itemSettings = settingMap;
         buildMap();
         fromBase64();
     }
@@ -102,26 +103,26 @@ public class ShopItemStack implements Serializable, Cloneable {
                          boolean compareBookAuthor, boolean compareBookPages, boolean compareShulkerInventory) {
         this.itemStackB64 = itemStackB64;
 
-        shopSettings = new HashMap<>();
+        itemSettings = new HashMap<>();
 
-        shopSettings.putIfAbsent(ShopItemStackSettingKeys.COMPARE_DURABILITY, new ObjectHolder<>(compareDurability));
-        shopSettings.putIfAbsent(ShopItemStackSettingKeys.COMPARE_NAME, new ObjectHolder<>(compareName));
-        shopSettings.putIfAbsent(ShopItemStackSettingKeys.COMPARE_LORE, new ObjectHolder<>(compareLore));
-        shopSettings.putIfAbsent(ShopItemStackSettingKeys.COMPARE_CUSTOM_MODEL_DATA, new ObjectHolder<>(compareCustomModelData));
-        shopSettings.putIfAbsent(ShopItemStackSettingKeys.COMPARE_ITEM_FLAGS, new ObjectHolder<>(compareItemFlags));
-        shopSettings.putIfAbsent(ShopItemStackSettingKeys.COMPARE_UNBREAKABLE, new ObjectHolder<>(compareUnbreakable));
-        shopSettings.putIfAbsent(ShopItemStackSettingKeys.COMPARE_ATTRIBUTE_MODIFIER, new ObjectHolder<>(compareAttributeModifier));
-        shopSettings.putIfAbsent(ShopItemStackSettingKeys.COMPARE_BOOK_AUTHOR, new ObjectHolder<>(compareBookAuthor));
-        shopSettings.putIfAbsent(ShopItemStackSettingKeys.COMPARE_BOOK_PAGES, new ObjectHolder<>(compareBookPages));
-        shopSettings.putIfAbsent(ShopItemStackSettingKeys.COMPARE_SHULKER_INVENTORY, new ObjectHolder<>(compareShulkerInventory));
-        shopSettings.putIfAbsent(ShopItemStackSettingKeys.COMPARE_ENCHANTMENTS, new ObjectHolder<>(compareEnchantments));
+        itemSettings.putIfAbsent(ShopItemStackSettingKeys.COMPARE_DURABILITY, new ObjectHolder<>(compareDurability));
+        itemSettings.putIfAbsent(ShopItemStackSettingKeys.COMPARE_NAME, new ObjectHolder<>(compareName));
+        itemSettings.putIfAbsent(ShopItemStackSettingKeys.COMPARE_LORE, new ObjectHolder<>(compareLore));
+        itemSettings.putIfAbsent(ShopItemStackSettingKeys.COMPARE_CUSTOM_MODEL_DATA, new ObjectHolder<>(compareCustomModelData));
+        itemSettings.putIfAbsent(ShopItemStackSettingKeys.COMPARE_ITEM_FLAGS, new ObjectHolder<>(compareItemFlags));
+        itemSettings.putIfAbsent(ShopItemStackSettingKeys.COMPARE_UNBREAKABLE, new ObjectHolder<>(compareUnbreakable));
+        itemSettings.putIfAbsent(ShopItemStackSettingKeys.COMPARE_ATTRIBUTE_MODIFIER, new ObjectHolder<>(compareAttributeModifier));
+        itemSettings.putIfAbsent(ShopItemStackSettingKeys.COMPARE_BOOK_AUTHOR, new ObjectHolder<>(compareBookAuthor));
+        itemSettings.putIfAbsent(ShopItemStackSettingKeys.COMPARE_BOOK_PAGES, new ObjectHolder<>(compareBookPages));
+        itemSettings.putIfAbsent(ShopItemStackSettingKeys.COMPARE_SHULKER_INVENTORY, new ObjectHolder<>(compareShulkerInventory));
+        itemSettings.putIfAbsent(ShopItemStackSettingKeys.COMPARE_ENCHANTMENTS, new ObjectHolder<>(compareEnchantments));
 
         buildMap();
         fromBase64();
     }
 
-    public HashMap<ShopItemStackSettingKeys, ObjectHolder<?>> getShopSettings() {
-        return shopSettings;
+    public Map<ShopItemStackSettingKeys, ObjectHolder<?>> getItemSettings() {
+        return itemSettings;
     }
 
     public static ShopItemStack deserialize(String serialized) {
@@ -134,8 +135,8 @@ public class ShopItemStack implements Serializable, Cloneable {
     public boolean getShopSettingAsBoolean(ShopItemStackSettingKeys key) {
         if (key.isUserEditable()) {
             try {
-                ObjectHolder<?> tempObj = shopSettings.get(key);
-                return shopSettings.containsKey(key) ? (Boolean) tempObj.getObject() : (Boolean) key.getDefaultValue().getObject();
+                ObjectHolder<?> tempObj = itemSettings.get(key);
+                return itemSettings.containsKey(key) ? (Boolean) tempObj.getObject() : (Boolean) key.getDefaultValue().getObject();
             } catch (ClassCastException | NullPointerException ignored) {
             }
         }
@@ -145,8 +146,8 @@ public class ShopItemStack implements Serializable, Cloneable {
     public int getShopSettingAsInteger(ShopItemStackSettingKeys key) {
         if (key.isUserEditable()) {
             try {
-                ObjectHolder<?> tempObj = shopSettings.get(key);
-                return shopSettings.containsKey(key) ? (Integer) tempObj.getObject() : (Integer) key.getDefaultValue().getObject();
+                ObjectHolder<?> tempObj = itemSettings.get(key);
+                return itemSettings.containsKey(key) ? (Integer) tempObj.getObject() : (Integer) key.getDefaultValue().getObject();
             } catch (ClassCastException | NullPointerException ignored) {
             }
         }
@@ -155,12 +156,12 @@ public class ShopItemStack implements Serializable, Cloneable {
     }
 
     private void buildMap() {
-        if (shopSettings == null) {
-            shopSettings = new HashMap<>();
+        if (itemSettings == null) {
+            itemSettings = new HashMap<>();
         }
 
         for (ShopItemStackSettingKeys key : ShopItemStackSettingKeys.values()) {
-            shopSettings.putIfAbsent(key, key.getDefaultValue());
+            itemSettings.putIfAbsent(key, key.getDefaultValue());
         }
     }
 
@@ -177,12 +178,12 @@ public class ShopItemStack implements Serializable, Cloneable {
     }
 
     public boolean setShopSettings(ShopItemStackSettingKeys key, ObjectHolder<?> value) {
-        if (shopSettings == null) {
-            shopSettings = new HashMap<>();
+        if (itemSettings == null) {
+            itemSettings = new HashMap<>();
             buildMap();
         }
 
-        shopSettings.put(key, value);
+        itemSettings.put(key, value);
         return false;
     }
 
@@ -206,7 +207,7 @@ public class ShopItemStack implements Serializable, Cloneable {
     }
 
     public boolean isSimilar(ItemStack toCompare) {
-        debugger = new Utils().debugger;
+        debugger = new Utils().PLUGIN.getDebugger();
 
         // Return False if either item is null
         if (itemStack == null || toCompare == null) {
@@ -516,7 +517,7 @@ public class ShopItemStack implements Serializable, Cloneable {
     }
 
     public String getStateString(ShopItemStackSettingKeys key) {
-        return getStateString(shopSettings.get(key));
+        return getStateString(itemSettings.get(key));
     }
 
     public String getStateString(ObjectHolder<?> stateSetting) {
@@ -562,7 +563,7 @@ public class ShopItemStack implements Serializable, Cloneable {
     public String toString() {
         return "ShopItemStack{" +
                 "itemStack=" + getItemStack() +
-                ", shopSettings=" + shopSettings +
+                ", shopSettings=" + itemSettings +
                 '}';
     }
 

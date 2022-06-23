@@ -54,7 +54,7 @@ public class ListManager extends Utils {
 	private final ArrayList<String> gameMats = new ArrayList<>();
 	private final ArrayList<String> addOnMats = new ArrayList<>();
 
-	private Cache<Location, Boolean> skippableHoppers; //second data type doesn't matter and isn't used, boolean chosen as it is the smallest
+	private Cache<Location, Boolean> skippableHoppers, skippableShop;
 
 
 	public ListManager() {
@@ -62,22 +62,44 @@ public class ListManager extends Utils {
 		setGameMatList();
 	}
 
-	private void initSkippableHoppers() {
+	private void initSkip() {
 		skippableHoppers = CacheBuilder.newBuilder()
 				.maximumSize(100000)
 				.expireAfterAccess(1000, TimeUnit.MILLISECONDS)
 				.build();
+		skippableShop = CacheBuilder.newBuilder()
+				.maximumSize(1000)
+				.expireAfterWrite(1500, TimeUnit.MILLISECONDS)
+				.build();
 	}
 
+	/**
+	 * Check if a hopper has already been processed and stored in the cache
+	 *
+	 * @param location What location to check for
+	 * @return return null if not in cache(un-unprocessed) or true/false representing whether to block movement
+	 */
 	public Boolean canSkipHopper(Location location) {
-		if (skippableHoppers.getIfPresent(location) == null)
+		if (skippableHoppers.getIfPresent(location) == null && skippableShop.getIfPresent(location) == null)
 			return null;
-		else
+		else if (skippableHoppers.getIfPresent(location) != null)
 			return skippableHoppers.getIfPresent(location);
+		else if (skippableShop.getIfPresent(location) != null)
+			return skippableShop.getIfPresent(location);
+
+		return null;
 	}
 
 	public void addSkippableHopper(Location location, boolean shouldBlock) {
 		skippableHoppers.put(location, shouldBlock);
+	}
+
+	public void addSkippableShop(Location location, boolean shouldBlock) {
+		skippableShop.put(location, shouldBlock);
+	}
+
+	public void removeSkippableShop(Location location) {
+		skippableShop.invalidate(location);
 	}
 
 
@@ -121,7 +143,7 @@ public class ListManager extends Utils {
 		Material blockMaterial = block.getType();
 		Boolean found = false;
 
-		debugger.log("isInventory Block Material: " + blockMaterial.name(), DebugLevels.LIST_MANAGER);
+		PLUGIN.getDebugger().log("isInventory Block Material: " + blockMaterial.name(), DebugLevels.LIST_MANAGER);
 
         //For each ShopStorage.Storages in inventories, check if their block list contains the block material. end loop if true.
         for (ShopStorage.Storages storage : inventories) {
@@ -129,9 +151,9 @@ public class ListManager extends Utils {
                 found = true;
                 break;
             }
-        }
+		}
 
-		debugger.log("isInventory Block Material found: " + found, DebugLevels.LIST_MANAGER);
+		PLUGIN.getDebugger().log("isInventory Block Material found: " + found, DebugLevels.LIST_MANAGER);
         return found;
 	}
 
@@ -141,7 +163,7 @@ public class ListManager extends Utils {
 		updateDirections();
         updateInventoryMats();
 		setGameMatList();
-		initSkippableHoppers();
+		initSkip();
 	}
 
 	public void clearManager() {
@@ -168,7 +190,7 @@ public class ListManager extends Utils {
 		if (globalList.getType().equals(IllegalItemList.ListType.DISABLED))
 			globalList.setType(IllegalItemList.ListType.BLACKLIST);
 
-		debugger.log("Loading GLOBAL Illegal Item List with mode:  " + globalList.getType(), DebugLevels.ILLEGAL_ITEMS_LIST);
+		PLUGIN.getDebugger().log("Loading GLOBAL Illegal Item List with mode:  " + globalList.getType(), DebugLevels.ILLEGAL_ITEMS_LIST);
 		if (globalList.getType().equals(IllegalItemList.ListType.BLACKLIST)) {
 			// Add non-removable blacklist items
 			globalList.add(Material.AIR);
@@ -184,12 +206,12 @@ public class ListManager extends Utils {
 			globalList.checkAndAdd(str);
 		}
 
-		debugger.log("Loading COST Illegal Item List with mode:  " + costList.getType(), DebugLevels.ILLEGAL_ITEMS_LIST);
+		PLUGIN.getDebugger().log("Loading COST Illegal Item List with mode:  " + costList.getType(), DebugLevels.ILLEGAL_ITEMS_LIST);
 		for (String str : Setting.COST_ILLEGAL_ITEMS_LIST.getStringList()) {
 			costList.checkAndAdd(str);
 		}
 
-		debugger.log("Loading PRODUCT Illegal Item List with mode:  " + productList.getType(), DebugLevels.ILLEGAL_ITEMS_LIST);
+		PLUGIN.getDebugger().log("Loading PRODUCT Illegal Item List with mode:  " + productList.getType(), DebugLevels.ILLEGAL_ITEMS_LIST);
 		for (String str : Setting.PRODUCT_ILLEGAL_ITEMS_LIST.getStringList()) {
 			productList.checkAndAdd(str);
 		}
@@ -229,8 +251,8 @@ public class ListManager extends Utils {
 		//Clears the list before updating
 		inventories.clear();
 
-		debugger.log("Inventory Materials from Config:", DebugLevels.STARTUP);
-		debugger.log("Config String | Status | Matching Type", DebugLevels.STARTUP);
+		PLUGIN.getDebugger().log("Inventory Materials from Config:", DebugLevels.STARTUP);
+		PLUGIN.getDebugger().log("Config String | Status | Matching Type", DebugLevels.STARTUP);
 
 		//For each String in the Allowed shops config setting, check if it is a valid inventory and add the ShopStorage.Storages object to the list
 		for (String str : Setting.ALLOWED_SHOPS.getStringList()) {
@@ -244,7 +266,7 @@ public class ListManager extends Utils {
 				logMsg += " | InValid";
 			}
 
-			debugger.log(logMsg, DebugLevels.STARTUP);
+			PLUGIN.getDebugger().log(logMsg, DebugLevels.STARTUP);
 		}
 	}
 }

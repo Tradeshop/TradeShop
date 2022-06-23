@@ -118,9 +118,9 @@ public class ShopSign extends Utils {
     public ShopSign() {
         for (Signs type : Signs.values()) {
             boolean pass = true;
-            debugger.log(type.toString(), DebugLevels.STARTUP);
-            debugger.log(String.format("MinVer: %s", type.getMinVersionAsString()), DebugLevels.STARTUP);
-            debugger.log(String.format("MaxVer: %s", type.getMaxVersionAsString()), DebugLevels.STARTUP);
+            PLUGIN.getDebugger().log(type.toString(), DebugLevels.STARTUP);
+            PLUGIN.getDebugger().log(String.format("MinVer: %s", type.getMinVersionAsString()), DebugLevels.STARTUP);
+            PLUGIN.getDebugger().log(String.format("MaxVer: %s", type.getMaxVersionAsString()), DebugLevels.STARTUP);
 
             if (type.hasMinVersion() && version.isBelow(type.getMinVer().get(0), type.getMinVer().get(1), type.getMinVer().get(2))) {
                 pass = false;

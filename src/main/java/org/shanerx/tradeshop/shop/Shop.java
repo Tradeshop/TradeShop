@@ -26,7 +26,6 @@
 package org.shanerx.tradeshop.shop;
 
 import com.google.gson.Gson;
-import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
@@ -46,12 +45,15 @@ import org.shanerx.tradeshop.player.ShopUser;
 import org.shanerx.tradeshop.shoplocation.ShopChunk;
 import org.shanerx.tradeshop.shoplocation.ShopLocation;
 import org.shanerx.tradeshop.utils.Utils;
+import org.shanerx.tradeshop.utils.objects.ObjectHolder;
 import org.shanerx.tradeshop.utils.objects.Tuple;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -67,6 +69,8 @@ public class Shop implements Serializable {
 	private transient Inventory storageInv;
 	private transient Utils utils = new Utils();
 	private ShopStatus status = ShopStatus.INCOMPLETE;
+
+	private Map<ShopSettingKeys, ObjectHolder<?>> shopSettings;
 
 	private int availableTrades = 0;
 
@@ -224,6 +228,9 @@ public class Shop implements Serializable {
 	 * @param newType new type as ShopType
 	 */
 	public void setShopType(ShopType newType) {
+		if (shopType != newType)
+			setShopSettings(newType);
+
 		shopType = newType;
 	}
 
@@ -269,12 +276,15 @@ public class Shop implements Serializable {
 	public void fixAfterLoad() {
 		if (utils == null)
 			utils = new Utils();
+
 		shopLoc.stringToWorld();
 		if (!getShopType().isITrade() && chestLoc != null) {
 			chestLoc.stringToWorld();
 			cost.removeIf(item -> item.getItemStack().getType().toString().endsWith("SHULKER_BOX") && getInventoryLocation().getBlock().getType().toString().endsWith("SHULKER_BOX"));
 			utils.PLUGIN.getDataStorage().addChestLinkage(chestLoc, shopLoc);
 		}
+
+		setShopSettings();
 
 		if (getShopSign() != null)
 			updateSign();
@@ -432,13 +442,10 @@ public class Shop implements Serializable {
 
 			sb.append(item.getCleanItemName());
 
-			signLines[2] = sb.substring(0, Math.min(sb.length(), 15));
+			signLines[2] = utils.colorize(defaultColour + sb.substring(0, Math.min(sb.length(), 15)));
 		} else {
-			signLines[2] = Setting.MULTIPLE_ITEMS_ON_SIGN.getString();
+			signLines[2] = utils.colorize(defaultColour + Setting.MULTIPLE_ITEMS_ON_SIGN.getString());
 		}
-
-		signLines[1] = utils.colorize(defaultColour + ChatColor.stripColor(signLines[1]));
-		signLines[2] = utils.colorize(defaultColour + ChatColor.stripColor(signLines[2]));
 
 		updateStatus();
 
@@ -513,7 +520,7 @@ public class Shop implements Serializable {
 	public void updateStatus() {
 		if (!status.equals(ShopStatus.CLOSED)) {
 			if (!isMissingItems() && (chestLoc != null || shopType.isITrade())) {
-				if (shopType.isITrade() || hasSideStock(ShopItemSide.PRODUCT) || (shopType.isBiTrade() && hasSideStock(ShopItemSide.COST)))
+				if (getAvailableTrades() > 0)
 					setStatus(ShopStatus.OPEN);
 				else
 					setStatus(ShopStatus.OUT_OF_STOCK);
@@ -580,33 +587,118 @@ public class Shop implements Serializable {
 	 * Updates the number of trades the shop can make
 	 */
 	public void updateFullTradeCount() {
+		if (getShopType().equals(ShopType.ITRADE) && hasSide(ShopItemSide.PRODUCT)) {
+			availableTrades = 999;
+			return;
+		}
+
 		if (!hasStorage() || !hasSide(ShopItemSide.PRODUCT)) {
 			availableTrades = 0;
 			return;
 		}
 
-		Inventory shopInventory = hasStorage() ? getChestAsSC().getInventory() : null;
+		Inventory shopInventory = getChestAsSC().getInventory();
 
-		Inventory clone = Bukkit.createInventory(null, shopInventory.getStorageContents().length);
-		clone.setContents(shopInventory.getStorageContents());
+		int count = countItems(getSideList(ShopItemSide.PRODUCT), shopInventory.getStorageContents());
+
+		if (count == 0 && getShopType().equals(ShopType.BITRADE)) {
+			count = countItems(getSideList(ShopItemSide.COST), shopInventory.getStorageContents());
+		}
+
+		availableTrades = count;
+	}
+
+	private int countItems(List<ShopItemStack> countItems, ItemStack[] storageContents) {
+		Inventory storage = Bukkit.createInventory(null, storageContents.length);
+		storage.setContents(storageContents);
+
 		int totalCount = 0, currentCount = 0;
 
-		for (ShopItemStack item : getSideList(ShopItemSide.PRODUCT)) {
+		for (ShopItemStack item : countItems) {
 			totalCount += item.getItemStack().getAmount();
 			int traded;
-			for (ItemStack storageItem : clone.getStorageContents()) {
+			for (ItemStack storageItem : storage.getStorageContents()) {
 				if (storageItem != null && item.isSimilar(storageItem)) {
 					traded = Math.min(storageItem.getAmount(), item.getItemStack().getMaxStackSize());
 
 					storageItem.setAmount(traded);
-					clone.removeItem(storageItem);
+					storage.removeItem(storageItem);
 					currentCount += traded;
 				}
 			}
 		}
 
-		availableTrades = currentCount == 0 || totalCount == 0 ? 0 : currentCount / totalCount;
+		return (currentCount == 0 || totalCount == 0) ? 0 : currentCount / totalCount;
 	}
+
+
+	//region Setting Management - Methods for managing a shops settings
+	//------------------------------------------------------------------------------------------------------------------
+
+	/**
+	 * Sets the Shops settings based on the ShopType and server defaults.
+	 */
+	public void setShopSettings() {
+		setShopSettings(shopType);
+	}
+
+	/**
+	 * Retrieves the specified setting if it is usable on the shop
+	 */
+	public ObjectHolder<?> getShopSetting(ShopSettingKeys settingKey) {
+		return settingKey.isUsable(shopType) ? shopSettings.get(settingKey) : null;
+	}
+
+	/**
+	 * Retrieves the specified setting if it is usable on the shop
+	 */
+	public boolean hasShopSetting(ShopSettingKeys settingKey) {
+		return settingKey.isUsable(shopType) && shopSettings.containsKey(settingKey);
+	}
+
+	/**
+	 * Retrieves the specified setting if it is usable on the shop
+	 */
+	public Map<ShopSettingKeys, ObjectHolder<?>> getShopSettings() {
+		return shopSettings;
+	}
+
+	/**
+	 * Sets the Shops settings based on the passed ShopType
+	 */
+	public void setShopSettings(ShopType type) {
+		if (shopSettings == null)
+			shopSettings = new HashMap<>();
+
+		for (ShopSettingKeys settingKey : ShopSettingKeys.values()) {
+			if (shopSettings.containsKey(settingKey) && !settingKey.isUsable(type)) {
+				shopSettings.remove(settingKey);
+			} else {
+				shopSettings.putIfAbsent(settingKey, settingKey.getDefaultValue(type));
+			}
+
+			if (!settingKey.isUserEditable(type) && shopSettings.get(settingKey) != settingKey.getDefaultValue(type)) {
+				shopSettings.put(settingKey, settingKey.getDefaultValue(type));
+			}
+		}
+	}
+
+	/**
+	 * Retrieves the specified setting if it is usable on the shop
+	 */
+	public void setShopSettings(Map<ShopSettingKeys, ObjectHolder<?>> newSettings) {
+		if (newSettings.size() > 0)
+			new Utils().PLUGIN.getListManager().removeSkippableShop(getShopLocation());
+
+		for (ShopSettingKeys settingKey : newSettings.keySet()) {
+			if (settingKey.isUsable(shopType) && newSettings.get(settingKey) != null) {
+				shopSettings.put(settingKey, newSettings.get(settingKey));
+			}
+		}
+	}
+
+	//------------------------------------------------------------------------------------------------------------------
+	//endregion
 
 	//region User Management - Methods for adding/deleting/updating/viewing a shops users
 	//------------------------------------------------------------------------------------------------------------------
@@ -878,7 +970,19 @@ public class Shop implements Serializable {
 	 * @return true if items are missing
 	 */
 	public boolean isMissingItems() {
-		return shopType.equals(ShopType.ITRADE) ? product.isEmpty() : product.isEmpty() || cost.isEmpty();
+		return isNoCost() ? product.isEmpty() : product.isEmpty() || cost.isEmpty();
+	}
+
+	/**
+	 * Checks if the shop is set to not use cost
+	 *
+	 * @return true if cost is not needed
+	 */
+	public boolean isNoCost() {
+		if (!ShopSettingKeys.NO_COST.isUsable(getShopType())) return false;
+
+		Boolean noCost = shopSettings.get(ShopSettingKeys.NO_COST).asBoolean();
+		return noCost != null ? noCost : false;
 	}
 
 	/**

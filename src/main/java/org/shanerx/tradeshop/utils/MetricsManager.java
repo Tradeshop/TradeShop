@@ -100,7 +100,8 @@ public class MetricsManager {
             @Override
             public Map<String, int[]> call() throws Exception {
                 Map<String, int[]> map = new HashMap<>();
-                List<Setting> booleanSettingList = Arrays.asList(Setting.CHECK_UPDATES,
+                List<Setting> booleanSettingList = Arrays.asList(
+                        Setting.CHECK_UPDATES,
                         Setting.UNLIMITED_ADMIN,
                         Setting.ALLOW_TOGGLE_STATUS,
                         Setting.ALLOW_SIGN_BREAK,
@@ -108,12 +109,8 @@ public class MetricsManager {
                         Setting.ALLOW_MULTI_TRADE,
                         Setting.ALLOW_USER_PURCHASING,
                         Setting.TRADESHOP_EXPLODE,
-                        Setting.TRADESHOP_HOPPER_EXPORT,
-                        Setting.TRADESHOP_HOPPER_IMPORT,
                         Setting.ITRADESHOP_EXPLODE,
-                        Setting.BITRADESHOP_EXPLODE,
-                        Setting.BITRADESHOP_HOPPER_EXPORT,
-                        Setting.BITRADESHOP_HOPPER_IMPORT);
+                        Setting.BITRADESHOP_EXPLODE);
 
                 for (Setting setting : booleanSettingList) {
                     if (setting.getBoolean()) {
@@ -220,7 +217,8 @@ public class MetricsManager {
 
     // Temporary solutions while Bar graphs are unavailable
     private void addFeaturePieMetrics() {
-        List<Setting> booleanSettingList = Arrays.asList(Setting.CHECK_UPDATES,
+        List<Setting> booleanSettingList = Arrays.asList(
+                Setting.CHECK_UPDATES,
                 Setting.UNLIMITED_ADMIN,
                 Setting.ALLOW_TOGGLE_STATUS,
                 Setting.ALLOW_SIGN_BREAK,
@@ -228,12 +226,8 @@ public class MetricsManager {
                 Setting.ALLOW_MULTI_TRADE,
                 Setting.ALLOW_USER_PURCHASING,
                 Setting.TRADESHOP_EXPLODE,
-                Setting.TRADESHOP_HOPPER_EXPORT,
-                Setting.TRADESHOP_HOPPER_IMPORT,
                 Setting.ITRADESHOP_EXPLODE,
-                Setting.BITRADESHOP_EXPLODE,
-                Setting.BITRADESHOP_HOPPER_EXPORT,
-                Setting.BITRADESHOP_HOPPER_IMPORT);
+                Setting.BITRADESHOP_EXPLODE);
 
         for (Setting setting : booleanSettingList) {
             metrics.addCustomChart(new SimplePie(setting.name().toLowerCase(), () -> {

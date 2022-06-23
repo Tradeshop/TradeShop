@@ -44,10 +44,10 @@ public class ShopStorage extends Utils {
     public ShopStorage() {
         for (Storages type : Storages.values()) {
 
-            debugger.log(type.toString(), DebugLevels.STARTUP);
-            debugger.log(String.format("- MinVer: %s", type.getMinVersionAsString()), DebugLevels.STARTUP);
-            debugger.log(String.format("- MaxVer: %s", type.getMaxVersionAsString()), DebugLevels.STARTUP);
-            debugger.log(String.format("- Weight: %s", type.getWeight()), DebugLevels.STARTUP);
+            PLUGIN.getDebugger().log(type.toString(), DebugLevels.STARTUP);
+            PLUGIN.getDebugger().log(String.format("- MinVer: %s", type.getMinVersionAsString()), DebugLevels.STARTUP);
+            PLUGIN.getDebugger().log(String.format("- MaxVer: %s", type.getMaxVersionAsString()), DebugLevels.STARTUP);
+            PLUGIN.getDebugger().log(String.format("- Weight: %s", type.getWeight()), DebugLevels.STARTUP);
 
             boolean added = false;
 
@@ -57,7 +57,7 @@ public class ShopStorage extends Utils {
                 added = true;
             }
 
-            debugger.log(String.format("- Added: %s", added), DebugLevels.STARTUP);
+            PLUGIN.getDebugger().log(String.format("- Added: %s", added), DebugLevels.STARTUP);
         }
     }
 

@@ -293,7 +293,7 @@ public enum Message {
         boolean isJson = getString().startsWith("#json ");
         String message = getPrefixed().replaceFirst("#json ", "");
 
-        Debug debug = new Utils().debugger;
+        Debug debug = new Utils().PLUGIN.getDebugger();
 
         for (Map.Entry<Variable, List<ItemStack>> entry : itemsToFill.entrySet()) {
             Pattern pattern = Pattern.compile(MULTILINEREGEX.replace("&V&", entry.getKey().toString()));
@@ -340,7 +340,7 @@ public enum Message {
         boolean isJson = getString().startsWith("#json ");
         String message = getPrefixed().replaceFirst("#json ", "");
 
-        Debug debug = new Utils().debugger;
+        Debug debug = new Utils().PLUGIN.getDebugger();
 
         for (Map.Entry<Variable, Map<String, String>> entry : valuesToFill.entrySet()) {
             Pattern pattern = Pattern.compile(MULTILINEREGEX.replace("&V&", entry.getKey().toString()));

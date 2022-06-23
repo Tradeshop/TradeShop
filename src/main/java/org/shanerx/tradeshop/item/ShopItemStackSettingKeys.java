@@ -25,6 +25,7 @@
 
 package org.shanerx.tradeshop.item;
 
+import org.apache.commons.lang.WordUtils;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.shanerx.tradeshop.data.config.Setting;
@@ -53,8 +54,8 @@ public enum ShopItemStackSettingKeys {
     COMPARE_FIREWORK_EFFECTS(new ItemStack(Material.FIREWORK_STAR), true);
 
     private final ItemStack displayItem;
-    private static final String defaultKey = "default", userEditableKey = "userEditable";
     private final Object preConfigDefault;
+    private static final String defaultKey = "default", userEditableKey = "userEditable";
 
     ShopItemStackSettingKeys(ItemStack displayItem, Object preConfigDefault) {
         this.displayItem = displayItem;
@@ -77,24 +78,7 @@ public enum ShopItemStackSettingKeys {
     }
 
     public String makeReadable() {
-        StringBuilder ret = new StringBuilder();
-
-        //Replaces '_' with ' ' followed by a Capital letter, other letters are lower cased.
-        for (int i = 0; i < name().length(); i++) {
-            char ch = name().charAt(i);
-
-            if (i == 0)
-                ret.append(Character.toUpperCase(ch));
-            else if (ret.charAt(i - 1) == ' ')
-                ret.append(Character.toUpperCase(ch));
-            else if (ch == '_')
-                ret.append(" ");
-            else
-                ret.append(Character.toLowerCase(ch));
-        }
-
-        //removes any Leading/Trailing spaces and returns
-        return ret.toString().trim();
+        return WordUtils.capitalizeFully(name().replace("_", " "));
 
     }
 

@@ -39,6 +39,7 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
+import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryMoveItemEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.PlayerInteractEvent;
@@ -52,6 +53,7 @@ import org.shanerx.tradeshop.player.Permissions;
 import org.shanerx.tradeshop.player.ShopRole;
 import org.shanerx.tradeshop.shop.Shop;
 import org.shanerx.tradeshop.shop.ShopChest;
+import org.shanerx.tradeshop.shop.ShopSettingKeys;
 import org.shanerx.tradeshop.shop.ShopType;
 import org.shanerx.tradeshop.shoplocation.ShopLocation;
 import org.shanerx.tradeshop.utils.Utils;
@@ -86,13 +88,11 @@ public class ShopProtectionListener extends Utils implements Listener {
         Boolean skip = plugin.getListManager().canSkipHopper(event.getInitiator().getLocation());
 
         if (skip != null) {
-            event.setCancelled(skip);
+            if (skip) event.setCancelled(true);
             return;
         }
 
-        boolean fromHopper;
-
-        fromHopper = event.getInitiator().equals(event.getSource());
+        boolean fromHopper = event.getInitiator().equals(event.getSource());
 
         Block invBlock;
 
@@ -101,31 +101,36 @@ public class ShopProtectionListener extends Utils implements Listener {
             invBlock = (fromHopper ? event.getDestination() : event.getSource()).getLocation().getBlock();
         } catch (NullPointerException ignored) {
             plugin.getListManager().addSkippableHopper(event.getInitiator().getLocation(), false);
+            plugin.getDebugger().log("Protection Null Catch for \n  " + event.getInitiator().getLocation(), DebugLevels.PROTECTION);
             return;
         }
 
         if (!plugin.getListManager().isInventory(invBlock)) {
             plugin.getListManager().addSkippableHopper(event.getInitiator().getLocation(), false);
+            plugin.getDebugger().log("Protection Inventory Catch for \n  " + event.getInitiator().getLocation(), DebugLevels.PROTECTION);
             return;
         }
 
         if (!ShopChest.isShopChest(invBlock)) {
-            plugin.getListManager().addSkippableHopper(event.getInitiator().getLocation(), false);
+            //Just return as adding these to the skip would often catch the second half of hoppers pulling from shops then pushing to a chest
+
+            //plugin.getListManager().addSkippableHopper(event.getInitiator().getLocation(), false);
+            //plugin.getDebugger().log("Protection ShopChest Catch for \n  " + event.getInitiator().getLocation() + "\n  Source: " + event.getSource().getLocation() + "\n  Destination: " + event.getDestination().getLocation(), DebugLevels.PROTECTION);
             return;
         }
 
         Shop shop = plugin.getDataStorage().loadShopFromStorage(new ShopLocation(invBlock.getLocation()));
 
-        boolean isForbidden = !Setting.findSetting(shop.getShopType().name() + "SHOP_HOPPER_" + (fromHopper ? "IMPORT" : "EXPORT")).getBoolean();
+        boolean isForbidden = !(fromHopper ? shop.getShopSetting(ShopSettingKeys.HOPPER_IMPORT).asBoolean() : shop.getShopSetting(ShopSettingKeys.HOPPER_EXPORT).asBoolean());
         if (isForbidden) {
             event.setCancelled(true);
-            plugin.getListManager().addSkippableHopper(event.getInitiator().getLocation(), true);
+            //plugin.getListManager().addSkippableShop(event.getInitiator().getLocation(), true);
             return;
         }
 
-        debugger.log("ShopProtectionListener: Triggered > " + (fromHopper ? "FROM_HOPPER" : "TO_HOPPER"), DebugLevels.PROTECTION);
-        debugger.log("ShopProtectionListener: Shop Location as SL > " + shop.getInventoryLocationAsSL().serialize(), DebugLevels.PROTECTION);
-        debugger.log("ShopProtectionListener: checked hopper setting > " + shop.getShopType().name() + "SHOP_HOPPER_EXPORT", DebugLevels.PROTECTION);
+        plugin.getDebugger().log("ShopProtectionListener: Triggered > " + (fromHopper ? "FROM_HOPPER" : "TO_HOPPER"), DebugLevels.PROTECTION);
+        plugin.getDebugger().log("ShopProtectionListener: Shop Location as SL > " + shop.getInventoryLocationAsSL().serialize(), DebugLevels.PROTECTION);
+        plugin.getDebugger().log("ShopProtectionListener: checked hopper setting > " + shop.getShopType().name() + "SHOP_HOPPER_EXPORT", DebugLevels.PROTECTION);
         HopperShopAccessEvent hopperEvent = new HopperShopAccessEvent(
                 shop,
                 event.getSource(),
@@ -133,22 +138,15 @@ public class ShopProtectionListener extends Utils implements Listener {
                 event.getItem(),
                 fromHopper ? HopperShopAccessEvent.HopperDirection.FROM_HOPPER : HopperShopAccessEvent.HopperDirection.TO_HOPPER
         );
-        debugger.log("ShopProtectionListener: (TSAF) HopperEvent fired! ", DebugLevels.PROTECTION);
+        plugin.getDebugger().log("ShopProtectionListener: (TSAF) HopperEvent fired! ", DebugLevels.PROTECTION);
         Bukkit.getPluginManager().callEvent(hopperEvent);
-        debugger.log("ShopProtectionListener: (TSAF) HopperEvent recovered! ", DebugLevels.PROTECTION);
-        debugger.log("ShopProtectionListener: (TSAF) HopperEvent isForbidden: " + hopperEvent.isForbidden(), DebugLevels.PROTECTION);
+        plugin.getDebugger().log("ShopProtectionListener: (TSAF) HopperEvent recovered! ", DebugLevels.PROTECTION);
+        plugin.getDebugger().log("ShopProtectionListener: (TSAF) HopperEvent isForbidden: " + hopperEvent.isForbidden(), DebugLevels.PROTECTION);
         event.setCancelled(hopperEvent.isForbidden());
-        plugin.getListManager().addSkippableHopper(event.getInitiator().getLocation(), hopperEvent.isForbidden());
+        //plugin.getListManager().addSkippableShop(event.getInitiator().getLocation(), hopperEvent.isForbidden());
 
         if (!hopperEvent.isForbidden()) {
-            Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
-                @Override
-                public void run() {
-                    shop.updateSign();
-                    shop.saveShop();
-                }
-            }, 2L);
-
+            scheduleShopDelayUpdate(shop, 2L);
         }
     }
 
@@ -323,6 +321,19 @@ public class ShopProtectionListener extends Utils implements Listener {
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+    public void onChestInventoryClose(InventoryCloseEvent e) {
+        if (e.getInventory().getLocation() == null)
+            return;
+
+        Block block = e.getInventory().getLocation().getBlock();
+
+        if (ShopChest.isShopChest(block)) {
+            scheduleShopDelayUpdate(new ShopChest(block.getLocation()).getShop(), 2L);
+        }
+
+    }
+
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onBlockPlace(BlockPlaceEvent event) {
 
         if (event.isCancelled())
@@ -353,5 +364,17 @@ public class ShopProtectionListener extends Utils implements Listener {
             event.setCancelled(true);
         }
         return;
+    }
+
+    private void scheduleShopDelayUpdate(Shop shop, Long delay) {
+        plugin.getDebugger().log("Shop Being updated from ProtectionListener...\n  " + shop.getShopLocationAsSL().serialize(), DebugLevels.PROTECTION);
+        Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
+            @Override
+            public void run() {
+                shop.updateFullTradeCount();
+                shop.updateSign();
+                shop.saveShop();
+            }
+        }, delay);
     }
 }

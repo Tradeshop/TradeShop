@@ -126,6 +126,10 @@ setting:
       pre-comment: "Can players purchase from a shop in which they are a user of (true/false)"
     multiple-items-on-sign:
       pre-comment: "Text that shows on trade signs that contain more than 1 item\n Available variables are: %AMOUNT%"
+    no-cost-text:
+      pre-comment: "What text should be used for successful trades when no cost is present"
+    no-cost-amount:
+      pre-comment: "What amount should be used for successful trades when no cost is present(must be greater than 0)"
       post-comment: "\n"
     shop-per-item-options:
       shop-per-item-settings:
@@ -151,11 +155,6 @@ setting:
       pre-comment: "The header that appears at the top of the shop signs, this is also what the player types to create the sign"
     allow-explode:
       pre-comment: "Can explosions damage the shop sign (true/false)"
-    no-cost-text:
-      pre-comment: "What text should be used for successful trades when no cost is present"
-    no-cost-amount:
-      pre-comment: "What amount should be used for successful trades when no cost is present(must be greater than 0)"
-      post-comment: "\n"
   bitrade-shop-options:
     header:
       pre-comment: "The header that appears at the top of the shop signs, this is also what the player types to create the sign"

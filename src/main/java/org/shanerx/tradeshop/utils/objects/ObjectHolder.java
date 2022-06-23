@@ -38,19 +38,31 @@ public class ObjectHolder<Type> {
     }
 
     public boolean isBoolean() {
-        return obj instanceof Boolean;
+        return obj != null && obj instanceof Boolean;
     }
 
     public boolean isInteger() {
-        return obj instanceof Integer;
+        return obj != null && obj instanceof Integer;
     }
 
     public boolean isDouble() {
-        return obj instanceof Double;
+        return obj != null && obj instanceof Double;
     }
 
     public boolean isString() {
-        return obj instanceof String;
+        return obj != null && obj instanceof String;
+    }
+
+    public Boolean asBoolean() {
+        return isBoolean() ? Boolean.parseBoolean(obj.toString()) : null;
+    }
+
+    public Integer asInteger() {
+        return isInteger() ? Integer.parseInt(obj.toString()) : null;
+    }
+
+    public Double asDouble() {
+        return isDouble() ? Double.parseDouble(obj.toString()) : null;
     }
 
     @Override

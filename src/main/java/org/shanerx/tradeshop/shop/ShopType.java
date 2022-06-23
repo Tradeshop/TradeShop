@@ -34,25 +34,23 @@ import org.bukkit.entity.Player;
 import org.shanerx.tradeshop.TradeShop;
 import org.shanerx.tradeshop.data.config.Setting;
 import org.shanerx.tradeshop.player.Permissions;
-import org.shanerx.tradeshop.player.ShopRole;
 
 import java.io.Serializable;
 
 
 public enum ShopType implements Serializable {
 
-	TRADE(Setting.TRADESHOP_HEADER.getString(), Permissions.CREATE),
+	TRADE(Permissions.CREATE),
 
-	ITRADE(Setting.ITRADESHOP_HEADER.getString(), Permissions.CREATEI),
+	ITRADE(Permissions.CREATEI),
 
-	BITRADE(Setting.BITRADESHOP_HEADER.getString(), Permissions.CREATEBI);
+	BITRADE(Permissions.CREATEBI);
 
 	private final static TradeShop plugin = (TradeShop) Bukkit.getPluginManager().getPlugin("TradeShop");
-	private final String key;
+	private Setting key;
 	private final transient Permissions perm;
 
-	ShopType(String key, Permissions perm) {
-		this.key = key;
+	ShopType(Permissions perm) {
 		this.perm = perm;
 	}
 
@@ -84,18 +82,23 @@ public enum ShopType implements Serializable {
 		return null;
 	}
 
-	public static ShopRole deserialize(String serialized) {
-		ShopRole shopRole = new Gson().fromJson(serialized, ShopRole.class);
-		return shopRole;
+	public static ShopType deserialize(String serialized) {
+		return new Gson().fromJson(serialized, ShopType.class);
 	}
 
 	@Override
 	public String toString() {
-		return key;
+		return getKey().getString();
 	}
 
 	public String toHeader() {
-		return "[" + key + "]";
+		return "[" + getKey().getString() + "]";
+	}
+
+	private Setting getKey() {
+		if (key == null)
+			key = Setting.findSetting(name() + "SHOP_HEADER");
+		return key;
 	}
 
 	public boolean checkPerm(Player pl) {

@@ -60,8 +60,8 @@ public class AdminCommand extends CommandRunner {
         try {
             plugin.getDataStorage().reload(DataType.valueOf(Setting.DATA_STORAGE_TYPE.getString().toUpperCase()));
         } catch (IllegalArgumentException iae) {
-            debugger.log("Config value for data storage set to an invalid value: " + Setting.DATA_STORAGE_TYPE.getString(), DebugLevels.DATA_ERROR);
-            debugger.log("TradeShop will now disable...", DebugLevels.DATA_ERROR);
+            PLUGIN.getDebugger().log("Config value for data storage set to an invalid value: " + Setting.DATA_STORAGE_TYPE.getString(), DebugLevels.DATA_ERROR);
+            PLUGIN.getDebugger().log("TradeShop will now disable...", DebugLevels.DATA_ERROR);
             plugin.getServer().getPluginManager().disablePlugin(plugin);
             return;
         }
