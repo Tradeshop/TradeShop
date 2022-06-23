@@ -1066,6 +1066,22 @@ public class Shop implements Serializable {
 	}
 
 	/**
+	 * Attempts to fix the side of the trade in cases where an error was found.
+	 *
+	 * @param side Side of the trade to fix
+	 */
+	public void fixSide(ShopItemSide side) {
+		getSide(side).clear();
+		try {
+			getSideItemStacks(side).forEach((item) -> {
+				if (item != null) addSideItem(side, item);
+			});
+		} catch (NullPointerException ignored) {
+			getSide(side).clear();
+		}
+	}
+
+	/**
 	 * Adds more items to the specified side
 	 *
 	 * @param side    Side to add items to
@@ -1107,7 +1123,7 @@ public class Shop implements Serializable {
 	 * Checks if the shop has sufficient stock to make a trade on specified side
 	 */
 	public boolean hasSideStock(ShopItemSide side) {
-		return !shopType.isITrade() && hasSide(side) && getChestAsSC() != null && getChestAsSC().hasStock(getSideList(side));
+		return !shopType.isITrade() && hasSide(side) && getChestAsSC() != null && getChestAsSC().hasStock(side, getSideList(side));
 	}
 
 	/**

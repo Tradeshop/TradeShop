@@ -589,14 +589,18 @@ public class Utils {
 			totalCount += count;
 
 			for (ItemStack storageItem : storage.keySet()) {
-				boolean isSimilar = item.isSimilar(storageItem);
-				if (isSimilar) {
-					int taken = megaMin(storage.get(storageItem), count, storageItem.getMaxStackSize());
+				if (item.isSimilar(storageItem)) {
+					int taken;
+					try {
+						taken = megaMin(storage.get(storageItem), count, storageItem.getMaxStackSize());
 
-					if (found.putIfAbsent(item.getItemStack(), taken) != null)
-						found.put(item.getItemStack(), storage.get(storageItem) + taken);
+						if (found.putIfAbsent(item.getItemStack(), taken) != null)
+							found.put(item.getItemStack(), storage.get(storageItem) + taken);
 
-					storage.put(storageItem, storage.get(storageItem) - taken);
+						storage.put(storageItem, storage.get(storageItem) - taken);
+					} catch (NullPointerException ignored) {
+						return createBadList();
+					}
 
 					ItemStack goodItem = storageItem;
 					goodItem.setAmount(taken);
