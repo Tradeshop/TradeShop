@@ -28,6 +28,7 @@ package org.shanerx.tradeshop.item;
 import com.google.common.collect.Lists;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.annotations.SerializedName;
 import net.md_5.bungee.api.ChatColor;
 import org.apache.commons.lang.WordUtils;
 import org.bukkit.FireworkEffect;
@@ -65,32 +66,30 @@ public class ShopItemStack implements Serializable, Cloneable {
 
     private String itemStackB64;
 
+    @SerializedName(value = "itemSettings", alternate = "shopSettings")
     private Map<ShopItemStackSettingKeys, ObjectHolder<?>> itemSettings;
 
     public ShopItemStack(ItemStack itemStack) {
-        this.itemStack = itemStack;
-        itemSettings = new HashMap<>();
-        buildMap();
-        toBase64();
+        this(itemStack, new HashMap<>());
     }
 
-    public ShopItemStack(ItemStack itemStack, HashMap<ShopItemStackSettingKeys, ObjectHolder<?>> settingMap) {
+    public ShopItemStack(ItemStack itemStack, HashMap<ShopItemStackSettingKeys, ObjectHolder<?>> itemSettings) {
         this.itemStack = itemStack;
-        this.itemSettings = settingMap;
+        this.itemSettings = itemSettings;
         buildMap();
         toBase64();
     }
 
     public ShopItemStack(String itemStackB64) {
-        this.itemStackB64 = itemStackB64;
-        itemSettings = new HashMap<>();
-        buildMap();
-        fromBase64();
+        this(itemStackB64, new HashMap<>());
     }
 
-    public ShopItemStack(String itemStackB64, HashMap<ShopItemStackSettingKeys, ObjectHolder<?>> settingMap) {
+    public ShopItemStack(String itemStackB64, HashMap<String, ObjectHolder<?>> itemSettings) {
         this.itemStackB64 = itemStackB64;
-        this.itemSettings = settingMap;
+        this.itemSettings = new HashMap<>();
+
+        itemSettings.forEach((key, value) -> this.itemSettings.put(ShopItemStackSettingKeys.match(key), value));
+
         buildMap();
         fromBase64();
     }
@@ -123,6 +122,10 @@ public class ShopItemStack implements Serializable, Cloneable {
 
     public Map<ShopItemStackSettingKeys, ObjectHolder<?>> getItemSettings() {
         return itemSettings;
+    }
+
+    public String serialize() {
+        return new Gson().toJson(this);
     }
 
     public static ShopItemStack deserialize(String serialized) {
@@ -555,10 +558,6 @@ public class ShopItemStack implements Serializable, Cloneable {
         }
     }
 
-    public String serialize() {
-        return new Gson().toJson(this);
-    }
-
     @Override
     public String toString() {
         return "ShopItemStack{" +
@@ -613,5 +612,4 @@ public class ShopItemStack implements Serializable, Cloneable {
     public String toConsoleText() {
         return new GsonBuilder().setPrettyPrinting().create().toJson(this);
     }
-
 }

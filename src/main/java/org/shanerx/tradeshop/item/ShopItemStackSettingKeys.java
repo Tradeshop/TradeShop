@@ -97,4 +97,8 @@ public enum ShopItemStackSettingKeys {
     public String getConfigName() {
         return name().toLowerCase().replace("_", "-");
     }
+
+    public static ShopItemStackSettingKeys match(String name) {
+        return valueOf(name.toUpperCase().replace("-", "_"));
+    }
 }

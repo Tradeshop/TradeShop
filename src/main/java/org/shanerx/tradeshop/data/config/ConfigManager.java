@@ -185,14 +185,14 @@ public class ConfigManager {
 
                 switch (configType) {
                     case CONFIG:
-                        Arrays.stream(SettingSection.values()).sorted(new CompareSettingSections()).forEach((section) -> outputMap.put(section.getPath(), section.getFileString()));
-                        Arrays.stream(Setting.values()).forEach((setting) -> outputMap.put(setting.getSection().getPath(),
-                                outputMap.getOrDefault(setting.getSection().getPath(), "") + setting.getFileString()));
+                        Arrays.stream(SettingSection.values()).sorted(new CompareSettingSections()).forEach((section) -> outputMap.put(section.getPath().toLowerCase().replace("_", "-"), section.getFileString()));
+                        Arrays.stream(Setting.values()).forEach((setting) -> outputMap.put(setting.getSection().getPath().toLowerCase().replace("_", "-"),
+                                outputMap.getOrDefault(setting.getSection().getPath().toLowerCase().replace("_", "-"), "") + setting.getFileString()));
                         break;
                     case MESSAGES:
-                        Arrays.stream(MessageSection.values()).sorted(new CompareMessageSections()).forEach((section) -> outputMap.put(section.getPath(), section.getFileString()));
-                        Arrays.stream(Message.values()).forEach((message) -> outputMap.put(message.getSection().getPath(),
-                                outputMap.getOrDefault(message.getSection().getPath(), "") + message.getFileString()));
+                        Arrays.stream(MessageSection.values()).sorted(new CompareMessageSections()).forEach((section) -> outputMap.put(section.getPath().toLowerCase().replace("_", "-"), section.getFileString()));
+                        Arrays.stream(Message.values()).forEach((message) -> outputMap.put(message.getSection().getPath().toLowerCase().replace("_", "-"),
+                                outputMap.getOrDefault(message.getSection().getPath().toLowerCase().replace("_", "-"), "") + message.getFileString()));
                         break;
                 }
 
@@ -213,9 +213,10 @@ public class ConfigManager {
     }
 
     private boolean addKeyValue(String node, Object value) {
+        node = node.toLowerCase().replace("_", "-");
         if (value instanceof Map) {
             for (Map.Entry entry : ((Map<?, ?>) value).entrySet()) {
-                String newNode = node + "." + entry.getKey().toString();
+                String newNode = node + "." + entry.getKey().toString().toLowerCase().replace("_", "-");
                 if (config.get(newNode) == null || (config.get(newNode) != null && config.get(newNode).toString().isEmpty())) {
                     config.set(newNode, entry.getValue().toString());
                     return true;

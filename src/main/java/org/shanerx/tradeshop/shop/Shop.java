@@ -27,7 +27,9 @@ package org.shanerx.tradeshop.shop;
 
 import com.google.gson.Gson;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Container;
@@ -52,6 +54,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -271,7 +274,7 @@ public class Shop implements Serializable {
 	}
 
 	/**
-	 * Fixes values that cannot be serialized after loading
+	 * Fixes values and objects after loading or creating a Shop
 	 */
 	public void fixAfterLoad() {
 		if (utils == null)
@@ -285,6 +288,9 @@ public class Shop implements Serializable {
 		}
 
 		setShopSettings();
+
+		fixSide(ShopItemSide.COST);
+		fixSide(ShopItemSide.PRODUCT);
 
 		if (getShopSign() != null)
 			updateSign();
@@ -415,36 +421,17 @@ public class Shop implements Serializable {
 		if (product.isEmpty()) {
 			signLines[1] = "";
 		} else if (product.size() == 1) {
-			StringBuilder sb = new StringBuilder();
-
-			ShopItemStack item = product.get(0);
-
-			sb.append(item.getItemStack().getAmount());
-			sb.append(" ");
-
-			sb.append(item.getCleanItemName());
-
-			signLines[1] = utils.colorize(defaultColour + sb.substring(0, Math.min(sb.length(), 15)));
-
+			signLines[1] = itemLineFormatter(defaultColour, String.valueOf(product.get(0).getItemStack().getAmount()), " ", product.get(0).getCleanItemName());
 		} else {
-			signLines[1] = utils.colorize(defaultColour + Setting.MULTIPLE_ITEMS_ON_SIGN.getString().replace("%amount%", ""));
-        }
+			signLines[1] = itemLineFormatter(defaultColour, Setting.MULTIPLE_ITEMS_ON_SIGN.getString().replace("%amount%", ""));
+		}
 
 		if (cost.isEmpty()) {
 			signLines[2] = "";
 		} else if (cost.size() == 1) {
-			StringBuilder sb = new StringBuilder();
-
-			ShopItemStack item = cost.get(0);
-
-			sb.append(item.getItemStack().getAmount());
-			sb.append(" ");
-
-			sb.append(item.getCleanItemName());
-
-			signLines[2] = utils.colorize(defaultColour + sb.substring(0, Math.min(sb.length(), 15)));
+			signLines[2] = itemLineFormatter(defaultColour, String.valueOf(cost.get(0).getItemStack().getAmount()), " ", cost.get(0).getCleanItemName());
 		} else {
-			signLines[2] = utils.colorize(defaultColour + Setting.MULTIPLE_ITEMS_ON_SIGN.getString());
+			signLines[2] = itemLineFormatter(defaultColour, Setting.MULTIPLE_ITEMS_ON_SIGN.getString().replace("%amount%", ""));
 		}
 
 		updateStatus();
@@ -457,6 +444,18 @@ public class Shop implements Serializable {
 		}
 
 		return signLines;
+	}
+
+	private String itemLineFormatter(String defaultColour, String... strings) {
+		StringBuilder sb = new StringBuilder();
+
+		for (String s : strings) {
+			sb.append(s);
+		}
+
+		String colorFix = ChatColor.stripColor(utils.colorize(sb.toString()));
+
+		return utils.colorize(defaultColour + colorFix.substring(0, Math.min(colorFix.length(), 15)));
 	}
 
 	/**
@@ -956,6 +955,34 @@ public class Shop implements Serializable {
 	//------------------------------------------------------------------------------------------------------------------
 
 	/**
+	 * Checks if shop has a bade side and fixes if necessary
+	 */
+	public void fixSide(ShopItemSide side) {
+		List<ShopItemStack> ogItems = (side.equals(ShopItemSide.PRODUCT) ? product : cost);
+
+		Set<Material> matSet = new HashSet<>();
+
+		ogItems.forEach((item) -> matSet.add(item.getItemStack().getType()));
+
+
+		if (ogItems.size() > 1 && ogItems.size() != matSet.size()) {
+			List<ShopItemStack> scrapList = new ArrayList<>(ogItems);
+			(side.equals(ShopItemSide.PRODUCT) ? product : cost).clear();
+
+			ogItems.forEach((item) -> {
+				while (scrapList.contains(item)) {
+					addSideItem(side, item);
+					scrapList.remove(scrapList.lastIndexOf(item));
+				}
+			});
+
+			updateFullTradeCount();
+			updateSign();
+			saveShop();
+		}
+	}
+
+	/**
 	 * Checks if shop has items on specified side
 	 *
 	 * @return True if side != null
@@ -1066,41 +1093,23 @@ public class Shop implements Serializable {
 	}
 
 	/**
-	 * Attempts to fix the side of the trade in cases where an error was found.
-	 *
-	 * @param side Side of the trade to fix
-	 */
-	public void fixSide(ShopItemSide side) {
-		getSide(side).clear();
-		try {
-			getSideItemStacks(side).forEach((item) -> {
-				if (item != null) addSideItem(side, item);
-			});
-		} catch (NullPointerException ignored) {
-			getSide(side).clear();
-		}
-	}
-
-	/**
 	 * Adds more items to the specified side
 	 *
-	 * @param side    Side to add items to
-	 * @param newItem ItemStack to be added
+	 * @param side        Side to add items to
+	 * @param newShopItem ShopItemStack to be added
 	 */
-	public void addSideItem(ShopItemSide side, ItemStack newItem) {
-		if (utils.isIllegal(side, newItem.getType()))
+	public void addSideItem(ShopItemSide side, ShopItemStack newShopItem) {
+		if (utils.isIllegal(side, newShopItem.getItemStack().getType()))
 			return;
 
-		///* Added stacks are not separated and are added ontop of existing similar stacks
-		ShopItemStack toAddShopItemStack = new ShopItemStack(newItem);
 		int toRemoveShopItemStack = -1;
 
 
 		for (int i = 0; i < getSide(side).size(); i++) {
-			if (getSideList(side).get(i).getItemStack().getType().equals(newItem.getType()) && getSideList(side).get(i).isSimilar(newItem)) {
+			if (getSideList(side).get(i).getItemStack().getType().equals(newShopItem.getItemStack().getType()) && getSideList(side).get(i).isSimilar(newShopItem.getItemStack())) {
 				toRemoveShopItemStack = i;
-				toAddShopItemStack = getSideList(side).get(i).clone();
-				toAddShopItemStack.setAmount(getSideList(side).get(i).getAmount() + newItem.getAmount());
+				newShopItem = getSideList(side).get(i).clone();
+				newShopItem.setAmount(getSideList(side).get(i).getAmount() + newShopItem.getItemStack().getAmount());
 				break;
 			}
 		}
@@ -1108,7 +1117,7 @@ public class Shop implements Serializable {
 		if (toRemoveShopItemStack > -1)
 			getSide(side).remove(toRemoveShopItemStack);
 
-		getSide(side).add(toAddShopItemStack);
+		getSide(side).add(newShopItem);
 		//*/
 
 
@@ -1120,10 +1129,20 @@ public class Shop implements Serializable {
 	}
 
 	/**
+	 * Adds more items to the specified side
+	 *
+	 * @param side    Side to add items to
+	 * @param newItem ItemStack to be added
+	 */
+	public void addSideItem(ShopItemSide side, ItemStack newItem) {
+		addSideItem(side, new ShopItemStack(newItem));
+	}
+
+	/**
 	 * Checks if the shop has sufficient stock to make a trade on specified side
 	 */
 	public boolean hasSideStock(ShopItemSide side) {
-		return !shopType.isITrade() && hasSide(side) && getChestAsSC() != null && getChestAsSC().hasStock(side, getSideList(side));
+		return !shopType.isITrade() && hasSide(side) && getChestAsSC() != null && getChestAsSC().hasStock(getSideList(side));
 	}
 
 	/**

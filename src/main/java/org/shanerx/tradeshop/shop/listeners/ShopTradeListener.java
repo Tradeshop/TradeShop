@@ -53,6 +53,7 @@ import org.shanerx.tradeshop.shop.Shop;
 import org.shanerx.tradeshop.shop.ShopType;
 import org.shanerx.tradeshop.shoplocation.ShopLocation;
 import org.shanerx.tradeshop.utils.Utils;
+import org.shanerx.tradeshop.utils.debug.DebugLevels;
 import org.shanerx.tradeshop.utils.objects.Tuple;
 
 import java.util.Collections;
@@ -159,6 +160,7 @@ public class ShopTradeListener extends Utils implements Listener {
 
         Tuple<ExchangeStatus, List<ItemStack>> canExchangeResult = canExchangeAll(shop, buyer.getInventory(), multiplier, e.getAction());
 
+        PLUGIN.getDebugger().log("ExchangeResult " + canExchangeResult.getLeft(), DebugLevels.DATA_ERROR);
         switch (canExchangeResult.getLeft()) {
             case SHOP_NO_PRODUCT:
                 Message.SHOP_INSUFFICIENT_ITEMS.sendItemMultiLineMessage(buyer, Collections.singletonMap(Variable.MISSING_ITEMS, canExchangeResult.getRight()));
@@ -187,6 +189,8 @@ public class ShopTradeListener extends Utils implements Listener {
 
         tradedItems.put(Variable.GIVEN_LINES, tradeReturn.getRight());
         tradedItems.put(Variable.RECEIVED_LINES, tradeReturn.getLeft());
+
+        PLUGIN.getDebugger().log("ShopTradeListener > tradedItems: " + tradedItems, DebugLevels.TRADE);
 
         if (tradeReturn.getLeft().get(0) == null && tradeReturn.getRight().get(0) == null) {
             Message.FAILED_TRADE.sendMessage(buyer);
@@ -227,6 +231,7 @@ public class ShopTradeListener extends Utils implements Listener {
             if (costItems.get(0) == null) {
                 ItemStack item = costItems.get(1);
                 Message.INSUFFICIENT_ITEMS.sendItemMultiLineMessage(buyer, Collections.singletonMap(Variable.MISSING_ITEMS, costItems));
+                PLUGIN.getDebugger().log("tradeAllItems", DebugLevels.DATA_ERROR);
                 return new Tuple<>(productItems, costItems);
             }
         } else {
@@ -253,29 +258,35 @@ public class ShopTradeListener extends Utils implements Listener {
             return new Tuple<>(productItems, costItems); // Failed Trade
         }
 
+        PLUGIN.getDebugger().log("ShopTradeListener > tradeAll > preMove-productItems: " + productItems, DebugLevels.TRADE);
+        PLUGIN.getDebugger().log("ShopTradeListener > tradeAll > preMove-costItems: " + costItems, DebugLevels.TRADE);
+
         if (useCost) {
             //For loop to remove cost items from player inventory
             for (ItemStack item : costItems) {
-                playerInventory.removeItem(item);
+                playerInventory.removeItem(item.clone());
             }
         }
 
         //For loop to remove product items from shop inventory
         for (ItemStack item : productItems) {
-            shopInventory.removeItem(item);
+            shopInventory.removeItem(item.clone());
         }
 
         if (useCost) {
             //For loop to put cost items in shop inventory
             for (ItemStack item : costItems) {
-                shopInventory.addItem(item);
+                addItemToInventory(shopInventory, item.clone());
             }
         }
 
         //For loop to put product items in player inventory
         for (ItemStack item : productItems) {
-            playerInventory.addItem(item);
+            addItemToInventory(playerInventory, item.clone());
         }
+
+        PLUGIN.getDebugger().log("ShopTradeListener > tradeAll > end-productItems: " + productItems, DebugLevels.TRADE);
+        PLUGIN.getDebugger().log("ShopTradeListener > tradeAll > end-costItems: " + costItems, DebugLevels.TRADE);
 
         Bukkit.getPluginManager().callEvent(new PlayerSuccessfulTradeEvent(buyer, costItems, productItems, shop, event.getClickedBlock(), event.getBlockFace()));
         PLUGIN.getMetricsManager().addTrade();

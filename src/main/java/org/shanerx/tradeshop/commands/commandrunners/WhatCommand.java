@@ -61,6 +61,9 @@ public class WhatCommand extends GUICommand {
         if (shop == null)
             return;
 
+        shop.updateFullTradeCount();
+        shop.updateSign();
+
         if (!Permissions.hasPermission(pSender, Permissions.INFO)) {
             command.sendMessage(Message.NO_COMMAND_PERMISSION.getPrefixed());
             return;

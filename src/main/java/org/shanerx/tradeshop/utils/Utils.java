@@ -415,7 +415,7 @@ public class Utils {
 		if (costItems.size() > 0) {
 			//For loop to put cost items in shop inventory
 			for (ItemStack item : costItems) {
-				if (!shopInventory.addItem(item).isEmpty()) {
+				if (!addItemToInventory(shopInventory, item).isEmpty()) {
 					return new Tuple<>(ExchangeStatus.SHOP_NO_SPACE, createBadList());
 				}
 			}
@@ -423,7 +423,7 @@ public class Utils {
 
 		//For loop to put product items in player inventory
 		for (ItemStack item : productItems) {
-			if (!playerInventory.addItem(item).isEmpty()) {
+			if (!addItemToInventory(playerInventory, item).isEmpty()) {
 				return new Tuple<>(ExchangeStatus.PLAYER_NO_SPACE, createBadList());
 			}
 		}
@@ -591,16 +591,12 @@ public class Utils {
 			for (ItemStack storageItem : storage.keySet()) {
 				if (item.isSimilar(storageItem)) {
 					int taken;
-					try {
-						taken = megaMin(storage.get(storageItem), count, storageItem.getMaxStackSize());
+					taken = megaMin(storage.get(storageItem), count);
 
-						if (found.putIfAbsent(item.getItemStack(), taken) != null)
-							found.put(item.getItemStack(), storage.get(storageItem) + taken);
+					if (found.putIfAbsent(item.getItemStack(), taken) != null)
+						found.put(item.getItemStack(), storage.get(storageItem) + taken);
 
-						storage.put(storageItem, storage.get(storageItem) - taken);
-					} catch (NullPointerException ignored) {
-						return createBadList();
-					}
+					storage.put(storageItem, storage.get(storageItem) - taken);
 
 					ItemStack goodItem = storageItem;
 					goodItem.setAmount(taken);
@@ -628,10 +624,24 @@ public class Utils {
 	}
 
 	/**
+	 * Attempts to add an ItemStack to an Inventory while splitting it with its max stack size as a maximum
+	 *
+	 * @param inv  Inventory to attempt to add the ItemStack to
+	 * @param item ItemStack to be added to the ivnentory
+	 * @return smallest integer
+	 */
+	public Map<Integer, ItemStack> addItemToInventory(Inventory inv, ItemStack item) {
+		int maxStack = inv.getMaxStackSize();
+		inv.setMaxStackSize(item.getMaxStackSize());
+		Map<Integer, ItemStack> result = inv.addItem(item);
+		inv.setMaxStackSize(maxStack);
+		return result;
+	}
+
+	/**
 	 * Returns the smallest integer passed to it
 	 *
 	 * @param values list of integers to compare against each other
-	 *
 	 * @return smallest integer
 	 */
 	public int megaMin(int... values) {

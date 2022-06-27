@@ -39,7 +39,6 @@ import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataType;
 import org.shanerx.tradeshop.TradeShop;
-import org.shanerx.tradeshop.item.ShopItemSide;
 import org.shanerx.tradeshop.item.ShopItemStack;
 import org.shanerx.tradeshop.shoplocation.IllegalWorldException;
 import org.shanerx.tradeshop.shoplocation.ShopLocation;
@@ -209,13 +208,8 @@ public class ShopChest extends Utils {
 		return null;
 	}
 
-	public boolean hasStock(ShopItemSide side, List<ShopItemStack> itemToCheck) {
-		List<ItemStack> result = getItems(getInventory().getStorageContents(), itemToCheck, 1);
-		if (result.get(0) == null && result.size() == 1) {
-			getShop().fixSide(side);
-		}
-
-		return itemToCheck.size() > 0 && result.get(0) != null;
+	public boolean hasStock(List<ShopItemStack> itemToCheck) {
+		return itemToCheck.size() > 0 && getItems(getInventory().getStorageContents(), itemToCheck, 1).get(0) != null;
 	}
 
 	public void loadFromName() {

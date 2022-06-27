@@ -279,15 +279,15 @@ public enum Setting {
     }
 
     public String getMappedString(String subKey) {
-        return PLUGIN.getSettingManager().getConfig().getConfigurationSection(getPath()).getString(subKey.replace("_", "-"));
+        return PLUGIN.getSettingManager().getConfig().getConfigurationSection(getPath()).getString(subKey.toLowerCase().replace("_", "-"));
     }
 
     public boolean getMappedBoolean(String subKey) {
-        return PLUGIN.getSettingManager().getConfig().getConfigurationSection(getPath()).getBoolean(subKey.replace("_", "-"));
+        return PLUGIN.getSettingManager().getConfig().getConfigurationSection(getPath()).getBoolean(subKey.toLowerCase().replace("_", "-"));
     }
 
     public Object getMappedObject(String subKey) {
-        return PLUGIN.getSettingManager().getConfig().getConfigurationSection(getPath()).get(subKey.replace("_", "-"));
+        return PLUGIN.getSettingManager().getConfig().getConfigurationSection(getPath()).get(subKey.toLowerCase().replace("_", "-"));
     }
 
     public String getPostComment() {

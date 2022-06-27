@@ -25,8 +25,11 @@
 
 package org.shanerx.tradeshop.utils.objects;
 
+import com.google.gson.annotations.SerializedName;
+
 public class ObjectHolder<Type> {
 
+    @SerializedName(value = "value", alternate = "obj")
     private final Type obj;
 
     public ObjectHolder(Type obj) {
