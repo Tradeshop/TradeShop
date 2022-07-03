@@ -50,7 +50,11 @@ public class PlayerShopOpenEvent extends PlayerEvent implements Cancellable {
 		super(buyer);
 		this.shop = s;
 	}
-	
+
+	public static HandlerList getHandlerList() {
+		return handlers;
+	}
+
 	@Override
 	public HandlerList getHandlers() {
 		return handlers;

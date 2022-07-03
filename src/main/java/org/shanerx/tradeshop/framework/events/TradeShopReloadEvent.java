@@ -39,12 +39,12 @@ public class TradeShopReloadEvent extends ServerEvent {
 
     private static final HandlerList handlers = new HandlerList();
 
+    public TradeShop plugin;
+    public CommandSender sender;
+
     public static HandlerList getHandlerList() {
         return handlers;
     }
-
-    public TradeShop plugin;
-    public CommandSender sender;
 
     @Override
     public HandlerList getHandlers() {

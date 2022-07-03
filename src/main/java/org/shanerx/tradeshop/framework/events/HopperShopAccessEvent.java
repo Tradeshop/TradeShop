@@ -48,7 +48,16 @@ public class HopperShopAccessEvent extends InventoryMoveItemEvent {
 	private Shop shop;
 	private boolean isForbidden;
 	private final HopperDirection dir;
-	
+
+	public static HandlerList getHandlerList() {
+		return handlers;
+	}
+
+	@Override
+	public HandlerList getHandlers() {
+		return handlers;
+	}
+
 	/**
 	 * Constructor for the object.
 	 * @param s The {@link Shop} object representing the Shop in question.
