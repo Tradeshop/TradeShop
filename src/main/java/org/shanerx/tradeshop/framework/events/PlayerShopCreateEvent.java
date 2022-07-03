@@ -30,6 +30,10 @@ public class PlayerShopCreateEvent extends PlayerEvent implements Cancellable {
 	public HandlerList getHandlers() {
 		return handlers;
 	}
+
+	public static HandlerList getHandlerList() {
+		return handlers;
+	}
 	
 	/**
 	 * Returns whether or not the event has been cancelled.
