@@ -1,4 +1,4 @@
-name: TradeShop
+name: ${project.name}
 version: ${project.version}
 main: org.shanerx.tradeshop.TradeShop
 api-version: 1.14
