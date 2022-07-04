@@ -160,7 +160,7 @@ public class ShopTradeListener extends Utils implements Listener {
 
         Tuple<ExchangeStatus, List<ItemStack>> canExchangeResult = canExchangeAll(shop, buyer.getInventory(), multiplier, e.getAction());
 
-        PLUGIN.getDebugger().log("ExchangeResult " + canExchangeResult.getLeft(), DebugLevels.DATA_ERROR);
+        PLUGIN.getDebugger().log("ExchangeResult " + canExchangeResult.getLeft(), DebugLevels.TRADE);
         switch (canExchangeResult.getLeft()) {
             case SHOP_NO_PRODUCT:
                 Message.SHOP_INSUFFICIENT_ITEMS.sendItemMultiLineMessage(buyer, Collections.singletonMap(Variable.MISSING_ITEMS, canExchangeResult.getRight()));
@@ -231,7 +231,7 @@ public class ShopTradeListener extends Utils implements Listener {
             if (costItems.get(0) == null) {
                 ItemStack item = costItems.get(1);
                 Message.INSUFFICIENT_ITEMS.sendItemMultiLineMessage(buyer, Collections.singletonMap(Variable.MISSING_ITEMS, costItems));
-                PLUGIN.getDebugger().log("tradeAllItems", DebugLevels.DATA_ERROR);
+                PLUGIN.getDebugger().log("tradeAllItems", DebugLevels.TRADE);
                 return new Tuple<>(productItems, costItems);
             }
         } else {
