@@ -42,6 +42,7 @@ public class PlayerShopChangeEvent extends PlayerEvent implements Cancellable {
 	private static final HandlerList handlers = new HandlerList();
 	private final Shop shop;
 	private ObjectHolder<?> what;
+	private ShopChange change;
 	private boolean cancelled;
 	
 	/**
@@ -54,6 +55,8 @@ public class PlayerShopChangeEvent extends PlayerEvent implements Cancellable {
 	public PlayerShopChangeEvent(Player player, Shop s, ShopChange change, ObjectHolder<?> what) {
 		super(player);
 		this.shop = s;
+		this.what = what;
+		this.change = change;
 	}
 
 	public static HandlerList getHandlerList() {
@@ -98,5 +101,14 @@ public class PlayerShopChangeEvent extends PlayerEvent implements Cancellable {
 	 */
 	public ObjectHolder<?> getWhat() {
 		return what;
+	}
+
+	/**
+	 * Returns the {@link ShopChange} instance which wraps the object representing the data which is being changed.
+	 * This is an enum type entry which represents which property or attribute was changed.
+	 * @return the type of change.
+	 */
+	public ShopChange getChange() {
+		return change;
 	}
 }
