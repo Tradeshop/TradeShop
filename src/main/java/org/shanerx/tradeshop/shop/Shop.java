@@ -97,8 +97,8 @@ public class Shop implements Serializable {
 
 		this.shopType = shopType;
 
-		managers = players.getLeft() == null ? Collections.emptySet() : players.getLeft();
-		members = players.getRight() == null ? Collections.emptySet() : players.getRight();
+		managers = players.getLeft() == null ? new HashSet<>() : players.getLeft();
+		members = players.getRight() == null ? new HashSet<>() : players.getRight();
 
 		product = new ArrayList<>();
 		cost = new ArrayList<>();

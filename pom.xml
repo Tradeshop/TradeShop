@@ -136,7 +136,7 @@
                         </relocation>
                         <relocation>
                             <pattern>de.themoep</pattern>
-                            <shadedPattern>io.github.apfelcreme.Pipes.libs</shadedPattern>
+                            <shadedPattern>org.shanerx.tradeshop.Pipes.libs</shadedPattern>
                         </relocation>
                     </relocations>
                 </configuration>
