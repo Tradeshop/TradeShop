@@ -506,9 +506,11 @@ public class Utils {
 		PLUGIN.getDebugger().log(shop.toDebug(), DebugLevels.SHOP_CREATION);
 
 
-		PLUGIN.getDebugger().log("-----Post-Event-----", DebugLevels.SHOP_CREATION);
 		PlayerShopCreateEvent shopCreateEvent = new PlayerShopCreateEvent(creator, shop);
 		Bukkit.getPluginManager().callEvent(shopCreateEvent);
+		PLUGIN.getDebugger().log("-----Post-Event-----", DebugLevels.SHOP_CREATION);
+		PLUGIN.getDebugger().log(shop.toDebug(), DebugLevels.SHOP_CREATION);
+
 		if (shopCreateEvent.isCancelled()) {
 			PLUGIN.getDebugger().log("Creation Failed!", DebugLevels.SHOP_CREATION);
 			return null;
