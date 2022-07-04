@@ -25,11 +25,15 @@
 
 package org.shanerx.tradeshop.data.storage;
 
+import org.apache.commons.lang.NotImplementedException;
 import org.bukkit.Chunk;
 import org.bukkit.World;
-import org.shanerx.tradeshop.data.storage.Json.LinkageConfiguration;
-import org.shanerx.tradeshop.data.storage.Json.PlayerConfiguration;
-import org.shanerx.tradeshop.data.storage.Json.ShopConfiguration;
+import org.shanerx.tradeshop.data.storage.Json.JsonLinkageConfiguration;
+import org.shanerx.tradeshop.data.storage.Json.JsonPlayerConfiguration;
+import org.shanerx.tradeshop.data.storage.Json.JsonShopConfiguration;
+import org.shanerx.tradeshop.data.storage.sqlite.SQLiteLinkageConfiguration;
+import org.shanerx.tradeshop.data.storage.sqlite.SQLitePlayerConfiguration;
+import org.shanerx.tradeshop.data.storage.sqlite.SQLiteShopConfiguration;
 import org.shanerx.tradeshop.player.PlayerSetting;
 import org.shanerx.tradeshop.shop.Shop;
 import org.shanerx.tradeshop.shoplocation.ShopChunk;
@@ -54,56 +58,24 @@ public class DataStorage extends Utils {
     }
 
     public Shop loadShopFromSign(ShopLocation sign) {
-        switch (dataType) {
-            case FLATFILE:
-                return new ShopConfiguration(new ShopChunk(sign.getChunk())).load(sign);
-            case SQLITE:
-                return null; //TODO add SQLITE support
-        }
-        return null;
+        return getShopConfiguration(sign.getChunk()).load(sign);
     }
 
     public Shop loadShopFromStorage(ShopLocation chest) {
-        switch (dataType) {
-            case FLATFILE:
-                return loadShopFromSign(new LinkageConfiguration(chest.getWorld()).getLinkedShop(chest));
-            case SQLITE:
-                return null; //TODO add SQLITE support
-        }
-        return null;
+        return loadShopFromSign(getLinkageConfiguration(chest.getWorld()).getLinkedShop(chest));
     }
 
     public void saveShop(Shop shop) {
-        switch (dataType) {
-            case FLATFILE:
-                new ShopConfiguration(new ShopChunk(shop.getShopLocation().getChunk())).save(shop);
-                break;
-            case SQLITE:
-                //TODO add SQLITE support
-                break;
-        }
+        getShopConfiguration(shop.getShopLocation().getChunk()).save(shop);
     }
 
     public void removeShop(Shop shop) {
-        switch (dataType) {
-            case FLATFILE:
-                new ShopConfiguration(new ShopChunk(shop.getShopLocation().getChunk())).remove(shop.getShopLocationAsSL());
-                new LinkageConfiguration(shop.getShopLocationAsSL().getWorld()).removeShop(shop.getShopLocationAsSL());
-                break;
-            case SQLITE:
-                //TODO add SQLITE support
-                break;
-        }
+        getShopConfiguration(shop.getShopLocation().getChunk()).remove(shop.getShopLocationAsSL());
+        getLinkageConfiguration(shop.getShopLocationAsSL().getWorld()).removeShop(shop.getShopLocationAsSL());
     }
 
     public int getShopCountInChunk(Chunk chunk) {
-        switch (dataType) {
-            case FLATFILE:
-                return new ShopConfiguration(new ShopChunk(chunk)).size();
-            case SQLITE:
-                return 0; //TODO add SQLITE support
-        }
-        return 0;
+        return getShopConfiguration(chunk).size();
     }
 
     public int getShopCountInWorld(World world) {
@@ -114,83 +86,79 @@ public class DataStorage extends Utils {
                 if (folder.exists() && folder.listFiles() != null) {
                     for (File file : folder.listFiles()) {
                         if (file.getName().contains(world.getName()))
-                            count += new ShopConfiguration(ShopChunk.deserialize(file.getName().replace(".json", ""))).size();
+                            count += new JsonShopConfiguration(ShopChunk.deserialize(file.getName().replace(".json", ""))).size();
                     }
                 }
                 break;
             case SQLITE:
                 //TODO add SQLITE support
-                break;
+                throw new NotImplementedException("SQLITE for getShopCountInWorld has not been implemented yet.");
         }
         return count;
     }
 
     public PlayerSetting loadPlayer(UUID uuid) {
-        PlayerSetting playerSetting = null;
-        switch (dataType) {
-            case FLATFILE:
-                playerSetting = new PlayerConfiguration(uuid).load();
-                break;
-            case SQLITE:
-                //TODO add SQLITE support
-                break;
-        }
+        PlayerSetting playerSetting = getPlayerConfiguration(uuid).load();
 
         //If playerSetting data not find create new and return
         return playerSetting != null ? playerSetting : new PlayerSetting(uuid);
     }
 
     public void savePlayer(PlayerSetting playerSetting) {
-        switch (dataType) {
-            case FLATFILE:
-                new PlayerConfiguration(playerSetting.getUuid()).save(playerSetting);
-                break;
-            case SQLITE:
-                //TODO add SQLITE support
-                break;
-        }
+        getPlayerConfiguration(playerSetting.getUuid()).save(playerSetting);
     }
 
     public void removePlayer(PlayerSetting playerSetting) {
-        switch (dataType) {
-            case FLATFILE:
-                new PlayerConfiguration(playerSetting.getUuid()).remove();
-                break;
-            case SQLITE:
-                //TODO add SQLITE support
-                break;
-        }
+        getPlayerConfiguration(playerSetting.getUuid()).remove();
     }
 
     public ShopLocation getChestLinkage(ShopLocation chestLocation) {
-        switch (dataType) {
-            case FLATFILE:
-                return new LinkageConfiguration(chestLocation.getWorld()).getLinkedShop(chestLocation);
-            case SQLITE:
-                //TODO add SQLITE support
-                break;
-        }
-
-        return null;
+        return getLinkageConfiguration(chestLocation.getWorld()).getLinkedShop(chestLocation);
     }
 
     public void addChestLinkage(ShopLocation chestLocation, ShopLocation shopLocation) {
-        switch (dataType) {
-            case FLATFILE:
-                new LinkageConfiguration(chestLocation.getWorld()).add(chestLocation, shopLocation);
-            case SQLITE:
-                //TODO add SQLITE support
-                break;
-        }
+        getLinkageConfiguration(chestLocation.getWorld()).add(chestLocation, shopLocation);
     }
 
     public void removeChestLinkage(ShopLocation chestLocation) {
+        getLinkageConfiguration(chestLocation.getWorld()).removeChest(chestLocation);
+    }
+
+    protected PlayerConfiguration getPlayerConfiguration(UUID uuid)  {
+        switch(dataType) {
+            case FLATFILE:
+                return new JsonPlayerConfiguration(uuid);
+            case  SQLITE:
+                return new SQLitePlayerConfiguration(uuid);
+            default:
+                throw new NotImplementedException("Data storage type " + dataType + " has not been implemented yet.");
+        }
+    }
+
+    protected ShopConfiguration getShopConfiguration(Chunk chunk) {
+        return getShopConfiguration(new ShopChunk(chunk));
+    }
+
+    protected ShopConfiguration getShopConfiguration(ShopChunk chunk)  {
         switch (dataType) {
             case FLATFILE:
-                new LinkageConfiguration(chestLocation.getWorld()).removeChest(chestLocation);
+                return new JsonShopConfiguration(chunk);
             case SQLITE:
-                //TODO add SQLITE support
-                break;
+                return new SQLiteShopConfiguration(chunk);
+            default:
+                throw new NotImplementedException("Data storage type " + dataType + " has not been implemented yet.");
+        }
+    }
+
+    protected LinkageConfiguration getLinkageConfiguration(World w) {
+        switch (dataType) {
+            case FLATFILE:
+                return new JsonLinkageConfiguration(w);
+            case SQLITE:
+                return new SQLiteLinkageConfiguration(w);
+            default:
+                throw new NotImplementedException("Data storage type " + dataType + " has not been implemented yet.");
         }
     }
 }
+

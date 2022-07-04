@@ -27,6 +27,7 @@ package org.shanerx.tradeshop.data.storage.Json;
 
 import com.google.gson.reflect.TypeToken;
 import org.bukkit.World;
+import org.shanerx.tradeshop.data.storage.LinkageConfiguration;
 import org.shanerx.tradeshop.shop.ShopChest;
 import org.shanerx.tradeshop.shoplocation.ShopLocation;
 
@@ -35,15 +36,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class LinkageConfiguration extends JsonConfiguration {
+public class JsonLinkageConfiguration extends JsonConfiguration implements LinkageConfiguration {
 
     Map<String, String> linkageData;
 
-    public LinkageConfiguration(World world) {
+    public JsonLinkageConfiguration(World world) {
         super(world.getName(), "chest_linkage");
         load();
     }
 
+    @Override
     public void load() {
         linkageData = gson.fromJson(jsonObj.get("linkage_data"), new TypeToken<Map<String, String>>() {
         }.getType());
@@ -51,26 +53,31 @@ public class LinkageConfiguration extends JsonConfiguration {
             linkageData = new HashMap<>();
     }
 
+    @Override
     public Map<String, String> getLinkageData() {
         return linkageData;
     }
 
+    @Override
     public ShopLocation getLinkedShop(ShopLocation chestLocation) {
         String loc = chestLocation.serialize();
 
         return linkageData.containsKey(loc) ? ShopLocation.deserialize(linkageData.get(chestLocation.serialize())) : null;
     }
 
+    @Override
     public void save() {
         jsonObj.add("linkage_data", gson.toJsonTree(linkageData));
 
         saveFile();
     }
 
+    @Override
     public int size() {
         return linkageData.size();
     }
 
+    @Override
     public void add(ShopLocation chestLocation, ShopLocation shopLocation) {
         if (ShopChest.isDoubleChest(chestLocation.getLocation().getBlock())) {
             ShopLocation otherSideLocation = new ShopLocation(ShopChest.getOtherHalfOfDoubleChest(chestLocation.getLocation().getBlock()).getLocation());
@@ -81,11 +88,13 @@ public class LinkageConfiguration extends JsonConfiguration {
         save();
     }
 
+    @Override
     public void removeChest(ShopLocation chestLocation) {
         linkageData.remove(chestLocation);
         save();
     }
 
+    @Override
     public void removeShop(ShopLocation shopLocation) {
         List<String> removeChests = new ArrayList<>();
         String shopLoc = shopLocation.serialize();
