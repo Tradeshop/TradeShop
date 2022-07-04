@@ -63,8 +63,8 @@ public enum Commands {
 	ADD_COST(Lists.newArrayList("addCost"), Permissions.NONE, 1, 3, true, "Add cost to shop", "/tradeshop $cmd$ [Amount] [Material]"),
 	SET_PRODUCT(Lists.newArrayList("setProduct"), Permissions.NONE, 1, 3, true, "Set product of shop ", "/tradeshop $cmd$ [Amount] [Material]"),
 	SET_COST(Lists.newArrayList("setCost"), Permissions.NONE, 1, 3, true, "Set cost of shop", "/tradeshop $cmd$ [Amount] [Material]"),
-	REMOVE_PRODUCT(Lists.newArrayList("removeProduct", "delProduct"), Permissions.NONE, 2, 2, true, "Removes a product from the shop", "/tradeshop $cmd$ <List #>"),
-	REMOVE_COST(Lists.newArrayList("removeCost", "delCost"), Permissions.NONE, 2, 2, true, "Removes a product from the shop", "/tradeshop $cmd$ <List #>"),
+	REMOVE_PRODUCT(Lists.newArrayList("removeProduct", "delProduct"), Permissions.NONE, 1, 2, true, "Removes a product from the shop", "/tradeshop $cmd$ <List #>"),
+	REMOVE_COST(Lists.newArrayList("removeCost", "delCost"), Permissions.NONE, 1, 2, true, "Removes a product from the shop", "/tradeshop $cmd$ <List #>"),
 	LIST_PRODUCT(Lists.newArrayList("listProduct"), Permissions.NONE, 1, 1, true, "Lists the products in the shop", "/tradeshop $cmd$"),
 	LIST_COST(Lists.newArrayList("listCost"), Permissions.NONE, 1, 1, true, "Lists the costs in a shop", "/tradeshop $cmd$"),
 
