@@ -239,7 +239,7 @@ public enum Message {
     }
 
     public String getPrefixed() {
-        return PLUGIN.getMessageManager().colour(Setting.MESSAGE_PREFIX.getString() + " " + this);
+        return PLUGIN.getMessageManager().colour(Setting.MESSAGE_PREFIX.getString().trim() + " " + this);
     }
 
 

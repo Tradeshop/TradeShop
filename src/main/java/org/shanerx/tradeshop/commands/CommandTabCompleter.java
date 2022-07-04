@@ -30,6 +30,7 @@ import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
 import org.shanerx.tradeshop.TradeShop;
 import org.shanerx.tradeshop.data.config.Setting;
+import org.shanerx.tradeshop.player.ShopRole;
 import org.shanerx.tradeshop.shop.Shop;
 import org.shanerx.tradeshop.shop.ShopType;
 import org.shanerx.tradeshop.utils.Utils;
@@ -99,7 +100,7 @@ public class CommandTabCompleter extends Utils {
 			}
 			Shop shop = Shop.loadShop(s);
 
-			return shop.getUserNames();
+			return shop.getUserNames(ShopRole.MANAGER, ShopRole.MEMBER);
 		}
 
 		return Collections.EMPTY_LIST;
