@@ -51,11 +51,11 @@ public class PlayerSetting implements Serializable {
     private transient UUID uuid;
     private final String uuidString;
     private final Set<String> ownedShops;
-
+    private final Set<String> staffShops;
     private boolean showInvolvedStatus, adminEnabled = true;
 
     private int multi = Setting.MULTI_TRADE_DEFAULT.getInt();
-    private final Set<String> staffShops;
+
     private transient Utils utils = new Utils();
 
     public PlayerSetting(UUID playerUUID, Map<String, Integer> data) {

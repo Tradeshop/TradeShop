@@ -1,10 +1,9 @@
 package org.shanerx.tradeshop.data.storage.sqlite;
 
+import org.bukkit.Bukkit;
+
 import java.io.File;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
+import java.sql.*;
 
 /**
  * This class talks to the SQLITE file through JDBC.
@@ -27,7 +26,7 @@ public class DatabaseManager {
      * This does not initiate the connection; use {@ref setupConnection} for that.
      * @param path The .db path of the SQLite database file.
      */
-    public DatabaseManager(String path) {
+    protected DatabaseManager(String path) {
         this.dbpath =  path;
         this.dburl = "jdbc:sqlite:" + path;
         this.dbfile = new File(dbpath);
@@ -75,11 +74,51 @@ public class DatabaseManager {
      * @return The prepared statement.
      * @throws SQLException
      */
-    public PreparedStatement prepareStatement(String query) throws SQLException {
+    protected PreparedStatement prepareStatement(String query) throws SQLException {
         if (conn == null) {
             throw new IllegalStateException("No connection has been opened yet.");
         }
 
         return conn.prepareStatement(query);
     }
+
+    /**
+     * Returns true if the connection is currently open.
+     * @return whether it is open
+     */
+    public boolean hasOpenConnection() {
+        return conn != null;
+    }
+
+    private static DatabaseManager sqlite;
+
+    protected static DatabaseManager getSqlite(boolean shouldOpen) {
+        if (sqlite == null) {
+            String path = Bukkit.getPluginManager().getPlugin("TradeShop").getDataFolder().getAbsolutePath() + File.pathSeparator + "Data-SQLite" + File.pathSeparator + "database.db";
+            sqlite = new DatabaseManager(path);
+        }
+        if (!sqlite.hasOpenConnection() && shouldOpen) {
+            sqlite.setupConnection(true);
+        }
+        return sqlite;
+    }
+
+    protected static int resultsLegth(ResultSet res) {
+        int size = 0;
+
+        if (res != null)
+        {
+            try {
+                res.beforeFirst();
+                res.last();
+                size = res.getRow();
+                res.beforeFirst();
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        return size;
+    }
+
 }
