@@ -57,7 +57,7 @@ public enum Setting {
     UNLIMITED_ADMIN(SettingSection.SYSTEM_OPTIONS, "unlimited-admin", false),
 
     // Language Options
-    MESSAGE_PREFIX(SettingSection.LANGUAGE_OPTIONS, "message-prefix", "&a[&eTradeShop&a] "),
+    MESSAGE_PREFIX(SettingSection.LANGUAGE_OPTIONS, "message-prefix", "&a[&eTradeShop&a]"),
 
     SHOP_GOOD_COLOUR(SettingSection.LANGUAGE_OPTIONS, "shop-good-colour", "&2"),
     SHOP_INCOMPLETE_COLOUR(SettingSection.LANGUAGE_OPTIONS, "shop-incomplete-colour", "&7"),

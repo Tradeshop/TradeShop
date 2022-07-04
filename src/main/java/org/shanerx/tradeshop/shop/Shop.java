@@ -831,21 +831,18 @@ public class Shop implements Serializable {
 		if (getUsers(ShopRole.MANAGER, ShopRole.MEMBER).size() >= Setting.MAX_SHOP_USERS.getInt())
 			return false;
 
-		boolean ret = false;
 		if (!getUsersUUID(ShopRole.MANAGER, ShopRole.MEMBER).contains(newUser)) {
 			switch (role) {
 				case MANAGER:
-					managers.add(newUser);
-					ret = true;
+					saveShop(managers.add(newUser));
+					return true;
 				case MEMBER:
-					members.add(newUser);
-					ret = true;
+					saveShop(members.add(newUser));
+					return true;
 			}
 		}
 
-		saveShop(ret);
-
-		return ret;
+		return false;
 	}
 
 	/**

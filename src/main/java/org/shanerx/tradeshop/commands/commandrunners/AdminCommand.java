@@ -66,7 +66,7 @@ public class AdminCommand extends CommandRunner {
             return;
         }
 
-        command.sendMessage(Setting.MESSAGE_PREFIX.getString() + "&6The configuration files have been reloaded!");
+        command.sendMessage(Setting.MESSAGE_PREFIX.getString().trim() + "&6The configuration files have been reloaded!");
         Bukkit.getPluginManager().callEvent(new TradeShopReloadEvent(plugin, command.getSender()));
     }
 
