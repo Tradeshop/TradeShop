@@ -81,10 +81,12 @@ public class ShopItemCommand extends CommandRunner {
         if (shop == null)
             return;
 
-        int index = 0;
+        int index;
 
         if (isInt(command.getArgAt(1))) {
             index = Integer.parseInt(command.getArgAt(1)) - 1;
+        } else if (shop.getSideList(side).size() == 1) {
+            index = 0;
         } else {
             Message.INVALID_ARGUMENTS.sendMessage(pSender);
             return;

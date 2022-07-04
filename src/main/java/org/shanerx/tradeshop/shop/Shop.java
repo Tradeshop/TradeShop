@@ -725,14 +725,16 @@ public class Shop implements Serializable {
 			switch (role) {
 				case MEMBER:
 					members.forEach(uuid -> {
-						if (!excludedPlayers.contains(uuid))
-							users.add(new ShopUser(uuid, ShopRole.MEMBER));
+						if (excludedPlayers.contains(uuid)) {
+							users.add(new ShopUser(uuid, role));
+						}
 					});
 					break;
 				case MANAGER:
-					members.forEach(uuid -> {
-						if (!excludedPlayers.contains(uuid))
-							users.add(new ShopUser(uuid, ShopRole.MANAGER));
+					managers.forEach(uuid -> {
+						if (excludedPlayers.contains(uuid)) {
+							users.add(new ShopUser(uuid, role));
+						}
 					});
 					break;
 				case OWNER:
