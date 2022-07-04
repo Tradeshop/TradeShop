@@ -88,6 +88,7 @@
     <build>
         <defaultGoal>install</defaultGoal>
         <finalName>${project.artifactId}-${project.version}-${maven.build.timestamp}</finalName>
+
         <sourceDirectory>src/main/java</sourceDirectory>
         <resources>
             <resource>
