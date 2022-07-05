@@ -25,18 +25,13 @@ public class SQLitePlayerConfiguration implements PlayerConfiguration {
         if (!playerSetting.getUuid().equals(uuid)) {
             throw new IllegalArgumentException("uuid of playerSetting does not match uuid field.");
         }
-// TODO change to INSERT INTO
-        String sql = "UPDATE players SET" +
-                " showInvolvedStatus = " + (playerSetting.showInvolvedStatus() ? 1 : 0) + "," +
-                " adminEnabled = " + (playerSetting.isAdminEnabled() ? 1 : 0) + "," +
-                " multi = " + playerSetting.getMulti() + " " +
-                "WHERE uuid = '" + uuid.toString() + "';";
-        String sql2 = "DELETE FROM players_owned_shops WHERE uuid = '" + uuid.toString() + "';";
-        String sql3 = "DELETE FROM players_staff_shops WHERE uuid = '" + uuid.toString() + "';";
+
+        remove();
+
         try {
+            String sql = "INSERT INTO players (uuid, showInvolvedStatus, adminEnabled, multi) VALUES " +
+                    "('" + uuid.toString() + "', " + (playerSetting.showInvolvedStatus() ? 1 : 0) + ", " + (playerSetting.isAdminEnabled() ? 1 : 0) + ", " + playerSetting.getMulti() + ");";
             DatabaseManager.getSqlite(true).prepareStatement(sql).executeUpdate();
-            DatabaseManager.getSqlite(false).prepareStatement(sql2).executeUpdate();
-            DatabaseManager.getSqlite(false).prepareStatement(sql3).executeUpdate();
 
             for (String ownedShop : playerSetting.getOwnedShops()) {
                 DatabaseManager.getSqlite(false)
