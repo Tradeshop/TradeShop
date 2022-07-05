@@ -25,7 +25,7 @@ public class SQLitePlayerConfiguration implements PlayerConfiguration {
         if (!playerSetting.getUuid().equals(uuid)) {
             throw new IllegalArgumentException("uuid of playerSetting does not match uuid field.");
         }
-
+// TODO change to INSERT INTO
         String sql = "UPDATE players SET" +
                 " showInvolvedStatus = " + (playerSetting.showInvolvedStatus() ? 1 : 0) + "," +
                 " adminEnabled = " + (playerSetting.isAdminEnabled() ? 1 : 0) + "," +
@@ -117,7 +117,7 @@ public class SQLitePlayerConfiguration implements PlayerConfiguration {
 
     private void createTableIfNotExists() throws SQLException {
         String sql = "CREATE TABLE IF NOT EXISTS players " +
-                "(uuid VARCHAR(255) not NULL, " +
+                "(uuid TEXT not NULL, " +
                 " showInvolvedStatus INTEGER, " +
                 " adminEnabled INTEGER, " +
                 " multi INTEGER, " +
@@ -125,13 +125,13 @@ public class SQLitePlayerConfiguration implements PlayerConfiguration {
         DatabaseManager.getSqlite(true).prepareStatement(sql).execute();
 
         sql = "CREATE TABLE IF NOT EXISTS players_owned_shops " +
-                "(uuid VARCHAR(255) not NULL, " +
-                " shop VARCHAR(255));";
+                "(uuid TEXT not NULL, " +
+                " shop TEXT);";
         DatabaseManager.getSqlite(false).prepareStatement(sql).execute();
 
         sql = "CREATE TABLE IF NOT EXISTS players_staff_shops " +
-                "(uuid VARCHAR(255) not NULL, " +
-                " shop VARCHAR(255));";
+                "(uuid TEXT not NULL, " +
+                " shop TEXT);";
         DatabaseManager.getSqlite(false).prepareStatement(sql).execute();
     }
 }

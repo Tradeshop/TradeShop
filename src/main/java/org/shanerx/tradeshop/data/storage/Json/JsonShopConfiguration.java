@@ -86,40 +86,42 @@ public class JsonShopConfiguration extends JsonConfiguration implements ShopConf
         Shop shop;
         String locStr = loc.serialize();
 
-        if (jsonObj.has(locStr)) {
-            if (jsonObj.getAsJsonObject(locStr).getAsJsonPrimitive("productB64") != null) {
-                String str = jsonObj.getAsJsonObject(locStr).get("productB64").getAsString();
-                jsonObj.getAsJsonObject(locStr).remove("productB64");
-                jsonObj.getAsJsonObject(locStr).add("product", gson.toJsonTree(b64OverstackFixer(str)));
-                saveFile();
-            }
-
-            if (jsonObj.getAsJsonObject(locStr).getAsJsonPrimitive("costB64") != null) {
-                String str = jsonObj.getAsJsonObject(locStr).get("costB64").getAsString();
-                jsonObj.getAsJsonObject(locStr).remove("costB64");
-                jsonObj.getAsJsonObject(locStr).add("cost", gson.toJsonTree(b64OverstackFixer(str)));
-                saveFile();
-            }
-
-            if (jsonObj.getAsJsonObject(locStr).has("productListB64")) {
-                List<ShopItemStack> productList = new ArrayList<>();
-                gson.fromJson(jsonObj.getAsJsonObject(locStr).get("productListB64"), List.class).forEach(item -> productList.add(new ShopItemStack(item.toString())));
-                jsonObj.getAsJsonObject(locStr).remove("productListB64");
-                jsonObj.getAsJsonObject(locStr).add("product", gson.toJsonTree(productList));
-            }
-
-            if (jsonObj.getAsJsonObject(locStr).has("costListB64")) {
-                List<ShopItemStack> costList = new ArrayList<>();
-                gson.fromJson(jsonObj.getAsJsonObject(locStr).get("costListB64"), List.class).forEach(item -> costList.add(new ShopItemStack(item.toString())));
-                jsonObj.getAsJsonObject(locStr).remove("costListB64");
-                jsonObj.getAsJsonObject(locStr).add("cost", gson.toJsonTree(costList));
-            }
-
-
-            shop = gson.fromJson(jsonObj.get(locStr), Shop.class);
-        } else {
+        if (!jsonObj.has(locStr)) {
             return null;
         }
+
+        boolean save2Correct = false;
+        if (jsonObj.getAsJsonObject(locStr).getAsJsonPrimitive("productB64") != null) {
+            String str = jsonObj.getAsJsonObject(locStr).get("productB64").getAsString();
+            jsonObj.getAsJsonObject(locStr).remove("productB64");
+            jsonObj.getAsJsonObject(locStr).add("product", gson.toJsonTree(b64OverstackFixer(str)));
+            save2Correct = true;
+        }
+
+        if (jsonObj.getAsJsonObject(locStr).getAsJsonPrimitive("costB64") != null) {
+            String str = jsonObj.getAsJsonObject(locStr).get("costB64").getAsString();
+            jsonObj.getAsJsonObject(locStr).remove("costB64");
+            jsonObj.getAsJsonObject(locStr).add("cost", gson.toJsonTree(b64OverstackFixer(str)));
+            save2Correct = true;
+        }
+
+        if (save2Correct) saveFile();
+
+        if (jsonObj.getAsJsonObject(locStr).has("productListB64")) {
+            List<ShopItemStack> productList = new ArrayList<>();
+            gson.fromJson(jsonObj.getAsJsonObject(locStr).get("productListB64"), List.class).forEach(item -> productList.add(new ShopItemStack(item.toString())));
+            jsonObj.getAsJsonObject(locStr).remove("productListB64");
+            jsonObj.getAsJsonObject(locStr).add("product", gson.toJsonTree(productList));
+        }
+
+        if (jsonObj.getAsJsonObject(locStr).has("costListB64")) {
+            List<ShopItemStack> costList = new ArrayList<>();
+            gson.fromJson(jsonObj.getAsJsonObject(locStr).get("costListB64"), List.class).forEach(item -> costList.add(new ShopItemStack(item.toString())));
+            jsonObj.getAsJsonObject(locStr).remove("costListB64");
+            jsonObj.getAsJsonObject(locStr).add("cost", gson.toJsonTree(costList));
+        }
+
+        shop = gson.fromJson(jsonObj.get(locStr), Shop.class);
 
         shop.fixAfterLoad();
         return shop;
