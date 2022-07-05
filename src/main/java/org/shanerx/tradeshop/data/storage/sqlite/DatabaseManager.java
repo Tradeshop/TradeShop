@@ -40,7 +40,7 @@ public class DatabaseManager {
         if (conn != null) {
             throw new IllegalStateException("A connection has already been opened.");
         }
-        else if (!dbfile.exists() && create) {
+        else if (!dbfile.exists() && !create) {
             throw new IllegalArgumentException("Database file is missing.");
         }
 
