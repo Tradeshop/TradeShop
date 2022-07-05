@@ -10,7 +10,6 @@ import java.util.UUID;
 public class SQLitePlayerConfiguration implements PlayerConfiguration {
 
     private UUID uuid;
-    private static DatabaseManager database;
 
     public SQLitePlayerConfiguration(UUID uuid) {
         this.uuid = uuid;

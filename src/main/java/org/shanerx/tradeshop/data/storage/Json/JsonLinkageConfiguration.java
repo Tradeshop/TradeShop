@@ -59,59 +59,9 @@ public class JsonLinkageConfiguration extends JsonConfiguration implements Linka
     }
 
     @Override
-    public ShopLocation getLinkedShop(ShopLocation chestLocation) {
-        String loc = chestLocation.serialize();
-
-        return linkageData.containsKey(loc) ? ShopLocation.deserialize(linkageData.get(chestLocation.serialize())) : null;
-    }
-
-    @Override
     public void save() {
         jsonObj.add("linkage_data", gson.toJsonTree(linkageData));
 
         saveFile();
     }
-
-    @Override
-    public int size() {
-        return linkageData.size();
-    }
-
-    @Override
-    public void add(ShopLocation chestLocation, ShopLocation shopLocation) {
-        if (ShopChest.isDoubleChest(chestLocation.getLocation().getBlock())) {
-            ShopLocation otherSideLocation = new ShopLocation(ShopChest.getOtherHalfOfDoubleChest(chestLocation.getLocation().getBlock()).getLocation());
-            addLinkage(otherSideLocation, shopLocation);
-        }
-
-        addLinkage(chestLocation, shopLocation);
-        save();
-    }
-
-    @Override
-    public void removeChest(ShopLocation chestLocation) {
-        linkageData.remove(chestLocation);
-        save();
-    }
-
-    @Override
-    public void removeShop(ShopLocation shopLocation) {
-        List<String> removeChests = new ArrayList<>();
-        String shopLoc = shopLocation.serialize();
-
-        linkageData.forEach((key, value) -> {
-            if (value.equals(shopLoc))
-                removeChests.add(key);
-        });
-
-        removeChests.forEach((k) -> linkageData.remove(k));
-    }
-
-    private void addLinkage(ShopLocation chestLocation, ShopLocation shopLocation) {
-        if (linkageData.containsKey(chestLocation.serialize()))
-            linkageData.replace(chestLocation.serialize(), shopLocation.serialize());
-        else
-            linkageData.put(chestLocation.serialize(), shopLocation.serialize());
-    }
-
 }
