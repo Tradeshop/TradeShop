@@ -81,7 +81,6 @@ public class ShopItemStack implements Serializable, Cloneable {
         this.itemStack = itemStack;
         this.itemSettings = itemSettings;
         buildMap();
-        unloadData();
     }
 
     public ShopItemStack(String itemStackB64) {
@@ -90,6 +89,20 @@ public class ShopItemStack implements Serializable, Cloneable {
 
     public ShopItemStack(String itemStackB64, HashMap<String, ObjectHolder<?>> itemSettings) {
         this.itemStackB64 = itemStackB64;
+        this.itemSettings = new HashMap<>();
+
+        itemSettings.forEach((key, value) -> this.itemSettings.put(ShopItemStackSettingKeys.match(key), value));
+
+        buildMap();
+        loadData();
+    }
+
+    public ShopItemStack(Map<String, Object> serialItemStack) {
+        this(serialItemStack, new HashMap<>());
+    }
+
+    public ShopItemStack(Map<String, Object> serialItemStack, HashMap<String, ObjectHolder<?>> itemSettings) {
+        this.serialItemStack = serialItemStack;
         this.itemSettings = new HashMap<>();
 
         itemSettings.forEach((key, value) -> this.itemSettings.put(ShopItemStackSettingKeys.match(key), value));
@@ -129,7 +142,7 @@ public class ShopItemStack implements Serializable, Cloneable {
     }
 
     public String serialize() {
-        return new Gson().toJson(this);
+        return new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create().toJson(this);
     }
 
     public static ShopItemStack deserialize(String serialized) {
@@ -208,6 +221,13 @@ public class ShopItemStack implements Serializable, Cloneable {
     public String getItemStackB64() {
         return itemStackB64;
     }
+
+    public Map<String, Object> getSerialItemStack() {
+        if (serialItemStack == null)
+            unloadData();
+        return serialItemStack;
+    }
+
 
     public boolean hasBase64() {
         return itemStackB64 != null && !itemStackB64.isEmpty();
@@ -581,11 +601,12 @@ public class ShopItemStack implements Serializable, Cloneable {
      * Sets the objects Base64 from its {@link ItemStack}
      */
     private void unloadData() {
+        itemStackB64 = null;
         serialItemStack = itemStack.serialize();
     }
 
     /**
-     * Sets the objects {@link ItemStack} from its Base64.
+     * Sets the objects {@link ItemStack} from its Base64 or Serialized values.
      */
     private void loadData() {
         if (serialItemStack != null && !serialItemStack.isEmpty()) {
@@ -605,6 +626,8 @@ public class ShopItemStack implements Serializable, Cloneable {
                 itemStack = null;
             }
         }
+
+        unloadData();
     }
 
     public int getItemSize() {
