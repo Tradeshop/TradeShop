@@ -592,16 +592,18 @@ public class ShopItemStack implements Serializable, Cloneable {
             itemStack = ItemStack.deserialize(serialItemStack);
         }
 
-        try {
-            ByteArrayInputStream inputStream = new ByteArrayInputStream(Base64Coder.decodeLines(itemStackB64));
-            BukkitObjectInputStream dataInput = new BukkitObjectInputStream(inputStream);
+        if (hasBase64()) {
+            try {
+                ByteArrayInputStream inputStream = new ByteArrayInputStream(Base64Coder.decodeLines(itemStackB64));
+                BukkitObjectInputStream dataInput = new BukkitObjectInputStream(inputStream);
 
-            // Read the serialized inventory
-            itemStack = new ItemStack((ItemStack) dataInput.readObject());
+                // Read the serialized inventory
+                itemStack = new ItemStack((ItemStack) dataInput.readObject());
 
-            dataInput.close();
-        } catch (ClassNotFoundException | IOException e) {
-            itemStack = null;
+                dataInput.close();
+            } catch (ClassNotFoundException | IOException e) {
+                itemStack = null;
+            }
         }
     }
 
