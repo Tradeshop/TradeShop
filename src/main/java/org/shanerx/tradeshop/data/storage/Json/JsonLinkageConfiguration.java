@@ -26,46 +26,42 @@
 package org.shanerx.tradeshop.data.storage.Json;
 
 import com.google.gson.reflect.TypeToken;
-import org.shanerx.tradeshop.player.PlayerSetting;
+import org.bukkit.World;
+import org.shanerx.tradeshop.data.storage.LinkageConfiguration;
+import org.shanerx.tradeshop.shop.ShopChest;
+import org.shanerx.tradeshop.shoplocation.ShopLocation;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
-public class PlayerConfiguration extends JsonConfiguration {
+public class JsonLinkageConfiguration extends JsonConfiguration implements LinkageConfiguration {
 
-    private final transient UUID playerUUID;
-    private transient PlayerSetting playerSetting;
+    Map<String, String> linkageData;
 
-    public PlayerConfiguration(UUID uuid) {
-        super("Players", uuid.toString());
-
-        playerUUID = uuid;
+    public JsonLinkageConfiguration(World world) {
+        super(world.getName(), "chest_linkage");
+        load();
     }
 
-    public void save(PlayerSetting playerSetting) {
-        this.playerSetting = playerSetting;
-        jsonObj.add(playerSetting.getUuid().toString(), gson.toJsonTree(playerSetting));
+    @Override
+    public void load() {
+        linkageData = gson.fromJson(jsonObj.get("linkage_data"), new TypeToken<Map<String, String>>() {
+        }.getType());
+        if (linkageData == null)
+            linkageData = new HashMap<>();
+    }
+
+    @Override
+    public Map<String, String> getLinkageData() {
+        return linkageData;
+    }
+
+    @Override
+    public void save() {
+        jsonObj.add("linkage_data", gson.toJsonTree(linkageData));
 
         saveFile();
-    }
-
-    public PlayerSetting load() {
-        if (jsonObj.has("data")) {
-            playerSetting = new PlayerSetting(playerUUID, gson.fromJson(jsonObj.get("data"), new TypeToken<Map<String, Integer>>() {
-            }.getType()));
-            jsonObj.remove("data");
-            saveFile();
-        } else {
-            playerSetting = gson.fromJson(jsonObj.get(playerUUID.toString()), PlayerSetting.class);
-        }
-
-        if (playerSetting != null)
-            playerSetting.load();
-
-        return playerSetting;
-    }
-
-    public void remove() {
-        file.delete();
     }
 }

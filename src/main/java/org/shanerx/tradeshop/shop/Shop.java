@@ -80,13 +80,14 @@ public class Shop implements Serializable {
 	/**
 	 * Creates a Shop object
 	 *
-	 * @param locations Location of shop sign and chest as Tuple, left = Sign location, right = inventory location
-	 * @param owner     Owner of the shop as a ShopUser
-	 * @param shopType  Type of the shop as ShopType
-	 * @param items     Items to go into the shop as Tuple, left = Product, right = Cost
-	 * @param players   Users to be added to the shop as Tuple, left = Managers, right = Members
+	 * @param locations    Location of shop sign and chest as Tuple, left = Sign location, right = inventory location
+	 * @param owner        Owner of the shop as a ShopUser
+	 * @param shopType     Type of the shop as ShopType
+	 * @param productItems Product items to go into the shop
+	 * @param costItems    Cost items to go into the shop
+	 * @param players      Users to be added to the shop as Tuple, left = Managers, right = Members
 	 */
-	public Shop(Tuple<Location, Location> locations, ShopType shopType, ShopUser owner, Tuple<Set<UUID>, Set<UUID>> players, Tuple<ItemStack, ItemStack> items) {
+	public Shop(Tuple<Location, Location> locations, ShopType shopType, ShopUser owner, Tuple<Set<UUID>, Set<UUID>> players, List<ShopItemStack> productItems, List<ShopItemStack> costItems) {
 		shopLoc = new ShopLocation(locations.getLeft());
 		this.owner = owner;
 
@@ -100,13 +101,23 @@ public class Shop implements Serializable {
 		managers = players.getLeft() == null ? new HashSet<>() : players.getLeft();
 		members = players.getRight() == null ? new HashSet<>() : players.getRight();
 
-		product = new ArrayList<>();
-		cost = new ArrayList<>();
-
-		if (items.getLeft() != null) product.add(new ShopItemStack(items.getLeft()));
-		if (items.getRight() != null) cost.add(new ShopItemStack(items.getRight()));
+		product = productItems != null ? productItems : new ArrayList<>();
+		cost = costItems != null ? costItems : new ArrayList<>();
 
 		fixAfterLoad();
+	}
+
+	/**
+	 * Creates a Shop object
+	 *
+	 * @param locations Location of shop sign and chest as Tuple, left = Sign location, right = inventory location
+	 * @param owner     Owner of the shop as a ShopUser
+	 * @param shopType  Type of the shop as ShopType
+	 * @param items     Items to go into the shop as Tuple, left = Product, right = Cost
+	 * @param players   Users to be added to the shop as Tuple, left = Managers, right = Members
+	 */
+	public Shop(Tuple<Location, Location> locations, ShopType shopType, ShopUser owner, Tuple<Set<UUID>, Set<UUID>> players, Tuple<ItemStack, ItemStack> items) {
+		this(locations, shopType, owner, players, Collections.singletonList(new ShopItemStack(items.getLeft())), Collections.singletonList(new ShopItemStack(items.getRight())));
 	}
 
 	/**

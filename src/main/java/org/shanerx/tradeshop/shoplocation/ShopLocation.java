@@ -34,7 +34,7 @@ import java.io.Serializable;
 
 public class ShopLocation implements Serializable {
 
-	final private String div = "::";
+	final private transient String div = "::";
 	private transient World world;
 	private final String worldName;
 	private final double x;

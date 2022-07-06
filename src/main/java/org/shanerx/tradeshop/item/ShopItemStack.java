@@ -28,6 +28,7 @@ package org.shanerx.tradeshop.item;
 import com.google.common.collect.Lists;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 import net.md_5.bungee.api.ChatColor;
 import org.apache.commons.lang.WordUtils;
@@ -43,7 +44,6 @@ import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.util.io.BukkitObjectInputStream;
-import org.bukkit.util.io.BukkitObjectOutputStream;
 import org.shanerx.tradeshop.utils.Utils;
 import org.shanerx.tradeshop.utils.debug.Debug;
 import org.shanerx.tradeshop.utils.debug.DebugLevels;
@@ -51,7 +51,6 @@ import org.shanerx.tradeshop.utils.objects.ObjectHolder;
 import org.yaml.snakeyaml.external.biz.base64Coder.Base64Coder;
 
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -64,8 +63,13 @@ public class ShopItemStack implements Serializable, Cloneable {
     private transient ItemStack itemStack;
     private transient Debug debugger;
 
+    @Expose(serialize = false)
     private String itemStackB64;
 
+    @Expose
+    private Map<String, Object> serialItemStack;
+
+    @Expose
     @SerializedName(value = "itemSettings", alternate = "shopSettings")
     private Map<ShopItemStackSettingKeys, ObjectHolder<?>> itemSettings;
 
@@ -77,7 +81,6 @@ public class ShopItemStack implements Serializable, Cloneable {
         this.itemStack = itemStack;
         this.itemSettings = itemSettings;
         buildMap();
-        toBase64();
     }
 
     public ShopItemStack(String itemStackB64) {
@@ -91,7 +94,21 @@ public class ShopItemStack implements Serializable, Cloneable {
         itemSettings.forEach((key, value) -> this.itemSettings.put(ShopItemStackSettingKeys.match(key), value));
 
         buildMap();
-        fromBase64();
+        loadData();
+    }
+
+    public ShopItemStack(Map<String, Object> serialItemStack) {
+        this(serialItemStack, new HashMap<>());
+    }
+
+    public ShopItemStack(Map<String, Object> serialItemStack, HashMap<String, ObjectHolder<?>> itemSettings) {
+        this.serialItemStack = serialItemStack;
+        this.itemSettings = new HashMap<>();
+
+        itemSettings.forEach((key, value) -> this.itemSettings.put(ShopItemStackSettingKeys.match(key), value));
+
+        buildMap();
+        loadData();
     }
 
     //Re-added for backwards compatibility
@@ -117,7 +134,7 @@ public class ShopItemStack implements Serializable, Cloneable {
         itemSettings.putIfAbsent(ShopItemStackSettingKeys.COMPARE_ENCHANTMENTS, new ObjectHolder<>(compareEnchantments));
 
         buildMap();
-        fromBase64();
+        loadData();
     }
 
     public Map<ShopItemStackSettingKeys, ObjectHolder<?>> getItemSettings() {
@@ -125,12 +142,12 @@ public class ShopItemStack implements Serializable, Cloneable {
     }
 
     public String serialize() {
-        return new Gson().toJson(this);
+        return new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create().toJson(this);
     }
 
     public static ShopItemStack deserialize(String serialized) {
         ShopItemStack item = new Gson().fromJson(serialized, ShopItemStack.class);
-        item.fromBase64();
+        item.loadData();
         item.buildMap();
         return item;
     }
@@ -198,12 +215,19 @@ public class ShopItemStack implements Serializable, Cloneable {
 
     public void setAmount(int amount) {
         itemStack.setAmount(amount);
-        toBase64();
+        unloadData();
     }
 
     public String getItemStackB64() {
         return itemStackB64;
     }
+
+    public Map<String, Object> getSerialItemStack() {
+        if (serialItemStack == null)
+            unloadData();
+        return serialItemStack;
+    }
+
 
     public boolean hasBase64() {
         return itemStackB64 != null && !itemStackB64.isEmpty();
@@ -494,7 +518,7 @@ public class ShopItemStack implements Serializable, Cloneable {
 
     public ItemStack getItemStack() {
         if (itemStack == null)
-            fromBase64();
+            loadData();
         return itemStack;
     }
 
@@ -561,7 +585,7 @@ public class ShopItemStack implements Serializable, Cloneable {
     @Override
     public String toString() {
         return "ShopItemStack{" +
-                "itemStack=" + getItemStack() +
+                "itemStack=" + getItemStack().serialize() +
                 ", shopSettings=" + itemSettings +
                 '}';
     }
@@ -576,37 +600,39 @@ public class ShopItemStack implements Serializable, Cloneable {
     /**
      * Sets the objects Base64 from its {@link ItemStack}
      */
-    private void toBase64() {
-        try {
-            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-            BukkitObjectOutputStream dataOutput = new BukkitObjectOutputStream(outputStream);
-
-            // Save every element in the list
-            dataOutput.writeObject(itemStack);
-
-            // Serialize that array
-            dataOutput.close();
-            itemStackB64 = Base64Coder.encodeLines(outputStream.toByteArray());
-        } catch (IOException e) {
-            itemStackB64 = null;
-        }
+    private void unloadData() {
+        itemStackB64 = null;
+        serialItemStack = itemStack.serialize();
     }
 
     /**
-     * Sets the objects {@link ItemStack} from its Base64.
+     * Sets the objects {@link ItemStack} from its Base64 or Serialized values.
      */
-    private void fromBase64() {
-        try {
-            ByteArrayInputStream inputStream = new ByteArrayInputStream(Base64Coder.decodeLines(itemStackB64));
-            BukkitObjectInputStream dataInput = new BukkitObjectInputStream(inputStream);
-
-            // Read the serialized inventory
-            itemStack = new ItemStack((ItemStack) dataInput.readObject());
-
-            dataInput.close();
-        } catch (ClassNotFoundException | IOException e) {
-            itemStack = null;
+    private void loadData() {
+        if (serialItemStack != null && !serialItemStack.isEmpty()) {
+            itemStack = ItemStack.deserialize(serialItemStack);
         }
+
+        if (hasBase64()) {
+            try {
+                ByteArrayInputStream inputStream = new ByteArrayInputStream(Base64Coder.decodeLines(itemStackB64));
+                BukkitObjectInputStream dataInput = new BukkitObjectInputStream(inputStream);
+
+                // Read the serialized inventory
+                itemStack = new ItemStack((ItemStack) dataInput.readObject());
+
+                dataInput.close();
+            } catch (ClassNotFoundException | IOException e) {
+                itemStack = null;
+            }
+        }
+
+        unloadData();
+    }
+
+    public int getItemSize() {
+        unloadData();
+        return serialItemStack.toString().length();
     }
 
     public String toConsoleText() {
