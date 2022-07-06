@@ -79,7 +79,7 @@ public class DatabaseManager {
             throw new IllegalStateException("No connection has been opened yet.");
         }
 
-        return conn.prepareStatement(query);
+        return conn.prepareStatement(query, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
     }
 
     /**
