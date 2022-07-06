@@ -94,8 +94,9 @@ public class DatabaseManager {
 
     protected static DatabaseManager getSqlite(boolean shouldOpen) {
         if (sqlite == null) {
-            String path = Bukkit.getPluginManager().getPlugin("TradeShop").getDataFolder().getAbsolutePath() + File.pathSeparator + "Data-SQLite" + File.pathSeparator + "database.db";
-            sqlite = new DatabaseManager(path);
+            File dataDir = new File(Bukkit.getPluginManager().getPlugin("TradeShop").getDataFolder(), "Data");
+            if (!dataDir.isDirectory()) dataDir.mkdirs();
+            sqlite = new DatabaseManager(new File(dataDir, "database.db").getAbsolutePath());
         }
         if (!sqlite.hasOpenConnection() && shouldOpen) {
             sqlite.setupConnection(true);
