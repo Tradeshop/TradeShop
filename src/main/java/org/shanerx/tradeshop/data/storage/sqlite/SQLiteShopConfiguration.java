@@ -1,9 +1,6 @@
 package org.shanerx.tradeshop.data.storage.sqlite;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonElement;
 import org.bukkit.Location;
-import org.bukkit.inventory.ItemStack;
 import org.shanerx.tradeshop.data.storage.ShopConfiguration;
 import org.shanerx.tradeshop.item.ShopItemStack;
 import org.shanerx.tradeshop.player.ShopRole;
@@ -15,7 +12,6 @@ import org.shanerx.tradeshop.shoplocation.ShopChunk;
 import org.shanerx.tradeshop.shoplocation.ShopLocation;
 import org.shanerx.tradeshop.utils.objects.Tuple;
 
-import javax.xml.crypto.Data;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
@@ -82,21 +78,7 @@ public class SQLiteShopConfiguration implements ShopConfiguration {
         try {
             res = DatabaseManager.getSqlite(true).prepareStatement("SELECT * FROM shops where sign_loc_serialized = '" + locStr + "';").executeQuery();
 
-            if (!res.last()) return null;
-            else if (res.getRow() > 1) throw new IllegalStateException("Database contains more than one entry with the shop loc '" + locStr + "'");
-
-            res.beforeFirst();
-            res.next();
-
-            /**
-             * Creates a Shop object
-             *
-             * @param locations Location of shop sign and chest as Tuple, left = Sign location, right = inventory location
-             * @param owner     Owner of the shop as a ShopUser
-             * @param shopType  Type of the shop as ShopType
-             * @param items     Items to go into the shop as Tuple, left = Product, right = Cost
-             * @param players   Users to be added to the shop as Tuple, left = Managers, right = Members
-             */
+            if (!res.next()) return null;
 
             Tuple<Location, Location> locations = new Tuple<Location, Location>(ShopLocation.deserialize(res.getString("sign_loc_serialized")).getLocation(),
                                                                                 ShopLocation.deserialize(res.getString("sign_loc_serialized")).getLocation());
@@ -130,6 +112,8 @@ public class SQLiteShopConfiguration implements ShopConfiguration {
                 managers.add(UUID.fromString(res5.getString("uuid")));
             }
 
+            if (res.next()) throw new IllegalStateException("Database contains more than one entry with the shop loc '" + locStr + "'");
+
             return new Shop(locations,
                             ShopType.valueOf(res.getString("type")),
                             new ShopUser(UUID.fromString(res.getString("owner_uuid")), ShopRole.OWNER),
@@ -145,7 +129,7 @@ public class SQLiteShopConfiguration implements ShopConfiguration {
         String sql = "SELECT * FROM shops WHERE chunk_serialized = '" + chunkStr + "';";
         try {
             ResultSet res = DatabaseManager.getSqlite(true).prepareStatement(sql).executeQuery();
-            res.last();
+            while (res.next());
             return res.getRow();
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -176,7 +160,7 @@ public class SQLiteShopConfiguration implements ShopConfiguration {
                 " chest_y INTEGER, " +
                 " chest_z INTEGER, " +
 
-                " PRIMARY KEY ( shop_loc_serialized ));";
+                " PRIMARY KEY ( sign_loc_serialized ));";
         DatabaseManager.getSqlite(true).prepareStatement(sql).execute();
 
         String sql2 = "CREATE TABLE IF NOT EXISTS shop_products " +

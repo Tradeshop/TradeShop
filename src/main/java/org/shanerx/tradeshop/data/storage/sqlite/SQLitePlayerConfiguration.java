@@ -68,10 +68,7 @@ public class SQLitePlayerConfiguration implements PlayerConfiguration {
         }
 
         try {
-            int len = DatabaseManager.resultsLegth(res);
-            if (len == 0 || !res.next()) return null;
-            else if (len > 1)
-                throw new IllegalStateException("SQLite  Database cannot have more than one entry per player. This is likely a bug...");
+            if (!res.next()) return null;
 
             PlayerSetting playerSetting = new PlayerSetting(uuid);
             playerSetting.setMulti(res.getInt("multi"));
