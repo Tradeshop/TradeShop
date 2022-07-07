@@ -28,14 +28,11 @@ package org.shanerx.tradeshop.data.storage.Json;
 import com.google.common.collect.Sets;
 import com.google.gson.JsonElement;
 import org.shanerx.tradeshop.data.storage.ShopConfiguration;
-import org.shanerx.tradeshop.item.ShopItemStack;
 import org.shanerx.tradeshop.shop.Shop;
 import org.shanerx.tradeshop.shoplocation.ShopChunk;
 import org.shanerx.tradeshop.shoplocation.ShopLocation;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
 public class JsonShopConfiguration extends JsonConfiguration implements ShopConfiguration {
@@ -88,37 +85,6 @@ public class JsonShopConfiguration extends JsonConfiguration implements ShopConf
 
         if (!jsonObj.has(locStr)) {
             return null;
-        }
-
-        boolean save2Correct = false;
-        if (jsonObj.getAsJsonObject(locStr).getAsJsonPrimitive("productB64") != null) {
-            String str = jsonObj.getAsJsonObject(locStr).get("productB64").getAsString();
-            jsonObj.getAsJsonObject(locStr).remove("productB64");
-            jsonObj.getAsJsonObject(locStr).add("product", gson.toJsonTree(b64OverstackFixer(str)));
-            save2Correct = true;
-        }
-
-        if (jsonObj.getAsJsonObject(locStr).getAsJsonPrimitive("costB64") != null) {
-            String str = jsonObj.getAsJsonObject(locStr).get("costB64").getAsString();
-            jsonObj.getAsJsonObject(locStr).remove("costB64");
-            jsonObj.getAsJsonObject(locStr).add("cost", gson.toJsonTree(b64OverstackFixer(str)));
-            save2Correct = true;
-        }
-
-        if (save2Correct) saveFile();
-
-        if (jsonObj.getAsJsonObject(locStr).has("productListB64")) {
-            List<ShopItemStack> productList = new ArrayList<>();
-            gson.fromJson(jsonObj.getAsJsonObject(locStr).get("productListB64"), List.class).forEach(item -> productList.add(new ShopItemStack(item.toString())));
-            jsonObj.getAsJsonObject(locStr).remove("productListB64");
-            jsonObj.getAsJsonObject(locStr).add("product", gson.toJsonTree(productList));
-        }
-
-        if (jsonObj.getAsJsonObject(locStr).has("costListB64")) {
-            List<ShopItemStack> costList = new ArrayList<>();
-            gson.fromJson(jsonObj.getAsJsonObject(locStr).get("costListB64"), List.class).forEach(item -> costList.add(new ShopItemStack(item.toString())));
-            jsonObj.getAsJsonObject(locStr).remove("costListB64");
-            jsonObj.getAsJsonObject(locStr).add("cost", gson.toJsonTree(costList));
         }
 
         shop = gson.fromJson(jsonObj.get(locStr), Shop.class);
