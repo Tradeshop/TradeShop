@@ -24,7 +24,7 @@ public class SQLiteLinkageConfiguration implements LinkageConfiguration {
 
     @Override
     public void save() {
-        String sql = "DELETE FROM shop_linkage WHERE world = '" + worldName + "';";
+        String sql = "DELETE FROM shop_linkage WHERE world_name = '" + worldName + "';";
         try {
             DatabaseManager.getSqlite(true).prepareStatement(sql).executeUpdate();
 
