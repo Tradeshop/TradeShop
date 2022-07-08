@@ -601,8 +601,10 @@ public class ShopItemStack implements Serializable, Cloneable {
      * Sets the objects Base64 from its {@link ItemStack}
      */
     private void unloadData() {
-        itemStackB64 = null;
-        serialItemStack = itemStack.serialize();
+        if (itemStack != null) {
+            itemStackB64 = null;
+            serialItemStack = itemStack.serialize();
+        }
     }
 
     /**

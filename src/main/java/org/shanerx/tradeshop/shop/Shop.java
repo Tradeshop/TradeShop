@@ -101,8 +101,11 @@ public class Shop implements Serializable {
 		managers = players.getLeft() == null ? new HashSet<>() : players.getLeft();
 		members = players.getRight() == null ? new HashSet<>() : players.getRight();
 
-		product = productItems != null ? productItems : new ArrayList<>();
-		cost = costItems != null ? costItems : new ArrayList<>();
+		product = productItems != null ? new ArrayList<>(productItems) : new ArrayList<>();
+		cost = costItems != null ? new ArrayList<>(costItems) : new ArrayList<>();
+
+		product.removeIf(shopItemStack -> shopItemStack.getItemStack() == null);
+		cost.removeIf(shopItemStack -> shopItemStack.getItemStack() == null);
 
 		fixAfterLoad();
 	}
