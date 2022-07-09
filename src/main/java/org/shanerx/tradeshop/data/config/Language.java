@@ -105,29 +105,29 @@ public class Language {
         return lang;
     }
 
-    public String getHeader(LangSection section, String path) {
-        return getString(section, path, "header");
+    public String getHeader(LangSection section, LangSubSection subSection, String path) {
+        return getString(section, subSection, path, "header");
     }
 
-    public String getDefault(LangSection section, String path) {
-        return getStringOrDefault(section, path, "default");
+    public String getDefault(LangSection section, LangSubSection subSection, String path) {
+        return getStringOrDefault(section, subSection, path, "default");
     }
 
-    public String getPreComment(LangSection section, String path) {
-        return getString(section, path, "pre-comment");
+    public String getPreComment(LangSection section, LangSubSection subSection, String path) {
+        return getString(section, subSection, path, "pre-comment");
     }
 
-    public String getPostComment(LangSection section, String path) {
-        return getString(section, path, "post-comment");
+    public String getPostComment(LangSection section, LangSubSection subSection, String path) {
+        return getString(section, subSection, path, "post-comment");
     }
 
-    public String getString(LangSection section, String key, String field) {
-        String fullPath = section + "." + key + "." + field;
+    public String getString(LangSection section, LangSubSection subSection, String key, String field) {
+        String fullPath = section + "." + subSection + "." + key + "." + field;
         return langYAML.getString(fullPath, "");
     }
 
-    public String getStringOrDefault(LangSection section, String key, String field) {
-        String fullPath = section + "." + key + "." + field, value = getString(section, key, field);
+    public String getStringOrDefault(LangSection section, LangSubSection subSection, String key, String field) {
+        String fullPath = section + "." + subSection + "." + key + "." + field, value = getString(section, subSection, key, field);
         return value != null ? value : getDefaultLangValue(fullPath).toString();
     }
 
@@ -137,13 +137,25 @@ public class Language {
 
 
     public enum LangSection {
-        MESSAGE_SECTION,
         MESSAGE,
-        SETTING_SECTION,
         SETTING,
         PERMISSION;
 
         LangSection() {
+        }
+
+        @Override
+        public String toString() {
+            return name().toLowerCase().replace("_", "-");
+        }
+    }
+
+
+    public enum LangSubSection {
+        VALUES,
+        SECTIONS;
+
+        LangSubSection() {
         }
 
         @Override

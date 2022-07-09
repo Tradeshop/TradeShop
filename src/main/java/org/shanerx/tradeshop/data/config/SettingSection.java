@@ -95,15 +95,15 @@ public enum SettingSection {
     }
 
     public String getPostComment() {
-        return PLUGIN.getLanguage().getPostComment(Language.LangSection.SETTING_SECTION, key);
+        return PLUGIN.getLanguage().getPostComment(Language.LangSection.SETTING, Language.LangSubSection.SECTIONS, key);
     }
 
     public String getPreComment() {
-        return PLUGIN.getLanguage().getPreComment(Language.LangSection.SETTING_SECTION, key);
+        return PLUGIN.getLanguage().getPreComment(Language.LangSection.SETTING, Language.LangSubSection.SECTIONS, key);
     }
 
     public String getSectionHeader() {
-        return PLUGIN.getLanguage().getHeader(Language.LangSection.SETTING_SECTION, key);
+        return PLUGIN.getLanguage().getHeader(Language.LangSection.SETTING, Language.LangSubSection.SECTIONS, key);
     }
 
     public String getFileString() {

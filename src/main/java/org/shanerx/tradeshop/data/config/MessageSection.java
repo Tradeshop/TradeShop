@@ -77,15 +77,15 @@ enum MessageSection {
     }
 
     public String getPostComment() {
-        return PLUGIN.getLanguage().getPostComment(Language.LangSection.MESSAGE_SECTION, name().toLowerCase().replace("_", "-"));
+        return PLUGIN.getLanguage().getPostComment(Language.LangSection.MESSAGE, Language.LangSubSection.SECTIONS, name().toLowerCase().replace("_", "-"));
     }
 
     public String getPreComment() {
-        return PLUGIN.getLanguage().getPreComment(Language.LangSection.MESSAGE_SECTION, name().toLowerCase().replace("_", "-"));
+        return PLUGIN.getLanguage().getPreComment(Language.LangSection.MESSAGE, Language.LangSubSection.SECTIONS, name().toLowerCase().replace("_", "-"));
     }
 
     public String getSectionHeader() {
-        return PLUGIN.getLanguage().getHeader(Language.LangSection.MESSAGE_SECTION, name().toLowerCase().replace("_", "-"));
+        return PLUGIN.getLanguage().getHeader(Language.LangSection.MESSAGE, Language.LangSubSection.SECTIONS, name().toLowerCase().replace("_", "-"));
     }
 
     public String getFileString() {

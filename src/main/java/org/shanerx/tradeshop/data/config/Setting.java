@@ -291,11 +291,11 @@ public enum Setting {
     }
 
     public String getPostComment() {
-        return PLUGIN.getLanguage().getPostComment(Language.LangSection.SETTING, path);
+        return PLUGIN.getLanguage().getPostComment(Language.LangSection.SETTING, Language.LangSubSection.VALUES, path);
     }
 
     public String getPreComment() {
-        return PLUGIN.getLanguage().getPreComment(Language.LangSection.SETTING, path);
+        return PLUGIN.getLanguage().getPreComment(Language.LangSection.SETTING, Language.LangSubSection.VALUES, path);
     }
 
     public SettingSection getSection() {

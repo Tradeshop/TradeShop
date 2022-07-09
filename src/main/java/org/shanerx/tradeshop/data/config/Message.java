@@ -126,7 +126,7 @@ public enum Message {
         //Changes if CONFIG_VERSION is below 1.1, then update to 1.1
         if (checkVersion(version, 1.1)) {
             if (TOO_MANY_ITEMS.getString().equals("&cThis trade can not take any more %side%!")) {
-                TOO_MANY_ITEMS.setValue(PLUGIN.getLanguage().getDefault(Language.LangSection.MESSAGE, TOO_MANY_ITEMS.getPath()));
+                TOO_MANY_ITEMS.setValue(PLUGIN.getLanguage().getDefault(Language.LangSection.SETTING, Language.LangSubSection.VALUES, TOO_MANY_ITEMS.getPath()));
                 hasUpgraded.add(true);
             }
             version = 1.1;
@@ -149,15 +149,15 @@ public enum Message {
         //Changes if CONFIG_VERSION is below 1.3, then update to 1.3
         if (checkVersion(version, 1.3)) {
             if (INSUFFICIENT_ITEMS.getString().equals("&cYou do not have &e%AMOUNT% %ITEM%&c!")) {
-                INSUFFICIENT_ITEMS.setValue(PLUGIN.getLanguage().getDefault(Language.LangSection.MESSAGE, INSUFFICIENT_ITEMS.getPath()));
+                INSUFFICIENT_ITEMS.setValue(PLUGIN.getLanguage().getDefault(Language.LangSection.MESSAGE, Language.LangSubSection.VALUES, INSUFFICIENT_ITEMS.getPath()));
                 hasUpgraded.add(true);
             }
             if (SHOP_INSUFFICIENT_ITEMS.getString().equals("&cThis shop does not have enough &e%AMOUNT% %ITEM%&c to trade!")) {
-                SHOP_INSUFFICIENT_ITEMS.setValue(PLUGIN.getLanguage().getDefault(Language.LangSection.MESSAGE, SHOP_INSUFFICIENT_ITEMS.getPath()));
+                SHOP_INSUFFICIENT_ITEMS.setValue(PLUGIN.getLanguage().getDefault(Language.LangSection.MESSAGE, Language.LangSubSection.VALUES, SHOP_INSUFFICIENT_ITEMS.getPath()));
                 hasUpgraded.add(true);
             }
             if (ON_TRADE.getString().equals("&aYou have traded your &e%AMOUNT2% %ITEM2% &afor &e%AMOUNT1% %ITEM1% &awith %SELLER%")) {
-                ON_TRADE.setValue(PLUGIN.getLanguage().getDefault(Language.LangSection.MESSAGE, ON_TRADE.getPath()));
+                ON_TRADE.setValue(PLUGIN.getLanguage().getDefault(Language.LangSection.MESSAGE, Language.LangSubSection.VALUES, ON_TRADE.getPath()));
                 hasUpgraded.add(true);
             }
 
@@ -183,15 +183,15 @@ public enum Message {
     }
 
     public Object getDefaultValue() {
-        return PLUGIN.getLanguage().getDefault(Language.LangSection.MESSAGE, path);
+        return PLUGIN.getLanguage().getDefault(Language.LangSection.MESSAGE, Language.LangSubSection.VALUES, path);
     }
 
     public String getPostComment() {
-        return PLUGIN.getLanguage().getPostComment(Language.LangSection.MESSAGE, path);
+        return PLUGIN.getLanguage().getPostComment(Language.LangSection.MESSAGE, Language.LangSubSection.VALUES, path);
     }
 
     public String getPreComment() {
-        return PLUGIN.getLanguage().getPreComment(Language.LangSection.MESSAGE, path);
+        return PLUGIN.getLanguage().getPreComment(Language.LangSection.MESSAGE, Language.LangSubSection.VALUES, path);
     }
 
     public MessageSection getSection() {
