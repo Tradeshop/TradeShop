@@ -19,8 +19,6 @@ public class DatabaseManager {
     private String dbpath;
     private String dburl;
     private File dbfile;
-
-    private Connection conn;
     private TradeShop plugin;
 
     /**
@@ -30,42 +28,28 @@ public class DatabaseManager {
      * @param path The .db path of the SQLite database file.
      */
     protected DatabaseManager(String path) {
+        if (sqlite != null) throw new UnsupportedOperationException("Multiple initializations of DatabaseManager singleton.");
+
         this.dbpath =  path;
         this.dburl = "jdbc:sqlite:" + path;
         this.dbfile = new File(dbpath);
 
         this.plugin = (TradeShop) Bukkit.getPluginManager().getPlugin("TradeShop");
+
+        sqlite = this;
     }
 
     /**
      * Sets up connection to the SQLite data file.
      * @param create Should the database file be created if non-existent?
      */
-    private void setupConnection(boolean create) throws SQLException {
-        if (!dbfile.exists() && !create) {
-            throw new IllegalArgumentException("Database file is missing.");
-        }
-        else if (hasOpenConnection()) return;
-
+    protected Connection setupConnection(boolean create) throws SQLException {
+        if (!dbfile.exists() && !create) throw new IllegalArgumentException("Database file is missing.");
 
         try {
-            conn = DriverManager.getConnection(dburl);
+            return DriverManager.getConnection(dburl);
         } catch (SQLException e) {
             throw new RuntimeException(e);
-        }
-    }
-
-    /**
-     * Closes connection.
-     *
-     * What happens when destroying the connection while database transactions are still being carried out is
-     * implementation defined and should hence be avoided.
-     * @throws SQLException
-     */
-    protected void closeConnection() throws SQLException {
-        if (hasOpenConnection()) {
-            conn.close();
-            conn = null;
         }
     }
 
@@ -78,45 +62,22 @@ public class DatabaseManager {
      * @return The prepared statement.
      * @throws SQLException
      */
-    protected PreparedStatement prepareStatement(String query) throws SQLException {
+    protected PreparedStatement prepareStatement(Connection conn, String query) throws SQLException {
         plugin.getDebugger().log("Issuing SQL Statement: [" + query + "]", DebugLevels.SQLITE);
-        if (!hasOpenConnection()) {
+        if (!conn.isValid(0)) {
             throw new IllegalStateException("No connection has been opened yet.");
         }
 
         return conn.prepareStatement(query);
     }
 
-    /**
-     * Returns true if the connection is currently open and valid.
-     * @return whether it is open
-     */
-    protected boolean hasOpenConnection() {
-        try {
-            return conn != null && !conn.isClosed() && conn.isValid(0);
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
     private static DatabaseManager sqlite;
 
     protected static DatabaseManager getSqlite() {
-        return getSqlite(true);
-    }
-
-    protected static DatabaseManager getSqlite(boolean shouldOpen) {
         if (sqlite == null) {
             File dataDir = new File(Bukkit.getPluginManager().getPlugin("TradeShop").getDataFolder(), "Data");
             if (!dataDir.isDirectory()) dataDir.mkdirs();
             sqlite = new DatabaseManager(new File(dataDir, "database.db").getAbsolutePath());
-        }
-        if (!sqlite.hasOpenConnection() && shouldOpen) {
-            try {
-                sqlite.setupConnection(true);
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
-            }
         }
         return sqlite;
     }

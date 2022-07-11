@@ -3,16 +3,20 @@ package org.shanerx.tradeshop.data.storage.sqlite;
 import org.shanerx.tradeshop.data.storage.PlayerConfiguration;
 import org.shanerx.tradeshop.player.PlayerSetting;
 
+import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.UUID;
 
 public class SQLitePlayerConfiguration implements PlayerConfiguration {
 
-    private UUID uuid;
+    private final UUID uuid;
+    private final DatabaseManager sqlite;
 
     public SQLitePlayerConfiguration(UUID uuid) {
         this.uuid = uuid;
+        this.sqlite = DatabaseManager.getSqlite();
+
         try {
             createTableIfNotExists();
         } catch (SQLException e) {
@@ -28,22 +32,22 @@ public class SQLitePlayerConfiguration implements PlayerConfiguration {
 
         remove();
 
-        try {
+        try (Connection conn = sqlite.setupConnection(true)) {
             String sql = "INSERT INTO players (uuid, showInvolvedStatus, adminEnabled, multi) VALUES " +
                     "('" + uuid.toString() + "', " + (playerSetting.showInvolvedStatus() ? 1 : 0) + ", " + (playerSetting.isAdminEnabled() ? 1 : 0) + ", " + playerSetting.getMulti() + ");";
-            DatabaseManager.getSqlite(true).prepareStatement(sql).executeUpdate();
+            sqlite.prepareStatement(conn, sql).executeUpdate();
 
             for (String ownedShop : playerSetting.getOwnedShops()) {
-                DatabaseManager.getSqlite(false)
-                        .prepareStatement("INSERT INTO players_owned_shops (uuid, shop)"
-                                + " VALUES ('" + uuid.toString() + "', '" + ownedShop + "');")
+                sqlite.prepareStatement(conn,
+                                "INSERT INTO players_owned_shops (uuid, shop)"
+                                        + " VALUES ('" + uuid.toString() + "', '" + ownedShop + "');")
                         .executeUpdate();
             }
 
             for (String staffShop : playerSetting.getStaffShops()) {
-                DatabaseManager.getSqlite(false)
-                        .prepareStatement("INSERT INTO players_staff_shops (uuid, shop)"
-                                + " VALUES ('" + uuid.toString() + "', '" + staffShop + "');")
+                sqlite.prepareStatement(conn,
+                                "INSERT INTO players_staff_shops (uuid, shop)"
+                                    + " VALUES ('" + uuid.toString() + "', '" + staffShop + "');")
                         .executeUpdate();
             }
         } catch (SQLException e) {
@@ -53,21 +57,15 @@ public class SQLitePlayerConfiguration implements PlayerConfiguration {
 
     @Override
     public PlayerSetting load() {
-        String sql = "SELECT * FROM players WHERE uuid = '" + uuid.toString() + "';";
-        String sql2 = "SELECT * FROM players_owned_shops WHERE uuid = '" + uuid.toString() + "';";
-        String sql3 = "SELECT * FROM players_staff_shops WHERE uuid = '" + uuid.toString() + "';";
+        try (Connection conn = sqlite.setupConnection(true)) {
+            String sql = "SELECT * FROM players WHERE uuid = '" + uuid.toString() + "';";
+            String sql2 = "SELECT * FROM players_owned_shops WHERE uuid = '" + uuid.toString() + "';";
+            String sql3 = "SELECT * FROM players_staff_shops WHERE uuid = '" + uuid.toString() + "';";
 
-        ResultSet res, res2, res3;
+            ResultSet res = sqlite.prepareStatement(conn, sql).executeQuery();
+            ResultSet res2 = sqlite.prepareStatement(conn, sql2).executeQuery();
+            ResultSet res3 = sqlite.prepareStatement(conn, sql3).executeQuery();
 
-        try {
-            res = DatabaseManager.getSqlite(true).prepareStatement(sql).executeQuery();
-            res2 = DatabaseManager.getSqlite(false).prepareStatement(sql2).executeQuery();
-            res3 = DatabaseManager.getSqlite(false).prepareStatement(sql3).executeQuery();
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-
-        try {
             if (!res.next()) return null;
 
             PlayerSetting playerSetting = new PlayerSetting(uuid);
@@ -84,7 +82,6 @@ public class SQLitePlayerConfiguration implements PlayerConfiguration {
             }
 
             return playerSetting;
-
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -93,14 +90,14 @@ public class SQLitePlayerConfiguration implements PlayerConfiguration {
 
     @Override
     public void remove() {
-        String sql = "DELETE FROM players WHERE uuid = '" + uuid.toString() + "';";
-        String sql2 = "DELETE FROM players_owned_shops WHERE uuid = '" + uuid.toString() + "';";
-        String sql3 = "DELETE FROM players_staff_shops WHERE uuid = '" + uuid.toString() + "';";
+        try (Connection conn = sqlite.setupConnection(true)) {
+            String sql = "DELETE FROM players WHERE uuid = '" + uuid.toString() + "';";
+            String sql2 = "DELETE FROM players_owned_shops WHERE uuid = '" + uuid.toString() + "';";
+            String sql3 = "DELETE FROM players_staff_shops WHERE uuid = '" + uuid.toString() + "';";
 
-        try {
-            DatabaseManager.getSqlite(true).prepareStatement(sql).execute();
-            DatabaseManager.getSqlite(false).prepareStatement(sql2).execute();
-            DatabaseManager.getSqlite(false).prepareStatement(sql3).execute();
+            sqlite.prepareStatement(conn, sql).execute();
+            sqlite.prepareStatement(conn, sql2).execute();
+            sqlite.prepareStatement(conn, sql3).execute();
 
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -108,22 +105,27 @@ public class SQLitePlayerConfiguration implements PlayerConfiguration {
     }
 
     private void createTableIfNotExists() throws SQLException {
-        String sql = "CREATE TABLE IF NOT EXISTS players " +
-                "(uuid TEXT not NULL, " +
-                " showInvolvedStatus INTEGER, " +
-                " adminEnabled INTEGER, " +
-                " multi INTEGER, " +
-                " PRIMARY KEY ( uuid ));";
-        DatabaseManager.getSqlite(true).prepareStatement(sql).execute();
+        try (Connection conn = sqlite.setupConnection(true)) {
+            String sql = "CREATE TABLE IF NOT EXISTS players " +
+                    "(uuid TEXT not NULL, " +
+                    " showInvolvedStatus INTEGER, " +
+                    " adminEnabled INTEGER, " +
+                    " multi INTEGER, " +
+                    " PRIMARY KEY ( uuid ));";
+            sqlite.prepareStatement(conn, sql).execute();
 
-        sql = "CREATE TABLE IF NOT EXISTS players_owned_shops " +
-                "(uuid TEXT not NULL, " +
-                " shop TEXT);";
-        DatabaseManager.getSqlite(false).prepareStatement(sql).execute();
+            sql = "CREATE TABLE IF NOT EXISTS players_owned_shops " +
+                    "(uuid TEXT not NULL, " +
+                    " shop TEXT);";
+            sqlite.prepareStatement(conn, sql).execute();
 
-        sql = "CREATE TABLE IF NOT EXISTS players_staff_shops " +
-                "(uuid TEXT not NULL, " +
-                " shop TEXT);";
-        DatabaseManager.getSqlite(false).prepareStatement(sql).execute();
+            sql = "CREATE TABLE IF NOT EXISTS players_staff_shops " +
+                    "(uuid TEXT not NULL, " +
+                    " shop TEXT);";
+            sqlite.prepareStatement(conn, sql).execute();
+
+        } catch (SQLException e) {
+            throw e;
+        }
     }
 }
