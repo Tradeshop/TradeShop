@@ -1,6 +1,8 @@
 package org.shanerx.tradeshop.data.storage.sqlite;
 
 import org.bukkit.Bukkit;
+import org.shanerx.tradeshop.TradeShop;
+import org.shanerx.tradeshop.utils.debug.DebugLevels;
 
 import java.io.File;
 import java.sql.*;
@@ -19,6 +21,7 @@ public class DatabaseManager {
     private File dbfile;
 
     private Connection conn;
+    private TradeShop plugin;
 
     /**
      * Creates instance of the DatabaseManager class.
@@ -30,6 +33,8 @@ public class DatabaseManager {
         this.dbpath =  path;
         this.dburl = "jdbc:sqlite:" + path;
         this.dbfile = new File(dbpath);
+
+        this.plugin = (TradeShop) Bukkit.getPluginManager().getPlugin("TradeShop");
     }
 
     /**
@@ -74,11 +79,12 @@ public class DatabaseManager {
      * @throws SQLException
      */
     protected PreparedStatement prepareStatement(String query) throws SQLException {
+        plugin.getDebugger().log("Issuing SQL Statement: [" + query + "]", DebugLevels.SQLITE);
         if (!hasOpenConnection()) {
             throw new IllegalStateException("No connection has been opened yet.");
         }
 
-        return conn.prepareStatement(query, ResultSet.CONCUR_READ_ONLY);
+        return conn.prepareStatement(query);
     }
 
     /**

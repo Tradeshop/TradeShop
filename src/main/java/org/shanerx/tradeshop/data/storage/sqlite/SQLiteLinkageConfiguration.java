@@ -67,8 +67,7 @@ public class SQLiteLinkageConfiguration implements LinkageConfiguration {
         String sql = "CREATE TABLE IF NOT EXISTS shop_linkage " +
                 "(chest_loc TEXT not NULL, " +
                 " sign_loc TEXT not NULL, " +
-                " world_name TEXT not NULL, " +
-                " PRIMARY KEY ( world_name ));";
+                " world_name TEXT not NULL);";
         DatabaseManager.getSqlite(true).prepareStatement(sql).execute();
     }
 }

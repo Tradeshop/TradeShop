@@ -57,13 +57,13 @@ public class SQLiteShopConfiguration implements ShopConfiguration {
     @Override
     public void remove(ShopLocation loc) {
         try {
-            String sql = "DELETE * FROM shops WHERE sign_loc_serialized ='" + loc.serialize() + "';";
+            String sql = "DELETE FROM shops WHERE sign_loc_serialized = '" + loc.serialize() + "';";
             DatabaseManager.getSqlite(true).prepareStatement(sql).execute();
 
-            String sql2 = "DELETE * FROM shop_products WHERE sign_loc_serialized = '" + loc.serialize() + "';";
+            String sql2 = "DELETE FROM shop_products WHERE sign_loc_serialized = '" + loc.serialize() + "';";
             DatabaseManager.getSqlite(false).prepareStatement(sql2).execute();
 
-            String sql3 = "DELETE * FROM shop_costs WHERE sign_loc_serialized = '" + loc.serialize() + "';";
+            String sql3 = "DELETE FROM shop_costs WHERE sign_loc_serialized = '" + loc.serialize() + "';";
             DatabaseManager.getSqlite(false).prepareStatement(sql3).execute();
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -76,7 +76,7 @@ public class SQLiteShopConfiguration implements ShopConfiguration {
 
         ResultSet res;
         try {
-            res = DatabaseManager.getSqlite(true).prepareStatement("SELECT * FROM shops where sign_loc_serialized = '" + locStr + "';").executeQuery();
+            res = DatabaseManager.getSqlite(true).prepareStatement("SELECT * FROM shops WHERE sign_loc_serialized = '" + locStr + "';").executeQuery();
 
             if (!res.next()) return null;
 
@@ -112,13 +112,15 @@ public class SQLiteShopConfiguration implements ShopConfiguration {
                 managers.add(UUID.fromString(res5.getString("uuid")));
             }
 
-            if (res.next()) throw new IllegalStateException("Database contains more than one entry with the shop loc '" + locStr + "'");
-
-            return new Shop(locations,
+            Shop shop = new Shop(locations,
                             ShopType.valueOf(res.getString("type")),
                             new ShopUser(UUID.fromString(res.getString("owner_uuid")), ShopRole.OWNER),
                             new Tuple<>(managers, members),
                             products, costs);
+
+            if (res.next()) throw new IllegalStateException("Database contains more than one entry with the shop loc '" + locStr + "'");
+
+            return shop;
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
