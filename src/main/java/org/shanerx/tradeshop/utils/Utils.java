@@ -54,6 +54,8 @@ import org.shanerx.tradeshop.shop.ShopType;
 import org.shanerx.tradeshop.shoplocation.ShopLocation;
 import org.shanerx.tradeshop.utils.debug.DebugLevels;
 import org.shanerx.tradeshop.utils.objects.Tuple;
+import org.shanerx.tradeshop.utils.relativedirection.LocationOffset;
+import org.shanerx.tradeshop.utils.relativedirection.RelativeDirection;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -266,29 +268,51 @@ public class Utils {
 	 * @return the sign.
 	 */
 	public Sign findShopSign(Block chest) {
+		//region Linked Sign Check - Load and Check Chest Linkage first, if it is a shop then return Linked Shop
 		ShopLocation potentialLocation = PLUGIN.getDataStorage().getChestLinkage(new ShopLocation(chest.getLocation()));
 		if (potentialLocation != null && ShopType.isShop(potentialLocation.getLocation().getBlock()))
 			return (Sign) potentialLocation.getLocation().getBlock().getState();
+		//endregion
 
-		ArrayList<BlockFace> faces = PLUGIN.getListManager().getDirections(),
-				flatFaces = new ArrayList<>(Arrays.asList(BlockFace.NORTH, BlockFace.EAST, BlockFace.SOUTH, BlockFace.WEST));
+		// Directions to check for Sign(Reversed later as the list is built to check from Sign->Chest and this method checks from Chest->Sign)
+		ArrayList<RelativeDirection> directions = PLUGIN.getListManager().getDirections();
+		// Directions to check for other half of a DoubleChest
+		ArrayList<BlockFace> flatFaces = new ArrayList<>(Arrays.asList(BlockFace.NORTH, BlockFace.SOUTH, BlockFace.EAST, BlockFace.WEST));
 
-		for (BlockFace face : faces) {
-			face = face.getOppositeFace(); // Check in the opposite direction that a sign would check
-			Block relative = chest.getRelative(face);
+		Block otherHalf = null;
+
+		for (RelativeDirection direction : directions) {
+			// Translate Relative Direction and get the Block
+			LocationOffset relativeOffset = direction.getTranslatedDirection(RelativeDirection.getDirection(chest.getBlockData()).getOppositeFace());
+			Block relative = chest.getRelative(relativeOffset.getXOffset(), relativeOffset.getYOffset(), relativeOffset.getZOffset());
+
+			// Check if it is a shop and return. Add the chest and shop to ChestLinkage, If it is a DoubleChest also add the other half
 			if (ShopType.isShop(relative)) {
+				PLUGIN.getDataStorage().addChestLinkage(new ShopLocation(chest.getLocation()), new ShopLocation(relative.getLocation()));
 				if (ShopChest.isDoubleChest(chest)) {
 					PLUGIN.getDataStorage().addChestLinkage(new ShopLocation(ShopChest.getOtherHalfOfDoubleChest(chest).getLocation()), new ShopLocation(relative.getLocation()));
 				}
 				return (Sign) relative.getState();
-			} else if (flatFaces.contains(face) && (chest.getType().equals(Material.CHEST) || chest.getType().equals(Material.TRAPPED_CHEST))) {
+				// 	If the relative block wasn't the ShopSign and we are checking a FlatFace, Then check if it is the other half of this Chest
+			} else if (flatFaces.stream().anyMatch((face) -> relativeOffset.getXOffset() == face.getModX() ||
+					relativeOffset.getYOffset() == face.getModY() ||
+					relativeOffset.getZOffset() == face.getModZ()) && (chest.getType().equals(Material.CHEST) || chest.getType().equals(Material.TRAPPED_CHEST))) {
 				if (relative.getType().equals(chest.getType()) && ShopChest.isDoubleChest(chest)) {
-					for (BlockFace face2 : faces) {
-						Block relative2 = chest.getRelative(face).getRelative(face2.getOppositeFace());
-						if (ShopType.isShop(relative2)) {
-							PLUGIN.getDataStorage().addChestLinkage(new ShopLocation(chest.getLocation()), new ShopLocation(relative2.getLocation()));
-							return (Sign) relative2.getState();
-						}
+					// Set Aside for later, We want to check the relative directions on one chest at a time
+					otherHalf = relative;
+				}
+			}
+		}
+
+		// Check the relative Directions for the other half of the chest
+		if (otherHalf != null) {
+			for (RelativeDirection direction2 : directions) {
+				LocationOffset relativeOffset2 = direction2.getTranslatedDirection(RelativeDirection.getDirection(otherHalf.getBlockData()).getOppositeFace());
+				Block relative2 = chest.getRelative(relativeOffset2.getXOffset(), relativeOffset2.getYOffset(), relativeOffset2.getZOffset());
+				if (ShopType.isShop(relative2)) {
+					if (ShopType.isShop(relative2)) {
+						PLUGIN.getDataStorage().addChestLinkage(new ShopLocation(chest.getLocation()), new ShopLocation(relative2.getLocation()));
+						return (Sign) relative2.getState();
 					}
 				}
 			}
@@ -304,13 +328,19 @@ public class Utils {
 	 * @return the shop's inventory holder block.
 	 */
 	public Block findShopChest(Block sign) {
-		for (BlockFace face : PLUGIN.getListManager().getDirections()) {
-			Block relative = sign.getRelative(face);
-			if (PLUGIN.getListManager().isInventory(relative)) {
-				return relative;
+		// For each Relative Direction listed in the config in order
+		for (RelativeDirection direction : PLUGIN.getListManager().getDirections()) {
+			// Get the direction the block we want to check is Facing
+			BlockFace facing = RelativeDirection.getDirection(sign.getBlockData());
+			// Translate the Relative Direction from the Direction the Block is Facing and get the Block on that BlockFace
+			LocationOffset relativeOffset = direction.getTranslatedDirection(facing);
+			Block relativeBlock = sign.getRelative(relativeOffset.getXOffset(), relativeOffset.getYOffset(), relativeOffset.getZOffset());
+
+			// Check if relativeBlock is an inventory block and return if true
+			if (PLUGIN.getListManager().isInventory(relativeBlock)) {
+				return relativeBlock;
 			}
 		}
-
 		return null;
 	}
 

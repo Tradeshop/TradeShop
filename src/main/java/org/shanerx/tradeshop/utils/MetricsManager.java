@@ -175,7 +175,7 @@ public class MetricsManager {
     }
 
     private void addSettingStringListMetrics() {
-        List<Setting> settingList = Arrays.asList(Setting.ALLOWED_DIRECTIONS,
+        List<Setting> settingList = Arrays.asList(Setting.CHEST_DIRECTIONS,
                 Setting.ALLOWED_SHOPS);
 
         for (Setting setting : settingList) {
@@ -237,7 +237,7 @@ public class MetricsManager {
     }
 
     private void addSettingStringListAdvancedPieMetrics() {
-        List<Setting> settingList = Arrays.asList(Setting.ALLOWED_DIRECTIONS,
+        List<Setting> settingList = Arrays.asList(Setting.CHEST_DIRECTIONS,
                 Setting.ALLOWED_SHOPS);
 
         for (Setting setting : settingList) {

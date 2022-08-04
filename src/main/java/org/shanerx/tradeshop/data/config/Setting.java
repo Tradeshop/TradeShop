@@ -69,7 +69,7 @@ public enum Setting {
     SHOP_OUTOFSTOCK_STATUS(SettingSection.LANGUAGE_OPTIONS, "shop-outofstock-status", "&c<Out Of Stock>"),
 
     // Global Options
-    ALLOWED_DIRECTIONS(SettingSection.GLOBAL_OPTIONS, "allowed-directions", new String[]{"DOWN", "WEST", "SOUTH", "EAST", "NORTH", "UP"}),
+    CHEST_DIRECTIONS(SettingSection.GLOBAL_OPTIONS, "chest-directions", new String[]{"BACK", "DOWN", "LEFT", "RIGHT", "UP", "FRONT"}),
     ALLOWED_SHOPS(SettingSection.GLOBAL_OPTIONS, "allowed-shops", new String[]{"CHEST", "TRAPPED_CHEST", "SHULKER"}),
     MAX_EDIT_DISTANCE(SettingSection.GLOBAL_OPTIONS, "max-edit-distance", 4),
     ALLOW_TOGGLE_STATUS(SettingSection.GLOBAL_OPTIONS, "allow-toggle-status", true),

@@ -30,16 +30,15 @@ import com.google.common.cache.CacheBuilder;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
-import org.bukkit.block.BlockFace;
 import org.shanerx.tradeshop.data.config.Setting;
 import org.shanerx.tradeshop.item.IllegalItemList;
 import org.shanerx.tradeshop.item.NonObtainableMaterials;
 import org.shanerx.tradeshop.item.ShopItemSide;
 import org.shanerx.tradeshop.shop.ShopStorage;
 import org.shanerx.tradeshop.utils.debug.DebugLevels;
+import org.shanerx.tradeshop.utils.relativedirection.RelativeDirection;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 
 @SuppressWarnings("unused")
@@ -49,7 +48,7 @@ public class ListManager extends Utils {
 	private final IllegalItemList costList = new IllegalItemList(IllegalItemList.ListType.DISABLED, new ArrayList<>());
 	private final IllegalItemList productList = new IllegalItemList(IllegalItemList.ListType.DISABLED, new ArrayList<>());
 
-	private final ArrayList<BlockFace> directions = new ArrayList<>();
+	private final ArrayList<RelativeDirection> directions = new ArrayList<>();
 	private final ArrayList<ShopStorage.Storages> inventories = new ArrayList<>();
 	private final ArrayList<String> gameMats = new ArrayList<>();
 	private final ArrayList<String> addOnMats = new ArrayList<>();
@@ -103,7 +102,7 @@ public class ListManager extends Utils {
 	}
 
 
-	public ArrayList<BlockFace> getDirections() {
+	public ArrayList<RelativeDirection> getDirections() {
 		return directions;
 	}
 
@@ -132,10 +131,6 @@ public class ListManager extends Utils {
 			return true;
 
 		return side.equals(ShopItemSide.COST) ? costList.isIllegal(mat) : productList.isIllegal(mat);
-	}
-
-	public boolean isDirection(BlockFace face) {
-		return directions.contains(face);
 	}
 
 	public boolean isInventory(Block block) {
@@ -228,22 +223,23 @@ public class ListManager extends Utils {
 			}
 		}
 
-		// Remove all non obtainable materials that we have found
+		// Remove all non-obtainable materials that we have found
 		for (NonObtainableMaterials mat : NonObtainableMaterials.values()) {
 			gameMats.remove(mat.toString());
 		}
 
-		//Adds any strings that have been added the the AddOnMats list to the autocomplete list
+		//Adds any strings that have been added the AddOnMats list to the autocomplete list
 		gameMats.addAll(addOnMats);
 	}
 
 	private void updateDirections() {
 		directions.clear();
-		ArrayList<BlockFace> allowed = new ArrayList<>(Arrays.asList(BlockFace.DOWN, BlockFace.WEST, BlockFace.SOUTH, BlockFace.EAST, BlockFace.NORTH, BlockFace.UP));
 
-		for (String str : Setting.ALLOWED_DIRECTIONS.getStringList()) {
-			if (allowed.contains(BlockFace.valueOf(str)))
-				directions.add(BlockFace.valueOf(str));
+		for (String str : Setting.CHEST_DIRECTIONS.getStringList()) {
+			try {
+				directions.add(RelativeDirection.valueOf(str));
+			} catch (IllegalArgumentException | NullPointerException ignored) {
+			}
 		}
 	}
 
