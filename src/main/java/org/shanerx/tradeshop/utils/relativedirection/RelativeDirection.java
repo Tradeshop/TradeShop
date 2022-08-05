@@ -89,4 +89,50 @@ public class RelativeDirection {
         return sum;
     }
 
+    public enum RelativeCardinals {
+
+        SELF("0", "0", "0"),
+        DOWN("0", "-1", "0"),
+        UP("0", "1", "0"),
+        RIGHT("z", "0", "-x"),
+        LEFT("-z", "0", "x"),
+        BACK("-x", "0", "-z"),
+        FRONT("x", "0", "z");
+
+        private final transient String xTranslation;
+        private final transient String yTranslation;
+        private final transient String zTranslation;
+
+        RelativeCardinals(String xTranslation, String yTranslation, String zTranslation) {
+            this.xTranslation = xTranslation;
+            this.yTranslation = yTranslation;
+            this.zTranslation = zTranslation;
+        }
+
+        public LocationOffset getTranslation(BlockFace facing) {
+            return new LocationOffset(processTranslation(xTranslation, facing), processTranslation(yTranslation, facing), processTranslation(zTranslation, facing));
+        }
+
+        private int processTranslation(String translation, BlockFace facing) {
+            int temp = 0;
+
+            try {
+                temp = Integer.parseInt(translation);
+                return temp;
+            } catch (NumberFormatException ignored) {
+            }
+
+            if (translation.toLowerCase().contains("x"))
+                temp = facing.getModX();
+            else if (translation.toLowerCase().contains("y"))
+                temp = facing.getModY();
+            else if (translation.toLowerCase().contains("z"))
+                temp = facing.getModZ();
+
+            if (translation.contains("-"))
+                return Math.negateExact(temp);
+
+            return temp;
+        }
+    }
 }
