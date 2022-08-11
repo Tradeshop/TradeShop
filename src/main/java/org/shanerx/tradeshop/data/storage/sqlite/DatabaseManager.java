@@ -6,6 +6,10 @@ import org.shanerx.tradeshop.utils.debug.DebugLevels;
 
 import java.io.File;
 import java.sql.*;
+import java.util.HashSet;
+import java.util.Properties;
+import java.util.Set;
+import java.util.stream.Stream;
 
 /**
  * This class talks to the SQLITE file through JDBC.
@@ -16,10 +20,13 @@ import java.sql.*;
  */
 public class DatabaseManager {
 
-    private String dbpath;
-    private String dburl;
-    private File dbfile;
-    private TradeShop plugin;
+    private final String dbpath;
+    private final String dburl;
+    private final File dbfile;
+    private final TradeShop plugin;
+    private final Properties prop;
+
+    private Connection connection;
 
     /**
      * Creates instance of the DatabaseManager class.
@@ -37,6 +44,12 @@ public class DatabaseManager {
         this.plugin = (TradeShop) Bukkit.getPluginManager().getPlugin("TradeShop");
 
         sqlite = this;
+        this.prop = new Properties();
+        fillProperties();
+    }
+
+    private void fillProperties() {
+        prop.put("busy_timeout", "1000");
     }
 
     /**
@@ -47,7 +60,17 @@ public class DatabaseManager {
         if (!dbfile.exists() && !create) throw new IllegalArgumentException("Database file is missing.");
 
         try {
-            return DriverManager.getConnection(dburl);
+
+            if (connection != null && connection.isValid(0)) {
+                return connection;
+            }
+            else if (connection != null && !connection.isClosed()) {
+                throw new RuntimeException("Cached connection is in a broken state.");
+            }
+
+            connection = DriverManager.getConnection(dburl, prop);
+            return connection;
+
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -64,7 +87,7 @@ public class DatabaseManager {
      */
     protected PreparedStatement prepareStatement(Connection conn, String query) throws SQLException {
         plugin.getDebugger().log("Issuing SQL Statement: [" + query + "]", DebugLevels.SQLITE);
-        if (!conn.isValid(0)) {
+        if (conn == null || !conn.isValid(0)) {
             throw new IllegalStateException("No connection has been opened yet.");
         }
 

@@ -31,7 +31,7 @@ public class SQLitePlayerConfiguration implements PlayerConfiguration {
             throw new IllegalArgumentException("uuid of playerSetting does not match uuid field.");
         }
 
-        remove();
+        remove(); // should happen within the try but whatever
 
         try (Connection conn = sqlite.setupConnection(true)) {
             String sql = "INSERT INTO players (uuid, showInvolvedStatus, adminEnabled, multi) VALUES " +

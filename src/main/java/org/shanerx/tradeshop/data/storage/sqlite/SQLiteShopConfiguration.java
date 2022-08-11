@@ -38,9 +38,10 @@ public class SQLiteShopConfiguration implements ShopConfiguration {
 
     @Override
     public void save(Shop shop) {
+        remove(shop.getShopLocationAsSL()); // this should NOT be moved above the try !
+
         try (Connection conn = sqlite.setupConnection(true)) {
             Location chestLoc = shop.getChestAsSC().getChest().getLocation();
-            remove(shop.getShopLocationAsSL()); // this should NOT be moved above the try !
 
             String sql = "INSERT INTO shops (owner_uuid, sign_loc_serialized, chunk_serialized, type, " +
                     " status, setting_hopper_import, setting_hopper_export, setting_no_cost, available_trades, " +
