@@ -4,6 +4,7 @@ import org.bukkit.World;
 import org.shanerx.tradeshop.data.storage.LinkageConfiguration;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
@@ -32,13 +33,16 @@ public class SQLiteLinkageConfiguration implements LinkageConfiguration {
         try (Connection conn = sqlite.setupConnection(true)) {
             String sql = "DELETE FROM shop_linkage WHERE world_name = '" + worldName + "';";
 
-            sqlite.prepareStatement(conn, sql).executeUpdate();
+            PreparedStatement ps = sqlite.prepareStatement(conn, sql);
+            ps.executeUpdate();
+            ps.close();
 
             for (String chestData : linkageData.keySet()) {
-                sqlite.prepareStatement(conn,
+                ps = sqlite.prepareStatement(conn,
                                 "INSERT INTO shop_linkage (chest_loc, sign_loc, world_name)"
-                                + " VALUES ('" + chestData + "', '" + linkageData.get(chestData) + "', '" + worldName + "');")
-                        .executeUpdate();
+                                + " VALUES ('" + chestData + "', '" + linkageData.get(chestData) + "', '" + worldName + "');");
+                ps.executeUpdate();
+                ps.close();
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -53,11 +57,14 @@ public class SQLiteLinkageConfiguration implements LinkageConfiguration {
 
         try (Connection conn = sqlite.setupConnection(true)) {
             String sql = "SELECT * FROM shop_linkage WHERE world_name = '" + worldName + "';";
-            ResultSet res = sqlite.prepareStatement(conn, sql).executeQuery();
+            PreparedStatement ps = sqlite.prepareStatement(conn, sql);
+            ResultSet res = ps.executeQuery();
 
             while (res.next()) {
                 linkageData.put(res.getString("chest_loc"), res.getString("sign_loc"));
             }
+
+            ps.close();
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -74,9 +81,9 @@ public class SQLiteLinkageConfiguration implements LinkageConfiguration {
                     "(chest_loc TEXT not NULL, " +
                     " sign_loc TEXT not NULL, " +
                     " world_name TEXT not NULL);";
-            sqlite.prepareStatement(conn, sql).execute();
-        } catch (SQLException e) {
-            throw e;
+            PreparedStatement ps = sqlite.prepareStatement(conn, sql);
+            ps.execute();
+            ps.close();
         }
     }
 }

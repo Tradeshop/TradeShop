@@ -4,6 +4,7 @@ import org.shanerx.tradeshop.data.storage.PlayerConfiguration;
 import org.shanerx.tradeshop.player.PlayerSetting;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.UUID;
@@ -35,20 +36,24 @@ public class SQLitePlayerConfiguration implements PlayerConfiguration {
         try (Connection conn = sqlite.setupConnection(true)) {
             String sql = "INSERT INTO players (uuid, showInvolvedStatus, adminEnabled, multi) VALUES " +
                     "('" + uuid.toString() + "', " + (playerSetting.showInvolvedStatus() ? 1 : 0) + ", " + (playerSetting.isAdminEnabled() ? 1 : 0) + ", " + playerSetting.getMulti() + ");";
-            sqlite.prepareStatement(conn, sql).executeUpdate();
+            PreparedStatement ps = sqlite.prepareStatement(conn, sql);
+            ps.executeUpdate();
+            ps.close();
 
             for (String ownedShop : playerSetting.getOwnedShops()) {
-                sqlite.prepareStatement(conn,
+                ps = sqlite.prepareStatement(conn,
                                 "INSERT INTO players_owned_shops (uuid, shop)"
-                                        + " VALUES ('" + uuid.toString() + "', '" + ownedShop + "');")
-                        .executeUpdate();
+                                        + " VALUES ('" + uuid.toString() + "', '" + ownedShop + "');");
+                ps.executeUpdate();
+                ps.close();
             }
 
             for (String staffShop : playerSetting.getStaffShops()) {
-                sqlite.prepareStatement(conn,
+                ps = sqlite.prepareStatement(conn,
                                 "INSERT INTO players_staff_shops (uuid, shop)"
-                                    + " VALUES ('" + uuid.toString() + "', '" + staffShop + "');")
-                        .executeUpdate();
+                                    + " VALUES ('" + uuid.toString() + "', '" + staffShop + "');");
+                ps.executeUpdate();
+                ps.close();
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -62,11 +67,21 @@ public class SQLitePlayerConfiguration implements PlayerConfiguration {
             String sql2 = "SELECT * FROM players_owned_shops WHERE uuid = '" + uuid.toString() + "';";
             String sql3 = "SELECT * FROM players_staff_shops WHERE uuid = '" + uuid.toString() + "';";
 
-            ResultSet res = sqlite.prepareStatement(conn, sql).executeQuery();
-            ResultSet res2 = sqlite.prepareStatement(conn, sql2).executeQuery();
-            ResultSet res3 = sqlite.prepareStatement(conn, sql3).executeQuery();
+            PreparedStatement ps = sqlite.prepareStatement(conn, sql);
+            PreparedStatement ps2 = sqlite.prepareStatement(conn, sql2);
+            PreparedStatement ps3 = sqlite.prepareStatement(conn, sql3);
 
-            if (!res.next()) return null;
+            ResultSet res = ps.executeQuery();
+            ResultSet res2 = ps2.executeQuery();
+            ResultSet res3 = ps3.executeQuery();
+
+            if (!res.next()) {
+                ps.close();
+                ps2.close();
+                ps3.close();
+
+                return null;
+            }
 
             PlayerSetting playerSetting = new PlayerSetting(uuid);
             playerSetting.setMulti(res.getInt("multi"));
@@ -80,6 +95,10 @@ public class SQLitePlayerConfiguration implements PlayerConfiguration {
             while (res3.next()) {
                 playerSetting.getStaffShops().add(res3.getString("shop"));
             }
+
+            ps.close();
+            ps2.close();
+            ps3.close();
 
             return playerSetting;
         } catch (SQLException e) {
@@ -95,9 +114,17 @@ public class SQLitePlayerConfiguration implements PlayerConfiguration {
             String sql2 = "DELETE FROM players_owned_shops WHERE uuid = '" + uuid.toString() + "';";
             String sql3 = "DELETE FROM players_staff_shops WHERE uuid = '" + uuid.toString() + "';";
 
-            sqlite.prepareStatement(conn, sql).execute();
-            sqlite.prepareStatement(conn, sql2).execute();
-            sqlite.prepareStatement(conn, sql3).execute();
+            PreparedStatement ps = sqlite.prepareStatement(conn, sql);
+            PreparedStatement ps2 = sqlite.prepareStatement(conn, sql2);
+            PreparedStatement ps3 = sqlite.prepareStatement(conn, sql3);
+
+            ps.execute();
+            ps2.execute();
+            ps3.execute();
+
+            ps.close();
+            ps2.close();
+            ps3.close();
 
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -112,20 +139,26 @@ public class SQLitePlayerConfiguration implements PlayerConfiguration {
                     " adminEnabled INTEGER, " +
                     " multi INTEGER, " +
                     " PRIMARY KEY ( uuid ));";
-            sqlite.prepareStatement(conn, sql).execute();
+
+            PreparedStatement ps = sqlite.prepareStatement(conn, sql);
+            ps.execute();
+            ps.close();
 
             sql = "CREATE TABLE IF NOT EXISTS players_owned_shops " +
                     "(uuid TEXT not NULL, " +
                     " shop TEXT);";
-            sqlite.prepareStatement(conn, sql).execute();
+
+            ps = sqlite.prepareStatement(conn, sql);
+            ps.execute();
+            ps.close();
 
             sql = "CREATE TABLE IF NOT EXISTS players_staff_shops " +
                     "(uuid TEXT not NULL, " +
                     " shop TEXT);";
-            sqlite.prepareStatement(conn, sql).execute();
 
-        } catch (SQLException e) {
-            throw e;
+            ps = sqlite.prepareStatement(conn, sql);
+            ps.execute();
+            ps.close();
         }
     }
 }

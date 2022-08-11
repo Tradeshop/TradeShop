@@ -13,6 +13,7 @@ import org.shanerx.tradeshop.shoplocation.ShopLocation;
 import org.shanerx.tradeshop.utils.objects.Tuple;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
@@ -53,7 +54,9 @@ public class SQLiteShopConfiguration implements ShopConfiguration {
                             shop.getShopLocation().getBlockX(), shop.getShopLocation().getBlockY(), shop.getShopLocation().getBlockZ(),
                             chestLoc.getWorld().getName(), chestLoc.getBlockX(), chestLoc.getBlockY(), chestLoc.getBlockZ());
 
-            sqlite.prepareStatement(conn, sql).execute();
+            PreparedStatement ps = sqlite.prepareStatement(conn, sql);
+            ps.execute();
+            ps.close();
 
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -64,13 +67,20 @@ public class SQLiteShopConfiguration implements ShopConfiguration {
     public void remove(ShopLocation loc) {
         try (Connection conn = sqlite.setupConnection(true)) {
             String sql = "DELETE FROM shops WHERE sign_loc_serialized = '" + loc.serialize() + "';";
-            sqlite.prepareStatement(conn, sql).execute();
+            PreparedStatement ps = sqlite.prepareStatement(conn, sql);
+            ps.executeUpdate();
+            ps.close();
 
             String sql2 = "DELETE FROM shop_products WHERE sign_loc_serialized = '" + loc.serialize() + "';";
-            sqlite.prepareStatement(conn, sql2).execute();
+            PreparedStatement ps2 = sqlite.prepareStatement(conn, sql2);
+            ps2.executeUpdate();
+            ps2.close();
 
             String sql3 = "DELETE FROM shop_costs WHERE sign_loc_serialized = '" + loc.serialize() + "';";
-            sqlite.prepareStatement(conn, sql3).execute();
+            PreparedStatement ps3 = sqlite.prepareStatement(conn, sql3);
+            ps3.executeUpdate();
+            ps3.close();
+
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -81,11 +91,14 @@ public class SQLiteShopConfiguration implements ShopConfiguration {
         String locStr = loc.serialize();
 
         try (Connection conn = sqlite.setupConnection(true)) {
-            ResultSet res = sqlite.prepareStatement(conn,
-                            "SELECT * FROM shops WHERE sign_loc_serialized = '" + locStr + "';")
-                    .executeQuery();
+            PreparedStatement ps = sqlite.prepareStatement(conn,
+                    "SELECT * FROM shops WHERE sign_loc_serialized = '" + locStr + "';");
+            ResultSet res = ps.executeQuery();
 
-            if (!res.next()) return null;
+            if (!res.next()) {
+                ps.close();
+                return null;
+            }
 
             Tuple<Location, Location> locations = new Tuple<Location, Location>(ShopLocation.deserialize(res.getString("sign_loc_serialized")).getLocation(),
                                                                     ShopLocation.deserialize(res.getString("sign_loc_serialized")).getLocation());
@@ -96,25 +109,29 @@ public class SQLiteShopConfiguration implements ShopConfiguration {
             List<ShopItemStack> costs = new ArrayList<>();
 
             String sql2 = "SELECT * FROM shop_products WHERE sign_loc_serialized = '" + locStr + "';";
-            ResultSet res2 = sqlite.prepareStatement(conn, sql2).executeQuery();
+            PreparedStatement ps2 = sqlite.prepareStatement(conn, sql2);
+            ResultSet res2 = ps2.executeQuery();
             while (res2.next()) {
                 products.add(ShopItemStack.deserialize(res2.getString("product")));
             }
 
             String sql3 = "SELECT * FROM shop_costs WHERE sign_loc_serialized = '" + locStr + "';";
-            ResultSet res3 = sqlite.prepareStatement(conn, sql3).executeQuery();
+            PreparedStatement ps3 = sqlite.prepareStatement(conn, sql3);
+            ResultSet res3 = ps3.executeQuery();
             while (res3.next()) {
                 costs.add(ShopItemStack.deserialize(res3.getString("cost")));
             }
 
             String sql4 = "SELECT * FROM shop_managers WHERE sign_loc_serialized = '" + locStr + "';";
-            ResultSet res4 = sqlite.prepareStatement(conn, sql4).executeQuery();
+            PreparedStatement ps4 = sqlite.prepareStatement(conn, sql4);
+            ResultSet res4 = ps4.executeQuery();
             while (res4.next()) {
                 managers.add(UUID.fromString(res4.getString("uuid")));
             }
 
             String sql5 = "SELECT * FROM shop_members WHERE sign_loc_serialized = '" + locStr + "';";
-            ResultSet res5 = sqlite.prepareStatement(conn, sql5).executeQuery();
+            PreparedStatement ps5 = sqlite.prepareStatement(conn, sql5);
+            ResultSet res5 = ps5.executeQuery();
             while (res5.next()) {
                 managers.add(UUID.fromString(res5.getString("uuid")));
             }
@@ -127,6 +144,12 @@ public class SQLiteShopConfiguration implements ShopConfiguration {
 
             if (res.next()) throw new IllegalStateException("Database contains more than one entry with the shop loc '" + locStr + "'");
 
+            ps.close();
+            ps2.close();
+            ps3.close();
+            ps4.close();
+            ps5.close();
+
             return shop;
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -137,9 +160,13 @@ public class SQLiteShopConfiguration implements ShopConfiguration {
     public int size() {
         String sql = "SELECT * FROM shops WHERE chunk_serialized = '" + chunkStr + "';";
         try (Connection conn = sqlite.setupConnection(true)) {
-            ResultSet res = sqlite.prepareStatement(conn, sql).executeQuery();
+            PreparedStatement ps = sqlite.prepareStatement(conn, sql);
+            ResultSet res = ps.executeQuery();
             while (res.next()); // empty body is intentional
-            return res.getRow();
+
+            int row = res.getRow();
+            ps.close();
+            return row;
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -171,33 +198,43 @@ public class SQLiteShopConfiguration implements ShopConfiguration {
                     " chest_z INTEGER, " +
 
                     " PRIMARY KEY ( sign_loc_serialized ));";
-            sqlite.prepareStatement(conn, sql).execute();
+
+            PreparedStatement ps = sqlite.prepareStatement(conn, sql);
+            ps.execute();
+            ps.close();
 
             String sql2 = "CREATE TABLE IF NOT EXISTS shop_products " +
                     "(sign_loc_serialized TEXT not NULL, " +
                     " product TEXT not NULL, " +
                     " PRIMARY KEY ( sign_loc_serialized ));";
-            sqlite.prepareStatement(conn, sql2).execute();
+
+            ps = sqlite.prepareStatement(conn, sql2);
+            ps.execute();
+            ps.close();
 
             String sql3 = "CREATE TABLE IF NOT EXISTS shop_costs " +
                     "(sign_loc_serialized TEXT not NULL, " +
                     " cost TEXT not NULL, " +
                     " PRIMARY KEY ( sign_loc_serialized ));";
-            sqlite.prepareStatement(conn, sql3).execute();
+            ps = sqlite.prepareStatement(conn, sql3);
+            ps.execute();
+            ps.close();
 
             String sql4 = "CREATE TABLE IF NOT EXISTS shop_managers " +
                     "(sign_loc_serialized TEXT not NULL, " +
                     " uuid TEXT not NULL, " +
                     " PRIMARY KEY ( sign_loc_serialized ));";
-            sqlite.prepareStatement(conn, sql4).execute();
+            ps = sqlite.prepareStatement(conn, sql4);
+            ps.execute();
+            ps.close();
 
             String sql5 = "CREATE TABLE IF NOT EXISTS shop_members " +
                     "(sign_loc_serialized TEXT not NULL, " +
                     " uuid TEXT not NULL, " +
                     " PRIMARY KEY ( sign_loc_serialized ));";
-            sqlite.prepareStatement(conn, sql5).execute();
-        } catch (SQLException e) {
-            throw e;
+            ps = sqlite.prepareStatement(conn, sql5);
+            ps.execute();
+            ps.close();
         }
     }
 }
