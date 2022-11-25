@@ -122,6 +122,7 @@ public class ShopItemStack implements Serializable, Cloneable {
     }
 
     public String serialize() {
+        unloadData();
         return new Gson().toJson(this);
     }
 
@@ -588,7 +589,7 @@ public class ShopItemStack implements Serializable, Cloneable {
             itemStack = ItemStack.deserialize(serialItemStack);
         }
 
-        if (hasBase64()) {
+        if (itemStack == null && hasBase64()) {
             try {
                 ByteArrayInputStream inputStream = new ByteArrayInputStream(Base64Coder.decodeLines(itemStackB64));
                 BukkitObjectInputStream dataInput = new BukkitObjectInputStream(inputStream);

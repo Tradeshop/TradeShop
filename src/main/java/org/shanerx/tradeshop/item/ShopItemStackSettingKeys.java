@@ -55,7 +55,7 @@ public enum ShopItemStackSettingKeys {
 
     private final ItemStack displayItem;
     private final Object preConfigDefault;
-    private static final String defaultKey = "default", userEditableKey = "userEditable";
+    private static final String defaultKey = "default", userEditableKey = "user-editable";
 
     ShopItemStackSettingKeys(ItemStack displayItem, Object preConfigDefault) {
         this.displayItem = displayItem;

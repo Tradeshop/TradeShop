@@ -961,7 +961,7 @@ public class Shop implements Serializable {
 	//------------------------------------------------------------------------------------------------------------------
 
 	/**
-	 * Checks if shop has a bade side and fixes if necessary
+	 * Checks if shop has a bad side and fixes if necessary
 	 */
 	public void fixSide(ShopItemSide side) {
 		List<ShopItemStack> ogItems = (side.equals(ShopItemSide.PRODUCT) ? product : cost);

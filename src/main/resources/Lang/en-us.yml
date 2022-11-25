@@ -75,9 +75,9 @@ setting:
         post-comment: "\n"
     global-options:
       chest-directions:
-        pre-comment: "Directions an allowed shop can be from a sign. Multiple directions can be chained together allowing all 26 blocks surrounding a block to be checked. \nTo Chain directions just add a `+` between each one. i.e `Back+Left` or `Back+Left+Up` \nAllowed directions are:\n Up, Down, Left, Right, Back, Front"
+        pre-comment: "Directions a valid shop chest can be from a sign. Multiple directions can be chained together allowing all 26 blocks surrounding a block to be checked.\n To Chain directions just add a `+` between each one. i.e `Back+Left` or `Back+Left+Up`\n Allowed directions are:\n   Up, Down, Left, Right, Back, Front"
       allowed-shops:
-        pre-comment: "Inventories to allow for shops. Allowed blocks are:\n Chest, Trapped_Chest, Dropper, Hopper, Dispenser, Shulker, ..."
+        pre-comment: "Inventories to allow for shops. Allowed blocks are:\n   Chest, Trapped_Chest, Dropper, Hopper, Dispenser, Shulker, ..."
       max-edit-distance:
         pre-comment: "Max distance a player can be from a shop to edit it"
       allow-toggle-status:
