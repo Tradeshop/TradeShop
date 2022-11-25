@@ -31,11 +31,7 @@ import org.bukkit.inventory.ItemStack;
 import org.shanerx.tradeshop.data.config.Setting;
 import org.shanerx.tradeshop.utils.objects.ObjectHolder;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public enum ShopSettingKeys {
 
@@ -45,7 +41,7 @@ public enum ShopSettingKeys {
     HOPPER_EXPORT(new ItemStack(Material.DISPENSER), false, false, null),
     NO_COST(new ItemStack(Material.GOLD_INGOT), false, null, false);
 
-    public static final String defaultKey = "default", userEditableKey = "userEditable";
+    public static final String defaultKey = "default", userEditableKey = "user-editable";
     private final ItemStack displayItem;
     private final Map<ShopType, Object> defaults;
 

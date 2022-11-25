@@ -75,6 +75,7 @@ public class ShopItemStack implements Serializable, Cloneable {
         this.itemStack = itemStack;
         this.itemSettings = itemSettings;
         buildMap();
+        packData();
     }
 
     public ShopItemStack(String itemStackB64) {
@@ -122,7 +123,7 @@ public class ShopItemStack implements Serializable, Cloneable {
     }
 
     public String serialize() {
-        unloadData();
+        packData();
         return new Gson().toJson(this);
     }
 
@@ -196,7 +197,7 @@ public class ShopItemStack implements Serializable, Cloneable {
 
     public void setAmount(int amount) {
         itemStack.setAmount(amount);
-        unloadData();
+        packData();
     }
 
     public String getItemStackB64() {
@@ -572,9 +573,9 @@ public class ShopItemStack implements Serializable, Cloneable {
      */
 
     /**
-     * Sets the objects Base64 from its {@link ItemStack}
+     * Converts the {@link ItemStack} to a store-able object
      */
-    private void unloadData() {
+    private void packData() {
         if (itemStack != null) {
             itemStackB64 = null;
             serialItemStack = itemStack.serialize();
@@ -605,7 +606,7 @@ public class ShopItemStack implements Serializable, Cloneable {
     }
 
     public int getItemSize() {
-        unloadData();
+        packData();
         return serialItemStack.toString().length();
     }
 
