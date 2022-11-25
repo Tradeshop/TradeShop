@@ -25,10 +25,9 @@
 
 package org.shanerx.tradeshop.data.storage.Json;
 
-import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.gson.JsonElement;
-import org.bukkit.inventory.ItemStack;
+import org.shanerx.tradeshop.data.storage.ShopConfiguration;
 import org.shanerx.tradeshop.item.ShopItemStack;
 import org.shanerx.tradeshop.shop.Shop;
 import org.shanerx.tradeshop.shoplocation.ShopChunk;
@@ -39,11 +38,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class ShopConfiguration extends JsonConfiguration {
+public class JsonShopConfiguration extends JsonConfiguration implements ShopConfiguration {
 
     private final ShopChunk chunk;
 
-    public ShopConfiguration(ShopChunk chunk) {
+    public JsonShopConfiguration(ShopChunk chunk) {
         super(chunk.getWorld().getName(), chunk.serialize());
         this.chunk = chunk;
     }
@@ -67,12 +66,14 @@ public class ShopConfiguration extends JsonConfiguration {
         }
     }
 
+    @Override
     public void save(Shop shop) {
         jsonObj.add(shop.getShopLocationAsSL().serialize(), gson.toJsonTree(shop));
 
         saveFile();
     }
 
+    @Override
     public void remove(ShopLocation loc) {
         if (jsonObj.has(loc.serialize()))
             jsonObj.remove(loc.serialize());
@@ -80,6 +81,7 @@ public class ShopConfiguration extends JsonConfiguration {
         saveFile();
     }
 
+    @Override
     public Shop load(ShopLocation loc) {
         Shop shop;
 
@@ -122,45 +124,8 @@ public class ShopConfiguration extends JsonConfiguration {
         return shop;
     }
 
+    @Override
     public int size() {
         return jsonObj.size();
-    }
-
-
-    /**
-     * Turns old overstacked itemstacks into individual stacks in a list
-     *
-     * @param oldB64 old B64 string to check/fix
-     * @return new list of ItemStacks
-     * @deprecated
-     */
-    private List<ShopItemStack> b64OverstackFixer(String oldB64) {
-        ShopItemStack oldStack = new ShopItemStack(oldB64);
-
-        if (oldStack.hasBase64())
-            return null;
-
-        if (!(oldStack.getItemStack().getAmount() > oldStack.getItemStack().getMaxStackSize())) {
-            return Lists.newArrayList(oldStack);
-        } else {
-            List<ShopItemStack> newStacks = new ArrayList<>();
-            int amount = oldStack.getItemStack().getAmount();
-
-            while (amount > 0) {
-                if (oldStack.getItemStack().getMaxStackSize() < amount) {
-                    ItemStack itm = oldStack.getItemStack().clone();
-                    itm.setAmount(oldStack.getItemStack().getMaxStackSize());
-                    newStacks.add(new ShopItemStack(itm));
-                    amount -= oldStack.getItemStack().getMaxStackSize();
-                } else {
-                    ItemStack itm = oldStack.getItemStack().clone();
-                    itm.setAmount(amount);
-                    newStacks.add(new ShopItemStack(itm));
-                    amount -= amount;
-                }
-            }
-
-            return newStacks;
-        }
     }
 }

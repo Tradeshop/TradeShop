@@ -23,55 +23,40 @@
  *
  */
 
-package org.shanerx.tradeshop.data.storage.Json;
+package org.shanerx.tradeshop.data.storage;
 
-import com.google.gson.reflect.TypeToken;
-import org.bukkit.World;
 import org.shanerx.tradeshop.shop.ShopChest;
 import org.shanerx.tradeshop.shoplocation.ShopLocation;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class LinkageConfiguration extends JsonConfiguration {
+public interface LinkageConfiguration {
 
-    Map<String, String> linkageData;
+    void save();
 
-    public LinkageConfiguration(World world) {
-        super(world.getName(), "chest_linkage");
-        load();
-    }
+    void load();
 
-    public void load() {
-        linkageData = gson.fromJson(jsonObj.get("linkage_data"), new TypeToken<Map<String, String>>() {
-        }.getType());
-        if (linkageData == null)
-            linkageData = new HashMap<>();
-    }
+    Map<String, String> getLinkageData();
 
-    public Map<String, String> getLinkageData() {
-        return linkageData;
-    }
-
-    public ShopLocation getLinkedShop(ShopLocation chestLocation) {
+    default ShopLocation getLinkedShop(ShopLocation chestLocation) {
         String loc = chestLocation.serialize();
-
-        return linkageData.containsKey(loc) ? ShopLocation.deserialize(linkageData.get(chestLocation.serialize())) : null;
+        return getLinkageData().containsKey(loc) ? ShopLocation.deserialize(getLinkageData().get(chestLocation.serialize())) : null;
     }
 
-    public void save() {
-        jsonObj.add("linkage_data", gson.toJsonTree(linkageData));
-
-        saveFile();
+    default int size() {
+        return getLinkageData().size();
     }
 
-    public int size() {
-        return linkageData.size();
+    default void addLinkage(ShopLocation chestLocation, ShopLocation shopLocation) {
+        if (getLinkageData().containsKey(chestLocation.serialize()))
+            getLinkageData().replace(chestLocation.serialize(), shopLocation.serialize());
+        else
+            getLinkageData().put(chestLocation.serialize(), shopLocation.serialize());
     }
 
-    public void add(ShopLocation chestLocation, ShopLocation shopLocation) {
+    default void add(ShopLocation chestLocation, ShopLocation shopLocation) {
         if (ShopChest.isDoubleChest(chestLocation.getLocation().getBlock())) {
             ShopLocation otherSideLocation = new ShopLocation(ShopChest.getOtherHalfOfDoubleChest(chestLocation.getLocation().getBlock()).getLocation());
             addLinkage(otherSideLocation, shopLocation);
@@ -81,28 +66,20 @@ public class LinkageConfiguration extends JsonConfiguration {
         save();
     }
 
-    public void removeChest(ShopLocation chestLocation) {
-        linkageData.remove(chestLocation);
+    default void removeChest(ShopLocation chestLocation) {
+        getLinkageData().remove(chestLocation);
         save();
     }
 
-    public void removeShop(ShopLocation shopLocation) {
+    default void removeShop(ShopLocation shopLocation) {
         List<String> removeChests = new ArrayList<>();
         String shopLoc = shopLocation.serialize();
 
-        linkageData.forEach((key, value) -> {
+        getLinkageData().forEach((key, value) -> {
             if (value.equals(shopLoc))
                 removeChests.add(key);
         });
 
-        removeChests.forEach((k) -> linkageData.remove(k));
+        removeChests.forEach((k) -> getLinkageData().remove(k));
     }
-
-    private void addLinkage(ShopLocation chestLocation, ShopLocation shopLocation) {
-        if (linkageData.containsKey(chestLocation.serialize()))
-            linkageData.replace(chestLocation.serialize(), shopLocation.serialize());
-        else
-            linkageData.put(chestLocation.serialize(), shopLocation.serialize());
-    }
-
 }

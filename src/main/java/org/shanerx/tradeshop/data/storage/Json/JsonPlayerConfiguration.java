@@ -26,22 +26,24 @@
 package org.shanerx.tradeshop.data.storage.Json;
 
 import com.google.gson.reflect.TypeToken;
+import org.shanerx.tradeshop.data.storage.PlayerConfiguration;
 import org.shanerx.tradeshop.player.PlayerSetting;
 
 import java.util.Map;
 import java.util.UUID;
 
-public class PlayerConfiguration extends JsonConfiguration {
+public class JsonPlayerConfiguration extends JsonConfiguration implements PlayerConfiguration {
 
     private final transient UUID playerUUID;
     private transient PlayerSetting playerSetting;
 
-    public PlayerConfiguration(UUID uuid) {
+    public JsonPlayerConfiguration(UUID uuid) {
         super("Players", uuid.toString());
 
         playerUUID = uuid;
     }
 
+    @Override
     public void save(PlayerSetting playerSetting) {
         this.playerSetting = playerSetting;
         jsonObj.add(playerSetting.getUuid().toString(), gson.toJsonTree(playerSetting));
@@ -49,6 +51,7 @@ public class PlayerConfiguration extends JsonConfiguration {
         saveFile();
     }
 
+    @Override
     public PlayerSetting load() {
         if (jsonObj.has("data")) {
             playerSetting = new PlayerSetting(playerUUID, gson.fromJson(jsonObj.get("data"), new TypeToken<Map<String, Integer>>() {
@@ -65,6 +68,7 @@ public class PlayerConfiguration extends JsonConfiguration {
         return playerSetting;
     }
 
+    @Override
     public void remove() {
         file.delete();
     }
