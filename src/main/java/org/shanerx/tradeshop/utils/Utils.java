@@ -57,13 +57,7 @@ import org.shanerx.tradeshop.utils.objects.Tuple;
 import org.shanerx.tradeshop.utils.relativedirection.LocationOffset;
 import org.shanerx.tradeshop.utils.relativedirection.RelativeDirection;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 
 
 /**
@@ -398,7 +392,7 @@ public class Utils {
 		Inventory shopInventory = null;
 
 		if (shop.getShopType().equals(ShopType.ITRADE)) {
-			shopInventory = Bukkit.createInventory(null, Math.min((int) (Math.ceil(shop.getSideList(ShopItemSide.PRODUCT).size() / 9.0) * 9) * multiplier, 54));
+			shopInventory = Bukkit.createInventory(null, Math.min((int) (Math.ceil((shop.getSideList(ShopItemSide.PRODUCT).size() + shop.getSideList(ShopItemSide.COST).size()) / 9.0) * 9) * multiplier, 54));
 			while (shopInventory.firstEmpty() != -1) {
 				for (ItemStack item : shop.getSideItemStacks(ShopItemSide.PRODUCT)) {
 					item.setAmount(item.getMaxStackSize());
