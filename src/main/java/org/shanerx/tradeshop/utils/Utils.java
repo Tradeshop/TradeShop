@@ -392,7 +392,7 @@ public class Utils {
 		Inventory shopInventory = null;
 
 		if (shop.getShopType().equals(ShopType.ITRADE)) {
-			shopInventory = Bukkit.createInventory(null, Math.min((int) (Math.ceil((shop.getSideList(ShopItemSide.PRODUCT).size() + shop.getSideList(ShopItemSide.COST).size()) / 9.0) * 9) * multiplier, 54));
+			shopInventory = Bukkit.createInventory(null, Math.min((int) (Math.ceil(shop.getSideList(ShopItemSide.PRODUCT).size() / 9.0) * 9) * multiplier, 54));
 			while (shopInventory.firstEmpty() != -1) {
 				for (ItemStack item : shop.getSideItemStacks(ShopItemSide.PRODUCT)) {
 					item.setAmount(item.getMaxStackSize());
@@ -436,7 +436,7 @@ public class Utils {
 			shopInventory.removeItem(item);
 		}
 
-		if (costItems.size() > 0) {
+		if (!shop.getShopType().isITrade() && costItems.size() > 0) {
 			//For loop to put cost items in shop inventory
 			for (ItemStack item : costItems) {
 				if (!addItemToInventory(shopInventory, item).isEmpty()) {

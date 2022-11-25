@@ -250,7 +250,7 @@ message:
       pre-comment: "Text to display upon a successful trade:"
     player-full:
       default: "&cYour inventory is full, please make room before trading items!"
-      pre-comment: "Text to display when the players inventory is too full to recieve the trade:"
+      pre-comment: "Text to display when the players inventory is too full to receive the trade:"
     player-not-found:
       default: "&cThat player could not be found."
     player-only-command:
