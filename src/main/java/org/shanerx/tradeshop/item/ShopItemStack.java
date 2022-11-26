@@ -142,6 +142,7 @@ public class ShopItemStack implements Serializable, Cloneable {
             } catch (ClassCastException | NullPointerException ignored) {
             }
         }
+
         return (Boolean) key.getDefaultValue().getObject();
     }
 

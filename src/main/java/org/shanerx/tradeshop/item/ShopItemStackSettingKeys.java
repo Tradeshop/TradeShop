@@ -38,7 +38,7 @@ public enum ShopItemStackSettingKeys {
 
     //New per shop settings and their default value should be added below and will be added to the shops
 
-    COMPARE_DURABILITY(new ItemStack(Material.DAMAGED_ANVIL), 1), // -1 == 'off', 0 == '<=', 1 == '==', 2 == '>='
+    COMPARE_DURABILITY(new ItemStack(Material.DAMAGED_ANVIL), 1), // -1 = 'off', 0 = '<=', 1 = '==', 2 = '>='
     COMPARE_ENCHANTMENTS(new ItemStack(Material.ENCHANTED_BOOK), true),
     COMPARE_NAME(new ItemStack(Material.NAME_TAG), true),
     COMPARE_LORE(new ItemStack(Material.BOOK), true),
