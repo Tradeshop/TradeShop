@@ -3,6 +3,7 @@ package org.shanerx.tradeshop.data.storage.sqlite;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.shanerx.tradeshop.data.storage.ShopConfiguration;
+import org.shanerx.tradeshop.item.ShopItemSide;
 import org.shanerx.tradeshop.item.ShopItemStack;
 import org.shanerx.tradeshop.player.ShopRole;
 import org.shanerx.tradeshop.player.ShopUser;
@@ -59,6 +60,22 @@ public class SQLiteShopConfiguration implements ShopConfiguration {
             PreparedStatement ps = sqlite.prepareStatement(conn, sql);
             ps.execute();
             ps.close();
+
+            for (ShopItemStack itm : shop.getSideList(ShopItemSide.PRODUCT)) {
+                String sql2 = String.format("INSERT INTO shop_products (sign_loc_serialized, product) VALUES ('%s', '%s');",
+                        chestLoc.serialize(), itm.serialize());
+                PreparedStatement ps2 = sqlite.prepareStatement(conn, sql2);
+                ps2.execute();
+                ps2.close();
+            }
+
+            for (ShopItemStack itm : shop.getSideList(ShopItemSide.COST)) {
+                String sql3 = String.format("INSERT INTO shop_costs (sign_loc_serialized, cost) VALUES ('%s', '%s');",
+                        chestLoc.serialize(), itm.serialize());
+                PreparedStatement ps3 = sqlite.prepareStatement(conn, sql3);
+                ps3.execute();
+                ps3.close();
+            }
 
         } catch (SQLException e) {
             throw new RuntimeException(e);

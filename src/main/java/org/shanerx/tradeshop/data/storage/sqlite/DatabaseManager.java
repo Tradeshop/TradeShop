@@ -96,12 +96,21 @@ public class DatabaseManager {
 
     private static DatabaseManager sqlite;
 
-    protected static DatabaseManager getSqlite() {
+    public static DatabaseManager getSqlite() {
         if (sqlite == null) {
             File dataDir = new File(Bukkit.getPluginManager().getPlugin("TradeShop").getDataFolder(), "Data");
             if (!dataDir.isDirectory()) dataDir.mkdirs();
             sqlite = new DatabaseManager(new File(dataDir, "database.db").getAbsolutePath());
         }
         return sqlite;
+    }
+
+    public void shutdown() {
+        try {
+            if (!connection.isClosed())
+                connection.close();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

@@ -31,6 +31,7 @@ import org.bukkit.World;
 import org.shanerx.tradeshop.data.storage.Json.JsonLinkageConfiguration;
 import org.shanerx.tradeshop.data.storage.Json.JsonPlayerConfiguration;
 import org.shanerx.tradeshop.data.storage.Json.JsonShopConfiguration;
+import org.shanerx.tradeshop.data.storage.sqlite.DatabaseManager;
 import org.shanerx.tradeshop.data.storage.sqlite.SQLiteLinkageConfiguration;
 import org.shanerx.tradeshop.data.storage.sqlite.SQLitePlayerConfiguration;
 import org.shanerx.tradeshop.data.storage.sqlite.SQLiteShopConfiguration;
@@ -160,5 +161,10 @@ public class DataStorage extends Utils {
                 throw new NotImplementedException("Data storage type " + dataType + " has not been implemented yet.");
         }
     }
-}
 
+    public void shutdown() {
+        if (dataType != DataType.FLATFILE) {
+            DatabaseManager.getSqlite().shutdown();
+        }
+    }
+}

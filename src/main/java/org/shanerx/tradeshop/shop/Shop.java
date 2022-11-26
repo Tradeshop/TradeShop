@@ -1025,10 +1025,7 @@ public class Shop implements Serializable {
 	 * @return ItemStack List
 	 */
 	public List<ItemStack> getSideItemStacks(ShopItemSide side) {
-		List<ItemStack> ret = new ArrayList<>();
-		for (ShopItemStack itm : getSide(side))
-			ret.add(itm.getItemStack().clone());
-		return ret;
+		return getSide(side).stream().map(shopItemStack -> shopItemStack.getItemStack().clone()).collect(Collectors.toList());
 	}
 
 	/**
@@ -1058,10 +1055,7 @@ public class Shop implements Serializable {
 	 * @return Side ShopItemStack List
 	 */
 	public List<ShopItemStack> getSideList(ShopItemSide side, boolean doBiTradeAlternate) {
-		List<ShopItemStack> ret = new ArrayList<>();
-		for (ShopItemStack itm : getSide(doBiTradeAlternate ? side.getReverse() : side))
-			ret.add(itm.clone());
-		return ret;
+		return getSide(doBiTradeAlternate ? side.getReverse() : side).stream().map(shopItemStack -> shopItemStack.clone()).collect(Collectors.toList());
 	}
 
 	/**

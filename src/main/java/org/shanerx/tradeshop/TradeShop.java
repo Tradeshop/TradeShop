@@ -139,6 +139,7 @@ public class TradeShop extends JavaPlugin {
 	public void onDisable() {
 		if (lists != null)
 			getListManager().clearManager();
+		dataStorage.shutdown();
 	}
 
 	public boolean doSkipHopperProtection() {
