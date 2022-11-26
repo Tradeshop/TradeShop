@@ -25,12 +25,7 @@
 
 package org.shanerx.tradeshop.commands.commandrunners;
 
-import de.themoep.inventorygui.GuiElement;
-import de.themoep.inventorygui.GuiElementGroup;
-import de.themoep.inventorygui.GuiPageElement;
-import de.themoep.inventorygui.GuiStateElement;
-import de.themoep.inventorygui.InventoryGui;
-import de.themoep.inventorygui.StaticGuiElement;
+import de.themoep.inventorygui.*;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BookMeta;
@@ -81,7 +76,7 @@ public class GUICommand extends CommandRunner {
     //------------------------------------------------------------------------------------------------------------------
 
     protected StaticGuiElement itemSettingMenu(int index, ShopItemSide side, boolean editable) {
-        ShopItemStack item = (side.equals(ShopItemSide.COST) ? costItems : productItems).get(index).clone();
+        ShopItemStack item = (side.equals(ShopItemSide.COST) ? costItems : productItems).get(index);
         ItemStack tempStack = item.getItemStack();
         ItemMeta tempMeta = tempStack.getItemMeta();
         List<String> newLore = new ArrayList<>();
