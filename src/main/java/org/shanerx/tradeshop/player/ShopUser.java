@@ -25,13 +25,13 @@
 
 package org.shanerx.tradeshop.player;
 
-import com.google.gson.Gson;
 import com.google.gson.annotations.SerializedName;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.SkullMeta;
+import org.shanerx.tradeshop.utils.gsonprocessing.GsonProcessor;
 
 import java.io.Serializable;
 import java.util.UUID;
@@ -57,7 +57,7 @@ public class ShopUser implements Serializable {
 	}
 
 	public static ShopUser deserialize(String serialized) {
-		ShopUser shopUser = new Gson().fromJson(serialized, ShopUser.class);
+		ShopUser shopUser = new GsonProcessor().fromJson(serialized, ShopUser.class);
 		shopUser.player = Bukkit.getOfflinePlayer(UUID.fromString(shopUser.playerUUID));
 		return shopUser;
 	}
@@ -86,7 +86,7 @@ public class ShopUser implements Serializable {
 	}
 
 	public String serialize() {
-		return new Gson().toJson(this);
+		return new GsonProcessor().toJson(this);
 	}
 
 	public ItemStack getHead() {

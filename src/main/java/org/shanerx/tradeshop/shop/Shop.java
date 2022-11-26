@@ -25,7 +25,6 @@
 
 package org.shanerx.tradeshop.shop;
 
-import com.google.gson.Gson;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -47,11 +46,19 @@ import org.shanerx.tradeshop.player.ShopUser;
 import org.shanerx.tradeshop.shoplocation.ShopChunk;
 import org.shanerx.tradeshop.shoplocation.ShopLocation;
 import org.shanerx.tradeshop.utils.Utils;
+import org.shanerx.tradeshop.utils.gsonprocessing.GsonProcessor;
 import org.shanerx.tradeshop.utils.objects.ObjectHolder;
 import org.shanerx.tradeshop.utils.objects.Tuple;
 
 import java.io.Serializable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 public class Shop implements Serializable {
@@ -146,7 +153,7 @@ public class Shop implements Serializable {
 	 * @return Shop object from file
 	 */
 	public static Shop deserialize(String serialized) {
-		Shop shop = new Gson().fromJson(serialized, Shop.class);
+		Shop shop = new GsonProcessor().fromJson(serialized, Shop.class);
 		shop.fixAfterLoad();
 
 		return shop;
@@ -259,7 +266,7 @@ public class Shop implements Serializable {
 	 * @return serialized string
 	 */
 	public String serialize() {
-		return new Gson().toJson(this);
+		return new GsonProcessor().toJson(this);
 	}
 
 	/**
@@ -973,6 +980,7 @@ public class Shop implements Serializable {
 
 		if (ogItems.size() > 1 && ogItems.size() != matSet.size()) {
 			List<ShopItemStack> scrapList = new ArrayList<>(ogItems);
+			(side.equals(ShopItemSide.PRODUCT) ? product : cost).clear();
 			(side.equals(ShopItemSide.PRODUCT) ? product : cost).clear();
 
 			ogItems.forEach((item) -> {

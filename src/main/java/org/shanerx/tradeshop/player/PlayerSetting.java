@@ -26,7 +26,6 @@
 package org.shanerx.tradeshop.player;
 
 import com.google.common.collect.Sets;
-import com.google.gson.Gson;
 import de.themoep.inventorygui.GuiElementGroup;
 import de.themoep.inventorygui.GuiPageElement;
 import de.themoep.inventorygui.InventoryGui;
@@ -39,6 +38,7 @@ import org.shanerx.tradeshop.shop.Shop;
 import org.shanerx.tradeshop.shoplocation.IllegalWorldException;
 import org.shanerx.tradeshop.shoplocation.ShopLocation;
 import org.shanerx.tradeshop.utils.Utils;
+import org.shanerx.tradeshop.utils.gsonprocessing.GsonProcessor;
 
 import java.io.Serializable;
 import java.util.HashSet;
@@ -81,7 +81,7 @@ public class PlayerSetting implements Serializable {
     }
 
     public static PlayerSetting deserialize(String serialized) {
-        PlayerSetting playerSetting = new Gson().fromJson(serialized, PlayerSetting.class);
+        PlayerSetting playerSetting = new GsonProcessor().fromJson(serialized, PlayerSetting.class);
         playerSetting.load();
         return playerSetting;
     }
@@ -148,7 +148,7 @@ public class PlayerSetting implements Serializable {
     }
 
     public String serialize() {
-        return new Gson().toJson(this);
+        return new GsonProcessor().toJson(this);
     }
 
     public String getInvolvedStatusesString() {
