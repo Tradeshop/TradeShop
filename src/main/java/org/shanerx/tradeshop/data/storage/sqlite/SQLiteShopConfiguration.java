@@ -40,9 +40,11 @@ public class SQLiteShopConfiguration implements ShopConfiguration {
 
     @Override
     public void save(Shop shop) {
-        remove(shop.getShopLocationAsSL()); // this should NOT be moved above the try !
 
-        try (Connection conn = sqlite.setupConnection(true)) {
+        try {
+            Connection conn = sqlite.setupConnection(true);
+            remove(shop.getShopLocationAsSL()); // this should NOT be moved above the try !
+
             Location chestLoc = shop.getChestAsSC().getChest().getLocation();
 
             String sql = "INSERT INTO shops (owner_uuid, sign_loc_serialized, chunk_serialized, type, " +
@@ -62,16 +64,20 @@ public class SQLiteShopConfiguration implements ShopConfiguration {
             ps.close();
 
             for (ShopItemStack itm : shop.getSideList(ShopItemSide.PRODUCT)) {
+                System.out.println("prod:" + itm.getItemStack().getType());
+
                 String sql2 = String.format("INSERT INTO shop_products (sign_loc_serialized, product) VALUES ('%s', '%s');",
-                        chestLoc.serialize(), itm.serialize());
+                        shop.getShopLocationAsSL().serialize(), itm.serialize());
                 PreparedStatement ps2 = sqlite.prepareStatement(conn, sql2);
                 ps2.execute();
                 ps2.close();
             }
 
             for (ShopItemStack itm : shop.getSideList(ShopItemSide.COST)) {
+                System.out.println("cost:" + itm.getItemStack().getType());
+
                 String sql3 = String.format("INSERT INTO shop_costs (sign_loc_serialized, cost) VALUES ('%s', '%s');",
-                        chestLoc.serialize(), itm.serialize());
+                        shop.getShopLocationAsSL().serialize(), itm.serialize());
                 PreparedStatement ps3 = sqlite.prepareStatement(conn, sql3);
                 ps3.execute();
                 ps3.close();
@@ -84,7 +90,9 @@ public class SQLiteShopConfiguration implements ShopConfiguration {
 
     @Override
     public void remove(ShopLocation loc) {
-        try (Connection conn = sqlite.setupConnection(true)) {
+        try {
+            Connection conn = sqlite.setupConnection(true);
+
             String sql = "DELETE FROM shops WHERE sign_loc_serialized = '" + loc.serialize() + "';";
             PreparedStatement ps = sqlite.prepareStatement(conn, sql);
             ps.executeUpdate();
@@ -112,7 +120,9 @@ public class SQLiteShopConfiguration implements ShopConfiguration {
 
         PreparedStatement ps = null, ps2 = null, ps3 = null, ps4, ps5 = null;
 
-        try (Connection conn = sqlite.setupConnection(true)) {
+        try {
+            Connection conn = sqlite.setupConnection(true);
+
             ps = sqlite.prepareStatement(conn,
                     "SELECT * FROM shops WHERE sign_loc_serialized = '" + locStr + "';");
             ResultSet res = ps.executeQuery();
@@ -190,7 +200,9 @@ public class SQLiteShopConfiguration implements ShopConfiguration {
     @Override
     public int size() {
         String sql = "SELECT * FROM shops WHERE chunk_serialized = '" + chunkStr + "';";
-        try (Connection conn = sqlite.setupConnection(true)) {
+        try {
+            Connection conn = sqlite.setupConnection(true);
+
             PreparedStatement ps = sqlite.prepareStatement(conn, sql);
             ResultSet res = ps.executeQuery();
             while (res.next()); // empty body is intentional
@@ -204,7 +216,9 @@ public class SQLiteShopConfiguration implements ShopConfiguration {
     }
 
     private void createTableIfNotExists() throws SQLException {
-        try(Connection conn = sqlite.setupConnection(true)) {
+        try {
+            Connection conn = sqlite.setupConnection(true);
+
             String sql = "CREATE TABLE IF NOT EXISTS shops " +
                     "(owner_uuid TEXT not NULL, " +
                     " sign_loc_serialized TEXT not NULL, " +
@@ -266,6 +280,9 @@ public class SQLiteShopConfiguration implements ShopConfiguration {
             ps = sqlite.prepareStatement(conn, sql5);
             ps.execute();
             ps.close();
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         }
     }
 }

@@ -31,9 +31,11 @@ public class SQLitePlayerConfiguration implements PlayerConfiguration {
             throw new IllegalArgumentException("uuid of playerSetting does not match uuid field.");
         }
 
-        remove(); // should happen within the try but whatever
 
-        try (Connection conn = sqlite.setupConnection(true)) {
+        try {
+            Connection conn = sqlite.setupConnection(true);
+            remove(); // should happen within the try but whatever
+
             String sql = "INSERT INTO players (uuid, showInvolvedStatus, adminEnabled, multi) VALUES " +
                     "('" + uuid.toString() + "', " + (playerSetting.showInvolvedStatus() ? 1 : 0) + ", " + (playerSetting.isAdminEnabled() ? 1 : 0) + ", " + playerSetting.getMulti() + ");";
             PreparedStatement ps = sqlite.prepareStatement(conn, sql);
@@ -62,7 +64,9 @@ public class SQLitePlayerConfiguration implements PlayerConfiguration {
 
     @Override
     public PlayerSetting load() {
-        try (Connection conn = sqlite.setupConnection(true)) {
+        try {
+            Connection conn = sqlite.setupConnection(true);
+
             String sql = "SELECT * FROM players WHERE uuid = '" + uuid.toString() + "';";
             String sql2 = "SELECT * FROM players_owned_shops WHERE uuid = '" + uuid.toString() + "';";
             String sql3 = "SELECT * FROM players_staff_shops WHERE uuid = '" + uuid.toString() + "';";
@@ -109,7 +113,9 @@ public class SQLitePlayerConfiguration implements PlayerConfiguration {
 
     @Override
     public void remove() {
-        try (Connection conn = sqlite.setupConnection(true)) {
+        try {
+            Connection conn = sqlite.setupConnection(true);
+
             String sql = "DELETE FROM players WHERE uuid = '" + uuid.toString() + "';";
             String sql2 = "DELETE FROM players_owned_shops WHERE uuid = '" + uuid.toString() + "';";
             String sql3 = "DELETE FROM players_staff_shops WHERE uuid = '" + uuid.toString() + "';";
@@ -132,7 +138,9 @@ public class SQLitePlayerConfiguration implements PlayerConfiguration {
     }
 
     private void createTableIfNotExists() throws SQLException {
-        try (Connection conn = sqlite.setupConnection(true)) {
+        try {
+            Connection conn = sqlite.setupConnection(true);
+
             String sql = "CREATE TABLE IF NOT EXISTS players " +
                     "(uuid TEXT not NULL, " +
                     " showInvolvedStatus INTEGER, " +
@@ -159,6 +167,9 @@ public class SQLitePlayerConfiguration implements PlayerConfiguration {
             ps = sqlite.prepareStatement(conn, sql);
             ps.execute();
             ps.close();
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         }
     }
 }

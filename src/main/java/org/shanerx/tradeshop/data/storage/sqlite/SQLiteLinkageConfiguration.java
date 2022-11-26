@@ -30,7 +30,8 @@ public class SQLiteLinkageConfiguration implements LinkageConfiguration {
 
     @Override
     public void save() {
-        try (Connection conn = sqlite.setupConnection(true)) {
+        try {
+            Connection conn = sqlite.setupConnection(true);
             String sql = "DELETE FROM shop_linkage WHERE world_name = '" + worldName + "';";
 
             PreparedStatement ps = sqlite.prepareStatement(conn, sql);
@@ -55,7 +56,9 @@ public class SQLiteLinkageConfiguration implements LinkageConfiguration {
         if (linkageData != null) throw new UnsupportedOperationException("Cannot load twice (expensive operation)!");
         linkageData = new HashMap<>();
 
-        try (Connection conn = sqlite.setupConnection(true)) {
+        try {
+            Connection conn = sqlite.setupConnection(true);
+
             String sql = "SELECT * FROM shop_linkage WHERE world_name = '" + worldName + "';";
             PreparedStatement ps = sqlite.prepareStatement(conn, sql);
             ResultSet res = ps.executeQuery();
@@ -76,7 +79,9 @@ public class SQLiteLinkageConfiguration implements LinkageConfiguration {
     }
 
     private void createTableIfNotExists() throws SQLException {
-        try (Connection conn = sqlite.setupConnection(true)) {
+        try {
+            Connection conn = sqlite.setupConnection(true);
+
             String sql = "CREATE TABLE IF NOT EXISTS shop_linkage " +
                     "(chest_loc TEXT not NULL, " +
                     " sign_loc TEXT not NULL, " +
@@ -84,6 +89,8 @@ public class SQLiteLinkageConfiguration implements LinkageConfiguration {
             PreparedStatement ps = sqlite.prepareStatement(conn, sql);
             ps.execute();
             ps.close();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         }
     }
 }

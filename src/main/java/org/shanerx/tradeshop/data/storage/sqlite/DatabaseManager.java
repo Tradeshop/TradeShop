@@ -49,7 +49,7 @@ public class DatabaseManager {
     }
 
     private void fillProperties() {
-        prop.put("busy_timeout", "1000");
+        prop.put("busy_timeout", "3000");
     }
 
     /**
@@ -68,7 +68,9 @@ public class DatabaseManager {
                 throw new RuntimeException("Cached connection is in a broken state.");
             }
 
+            System.out.println("NEW CONNECTION");
             connection = DriverManager.getConnection(dburl, prop);
+            System.out.println("DONE");
             return connection;
 
         } catch (SQLException e) {
