@@ -25,7 +25,11 @@
 
 package org.shanerx.tradeshop.commands.commandrunners;
 
-import de.themoep.inventorygui.*;
+import de.themoep.inventorygui.GuiElement;
+import de.themoep.inventorygui.GuiElementGroup;
+import de.themoep.inventorygui.GuiStateElement;
+import de.themoep.inventorygui.InventoryGui;
+import de.themoep.inventorygui.StaticGuiElement;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.shanerx.tradeshop.TradeShop;
@@ -275,7 +279,7 @@ public class EditCommand extends GUICommand {
             costEdit.addElement(new StaticGuiElement('a', new ItemStack(Material.YELLOW_STAINED_GLASS_PANE), " "));
 
             for (int i = 0; i < costItems.size(); i++) {
-                costGroup.addElement(itemSettingMenu(i, ShopItemSide.COST, true));
+                costGroup.addElement(itemSettingMenu(shop, i, ShopItemSide.COST, true));
             }
 
             costEdit.addElement(costGroup);
@@ -319,7 +323,7 @@ public class EditCommand extends GUICommand {
             productEdit.addElement(new StaticGuiElement('a', new ItemStack(Material.YELLOW_STAINED_GLASS_PANE), " "));
 
             for (int i = 0; i < productItems.size(); i++) {
-                productGroup.addElement(itemSettingMenu(i, ShopItemSide.PRODUCT, true));
+                productGroup.addElement(itemSettingMenu(shop, i, ShopItemSide.PRODUCT, true));
             }
 
             productEdit.addElement(productGroup);

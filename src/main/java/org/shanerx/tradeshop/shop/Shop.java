@@ -1173,16 +1173,32 @@ public class Shop implements Serializable {
 	 * Updates list on specified side
 	 *
 	 * @param side            Side to be updated
-	 * @param updatedCostList list to set as new CostList
+	 * @param updatedItemList list to set updatedItemList to
 	 */
-	public void updateSide(ShopItemSide side, List<ShopItemStack> updatedCostList) {
+	public void updateSide(ShopItemSide side, List<ShopItemStack> updatedItemList) {
 		if (!getShopType().isITrade() && chestLoc != null)
-			updatedCostList.removeIf(item -> item.getItemStack().getType().toString().endsWith("SHULKER_BOX") && getInventoryLocation().getBlock().getType().toString().endsWith("SHULKER_BOX"));
-		if (side.equals(ShopItemSide.PRODUCT)) {
-			product = updatedCostList;
-		} else {
-			cost = updatedCostList;
-		}
+			updatedItemList.removeIf(item -> item.getItemStack().getType().toString().endsWith("SHULKER_BOX") && getInventoryLocation().getBlock().getType().toString().endsWith("SHULKER_BOX"));
+
+		if (side.equals(ShopItemSide.PRODUCT)) product = updatedItemList;
+		else cost = updatedItemList;
+
+		saveShop();
+		updateSign();
+	}
+
+	/**
+	 * Updates item on specified side at index
+	 *
+	 * @param side        Side to be updated
+	 * @param updatedItem Item to be updated at the specified index and side
+	 * @param index       index of the item t be updated
+	 */
+	public void updateSideItem(ShopItemSide side, ShopItemStack updatedItem, int index) {
+		if (!getShopType().isITrade() && chestLoc != null)
+			if (updatedItem.getItemStack().getType().toString().endsWith("SHULKER_BOX") && getInventoryLocation().getBlock().getType().toString().endsWith("SHULKER_BOX"))
+				return;
+
+		(side.equals(ShopItemSide.PRODUCT) ? product : cost).set(index, updatedItem);
 
 		saveShop();
 		updateSign();

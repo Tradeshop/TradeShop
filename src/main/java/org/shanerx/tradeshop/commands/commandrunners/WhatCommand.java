@@ -92,11 +92,11 @@ public class WhatCommand extends GUICommand {
 
 
         for (int i = 0; i < costItems.size(); i++) {
-            costGroup.addElement(itemSettingMenu(i, ShopItemSide.COST, false));
+            costGroup.addElement(itemSettingMenu(shop, i, ShopItemSide.COST, false));
         }
 
         for (int i = 0; i < productItems.size(); i++) {
-            productGroup.addElement(itemSettingMenu(i, ShopItemSide.PRODUCT, false));
+            productGroup.addElement(itemSettingMenu(shop, i, ShopItemSide.PRODUCT, false));
         }
 
         gui.addElement(new StaticGuiElement('1', new ItemStack(Material.LIME_STAINED_GLASS_PANE),

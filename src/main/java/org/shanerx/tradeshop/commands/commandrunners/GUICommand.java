@@ -25,7 +25,12 @@
 
 package org.shanerx.tradeshop.commands.commandrunners;
 
-import de.themoep.inventorygui.*;
+import de.themoep.inventorygui.GuiElement;
+import de.themoep.inventorygui.GuiElementGroup;
+import de.themoep.inventorygui.GuiPageElement;
+import de.themoep.inventorygui.GuiStateElement;
+import de.themoep.inventorygui.InventoryGui;
+import de.themoep.inventorygui.StaticGuiElement;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BookMeta;
@@ -37,6 +42,7 @@ import org.shanerx.tradeshop.commands.CommandPass;
 import org.shanerx.tradeshop.item.ShopItemSide;
 import org.shanerx.tradeshop.item.ShopItemStack;
 import org.shanerx.tradeshop.item.ShopItemStackSettingKeys;
+import org.shanerx.tradeshop.shop.Shop;
 import org.shanerx.tradeshop.utils.objects.ObjectHolder;
 
 import java.util.ArrayList;
@@ -75,7 +81,7 @@ public class GUICommand extends CommandRunner {
     //region Util Methods
     //------------------------------------------------------------------------------------------------------------------
 
-    protected StaticGuiElement itemSettingMenu(int index, ShopItemSide side, boolean editable) {
+    protected StaticGuiElement itemSettingMenu(Shop shop, int index, ShopItemSide side, boolean editable) {
         ShopItemStack item = (side.equals(ShopItemSide.COST) ? costItems : productItems).get(index);
         ItemStack tempStack = item.getItemStack();
         ItemMeta tempMeta = tempStack.getItemMeta();
@@ -100,7 +106,7 @@ public class GUICommand extends CommandRunner {
 
             // Add Save button only when editable - Saves and Goes to previous screen
             if (editable) itemEdit.addElement(new StaticGuiElement('s', new ItemStack(Material.ANVIL), click3 -> {
-                (side.equals(ShopItemSide.COST) ? costItems : productItems).set(index, item);
+                shop.updateSideItem(side, item, index);
                 InventoryGui.goBack(pSender);
                 return true;
             }, "Save Changes"));
