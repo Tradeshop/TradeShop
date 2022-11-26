@@ -30,7 +30,7 @@ import com.google.gson.annotations.SerializedName;
 
 import java.io.Serializable;
 
-public class Tuple<L, R> implements Serializable {
+public class Tuple<L, R> {
 
 	@SerializedName("right")
 	private R r;
@@ -58,12 +58,8 @@ public class Tuple<L, R> implements Serializable {
 		return l;
 	}
 
-	public String serialize() {
-		return new Gson().toJson(this);
-	}
-
 	@Override
 	public String toString() {
-		return serialize();
+		return new Gson().toJson(this);
 	}
 }

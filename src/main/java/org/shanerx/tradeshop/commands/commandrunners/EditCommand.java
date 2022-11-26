@@ -79,7 +79,7 @@ public class EditCommand extends GUICommand {
             return;
         }
 
-        mainMenu = new InventoryGui(plugin, "Edit Menu-" + shop.getShopLocationAsSL().serialize(), MENU_LAYOUT);
+        mainMenu = new InventoryGui(plugin, "Edit Menu-" + shop.getShopLocationAsSL().toString(), MENU_LAYOUT);
 
         mainMenu.setFiller(new ItemStack(Material.LIGHT_GRAY_STAINED_GLASS_PANE, 1));
 

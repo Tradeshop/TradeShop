@@ -38,7 +38,7 @@ import org.shanerx.tradeshop.player.Permissions;
 import java.io.Serializable;
 
 
-public enum ShopType implements Serializable {
+public enum ShopType {
 
 	TRADE(Permissions.CREATE),
 
@@ -82,10 +82,6 @@ public enum ShopType implements Serializable {
 		return null;
 	}
 
-	public static ShopType deserialize(String serialized) {
-		return new Gson().fromJson(serialized, ShopType.class);
-	}
-
 	@Override
 	public String toString() {
 		return getKey().getString();
@@ -103,10 +99,6 @@ public enum ShopType implements Serializable {
 
 	public boolean checkPerm(Player pl) {
 		return Permissions.hasPermission(pl, perm);
-	}
-
-	public String serialize() {
-		return new Gson().toJson(this);
 	}
 
 	public boolean isTrade() {

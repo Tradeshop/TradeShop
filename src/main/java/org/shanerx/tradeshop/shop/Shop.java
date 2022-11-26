@@ -54,7 +54,7 @@ import java.io.Serializable;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class Shop implements Serializable {
+public class Shop {
 
 	private ShopUser owner;
 	private Set<UUID> managers, members;
@@ -136,20 +136,6 @@ public class Shop implements Serializable {
 	 */
 	public Shop(Location location, ShopType shopType, ShopUser owner) {
 		this(new Tuple<>(location, null), shopType, owner, new Tuple<>(null, null), new Tuple<>(null, null));
-	}
-
-	/**
-	 * Deserializes the object to Json using Gson
-	 *
-	 * @param serialized Shop GSON to be deserialized
-	 *
-	 * @return Shop object from file
-	 */
-	public static Shop deserialize(String serialized) {
-		Shop shop = new Gson().fromJson(serialized, Shop.class);
-		shop.fixAfterLoad();
-
-		return shop;
 	}
 
 	/**
@@ -254,15 +240,6 @@ public class Shop implements Serializable {
 	}
 
 	/**
-	 * Serializes the object to Json using Gson
-	 *
-	 * @return serialized string
-	 */
-	public String serialize() {
-		return new Gson().toJson(this);
-	}
-
-	/**
 	 * Returns the shop signs location as a ShopLocation
 	 *
 	 * @return Shop sign's Location as ShopLocation
@@ -311,11 +288,11 @@ public class Shop implements Serializable {
 	public String toDebug() {
 		StringBuilder sb = new StringBuilder();
 		sb.append("Shop Debug: \n");
-		sb.append("Shop Chunk: ").append(new ShopChunk(shopLoc.getChunk()).serialize()).append("\n");
-		sb.append("Sign Location: ").append(shopLoc.serialize()).append("\n");
+		sb.append("Shop Chunk: ").append(new ShopChunk(shopLoc.getChunk()).toString()).append("\n");
+		sb.append("Sign Location: ").append(shopLoc).append("\n");
 		sb.append("Shop Type: ").append((isMissingItems() ? Setting.SHOP_INCOMPLETE_COLOUR : Setting.SHOP_GOOD_COLOUR).getString() + shopType.toHeader()).append("\n");
 		sb.append("Shop Status: ").append(status.getLine()).append("\n");
-		sb.append("Storage Location: ").append(hasStorage() ? getInventoryLocationAsSL().serialize() : "N/A").append("\n");
+		sb.append("Storage Location: ").append(hasStorage() ? getInventoryLocationAsSL().toString() : "N/A").append("\n");
 		sb.append("Storage Type: ").append(hasStorage() ? getStorage().getType().toString() : "N/A").append("\n");
 		sb.append("Owner: ").append(owner.getName()).append(" | ").append(owner.getUUID()).append("\n");
 		sb.append("Managers: ").append(managers.isEmpty() ? "N/A" : managers.size()).append("\n");

@@ -32,6 +32,7 @@ import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 import net.md_5.bungee.api.ChatColor;
 import org.apache.commons.lang.WordUtils;
+import org.bukkit.Bukkit;
 import org.bukkit.FireworkEffect;
 import org.bukkit.Material;
 import org.bukkit.block.ShulkerBox;
@@ -46,13 +47,12 @@ import org.yaml.snakeyaml.external.biz.base64Coder.Base64Coder;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-public class ShopItemStack implements Serializable, Cloneable {
+public class ShopItemStack implements Cloneable {
 
     private transient ItemStack itemStack;
     private transient Debug debugger;
@@ -122,17 +122,6 @@ public class ShopItemStack implements Serializable, Cloneable {
         return itemSettings;
     }
 
-    public String serialize() {
-        packData();
-        return new Gson().toJson(this);
-    }
-
-    public static ShopItemStack deserialize(String serialized) {
-        ShopItemStack item = new Gson().fromJson(serialized, ShopItemStack.class);
-        item.loadData();
-        item.buildMap();
-        return item;
-    }
 
     public boolean getShopSettingAsBoolean(ShopItemStackSettingKeys key) {
         if (key.isUserEditable()) {

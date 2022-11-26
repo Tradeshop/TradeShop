@@ -83,7 +83,7 @@ public class DataStorage extends Utils {
                 if (folder.exists() && folder.listFiles() != null) {
                     for (File file : folder.listFiles()) {
                         if (file.getName().contains(world.getName()))
-                            count += new JsonShopConfiguration(ShopChunk.deserialize(file.getName().replace(".json", ""))).size();
+                            count += new JsonShopConfiguration(ShopChunk.fromString(file.getName().replace(".json", ""))).size();
                     }
                 }
                 break;

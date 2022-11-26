@@ -31,7 +31,7 @@ import org.bukkit.World;
 
 import java.io.Serializable;
 
-public class ShopChunk implements Serializable {
+public class ShopChunk {
 
 	final private String div = ";;";
 	private final World world;
@@ -53,7 +53,7 @@ public class ShopChunk implements Serializable {
 		chunk = c;
 	}
 
-	public static ShopChunk deserialize(String loc) {
+	public static ShopChunk fromString(String loc) {
 		if (loc.startsWith("c")) {
 			String[] locA = loc.contains(";;") ? loc.split(";;") : loc.split("_"); //Keep same as div
 			World world = Bukkit.getWorld(locA[1]);
@@ -67,7 +67,8 @@ public class ShopChunk implements Serializable {
 		return null;
 	}
 
-	public String serialize() {
+	@Override
+	public String toString() {
 		return "c" + div + world.getName() + div + x + div + z;
 	}
 

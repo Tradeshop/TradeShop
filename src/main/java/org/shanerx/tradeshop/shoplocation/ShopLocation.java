@@ -32,7 +32,7 @@ import org.bukkit.World;
 
 import java.io.Serializable;
 
-public class ShopLocation implements Serializable {
+public class ShopLocation {
 
 	final private String div = "::";
 	private transient World world;
@@ -57,7 +57,7 @@ public class ShopLocation implements Serializable {
 		this.z = loc.getZ();
 	}
 
-	public static ShopLocation deserialize(String loc) {
+	public static ShopLocation fromString(String loc) {
 		if (loc.startsWith("l")) {
 			String[] locA = loc.contains("::") ? loc.split("::") : loc.split("_"); //Keep same as div
 			double x = Double.parseDouble(locA[2]), y = Double.parseDouble(locA[3]), z = Double.parseDouble(locA[4]);
@@ -77,7 +77,8 @@ public class ShopLocation implements Serializable {
 		return null;
 	}
 
-	public String serialize() {
+	@Override
+	public String toString() {
 		return "l" + div + world.getName() + div + x + div + y + div + z;
 	}
 

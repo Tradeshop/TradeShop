@@ -149,7 +149,7 @@ public class ShopUserCommand extends CommandRunner {
 
         if (applyAllOwned) {
             for (String location : plugin.getDataStorage().loadPlayer(pSender.getUniqueId()).getOwnedShops()) {
-                ownedShops.add(plugin.getDataStorage().loadShopFromSign(ShopLocation.deserialize(location)));
+                ownedShops.add(plugin.getDataStorage().loadShopFromSign(ShopLocation.fromString(location)));
             }
         } else {
             ownedShops.add(tempShop);
@@ -161,24 +161,24 @@ public class ShopUserCommand extends CommandRunner {
                 switch (change) {
                     case REMOVE_USER:
                         if (!shop.getUsersUUID(ShopRole.MANAGER, ShopRole.MEMBER).contains(target.getUniqueId())) {
-                            updateStatuses.put(shop.getShopLocationAsSL().serialize(), UserOperationStatus.FAILED_MISSING.toString());
+                            updateStatuses.put(shop.getShopLocationAsSL().toString(), UserOperationStatus.FAILED_MISSING.toString());
                             break eachOwnedShop;
                         }
                         break;
                     case ADD_MANAGER:
                     case ADD_MEMBER:
                         if (shop.getUsersUUID(ShopRole.MANAGER, ShopRole.MEMBER).contains(target.getUniqueId())) {
-                            updateStatuses.put(shop.getShopLocationAsSL().serialize(), UserOperationStatus.FAILED_EXISTING.toString());
+                            updateStatuses.put(shop.getShopLocationAsSL().toString(), UserOperationStatus.FAILED_EXISTING.toString());
                             break eachOwnedShop;
                         } else if (shop.getUsers(ShopRole.MANAGER, ShopRole.MEMBER).size() >= Setting.MAX_SHOP_USERS.getInt()) {
-                            updateStatuses.put(shop.getShopLocationAsSL().serialize(), UserOperationStatus.FAILED_CAPACITY.toString());
+                            updateStatuses.put(shop.getShopLocationAsSL().toString(), UserOperationStatus.FAILED_CAPACITY.toString());
                             break eachOwnedShop;
                         }
                         break;
                     case SET_MANAGER:
                     case SET_MEMBER:
                         if (shop.getUsersExcluding(Collections.singletonList(target.getUniqueId()), ShopRole.MANAGER, ShopRole.MEMBER).size() >= Setting.MAX_SHOP_USERS.getInt()) {
-                            updateStatuses.put(shop.getShopLocationAsSL().serialize(), UserOperationStatus.FAILED_CAPACITY.toString());
+                            updateStatuses.put(shop.getShopLocationAsSL().toString(), UserOperationStatus.FAILED_CAPACITY.toString());
                             break eachOwnedShop;
                         }
                         break;
@@ -205,9 +205,9 @@ public class ShopUserCommand extends CommandRunner {
                 }
 
                 if (success)
-                    updateStatuses.put(shop.getShopLocationAsSL().serialize(), UserOperationStatus.SUCCESSFUL.toString());
+                    updateStatuses.put(shop.getShopLocationAsSL().toString(), UserOperationStatus.SUCCESSFUL.toString());
                 else
-                    updateStatuses.put(shop.getShopLocationAsSL().serialize(), UserOperationStatus.FAILED.toString());
+                    updateStatuses.put(shop.getShopLocationAsSL().toString(), UserOperationStatus.FAILED.toString());
             }
         }
 

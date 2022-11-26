@@ -46,7 +46,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
-public class PlayerSetting implements Serializable {
+public class PlayerSetting {
 
     private transient UUID uuid;
     private final String uuidString;
@@ -80,12 +80,6 @@ public class PlayerSetting implements Serializable {
         load();
     }
 
-    public static PlayerSetting deserialize(String serialized) {
-        PlayerSetting playerSetting = new Gson().fromJson(serialized, PlayerSetting.class);
-        playerSetting.load();
-        return playerSetting;
-    }
-
     public boolean isAdminEnabled() {
         return adminEnabled;
     }
@@ -108,16 +102,16 @@ public class PlayerSetting implements Serializable {
 
     public void addShop(Shop shop) {
         if (shop.getOwner().getUUID().equals(uuid) &&
-                !ownedShops.contains(shop.getShopLocationAsSL().serialize()))
-            ownedShops.add(shop.getShopLocationAsSL().serialize());
+                !ownedShops.contains(shop.getShopLocationAsSL().toString()))
+            ownedShops.add(shop.getShopLocationAsSL().toString());
         else if (shop.getUsersUUID(ShopRole.MANAGER, ShopRole.MEMBER).contains(uuid) &&
-                !ownedShops.contains(shop.getShopLocationAsSL().serialize()))
-            staffShops.add(shop.getShopLocationAsSL().serialize());
+                !ownedShops.contains(shop.getShopLocationAsSL().toString()))
+            staffShops.add(shop.getShopLocationAsSL().toString());
     }
 
     public void removeShop(Shop shop) {
-        ownedShops.remove(shop.getShopLocationAsSL().serialize());
-        staffShops.remove(shop.getShopLocationAsSL().serialize());
+        ownedShops.remove(shop.getShopLocationAsSL().toString());
+        staffShops.remove(shop.getShopLocationAsSL().toString());
     }
 
     public void removeShop(String shop) {
@@ -159,7 +153,7 @@ public class PlayerSetting implements Serializable {
         if (getOwnedShops().size() > 0) {
             getOwnedShops().forEach(s -> {
                 try {
-                    Shop shop = utils.PLUGIN.getDataStorage().loadShopFromSign(ShopLocation.deserialize(s));
+                    Shop shop = utils.PLUGIN.getDataStorage().loadShopFromSign(ShopLocation.fromString(s));
                     if (shop == null) {
                         nullShops.add(s);
                     } else if (shop.checkRole(uuid) != ShopRole.SHOPPER) {
@@ -177,7 +171,7 @@ public class PlayerSetting implements Serializable {
         if (getStaffShops().size() > 0) {
             getStaffShops().forEach(s -> {
                 try {
-                    Shop shop = utils.PLUGIN.getDataStorage().loadShopFromSign(ShopLocation.deserialize(s));
+                    Shop shop = utils.PLUGIN.getDataStorage().loadShopFromSign(ShopLocation.fromString(s));
                     if (shop == null) {
                         nullShops.add(s);
                     } else if (shop.checkRole(uuid) != ShopRole.SHOPPER) {
@@ -206,7 +200,7 @@ public class PlayerSetting implements Serializable {
         if (getOwnedShops().size() > 0) {
             getOwnedShops().forEach(s -> {
                 try {
-                    Shop shop = utils.PLUGIN.getDataStorage().loadShopFromSign(ShopLocation.deserialize(s));
+                    Shop shop = utils.PLUGIN.getDataStorage().loadShopFromSign(ShopLocation.fromString(s));
                     if (shop == null) {
                         nullShops.add(s);
                     } else if (shop.checkRole(uuid) != ShopRole.SHOPPER) {
@@ -232,7 +226,7 @@ public class PlayerSetting implements Serializable {
         if (getStaffShops().size() > 0) {
             getStaffShops().forEach(s -> {
                 try {
-                    Shop shop = utils.PLUGIN.getDataStorage().loadShopFromSign(ShopLocation.deserialize(s));
+                    Shop shop = utils.PLUGIN.getDataStorage().loadShopFromSign(ShopLocation.fromString(s));
                     if (shop == null) {
                         nullShops.add(s);
                     } else if (shop.checkRole(uuid) != ShopRole.SHOPPER) {
