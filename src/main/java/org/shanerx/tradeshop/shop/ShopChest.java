@@ -117,8 +117,8 @@ public class ShopChest extends Utils {
         try {
             return isShopChest(checking.getLocation().getBlock());
         } catch (NullPointerException ex) {
+			return false;
         }
-        return false;
     }
 
     public static void resetOldName(Block checking) {

@@ -1,5 +1,6 @@
 package org.shanerx.tradeshop.data.storage.sqlite;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.shanerx.tradeshop.data.storage.ShopConfiguration;
 import org.shanerx.tradeshop.item.ShopItemStack;
@@ -90,9 +91,12 @@ public class SQLiteShopConfiguration implements ShopConfiguration {
     @Override
     public Shop load(ShopLocation loc) {
         String locStr = loc.serialize();
+        Shop shop;
+
+        PreparedStatement ps = null, ps2 = null, ps3 = null, ps4, ps5 = null;
 
         try (Connection conn = sqlite.setupConnection(true)) {
-            PreparedStatement ps = sqlite.prepareStatement(conn,
+            ps = sqlite.prepareStatement(conn,
                     "SELECT * FROM shops WHERE sign_loc_serialized = '" + locStr + "';");
             ResultSet res = ps.executeQuery();
 
@@ -101,8 +105,21 @@ public class SQLiteShopConfiguration implements ShopConfiguration {
                 return null;
             }
 
+            String shopType = res.getString("type");
+            String ownerUUID = res.getString("owner_uuid");
             Tuple<Location, Location> locations = new Tuple<Location, Location>(ShopLocation.deserialize(res.getString("sign_loc_serialized")).getLocation(),
-                                                                    ShopLocation.deserialize(res.getString("sign_loc_serialized")).getLocation());
+                    new Location(Bukkit.getWorld(res.getString("chest_world_name")),
+                            res.getInt("chest_x"),
+                            res.getInt("chest_y"),
+                            res.getInt("chest_z")));
+
+            if (res.next()) {
+                ps.close();
+                throw new IllegalStateException("Database contains more than one entry with the shop loc '" + locStr + "'");
+            }
+
+            ps.close();
+
             Set<UUID> members = new HashSet<>();
             Set<UUID> managers = new HashSet<>();
 
@@ -110,48 +127,44 @@ public class SQLiteShopConfiguration implements ShopConfiguration {
             List<ShopItemStack> costs = new ArrayList<>();
 
             String sql2 = "SELECT * FROM shop_products WHERE sign_loc_serialized = '" + locStr + "';";
-            PreparedStatement ps2 = sqlite.prepareStatement(conn, sql2);
+            ps2 = sqlite.prepareStatement(conn, sql2);
             ResultSet res2 = ps2.executeQuery();
             while (res2.next()) {
                 products.add(ShopItemStack.deserialize(res2.getString("product")));
             }
+            ps2.close();
 
             String sql3 = "SELECT * FROM shop_costs WHERE sign_loc_serialized = '" + locStr + "';";
-            PreparedStatement ps3 = sqlite.prepareStatement(conn, sql3);
+            ps3 = sqlite.prepareStatement(conn, sql3);
             ResultSet res3 = ps3.executeQuery();
             while (res3.next()) {
                 costs.add(ShopItemStack.deserialize(res3.getString("cost")));
             }
+            ps3.close();
 
             String sql4 = "SELECT * FROM shop_managers WHERE sign_loc_serialized = '" + locStr + "';";
-            PreparedStatement ps4 = sqlite.prepareStatement(conn, sql4);
+            ps4 = sqlite.prepareStatement(conn, sql4);
             ResultSet res4 = ps4.executeQuery();
             while (res4.next()) {
                 managers.add(UUID.fromString(res4.getString("uuid")));
             }
+            ps4.close();
 
             String sql5 = "SELECT * FROM shop_members WHERE sign_loc_serialized = '" + locStr + "';";
-            PreparedStatement ps5 = sqlite.prepareStatement(conn, sql5);
+            ps5 = sqlite.prepareStatement(conn, sql5);
             ResultSet res5 = ps5.executeQuery();
             while (res5.next()) {
                 managers.add(UUID.fromString(res5.getString("uuid")));
             }
-
-            Shop shop = new Shop(locations,
-                            ShopType.valueOf(res.getString("type")),
-                            new ShopUser(UUID.fromString(res.getString("owner_uuid")), ShopRole.OWNER),
-                            new Tuple<>(managers, members),
-                            products, costs);
-
-            if (res.next()) throw new IllegalStateException("Database contains more than one entry with the shop loc '" + locStr + "'");
-
-            ps.close();
-            ps2.close();
-            ps3.close();
-            ps4.close();
             ps5.close();
 
+            shop = new Shop(locations,
+                            ShopType.valueOf(shopType),
+                            new ShopUser(UUID.fromString(ownerUUID), ShopRole.OWNER),
+                            new Tuple<>(managers, members),
+                            products, costs);
             return shop;
+
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
