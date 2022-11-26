@@ -25,6 +25,10 @@
 
 package org.shanerx.tradeshop.data.storage;
 
+import com.google.gson.reflect.TypeToken;
+import org.bukkit.World;
+import org.shanerx.tradeshop.data.storage.LinkageConfiguration;
+
 import org.shanerx.tradeshop.shop.ShopChest;
 import org.shanerx.tradeshop.shoplocation.ShopLocation;
 
@@ -35,9 +39,7 @@ import java.util.Map;
 public interface LinkageConfiguration {
 
     void save();
-
     void load();
-
     Map<String, String> getLinkageData();
 
     default ShopLocation getLinkedShop(ShopLocation chestLocation) {
@@ -84,4 +86,5 @@ public interface LinkageConfiguration {
         removeChests.forEach((k) -> getLinkageData().remove(k));
         save();
     }
+
 }

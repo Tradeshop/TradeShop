@@ -28,8 +28,12 @@ package org.shanerx.tradeshop.data.storage.Json;
 import com.google.gson.reflect.TypeToken;
 import org.bukkit.World;
 import org.shanerx.tradeshop.data.storage.LinkageConfiguration;
+import org.shanerx.tradeshop.shop.ShopChest;
+import org.shanerx.tradeshop.shoplocation.ShopLocation;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class JsonLinkageConfiguration extends JsonConfiguration implements LinkageConfiguration {

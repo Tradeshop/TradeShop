@@ -205,6 +205,13 @@ public class ShopItemStack implements Serializable, Cloneable {
         return itemStackB64;
     }
 
+    public Map<String, Object> getSerialItemStack() {
+        if (serialItemStack == null)
+            packData();
+        return serialItemStack;
+    }
+
+
     public boolean hasBase64() {
         return itemStackB64 != null && !itemStackB64.isEmpty();
     }
@@ -584,7 +591,7 @@ public class ShopItemStack implements Serializable, Cloneable {
     }
 
     /**
-     * Sets the objects {@link ItemStack} from its Base64.
+     * Sets the objects {@link ItemStack} from its Base64 or Serialized values.
      */
     private void loadData() {
         if (serialItemStack != null && !serialItemStack.isEmpty()) {

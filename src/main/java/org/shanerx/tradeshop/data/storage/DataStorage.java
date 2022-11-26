@@ -31,6 +31,9 @@ import org.bukkit.World;
 import org.shanerx.tradeshop.data.storage.Json.JsonLinkageConfiguration;
 import org.shanerx.tradeshop.data.storage.Json.JsonPlayerConfiguration;
 import org.shanerx.tradeshop.data.storage.Json.JsonShopConfiguration;
+import org.shanerx.tradeshop.data.storage.sqlite.SQLiteLinkageConfiguration;
+import org.shanerx.tradeshop.data.storage.sqlite.SQLitePlayerConfiguration;
+import org.shanerx.tradeshop.data.storage.sqlite.SQLiteShopConfiguration;
 import org.shanerx.tradeshop.player.PlayerSetting;
 import org.shanerx.tradeshop.shop.Shop;
 import org.shanerx.tradeshop.shoplocation.ShopChunk;
@@ -121,29 +124,41 @@ public class DataStorage extends Utils {
         getLinkageConfiguration(chestLocation.getWorld()).removeChest(chestLocation);
     }
 
-    protected PlayerConfiguration getPlayerConfiguration(UUID uuid) {
-        if (dataType == DataType.FLATFILE) {
-            return new JsonPlayerConfiguration(uuid);
+    protected PlayerConfiguration getPlayerConfiguration(UUID uuid)  {
+        switch(dataType) {
+            case FLATFILE:
+                return new JsonPlayerConfiguration(uuid);
+            case  SQLITE:
+                return new SQLitePlayerConfiguration(uuid);
+            default:
+                throw new NotImplementedException("Data storage type " + dataType + " has not been implemented yet.");
         }
-        throw new NotImplementedException("Data storage type " + dataType + " has not been implemented yet.");
     }
 
     protected ShopConfiguration getShopConfiguration(Chunk chunk) {
         return getShopConfiguration(new ShopChunk(chunk));
     }
 
-    protected ShopConfiguration getShopConfiguration(ShopChunk chunk) {
-        if (dataType == DataType.FLATFILE) {
-            return new JsonShopConfiguration(chunk);
+    protected ShopConfiguration getShopConfiguration(ShopChunk chunk)  {
+        switch (dataType) {
+            case FLATFILE:
+                return new JsonShopConfiguration(chunk);
+            case SQLITE:
+                return new SQLiteShopConfiguration(chunk);
+            default:
+                throw new NotImplementedException("Data storage type " + dataType + " has not been implemented yet.");
         }
-        throw new NotImplementedException("Data storage type " + dataType + " has not been implemented yet.");
     }
 
     protected LinkageConfiguration getLinkageConfiguration(World w) {
-        if (dataType == DataType.FLATFILE) {
-            return new JsonLinkageConfiguration(w);
+        switch (dataType) {
+            case FLATFILE:
+                return new JsonLinkageConfiguration(w);
+            case SQLITE:
+                return new SQLiteLinkageConfiguration(w);
+            default:
+                throw new NotImplementedException("Data storage type " + dataType + " has not been implemented yet.");
         }
-        throw new NotImplementedException("Data storage type " + dataType + " has not been implemented yet.");
     }
 }
 
