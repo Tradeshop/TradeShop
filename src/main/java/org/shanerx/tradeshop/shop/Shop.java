@@ -1194,9 +1194,11 @@ public class Shop implements Serializable {
 	 * @param index       index of the item t be updated
 	 */
 	public void updateSideItem(ShopItemSide side, ShopItemStack updatedItem, int index) {
-		if (!getShopType().isITrade() && chestLoc != null)
-			if (updatedItem.getItemStack().getType().toString().endsWith("SHULKER_BOX") && getInventoryLocation().getBlock().getType().toString().endsWith("SHULKER_BOX"))
-				return;
+		if (!getShopType().isITrade() &&
+				chestLoc != null &&
+				updatedItem.getItemStack().getType().toString().endsWith("SHULKER_BOX") &&
+				getInventoryLocation().getBlock().getType().toString().endsWith("SHULKER_BOX"))
+			return;
 
 		(side.equals(ShopItemSide.PRODUCT) ? product : cost).set(index, updatedItem);
 
