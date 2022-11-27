@@ -68,9 +68,9 @@ public class DatabaseManager {
                 throw new RuntimeException("Cached connection is in a broken state.");
             }
 
-            System.out.println("NEW CONNECTION");
+            plugin.getDebugger().log("SQLITE connection is closed, attempting to open new ...", DebugLevels.SQLITE);
             connection = DriverManager.getConnection(dburl, prop);
-            System.out.println("DONE");
+            plugin.getDebugger().log("SQLITE connection established.", DebugLevels.SQLITE);
             return connection;
 
         } catch (SQLException e) {
@@ -109,8 +109,11 @@ public class DatabaseManager {
 
     public void shutdown() {
         try {
-            if (!connection.isClosed())
+            if (!connection.isClosed()) {
+                plugin.getDebugger().log("SQLITE connection is still open, shutting down ...", DebugLevels.SQLITE);
                 connection.close();
+                plugin.getDebugger().log("SQLITE connection is now closed.", DebugLevels.SQLITE);
+            }
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }

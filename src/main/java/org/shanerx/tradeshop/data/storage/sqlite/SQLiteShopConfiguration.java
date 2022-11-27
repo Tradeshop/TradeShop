@@ -64,8 +64,6 @@ public class SQLiteShopConfiguration implements ShopConfiguration {
             ps.close();
 
             for (ShopItemStack itm : shop.getSideList(ShopItemSide.PRODUCT)) {
-                System.out.println("prod:" + itm.getItemStack().getType());
-
                 String sql2 = String.format("INSERT INTO shop_products (sign_loc_serialized, product) VALUES ('%s', '%s');",
                         shop.getShopLocationAsSL().serialize(), itm.serialize());
                 PreparedStatement ps2 = sqlite.prepareStatement(conn, sql2);
@@ -74,8 +72,6 @@ public class SQLiteShopConfiguration implements ShopConfiguration {
             }
 
             for (ShopItemStack itm : shop.getSideList(ShopItemSide.COST)) {
-                System.out.println("cost:" + itm.getItemStack().getType());
-
                 String sql3 = String.format("INSERT INTO shop_costs (sign_loc_serialized, cost) VALUES ('%s', '%s');",
                         shop.getShopLocationAsSL().serialize(), itm.serialize());
                 PreparedStatement ps3 = sqlite.prepareStatement(conn, sql3);
