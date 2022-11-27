@@ -59,10 +59,11 @@ import java.util.Objects;
 
 public class ShopItemStack implements Serializable, Cloneable {
 
+    @Expose
     private ItemStack itemStack;
     private transient Debug debugger;
 
-    @Expose(serialize = false)
+    @Expose(serialize = false, deserialize = true)
     private String itemStackB64;
 
     @Expose
@@ -587,7 +588,7 @@ public class ShopItemStack implements Serializable, Cloneable {
             }
         }
 
-        itemStackB64 = null;
+        itemStackB64 = "";
     }
 
     public String toConsoleText() {
