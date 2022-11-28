@@ -201,7 +201,7 @@ public class GUICommand extends CommandRunner {
 
         if (setting.isUserEditable() && isScreenEditable) {
             return new GuiStateElement('e',
-                    String.valueOf(item.getShopSettingAsInteger(setting)),
+                    String.valueOf(item.getShopSetting(setting).asInteger()),
                     new GuiStateElement.State(change -> {
                         item.setShopSettings(setting, new ObjectHolder<>(2));
                     },
@@ -237,13 +237,13 @@ public class GUICommand extends CommandRunner {
                     ));
         }
 
-        return new StaticGuiElement('e', indexedTempItem[item.getShopSettingAsInteger(setting) + 1], setting.makeReadable(), item.getStateString(setting));
+        return new StaticGuiElement('e', indexedTempItem[item.getShopSetting(setting).asInteger() + 1], setting.makeReadable(), item.getStateString(setting));
     }
 
     private GuiElement booleanOption(ShopItemStackSettingKeys setting, ShopItemStack item, boolean isScreenEditable) {
         if (setting.isUserEditable() && isScreenEditable) {
             return new GuiStateElement('e',
-                    String.valueOf(item.getShopSettingAsBoolean(setting)),
+                    String.valueOf(item.getShopSetting(setting).asBoolean()),
                     new GuiStateElement.State(change -> {
                         item.setShopSettings(setting, new ObjectHolder<>(true));
                     },
@@ -262,7 +262,7 @@ public class GUICommand extends CommandRunner {
                     ));
         }
 
-        return new StaticGuiElement('e', getBooleanItem(item.getShopSettingAsBoolean(setting)), setting.makeReadable(), item.getStateString(setting));
+        return new StaticGuiElement('e', getBooleanItem(item.getShopSetting(setting).asBoolean()), setting.makeReadable(), item.getStateString(setting));
     }
 
     private StaticGuiElement settingDisplayItem(ShopItemStackSettingKeys setting, ShopItemStack tempItem) {

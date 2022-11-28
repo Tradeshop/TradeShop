@@ -135,28 +135,14 @@ public class ShopItemStack implements Serializable, Cloneable {
         return new GsonProcessor().toJson(this);
     }
 
-    public boolean getShopSettingAsBoolean(ShopItemStackSettingKeys key) {
-        if (key.isUserEditable()) {
-            try {
-                ObjectHolder<?> tempObj = itemSettings.get(key);
-                return itemSettings.containsKey(key) ? (Boolean) tempObj.getObject() : (Boolean) key.getDefaultValue().getObject();
-            } catch (ClassCastException | NullPointerException ignored) {
-            }
+    public ObjectHolder<?> getShopSetting(ShopItemStackSettingKeys key) {
+        if (key.isUserEditable() && itemSettings.containsKey(key)) {
+            ObjectHolder<?> tempObj = itemSettings.get(key);
+            if (tempObj != null && tempObj.getObject() != null)
+                return tempObj;
         }
 
-        return (Boolean) key.getDefaultValue().getObject();
-    }
-
-    public int getShopSettingAsInteger(ShopItemStackSettingKeys key) {
-        if (key.isUserEditable()) {
-            try {
-                ObjectHolder<?> tempObj = itemSettings.get(key);
-                return itemSettings.containsKey(key) ? (Integer) tempObj.getObject() : (Integer) key.getDefaultValue().getObject();
-            } catch (ClassCastException | NullPointerException ignored) {
-            }
-        }
-
-        return (Integer) key.getDefaultValue().getObject();
+        return key.getDefaultValue();
     }
 
     private void buildMap() {
@@ -242,7 +228,7 @@ public class ShopItemStack implements Serializable, Cloneable {
 
         // If compareShulkerInventory is on
         if (itemStack.getType().toString().endsWith("SHULKER_BOX") &&
-                getShopSettingAsBoolean(ShopItemStackSettingKeys.COMPARE_SHULKER_INVENTORY)) {
+                getShopSetting(ShopItemStackSettingKeys.COMPARE_SHULKER_INVENTORY).asBoolean()) {
             try {
                 ArrayList<ItemStack> itemStackContents = Lists.newArrayList(((ShulkerBox) ((BlockStateMeta) toCompareMeta).getBlockState()).getInventory().getContents()),
                         toCompareContents = Lists.newArrayList(((ShulkerBox) ((BlockStateMeta) itemStackMeta).getBlockState()).getInventory().getContents());
@@ -269,7 +255,7 @@ public class ShopItemStack implements Serializable, Cloneable {
         // If compareBundleInventory is on and version is above 1.17 also check Bundles
         if (new Utils().PLUGIN.getVersion().isAtLeast(1, 17) &&
                 itemStack.getType().equals(Material.BUNDLE) &&
-                getShopSettingAsBoolean(ShopItemStackSettingKeys.COMPARE_BUNDLE_INVENTORY)) {
+                getShopSetting(ShopItemStackSettingKeys.COMPARE_BUNDLE_INVENTORY).asBoolean()) {
             try {
                 ArrayList<ItemStack> itemStackContents = Lists.newArrayList(((BundleMeta) toCompareMeta).getItems()),
                         toCompareContents = Lists.newArrayList(((BundleMeta) itemStackMeta).getItems());
@@ -294,7 +280,7 @@ public class ShopItemStack implements Serializable, Cloneable {
         }
 
         // If compareDurability is on
-        int compareDurability = getShopSettingAsInteger(ShopItemStackSettingKeys.COMPARE_DURABILITY);
+        int compareDurability = getShopSetting(ShopItemStackSettingKeys.COMPARE_DURABILITY).asInteger();
         if (compareDurability > -1 && compareDurability < 3 && useMeta) {
 
             // Return False if Damageable is not equal (one has and one doesn't)
@@ -333,7 +319,7 @@ public class ShopItemStack implements Serializable, Cloneable {
         }
 
         // If compareEnchantments is on
-        if (getShopSettingAsBoolean(ShopItemStackSettingKeys.COMPARE_ENCHANTMENTS) && useMeta) {
+        if (getShopSetting(ShopItemStackSettingKeys.COMPARE_ENCHANTMENTS).asBoolean() && useMeta) {
             if (itemStackMeta instanceof EnchantmentStorageMeta && toCompareMeta instanceof EnchantmentStorageMeta) {
                 EnchantmentStorageMeta itemStackEnchantmentStorageMeta = (EnchantmentStorageMeta) itemStackMeta,
                         toCompareEnchantmentStorageMeta = (EnchantmentStorageMeta) toCompareMeta;
@@ -364,7 +350,7 @@ public class ShopItemStack implements Serializable, Cloneable {
         }
 
         // If compareName is on
-        if (getShopSettingAsBoolean(ShopItemStackSettingKeys.COMPARE_NAME)) {
+        if (getShopSetting(ShopItemStackSettingKeys.COMPARE_NAME).asBoolean()) {
             debugger.log("ShopItemStack > isSimilar > getDisplayName: " + itemStackMeta.getDisplayName() + " - " + toCompareMeta.getDisplayName(), DebugLevels.NAME_COMPARE);
 
             // If ItemStack Meta are BookMeta then compare title, otherwise compare displayname
@@ -386,7 +372,7 @@ public class ShopItemStack implements Serializable, Cloneable {
         }
 
         // If useBookMeta and compareBookAuthor are true
-        if (useBookMeta && getShopSettingAsBoolean(ShopItemStackSettingKeys.COMPARE_BOOK_AUTHOR)) {
+        if (useBookMeta && getShopSetting(ShopItemStackSettingKeys.COMPARE_BOOK_AUTHOR).asBoolean()) {
             // Return False if hasAuthor differs (one has one doesn't)
             debugger.log("itemStackBookMeta hasAuthor: " + itemStackBookMeta.hasAuthor(), DebugLevels.ITEM_COMPARE);
             debugger.log("toCompareBookMeta hasAuthor: " + toCompareBookMeta.hasAuthor(), DebugLevels.ITEM_COMPARE);
@@ -403,7 +389,7 @@ public class ShopItemStack implements Serializable, Cloneable {
         }
 
         // If useBookMeta and compareBookPages are true
-        if (useBookMeta && getShopSettingAsBoolean(ShopItemStackSettingKeys.COMPARE_BOOK_PAGES)) {
+        if (useBookMeta && getShopSetting(ShopItemStackSettingKeys.COMPARE_BOOK_PAGES).asBoolean()) {
             // Return False if hasPages differs (one has one doesn't)
             debugger.log("itemStackBookMeta hasPages: " + itemStackBookMeta.hasPages(), DebugLevels.ITEM_COMPARE);
             debugger.log("toCompareBookMeta hasPages: " + toCompareBookMeta.hasPages(), DebugLevels.ITEM_COMPARE);
@@ -420,7 +406,7 @@ public class ShopItemStack implements Serializable, Cloneable {
         }
 
         // If compareLore is on
-        if (getShopSettingAsBoolean(ShopItemStackSettingKeys.COMPARE_LORE) && useMeta) {
+        if (getShopSetting(ShopItemStackSettingKeys.COMPARE_LORE).asBoolean() && useMeta) {
             // Return False if hasLore differs (one has one doesn't)
             if (itemStackMeta.hasLore() != toCompareMeta.hasLore()) return false;
 
@@ -430,7 +416,7 @@ public class ShopItemStack implements Serializable, Cloneable {
         }
 
         // If compareCustomModelData is on
-        if (getShopSettingAsBoolean(ShopItemStackSettingKeys.COMPARE_CUSTOM_MODEL_DATA) && useMeta) {
+        if (getShopSetting(ShopItemStackSettingKeys.COMPARE_CUSTOM_MODEL_DATA).asBoolean() && useMeta) {
             // Return False if hasCustomModelData differs (one has one doesn't)
             if (itemStackMeta.hasCustomModelData() != toCompareMeta.hasCustomModelData()) return false;
 
@@ -440,7 +426,7 @@ public class ShopItemStack implements Serializable, Cloneable {
         }
 
         // If compareItemFlags is on
-        if (getShopSettingAsBoolean(ShopItemStackSettingKeys.COMPARE_ITEM_FLAGS) && useMeta) {
+        if (getShopSetting(ShopItemStackSettingKeys.COMPARE_ITEM_FLAGS).asBoolean() && useMeta) {
             // Return False if getItemFlags sizes differs
             if (itemStackMeta.getItemFlags().size() != toCompareMeta.getItemFlags().size()) return false;
 
@@ -449,7 +435,7 @@ public class ShopItemStack implements Serializable, Cloneable {
         }
 
         // Return False if compareUnbreakable is on and isUnbreakable differs
-        if (getShopSettingAsBoolean(ShopItemStackSettingKeys.COMPARE_UNBREAKABLE) && useMeta && itemStackMeta.isUnbreakable() != toCompareMeta.isUnbreakable())
+        if (getShopSetting(ShopItemStackSettingKeys.COMPARE_UNBREAKABLE).asBoolean() && useMeta && itemStackMeta.isUnbreakable() != toCompareMeta.isUnbreakable())
             return false;
 
         // If item is firework rocket
@@ -458,13 +444,13 @@ public class ShopItemStack implements Serializable, Cloneable {
             FireworkMeta toCompareFireworkMeta = (FireworkMeta) toCompareMeta;
 
             // If server compare firework duration is disabled local setting is ignores
-            if (getShopSettingAsBoolean(ShopItemStackSettingKeys.COMPARE_FIREWORK_DURATION)) {
+            if (getShopSetting(ShopItemStackSettingKeys.COMPARE_FIREWORK_DURATION).asBoolean()) {
                 if (fireworkMeta.getPower() != toCompareFireworkMeta.getPower()) {
                     return false;
                 }
             }
 
-            if (getShopSettingAsBoolean(ShopItemStackSettingKeys.COMPARE_FIREWORK_EFFECTS)) {
+            if (getShopSetting(ShopItemStackSettingKeys.COMPARE_FIREWORK_EFFECTS).asBoolean()) {
                 if (fireworkMeta.hasEffects()) {
                     if (fireworkMeta.getEffects().size() != toCompareFireworkMeta.getEffects().size()) {
                         return false;
@@ -482,7 +468,7 @@ public class ShopItemStack implements Serializable, Cloneable {
         }
 
         // If compareAttributeModifier is on
-        if (getShopSettingAsBoolean(ShopItemStackSettingKeys.COMPARE_ATTRIBUTE_MODIFIER) && useMeta) {
+        if (getShopSetting(ShopItemStackSettingKeys.COMPARE_ATTRIBUTE_MODIFIER).asBoolean() && useMeta) {
             if (itemStackMeta.hasAttributeModifiers() != toCompareMeta.hasAttributeModifiers()) return false;
 
             // Return False if itemStack hasAttributeModifiers && getAttributeModifiers are not equal
@@ -532,8 +518,8 @@ public class ShopItemStack implements Serializable, Cloneable {
                 } else {
                     ret = "False";
                 }
-            } else if (stateSetting.isInteger() || stateSetting.isDouble()) {
-                switch (stateSetting.isDouble() ? ((Double) stateSetting.getObject()).intValue() : (Integer) stateSetting.getObject()) {
+            } else if (stateSetting.isInteger()) {
+                switch (stateSetting.asInteger()) {
                     case 2:
                         ret = ">=";
                         break;
