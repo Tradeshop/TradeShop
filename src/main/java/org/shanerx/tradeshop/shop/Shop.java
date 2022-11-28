@@ -145,6 +145,7 @@ public class Shop {
 	}
 
 	/**
+
 	 * Loads a shop from file and returns the Shop object
 	 *
 	 * @param loc Location of the shop sign
