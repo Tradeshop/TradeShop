@@ -240,8 +240,8 @@ public class GUICommand extends CommandRunner {
         return new StaticGuiElement('e', indexedTempItem[item.getShopSettingAsInteger(setting) + 1], setting.makeReadable(), item.getStateString(setting));
     }
 
-    private GuiElement booleanOption(ShopItemStackSettingKeys setting, ShopItemStack item, boolean editable) {
-        if (setting.isUserEditable() && editable) {
+    private GuiElement booleanOption(ShopItemStackSettingKeys setting, ShopItemStack item, boolean isScreenEditable) {
+        if (setting.isUserEditable() && isScreenEditable) {
             return new GuiStateElement('e',
                     String.valueOf(item.getShopSettingAsBoolean(setting)),
                     new GuiStateElement.State(change -> {

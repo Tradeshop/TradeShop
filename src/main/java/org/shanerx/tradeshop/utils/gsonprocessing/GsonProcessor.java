@@ -29,7 +29,6 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonSyntaxException;
-import com.google.gson.internal.bind.JsonTreeReader;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.shanerx.tradeshop.utils.gsonprocessing.typeadapters.ConfigurationSerializableAdapter;
 
@@ -58,7 +57,7 @@ public class GsonProcessor {
     }
 
     public <T> T fromJson(JsonElement json, Type typeOfT) throws JsonSyntaxException {
-        return globalGson.fromJson(new JsonTreeReader(json), typeOfT);
+        return globalGson.fromJson(json, typeOfT);
     }
 
     public String toJson(Object src) {
