@@ -25,10 +25,8 @@
 
 package org.shanerx.tradeshop.utils.objects;
 
-import com.google.gson.Gson;
 import com.google.gson.annotations.SerializedName;
-
-import java.io.Serializable;
+import org.shanerx.tradeshop.utils.gsonprocessing.GsonProcessor;
 
 public class Tuple<L, R> {
 
@@ -58,8 +56,12 @@ public class Tuple<L, R> {
 		return l;
 	}
 
+	public String serialize() {
+        return new GsonProcessor().toJson(this);
+	}
+
 	@Override
 	public String toString() {
-		return new Gson().toJson(this);
+		return serialize();
 	}
 }

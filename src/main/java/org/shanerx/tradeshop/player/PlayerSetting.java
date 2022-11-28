@@ -26,7 +26,6 @@
 package org.shanerx.tradeshop.player;
 
 import com.google.common.collect.Sets;
-import com.google.gson.Gson;
 import de.themoep.inventorygui.GuiElementGroup;
 import de.themoep.inventorygui.GuiPageElement;
 import de.themoep.inventorygui.InventoryGui;
@@ -39,8 +38,8 @@ import org.shanerx.tradeshop.shop.Shop;
 import org.shanerx.tradeshop.shoplocation.IllegalWorldException;
 import org.shanerx.tradeshop.shoplocation.ShopLocation;
 import org.shanerx.tradeshop.utils.Utils;
+import org.shanerx.tradeshop.utils.gsonprocessing.GsonProcessor;
 
-import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -102,16 +101,16 @@ public class PlayerSetting {
 
     public void addShop(Shop shop) {
         if (shop.getOwner().getUUID().equals(uuid) &&
-                !ownedShops.contains(shop.getShopLocationAsSL().toString()))
-            ownedShops.add(shop.getShopLocationAsSL().toString());
+                !ownedShops.contains(shop.getShopLocationAsSL().serialize()))
+            ownedShops.add(shop.getShopLocationAsSL().serialize());
         else if (shop.getUsersUUID(ShopRole.MANAGER, ShopRole.MEMBER).contains(uuid) &&
-                !ownedShops.contains(shop.getShopLocationAsSL().toString()))
-            staffShops.add(shop.getShopLocationAsSL().toString());
+                !ownedShops.contains(shop.getShopLocationAsSL().serialize()))
+            staffShops.add(shop.getShopLocationAsSL().serialize());
     }
 
     public void removeShop(Shop shop) {
-        ownedShops.remove(shop.getShopLocationAsSL().toString());
-        staffShops.remove(shop.getShopLocationAsSL().toString());
+        ownedShops.remove(shop.getShopLocationAsSL().serialize());
+        staffShops.remove(shop.getShopLocationAsSL().serialize());
     }
 
     public void removeShop(String shop) {
@@ -141,10 +140,6 @@ public class PlayerSetting {
         utils = new Utils();
     }
 
-    public String serialize() {
-        return new Gson().toJson(this);
-    }
-
     public String getInvolvedStatusesString() {
         Set<String> nullShops = new HashSet<>();
         StringBuilder sb = new StringBuilder();
@@ -153,7 +148,7 @@ public class PlayerSetting {
         if (getOwnedShops().size() > 0) {
             getOwnedShops().forEach(s -> {
                 try {
-                    Shop shop = utils.PLUGIN.getDataStorage().loadShopFromSign(ShopLocation.fromString(s));
+                    Shop shop = utils.PLUGIN.getDataStorage().loadShopFromSign(ShopLocation.deserialize(s));
                     if (shop == null) {
                         nullShops.add(s);
                     } else if (shop.checkRole(uuid) != ShopRole.SHOPPER) {
@@ -171,7 +166,7 @@ public class PlayerSetting {
         if (getStaffShops().size() > 0) {
             getStaffShops().forEach(s -> {
                 try {
-                    Shop shop = utils.PLUGIN.getDataStorage().loadShopFromSign(ShopLocation.fromString(s));
+                    Shop shop = utils.PLUGIN.getDataStorage().loadShopFromSign(ShopLocation.deserialize(s));
                     if (shop == null) {
                         nullShops.add(s);
                     } else if (shop.checkRole(uuid) != ShopRole.SHOPPER) {
@@ -200,7 +195,7 @@ public class PlayerSetting {
         if (getOwnedShops().size() > 0) {
             getOwnedShops().forEach(s -> {
                 try {
-                    Shop shop = utils.PLUGIN.getDataStorage().loadShopFromSign(ShopLocation.fromString(s));
+                    Shop shop = utils.PLUGIN.getDataStorage().loadShopFromSign(ShopLocation.deserialize(s));
                     if (shop == null) {
                         nullShops.add(s);
                     } else if (shop.checkRole(uuid) != ShopRole.SHOPPER) {
@@ -226,7 +221,7 @@ public class PlayerSetting {
         if (getStaffShops().size() > 0) {
             getStaffShops().forEach(s -> {
                 try {
-                    Shop shop = utils.PLUGIN.getDataStorage().loadShopFromSign(ShopLocation.fromString(s));
+                    Shop shop = utils.PLUGIN.getDataStorage().loadShopFromSign(ShopLocation.deserialize(s));
                     if (shop == null) {
                         nullShops.add(s);
                     } else if (shop.checkRole(uuid) != ShopRole.SHOPPER) {

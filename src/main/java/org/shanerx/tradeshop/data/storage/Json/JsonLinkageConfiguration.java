@@ -45,6 +45,7 @@ public class JsonLinkageConfiguration extends JsonConfiguration implements Linka
     public void load() {
         linkageData = gson.fromJson(jsonObj.get("linkage_data"), new TypeToken<Map<String, String>>() {
         }.getType());
+
         if (linkageData == null)
             linkageData = new HashMap<>();
     }

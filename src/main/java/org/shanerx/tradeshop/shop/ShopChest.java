@@ -224,7 +224,7 @@ public class ShopChest extends Utils {
 
 			chestData.forEach((k, v) -> plugin.getDebugger().log(k + " = " + v, DebugLevels.PROTECTION));
 			try {
-				shopSign = ShopLocation.fromString(chestData.get("Sign"));
+				shopSign = ShopLocation.deserialize(chestData.get("Sign"));
 			} catch (IllegalWorldException e) {
 				shopSign = new ShopLocation(e.getLoc().getLocation(chest.getWorld()));
 			}
@@ -252,7 +252,7 @@ public class ShopChest extends Utils {
 		StringBuilder sb = new StringBuilder();
 		sb.append("$ ^Sign");
 		sb.append(titleSeparator);
-		sb.append(shopSign.toString());
+		sb.append(shopSign.serialize());
 		sb.append("$ ^Owner");
 		sb.append(titleSeparator);
 		sb.append(owner.toString());

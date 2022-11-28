@@ -25,7 +25,12 @@
 
 package org.shanerx.tradeshop.commands.commandrunners;
 
-import de.themoep.inventorygui.*;
+import de.themoep.inventorygui.GuiElement;
+import de.themoep.inventorygui.GuiElementGroup;
+import de.themoep.inventorygui.GuiPageElement;
+import de.themoep.inventorygui.GuiStateElement;
+import de.themoep.inventorygui.InventoryGui;
+import de.themoep.inventorygui.StaticGuiElement;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BookMeta;
@@ -37,6 +42,7 @@ import org.shanerx.tradeshop.commands.CommandPass;
 import org.shanerx.tradeshop.item.ShopItemSide;
 import org.shanerx.tradeshop.item.ShopItemStack;
 import org.shanerx.tradeshop.item.ShopItemStackSettingKeys;
+import org.shanerx.tradeshop.shop.Shop;
 import org.shanerx.tradeshop.utils.objects.ObjectHolder;
 
 import java.util.ArrayList;
@@ -75,9 +81,9 @@ public class GUICommand extends CommandRunner {
     //region Util Methods
     //------------------------------------------------------------------------------------------------------------------
 
-    protected StaticGuiElement itemSettingMenu(int index, ShopItemSide side, boolean editable) {
+    protected StaticGuiElement itemSettingMenu(Shop shop, int index, ShopItemSide side, boolean editable) {
         ShopItemStack item = (side.equals(ShopItemSide.COST) ? costItems : productItems).get(index);
-        ItemStack tempStack = item.getItemStack();
+        ItemStack tempStack = item.getItemStack().clone();
         ItemMeta tempMeta = tempStack.getItemMeta();
         List<String> newLore = new ArrayList<>();
         newLore.add(colorize("&8Amount &7» &f" + item.getAmount()));
@@ -97,13 +103,6 @@ public class GUICommand extends CommandRunner {
 
             // Add Cancel button when editable and Back button when not - Goes to previous screen without saving changes
             itemEdit.addElement(getBackButton(editable));
-
-            // Add Save button only when editable - Saves and Goes to previous screen
-            if (editable) itemEdit.addElement(new StaticGuiElement('s', new ItemStack(Material.ANVIL), click3 -> {
-                (side.equals(ShopItemSide.COST) ? costItems : productItems).set(index, item);
-                InventoryGui.goBack(pSender);
-                return true;
-            }, "Save Changes"));
 
             itemEdit.addElement(new StaticGuiElement('a', new ItemStack(Material.YELLOW_STAINED_GLASS_PANE), " "));
             itemEdit.addElement(getNextButton());
@@ -184,78 +183,86 @@ public class GUICommand extends CommandRunner {
 
             itemEdit.addElement(itemGroup);
             itemEdit.addElement(settingGroup);
+
+            // Add Save button only when editable - Saves and Goes to previous screen
+            if (editable) itemEdit.addElement(new StaticGuiElement('s', new ItemStack(Material.ANVIL), click3 -> {
+                shop.updateSideItem(side, item, index);
+                InventoryGui.goBack(pSender);
+                return true;
+            }, "Save Changes"));
+
             itemEdit.show(pSender);
             return true;
         });
     }
 
-    private GuiElement numericalOption(ShopItemStackSettingKeys setting, ShopItemStack tempItem, boolean editable) {
+    private GuiElement numericalOption(ShopItemStackSettingKeys setting, ShopItemStack item, boolean isScreenEditable) {
         ItemStack[] indexedTempItem = new ItemStack[]{getBooleanItem(false), new ItemStack(Material.IRON_BLOCK), getBooleanItem(true), new ItemStack(Material.GOLD_BLOCK)};
 
-        if (setting.isUserEditable() && editable) {
+        if (setting.isUserEditable() && isScreenEditable) {
             return new GuiStateElement('e',
-                    String.valueOf(tempItem.getShopSettingAsInteger(setting)),
+                    String.valueOf(item.getShopSetting(setting).asInteger()),
                     new GuiStateElement.State(change -> {
-                        tempItem.setShopSettings(setting, new ObjectHolder<>(2));
+                        item.setShopSettings(setting, new ObjectHolder<>(2));
                     },
                             "2",
                             indexedTempItem[3],
                             setting.makeReadable(),
-                            tempItem.getStateString(new ObjectHolder<>(2))),
+                            item.getStateString(new ObjectHolder<>(2))),
 
                     new GuiStateElement.State(change -> {
-                        tempItem.setShopSettings(setting, new ObjectHolder<>(-1));
+                        item.setShopSettings(setting, new ObjectHolder<>(-1));
                     },
                             "-1",
                             indexedTempItem[0],
                             setting.makeReadable(),
-                            tempItem.getStateString(new ObjectHolder<>(-1))),
+                            item.getStateString(new ObjectHolder<>(-1))),
 
                     new GuiStateElement.State(change -> {
-                        tempItem.setShopSettings(setting, new ObjectHolder<>(0));
+                        item.setShopSettings(setting, new ObjectHolder<>(0));
                     },
                             "0",
                             indexedTempItem[1],
                             setting.makeReadable(),
-                            tempItem.getStateString(new ObjectHolder<>(0))),
+                            item.getStateString(new ObjectHolder<>(0))),
 
                     new GuiStateElement.State(change -> {
-                        tempItem.setShopSettings(setting, new ObjectHolder<>(1));
+                        item.setShopSettings(setting, new ObjectHolder<>(1));
                     },
                             "1",
                             indexedTempItem[2],
                             setting.makeReadable(),
-                            tempItem.getStateString(new ObjectHolder<>(1))
+                            item.getStateString(new ObjectHolder<>(1))
 
                     ));
         }
 
-        return new StaticGuiElement('e', indexedTempItem[tempItem.getShopSettingAsInteger(setting) + 1], setting.makeReadable(), tempItem.getStateString(setting));
+        return new StaticGuiElement('e', indexedTempItem[item.getShopSetting(setting).asInteger() + 1], setting.makeReadable(), item.getStateString(setting));
     }
 
-    private GuiElement booleanOption(ShopItemStackSettingKeys setting, ShopItemStack tempItem, boolean editable) {
-        if (setting.isUserEditable() && editable) {
+    private GuiElement booleanOption(ShopItemStackSettingKeys setting, ShopItemStack item, boolean isScreenEditable) {
+        if (setting.isUserEditable() && isScreenEditable) {
             return new GuiStateElement('e',
-                    String.valueOf(tempItem.getShopSettingAsBoolean(setting)),
+                    String.valueOf(item.getShopSetting(setting).asBoolean()),
                     new GuiStateElement.State(change -> {
-                        tempItem.setShopSettings(setting, new ObjectHolder<>(true));
+                        item.setShopSettings(setting, new ObjectHolder<>(true));
                     },
                             "true",
                             getBooleanItem(true),
                             setting.makeReadable(),
-                            tempItem.getStateString(new ObjectHolder<>(true))
+                            item.getStateString(new ObjectHolder<>(true))
                     ),
                     new GuiStateElement.State(change -> {
-                        tempItem.setShopSettings(setting, new ObjectHolder<>(false));
+                        item.setShopSettings(setting, new ObjectHolder<>(false));
                     },
                             "false",
                             getBooleanItem(false),
                             setting.makeReadable(),
-                            tempItem.getStateString(new ObjectHolder<>(false))
+                            item.getStateString(new ObjectHolder<>(false))
                     ));
         }
 
-        return new StaticGuiElement('e', tempItem.getShopSettingAsBoolean(setting) ? getBooleanItem(true) : getBooleanItem(false), setting.makeReadable(), tempItem.getStateString(setting));
+        return new StaticGuiElement('e', getBooleanItem(item.getShopSetting(setting).asBoolean()), setting.makeReadable(), item.getStateString(setting));
     }
 
     private StaticGuiElement settingDisplayItem(ShopItemStackSettingKeys setting, ShopItemStack tempItem) {

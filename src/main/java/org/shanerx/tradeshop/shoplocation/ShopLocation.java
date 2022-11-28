@@ -57,7 +57,7 @@ public class ShopLocation {
 		this.z = loc.getZ();
 	}
 
-	public static ShopLocation fromString(String loc) {
+	public static ShopLocation deserialize(String loc) {
 		if (loc.startsWith("l")) {
 			String[] locA = loc.contains("::") ? loc.split("::") : loc.split("_"); //Keep same as div
 			double x = Double.parseDouble(locA[2]), y = Double.parseDouble(locA[3]), z = Double.parseDouble(locA[4]);
@@ -77,8 +77,7 @@ public class ShopLocation {
 		return null;
 	}
 
-	@Override
-	public String toString() {
+	public String serialize() {
 		return "l" + div + world.getName() + div + x + div + y + div + z;
 	}
 

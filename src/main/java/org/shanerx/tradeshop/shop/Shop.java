@@ -25,7 +25,6 @@
 
 package org.shanerx.tradeshop.shop;
 
-import com.google.gson.Gson;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -47,11 +46,18 @@ import org.shanerx.tradeshop.player.ShopUser;
 import org.shanerx.tradeshop.shoplocation.ShopChunk;
 import org.shanerx.tradeshop.shoplocation.ShopLocation;
 import org.shanerx.tradeshop.utils.Utils;
+import org.shanerx.tradeshop.utils.gsonprocessing.GsonProcessor;
 import org.shanerx.tradeshop.utils.objects.ObjectHolder;
 import org.shanerx.tradeshop.utils.objects.Tuple;
 
-import java.io.Serializable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 public class Shop {
@@ -288,11 +294,11 @@ public class Shop {
 	public String toDebug() {
 		StringBuilder sb = new StringBuilder();
 		sb.append("Shop Debug: \n");
-		sb.append("Shop Chunk: ").append(new ShopChunk(shopLoc.getChunk()).toString()).append("\n");
-		sb.append("Sign Location: ").append(shopLoc).append("\n");
+		sb.append("Shop Chunk: ").append(new ShopChunk(shopLoc.getChunk()).serialize()).append("\n");
+		sb.append("Sign Location: ").append(shopLoc.serialize()).append("\n");
 		sb.append("Shop Type: ").append((isMissingItems() ? Setting.SHOP_INCOMPLETE_COLOUR : Setting.SHOP_GOOD_COLOUR).getString() + shopType.toHeader()).append("\n");
 		sb.append("Shop Status: ").append(status.getLine()).append("\n");
-		sb.append("Storage Location: ").append(hasStorage() ? getInventoryLocationAsSL().toString() : "N/A").append("\n");
+		sb.append("Storage Location: ").append(hasStorage() ? getInventoryLocationAsSL().serialize() : "N/A").append("\n");
 		sb.append("Storage Type: ").append(hasStorage() ? getStorage().getType().toString() : "N/A").append("\n");
 		sb.append("Owner: ").append(owner.getName()).append(" | ").append(owner.getUUID()).append("\n");
 		sb.append("Managers: ").append(managers.isEmpty() ? "N/A" : managers.size()).append("\n");
@@ -951,6 +957,7 @@ public class Shop {
 		if (ogItems.size() > 1 && ogItems.size() != matSet.size()) {
 			List<ShopItemStack> scrapList = new ArrayList<>(ogItems);
 			(side.equals(ShopItemSide.PRODUCT) ? product : cost).clear();
+			(side.equals(ShopItemSide.PRODUCT) ? product : cost).clear();
 
 			ogItems.forEach((item) -> {
 				while (scrapList.contains(item)) {
@@ -1142,16 +1149,34 @@ public class Shop {
 	 * Updates list on specified side
 	 *
 	 * @param side            Side to be updated
-	 * @param updatedCostList list to set as new CostList
+	 * @param updatedItemList list to set updatedItemList to
 	 */
-	public void updateSide(ShopItemSide side, List<ShopItemStack> updatedCostList) {
+	public void updateSide(ShopItemSide side, List<ShopItemStack> updatedItemList) {
 		if (!getShopType().isITrade() && chestLoc != null)
-			updatedCostList.removeIf(item -> item.getItemStack().getType().toString().endsWith("SHULKER_BOX") && getInventoryLocation().getBlock().getType().toString().endsWith("SHULKER_BOX"));
-		if (side.equals(ShopItemSide.PRODUCT)) {
-			product = updatedCostList;
-		} else {
-			cost = updatedCostList;
-		}
+			updatedItemList.removeIf(item -> item.getItemStack().getType().toString().endsWith("SHULKER_BOX") && getInventoryLocation().getBlock().getType().toString().endsWith("SHULKER_BOX"));
+
+		if (side.equals(ShopItemSide.PRODUCT)) product = updatedItemList;
+		else cost = updatedItemList;
+
+		saveShop();
+		updateSign();
+	}
+
+	/**
+	 * Updates item on specified side at index
+	 *
+	 * @param side        Side to be updated
+	 * @param updatedItem Item to be updated at the specified index and side
+	 * @param index       index of the item t be updated
+	 */
+	public void updateSideItem(ShopItemSide side, ShopItemStack updatedItem, int index) {
+		if (!getShopType().isITrade() &&
+				chestLoc != null &&
+				updatedItem.getItemStack().getType().toString().endsWith("SHULKER_BOX") &&
+				getInventoryLocation().getBlock().getType().toString().endsWith("SHULKER_BOX"))
+			return;
+
+		(side.equals(ShopItemSide.PRODUCT) ? product : cost).set(index, updatedItem);
 
 		saveShop();
 		updateSign();

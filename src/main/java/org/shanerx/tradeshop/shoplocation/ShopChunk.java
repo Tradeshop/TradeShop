@@ -53,7 +53,7 @@ public class ShopChunk {
 		chunk = c;
 	}
 
-	public static ShopChunk fromString(String loc) {
+	public static ShopChunk deserialize(String loc) {
 		if (loc.startsWith("c")) {
 			String[] locA = loc.contains(";;") ? loc.split(";;") : loc.split("_"); //Keep same as div
 			World world = Bukkit.getWorld(locA[1]);
@@ -67,8 +67,7 @@ public class ShopChunk {
 		return null;
 	}
 
-	@Override
-	public String toString() {
+	public String serialize() {
 		return "c" + div + world.getName() + div + x + div + z;
 	}
 

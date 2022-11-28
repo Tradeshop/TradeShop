@@ -45,11 +45,11 @@ public class ObjectHolder<Type> {
     }
 
     public boolean isInteger() {
-        return obj != null && obj instanceof Integer;
+        return obj != null && (obj instanceof Integer || (obj instanceof Double && Double.parseDouble(obj.toString()) % 1 == 0));
     }
 
     public boolean isDouble() {
-        return obj != null && obj instanceof Double;
+        return obj != null && (obj instanceof Double || obj instanceof Integer);
     }
 
     public boolean isString() {
@@ -61,7 +61,7 @@ public class ObjectHolder<Type> {
     }
 
     public Integer asInteger() {
-        return isInteger() ? Integer.parseInt(obj.toString()) : null;
+        return isInteger() ? (int) Double.parseDouble(obj.toString()) : null;
     }
 
     public Double asDouble() {

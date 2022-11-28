@@ -129,7 +129,7 @@ public class ShopProtectionListener extends Utils implements Listener {
         }
 
         plugin.getDebugger().log("ShopProtectionListener: Triggered > " + (fromHopper ? "FROM_HOPPER" : "TO_HOPPER"), DebugLevels.PROTECTION);
-        plugin.getDebugger().log("ShopProtectionListener: Shop Location as SL > " + shop.getInventoryLocationAsSL().toString(), DebugLevels.PROTECTION);
+        plugin.getDebugger().log("ShopProtectionListener: Shop Location as SL > " + shop.getInventoryLocationAsSL().serialize(), DebugLevels.PROTECTION);
         plugin.getDebugger().log("ShopProtectionListener: checked hopper setting > " + shop.getShopType().name() + "SHOP_HOPPER_EXPORT", DebugLevels.PROTECTION);
         HopperShopAccessEvent hopperEvent = new HopperShopAccessEvent(
                 shop,
@@ -367,7 +367,7 @@ public class ShopProtectionListener extends Utils implements Listener {
     }
 
     private void scheduleShopDelayUpdate(Shop shop, Long delay) {
-        plugin.getDebugger().log("Shop Being updated from ProtectionListener...\n  " + shop.getShopLocationAsSL().toString(), DebugLevels.PROTECTION);
+        plugin.getDebugger().log("Shop Being updated from ProtectionListener...\n  " + shop.getShopLocationAsSL().serialize(), DebugLevels.PROTECTION);
         Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
             @Override
             public void run() {

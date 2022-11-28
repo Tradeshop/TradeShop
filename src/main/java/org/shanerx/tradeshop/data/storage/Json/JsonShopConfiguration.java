@@ -40,7 +40,7 @@ public class JsonShopConfiguration extends JsonConfiguration implements ShopConf
     private final ShopChunk chunk;
 
     public JsonShopConfiguration(ShopChunk chunk) {
-        super(chunk.getWorld().getName(), chunk.toString());
+        super(chunk.getWorld().getName(), chunk.serialize());
         this.chunk = chunk;
     }
 
@@ -48,7 +48,7 @@ public class JsonShopConfiguration extends JsonConfiguration implements ShopConf
     public void loadFile() {
         if (!this.file.exists()) {
             // If could not find file try with old separators
-            String oldFile = path + File.separator + chunk.toString().replace(";;", "_") + ".json";
+            String oldFile = path + File.separator + chunk.serialize().replace(";;", "_") + ".json";
             if (new File(oldFile).exists())
                 new File(oldFile).renameTo(file);
         }
@@ -57,7 +57,7 @@ public class JsonShopConfiguration extends JsonConfiguration implements ShopConf
 
         for (Map.Entry<String, JsonElement> entry : Sets.newHashSet(jsonObj.entrySet())) {
             if (entry.getKey().contains("l_")) {
-                jsonObj.add(ShopLocation.fromString(entry.getKey()).toString(), entry.getValue());
+                jsonObj.add(ShopLocation.deserialize(entry.getKey()).serialize(), entry.getValue());
                 jsonObj.remove(entry.getKey());
             }
         }
@@ -65,15 +65,15 @@ public class JsonShopConfiguration extends JsonConfiguration implements ShopConf
 
     @Override
     public void save(Shop shop) {
-        jsonObj.add(shop.getShopLocationAsSL().toString(), gson.toJsonTree(shop));
+        jsonObj.add(shop.getShopLocationAsSL().serialize(), gson.toJsonTree(shop));
 
         saveFile();
     }
 
     @Override
     public void remove(ShopLocation loc) {
-        if (jsonObj.has(loc.toString()))
-            jsonObj.remove(loc.toString());
+        if (jsonObj.has(loc.serialize()))
+            jsonObj.remove(loc.serialize());
 
         saveFile();
     }
@@ -81,7 +81,7 @@ public class JsonShopConfiguration extends JsonConfiguration implements ShopConf
     @Override
     public Shop load(ShopLocation loc) {
         Shop shop;
-        String locStr = loc.toString();
+        String locStr = loc.serialize();
 
         if (!jsonObj.has(locStr)) {
             return null;

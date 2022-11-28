@@ -25,11 +25,10 @@
 
 package org.shanerx.tradeshop.data.storage.Json;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import org.shanerx.tradeshop.utils.Utils;
+import org.shanerx.tradeshop.utils.gsonprocessing.GsonProcessor;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -40,7 +39,7 @@ import java.util.logging.Level;
 
 class JsonConfiguration extends Utils {
     protected final String path;
-    protected final Gson gson;
+    protected final GsonProcessor gson;
     protected File file, pathFile;
     protected JsonObject jsonObj;
 
@@ -51,7 +50,7 @@ class JsonConfiguration extends Utils {
      * @param fileName       name of the file to load without extension
      */
     protected JsonConfiguration(String folderFromData, String fileName) {
-        this.gson = new GsonBuilder().setPrettyPrinting().serializeNulls().create();
+        this.gson = new GsonProcessor();
         this.path = PLUGIN.getDataFolder().getAbsolutePath() + File.separator + "Data" + File.separator + folderFromData;
         this.pathFile = new File(path);
         this.file = new File(path + File.separator + fileName + ".json");

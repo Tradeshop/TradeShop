@@ -25,7 +25,6 @@
 
 package org.shanerx.tradeshop.shop;
 
-import com.google.gson.Gson;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.block.Block;
@@ -34,8 +33,7 @@ import org.bukkit.entity.Player;
 import org.shanerx.tradeshop.TradeShop;
 import org.shanerx.tradeshop.data.config.Setting;
 import org.shanerx.tradeshop.player.Permissions;
-
-import java.io.Serializable;
+import org.shanerx.tradeshop.utils.gsonprocessing.GsonProcessor;
 
 
 public enum ShopType {
