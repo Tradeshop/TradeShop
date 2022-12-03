@@ -34,6 +34,8 @@ import com.google.gson.JsonSerializer;
 import com.google.gson.reflect.TypeToken;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.configuration.serialization.ConfigurationSerialization;
+import org.shanerx.tradeshop.utils.debug.Debug;
+import org.shanerx.tradeshop.utils.debug.DebugLevels;
 
 import java.lang.reflect.Type;
 import java.util.LinkedHashMap;
@@ -81,11 +83,15 @@ public class ConfigurationSerializableAdapter implements JsonSerializer<Configur
 
     private Map<String, Object> configSerRecursiveSerialize(ConfigurationSerializable src) {
         final Map<String, Object> map = new LinkedHashMap<>();
+        Debug debug = Debug.findDebugger();
         src.serialize().forEach((string, object) -> {
+            debug.log("configSerRecursiveSerialize 4Ea : " + string + " | " + object.toString(), DebugLevels.GSON);
             if (object instanceof ConfigurationSerializable) {
                 map.putAll(configSerRecursiveSerialize((ConfigurationSerializable) object));
+                debug.log("configSerRecursiveSerialize 4Ea Tunneling...", DebugLevels.GSON);
             } else {
                 map.put(string, object);
+                debug.log("configSerRecursiveSerialize 4Ea Launching...", DebugLevels.GSON);
             }
         });
 
