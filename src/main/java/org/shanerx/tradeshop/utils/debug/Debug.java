@@ -26,6 +26,7 @@
 package org.shanerx.tradeshop.utils.debug;
 
 import org.bukkit.Bukkit;
+import org.shanerx.tradeshop.TradeShop;
 import org.shanerx.tradeshop.data.config.Setting;
 
 import java.util.logging.Level;
@@ -38,6 +39,15 @@ public class Debug {
 
     public Debug() {
         reload();
+    }
+
+    public static Debug findDebugger() {
+        final TradeShop plugin = ((TradeShop) Bukkit.getPluginManager().getPlugin("TradeShop"));
+        if (plugin != null) {
+            return plugin.getDebugger();
+        } else {
+            return new Debug();
+        }
     }
 
     public void reload() {

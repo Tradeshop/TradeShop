@@ -72,9 +72,23 @@ public class ConfigurationSerializableAdapter implements JsonSerializer<Configur
             ConfigurationSerializable src,
             Type typeOfSrc,
             JsonSerializationContext context) {
+
         final Map<String, Object> map = new LinkedHashMap<>();
         map.put(ConfigurationSerialization.SERIALIZED_TYPE_KEY, ConfigurationSerialization.getAlias(src.getClass()));
-        map.putAll(src.serialize());
+        map.putAll(configSerRecursiveSerialize(src));
         return context.serialize(map, objectStringMapType);
+    }
+
+    private Map<String, Object> configSerRecursiveSerialize(ConfigurationSerializable src) {
+        final Map<String, Object> map = new LinkedHashMap<>();
+        src.serialize().forEach((string, object) -> {
+            if (object instanceof ConfigurationSerializable) {
+                map.putAll(configSerRecursiveSerialize((ConfigurationSerializable) object));
+            } else {
+                map.put(string, object);
+            }
+        });
+
+        return map;
     }
 }

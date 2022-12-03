@@ -56,6 +56,25 @@ public class WhatCommand extends GUICommand {
      * Opens a GUI containing the items to be traded at the shop the player is looking at
      */
     public void what() {
+        /* Dumb test code TODO: Remove before 2.6.0 release(or not it's not like it affects anything)
+        ItemStack src = pSender.getInventory().getItemInMainHand();
+
+        final Gson gson = new GsonBuilder()
+                .disableHtmlEscaping()
+                .create();
+
+        final Debug debug = Debug.findDebugger();
+
+        JsonElement srcSer = gson.toJsonTree(src.serialize());
+        ConfigurationSerializable obj = ConfigurationSerialization.deserializeObject(gson.fromJson(srcSer, new TypeToken<ItemStack>(){}.getType()));
+
+        debug.log("CSA > S > src: " + src.serialize(), DebugLevels.GSON);
+        debug.log("CSA > S > Gson(src): " + srcSer, DebugLevels.GSON);
+        debug.log("CSA > S > deSer(src.Ser): " + obj.serialize(), DebugLevels.GSON);
+        debug.log("CSA > S > GSON(deSer(src.Ser)): " + gson.toJson(obj), DebugLevels.GSON);
+
+         */
+
         Shop shop = findShop();
 
         if (shop == null)
@@ -115,5 +134,6 @@ public class WhatCommand extends GUICommand {
         gui.addElement(productGroup);
 
         gui.show(pSender);
+
     }
 }

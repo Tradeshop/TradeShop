@@ -43,7 +43,11 @@ public enum DebugLevels {
     ENCHANT_CHECKS(9, Level.WARNING), // 256
     OUTPUT(10, Level.WARNING), // 512
     SHOP_CREATION(11, Level.INFO), // 1024
-    SQLITE(12, Level.INFO);
+    SQLITE(12, Level.INFO), // 2048
+    GSON(13, Level.INFO) // 4096
+
+
+    ;
 
     //position is what value to check for this level in the binary string -1.
     //
