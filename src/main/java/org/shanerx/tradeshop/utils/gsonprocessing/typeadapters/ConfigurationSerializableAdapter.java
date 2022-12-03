@@ -87,7 +87,7 @@ public class ConfigurationSerializableAdapter implements JsonSerializer<Configur
         src.serialize().forEach((string, object) -> {
             debug.log("configSerRecursiveSerialize 4Ea : " + string + " | " + object.toString(), DebugLevels.GSON);
             if (object instanceof ConfigurationSerializable) {
-                map.putAll(configSerRecursiveSerialize((ConfigurationSerializable) object));
+                map.put(string, configSerRecursiveSerialize((ConfigurationSerializable) object));
                 debug.log("configSerRecursiveSerialize 4Ea Tunneling...", DebugLevels.GSON);
             } else {
                 map.put(string, object);
