@@ -84,6 +84,7 @@ public class ConfigurationSerializableAdapter implements JsonSerializer<Configur
     private Map<String, Object> configSerRecursiveSerialize(ConfigurationSerializable src) {
         final Map<String, Object> map = new LinkedHashMap<>();
         Debug debug = Debug.findDebugger();
+        debug.log("configSerRecursiveSerialize 4Ea : src | " + src.serialize(), DebugLevels.GSON);
         src.serialize().forEach((string, object) -> {
             debug.log("configSerRecursiveSerialize 4Ea : " + string + " | " + object.toString(), DebugLevels.GSON);
             if (object instanceof ConfigurationSerializable) {

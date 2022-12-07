@@ -72,7 +72,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.build.timestamp.format>yyyy-MM-dd'T'HH.mm.ss</maven.build.timestamp.format>
-        <timeStamp/>
+        <timeStamp>-${maven.build.timestamp}</timeStamp>
         <pluginDir>org/shanerx/tradeshop</pluginDir>
         <resourceDir>src/main/resources</resourceDir>
 
@@ -82,6 +82,7 @@
         <skipDocs/> <!-- default value for including docs -->
         <commit/> <!-- default value for excluding commit -->
         <branch/> <!-- default value for excluding commit -->
+        <fileTimeStamp/> <!-- default value for excluding commit -->
 
         <!-- Changeable variables  -->
         <outputDir>target/output-files
@@ -111,7 +112,7 @@
         <profile>
             <id>includeTimeStamp</id> <!-- additional profile for a timestamped build -->
             <properties>
-                <timeStamp>-${maven.build.timestamp}</timeStamp>
+                <fileTimeStamp>-${timeStamp}</fileTimeStamp>
             </properties>
         </profile>
         <profile>
