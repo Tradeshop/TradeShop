@@ -63,7 +63,7 @@ public class ShopItemStack implements Serializable, Cloneable {
     private ItemStack itemStack;
     private transient Debug debugger;
 
-    @Expose(serialize = false, deserialize = true)
+    @Expose(serialize = true, deserialize = true)
     private String itemStackB64;
 
     @Expose
@@ -573,8 +573,6 @@ public class ShopItemStack implements Serializable, Cloneable {
                 itemStack = null;
             }
         }
-
-        itemStackB64 = "";
     }
 
     public String toConsoleText() {

@@ -46,6 +46,7 @@ public class ConfigurationSerializableAdapter implements JsonSerializer<Configur
 
     final Type objectStringMapType = new TypeToken<Map<String, Object>>() {
     }.getType();
+    int serializeLevel = 0;
 
     @Override
     public ConfigurationSerializable deserialize(
@@ -74,6 +75,7 @@ public class ConfigurationSerializableAdapter implements JsonSerializer<Configur
             ConfigurationSerializable src,
             Type typeOfSrc,
             JsonSerializationContext context) {
+        serializeLevel = 0;
 
         final Map<String, Object> map = new LinkedHashMap<>();
         map.put(ConfigurationSerialization.SERIALIZED_TYPE_KEY, ConfigurationSerialization.getAlias(src.getClass()));
@@ -82,17 +84,19 @@ public class ConfigurationSerializableAdapter implements JsonSerializer<Configur
     }
 
     private Map<String, Object> configSerRecursiveSerialize(ConfigurationSerializable src) {
+        serializeLevel++;
+        int levelStabilizedCounter = serializeLevel;
         final Map<String, Object> map = new LinkedHashMap<>();
         Debug debug = Debug.findDebugger();
-        debug.log("configSerRecursiveSerialize 4Ea : src | " + src.serialize(), DebugLevels.GSON);
+        debug.log("configSerRecursiveSerialize #" + levelStabilizedCounter + "# 4Ea : src | " + src.serialize(), DebugLevels.GSON);
         src.serialize().forEach((string, object) -> {
-            debug.log("configSerRecursiveSerialize 4Ea : " + string + " | " + object.toString(), DebugLevels.GSON);
+            debug.log("configSerRecursiveSerialize #" + levelStabilizedCounter + "# 4Ea : " + string + " | " + object.toString(), DebugLevels.GSON);
             if (object instanceof ConfigurationSerializable) {
                 map.put(string, configSerRecursiveSerialize((ConfigurationSerializable) object));
-                debug.log("configSerRecursiveSerialize 4Ea Tunneling...", DebugLevels.GSON);
+                debug.log("configSerRecursiveSerialize #" + levelStabilizedCounter + "# 4Ea Tunneling...", DebugLevels.GSON);
             } else {
                 map.put(string, object);
-                debug.log("configSerRecursiveSerialize 4Ea Launching...", DebugLevels.GSON);
+                debug.log("configSerRecursiveSerialize #" + levelStabilizedCounter + "# 4Ea Launching...", DebugLevels.GSON);
             }
         });
 
