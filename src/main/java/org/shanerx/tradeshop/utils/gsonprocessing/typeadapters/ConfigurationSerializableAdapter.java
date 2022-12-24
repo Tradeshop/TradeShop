@@ -46,7 +46,6 @@ public class ConfigurationSerializableAdapter implements JsonSerializer<Configur
 
     final Type objectStringMapType = new TypeToken<Map<String, Object>>() {
     }.getType();
-    int serializeLevel = 0;
 
     @Override
     public ConfigurationSerializable deserialize(
@@ -55,15 +54,28 @@ public class ConfigurationSerializableAdapter implements JsonSerializer<Configur
             JsonDeserializationContext context) throws JsonParseException {
         final Map<String, Object> map = new LinkedHashMap<>();
 
+        Debug.findDebugger().log("Serialized ConSer pre-Deserialize: " + json, DebugLevels.GSON);
+
         for (Map.Entry<String, JsonElement> entry : json.getAsJsonObject().entrySet()) {
             final JsonElement value = entry.getValue();
             final String name = entry.getKey();
 
             if (value.isJsonObject() && value.getAsJsonObject().has(ConfigurationSerialization.SERIALIZED_TYPE_KEY)) {
                 map.put(name, this.deserialize(value, value.getClass(), context));
+                Debug.findDebugger().log("DeSer ConSer Loaded ConSer: \n  " + name + " = \n    " + this.deserialize(value, value.getClass(), context).toString(), DebugLevels.GSON);
             } else {
                 Object val = context.deserialize(value, Object.class);
-                map.put(name, val instanceof Double && ((Double) val) % 1 == 0 ? ((Double) val).intValue() : val);
+
+                if (val instanceof Map) {
+                    ((Map) context.deserialize(value, Object.class)).forEach((k, v) -> ((Map<Object, Object>) val).replace(k, v, loadNumber(v)));
+                }
+
+                if (val instanceof Double) {
+                    Debug.findDebugger().log("DeSer ConSer Loaded Num: \n  " + name + " = \n    " + (((Double) val) % 1 == 0 ? ((Double) val).intValue() : val), DebugLevels.GSON);
+                } else {
+                    Debug.findDebugger().log("DeSer ConSer Loaded Object: \n  " + name + " = \n    " + val.toString(), DebugLevels.GSON);
+                }
+                map.put(name, loadNumber(val));
             }
         }
 
@@ -75,31 +87,19 @@ public class ConfigurationSerializableAdapter implements JsonSerializer<Configur
             ConfigurationSerializable src,
             Type typeOfSrc,
             JsonSerializationContext context) {
-        serializeLevel = 0;
 
         final Map<String, Object> map = new LinkedHashMap<>();
         map.put(ConfigurationSerialization.SERIALIZED_TYPE_KEY, ConfigurationSerialization.getAlias(src.getClass()));
-        map.putAll(configSerRecursiveSerialize(src));
+
+        for (Map.Entry<String, Object> entry : src.serialize().entrySet()) {
+            map.put(entry.getKey(), context.serialize(entry.getValue()));
+        }
+
+        Debug.findDebugger().log("Serialized ConSer: " + context.serialize(map, objectStringMapType), DebugLevels.GSON);
         return context.serialize(map, objectStringMapType);
     }
 
-    private Map<String, Object> configSerRecursiveSerialize(ConfigurationSerializable src) {
-        serializeLevel++;
-        int levelStabilizedCounter = serializeLevel;
-        final Map<String, Object> map = new LinkedHashMap<>();
-        Debug debug = Debug.findDebugger();
-        debug.log("configSerRecursiveSerialize #" + levelStabilizedCounter + "# 4Ea : src | " + src.serialize(), DebugLevels.GSON);
-        src.serialize().forEach((string, object) -> {
-            debug.log("configSerRecursiveSerialize #" + levelStabilizedCounter + "# 4Ea : " + string + " | " + object.toString(), DebugLevels.GSON);
-            if (object instanceof ConfigurationSerializable) {
-                map.put(string, configSerRecursiveSerialize((ConfigurationSerializable) object));
-                debug.log("configSerRecursiveSerialize #" + levelStabilizedCounter + "# 4Ea Tunneling...", DebugLevels.GSON);
-            } else {
-                map.put(string, object);
-                debug.log("configSerRecursiveSerialize #" + levelStabilizedCounter + "# 4Ea Launching...", DebugLevels.GSON);
-            }
-        });
-
-        return map;
+    private Object loadNumber(Object val) {
+        return val instanceof Double && ((Double) val) % 1 == 0 ? ((Double) val).intValue() : val;
     }
 }
