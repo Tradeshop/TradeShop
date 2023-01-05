@@ -33,9 +33,13 @@ public class PlayerShopInventoryOpenEvent extends PlayerInteractEvent implements
 		super(p, action, itm, chest, chestFace);
 		this.shop = s;
 	}
-	
+
 	@Override
 	public HandlerList getHandlers() {
+		return handlers;
+	}
+
+	public static HandlerList getHandlerList() {
 		return handlers;
 	}
 	

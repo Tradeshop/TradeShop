@@ -59,6 +59,10 @@ public class ShopLocation implements Serializable {
 	}
 
 	public static ShopLocation deserialize(String loc) {
+		if (loc == null) {
+			return null;
+		}
+
 		if (loc.startsWith("l")) {
 			String[] locA = loc.contains("::") ? loc.split("::") : loc.split("_"); //Keep same as div
 			double x = Double.parseDouble(locA[2]), y = Double.parseDouble(locA[3]), z = Double.parseDouble(locA[4]);
@@ -68,7 +72,7 @@ public class ShopLocation implements Serializable {
 				world = Bukkit.getWorld(locA[1].replace("-", "_"));
 			if (world == null) {
 				throw new IllegalWorldException("Cannot find world " + locA[1], new WorldlessLocation(x, y, z));
-				// Not to maintainer: do NOT remove this aritificial error, it is supposed to be catched elsewhere
+				// Note to maintainer: do NOT remove this artificial error, it is meant to be caught elsewhere
 				// (Temporary fix for metadata world renaming bug until metadata is removed entirely)
 			}
 
@@ -114,5 +118,9 @@ public class ShopLocation implements Serializable {
 
 	public Location getLocation() {
 		return new Location(world, x, y, z);
+	}
+
+	public String toString() {
+		return serialize();
 	}
 }

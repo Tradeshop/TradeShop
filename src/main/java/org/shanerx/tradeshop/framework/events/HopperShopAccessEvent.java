@@ -64,4 +64,13 @@ public class HopperShopAccessEvent extends InventoryMoveItemEvent {
 	public HopperDirection getItemDirection() {
 		return dir;
 	}
+
+	@Override
+	public HandlerList getHandlers() {
+		return handlers;
+	}
+
+	public static HandlerList getHandlerList() {
+		return handlers;
+	}
 }
