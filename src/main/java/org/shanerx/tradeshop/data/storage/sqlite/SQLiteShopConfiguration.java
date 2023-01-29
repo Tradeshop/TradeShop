@@ -25,11 +25,13 @@ public class SQLiteShopConfiguration implements ShopConfiguration {
     private final ShopChunk chunk;
     private final String chunkStr;
     private final DatabaseManager sqlite;
+    private final JobsDispatch dispatch;
 
-    public SQLiteShopConfiguration(ShopChunk chunk) {
+    protected SQLiteShopConfiguration(ShopChunk chunk) {
         this.chunk = chunk;
         this.chunkStr = chunk.serialize();
         this.sqlite = DatabaseManager.getSqlite();
+        this.dispatch = this.sqlite.getJobsDispatch();
 
         try {
             createTableIfNotExists();
@@ -47,7 +49,10 @@ public class SQLiteShopConfiguration implements ShopConfiguration {
 
             Location chestLoc = shop.getChestAsSC().getChest().getLocation();
 
-            String sql = "INSERT INTO shops (owner_uuid, sign_loc_serialized, chunk_serialized, type, " +
+            String sql;
+            PreparedStatement ps;
+
+            sql = "INSERT INTO shops (owner_uuid, sign_loc_serialized, chunk_serialized, type, " +
                     " status, setting_hopper_import, setting_hopper_export, setting_no_cost, available_trades, " +
                     " sign_world_name, sign_x, sign_y, sign_z, chest_world_name, chest_x, chest_y, chest_z) " +
                     " VALUES " +
@@ -58,27 +63,24 @@ public class SQLiteShopConfiguration implements ShopConfiguration {
                             shop.getAvailableTrades(), shop.getShopLocation().getWorld().getName(),
                             shop.getShopLocation().getBlockX(), shop.getShopLocation().getBlockY(), shop.getShopLocation().getBlockZ(),
                             chestLoc.getWorld().getName(), chestLoc.getBlockX(), chestLoc.getBlockY(), chestLoc.getBlockZ());
-
-            PreparedStatement ps = sqlite.prepareStatement(conn, sql);
-            ps.execute();
-            ps.close();
+            ps = sqlite.prepareStatement(conn, sql);
+            dispatch.enqueueJob(ps);
 
             for (ShopItemStack itm : shop.getSideList(ShopItemSide.PRODUCT)) {
-                String sql2 = String.format("INSERT INTO shop_products (sign_loc_serialized, product) VALUES ('%s', '%s');",
+                sql = String.format("INSERT INTO shop_products (sign_loc_serialized, product) VALUES ('%s', '%s');",
                         shop.getShopLocationAsSL().serialize(), itm.serialize());
-                PreparedStatement ps2 = sqlite.prepareStatement(conn, sql2);
-                ps2.execute();
-                ps2.close();
+                ps = sqlite.prepareStatement(conn, sql);
+                dispatch.enqueueJob(ps);
             }
 
             for (ShopItemStack itm : shop.getSideList(ShopItemSide.COST)) {
-                String sql3 = String.format("INSERT INTO shop_costs (sign_loc_serialized, cost) VALUES ('%s', '%s');",
+                sql = String.format("INSERT INTO shop_costs (sign_loc_serialized, cost) VALUES ('%s', '%s');",
                         shop.getShopLocationAsSL().serialize(), itm.serialize());
-                PreparedStatement ps3 = sqlite.prepareStatement(conn, sql3);
-                ps3.execute();
-                ps3.close();
+                ps = sqlite.prepareStatement(conn, sql);
+                dispatch.enqueueJob(ps);
             }
 
+            dispatch.runDispatcher();
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -88,29 +90,29 @@ public class SQLiteShopConfiguration implements ShopConfiguration {
     public void remove(ShopLocation loc) {
         try {
             Connection conn = sqlite.setupConnection(true);
+            String sql;
+            PreparedStatement ps;
 
-            String sql = "DELETE FROM shops WHERE sign_loc_serialized = '" + loc.serialize() + "';";
-            PreparedStatement ps = sqlite.prepareStatement(conn, sql);
-            ps.executeUpdate();
-            ps.close();
+            sql = "DELETE FROM shops WHERE sign_loc_serialized = '" + loc.serialize() + "';";
+            ps = sqlite.prepareStatement(conn, sql);
+            dispatch.enqueueJob(ps);
 
-            String sql2 = "DELETE FROM shop_products WHERE sign_loc_serialized = '" + loc.serialize() + "';";
-            PreparedStatement ps2 = sqlite.prepareStatement(conn, sql2);
-            ps2.executeUpdate();
-            ps2.close();
+            sql = "DELETE FROM shop_products WHERE sign_loc_serialized = '" + loc.serialize() + "';";
+            ps = sqlite.prepareStatement(conn, sql);
+            dispatch.enqueueJob(ps);
 
-            String sql3 = "DELETE FROM shop_costs WHERE sign_loc_serialized = '" + loc.serialize() + "';";
-            PreparedStatement ps3 = sqlite.prepareStatement(conn, sql3);
-            ps3.executeUpdate();
-            ps3.close();
+            sql = "DELETE FROM shop_costs WHERE sign_loc_serialized = '" + loc.serialize() + "';";
+            ps = sqlite.prepareStatement(conn, sql);
+            dispatch.enqueueJob(ps);
 
+            dispatch.runDispatcher();
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
     }
 
     @Override
-    public Shop load(ShopLocation loc) {
+    public Shop load(ShopLocation loc) { // TODO: BROKEN
         String locStr = loc.serialize();
         Shop shop;
 
@@ -194,7 +196,7 @@ public class SQLiteShopConfiguration implements ShopConfiguration {
     }
 
     @Override
-    public int size() {
+    public int size() { // TODO: BROKEN
         String sql = "SELECT * FROM shops WHERE chunk_serialized = '" + chunkStr + "';";
         try {
             Connection conn = sqlite.setupConnection(true);
@@ -214,8 +216,10 @@ public class SQLiteShopConfiguration implements ShopConfiguration {
     private void createTableIfNotExists() throws SQLException {
         try {
             Connection conn = sqlite.setupConnection(true);
+            String sql;
+            PreparedStatement ps;
 
-            String sql = "CREATE TABLE IF NOT EXISTS shops " +
+            sql = "CREATE TABLE IF NOT EXISTS shops " +
                     "(owner_uuid TEXT not NULL, " +
                     " sign_loc_serialized TEXT not NULL, " +
                     " chunk_serialized TEXT not NULL, " +
@@ -239,44 +243,38 @@ public class SQLiteShopConfiguration implements ShopConfiguration {
                     " chest_z INTEGER, " +
 
                     " PRIMARY KEY ( sign_loc_serialized ));";
+            ps = sqlite.prepareStatement(conn, sql);
+            dispatch.enqueueJob(ps);
 
-            PreparedStatement ps = sqlite.prepareStatement(conn, sql);
-            ps.execute();
-            ps.close();
-
-            String sql2 = "CREATE TABLE IF NOT EXISTS shop_products " +
+            sql = "CREATE TABLE IF NOT EXISTS shop_products " +
                     "(sign_loc_serialized TEXT not NULL, " +
                     " product TEXT not NULL, " +
                     " PRIMARY KEY ( sign_loc_serialized ));";
+            ps = sqlite.prepareStatement(conn, sql);
+            dispatch.enqueueJob(ps);
 
-            ps = sqlite.prepareStatement(conn, sql2);
-            ps.execute();
-            ps.close();
-
-            String sql3 = "CREATE TABLE IF NOT EXISTS shop_costs " +
+            sql = "CREATE TABLE IF NOT EXISTS shop_costs " +
                     "(sign_loc_serialized TEXT not NULL, " +
                     " cost TEXT not NULL, " +
                     " PRIMARY KEY ( sign_loc_serialized ));";
-            ps = sqlite.prepareStatement(conn, sql3);
-            ps.execute();
-            ps.close();
+            ps = sqlite.prepareStatement(conn, sql);
+            dispatch.enqueueJob(ps);
 
-            String sql4 = "CREATE TABLE IF NOT EXISTS shop_managers " +
+            sql = "CREATE TABLE IF NOT EXISTS shop_managers " +
                     "(sign_loc_serialized TEXT not NULL, " +
                     " uuid TEXT not NULL, " +
                     " PRIMARY KEY ( sign_loc_serialized ));";
-            ps = sqlite.prepareStatement(conn, sql4);
-            ps.execute();
-            ps.close();
+            ps = sqlite.prepareStatement(conn, sql);
+            dispatch.enqueueJob(ps);
 
-            String sql5 = "CREATE TABLE IF NOT EXISTS shop_members " +
+            sql = "CREATE TABLE IF NOT EXISTS shop_members " +
                     "(sign_loc_serialized TEXT not NULL, " +
                     " uuid TEXT not NULL, " +
                     " PRIMARY KEY ( sign_loc_serialized ));";
-            ps = sqlite.prepareStatement(conn, sql5);
-            ps.execute();
-            ps.close();
+            ps = sqlite.prepareStatement(conn, sql);
+            dispatch.enqueueJob(ps);
 
+            dispatch.runDispatcher();
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }

@@ -73,6 +73,8 @@ public class TradeShop extends JavaPlugin {
 
 	private Debug debugger;
 
+	public static final long threadId = Thread.currentThread().getId();
+
 	@Override
 	public void onEnable() {
 		if (!expirer.initiateDevExpiration()) {

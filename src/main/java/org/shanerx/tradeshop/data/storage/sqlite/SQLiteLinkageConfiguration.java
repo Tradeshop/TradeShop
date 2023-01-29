@@ -15,10 +15,12 @@ public class SQLiteLinkageConfiguration implements LinkageConfiguration {
     private final String worldName;
     private Map<String, String> linkageData;
     private final DatabaseManager sqlite;
+    private final JobsDispatch dispatch;
 
-    public SQLiteLinkageConfiguration(World world) {
+    protected SQLiteLinkageConfiguration(World world) {
         this.worldName = world.getName();
         this.sqlite = DatabaseManager.getSqlite();
+        this.dispatch = this.sqlite.getJobsDispatch();
 
         try {
             createTableIfNotExists();
@@ -35,23 +37,23 @@ public class SQLiteLinkageConfiguration implements LinkageConfiguration {
             String sql = "DELETE FROM shop_linkage WHERE world_name = '" + worldName + "';";
 
             PreparedStatement ps = sqlite.prepareStatement(conn, sql);
-            ps.executeUpdate();
-            ps.close();
+            dispatch.enqueueJob(ps);
 
             for (String chestData : linkageData.keySet()) {
                 ps = sqlite.prepareStatement(conn,
                                 "INSERT INTO shop_linkage (chest_loc, sign_loc, world_name)"
                                 + " VALUES ('" + chestData + "', '" + linkageData.get(chestData) + "', '" + worldName + "');");
-                ps.executeUpdate();
-                ps.close();
+                dispatch.enqueueJob(ps);
             }
+
+            dispatch.runDispatcher();
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
     }
 
     @Override
-    public void load() {
+    public void load() { // TODO: BROKEN
         // stop accidental double loading (expensive!)
         if (linkageData != null) throw new UnsupportedOperationException("Cannot load twice (expensive operation)!");
         linkageData = new HashMap<>();
@@ -87,8 +89,8 @@ public class SQLiteLinkageConfiguration implements LinkageConfiguration {
                     " sign_loc TEXT not NULL, " +
                     " world_name TEXT not NULL);";
             PreparedStatement ps = sqlite.prepareStatement(conn, sql);
-            ps.execute();
-            ps.close();
+            dispatch.enqueueJob(ps);
+            dispatch.runDispatcher();
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }

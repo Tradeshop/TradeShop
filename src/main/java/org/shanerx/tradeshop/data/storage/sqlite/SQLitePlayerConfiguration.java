@@ -13,10 +13,12 @@ public class SQLitePlayerConfiguration implements PlayerConfiguration {
 
     private final UUID uuid;
     private final DatabaseManager sqlite;
+    private final JobsDispatch dispatch;
 
-    public SQLitePlayerConfiguration(UUID uuid) {
+    protected SQLitePlayerConfiguration(UUID uuid) {
         this.uuid = uuid;
         this.sqlite = DatabaseManager.getSqlite();
+        this.dispatch = this.sqlite.getJobsDispatch();
 
         try {
             createTableIfNotExists();
@@ -39,31 +41,30 @@ public class SQLitePlayerConfiguration implements PlayerConfiguration {
             String sql = "INSERT INTO players (uuid, showInvolvedStatus, adminEnabled, multi) VALUES " +
                     "('" + uuid.toString() + "', " + (playerSetting.showInvolvedStatus() ? 1 : 0) + ", " + (playerSetting.isAdminEnabled() ? 1 : 0) + ", " + playerSetting.getMulti() + ");";
             PreparedStatement ps = sqlite.prepareStatement(conn, sql);
-            ps.executeUpdate();
-            ps.close();
+            dispatch.enqueueJob(ps);
 
             for (String ownedShop : playerSetting.getOwnedShops()) {
                 ps = sqlite.prepareStatement(conn,
                                 "INSERT INTO players_owned_shops (uuid, shop)"
                                         + " VALUES ('" + uuid.toString() + "', '" + ownedShop + "');");
-                ps.executeUpdate();
-                ps.close();
+                dispatch.enqueueJob(ps);
             }
 
             for (String staffShop : playerSetting.getStaffShops()) {
                 ps = sqlite.prepareStatement(conn,
                                 "INSERT INTO players_staff_shops (uuid, shop)"
                                     + " VALUES ('" + uuid.toString() + "', '" + staffShop + "');");
-                ps.executeUpdate();
-                ps.close();
+                dispatch.enqueueJob(ps);
             }
+
+            dispatch.runDispatcher();
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
     }
 
     @Override
-    public PlayerSetting load() {
+    public PlayerSetting load() { // TODO: BROKEN
         try {
             Connection conn = sqlite.setupConnection(true);
 
@@ -115,23 +116,22 @@ public class SQLitePlayerConfiguration implements PlayerConfiguration {
     public void remove() {
         try {
             Connection conn = sqlite.setupConnection(true);
+            PreparedStatement ps;
+            String sql;
 
-            String sql = "DELETE FROM players WHERE uuid = '" + uuid.toString() + "';";
-            String sql2 = "DELETE FROM players_owned_shops WHERE uuid = '" + uuid.toString() + "';";
-            String sql3 = "DELETE FROM players_staff_shops WHERE uuid = '" + uuid.toString() + "';";
+            sql = "DELETE FROM players WHERE uuid = '" + uuid.toString() + "';";
+            ps = sqlite.prepareStatement(conn, sql);
+            dispatch.enqueueJob(ps);
 
-            PreparedStatement ps = sqlite.prepareStatement(conn, sql);
-            PreparedStatement ps2 = sqlite.prepareStatement(conn, sql2);
-            PreparedStatement ps3 = sqlite.prepareStatement(conn, sql3);
+            sql = "DELETE FROM players_owned_shops WHERE uuid = '" + uuid.toString() + "';";
+            ps = sqlite.prepareStatement(conn, sql);
+            dispatch.enqueueJob(ps);
 
-            ps.execute();
-            ps2.execute();
-            ps3.execute();
+            sql = "DELETE FROM players_staff_shops WHERE uuid = '" + uuid.toString() + "';";
+            ps = sqlite.prepareStatement(conn, sql);
+            dispatch.enqueueJob(ps);
 
-            ps.close();
-            ps2.close();
-            ps3.close();
-
+            dispatch.runDispatcher();
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -140,34 +140,31 @@ public class SQLitePlayerConfiguration implements PlayerConfiguration {
     private void createTableIfNotExists() throws SQLException {
         try {
             Connection conn = sqlite.setupConnection(true);
+            PreparedStatement ps;
+            String sql;
 
-            String sql = "CREATE TABLE IF NOT EXISTS players " +
+            sql = "CREATE TABLE IF NOT EXISTS players " +
                     "(uuid TEXT not NULL, " +
                     " showInvolvedStatus INTEGER, " +
                     " adminEnabled INTEGER, " +
                     " multi INTEGER, " +
                     " PRIMARY KEY ( uuid ));";
-
-            PreparedStatement ps = sqlite.prepareStatement(conn, sql);
-            ps.execute();
-            ps.close();
+            ps = sqlite.prepareStatement(conn, sql);
+            dispatch.enqueueJob(ps);
 
             sql = "CREATE TABLE IF NOT EXISTS players_owned_shops " +
                     "(uuid TEXT not NULL, " +
                     " shop TEXT);";
-
             ps = sqlite.prepareStatement(conn, sql);
-            ps.execute();
-            ps.close();
+            dispatch.enqueueJob(ps);
 
             sql = "CREATE TABLE IF NOT EXISTS players_staff_shops " +
                     "(uuid TEXT not NULL, " +
                     " shop TEXT);";
-
             ps = sqlite.prepareStatement(conn, sql);
-            ps.execute();
-            ps.close();
+            dispatch.enqueueJob(ps);
 
+            dispatch.runDispatcher();
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }

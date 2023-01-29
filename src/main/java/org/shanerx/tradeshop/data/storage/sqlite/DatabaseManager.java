@@ -25,6 +25,8 @@ public class DatabaseManager {
     private final File dbfile;
     private final TradeShop plugin;
     private final Properties prop;
+    private JobsDispatch dispatch;
+    private DatabaseCache dbcache;
 
     private Connection connection;
 
@@ -46,6 +48,29 @@ public class DatabaseManager {
         sqlite = this;
         this.prop = new Properties();
         fillProperties();
+
+        this.dispatch = new JobsDispatch(this, plugin);
+        this.dbcache = new DatabaseCache(this, plugin);
+    }
+
+    /**
+     * Gets the {@ref JobsDispatch} object associated with this instance of {@ref DatabaseManager}.
+     * The return value should never be null.
+     * This object should NOT be accessed by third parties or any other class outside the {@ref org.shanerx.tradeshop.data.storage} package.
+     * @return the jobs dispatch object
+     */
+    public JobsDispatch getJobsDispatch() {
+        return dispatch;
+    }
+
+    /**
+     * Gets the {@ref DatabaseCache} object associated with this instance of {@ref DatabaseManager}.
+     * The return value should never be null.
+     * This object should NOT be accessed by third parties or any other class outside the {@ref org.shanerx.tradeshop.data.storage} package.
+     * @return the cache
+     */
+    public DatabaseCache getDatabaseCache() {
+        return dbcache;
     }
 
     private void fillProperties() {

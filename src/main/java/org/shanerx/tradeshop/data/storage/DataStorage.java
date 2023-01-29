@@ -32,9 +32,6 @@ import org.shanerx.tradeshop.data.storage.Json.JsonLinkageConfiguration;
 import org.shanerx.tradeshop.data.storage.Json.JsonPlayerConfiguration;
 import org.shanerx.tradeshop.data.storage.Json.JsonShopConfiguration;
 import org.shanerx.tradeshop.data.storage.sqlite.DatabaseManager;
-import org.shanerx.tradeshop.data.storage.sqlite.SQLiteLinkageConfiguration;
-import org.shanerx.tradeshop.data.storage.sqlite.SQLitePlayerConfiguration;
-import org.shanerx.tradeshop.data.storage.sqlite.SQLiteShopConfiguration;
 import org.shanerx.tradeshop.player.PlayerSetting;
 import org.shanerx.tradeshop.shop.Shop;
 import org.shanerx.tradeshop.shoplocation.ShopChunk;
@@ -130,7 +127,7 @@ public class DataStorage extends Utils {
             case FLATFILE:
                 return new JsonPlayerConfiguration(uuid);
             case  SQLITE:
-                return new SQLitePlayerConfiguration(uuid);
+                return DatabaseManager.getSqlite().getDatabaseCache().getPlayerData(uuid);
             default:
                 throw new NotImplementedException("Data storage type " + dataType + " has not been implemented yet.");
         }
@@ -145,7 +142,7 @@ public class DataStorage extends Utils {
             case FLATFILE:
                 return new JsonShopConfiguration(chunk);
             case SQLITE:
-                return new SQLiteShopConfiguration(chunk);
+                return DatabaseManager.getSqlite().getDatabaseCache().getShopData(chunk);
             default:
                 throw new NotImplementedException("Data storage type " + dataType + " has not been implemented yet.");
         }
@@ -156,7 +153,7 @@ public class DataStorage extends Utils {
             case FLATFILE:
                 return new JsonLinkageConfiguration(w);
             case SQLITE:
-                return new SQLiteLinkageConfiguration(w);
+                return DatabaseManager.getSqlite().getDatabaseCache().getLinkageData(w);
             default:
                 throw new NotImplementedException("Data storage type " + dataType + " has not been implemented yet.");
         }
