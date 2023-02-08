@@ -46,11 +46,16 @@ public class MetricsManager {
     private final int bStatsPluginID = 1690;
     private final TradeShop plugin;
     private final Metrics metrics;
-    private int tradeCounter = 0;
+    private int tradeCounter = 0,
+            shopCounter = 0;
 
     public MetricsManager(TradeShop plugin) {
         this.plugin = plugin;
         metrics = new Metrics(plugin, bStatsPluginID);
+
+        for (World world : plugin.getServer().getWorlds()) {
+            adjustShops(plugin.getDataStorage().getShopCountInWorld(world));
+        }
 
         addTradeMetric();
         addShopMetric();
@@ -71,6 +76,10 @@ public class MetricsManager {
         tradeCounter++;
     }
 
+    public void adjustShops(int adjustment) {
+        shopCounter += adjustment;
+    }
+
     private void addTradeMetric() {
         metrics.addCustomChart(new SingleLineChart("trade-counter", new Callable<Integer>() {
             @Override
@@ -86,11 +95,7 @@ public class MetricsManager {
         metrics.addCustomChart(new SingleLineChart("shop-counter", new Callable<Integer>() {
             @Override
             public Integer call() throws Exception {
-                int count = 0;
-                for (World world : plugin.getServer().getWorlds()) {
-                    count += plugin.getDataStorage().getShopCountInWorld(world);
-                }
-                return count;
+                return shopCounter;
             }
         }));
     }

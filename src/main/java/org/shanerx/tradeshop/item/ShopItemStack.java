@@ -136,6 +136,8 @@ public class ShopItemStack implements Serializable, Cloneable {
     }
 
     public ObjectHolder<?> getShopSetting(ShopItemStackSettingKeys key) {
+        if (itemSettings == null) buildMap();
+
         if (key.isUserEditable() && itemSettings.containsKey(key)) {
             ObjectHolder<?> tempObj = itemSettings.get(key);
             if (tempObj != null && tempObj.getObject() != null)
