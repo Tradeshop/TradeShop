@@ -32,8 +32,8 @@ import org.bukkit.event.Cancellable;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
-import org.shanerx.tradeshop.objects.Shop;
-import org.shanerx.tradeshop.objects.ShopItemStack;
+import org.shanerx.tradeshop.item.ShopItemStack;
+import org.shanerx.tradeshop.shop.Shop;
 
 import java.util.List;
 
@@ -45,10 +45,10 @@ import java.util.List;
 public class PlayerPreTradeEvent extends PlayerInteractEvent implements Cancellable {
 
 	private static final HandlerList handlers = new HandlerList();
-	private Shop shop;
-    private List<ShopItemStack> product;
-    private List<ShopItemStack> cost;
-	private Block clickedBlock;
+	private final Shop shop;
+	private final List<ShopItemStack> product;
+	private final List<ShopItemStack> cost;
+	private final Block clickedBlock;
 	private boolean cancelled;
 
 	/**

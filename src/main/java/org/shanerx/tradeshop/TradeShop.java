@@ -30,25 +30,26 @@ import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.shanerx.tradeshop.commands.CommandCaller;
 import org.shanerx.tradeshop.commands.CommandTabCaller;
-import org.shanerx.tradeshop.enumys.DebugLevels;
-import org.shanerx.tradeshop.enumys.ShopSign;
-import org.shanerx.tradeshop.enumys.ShopStorage;
-import org.shanerx.tradeshop.listeners.JoinEventListener;
-import org.shanerx.tradeshop.listeners.ShopCreateListener;
-import org.shanerx.tradeshop.listeners.ShopProtectionListener;
-import org.shanerx.tradeshop.listeners.ShopRestockListener;
-import org.shanerx.tradeshop.listeners.ShopTradeListener;
-import org.shanerx.tradeshop.objects.Debug;
-import org.shanerx.tradeshop.objects.ListManager;
-import org.shanerx.tradeshop.utils.BukkitVersion;
-import org.shanerx.tradeshop.utils.Expirer;
+import org.shanerx.tradeshop.data.config.ConfigManager;
+import org.shanerx.tradeshop.data.config.Language;
+import org.shanerx.tradeshop.data.config.Setting;
+import org.shanerx.tradeshop.data.storage.DataStorage;
+import org.shanerx.tradeshop.data.storage.DataType;
+import org.shanerx.tradeshop.player.JoinEventListener;
+import org.shanerx.tradeshop.player.Permissions;
+import org.shanerx.tradeshop.shop.ShopSign;
+import org.shanerx.tradeshop.shop.ShopStorage;
+import org.shanerx.tradeshop.shop.listeners.ShopCreateListener;
+import org.shanerx.tradeshop.shop.listeners.ShopProtectionListener;
+import org.shanerx.tradeshop.shop.listeners.ShopRestockListener;
+import org.shanerx.tradeshop.shop.listeners.ShopTradeListener;
+import org.shanerx.tradeshop.utils.ListManager;
 import org.shanerx.tradeshop.utils.MetricsManager;
-import org.shanerx.tradeshop.utils.Updater;
-import org.shanerx.tradeshop.utils.config.ConfigManager;
-import org.shanerx.tradeshop.utils.config.Language;
-import org.shanerx.tradeshop.utils.config.Setting;
-import org.shanerx.tradeshop.utils.data.DataStorage;
-import org.shanerx.tradeshop.utils.data.DataType;
+import org.shanerx.tradeshop.utils.debug.Debug;
+import org.shanerx.tradeshop.utils.debug.DebugLevels;
+import org.shanerx.tradeshop.utils.versionmanagement.BukkitVersion;
+import org.shanerx.tradeshop.utils.versionmanagement.Expirer;
+import org.shanerx.tradeshop.utils.versionmanagement.Updater;
 
 public class TradeShop extends JavaPlugin {
 
@@ -58,8 +59,6 @@ public class TradeShop extends JavaPlugin {
 	private final NamespacedKey signKey = new NamespacedKey(this, "tradeshop-sign-data");
 
 	private MetricsManager metricsManager;
-
-	private boolean useInternalPerms = false;
 	private boolean skipHopperProtection = false;
 
 	private ListManager lists;
@@ -101,7 +100,11 @@ public class TradeShop extends JavaPlugin {
 		getSettingManager().reload();
 		getMessageManager().reload();
 
+		getSettingManager().updateSkipHoppers();
+
 		getDebugger();
+
+		Permissions.registerPermissions();
 
 		if (getDataStorage() == null)
 			return;
@@ -136,14 +139,6 @@ public class TradeShop extends JavaPlugin {
 	public void onDisable() {
 		if (lists != null)
 			getListManager().clearManager();
-	}
-
-	public boolean useInternalPerms() {
-		return useInternalPerms;
-	}
-
-	public void setUseInternalPerms(boolean useInternalPerms) {
-		this.useInternalPerms = useInternalPerms;
 	}
 
 	public boolean doSkipHopperProtection() {

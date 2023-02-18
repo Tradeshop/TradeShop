@@ -29,7 +29,20 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.shanerx.tradeshop.TradeShop;
-import org.shanerx.tradeshop.utils.config.Message;
+import org.shanerx.tradeshop.commands.commandrunners.AdminCommand;
+import org.shanerx.tradeshop.commands.commandrunners.BasicTextCommand;
+import org.shanerx.tradeshop.commands.commandrunners.CommandRunner;
+import org.shanerx.tradeshop.commands.commandrunners.CreateCommand;
+import org.shanerx.tradeshop.commands.commandrunners.EditCommand;
+import org.shanerx.tradeshop.commands.commandrunners.GeneralPlayerCommand;
+import org.shanerx.tradeshop.commands.commandrunners.ShopCommand;
+import org.shanerx.tradeshop.commands.commandrunners.ShopItemCommand;
+import org.shanerx.tradeshop.commands.commandrunners.ShopUserCommand;
+import org.shanerx.tradeshop.commands.commandrunners.WhatCommand;
+import org.shanerx.tradeshop.data.config.Message;
+import org.shanerx.tradeshop.framework.ShopChange;
+import org.shanerx.tradeshop.item.ShopItemSide;
+import org.shanerx.tradeshop.player.ShopRole;
 
 /**
  * This class is used for calling command methods from CommandRunner
@@ -73,94 +86,97 @@ public class CommandCaller implements CommandExecutor {
 
 		switch (command) {
 			case HELP:
-				cmdRnnr.help();
+				new BasicTextCommand(plugin, cmdPass).help();
 				break;
 			case BUGS:
-				cmdRnnr.bugs();
+				new BasicTextCommand(plugin, cmdPass).bugs();
 				break;
 			case SETUP:
-				cmdRnnr.setup();
+				new BasicTextCommand(plugin, cmdPass).setup();
 				break;
 			case RELOAD:
-				cmdRnnr.reload();
+				new AdminCommand(plugin, cmdPass).reload();
 				break;
 			case ADD_PRODUCT:
-				cmdRnnr.addProduct();
+				new ShopItemCommand(plugin, cmdPass, ShopItemSide.PRODUCT).addSide();
 				break;
 			case ADD_COST:
-				cmdRnnr.addCost();
+				new ShopItemCommand(plugin, cmdPass, ShopItemSide.COST).addSide();
 				break;
 			case OPEN:
-				cmdRnnr.open();
+				new ShopCommand(plugin, cmdPass).open();
 				break;
 			case CLOSE:
-				cmdRnnr.close();
+				new ShopCommand(plugin, cmdPass).close();
 				break;
 			case SWITCH:
-				cmdRnnr.switchShop();
+				new ShopCommand(plugin, cmdPass).switchShop();
 				break;
 			case WHAT:
 				new WhatCommand(plugin, cmdPass).what();
 				break;
 			case WHO:
-				cmdRnnr.who();
-				break;
-			case ADD_MANAGER:
-				cmdRnnr.addManager();
+				new ShopUserCommand(plugin, cmdPass).who();
 				break;
 			case REMOVE_USER:
-				cmdRnnr.removeUser();
+				new ShopUserCommand(plugin, cmdPass).editUser(ShopRole.SHOPPER, ShopChange.REMOVE_USER);
+				break;
+			case ADD_MANAGER:
+				new ShopUserCommand(plugin, cmdPass).editUser(ShopRole.MANAGER, ShopChange.ADD_MANAGER);
 				break;
 			case ADD_MEMBER:
-				cmdRnnr.addMember();
+				new ShopUserCommand(plugin, cmdPass).editUser(ShopRole.MEMBER, ShopChange.ADD_MEMBER);
+				break;
+			case SET_MANAGER:
+				new ShopUserCommand(plugin, cmdPass).editUser(ShopRole.MANAGER, ShopChange.SET_MANAGER);
+				break;
+			case SET_MEMBER:
+				new ShopUserCommand(plugin, cmdPass).editUser(ShopRole.MEMBER, ShopChange.SET_MEMBER);
 				break;
 			case MULTI:
-				cmdRnnr.multi();
+				new GeneralPlayerCommand(plugin, cmdPass).multi();
 				break;
 			case SET_PRODUCT:
-				cmdRnnr.setProduct();
+				new ShopItemCommand(plugin, cmdPass, ShopItemSide.PRODUCT).setSide();
 				break;
 			case SET_COST:
-				cmdRnnr.setCost();
+				new ShopItemCommand(plugin, cmdPass, ShopItemSide.COST).setSide();
 				break;
 			case LIST_PRODUCT:
-				cmdRnnr.listProduct();
+				new ShopItemCommand(plugin, cmdPass, ShopItemSide.PRODUCT).listSide();
 				break;
 			case LIST_COST:
-				cmdRnnr.listCost();
+				new ShopItemCommand(plugin, cmdPass, ShopItemSide.COST).listSide();
 				break;
 			case REMOVE_PRODUCT:
-				cmdRnnr.removeProduct();
+				new ShopItemCommand(plugin, cmdPass, ShopItemSide.PRODUCT).removeSide();
 				break;
 			case REMOVE_COST:
-				cmdRnnr.removeCost();
-				break;
-			case PLAYER_LEVEL:
-				cmdRnnr.playerLevel();
+				new ShopItemCommand(plugin, cmdPass, ShopItemSide.COST).removeSide();
 				break;
 			case STATUS:
-				cmdRnnr.status();
+				new GeneralPlayerCommand(plugin, cmdPass).status();
 				break;
 			case EDIT:
 				new EditCommand(plugin, cmdPass).edit();
 				break;
 			case TOGGLE_STATUS:
-				cmdRnnr.toggleStatus();
+				new GeneralPlayerCommand(plugin, cmdPass).toggleStatus();
 				break;
 			case CREATE_TRADE:
-				cmdRnnr.createTrade();
+				new CreateCommand(plugin, cmdPass).createTrade();
 				break;
 			case CREATE_BITRADE:
-				cmdRnnr.createBiTrade();
+				new CreateCommand(plugin, cmdPass).createBiTrade();
 				break;
 			case CREATE_ITRADE:
-				cmdRnnr.createITrade();
+				new CreateCommand(plugin, cmdPass).createITrade();
 				break;
 			case TOGGLE_ADMIN:
-				cmdRnnr.toggleAdmin();
+				new AdminCommand(plugin, cmdPass).toggleAdmin();
 				break;
 			case ADMIN:
-				cmdRnnr.admin();
+				new AdminCommand(plugin, cmdPass).admin();
 				break;
 		}
 

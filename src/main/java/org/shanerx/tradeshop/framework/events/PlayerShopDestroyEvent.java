@@ -29,7 +29,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.player.PlayerEvent;
-import org.shanerx.tradeshop.objects.Shop;
+import org.shanerx.tradeshop.shop.Shop;
+import org.shanerx.tradeshop.utils.Utils;
 
 /**
  * This class represents the event being fired  upon shop creation. It implements {@link org.bukkit.event.Cancellable},
@@ -39,7 +40,7 @@ public class PlayerShopDestroyEvent extends PlayerEvent implements Cancellable {
 	
 	private static final HandlerList handlers = new HandlerList();
     private boolean cancelled, destroyBlock;
-	private Shop shop;
+	private final Shop shop;
 	
 	/**
 	 * Constructor for the object.
@@ -49,8 +50,13 @@ public class PlayerShopDestroyEvent extends PlayerEvent implements Cancellable {
 	public PlayerShopDestroyEvent(Player p, Shop shop) {
 		super(p);
 		this.shop = shop;
+		new Utils().PLUGIN.getMetricsManager().adjustShops(-1);
 	}
-	
+
+	public static HandlerList getHandlerList() {
+		return handlers;
+	}
+
 	@Override
 	public HandlerList getHandlers() {
 		return handlers;

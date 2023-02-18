@@ -31,34 +31,33 @@ import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.Sign;
+import org.bukkit.entity.Player;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.SignChangeEvent;
-import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.material.MaterialData;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.shanerx.tradeshop.TradeShop;
-import org.shanerx.tradeshop.enumys.DebugLevels;
-import org.shanerx.tradeshop.enumys.ExchangeStatus;
-import org.shanerx.tradeshop.enumys.ShopType;
-import org.shanerx.tradeshop.objects.Debug;
-import org.shanerx.tradeshop.objects.IllegalItemList;
-import org.shanerx.tradeshop.objects.Shop;
-import org.shanerx.tradeshop.objects.ShopChest;
-import org.shanerx.tradeshop.objects.ShopItemStack;
-import org.shanerx.tradeshop.objects.ShopLocation;
-import org.shanerx.tradeshop.utils.config.Message;
-import org.shanerx.tradeshop.utils.config.Setting;
+import org.shanerx.tradeshop.data.config.Message;
+import org.shanerx.tradeshop.data.config.Setting;
+import org.shanerx.tradeshop.framework.events.PlayerShopCreateEvent;
+import org.shanerx.tradeshop.item.ShopItemSide;
+import org.shanerx.tradeshop.item.ShopItemStack;
+import org.shanerx.tradeshop.player.ShopRole;
+import org.shanerx.tradeshop.player.ShopUser;
+import org.shanerx.tradeshop.shop.ExchangeStatus;
+import org.shanerx.tradeshop.shop.Shop;
+import org.shanerx.tradeshop.shop.ShopChest;
+import org.shanerx.tradeshop.shop.ShopType;
+import org.shanerx.tradeshop.shoplocation.ShopLocation;
+import org.shanerx.tradeshop.utils.debug.DebugLevels;
+import org.shanerx.tradeshop.utils.objects.Tuple;
+import org.shanerx.tradeshop.utils.relativedirection.LocationOffset;
+import org.shanerx.tradeshop.utils.relativedirection.RelativeDirection;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 
 
 /**
@@ -73,10 +72,7 @@ public class Utils {
 	public final TradeShop PLUGIN = Objects.requireNonNull((TradeShop) Bukkit.getPluginManager().getPlugin("TradeShop"));
 	protected PluginDescriptionFile pdf = PLUGIN.getDescription();
 
-	public Debug debugger;
-
 	public Utils() {
-		debugger = PLUGIN.getDebugger();
 	}
 
 	public UUID[] getMakers() {
@@ -215,36 +211,14 @@ public class Utils {
 	}
 
 	/**
-	 * Sets the event sign to a failed creation sign
-	 *
-	 * @param e    event where shop creation failed
-	 * @param shop Shoptype enum to get header
-	 * @param msg  The enum constant representing the error message
-	 */
-	public void failedSign(SignChangeEvent e, ShopType shop, Message msg) {
-		failedSignReset(e, shop);
-		e.getPlayer().sendMessage(colorize(Setting.MESSAGE_PREFIX.getString() + msg));
-	}
-
-	/**
-	 * Sets the event sign to a failed creation sign
-	 *
-	 * @param e   Event to reset the sign for
-	 * @param msg The enum constant representing the error message
-	 */
-	public void failedTrade(PlayerInteractEvent e, Message msg) {
-		e.getPlayer().sendMessage(colorize(Setting.MESSAGE_PREFIX.getString() + msg));
-	}
-
-	/**
 	 * Checks whether or not it is an illegal material.
 	 *
-	 * @param type What side of the trade the item is on
+	 * @param side What side of the trade the item is on
 	 * @param mat  String to check
 	 * @return returns true if valid material
 	 */
-	public boolean isIllegal(IllegalItemList.TradeItemType type, Material mat) {
-		return PLUGIN.getListManager().isIllegal(type, mat);
+	public boolean isIllegal(ShopItemSide side, Material mat) {
+		return PLUGIN.getListManager().isIllegal(side, mat);
 	}
 
 	/**
@@ -288,29 +262,51 @@ public class Utils {
 	 * @return the sign.
 	 */
 	public Sign findShopSign(Block chest) {
+		//region Linked Sign Check - Load and Check Chest Linkage first, if it is a shop then return Linked Shop
 		ShopLocation potentialLocation = PLUGIN.getDataStorage().getChestLinkage(new ShopLocation(chest.getLocation()));
 		if (potentialLocation != null && ShopType.isShop(potentialLocation.getLocation().getBlock()))
 			return (Sign) potentialLocation.getLocation().getBlock().getState();
+		//endregion
 
-		ArrayList<BlockFace> faces = PLUGIN.getListManager().getDirections(),
-				flatFaces = new ArrayList<>(Arrays.asList(BlockFace.NORTH, BlockFace.EAST, BlockFace.SOUTH, BlockFace.WEST));
+		// Directions to check for Sign(Reversed later as the list is built to check from Sign->Chest and this method checks from Chest->Sign)
+		ArrayList<RelativeDirection> directions = PLUGIN.getListManager().getDirections();
+		// Directions to check for other half of a DoubleChest
+		ArrayList<BlockFace> flatFaces = new ArrayList<>(Arrays.asList(BlockFace.NORTH, BlockFace.SOUTH, BlockFace.EAST, BlockFace.WEST));
 
-		for (BlockFace face : faces) {
-			face = face.getOppositeFace(); // Check in the opposite direction that a sign would check
-			Block relative = chest.getRelative(face);
+		Block otherHalf = null;
+
+		for (RelativeDirection direction : directions) {
+			// Translate Relative Direction and get the Block
+			LocationOffset relativeOffset = direction.getTranslatedDirection(RelativeDirection.getDirection(chest.getBlockData()).getOppositeFace());
+			Block relative = chest.getRelative(relativeOffset.getXOffset(), relativeOffset.getYOffset(), relativeOffset.getZOffset());
+
+			// Check if it is a shop and return. Add the chest and shop to ChestLinkage, If it is a DoubleChest also add the other half
 			if (ShopType.isShop(relative)) {
+				PLUGIN.getDataStorage().addChestLinkage(new ShopLocation(chest.getLocation()), new ShopLocation(relative.getLocation()));
 				if (ShopChest.isDoubleChest(chest)) {
 					PLUGIN.getDataStorage().addChestLinkage(new ShopLocation(ShopChest.getOtherHalfOfDoubleChest(chest).getLocation()), new ShopLocation(relative.getLocation()));
 				}
 				return (Sign) relative.getState();
-			} else if (flatFaces.contains(face) && (chest.getType().equals(Material.CHEST) || chest.getType().equals(Material.TRAPPED_CHEST))) {
+				// 	If the relative block wasn't the ShopSign and we are checking a FlatFace, Then check if it is the other half of this Chest
+			} else if (flatFaces.stream().anyMatch((face) -> relativeOffset.getXOffset() == face.getModX() ||
+					relativeOffset.getYOffset() == face.getModY() ||
+					relativeOffset.getZOffset() == face.getModZ()) && (chest.getType().equals(Material.CHEST) || chest.getType().equals(Material.TRAPPED_CHEST))) {
 				if (relative.getType().equals(chest.getType()) && ShopChest.isDoubleChest(chest)) {
-					for (BlockFace face2 : faces) {
-						Block relative2 = chest.getRelative(face).getRelative(face2.getOppositeFace());
-						if (ShopType.isShop(relative2)) {
-							PLUGIN.getDataStorage().addChestLinkage(new ShopLocation(chest.getLocation()), new ShopLocation(relative2.getLocation()));
-							return (Sign) relative2.getState();
-						}
+					// Set Aside for later, We want to check the relative directions on one chest at a time
+					otherHalf = relative;
+				}
+			}
+		}
+
+		// Check the relative Directions for the other half of the chest
+		if (otherHalf != null) {
+			for (RelativeDirection direction2 : directions) {
+				LocationOffset relativeOffset2 = direction2.getTranslatedDirection(RelativeDirection.getDirection(otherHalf.getBlockData()).getOppositeFace());
+				Block relative2 = chest.getRelative(relativeOffset2.getXOffset(), relativeOffset2.getYOffset(), relativeOffset2.getZOffset());
+				if (ShopType.isShop(relative2)) {
+					if (ShopType.isShop(relative2)) {
+						PLUGIN.getDataStorage().addChestLinkage(new ShopLocation(chest.getLocation()), new ShopLocation(relative2.getLocation()));
+						return (Sign) relative2.getState();
 					}
 				}
 			}
@@ -326,13 +322,19 @@ public class Utils {
 	 * @return the shop's inventory holder block.
 	 */
 	public Block findShopChest(Block sign) {
-		for (BlockFace face : PLUGIN.getListManager().getDirections()) {
-			Block relative = sign.getRelative(face);
-			if (PLUGIN.getListManager().isInventory(relative)) {
-				return relative;
+		// For each Relative Direction listed in the config in order
+		for (RelativeDirection direction : PLUGIN.getListManager().getDirections()) {
+			// Get the direction the block we want to check is Facing
+			BlockFace facing = RelativeDirection.getDirection(sign.getBlockData());
+			// Translate the Relative Direction from the Direction the Block is Facing and get the Block on that BlockFace
+			LocationOffset relativeOffset = direction.getTranslatedDirection(facing);
+			Block relativeBlock = sign.getRelative(relativeOffset.getXOffset(), relativeOffset.getYOffset(), relativeOffset.getZOffset());
+
+			// Check if relativeBlock is an inventory block and return if true
+			if (PLUGIN.getListManager().isInventory(relativeBlock)) {
+				return relativeBlock;
 			}
 		}
-
 		return null;
 	}
 
@@ -389,102 +391,194 @@ public class Utils {
 
 		Inventory shopInventory = null;
 
-		if (shop.getShopType() != ShopType.ITRADE) {
+		if (shop.getShopType().equals(ShopType.ITRADE)) {
+			shopInventory = Bukkit.createInventory(null, Math.min((int) (Math.ceil(shop.getSideList(ShopItemSide.PRODUCT).size() / 9.0) * 9) * multiplier, 54));
+			while (shopInventory.firstEmpty() != -1) {
+				for (ItemStack item : shop.getSideItemStacks(ShopItemSide.PRODUCT)) {
+					item.setAmount(item.getMaxStackSize());
+					shopInventory.addItem(item);
+				}
+			}
+		} else {
 			Inventory shopInv = shop.getChestAsSC().getInventory();
 			shopInventory = Bukkit.createInventory(null, shopInv.getStorageContents().length);
 			shopInventory.setContents(shopInv.getStorageContents().clone());
 		}
 
-		List<ItemStack> costItems, productItems;
+		List<ItemStack> costItems = new ArrayList<>(), productItems;
 
-		if (shop.getShopType() == ShopType.ITRADE) { //ITrade trade
+		boolean isBi = shop.getShopType().equals(ShopType.BITRADE) && action.equals(Action.LEFT_CLICK_BLOCK);
 
-			//Method to find Cost items in player inventory and add to cost array
-			costItems = getItems(playerInventory.getStorageContents(), shop.getCost(), multiplier);
-
-			if (!costItems.isEmpty()) {
-				if (costItems.get(0) == null) {
-					return new Tuple<>(ExchangeStatus.PLAYER_NO_COST, costItems);
-				}
-
-				for (ItemStack item : costItems) {
-					playerInventory.removeItem(item);
-				}
-			}
-
-			Inventory iTradeVirtualInventory = Bukkit.createInventory(null, Math.min((int) (Math.ceil(shop.getProduct().size() / 9.0) * 9) * multiplier, 54));
-			while (iTradeVirtualInventory.firstEmpty() != -1) {
-				for (ItemStack item : shop.getProductItemStacks()) {
-					item.setAmount(item.getMaxStackSize());
-					iTradeVirtualInventory.addItem(item);
-				}
-			}
-
-			productItems = getItems(iTradeVirtualInventory.getStorageContents(), shop.getProduct(), multiplier);
-
-			for (ItemStack item : productItems) {
-				if (!playerInventory.addItem(item).isEmpty()) {
-					return new Tuple<>(ExchangeStatus.PLAYER_NO_SPACE, createBadList());
-				}
-			}
-
-			return new Tuple<>(ExchangeStatus.SUCCESS, createBadList()); //Successfully completed trade
-		} else if (shop.getShopType() == ShopType.BITRADE && action == Action.LEFT_CLICK_BLOCK) { //BiTrade Reversed Trade
-
-            //Method to find Cost items in player inventory and add to cost array
-			costItems = getItems(playerInventory.getStorageContents(), shop.getProduct(), multiplier); //Reverse BiTrade, Product is Cost
+		//Method to find Cost items in player inventory and add to cost array
+		if (!shop.isNoCost() || shop.hasSide(ShopItemSide.COST)) {
+			costItems = getItems(playerInventory.getStorageContents(), shop.getSideList(ShopItemSide.COST, isBi), multiplier);
 			if (costItems.get(0) == null) {
 				return new Tuple<>(ExchangeStatus.PLAYER_NO_COST, costItems);
-            }
+			}
+		}
 
-            //Method to find Product items in shop inventory and add to product array
-			productItems = getItems(shopInventory.getStorageContents(), shop.getCost(), multiplier); //Reverse BiTrade, Cost is Product
-            if (productItems.get(0) == null) {
-				shop.updateStatus();
-				return new Tuple<>(ExchangeStatus.SHOP_NO_PRODUCT, productItems);
-            }
-        } else { // Normal Trade
+		//Method to find Product items in shop inventory and add to product array
+		productItems = getItems(shopInventory.getStorageContents(), shop.getSideList(ShopItemSide.PRODUCT, isBi), multiplier);
+		if (productItems.get(0) == null) {
+			shop.updateStatus();
+			return new Tuple<>(ExchangeStatus.SHOP_NO_PRODUCT, productItems);
+		}
 
-            //Method to find Cost items in player inventory and add to cost array
-			costItems = getItems(playerInventory.getStorageContents(), shop.getCost(), multiplier);
-			if (costItems.get(0) == null) {
-				return new Tuple<>(ExchangeStatus.PLAYER_NO_COST, costItems);
-            }
+		if (costItems.size() > 0) {
+			//For loop to remove cost items from player inventory
+			for (ItemStack item : costItems) {
+				playerInventory.removeItem(item);
+			}
+		}
 
-            //Method to find Product items in shop inventory and add to product array
-			productItems = getItems(shopInventory.getStorageContents(), shop.getProduct(), multiplier);
-            if (productItems.get(0) == null) {
-				shop.updateStatus();
-				return new Tuple<>(ExchangeStatus.SHOP_NO_PRODUCT, productItems);
-            }
+		//For loop to remove product items from shop inventory
+		for (ItemStack item : productItems) {
+			shopInventory.removeItem(item);
+		}
 
-        }
-
-        //For loop to remove cost items from player inventory
-        for (ItemStack item : costItems) {
-            playerInventory.removeItem(item);
-        }
-
-        //For loop to remove product items from shop inventory
-        for (ItemStack item : productItems) {
-            shopInventory.removeItem(item);
-        }
-
-        //For loop to put cost items in shop inventory
-        for (ItemStack item : costItems) {
-            if (!shopInventory.addItem(item).isEmpty()) {
-				return new Tuple<>(ExchangeStatus.SHOP_NO_SPACE, createBadList());
+		if (!shop.getShopType().isITrade() && costItems.size() > 0) {
+			//For loop to put cost items in shop inventory
+			for (ItemStack item : costItems) {
+				if (!addItemToInventory(shopInventory, item).isEmpty()) {
+					return new Tuple<>(ExchangeStatus.SHOP_NO_SPACE, createBadList());
+				}
 			}
 		}
 
 		//For loop to put product items in player inventory
 		for (ItemStack item : productItems) {
-			if (!playerInventory.addItem(item).isEmpty()) {
+			if (!addItemToInventory(playerInventory, item).isEmpty()) {
 				return new Tuple<>(ExchangeStatus.PLAYER_NO_SPACE, createBadList());
 			}
 		}
 
 		return new Tuple<>(ExchangeStatus.SUCCESS, createBadList()); //Successfully completed trade
+	}
+
+	/**
+	 * Create a shop from a non-shop sign in front of the player
+	 *
+	 * @param shopSign sign to make into a shop
+	 * @param creator  player that is creating the shop
+	 * @param shopType type of shop to make
+	 * @param cost     initial cost item for shop
+	 * @param product  initial product item for shop
+	 * @param event    SignUpdateEvent if being called from sign creation
+	 * @return returns the shop object that was created
+	 */
+	public Shop createShop(Sign shopSign, Player creator, ShopType shopType, ItemStack cost, ItemStack product, SignChangeEvent event) {
+		if (ShopType.isShop(shopSign)) {
+			Message.EXISTING_SHOP.sendMessage(creator);
+			return null;
+		}
+
+		if (!shopType.checkPerm(creator)) {
+			Message.NO_TS_CREATE_PERMISSION.sendMessage(creator);
+			return null;
+		}
+
+		ShopUser owner = new ShopUser(creator, ShopRole.OWNER);
+
+		if (!checkShopChest(shopSign.getBlock()) && !shopType.isITrade()) {
+			Message.NO_CHEST.sendMessage(creator);
+			return null;
+		}
+
+		if (Setting.MAX_SHOPS_PER_CHUNK.getInt() <= PLUGIN.getDataStorage().getShopCountInChunk(shopSign.getChunk())) {
+			Message.TOO_MANY_CHESTS.sendMessage(creator);
+			return null;
+		}
+
+		ShopChest shopChest;
+		Shop shop;
+		Block chest = findShopChest(shopSign.getBlock());
+
+		if (!shopType.isITrade()) {
+			if (ShopChest.isShopChest(chest)) {
+				shopChest = new ShopChest(chest.getLocation());
+			} else {
+				shopChest = new ShopChest(chest, creator.getUniqueId(), shopSign.getLocation());
+			}
+
+			if (shopChest.hasOwner() && !shopChest.getOwner().equals(owner.getUUID())) {
+				Message.NO_SHOP_PERMISSION.sendMessage(creator);
+				return null;
+			}
+
+			if (shopChest.hasShopSign() && !shopChest.getShopSign().getLocation().equals(shopSign.getLocation())) {
+				Message.EXISTING_SHOP.sendMessage(creator);
+				return null;
+			}
+
+			shop = new Shop(new Tuple<>(shopSign.getLocation(), shopChest.getChest().getLocation()), shopType, owner);
+			shopChest.setName();
+
+			if (cost != null && !shop.hasSide(ShopItemSide.COST))
+				shop.setSideItems(ShopItemSide.COST, cost);
+
+			if (product != null && !shop.hasSide(ShopItemSide.PRODUCT))
+				shop.setSideItems(ShopItemSide.PRODUCT, product);
+
+			if (shopChest.isEmpty() && shop.hasSide(ShopItemSide.PRODUCT)) {
+				Message.EMPTY_TS_ON_SETUP.sendMessage(creator);
+			}
+		} else {
+			shop = new Shop(shopSign.getLocation(), shopType, owner);
+		}
+
+		PLUGIN.getDebugger().log("-----Pre-Event-----", DebugLevels.SHOP_CREATION);
+		PLUGIN.getDebugger().log(shop.toDebug(), DebugLevels.SHOP_CREATION);
+
+
+		PlayerShopCreateEvent shopCreateEvent = new PlayerShopCreateEvent(creator, shop);
+		Bukkit.getPluginManager().callEvent(shopCreateEvent);
+		PLUGIN.getDebugger().log("-----Post-Event-----", DebugLevels.SHOP_CREATION);
+		PLUGIN.getDebugger().log(shop.toDebug(), DebugLevels.SHOP_CREATION);
+
+		if (shopCreateEvent.isCancelled()) {
+			PLUGIN.getDebugger().log("Creation Failed!", DebugLevels.SHOP_CREATION);
+			return null;
+		}
+
+		shop.saveShop();
+
+		if (event != null) {
+			shop.updateSign(event);
+			PLUGIN.getDebugger().log("Event Sign Lines: \n" + event.getLine(0) + "\n" + event.getLine(1) + "\n" + event.getLine(2) + "\n" + event.getLine(3), DebugLevels.SHOP_CREATION);
+		} else {
+			shop.updateSign(shopSign);
+			PLUGIN.getDebugger().log("Sign Lines: \n" + shopSign.getLine(0) + "\n" + shopSign.getLine(1) + "\n" + shopSign.getLine(2) + "\n" + shopSign.getLine(3), DebugLevels.SHOP_CREATION);
+		}
+
+		Message.SUCCESSFUL_SETUP.sendMessage(creator);
+		PLUGIN.getDebugger().log("Creation Successful!", DebugLevels.SHOP_CREATION);
+		return shop;
+	}
+
+	/**
+	 * Create a shop from a non-shop sign in front of the player
+	 *
+	 * @param shopSign sign to make into a shop
+	 * @param creator  player that is creating the shop
+	 * @param shopType type of shop to make
+	 * @return returns the shop object that was created
+	 */
+	public Shop createShop(Sign shopSign, Player creator, ShopType shopType) {
+		return createShop(shopSign, creator, shopType, null, null, null);
+	}
+
+	/**
+	 * Create a shop from a non-shop sign in front of the player
+	 *
+	 * @param shopSign sign to make into a shop
+	 * @param creator  player that is creating the shop
+	 * @param shopType type of shop to make
+	 * @param cost     initial cost item for shop
+	 * @param product  initial product item for shop
+	 * @return returns the shop object that was created
+	 */
+	public Shop createShop(Sign shopSign, Player creator, ShopType shopType, ItemStack cost, ItemStack product) {
+		return createShop(shopSign, creator, shopType, cost, product, null);
 	}
 
 	/**
@@ -499,7 +593,7 @@ public class Utils {
 		Map<ItemStack, Integer> storage = new HashMap<>(), found = new HashMap<>();
 		List<ItemStack> good = new ArrayList<ItemStack>(), bad = createBadList();
 
-		debugger.log("Utils > getItems > Search List: " + search, DebugLevels.TRADE);
+		PLUGIN.getDebugger().log("Utils > getItems > Search List: " + search, DebugLevels.TRADE);
 
 		for (ItemStack itemStack : storageContents.clone()) {
 			if (itemStack != null) {
@@ -512,7 +606,7 @@ public class Utils {
 			}
 		}
 
-		debugger.log("Utils > getItems > Storage List: " + storage, DebugLevels.TRADE);
+		PLUGIN.getDebugger().log("Utils > getItems > Storage List: " + storage, DebugLevels.TRADE);
 
 		int totalCount = 0, currentCount = 0;
 
@@ -521,9 +615,9 @@ public class Utils {
 			totalCount += count;
 
 			for (ItemStack storageItem : storage.keySet()) {
-				boolean isSimilar = item.isSimilar(storageItem);
-				if (isSimilar) {
-					int taken = Math.min(storage.get(storageItem), count);
+				if (item.isSimilar(storageItem)) {
+					int taken;
+					taken = megaMin(storage.get(storageItem), count);
 
 					if (found.putIfAbsent(item.getItemStack(), taken) != null)
 						found.put(item.getItemStack(), storage.get(storageItem) + taken);
@@ -548,10 +642,59 @@ public class Utils {
 			}
 		}
 
-		debugger.log("Utils > getItems > Good List: " + good, DebugLevels.TRADE);
-		debugger.log("Utils > getItems > Bad List: " + bad, DebugLevels.TRADE);
-		debugger.log("Utils > getItems > Return Status: " + (currentCount != totalCount ? "bad" : "good"), DebugLevels.TRADE);
+		PLUGIN.getDebugger().log("Utils > getItems > Good List: " + good, DebugLevels.TRADE);
+		PLUGIN.getDebugger().log("Utils > getItems > Bad List: " + bad, DebugLevels.TRADE);
+		PLUGIN.getDebugger().log("Utils > getItems > Return Status: " + (currentCount != totalCount ? "bad" : "good"), DebugLevels.TRADE);
 
 		return currentCount != totalCount ? bad : good;
+	}
+
+	/**
+	 * Attempts to add an ItemStack to an Inventory while splitting it with its max stack size as a maximum
+	 *
+	 * @param inv  Inventory to attempt to add the ItemStack to
+	 * @param item ItemStack to be added to the ivnentory
+	 * @return smallest integer
+	 */
+	public Map<Integer, ItemStack> addItemToInventory(Inventory inv, ItemStack item) {
+		int maxStack = inv.getMaxStackSize();
+		inv.setMaxStackSize(item.getMaxStackSize());
+		Map<Integer, ItemStack> result = inv.addItem(item);
+		inv.setMaxStackSize(maxStack);
+		return result;
+	}
+
+	/**
+	 * Returns the smallest integer passed to it
+	 *
+	 * @param values list of integers to compare against each other
+	 * @return smallest integer
+	 */
+	public int megaMin(int... values) {
+		int min = values[0];
+		for (int i : values) {
+			min = Math.min(i, min);
+		}
+
+		return min;
+	}
+
+	/**
+	 * Converts string to boolean based on acceptable responses
+	 *
+	 * @param check String to convert to boolean
+	 * @return true if acceptable string was found
+	 */
+	public boolean toBool(String check) {
+		switch (check.toLowerCase()) {
+			case "true":
+			case "t":
+			case "yes":
+			case "y":
+			case "all":
+				return true;
+			default:
+				return false;
+		}
 	}
 }

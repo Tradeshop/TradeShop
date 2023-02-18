@@ -33,8 +33,8 @@ import org.bstats.charts.SimplePie;
 import org.bstats.charts.SingleLineChart;
 import org.bukkit.World;
 import org.shanerx.tradeshop.TradeShop;
-import org.shanerx.tradeshop.utils.config.Message;
-import org.shanerx.tradeshop.utils.config.Setting;
+import org.shanerx.tradeshop.data.config.Message;
+import org.shanerx.tradeshop.data.config.Setting;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -46,11 +46,16 @@ public class MetricsManager {
     private final int bStatsPluginID = 1690;
     private final TradeShop plugin;
     private final Metrics metrics;
-    private int tradeCounter = 0;
+    private int tradeCounter = 0,
+            shopCounter = 0;
 
     public MetricsManager(TradeShop plugin) {
         this.plugin = plugin;
         metrics = new Metrics(plugin, bStatsPluginID);
+
+        for (World world : plugin.getServer().getWorlds()) {
+            adjustShops(plugin.getDataStorage().getShopCountInWorld(world));
+        }
 
         addTradeMetric();
         addShopMetric();
@@ -71,6 +76,10 @@ public class MetricsManager {
         tradeCounter++;
     }
 
+    public void adjustShops(int adjustment) {
+        shopCounter += adjustment;
+    }
+
     private void addTradeMetric() {
         metrics.addCustomChart(new SingleLineChart("trade-counter", new Callable<Integer>() {
             @Override
@@ -86,11 +95,7 @@ public class MetricsManager {
         metrics.addCustomChart(new SingleLineChart("shop-counter", new Callable<Integer>() {
             @Override
             public Integer call() throws Exception {
-                int count = 0;
-                for (World world : plugin.getServer().getWorlds()) {
-                    count += plugin.getDataStorage().getShopCountInWorld(world);
-                }
-                return count;
+                return shopCounter;
             }
         }));
     }
@@ -100,21 +105,17 @@ public class MetricsManager {
             @Override
             public Map<String, int[]> call() throws Exception {
                 Map<String, int[]> map = new HashMap<>();
-                List<Setting> booleanSettingList = Arrays.asList(Setting.CHECK_UPDATES,
+                List<Setting> booleanSettingList = Arrays.asList(
+                        Setting.CHECK_UPDATES,
                         Setting.UNLIMITED_ADMIN,
-                        Setting.USE_INTERNAL_PERMISSIONS,
                         Setting.ALLOW_TOGGLE_STATUS,
                         Setting.ALLOW_SIGN_BREAK,
                         Setting.ALLOW_CHEST_BREAK,
                         Setting.ALLOW_MULTI_TRADE,
                         Setting.ALLOW_USER_PURCHASING,
                         Setting.TRADESHOP_EXPLODE,
-                        Setting.TRADESHOP_HOPPER_EXPORT,
-                        Setting.TRADESHOP_HOPPER_IMPORT,
                         Setting.ITRADESHOP_EXPLODE,
-                        Setting.BITRADESHOP_EXPLODE,
-                        Setting.BITRADESHOP_HOPPER_EXPORT,
-                        Setting.BITRADESHOP_HOPPER_IMPORT);
+                        Setting.BITRADESHOP_EXPLODE);
 
                 for (Setting setting : booleanSettingList) {
                     if (setting.getBoolean()) {
@@ -179,7 +180,7 @@ public class MetricsManager {
     }
 
     private void addSettingStringListMetrics() {
-        List<Setting> settingList = Arrays.asList(Setting.ALLOWED_DIRECTIONS,
+        List<Setting> settingList = Arrays.asList(Setting.CHEST_DIRECTIONS,
                 Setting.ALLOWED_SHOPS);
 
         for (Setting setting : settingList) {
@@ -221,21 +222,17 @@ public class MetricsManager {
 
     // Temporary solutions while Bar graphs are unavailable
     private void addFeaturePieMetrics() {
-        List<Setting> booleanSettingList = Arrays.asList(Setting.CHECK_UPDATES,
+        List<Setting> booleanSettingList = Arrays.asList(
+                Setting.CHECK_UPDATES,
                 Setting.UNLIMITED_ADMIN,
-                Setting.USE_INTERNAL_PERMISSIONS,
                 Setting.ALLOW_TOGGLE_STATUS,
                 Setting.ALLOW_SIGN_BREAK,
                 Setting.ALLOW_CHEST_BREAK,
                 Setting.ALLOW_MULTI_TRADE,
                 Setting.ALLOW_USER_PURCHASING,
                 Setting.TRADESHOP_EXPLODE,
-                Setting.TRADESHOP_HOPPER_EXPORT,
-                Setting.TRADESHOP_HOPPER_IMPORT,
                 Setting.ITRADESHOP_EXPLODE,
-                Setting.BITRADESHOP_EXPLODE,
-                Setting.BITRADESHOP_HOPPER_EXPORT,
-                Setting.BITRADESHOP_HOPPER_IMPORT);
+                Setting.BITRADESHOP_EXPLODE);
 
         for (Setting setting : booleanSettingList) {
             metrics.addCustomChart(new SimplePie(setting.name().toLowerCase(), () -> {
@@ -245,7 +242,7 @@ public class MetricsManager {
     }
 
     private void addSettingStringListAdvancedPieMetrics() {
-        List<Setting> settingList = Arrays.asList(Setting.ALLOWED_DIRECTIONS,
+        List<Setting> settingList = Arrays.asList(Setting.CHEST_DIRECTIONS,
                 Setting.ALLOWED_SHOPS);
 
         for (Setting setting : settingList) {

@@ -29,7 +29,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 import org.shanerx.tradeshop.TradeShop;
-import org.shanerx.tradeshop.utils.config.Message;
+import org.shanerx.tradeshop.data.config.Message;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -75,7 +75,8 @@ public class CommandTabCaller implements TabCompleter {
 					return tabCompleter.fillShopPlayer();
 				case ADD_MANAGER:
 				case ADD_MEMBER:
-				case PLAYER_LEVEL:
+				case SET_MEMBER:
+				case SET_MANAGER:
 					return tabCompleter.fillServerPlayer();
 				default:
 					return Collections.EMPTY_LIST;

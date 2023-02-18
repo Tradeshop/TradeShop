@@ -28,8 +28,8 @@ package org.shanerx.tradeshop.commands;
 import com.google.common.collect.Lists;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.shanerx.tradeshop.enumys.PermStatus;
-import org.shanerx.tradeshop.enumys.Permissions;
+import org.shanerx.tradeshop.player.PermStatus;
+import org.shanerx.tradeshop.player.Permissions;
 
 import java.util.List;
 
@@ -52,17 +52,19 @@ public enum Commands {
 	CREATE_ITRADE(Lists.newArrayList("createitrade", "createi", "cri"), Permissions.CREATEI, 1, 1, true, "Create iTrade shop", "/tradeshop $cmd$"),
 
 	// Shop user management commands
-	ADD_MANAGER(Lists.newArrayList("addManager"), Permissions.NONE, 2, 2, true, "Add manager to shop", "/tradeshop $cmd$ <name>"),
-	REMOVE_USER(Lists.newArrayList("removeUser", "removeManager", "removeMember"), Permissions.NONE, 2, 2, true, "Remove user from shop", "/tradeshop $cmd$ <Name>"),
-	ADD_MEMBER(Lists.newArrayList("addMember"), Permissions.NONE, 2, 2, true, "Add member to shop", "/tradeshop $cmd$ <name>"),
+	REMOVE_USER(Lists.newArrayList("removeUser", "removeManager", "removeMember"), Permissions.NONE, 2, 3, true, "Remove user from shop", "/tradeshop $cmd$ <Name> [all shops]"),
+	ADD_MANAGER(Lists.newArrayList("addManager"), Permissions.NONE, 2, 3, true, "Add manager to shop", "/tradeshop $cmd$ <name> [all shops]"),
+	ADD_MEMBER(Lists.newArrayList("addMember"), Permissions.NONE, 2, 3, true, "Add member to shop", "/tradeshop $cmd$ <name> [all shops]"),
+	SET_MANAGER(Lists.newArrayList("setManager"), Permissions.NONE, 2, 3, true, "Sets a player to Manager on a shop", "/tradeshop $cmd$ <name> [all shops]"),
+	SET_MEMBER(Lists.newArrayList("setMember"), Permissions.NONE, 2, 3, true, "Sets a player to Member on a shop", "/tradeshop $cmd$ <name> [all shops]"),
 
 	// Shop item management commands
 	ADD_PRODUCT(Lists.newArrayList("addProduct"), Permissions.NONE, 1, 3, true, "Add product to shop", "/tradeshop $cmd$ [Amount] [Material]"),
 	ADD_COST(Lists.newArrayList("addCost"), Permissions.NONE, 1, 3, true, "Add cost to shop", "/tradeshop $cmd$ [Amount] [Material]"),
 	SET_PRODUCT(Lists.newArrayList("setProduct"), Permissions.NONE, 1, 3, true, "Set product of shop ", "/tradeshop $cmd$ [Amount] [Material]"),
 	SET_COST(Lists.newArrayList("setCost"), Permissions.NONE, 1, 3, true, "Set cost of shop", "/tradeshop $cmd$ [Amount] [Material]"),
-	REMOVE_PRODUCT(Lists.newArrayList("removeProduct", "delProduct"), Permissions.NONE, 2, 2, true, "Removes a product from the shop", "/tradeshop $cmd$ <List #>"),
-	REMOVE_COST(Lists.newArrayList("removeCost", "delCost"), Permissions.NONE, 2, 2, true, "Removes a product from the shop", "/tradeshop $cmd$ <List #>"),
+	REMOVE_PRODUCT(Lists.newArrayList("removeProduct", "delProduct"), Permissions.NONE, 1, 2, true, "Removes a product from the shop", "/tradeshop $cmd$ <List #>"),
+	REMOVE_COST(Lists.newArrayList("removeCost", "delCost"), Permissions.NONE, 1, 2, true, "Removes a product from the shop", "/tradeshop $cmd$ <List #>"),
 	LIST_PRODUCT(Lists.newArrayList("listProduct"), Permissions.NONE, 1, 1, true, "Lists the products in the shop", "/tradeshop $cmd$"),
 	LIST_COST(Lists.newArrayList("listCost"), Permissions.NONE, 1, 1, true, "Lists the costs in a shop", "/tradeshop $cmd$"),
 
@@ -77,7 +79,6 @@ public enum Commands {
 	HELP(Lists.newArrayList("help", "?"), Permissions.HELP, 1, 2, false, "Display help message", "/tradeshop $cmd$ [command]"),
 	SETUP(Lists.newArrayList("setup", "start", "create", "make"), Permissions.HELP, 1, 1, false, "Display shop setup tutorial", "/tradeshop $cmd$"),
 	BUGS(Lists.newArrayList("bugs", "bug"), Permissions.NONE, 1, 1, false, "Report bugs to the developers", "/tradeshop $cmd$"),
-	PLAYER_LEVEL(Lists.newArrayList("playerlevel", "pl"), Permissions.MANAGE_PLUGIN, 2, 3, false, "If Internal Permissions is enable this allows the getting and setting of player permission levels.", "/tradeshop $cmd$ <name> <newlevel>"),
 	TOGGLE_ADMIN(Lists.newArrayList("toggleadmin", "tadmin", "ta"), Permissions.ADMIN, 1, 1, true, "Toggles Admin mode for players with the admin permission", "/tradeshop $cmd$"),
 	ADMIN(Lists.newArrayList("admin"), Permissions.ADMIN, 1, 2, true, "Shows players their current admin mode or changes with optional variable", "/tradeshop $cmd$ [True/False]"),
 	RELOAD(Lists.newArrayList("reload"), Permissions.MANAGE_PLUGIN, 1, 1, false, "Reload configuration files", "/tradeshop $cmd$");

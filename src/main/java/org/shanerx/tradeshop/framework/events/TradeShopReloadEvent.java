@@ -30,21 +30,21 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.server.ServerEvent;
 import org.shanerx.tradeshop.TradeShop;
-import org.shanerx.tradeshop.objects.Debug;
-import org.shanerx.tradeshop.objects.ListManager;
-import org.shanerx.tradeshop.utils.data.DataStorage;
+import org.shanerx.tradeshop.data.storage.DataStorage;
+import org.shanerx.tradeshop.utils.ListManager;
+import org.shanerx.tradeshop.utils.debug.Debug;
 
 // TODO javadocs for TradeShopReloadEvent
 public class TradeShopReloadEvent extends ServerEvent {
 
     private static final HandlerList handlers = new HandlerList();
 
+    public TradeShop plugin;
+    public CommandSender sender;
+
     public static HandlerList getHandlerList() {
         return handlers;
     }
-
-    public TradeShop plugin;
-    public CommandSender sender;
 
     @Override
     public HandlerList getHandlers() {
