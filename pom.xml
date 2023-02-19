@@ -211,6 +211,7 @@
                 <artifactId>maven-javadoc-plugin</artifactId>
                 <version>3.4.0</version>
                 <configuration>
+                    <name>${project.build.finalName}</name>
                     <failOnError>false</failOnError>
                     <jarOutputDirectory>${outputDir}/JavaDocs</jarOutputDirectory>
                     <!--suppress UnresolvedMavenProperty -->
