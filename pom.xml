@@ -131,6 +131,21 @@
                 </branch> <!-- `-Dbranch_name=###` is required for the branch name to appear in the file name -->
             </properties>
         </profile>
+        <profile>
+            <id>deploy</id>
+            <distributionManagement>
+                <repository>
+                    <id>central</id>
+                    <name>KOP-Artifactory-releases</name>
+                    <url>http://repo.killerofpie.com/artifactory/TradeShop</url>
+                </repository>
+                <snapshotRepository>
+                    <id>snapshots</id>
+                    <name>KOP-Artifactory-snapshots</name>
+                    <url>http://repo.killerofpie.com/artifactory/TradeShop</url>
+                </snapshotRepository>
+            </distributionManagement>
+        </profile>
     </profiles>
 
     <build>
