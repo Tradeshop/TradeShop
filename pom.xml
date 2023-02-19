@@ -131,22 +131,6 @@
                 </branch> <!-- `-Dbranch_name=###` is required for the branch name to appear in the file name -->
             </properties>
         </profile>
-        <profile>
-            <id>deploy</id>
-            <distributionManagement>
-                <repository>
-                    <id>central</id>
-                    <name>KOP-Artifactory-releases</name>
-                    <url>https://repo.killerofpie.com/artifactory/TradeShop</url>
-                </repository>
-                <snapshotRepository>
-                    <id>snapshots</id>
-                    <name>KOP-Artifactory-snapshots</name>
-                    <url>https://repo.killerofpie.com/artifactory/TradeShop</url>
-                </snapshotRepository>
-                <downloadUrl>https://repo.killerofpie.com/repository</downloadUrl>
-            </distributionManagement>
-        </profile>
     </profiles>
 
     <build>
@@ -297,4 +281,18 @@
             <type>maven-plugin</type>
         </dependency>
     </dependencies>
+
+    <distributionManagement>
+        <repository>
+            <id>central</id>
+            <name>KOP-Artifactory-releases</name>
+            <url>https://repo.killerofpie.com/artifactory/TradeShop</url>
+        </repository>
+        <snapshotRepository>
+            <id>snapshots</id>
+            <name>KOP-Artifactory-snapshots</name>
+            <url>https://repo.killerofpie.com/artifactory/TradeShop</url>
+        </snapshotRepository>
+        <downloadUrl>https://repo.killerofpie.com/repository</downloadUrl>
+    </distributionManagement>
 </project>
