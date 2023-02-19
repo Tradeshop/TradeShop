@@ -287,12 +287,12 @@
         <repository>
             <id>central</id>
             <name>KOP-Artifactory-releases</name>
-            <url>https://repo.killerofpie.com/artifactory/${name}</url>
+            <url>https://repo.killerofpie.com/artifactory/${project.name}</url>
         </repository>
         <snapshotRepository>
             <id>snapshots</id>
             <name>KOP-Artifactory-snapshots</name>
-            <url>https://repo.killerofpie.com/artifactory/${name}</url>
+            <url>https://repo.killerofpie.com/artifactory/${project.name}</url>
         </snapshotRepository>
     </distributionManagement>
 </project>
