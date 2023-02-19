@@ -293,6 +293,5 @@
             <name>KOP-Artifactory-snapshots</name>
             <url>https://repo.killerofpie.com/artifactory/TradeShop</url>
         </snapshotRepository>
-        <downloadUrl>https://repo.killerofpie.com/repository</downloadUrl>
     </distributionManagement>
 </project>
