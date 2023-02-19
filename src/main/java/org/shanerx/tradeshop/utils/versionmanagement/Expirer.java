@@ -27,9 +27,10 @@ package org.shanerx.tradeshop.utils.versionmanagement;
 
 import org.bukkit.ChatColor;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitScheduler;
-import org.shanerx.tradeshop.TradeShop;
 import org.shanerx.tradeshop.player.Permissions;
+import org.shanerx.tradeshop.utils.debug.Debug;
 import org.shanerx.tradeshop.utils.debug.DebugLevels;
 
 import java.io.InputStreamReader;
@@ -38,9 +39,9 @@ import java.time.LocalDateTime;
 import java.time.chrono.ChronoLocalDateTime;
 
 public class Expirer {
-    private final TradeShop plugin;
+    private final JavaPlugin plugin;
 
-    public Expirer(TradeShop plugin) {
+    public Expirer(JavaPlugin plugin) {
         this.plugin = plugin;
     }
 
@@ -56,6 +57,7 @@ public class Expirer {
         final int devExpirationDays = 60, disableDayMessages = 25, expiredMessagesPerDay = 10;
         final long postExpirationRunTimeInTicks = 1728000, ticksPerDay = 1728000;
 
+        Debug debugger = Debug.findDebugger();
 
         if (buildTime.plusDays(devExpirationDays).isBefore(ChronoLocalDateTime.from(LocalDateTime.now()))) {
 
@@ -63,8 +65,8 @@ public class Expirer {
             scheduler.runTaskTimerAsynchronously(plugin, new Runnable() {
                 @Override
                 public void run() {
-                    plugin.getDebugger().log("You are currently running a DEV version that is past its expiration date. The plugin will disable soon!", DebugLevels.DEV_EXPIRATION);
-                    plugin.getDebugger().log("Please update IMMEDIATELY to a newer DEV version for testing or BETA/RELEASE if on a live server.", DebugLevels.DEV_EXPIRATION);
+                    debugger.log("You are currently running a DEV version that is past its expiration date. The plugin will disable soon!", DebugLevels.DEV_EXPIRATION);
+                    debugger.log("Please update IMMEDIATELY to a newer DEV version for testing or BETA/RELEASE if on a live server.", DebugLevels.DEV_EXPIRATION);
                 }
             }, 5L, postExpirationRunTimeInTicks / disableDayMessages);
 
@@ -75,8 +77,8 @@ public class Expirer {
                     // Calculates then amount of seconds of 10% of the total time
                     long remainingTime = (long) (postExpirationRunTimeInTicks * 0.1 / 20);
 
-                    plugin.getDebugger().log("Post expiration use time will expire and the plugin will be disabled in: " + formatSeconds(remainingTime), DebugLevels.DEV_EXPIRATION);
-                    plugin.getServer().broadcast(colorize(plugin.getDebugger().getFormattedPrefix(DebugLevels.DEV_EXPIRATION) + "&4Post expiration use time will expire and the plugin will be disabled in: " + formatSeconds(remainingTime)), Permissions.ADMIN.getPerm().toString());
+                    Debug.findDebugger().log("Post expiration use time will expire and the plugin will be disabled in: " + formatSeconds(remainingTime), DebugLevels.DEV_EXPIRATION);
+                    plugin.getServer().broadcast(colorize(Debug.findDebugger().getFormattedPrefix(DebugLevels.DEV_EXPIRATION) + "&4Post expiration use time will expire and the plugin will be disabled in: " + formatSeconds(remainingTime)), Permissions.ADMIN.getPerm().toString());
                 }
             }, (long) (postExpirationRunTimeInTicks * 0.9));
 
@@ -87,8 +89,8 @@ public class Expirer {
                     // Calculates then amount of seconds of 5% of the total time
                     long remainingTime = (long) (postExpirationRunTimeInTicks * 0.05 / 20);
 
-                    plugin.getDebugger().log("Post expiration use time will expire and the plugin will be disabled in: " + formatSeconds(remainingTime), DebugLevels.DEV_EXPIRATION);
-                    plugin.getServer().broadcast(colorize(plugin.getDebugger().getFormattedPrefix(DebugLevels.DEV_EXPIRATION) + "&4Post expiration use time will expire and the plugin will be disabled in: " + formatSeconds(remainingTime)), Permissions.ADMIN.getPerm().toString());
+                    Debug.findDebugger().log("Post expiration use time will expire and the plugin will be disabled in: " + formatSeconds(remainingTime), DebugLevels.DEV_EXPIRATION);
+                    plugin.getServer().broadcast(colorize(Debug.findDebugger().getFormattedPrefix(DebugLevels.DEV_EXPIRATION) + "&4Post expiration use time will expire and the plugin will be disabled in: " + formatSeconds(remainingTime)), Permissions.ADMIN.getPerm().toString());
                 }
             }, (long) (postExpirationRunTimeInTicks * 0.95));
 
@@ -96,8 +98,8 @@ public class Expirer {
             scheduler.runTaskLaterAsynchronously(plugin, new Runnable() {
                 @Override
                 public void run() {
-                    plugin.getDebugger().log("Post expiration use time has Expired! The plugin will now disable.", DebugLevels.DEV_EXPIRATION);
-                    plugin.getServer().broadcast(colorize(plugin.getDebugger().getFormattedPrefix(DebugLevels.DEV_EXPIRATION) + "&4Post expiration use time has Expired! The plugin will now disable."), Permissions.ADMIN.getPerm().toString());
+                    Debug.findDebugger().log("Post expiration use time has Expired! The plugin will now disable.", DebugLevels.DEV_EXPIRATION);
+                    plugin.getServer().broadcast(colorize(Debug.findDebugger().getFormattedPrefix(DebugLevels.DEV_EXPIRATION) + "&4Post expiration use time has Expired! The plugin will now disable."), Permissions.ADMIN.getPerm().toString());
                     plugin.getServer().getPluginManager().disablePlugin(plugin);
                 }
             }, postExpirationRunTimeInTicks);
@@ -110,8 +112,8 @@ public class Expirer {
             scheduler.runTaskTimerAsynchronously(plugin, new Runnable() {
                 @Override
                 public void run() {
-                    plugin.getDebugger().log("You are currently running a DEV version that is past its expiration date.", DebugLevels.DEV_EXPIRATION);
-                    plugin.getDebugger().log("Please update to a newer DEV version for testing or BETA/RELEASE if on a live server.", DebugLevels.DEV_EXPIRATION);
+                    Debug.findDebugger().log("You are currently running a DEV version that is past its expiration date.", DebugLevels.DEV_EXPIRATION);
+                    Debug.findDebugger().log("Please update to a newer DEV version for testing or BETA/RELEASE if on a live server.", DebugLevels.DEV_EXPIRATION);
                 }
             }, 5L, ticksPerDay / expiredMessagesPerDay);
 
