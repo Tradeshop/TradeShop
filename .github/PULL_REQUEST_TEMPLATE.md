@@ -8,7 +8,7 @@ Replace `[ ]` with `[x]` to cross the checkbox.
 - [ ] I have checked the PRs for upcoming features/bug fixes.
 - [ ] I have read the [contributing guidelines][contributing].
 
-> It is sometimes better to include more changes in a single commit. 
+> It is sometimes better to include more _related_ changes in a single commit. 
   If you find yourself having an overwhelming amount of commits, you
   can **rebase** your branch.
 

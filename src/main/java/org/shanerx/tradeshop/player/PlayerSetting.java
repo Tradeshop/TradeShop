@@ -40,13 +40,12 @@ import org.shanerx.tradeshop.shoplocation.ShopLocation;
 import org.shanerx.tradeshop.utils.Utils;
 import org.shanerx.tradeshop.utils.gsonprocessing.GsonProcessor;
 
-import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
-public class PlayerSetting implements Serializable {
+public class PlayerSetting {
 
     private transient UUID uuid;
     private final String uuidString;
@@ -78,12 +77,6 @@ public class PlayerSetting implements Serializable {
         staffShops = Sets.newHashSet();
 
         load();
-    }
-
-    public static PlayerSetting deserialize(String serialized) {
-        PlayerSetting playerSetting = new GsonProcessor().fromJson(serialized, PlayerSetting.class);
-        playerSetting.load();
-        return playerSetting;
     }
 
     public boolean isAdminEnabled() {
@@ -145,10 +138,6 @@ public class PlayerSetting implements Serializable {
         if (uuid == null) uuid = UUID.fromString(uuidString);
         if (multi > Setting.MULTI_TRADE_MAX.getInt()) multi = Setting.MULTI_TRADE_MAX.getInt();
         utils = new Utils();
-    }
-
-    public String serialize() {
-        return new GsonProcessor().toJson(this);
     }
 
     public String getInvolvedStatusesString() {

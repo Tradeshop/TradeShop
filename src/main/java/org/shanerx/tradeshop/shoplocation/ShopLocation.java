@@ -32,7 +32,7 @@ import org.bukkit.World;
 
 import java.io.Serializable;
 
-public class ShopLocation implements Serializable {
+public class ShopLocation {
 
 	final private String div = "::";
 	private transient World world;

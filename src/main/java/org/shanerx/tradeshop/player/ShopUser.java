@@ -33,11 +33,10 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.SkullMeta;
 import org.shanerx.tradeshop.utils.gsonprocessing.GsonProcessor;
 
-import java.io.Serializable;
 import java.util.UUID;
 
 @SuppressWarnings("unused")
-public class ShopUser implements Serializable {
+public class ShopUser {
 
 	private transient OfflinePlayer player;
 	@SerializedName("player")
@@ -54,12 +53,6 @@ public class ShopUser implements Serializable {
 		this.player = Bukkit.getOfflinePlayer(pUUID);
 		playerUUID = player.getUniqueId().toString();
 		this.role = role;
-	}
-
-	public static ShopUser deserialize(String serialized) {
-		ShopUser shopUser = new GsonProcessor().fromJson(serialized, ShopUser.class);
-		shopUser.player = Bukkit.getOfflinePlayer(UUID.fromString(shopUser.playerUUID));
-		return shopUser;
 	}
 
 	public OfflinePlayer getPlayer() {
@@ -83,10 +76,6 @@ public class ShopUser implements Serializable {
 		if (player == null && playerUUID != null && !playerUUID.equalsIgnoreCase("")) {
 			player = Bukkit.getOfflinePlayer(UUID.fromString(playerUUID));
 		}
-	}
-
-	public String serialize() {
-		return new GsonProcessor().toJson(this);
 	}
 
 	public ItemStack getHead() {

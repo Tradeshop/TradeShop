@@ -28,9 +28,7 @@ package org.shanerx.tradeshop.utils.objects;
 import com.google.gson.annotations.SerializedName;
 import org.shanerx.tradeshop.utils.gsonprocessing.GsonProcessor;
 
-import java.io.Serializable;
-
-public class Tuple<L, R> implements Serializable {
+public class Tuple<L, R> {
 
 	@SerializedName("right")
 	private R r;

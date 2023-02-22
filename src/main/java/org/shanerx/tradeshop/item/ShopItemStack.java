@@ -51,13 +51,12 @@ import org.yaml.snakeyaml.external.biz.base64Coder.Base64Coder;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-public class ShopItemStack implements Serializable, Cloneable {
+public class ShopItemStack implements Cloneable {
 
     @Expose
     private ItemStack itemStack;
@@ -122,17 +121,6 @@ public class ShopItemStack implements Serializable, Cloneable {
 
     public Map<ShopItemStackSettingKeys, ObjectHolder<?>> getItemSettings() {
         return itemSettings;
-    }
-
-    public static ShopItemStack deserialize(String serialized) {
-        ShopItemStack item = new GsonProcessor().fromJson(serialized, ShopItemStack.class);
-        item.loadLegacyData();
-        item.buildMap();
-        return item;
-    }
-
-    public String serialize() {
-        return new GsonProcessor().toJson(this);
     }
 
     public ObjectHolder<?> getShopSetting(ShopItemStackSettingKeys key) {

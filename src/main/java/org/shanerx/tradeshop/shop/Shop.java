@@ -50,7 +50,6 @@ import org.shanerx.tradeshop.utils.gsonprocessing.GsonProcessor;
 import org.shanerx.tradeshop.utils.objects.ObjectHolder;
 import org.shanerx.tradeshop.utils.objects.Tuple;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -61,7 +60,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-public class Shop implements Serializable {
+public class Shop {
 
 	private ShopUser owner;
 	private Set<UUID> managers, members;
@@ -146,20 +145,7 @@ public class Shop implements Serializable {
 	}
 
 	/**
-	 * Deserializes the object to Json using Gson
-	 *
-	 * @param serialized Shop GSON to be deserialized
-	 *
-	 * @return Shop object from file
-	 */
-	public static Shop deserialize(String serialized) {
-		Shop shop = new GsonProcessor().fromJson(serialized, Shop.class);
-		shop.fixAfterLoad();
 
-		return shop;
-	}
-
-	/**
 	 * Loads a shop from file and returns the Shop object
 	 *
 	 * @param loc Location of the shop sign
@@ -258,15 +244,6 @@ public class Shop implements Serializable {
 	 */
 	public int getAvailableTrades() {
 		return availableTrades;
-	}
-
-	/**
-	 * Serializes the object to Json using Gson
-	 *
-	 * @return serialized string
-	 */
-	public String serialize() {
-		return new GsonProcessor().toJson(this);
 	}
 
 	/**

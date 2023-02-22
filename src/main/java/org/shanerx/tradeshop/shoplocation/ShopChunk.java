@@ -31,7 +31,7 @@ import org.bukkit.World;
 
 import java.io.Serializable;
 
-public class ShopChunk implements Serializable {
+public class ShopChunk {
 
 	final private String div = ";;";
 	private final World world;
