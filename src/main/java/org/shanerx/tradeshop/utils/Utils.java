@@ -57,7 +57,12 @@ import org.shanerx.tradeshop.utils.objects.Tuple;
 import org.shanerx.tradeshop.utils.relativedirection.LocationOffset;
 import org.shanerx.tradeshop.utils.relativedirection.RelativeDirection;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 
 /**
@@ -69,7 +74,7 @@ public class Utils {
 
 	private final UUID KOPUUID = UUID.fromString("daf79be7-bc1d-47d3-9896-f97b8d4cea7d");
 	private final UUID LORIUUID = UUID.fromString("e296bc43-2972-4111-9843-48fc32302fd4");
-	public final TradeShop PLUGIN = Objects.requireNonNull((TradeShop) Bukkit.getPluginManager().getPlugin("TradeShop"));
+	private final TradeShop PLUGIN = TradeShop.getPlugin();
 	protected PluginDescriptionFile pdf = PLUGIN.getDescription();
 
 	public Utils() {
@@ -617,7 +622,7 @@ public class Utils {
 			for (ItemStack storageItem : storage.keySet()) {
 				if (item.isSimilar(storageItem)) {
 					int taken;
-					taken = megaMin(storage.get(storageItem), count);
+					taken = manyMin(storage.get(storageItem), count);
 
 					if (found.putIfAbsent(item.getItemStack(), taken) != null)
 						found.put(item.getItemStack(), storage.get(storageItem) + taken);
@@ -670,7 +675,7 @@ public class Utils {
 	 * @param values list of integers to compare against each other
 	 * @return smallest integer
 	 */
-	public int megaMin(int... values) {
+	public int manyMin(int... values) {
 		int min = values[0];
 		for (int i : values) {
 			min = Math.min(i, min);
@@ -685,7 +690,7 @@ public class Utils {
 	 * @param check String to convert to boolean
 	 * @return true if acceptable string was found
 	 */
-	public boolean toBool(String check) {
+	public boolean textToBool(String check) {
 		switch (check.toLowerCase()) {
 			case "true":
 			case "t":
