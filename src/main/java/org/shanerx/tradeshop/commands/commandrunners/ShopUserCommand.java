@@ -48,25 +48,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-enum UserOperationStatus {
-    SUCCESSFUL(Message.UPDATED_SHOP_USERS_SUCCESSFUL),
-    FAILED(Message.UPDATED_SHOP_USERS_FAILED),
-    FAILED_CAPACITY(Message.UPDATED_SHOP_USERS_FAILED_CAPACITY),
-    FAILED_EXISTING(Message.UPDATED_SHOP_USERS_FAILED_EXISTING),
-    FAILED_MISSING(Message.UPDATED_SHOP_USERS_FAILED_MISSING);
-
-    private final Message text;
-
-    UserOperationStatus(Message text) {
-        this.text = text;
-    }
-
-    @Override
-    public String toString() {
-        return text.toString();
-    }
-}
-
 /**
  * Implementation of CommandRunner for commands that view/change shop users
  *
@@ -84,134 +65,108 @@ public class ShopUserCommand extends CommandRunner {
      * Tells the player who the Owner/Managers/Members that are on the shop are
      */
     public void who() {
-        String owner = "";
-        StringBuilder managers = new StringBuilder();
-        StringBuilder members = new StringBuilder();
-        Shop shop = findShop();
+        Shop shop = ShopUser.findObservedShop(command.getPlayerSender());
 
         if (shop == null)
             return;
 
         if (shop.getShopType().isITrade()) {
-            Message.WHO_MESSAGE.sendMessage(pSender,
+            Message.WHO_MESSAGE.sendMessage(command.getPlayerSender(),
                     new Tuple<>(Variable.OWNER.toString(), Setting.ITRADESHOP_OWNER.getString()),
                     new Tuple<>(Variable.MANAGERS.toString(), "None"),
                     new Tuple<>(Variable.MEMBERS.toString(), "None"));
             return;
         }
 
-        if (shop.getOwner() != null)
-            owner = shop.getOwner().getName();
+        String owner = String.join(", ", shop.getUserNames(ShopRole.OWNER));
+        String managers = String.join(", ", shop.getUserNames(ShopRole.MANAGER));
+        String members = String.join(", ", shop.getUserNames(ShopRole.MEMBER));
 
-        if (shop.hasUsers(ShopRole.MANAGER)) {
-            for (ShopUser usr : shop.getUsers(ShopRole.MANAGER)) {
-                if (managers.toString().equals(""))
-                    managers = new StringBuilder(usr.getName());
-                else
-                    managers.append(", ").append(usr.getName());
-            }
-        }
-
-        if (shop.hasUsers(ShopRole.MEMBER)) {
-            for (ShopUser usr : shop.getUsers(ShopRole.MEMBER)) {
-                if (members.toString().equals(""))
-                    members = new StringBuilder(usr.getName());
-                else
-                    members.append(", ").append(usr.getName());
-            }
-        }
-
-        if (managers.toString().equals("")) {
-            managers = new StringBuilder("None");
-        }
-        if (members.toString().equals("")) {
-            members = new StringBuilder("None");
-        }
-        Message.WHO_MESSAGE.sendMessage(pSender,
-                new Tuple<>(Variable.OWNER.toString(), owner),
-                new Tuple<>(Variable.MANAGERS.toString(), managers.toString()),
-                new Tuple<>(Variable.MEMBERS.toString(), members.toString()));
+        Message.WHO_MESSAGE.sendMessage(command.getPlayerSender(),
+                new Tuple<>(Variable.OWNER.toString(), owner.length() < 3 ? "None" : owner),
+                new Tuple<>(Variable.MANAGERS.toString(), managers.length() < 3 ? "None" : managers),
+                new Tuple<>(Variable.MEMBERS.toString(), members.length() < 3 ? "None" : members));
     }
 
     /**
      * Adds or Removes the specified player to/from the shop as the specified role
      */
     public void editUser(ShopRole role, ShopChange change) {
-        boolean applyAllOwned = command.hasArgAt(2) && command.getArgAt(2).length() > 0 && toBool(command.getArgAt(2));
-        Set<Shop> ownedShops = new HashSet<>();
-        Map<String, String> updateStatuses = new HashMap<>();
+        try {
+            boolean applyAllOwned = command.hasArgAt(2) && command.getArgAt(2).length() > 0 && textToBool(command.getArgAt(2));
+            Set<Shop> ownedShops = new HashSet<>();
+            Map<String, String> updateStatuses = new HashMap<>();
 
-        Shop tempShop = shopUserCommandStart(applyAllOwned);
+            Shop tempShop = shopUserCommandStart(Bukkit.getOfflinePlayer(command.getArgAt(1)), applyAllOwned);
 
-        if (tempShop == null && target == null) {
-            return;
-        }
-
-        if (applyAllOwned) {
-            for (String location : plugin.getDataStorage().loadPlayer(pSender.getUniqueId()).getOwnedShops()) {
-                ownedShops.add(plugin.getDataStorage().loadShopFromSign(ShopLocation.deserialize(location)));
-            }
-        } else {
-            ownedShops.add(tempShop);
-        }
-
-        for (Shop shop : ownedShops) {
-            eachOwnedShop:
-            {
-                switch (change) {
-                    case REMOVE_USER:
-                        if (!shop.getUsersUUID(ShopRole.MANAGER, ShopRole.MEMBER).contains(target.getUniqueId())) {
-                            updateStatuses.put(shop.getShopLocationAsSL().serialize(), UserOperationStatus.FAILED_MISSING.toString());
-                            break eachOwnedShop;
-                        }
-                        break;
-                    case ADD_MANAGER:
-                    case ADD_MEMBER:
-                        if (shop.getUsersUUID(ShopRole.MANAGER, ShopRole.MEMBER).contains(target.getUniqueId())) {
-                            updateStatuses.put(shop.getShopLocationAsSL().serialize(), UserOperationStatus.FAILED_EXISTING.toString());
-                            break eachOwnedShop;
-                        } else if (shop.getUsers(ShopRole.MANAGER, ShopRole.MEMBER).size() >= Setting.MAX_SHOP_USERS.getInt()) {
-                            updateStatuses.put(shop.getShopLocationAsSL().serialize(), UserOperationStatus.FAILED_CAPACITY.toString());
-                            break eachOwnedShop;
-                        }
-                        break;
-                    case SET_MANAGER:
-                    case SET_MEMBER:
-                        if (shop.getUsersExcluding(Collections.singletonList(target.getUniqueId()), ShopRole.MANAGER, ShopRole.MEMBER).size() >= Setting.MAX_SHOP_USERS.getInt()) {
-                            updateStatuses.put(shop.getShopLocationAsSL().serialize(), UserOperationStatus.FAILED_CAPACITY.toString());
-                            break eachOwnedShop;
-                        }
-                        break;
+            if (applyAllOwned) {
+                for (String location : plugin.getDataStorage().loadPlayer(command.getPlayerSender().getUniqueId()).getOwnedShops()) {
+                    ownedShops.add(plugin.getDataStorage().loadShopFromSign(ShopLocation.deserialize(location)));
                 }
-
-                PlayerShopChangeEvent changeEvent = new PlayerShopChangeEvent(pSender, shop, change, new ObjectHolder<OfflinePlayer>(target));
-                Bukkit.getPluginManager().callEvent(changeEvent);
-                if (changeEvent.isCancelled()) return;
-
-                boolean success = false;
-
-                switch (change) {
-                    case SET_MANAGER:
-                    case SET_MEMBER:
-                        success = shop.setUser(target.getUniqueId(), role);
-                        break;
-                    case ADD_MEMBER:
-                    case ADD_MANAGER:
-                        success = shop.addUser(target.getUniqueId(), role);
-                        break;
-                    case REMOVE_USER:
-                        success = shop.removeUser(target.getUniqueId());
-                        break;
-                }
-
-                if (success)
-                    updateStatuses.put(shop.getShopLocationAsSL().serialize(), UserOperationStatus.SUCCESSFUL.toString());
-                else
-                    updateStatuses.put(shop.getShopLocationAsSL().serialize(), UserOperationStatus.FAILED.toString());
+            } else {
+                ownedShops.add(tempShop);
             }
-        }
 
-        Message.UPDATED_SHOP_USERS.sendUserEditMultiLineMessage(pSender, Collections.singletonMap(Variable.UPDATED_SHOPS, updateStatuses));
+            for (Shop shop : ownedShops) {
+                eachOwnedShop:
+                {
+                    switch (change) {
+                        case REMOVE_USER:
+                            if (!shop.getUsersUUID(ShopRole.MANAGER, ShopRole.MEMBER).contains(target.getUniqueId())) {
+                                updateStatuses.put(shop.getShopLocationAsSL().serialize(), UserOperationStatus.FAILED_MISSING.toString());
+                                break eachOwnedShop;
+                            }
+                            break;
+                        case ADD_MANAGER:
+                        case ADD_MEMBER:
+                            if (shop.getUsersUUID(ShopRole.MANAGER, ShopRole.MEMBER).contains(target.getUniqueId())) {
+                                updateStatuses.put(shop.getShopLocationAsSL().serialize(), UserOperationStatus.FAILED_EXISTING.toString());
+                                break eachOwnedShop;
+                            } else if (shop.getUsers(ShopRole.MANAGER, ShopRole.MEMBER).size() >= Setting.MAX_SHOP_USERS.getInt()) {
+                                updateStatuses.put(shop.getShopLocationAsSL().serialize(), UserOperationStatus.FAILED_CAPACITY.toString());
+                                break eachOwnedShop;
+                            }
+                            break;
+                        case SET_MANAGER:
+                        case SET_MEMBER:
+                            if (shop.getUsersExcluding(Collections.singletonList(target.getUniqueId()), ShopRole.MANAGER, ShopRole.MEMBER).size() >= Setting.MAX_SHOP_USERS.getInt()) {
+                                updateStatuses.put(shop.getShopLocationAsSL().serialize(), UserOperationStatus.FAILED_CAPACITY.toString());
+                                break eachOwnedShop;
+                            }
+                            break;
+                    }
+
+                    PlayerShopChangeEvent changeEvent = new PlayerShopChangeEvent(command.getPlayerSender(), shop, change, new ObjectHolder<OfflinePlayer>(target));
+                    Bukkit.getPluginManager().callEvent(changeEvent);
+                    if (changeEvent.isCancelled()) return;
+
+                    boolean success = false;
+
+                    switch (change) {
+                        case SET_MANAGER:
+                        case SET_MEMBER:
+                            success = shop.setUser(target.getUniqueId(), role);
+                            break;
+                        case ADD_MEMBER:
+                        case ADD_MANAGER:
+                            success = shop.addUser(target.getUniqueId(), role);
+                            break;
+                        case REMOVE_USER:
+                            success = shop.removeUser(target.getUniqueId());
+                            break;
+                    }
+
+                    if (success)
+                        updateStatuses.put(shop.getShopLocationAsSL().serialize(), UserOperationStatus.SUCCESSFUL.toString());
+                    else
+                        updateStatuses.put(shop.getShopLocationAsSL().serialize(), UserOperationStatus.FAILED.toString());
+                }
+            }
+
+            Message.UPDATED_SHOP_USERS.sendUserEditMultiLineMessage(command.getPlayerSender(), Collections.singletonMap(Variable.UPDATED_SHOPS, updateStatuses));
+
+        } catch (UnsupportedOperationException ignored) {
+        }
     }
 
 
@@ -221,31 +176,28 @@ public class ShopUserCommand extends CommandRunner {
     /**
      * Checks if targeted player exists and if player is looking at a shop while not targetting all owned shops
      *
-     * @param applyAllOwned Is Player targetting all owned shops
-     * @return shop if found or null if not needed; returning null while setting target to null indicates failure, command should respond with an immediate blank return.
+     * @param applyAllOwned Is Player targeting all owned shops
+     * @return Shop if found or null if not needed; returning null while setting target to null indicates failure, command should respond with an immediate blank return.
+     * @throws UnsupportedOperationException if failure
      */
-    private Shop shopUserCommandStart(boolean applyAllOwned) {
-        target = Bukkit.getOfflinePlayer(command.getArgAt(1));
+    private Shop shopUserCommandStart(OfflinePlayer target, boolean applyAllOwned) {
         if (!target.hasPlayedBefore()) {
-            Message.PLAYER_NOT_FOUND.sendMessage(pSender);
-            target = null;
-            return null;
+            Message.PLAYER_NOT_FOUND.sendMessage(command.getPlayerSender());
+            throw new UnsupportedOperationException();
         }
 
         if (!applyAllOwned) {
-            Shop shop = findShop();
+            Shop shop = ShopUser.findObservedShop(command.getPlayerSender());
 
             if (shop == null) {
-                // Message.NO_SIGHTED_SHOP.sendMessage(pSender); // Message is sent by findShop()
-                target = null;
-                return null;
+                // Message.NO_SIGHTED_SHOP.sendMessage(command.getPlayerSender()); // Message is sent by findShop()
+                throw new UnsupportedOperationException();
             }
 
-            if (!shop.getOwner().getUUID().equals(pSender.getUniqueId())
-                    || (Setting.UNLIMITED_ADMIN.getBoolean() && Permissions.isAdminEnabled(pSender))) {
-                Message.NO_SHOP_PERMISSION.sendMessage(pSender);
-                target = null;
-                return null;
+            if (!shop.getOwner().getUUID().equals(command.getPlayerSender().getUniqueId())
+                    || (Setting.UNLIMITED_ADMIN.getBoolean() && Permissions.isAdminEnabled(command.getPlayerSender()))) {
+                Message.NO_SHOP_PERMISSION.sendMessage(command.getPlayerSender());
+                throw new UnsupportedOperationException();
             }
 
             return shop;
@@ -257,4 +209,24 @@ public class ShopUserCommand extends CommandRunner {
 
     //------------------------------------------------------------------------------------------------------------------
     //endregion
+
+
+    enum UserOperationStatus {
+        SUCCESSFUL(Message.UPDATED_SHOP_USERS_SUCCESSFUL),
+        FAILED(Message.UPDATED_SHOP_USERS_FAILED),
+        FAILED_CAPACITY(Message.UPDATED_SHOP_USERS_FAILED_CAPACITY),
+        FAILED_EXISTING(Message.UPDATED_SHOP_USERS_FAILED_EXISTING),
+        FAILED_MISSING(Message.UPDATED_SHOP_USERS_FAILED_MISSING);
+
+        private final Message text;
+
+        UserOperationStatus(Message text) {
+            this.text = text;
+        }
+
+        @Override
+        public String toString() {
+            return text.toString();
+        }
+    }
 }

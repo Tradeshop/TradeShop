@@ -29,8 +29,18 @@ import com.google.gson.annotations.SerializedName;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.block.Block;
+import org.bukkit.block.Sign;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.SkullMeta;
+import org.shanerx.tradeshop.TradeShop;
+import org.shanerx.tradeshop.data.config.Message;
+import org.shanerx.tradeshop.data.config.Setting;
+import org.shanerx.tradeshop.shop.Shop;
+import org.shanerx.tradeshop.shop.ShopChest;
+import org.shanerx.tradeshop.shop.ShopType;
+import org.shanerx.tradeshop.shoplocation.ShopLocation;
 import org.shanerx.tradeshop.utils.gsonprocessing.GsonProcessor;
 
 import java.io.Serializable;
@@ -100,5 +110,63 @@ public class ShopUser implements Serializable {
 
 	public void setRole(ShopRole newRole) {
 		role = newRole;
+	}
+
+	/**
+	 * Returns the Shop the player is looking at
+	 *
+	 * @return null if Shop is not found, Shop object if it is
+	 */
+	public static Shop findObservedShop(Player observer) {
+		if (observer == null) {
+			return null;
+		}
+
+		TradeShop plugin = TradeShop.getPlugin();
+
+		Block b = observer.getTargetBlockExact(Setting.MAX_EDIT_DISTANCE.getInt());
+		try {
+			if (b == null)
+				throw new NoSuchFieldException();
+
+			if (ShopType.isShop(b)) {
+				return Shop.loadShop((Sign) b.getState());
+
+			} else if (ShopChest.isShopChest(b)) {
+				if (plugin.getDataStorage().getChestLinkage(new ShopLocation(b.getLocation())) != null)
+					return plugin.getDataStorage().loadShopFromStorage(new ShopLocation(b.getLocation()));
+
+				return Shop.loadShop(new ShopChest(b.getLocation()).getShopSign());
+
+			} else
+				throw new NoSuchFieldException();
+
+		} catch (NoSuchFieldException ex) {
+			Message.NO_SIGHTED_SHOP.sendMessage(observer);
+			return null;
+		}
+	}
+
+	/**
+	 * Returns the Sign the player is looking at
+	 *
+	 * @return null if Sign is not found, Sign object if it is
+	 */
+	public static Sign findObservedSign(Player observer) {
+		Block b = observer.getTargetBlockExact(Setting.MAX_EDIT_DISTANCE.getInt());
+		try {
+			if (b == null)
+				throw new NoSuchFieldException();
+
+			if (TradeShop.getPlugin().getSigns().getSignTypes().contains(b.getType())) {
+				return (Sign) b.getState();
+
+			} else
+				throw new NoSuchFieldException();
+
+		} catch (NoSuchFieldException ex) {
+			Message.NO_SIGN_FOUND.sendMessage(observer);
+			return null;
+		}
 	}
 }

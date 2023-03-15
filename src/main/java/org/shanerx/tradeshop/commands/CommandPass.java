@@ -28,6 +28,7 @@ package org.shanerx.tradeshop.commands;
 import com.google.common.collect.Lists;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 import org.shanerx.tradeshop.utils.Utils;
 
 import java.util.ArrayList;
@@ -40,25 +41,33 @@ public class CommandPass {
 	private final ArrayList<String> args;
 
 	public CommandPass(CommandSender sender, Command cmd, String label, String[] args) {
-		this.sender = sender;
-		this.cmd = cmd;
-		this.label = label;
-		this.args = Lists.newArrayList(args);
-	}
+        this.sender = sender;
+        this.cmd = cmd;
+        this.label = label;
+        this.args = Lists.newArrayList(args);
+    }
 
-	public CommandSender getSender() {
-		return sender;
-	}
+    public CommandSender getSender() {
+        return sender;
+    }
 
-	public Command getCmd() {
-		return cmd;
-	}
+    public boolean isSenderPlayer() {
+        return getSender() instanceof Player;
+    }
 
-	public String getLabel() {
-		return label;
-	}
+    public Player getPlayerSender() {
+        return isSenderPlayer() ? (Player) getSender() : null;
+    }
 
-	public int argsSize() {
+    public Command getCmd() {
+        return cmd;
+    }
+
+    public String getLabel() {
+        return label;
+    }
+
+    public int argsSize() {
 		return args.size();
 	}
 

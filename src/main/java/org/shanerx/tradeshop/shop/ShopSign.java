@@ -26,6 +26,7 @@
 package org.shanerx.tradeshop.shop;
 
 import org.bukkit.Material;
+import org.shanerx.tradeshop.TradeShop;
 import org.shanerx.tradeshop.utils.Utils;
 import org.shanerx.tradeshop.utils.debug.DebugLevels;
 import org.shanerx.tradeshop.utils.versionmanagement.BukkitVersion;
@@ -116,11 +117,12 @@ public class ShopSign extends Utils {
     private final ArrayList<Material> signTypes = new ArrayList<>();
 
     public ShopSign() {
+        TradeShop plugin = TradeShop.getPlugin();
         for (Signs type : Signs.values()) {
             boolean pass = true;
-            PLUGIN.getDebugger().log(type.toString(), DebugLevels.STARTUP);
-            PLUGIN.getDebugger().log(String.format("MinVer: %s", type.getMinVersionAsString()), DebugLevels.STARTUP);
-            PLUGIN.getDebugger().log(String.format("MaxVer: %s", type.getMaxVersionAsString()), DebugLevels.STARTUP);
+            plugin.getDebugger().log(type.toString(), DebugLevels.STARTUP);
+            plugin.getDebugger().log(String.format("MinVer: %s", type.getMinVersionAsString()), DebugLevels.STARTUP);
+            plugin.getDebugger().log(String.format("MaxVer: %s", type.getMaxVersionAsString()), DebugLevels.STARTUP);
 
             if (type.hasMinVersion() && version.isBelow(type.getMinVer().get(0), type.getMinVer().get(1), type.getMinVer().get(2))) {
                 pass = false;

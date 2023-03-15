@@ -31,7 +31,6 @@ import org.bukkit.command.CommandSender;
 import org.shanerx.tradeshop.TradeShop;
 import org.shanerx.tradeshop.commands.commandrunners.AdminCommand;
 import org.shanerx.tradeshop.commands.commandrunners.BasicTextCommand;
-import org.shanerx.tradeshop.commands.commandrunners.CommandRunner;
 import org.shanerx.tradeshop.commands.commandrunners.CreateCommand;
 import org.shanerx.tradeshop.commands.commandrunners.EditCommand;
 import org.shanerx.tradeshop.commands.commandrunners.GeneralPlayerCommand;
@@ -43,6 +42,7 @@ import org.shanerx.tradeshop.data.config.Message;
 import org.shanerx.tradeshop.framework.ShopChange;
 import org.shanerx.tradeshop.item.ShopItemSide;
 import org.shanerx.tradeshop.player.ShopRole;
+import org.shanerx.tradeshop.shop.ShopType;
 
 /**
  * This class is used for calling command methods from CommandRunner
@@ -81,8 +81,6 @@ public class CommandCaller implements CommandExecutor {
 			Message.INVALID_ARGUMENTS.sendMessage(sender);
 			return true;
 		}
-
-		CommandRunner cmdRnnr = new CommandRunner(plugin, cmdPass);
 
 		switch (command) {
 			case HELP:
@@ -164,13 +162,13 @@ public class CommandCaller implements CommandExecutor {
 				new GeneralPlayerCommand(plugin, cmdPass).toggleStatus();
 				break;
 			case CREATE_TRADE:
-				new CreateCommand(plugin, cmdPass).createTrade();
+				new CreateCommand(plugin, cmdPass).createShop(ShopType.TRADE);
 				break;
 			case CREATE_BITRADE:
-				new CreateCommand(plugin, cmdPass).createBiTrade();
+				new CreateCommand(plugin, cmdPass).createShop(ShopType.BITRADE);
 				break;
 			case CREATE_ITRADE:
-				new CreateCommand(plugin, cmdPass).createITrade();
+				new CreateCommand(plugin, cmdPass).createShop(ShopType.ITRADE);
 				break;
 			case TOGGLE_ADMIN:
 				new AdminCommand(plugin, cmdPass).toggleAdmin();

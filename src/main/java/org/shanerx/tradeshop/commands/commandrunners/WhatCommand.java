@@ -38,6 +38,7 @@ import org.shanerx.tradeshop.data.config.Setting;
 import org.shanerx.tradeshop.item.ShopItemSide;
 import org.shanerx.tradeshop.item.ShopItemStack;
 import org.shanerx.tradeshop.player.Permissions;
+import org.shanerx.tradeshop.player.ShopUser;
 import org.shanerx.tradeshop.shop.Shop;
 import org.shanerx.tradeshop.shop.ShopType;
 
@@ -57,7 +58,7 @@ public class WhatCommand extends GUICommand {
      */
     public void what() {
         /* Dumb test code TODO: Remove before 2.6.0 release(or not it's not like it affects anything)
-        ItemStack src = pSender.getInventory().getItemInMainHand();
+        ItemStack src = command.getPlayerSender().getInventory().getItemInMainHand();
 
         final Gson gson = new GsonBuilder()
                 .disableHtmlEscaping()
@@ -75,7 +76,7 @@ public class WhatCommand extends GUICommand {
 
          */
 
-        Shop shop = findShop();
+        Shop shop = ShopUser.findObservedShop(command.getPlayerSender());
 
         if (shop == null)
             return;
@@ -83,7 +84,7 @@ public class WhatCommand extends GUICommand {
         shop.updateFullTradeCount();
         shop.updateSign();
 
-        if (!Permissions.hasPermission(pSender, Permissions.INFO)) {
+        if (!Permissions.hasPermission(command.getPlayerSender(), Permissions.INFO)) {
             command.sendMessage(Message.NO_COMMAND_PERMISSION.getPrefixed());
             return;
         }
@@ -133,7 +134,7 @@ public class WhatCommand extends GUICommand {
         gui.addElement(costGroup);
         gui.addElement(productGroup);
 
-        gui.show(pSender);
+        gui.show(command.getPlayerSender());
 
     }
 }

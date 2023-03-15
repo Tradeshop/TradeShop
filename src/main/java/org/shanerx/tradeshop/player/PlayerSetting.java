@@ -33,6 +33,7 @@ import de.themoep.inventorygui.StaticGuiElement;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
+import org.shanerx.tradeshop.TradeShop;
 import org.shanerx.tradeshop.data.config.Setting;
 import org.shanerx.tradeshop.shop.Shop;
 import org.shanerx.tradeshop.shoplocation.IllegalWorldException;
@@ -55,6 +56,8 @@ public class PlayerSetting implements Serializable {
     private boolean showInvolvedStatus, adminEnabled = true;
 
     private int multi = Setting.MULTI_TRADE_DEFAULT.getInt();
+
+    private final TradeShop PLUGIN = TradeShop.getPlugin();
 
     private transient Utils utils = new Utils();
 
@@ -159,7 +162,7 @@ public class PlayerSetting implements Serializable {
         if (getOwnedShops().size() > 0) {
             getOwnedShops().forEach(s -> {
                 try {
-                    Shop shop = utils.PLUGIN.getDataStorage().loadShopFromSign(ShopLocation.deserialize(s));
+                    Shop shop = TradeShop.getPlugin().getDataStorage().loadShopFromSign(ShopLocation.deserialize(s));
                     if (shop == null) {
                         nullShops.add(s);
                     } else if (shop.checkRole(uuid) != ShopRole.SHOPPER) {
@@ -177,7 +180,7 @@ public class PlayerSetting implements Serializable {
         if (getStaffShops().size() > 0) {
             getStaffShops().forEach(s -> {
                 try {
-                    Shop shop = utils.PLUGIN.getDataStorage().loadShopFromSign(ShopLocation.deserialize(s));
+                    Shop shop = PLUGIN.getDataStorage().loadShopFromSign(ShopLocation.deserialize(s));
                     if (shop == null) {
                         nullShops.add(s);
                     } else if (shop.checkRole(uuid) != ShopRole.SHOPPER) {
@@ -201,12 +204,12 @@ public class PlayerSetting implements Serializable {
 
     public InventoryGui getInvolvedStatusesInventory() {
         Set<String> nullShops = new HashSet<>();
-        InventoryGui gui = new InventoryGui(utils.PLUGIN, Bukkit.getOfflinePlayer(uuid).getName() + "'s Shops", new String[]{"ggggggggg", "ggggggggg", " fp   ln "});
+        InventoryGui gui = new InventoryGui(PLUGIN, Bukkit.getOfflinePlayer(uuid).getName() + "'s Shops", new String[]{"ggggggggg", "ggggggggg", " fp   ln "});
         GuiElementGroup group = new GuiElementGroup('g');
         if (getOwnedShops().size() > 0) {
             getOwnedShops().forEach(s -> {
                 try {
-                    Shop shop = utils.PLUGIN.getDataStorage().loadShopFromSign(ShopLocation.deserialize(s));
+                    Shop shop = PLUGIN.getDataStorage().loadShopFromSign(ShopLocation.deserialize(s));
                     if (shop == null) {
                         nullShops.add(s);
                     } else if (shop.checkRole(uuid) != ShopRole.SHOPPER) {
@@ -232,7 +235,7 @@ public class PlayerSetting implements Serializable {
         if (getStaffShops().size() > 0) {
             getStaffShops().forEach(s -> {
                 try {
-                    Shop shop = utils.PLUGIN.getDataStorage().loadShopFromSign(ShopLocation.deserialize(s));
+                    Shop shop = PLUGIN.getDataStorage().loadShopFromSign(ShopLocation.deserialize(s));
                     if (shop == null) {
                         nullShops.add(s);
                     } else if (shop.checkRole(uuid) != ShopRole.SHOPPER) {

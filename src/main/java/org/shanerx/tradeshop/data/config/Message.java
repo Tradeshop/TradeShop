@@ -31,7 +31,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.shanerx.tradeshop.TradeShop;
 import org.shanerx.tradeshop.item.ShopItemStack;
-import org.shanerx.tradeshop.utils.Utils;
 import org.shanerx.tradeshop.utils.debug.Debug;
 import org.shanerx.tradeshop.utils.objects.Tuple;
 import org.yaml.snakeyaml.Yaml;
@@ -293,7 +292,7 @@ public enum Message {
         boolean isJson = getString().startsWith("#json ");
         String message = getPrefixed().replaceFirst("#json ", "");
 
-        Debug debug = new Utils().PLUGIN.getDebugger();
+        Debug debug = TradeShop.getPlugin().getDebugger();
 
         for (Map.Entry<Variable, List<ItemStack>> entry : itemsToFill.entrySet()) {
             Pattern pattern = Pattern.compile(MULTILINEREGEX.replace("&V&", entry.getKey().toString()));
@@ -340,7 +339,7 @@ public enum Message {
         boolean isJson = getString().startsWith("#json ");
         String message = getPrefixed().replaceFirst("#json ", "");
 
-        Debug debug = new Utils().PLUGIN.getDebugger();
+        Debug debug = TradeShop.getPlugin().getDebugger();
 
         for (Map.Entry<Variable, Map<String, String>> entry : valuesToFill.entrySet()) {
             Pattern pattern = Pattern.compile(MULTILINEREGEX.replace("&V&", entry.getKey().toString()));

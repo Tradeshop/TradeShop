@@ -25,6 +25,7 @@
 
 package org.shanerx.tradeshop;
 
+import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -237,5 +238,9 @@ public class TradeShop extends JavaPlugin {
 			language = new Language(this);
 
 		return language;
+	}
+
+	public static TradeShop getPlugin() {
+		return (TradeShop) Bukkit.getPluginManager().getPlugin("TradeShop");
 	}
 }

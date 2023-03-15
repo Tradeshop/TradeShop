@@ -65,7 +65,7 @@ public enum Permissions {
 	Permissions(String key, PermissionDefault defaultState) {
 		this.key = key;
 		this.defaultState = defaultState;
-		this.description = utils.PLUGIN.getLanguage().getString(Language.LangSection.PERMISSION, Language.LangSubSection.VALUES, name().toLowerCase().replace("_", "-"), "description");
+		this.description = TradeShop.getPlugin().getLanguage().getString(Language.LangSection.PERMISSION, Language.LangSubSection.VALUES, name().toLowerCase().replace("_", "-"), "description");
 	}
 
 	@Override

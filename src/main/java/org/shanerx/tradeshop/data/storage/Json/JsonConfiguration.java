@@ -27,6 +27,7 @@ package org.shanerx.tradeshop.data.storage.Json;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import org.shanerx.tradeshop.TradeShop;
 import org.shanerx.tradeshop.utils.Utils;
 import org.shanerx.tradeshop.utils.gsonprocessing.GsonProcessor;
 
@@ -42,6 +43,8 @@ class JsonConfiguration extends Utils {
     protected final GsonProcessor gson;
     protected File file, pathFile;
     protected JsonObject jsonObj;
+
+    private final TradeShop PLUGIN = TradeShop.getPlugin();
 
     /**
      * Creates a JsonConfiguration object assisting with managing JSON data

@@ -33,6 +33,7 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.SignChangeEvent;
 import org.bukkit.inventory.ItemStack;
+import org.shanerx.tradeshop.TradeShop;
 import org.shanerx.tradeshop.item.ShopItemSide;
 import org.shanerx.tradeshop.shop.Shop;
 import org.shanerx.tradeshop.shop.ShopType;
@@ -87,7 +88,7 @@ public class ShopCreateListener extends Utils implements Listener {
 
 		ItemStack item = new ItemStack(Material.matchMaterial(info[1]), Integer.parseInt(info[0]));
 
-		if (PLUGIN.getListManager().isIllegal(side, item.getType()))
+		if (TradeShop.getPlugin().getListManager().isIllegal(side, item.getType()))
 			return null;
 
 		return item;

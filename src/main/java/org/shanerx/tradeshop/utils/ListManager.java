@@ -30,6 +30,7 @@ import com.google.common.cache.CacheBuilder;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.shanerx.tradeshop.TradeShop;
 import org.shanerx.tradeshop.data.config.Setting;
 import org.shanerx.tradeshop.item.IllegalItemList;
 import org.shanerx.tradeshop.item.NonObtainableMaterials;
@@ -44,24 +45,26 @@ import java.util.concurrent.TimeUnit;
 @SuppressWarnings("unused")
 public class ListManager extends Utils {
 
-	private final IllegalItemList globalList = new IllegalItemList(IllegalItemList.ListType.DISABLED, new ArrayList<>());
-	private final IllegalItemList costList = new IllegalItemList(IllegalItemList.ListType.DISABLED, new ArrayList<>());
-	private final IllegalItemList productList = new IllegalItemList(IllegalItemList.ListType.DISABLED, new ArrayList<>());
+    private final IllegalItemList globalList = new IllegalItemList(IllegalItemList.ListType.DISABLED, new ArrayList<>());
+    private final IllegalItemList costList = new IllegalItemList(IllegalItemList.ListType.DISABLED, new ArrayList<>());
+    private final IllegalItemList productList = new IllegalItemList(IllegalItemList.ListType.DISABLED, new ArrayList<>());
 
-	private final ArrayList<RelativeDirection> directions = new ArrayList<>();
-	private final ArrayList<ShopStorage.Storages> inventories = new ArrayList<>();
-	private final ArrayList<String> gameMats = new ArrayList<>();
-	private final ArrayList<String> addOnMats = new ArrayList<>();
+    private final ArrayList<RelativeDirection> directions = new ArrayList<>();
+    private final ArrayList<ShopStorage.Storages> inventories = new ArrayList<>();
+    private final ArrayList<String> gameMats = new ArrayList<>();
+    private final ArrayList<String> addOnMats = new ArrayList<>();
 
-	private Cache<Location, Boolean> skippableHoppers, skippableShop;
+    private final TradeShop PLUGIN = TradeShop.getPlugin();
+
+    private Cache<Location, Boolean> skippableHoppers, skippableShop;
 
 
-	public ListManager() {
-		reload();
-		setGameMatList();
-	}
+    public ListManager() {
+        reload();
+        setGameMatList();
+    }
 
-	private void initSkip() {
+    private void initSkip() {
 		skippableHoppers = CacheBuilder.newBuilder()
 				.maximumSize(100000)
 				.expireAfterAccess(1000, TimeUnit.MILLISECONDS)

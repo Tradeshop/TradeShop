@@ -98,6 +98,6 @@ public class BasicTextCommand extends CommandRunner {
      * Sends the sender the setup message
      */
     public void setup() {
-        Message.SETUP_HELP.sendMessage(pSender, new Tuple<>(Variable.HEADER.toString(), Setting.TRADESHOP_HEADER.getString()));
+        Message.SETUP_HELP.sendMessage(command.getPlayerSender(), new Tuple<>(Variable.HEADER.toString(), Setting.TRADESHOP_HEADER.getString()));
     }
 }

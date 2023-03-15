@@ -28,6 +28,7 @@ package org.shanerx.tradeshop.data.storage;
 import org.apache.commons.lang.NotImplementedException;
 import org.bukkit.Chunk;
 import org.bukkit.World;
+import org.shanerx.tradeshop.TradeShop;
 import org.shanerx.tradeshop.data.storage.Json.JsonLinkageConfiguration;
 import org.shanerx.tradeshop.data.storage.Json.JsonPlayerConfiguration;
 import org.shanerx.tradeshop.data.storage.Json.JsonShopConfiguration;
@@ -51,7 +52,7 @@ public class DataStorage extends Utils {
 
     public void reload(DataType dataType) {
         this.dataType = dataType;
-        PLUGIN.getDebugger().log("Data storage set to: " + dataType.name(), DebugLevels.DISABLED);
+        TradeShop.getPlugin().getDebugger().log("Data storage set to: " + dataType.name(), DebugLevels.DISABLED);
     }
 
     public Shop loadShopFromSign(ShopLocation sign) {
@@ -79,7 +80,7 @@ public class DataStorage extends Utils {
         int count = 0;
         switch (dataType) {
             case FLATFILE:
-                File folder = new File(PLUGIN.getDataFolder().getAbsolutePath() + File.separator + "Data" + File.separator + world.getName());
+                File folder = new File(TradeShop.getPlugin().getDataFolder().getAbsolutePath() + File.separator + "Data" + File.separator + world.getName());
                 if (folder.exists() && folder.listFiles() != null) {
                     for (File file : folder.listFiles()) {
                         if (file.getName().contains(world.getName()))

@@ -34,6 +34,7 @@ import org.shanerx.tradeshop.framework.events.PlayerShopCloseEvent;
 import org.shanerx.tradeshop.framework.events.PlayerShopOpenEvent;
 import org.shanerx.tradeshop.player.Permissions;
 import org.shanerx.tradeshop.player.ShopRole;
+import org.shanerx.tradeshop.player.ShopUser;
 import org.shanerx.tradeshop.shop.Shop;
 import org.shanerx.tradeshop.shop.ShopStatus;
 import org.shanerx.tradeshop.utils.objects.Tuple;
@@ -48,34 +49,34 @@ public class ShopCommand extends CommandRunner {
      * Sets the shop to the open status allowing trades to happen
      */
     public void open() {
-        Shop shop = findShop();
+        Shop shop = ShopUser.findObservedShop(command.getPlayerSender());
 
         if (shop == null)
             return;
 
-        if (!(shop.getUsersUUID(ShopRole.MANAGER, ShopRole.OWNER).contains(pSender.getUniqueId())
-                || Permissions.isAdminEnabled(pSender))) {
-            Message.NO_SHOP_PERMISSION.sendMessage(pSender);
+        if (!(shop.getUsersUUID(ShopRole.MANAGER, ShopRole.OWNER).contains(command.getPlayerSender().getUniqueId())
+                || Permissions.isAdminEnabled(command.getPlayerSender()))) {
+            Message.NO_SHOP_PERMISSION.sendMessage(command.getPlayerSender());
             return;
         }
 
-        PlayerShopOpenEvent event = new PlayerShopOpenEvent(pSender, shop);
+        PlayerShopOpenEvent event = new PlayerShopOpenEvent(command.getPlayerSender(), shop);
         if (event.isCancelled()) return;
 
         ShopStatus status = shop.setOpen();
 
         switch (status) {
             case OPEN:
-                Message.CHANGE_OPEN.sendMessage(pSender);
+                Message.CHANGE_OPEN.sendMessage(command.getPlayerSender());
                 break;
             case INCOMPLETE:
                 if (shop.isMissingItems())
-                    Message.MISSING_ITEM.sendMessage(pSender);
+                    Message.MISSING_ITEM.sendMessage(command.getPlayerSender());
                 else if (shop.getChestAsSC() == null)
-                    Message.MISSING_CHEST.sendMessage(pSender);
+                    Message.MISSING_CHEST.sendMessage(command.getPlayerSender());
                 break;
             case OUT_OF_STOCK:
-                Message.SHOP_EMPTY.sendMessage(pSender);
+                Message.SHOP_EMPTY.sendMessage(command.getPlayerSender());
                 break;
         }
     }
@@ -84,62 +85,65 @@ public class ShopCommand extends CommandRunner {
      * Sets the shop to the close status preventing trades from happen
      */
     public void close() {
-        Shop shop = findShop();
+        Shop shop = ShopUser.findObservedShop(command.getPlayerSender());
 
         if (shop == null)
             return;
 
-        if (!(shop.getUsersUUID(ShopRole.MANAGER, ShopRole.OWNER).contains(pSender.getUniqueId())
-                || Permissions.isAdminEnabled(pSender))) {
-            Message.NO_SHOP_PERMISSION.sendMessage(pSender);
+        if (!(shop.getUsersUUID(ShopRole.MANAGER, ShopRole.OWNER).contains(command.getPlayerSender().getUniqueId())
+                || Permissions.isAdminEnabled(command.getPlayerSender()))) {
+            Message.NO_SHOP_PERMISSION.sendMessage(command.getPlayerSender());
             return;
         }
 
-        PlayerShopCloseEvent event = new PlayerShopCloseEvent(pSender, shop);
+        PlayerShopCloseEvent event = new PlayerShopCloseEvent(command.getPlayerSender(), shop);
         if (event.isCancelled()) return;
 
         shop.setStatus(ShopStatus.CLOSED);
         shop.updateSign();
         shop.saveShop();
 
-        Message.CHANGE_CLOSED.sendMessage(pSender);
+        Message.CHANGE_CLOSED.sendMessage(command.getPlayerSender());
     }
 
     /**
      * Switches the shop type between BiTrade and Trade
      */
     public void switchShop() {
-        Shop shop = findShop();
+        Shop shop = ShopUser.findObservedShop(command.getPlayerSender());
 
         if (shop == null)
             return;
 
-        if (!Permissions.hasPermission(pSender, Permissions.EDIT)) {
-            Message.NO_COMMAND_PERMISSION.sendMessage(pSender);
+        if (!(Permissions.hasPermission(command.getPlayerSender(), Permissions.EDIT)
+                || (Setting.UNLIMITED_ADMIN.getBoolean() && Permissions.isAdminEnabled(command.getPlayerSender())))) {
+            Message.NO_COMMAND_PERMISSION.sendMessage(command.getPlayerSender());
             return;
         }
 
         switch (shop.getShopType()) {
             case TRADE:
-                if (!Permissions.hasPermission(pSender, Permissions.CREATEBI)) {
-                    Message.NO_COMMAND_PERMISSION.sendMessage(pSender);
+                if (!Permissions.hasPermission(command.getPlayerSender(), Permissions.CREATEBI)) {
+                    Message.NO_COMMAND_PERMISSION.sendMessage(command.getPlayerSender());
                     return;
                 }
+                break;
             case BITRADE:
-                if (!Permissions.hasPermission(pSender, Permissions.CREATE)) {
-                    Message.NO_COMMAND_PERMISSION.sendMessage(pSender);
+                if (!Permissions.hasPermission(command.getPlayerSender(), Permissions.CREATE)) {
+                    Message.NO_COMMAND_PERMISSION.sendMessage(command.getPlayerSender());
                     return;
                 }
+                break;
         }
 
-        if (!(shop.getUsersUUID(ShopRole.MANAGER, ShopRole.OWNER).contains(pSender.getUniqueId())
-                || (Setting.UNLIMITED_ADMIN.getBoolean() && Permissions.isAdminEnabled(pSender)))) {
-            Message.NO_SHOP_PERMISSION.sendMessage(pSender);
+        if (!(shop.getUsersUUID(ShopRole.MANAGER, ShopRole.OWNER).contains(command.getPlayerSender().getUniqueId())
+                || (Setting.UNLIMITED_ADMIN.getBoolean() && Permissions.isAdminEnabled(command.getPlayerSender())))) {
+            Message.NO_SHOP_PERMISSION.sendMessage(command.getPlayerSender());
             return;
         }
 
         shop.switchType();
 
-        Message.SHOP_TYPE_SWITCHED.sendMessage(pSender, new Tuple<>(Variable.NEW_TYPE.toString(), shop.getShopType().toHeader()));
+        Message.SHOP_TYPE_SWITCHED.sendMessage(command.getPlayerSender(), new Tuple<>(Variable.NEW_TYPE.toString(), shop.getShopType().toHeader()));
     }
 }

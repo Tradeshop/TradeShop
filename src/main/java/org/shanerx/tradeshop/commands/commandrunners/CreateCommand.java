@@ -25,12 +25,10 @@
 
 package org.shanerx.tradeshop.commands.commandrunners;
 
-import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
 import org.shanerx.tradeshop.TradeShop;
 import org.shanerx.tradeshop.commands.CommandPass;
-import org.shanerx.tradeshop.data.config.Message;
-import org.shanerx.tradeshop.data.config.Setting;
+import org.shanerx.tradeshop.player.ShopUser;
 import org.shanerx.tradeshop.shop.ShopType;
 
 /**
@@ -45,72 +43,14 @@ public class CreateCommand extends CommandRunner {
     }
 
     /**
-     * Create a regular shop from a sign in front of the player
+     * Create a shop with the specified type using a sign in front of the player
      */
-    public void createTrade() {
-        Sign sign = findSign();
+    public void createShop(ShopType shopType) {
+        Sign sign = ShopUser.findObservedSign(command.getPlayerSender());
 
         if (sign == null)
             return;
 
-        createShop(sign, pSender, ShopType.TRADE);
+        createShop(sign, command.getPlayerSender(), shopType);
     }
-
-    /**
-     * Create a BiTrade shop from a sign in front of the player
-     */
-    public void createBiTrade() {
-        Sign sign = findSign();
-
-        if (sign == null)
-            return;
-
-        createShop(sign, pSender, ShopType.BITRADE);
-    }
-
-    /**
-     * Create a iTrade shop from a sign in front of the player
-     */
-    public void createITrade() {
-        Sign sign = findSign();
-
-        if (sign == null)
-            return;
-
-        createShop(sign, pSender, ShopType.ITRADE);
-    }
-
-    //region Util Methods
-    //------------------------------------------------------------------------------------------------------------------
-
-    /**
-     * Returns the Sign the player is looking at
-     *
-     * @return null if Sign is not found, Sign object if it is
-     */
-    protected Sign findSign() {
-        if (pSender == null) {
-            Message.PLAYER_ONLY_COMMAND.sendMessage(pSender);
-            return null;
-        }
-
-        Block b = pSender.getTargetBlockExact(Setting.MAX_EDIT_DISTANCE.getInt());
-        try {
-            if (b == null)
-                throw new NoSuchFieldException();
-
-            if (plugin.getSigns().getSignTypes().contains(b.getType())) {
-                return (Sign) b.getState();
-
-            } else
-                throw new NoSuchFieldException();
-
-        } catch (NoSuchFieldException ex) {
-            Message.NO_SIGN_FOUND.sendMessage(pSender);
-            return null;
-        }
-    }
-
-    //------------------------------------------------------------------------------------------------------------------
-    //endregion
 }

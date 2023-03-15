@@ -42,7 +42,7 @@ import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.util.io.BukkitObjectInputStream;
-import org.shanerx.tradeshop.utils.Utils;
+import org.shanerx.tradeshop.TradeShop;
 import org.shanerx.tradeshop.utils.debug.Debug;
 import org.shanerx.tradeshop.utils.debug.DebugLevels;
 import org.shanerx.tradeshop.utils.gsonprocessing.GsonProcessor;
@@ -187,7 +187,7 @@ public class ShopItemStack implements Serializable, Cloneable {
     }
 
     public boolean isSimilar(ItemStack toCompare) {
-        debugger = new Utils().PLUGIN.getDebugger();
+        debugger = TradeShop.getPlugin().getDebugger();
 
         // Return False if either item is null
         if (itemStack == null || toCompare == null) {
@@ -244,18 +244,17 @@ public class ShopItemStack implements Serializable, Cloneable {
         }
 
         // If compareBundleInventory is on and version is above 1.17 also check Bundles
-        if (new Utils().PLUGIN.getVersion().isAtLeast(1, 17) &&
+        if (TradeShop.getPlugin().getVersion().isAtLeast(1, 17) &&
                 itemStack.getType().equals(Material.BUNDLE) &&
                 getShopSetting(ShopItemStackSettingKeys.COMPARE_BUNDLE_INVENTORY).asBoolean()) {
             try {
+                if (((BundleMeta) itemStackMeta).hasItems() != ((BundleMeta) toCompareMeta).hasItems()) return false;
+
                 ArrayList<ItemStack> itemStackContents = Lists.newArrayList(((BundleMeta) toCompareMeta).getItems()),
                         toCompareContents = Lists.newArrayList(((BundleMeta) itemStackMeta).getItems());
 
                 itemStackContents.removeIf(Objects::isNull);
                 toCompareContents.removeIf(Objects::isNull);
-
-                if (itemStackContents.isEmpty() != toCompareContents.isEmpty())
-                    return false;
 
                 for (ItemStack itm : toCompareContents) {
                     if (!itemStackContents.remove(itm))

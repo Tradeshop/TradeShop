@@ -187,11 +187,11 @@ public class GUICommand extends CommandRunner {
             // Add Save button only when editable - Saves and Goes to previous screen
             if (editable) itemEdit.addElement(new StaticGuiElement('s', new ItemStack(Material.ANVIL), click3 -> {
                 shop.updateSideItem(side, item, index);
-                InventoryGui.goBack(pSender);
+                InventoryGui.goBack(command.getPlayerSender());
                 return true;
             }, "Save Changes"));
 
-            itemEdit.show(pSender);
+            itemEdit.show(command.getPlayerSender());
             return true;
         });
     }
@@ -279,7 +279,7 @@ public class GUICommand extends CommandRunner {
 
     protected GuiElement getBackButton(boolean asCancel) {
         return new StaticGuiElement(asCancel ? 'c' : 'b', new ItemStack(Material.END_CRYSTAL), click3 -> {
-            InventoryGui.goBack(pSender);
+            InventoryGui.goBack(command.getPlayerSender());
             return true;
         }, asCancel ? "Cancel Changes" : "Back");
     }

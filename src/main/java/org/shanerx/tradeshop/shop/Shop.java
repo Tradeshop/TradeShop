@@ -73,6 +73,8 @@ public class Shop implements Serializable {
 
     private Map<ShopSettingKeys, ObjectHolder<?>> shopSettings;
 
+    private final TradeShop PLUGIN = TradeShop.getPlugin();
+
     private int availableTrades = 0;
 
     /**
@@ -91,7 +93,7 @@ public class Shop implements Serializable {
 
         if (locations.getRight() != null) {
             chestLoc = new ShopLocation(locations.getRight());
-            utils.PLUGIN.getDataStorage().addChestLinkage(chestLoc, shopLoc);
+            PLUGIN.getDataStorage().addChestLinkage(chestLoc, shopLoc);
         }
 
         this.shopType = shopType;
@@ -163,7 +165,7 @@ public class Shop implements Serializable {
      * @return The shop from file
      */
     public static Shop loadShop(ShopLocation loc) {
-        return new Utils().PLUGIN.getDataStorage().loadShopFromSign(loc);
+        return TradeShop.getPlugin().getDataStorage().loadShopFromSign(loc);
     }
 
     /**
@@ -205,7 +207,7 @@ public class Shop implements Serializable {
      */
     public void setInventoryLocation(Location newLoc) {
         chestLoc = new ShopLocation(newLoc);
-        utils.PLUGIN.getDataStorage().addChestLinkage(chestLoc, shopLoc);
+        PLUGIN.getDataStorage().addChestLinkage(chestLoc, shopLoc);
     }
 
     /**
@@ -285,7 +287,7 @@ public class Shop implements Serializable {
         if (!getShopType().isITrade() && chestLoc != null) {
             chestLoc.stringToWorld();
             cost.removeIf(item -> item.getItemStack().getType().toString().endsWith("SHULKER_BOX") && getInventoryLocation().getBlock().getType().toString().endsWith("SHULKER_BOX"));
-            utils.PLUGIN.getDataStorage().addChestLinkage(chestLoc, shopLoc);
+            PLUGIN.getDataStorage().addChestLinkage(chestLoc, shopLoc);
         }
 
         setShopSettings();
@@ -333,7 +335,7 @@ public class Shop implements Serializable {
      */
     public void saveShop() {
         updateFullTradeCount();
-        utils.PLUGIN.getDataStorage().saveShop(this);
+        PLUGIN.getDataStorage().saveShop(this);
         updateUserFiles();
     }
 
@@ -477,7 +479,7 @@ public class Shop implements Serializable {
      */
     public void removeStorage() {
         if (hasStorage()) {
-            utils.PLUGIN.getDataStorage().removeChestLinkage(chestLoc);
+            PLUGIN.getDataStorage().removeChestLinkage(chestLoc);
             chestLoc = null;
         }
     }
@@ -542,7 +544,7 @@ public class Shop implements Serializable {
      */
     public void remove() {
         purgeFromUserFiles();
-        utils.PLUGIN.getDataStorage().removeShop(this);
+        PLUGIN.getDataStorage().removeShop(this);
     }
 
     /**
@@ -679,7 +681,7 @@ public class Shop implements Serializable {
      */
     public void setShopSettings(Map<ShopSettingKeys, ObjectHolder<?>> newSettings) {
         if (newSettings.size() > 0)
-            new Utils().PLUGIN.getListManager().removeSkippableShop(getShopLocation());
+            PLUGIN.getListManager().removeSkippableShop(getShopLocation());
 
         for (ShopSettingKeys settingKey : newSettings.keySet()) {
             if (settingKey.isUsable(shopType) && newSettings.get(settingKey) != null) {
@@ -728,7 +730,7 @@ public class Shop implements Serializable {
      * @return List of specified users names
      */
     public List<String> getUserNames(ShopRole... roles) {
-        return getUsers(roles).stream().map(ShopUser::getName).collect(Collectors.toList());
+        return hasUsers(roles) ? getUsers(roles).stream().map(ShopUser::getName).collect(Collectors.toList()) : new ArrayList<>();
     }
 
     /**
@@ -759,11 +761,11 @@ public class Shop implements Serializable {
     /**
      * Returns true if the shop has users of the specified role
      *
-     * @param role role to check for users
+     * @param roles role to check for users
      * @return true if users exist
      */
-    public boolean hasUsers(ShopRole role) {
-        return !getUsers(role).isEmpty();
+    public boolean hasUsers(ShopRole... roles) {
+        return !getUsers(roles).isEmpty();
     }
 
     /**
@@ -902,7 +904,7 @@ public class Shop implements Serializable {
      * Updates the saved player data for all users
      */
     private void updateUserFiles() {
-        TradeShop plugin = new Utils().PLUGIN;
+        TradeShop plugin = PLUGIN;
         for (UUID user : getUsersUUID(ShopRole.OWNER, ShopRole.MANAGER, ShopRole.MEMBER)) {
             PlayerSetting playerSetting = plugin.getDataStorage().loadPlayer(user);
             playerSetting.updateShop(this);
@@ -914,7 +916,7 @@ public class Shop implements Serializable {
      * Removes this shop from all users
      */
     private void purgeFromUserFiles() {
-        TradeShop plugin = new Utils().PLUGIN;
+        TradeShop plugin = PLUGIN;
         for (UUID user : getUsersUUID(ShopRole.OWNER, ShopRole.MANAGER, ShopRole.MEMBER)) {
             PlayerSetting playerSetting = plugin.getDataStorage().loadPlayer(user);
             playerSetting.removeShop(this);

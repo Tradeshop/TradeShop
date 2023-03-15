@@ -60,8 +60,8 @@ public class AdminCommand extends CommandRunner {
         try {
             plugin.getDataStorage().reload(DataType.valueOf(Setting.DATA_STORAGE_TYPE.getString().toUpperCase()));
         } catch (IllegalArgumentException iae) {
-            PLUGIN.getDebugger().log("Config value for data storage set to an invalid value: " + Setting.DATA_STORAGE_TYPE.getString(), DebugLevels.DATA_ERROR);
-            PLUGIN.getDebugger().log("TradeShop will now disable...", DebugLevels.DATA_ERROR);
+            plugin.getDebugger().log("Config value for data storage set to an invalid value: " + Setting.DATA_STORAGE_TYPE.getString(), DebugLevels.DATA_ERROR);
+            plugin.getDebugger().log("TradeShop will now disable...", DebugLevels.DATA_ERROR);
             plugin.getServer().getPluginManager().disablePlugin(plugin);
             return;
         }
@@ -74,19 +74,19 @@ public class AdminCommand extends CommandRunner {
      * Changes the players with the ADMIN permission to toggle whether it is enabled for them
      */
     public void toggleAdmin() {
-        PlayerSetting playerSetting = plugin.getDataStorage().loadPlayer(pSender.getUniqueId());
+        PlayerSetting playerSetting = plugin.getDataStorage().loadPlayer(command.getPlayerSender().getUniqueId());
 
         playerSetting.setAdminEnabled(!playerSetting.isAdminEnabled());
         plugin.getDataStorage().savePlayer(playerSetting);
 
-        Message.ADMIN_TOGGLED.sendMessage(pSender, new Tuple<>(Variable.STATE.toString(), playerSetting.isAdminEnabled() ? "enabled" : "disabled"));
+        Message.ADMIN_TOGGLED.sendMessage(command.getPlayerSender(), new Tuple<>(Variable.STATE.toString(), playerSetting.isAdminEnabled() ? "enabled" : "disabled"));
     }
 
     /**
      * Shows players their current admin mode or changes with optional variable
      */
     public void admin() {
-        PlayerSetting playerSetting = plugin.getDataStorage().loadPlayer(pSender.getUniqueId());
+        PlayerSetting playerSetting = plugin.getDataStorage().loadPlayer(command.getPlayerSender().getUniqueId());
         boolean initialValue = playerSetting.isAdminEnabled();
 
         if (command.hasArgAt(1)) {
@@ -106,6 +106,6 @@ public class AdminCommand extends CommandRunner {
                 plugin.getDataStorage().savePlayer(playerSetting);
         }
 
-        Message.ADMIN_TOGGLED.sendMessage(pSender, new Tuple<>(Variable.STATE.toString(), playerSetting.isAdminEnabled() ? "enabled" : "disabled"));
+        Message.ADMIN_TOGGLED.sendMessage(command.getPlayerSender(), new Tuple<>(Variable.STATE.toString(), playerSetting.isAdminEnabled() ? "enabled" : "disabled"));
     }
 }

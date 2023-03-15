@@ -72,13 +72,13 @@ public class EditCommand extends GUICommand {
      * Opens a GUI allowing the player to edit the shop
      */
     public void edit() {
-        shop = findShop();
+        shop = ShopUser.findObservedShop(command.getPlayerSender());
 
         if (shop == null)
             return;
 
-        if (!(shop.getUsersUUID(ShopRole.MANAGER, ShopRole.OWNER).contains(pSender.getUniqueId())
-                || Permissions.isAdminEnabled(pSender))) {
+        if (!(shop.getUsersUUID(ShopRole.MANAGER, ShopRole.OWNER).contains(command.getPlayerSender().getUniqueId())
+                || Permissions.isAdminEnabled(command.getPlayerSender()))) {
             command.sendMessage(Message.NO_SHOP_PERMISSION.getPrefixed());
             return;
         }
@@ -96,7 +96,7 @@ public class EditCommand extends GUICommand {
 
         mainMenu.addElement(editSettingsMenu('d'));
 
-        mainMenu.show(pSender);
+        mainMenu.show(command.getPlayerSender());
     }
 
     private GuiElement editSettingsMenu(char slotChar) {
@@ -154,7 +154,7 @@ public class EditCommand extends GUICommand {
             settingEdit.addElement(new StaticGuiElement('s', new ItemStack(Material.ANVIL), click3 -> {
                 shop.setShopSettings(changedSettings);
                 shop.saveShop(changedSettings.size() > 0);
-                InventoryGui.goBack(pSender);
+                InventoryGui.goBack(command.getPlayerSender());
                 return true;
             }, "Save Changes"));
 
@@ -162,7 +162,7 @@ public class EditCommand extends GUICommand {
 
             settingEdit.addElements(getNextButton(), getPrevButton(), viewGroup, changeGroup);
 
-            settingEdit.show(pSender);
+            settingEdit.show(command.getPlayerSender());
             return true;
         }, colorize("&eEdit Shop Settings"));
     }
@@ -187,12 +187,12 @@ public class EditCommand extends GUICommand {
             // Owner added separately as it is not editable
             userGroup.addElement(new StaticGuiElement('e', shop.getOwner().getHead(), shop.getOwner().getName(), "Position: " + shop.getOwner().getRole().toString()));
 
-            if (shop.getOwner().getUUID().equals(pSender.getUniqueId())) {
+            if (shop.getOwner().getUUID().equals(command.getPlayerSender().getUniqueId())) {
 
                 // Save and Back
                 userEdit.addElement(new StaticGuiElement('s', new ItemStack(Material.ANVIL), click3 -> {
                     shop.updateShopUsers(shopUsers);
-                    InventoryGui.goBack(pSender);
+                    InventoryGui.goBack(command.getPlayerSender());
                     return true;
                 }, "Save Changes"));
 
@@ -239,7 +239,7 @@ public class EditCommand extends GUICommand {
                 }
             }
             userEdit.addElement(userGroup);
-            userEdit.show(pSender);
+            userEdit.show(command.getPlayerSender());
             return true;
         }, colorize("&eEdit Shop Users"));
     }
@@ -272,7 +272,7 @@ public class EditCommand extends GUICommand {
                 }
                 shop.updateSide(ShopItemSide.COST, costItems);
                 shop.saveShop();
-                InventoryGui.goBack(pSender);
+                InventoryGui.goBack(command.getPlayerSender());
                 return true;
             }, "Save Changes"));
 
@@ -283,7 +283,7 @@ public class EditCommand extends GUICommand {
             }
 
             costEdit.addElement(costGroup);
-            costEdit.show(pSender);
+            costEdit.show(command.getPlayerSender());
             return true;
         }, colorize("&eEdit Shop Costs"));
     }
@@ -316,7 +316,7 @@ public class EditCommand extends GUICommand {
                 }
                 shop.updateSide(ShopItemSide.PRODUCT, productItems);
                 shop.saveShop();
-                InventoryGui.goBack(pSender);
+                InventoryGui.goBack(command.getPlayerSender());
                 return true;
             }, "Save Changes"));
 
@@ -327,7 +327,7 @@ public class EditCommand extends GUICommand {
             }
 
             productEdit.addElement(productGroup);
-            productEdit.show(pSender);
+            productEdit.show(command.getPlayerSender());
             return true;
         }, colorize("&eEdit Shop Products"));
     }

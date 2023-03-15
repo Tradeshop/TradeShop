@@ -39,6 +39,7 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.shanerx.tradeshop.TradeShop;
 import org.shanerx.tradeshop.data.config.Message;
 import org.shanerx.tradeshop.data.config.Setting;
 import org.shanerx.tradeshop.data.config.Variable;
@@ -62,6 +63,8 @@ import java.util.List;
 import java.util.Map;
 
 public class ShopTradeListener extends Utils implements Listener {
+
+    private final TradeShop PLUGIN = TradeShop.getPlugin();
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onBlockInteract(PlayerInteractEvent e) {

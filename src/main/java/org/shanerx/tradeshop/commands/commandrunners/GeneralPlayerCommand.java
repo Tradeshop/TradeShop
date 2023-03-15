@@ -46,29 +46,26 @@ public class GeneralPlayerCommand extends CommandRunner {
      */
     public void multi() {
         if (!Setting.ALLOW_MULTI_TRADE.getBoolean()) {
-            Message.FEATURE_DISABLED.sendMessage(pSender);
+            Message.FEATURE_DISABLED.sendMessage(command.getPlayerSender());
             return;
         }
 
-        PlayerSetting playerSetting = plugin.getDataStorage().loadPlayer(pSender.getUniqueId());
+        PlayerSetting playerSetting = plugin.getDataStorage().loadPlayer(command.getPlayerSender().getUniqueId());
 
         if (command.argsSize() == 1) {
-            Message.MULTI_AMOUNT.sendMessage(pSender, new Tuple<>(Variable.AMOUNT.toString(), String.valueOf(playerSetting.getMulti())));
+            Message.MULTI_AMOUNT.sendMessage(command.getPlayerSender(), new Tuple<>(Variable.AMOUNT.toString(), String.valueOf(playerSetting.getMulti())));
         } else {
             int amount = Setting.MULTI_TRADE_DEFAULT.getInt();
 
             if (isInt(command.getArgAt(1)))
                 amount = Integer.parseInt(command.getArgAt(1));
 
-            if (amount < 2)
-                amount = 2;
-            else if (amount > Setting.MULTI_TRADE_MAX.getInt())
-                amount = Setting.MULTI_TRADE_MAX.getInt();
+            amount = Math.min(Math.max(2, amount), Setting.MULTI_TRADE_MAX.getInt());
 
             playerSetting.setMulti(amount);
             plugin.getDataStorage().savePlayer(playerSetting);
 
-            Message.MULTI_UPDATE.sendMessage(pSender, new Tuple<>(Variable.AMOUNT.toString(), String.valueOf(amount)));
+            Message.MULTI_UPDATE.sendMessage(command.getPlayerSender(), new Tuple<>(Variable.AMOUNT.toString(), String.valueOf(amount)));
         }
     }
 
@@ -77,14 +74,14 @@ public class GeneralPlayerCommand extends CommandRunner {
      */
     public void toggleStatus() {
         if (!Setting.ALLOW_TOGGLE_STATUS.getBoolean()) {
-            Message.FEATURE_DISABLED.sendMessage(pSender);
+            Message.FEATURE_DISABLED.sendMessage(command.getPlayerSender());
             return;
         }
 
-        PlayerSetting playerSetting = plugin.getDataStorage().loadPlayer(pSender.getUniqueId());
+        PlayerSetting playerSetting = plugin.getDataStorage().loadPlayer(command.getPlayerSender().getUniqueId());
         playerSetting.setShowInvolvedStatus(!playerSetting.showInvolvedStatus());
         plugin.getDataStorage().savePlayer(playerSetting);
-        Message.TOGGLED_STATUS.sendMessage(pSender, new Tuple<>(Variable.STATUS.toString(), playerSetting.showInvolvedStatus() ? "on" : "off"));
+        Message.TOGGLED_STATUS.sendMessage(command.getPlayerSender(), new Tuple<>(Variable.STATUS.toString(), playerSetting.showInvolvedStatus() ? "on" : "off"));
     }
 
     /**
@@ -92,18 +89,18 @@ public class GeneralPlayerCommand extends CommandRunner {
      */
     public void status() {
         if (command.hasArgAt(1)) {
-            if (!Permissions.isAdminEnabled(pSender)) {
-                Message.NO_COMMAND_PERMISSION.sendMessage(pSender);
+            if (!Permissions.isAdminEnabled(command.getPlayerSender())) {
+                Message.NO_COMMAND_PERMISSION.sendMessage(command.getPlayerSender());
                 return;
             }
             if (Bukkit.getOfflinePlayer(command.getArgAt(1)).hasPlayedBefore()) {
                 plugin.getDataStorage().loadPlayer(Bukkit.getOfflinePlayer(command.getArgAt(1)).getUniqueId())
-                        .getInvolvedStatusesInventory().show(pSender.getPlayer());
+                        .getInvolvedStatusesInventory().show(command.getPlayerSender().getPlayer());
             } else {
-                Message.PLAYER_NOT_FOUND.sendMessage(pSender);
+                Message.PLAYER_NOT_FOUND.sendMessage(command.getPlayerSender());
             }
         } else {
-            plugin.getDataStorage().loadPlayer(pSender.getUniqueId()).getInvolvedStatusesInventory().show(pSender.getPlayer());
+            plugin.getDataStorage().loadPlayer(command.getPlayerSender().getUniqueId()).getInvolvedStatusesInventory().show(command.getPlayerSender().getPlayer());
         }
     }
 }

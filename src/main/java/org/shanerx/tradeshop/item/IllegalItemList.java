@@ -26,6 +26,7 @@
 package org.shanerx.tradeshop.item;
 
 import org.bukkit.Material;
+import org.shanerx.tradeshop.TradeShop;
 import org.shanerx.tradeshop.utils.Utils;
 import org.shanerx.tradeshop.utils.debug.DebugLevels;
 
@@ -80,7 +81,7 @@ public class IllegalItemList extends Utils {
     }
 
     public boolean add(Material mat) {
-        PLUGIN.getDebugger().log("Material being added to Illegal Item List: " + mat, DebugLevels.ILLEGAL_ITEMS_LIST);
+        TradeShop.getPlugin().getDebugger().log("Material being added to Illegal Item List: " + mat, DebugLevels.ILLEGAL_ITEMS_LIST);
         return list.add(mat);
     }
 
