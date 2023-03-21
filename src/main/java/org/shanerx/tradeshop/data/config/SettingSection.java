@@ -39,6 +39,7 @@ public enum SettingSection {
     LANGUAGE_OPTIONS(2, "language-options"),
     GLOBAL_OPTIONS(3, "global-options"),
     GLOBAL_MULTI_TRADE(50, GLOBAL_OPTIONS, "multi-trade"),
+    GLOBAL_FIND_OPTIONS(51, GLOBAL_OPTIONS, "global-find-options"),
     SHOP_OPTIONS(4, "shop-options"),
 
     SHOP_ITEM_OPTIONS(5, SHOP_OPTIONS, "shop-per-item-options"),

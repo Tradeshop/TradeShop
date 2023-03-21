@@ -28,10 +28,12 @@ package org.shanerx.tradeshop.data.storage;
 import org.apache.commons.lang.NotImplementedException;
 import org.bukkit.Chunk;
 import org.bukkit.World;
+import org.bukkit.inventory.ItemStack;
 import org.shanerx.tradeshop.TradeShop;
 import org.shanerx.tradeshop.data.storage.Json.JsonLinkageConfiguration;
 import org.shanerx.tradeshop.data.storage.Json.JsonPlayerConfiguration;
 import org.shanerx.tradeshop.data.storage.Json.JsonShopConfiguration;
+import org.shanerx.tradeshop.item.ShopItemSide;
 import org.shanerx.tradeshop.player.PlayerSetting;
 import org.shanerx.tradeshop.shop.Shop;
 import org.shanerx.tradeshop.shoplocation.ShopChunk;
@@ -40,6 +42,8 @@ import org.shanerx.tradeshop.utils.Utils;
 import org.shanerx.tradeshop.utils.debug.DebugLevels;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 public class DataStorage extends Utils {
@@ -74,6 +78,19 @@ public class DataStorage extends Utils {
 
     public int getShopCountInChunk(Chunk chunk) {
         return getShopConfiguration(chunk).size();
+    }
+
+    public List<Shop> getMatchingShopsInChunk(Chunk chunk, List<ItemStack> desiredCosts, List<ItemStack> desiredProducts) {
+        List<Shop> matchingShops = new ArrayList<>();
+        ShopConfiguration config = getShopConfiguration(chunk);
+
+        config.list().forEach(shopLoc -> matchingShops.add(config.load(shopLoc))); //Load all shops and add to matchingShops
+
+        matchingShops.removeIf(shop ->
+                !shop.containsSideItems(ShopItemSide.COST, desiredCosts) ||
+                        !shop.containsSideItems(ShopItemSide.PRODUCT, desiredProducts)); //Remove any shops that don't have a matching  cost or product.
+
+        return matchingShops;
     }
 
     public int getShopCountInWorld(World world) {

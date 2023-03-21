@@ -76,10 +76,16 @@ public enum Setting {
     ALLOW_SIGN_BREAK(SettingSection.GLOBAL_OPTIONS, "allow-sign-break", false),
     ALLOW_CHEST_BREAK(SettingSection.GLOBAL_OPTIONS, "allow-chest-break", false),
 
+
     // ^ Multi Trade
     ALLOW_MULTI_TRADE(SettingSection.GLOBAL_MULTI_TRADE, "enable", true),
     MULTI_TRADE_DEFAULT(SettingSection.GLOBAL_MULTI_TRADE, "default-multi", 2),
     MULTI_TRADE_MAX(SettingSection.GLOBAL_MULTI_TRADE, "max-multi", 6),
+
+    // ^ Global Find Options
+    MAX_FIND_RANGE(SettingSection.GLOBAL_FIND_OPTIONS, "max-find-range", 256),
+    DEFAULT_FIND_RANGE(SettingSection.GLOBAL_FIND_OPTIONS, "default-find-range", 64),
+
 
     // Shop Options
     MAX_SHOP_USERS(SettingSection.SHOP_OPTIONS, "max-shop-users", 5),
@@ -370,21 +376,21 @@ public enum Setting {
 
     public String getString() {
         return PLUGIN.getSettingManager().getConfig().getString(getPath());
-	}
+    }
 
-	public List<String> getStringList() {
+    public List<String> getStringList() {
         return PLUGIN.getSettingManager().getConfig().getStringList(getPath());
-	}
+    }
 
-	public int getInt() {
+    public int getInt() {
         return PLUGIN.getSettingManager().getConfig().getInt(getPath());
-	}
+    }
 
-	public double getDouble() {
+    public double getDouble() {
         return PLUGIN.getSettingManager().getConfig().getDouble(getPath());
-	}
+    }
 
-	public boolean getBoolean() {
+    public boolean getBoolean() {
         return PLUGIN.getSettingManager().getConfig().getBoolean(getPath());
-	}
+    }
 }

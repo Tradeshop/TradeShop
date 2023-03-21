@@ -35,6 +35,7 @@ import org.shanerx.tradeshop.commands.commandrunners.CreateCommand;
 import org.shanerx.tradeshop.commands.commandrunners.EditCommand;
 import org.shanerx.tradeshop.commands.commandrunners.GeneralPlayerCommand;
 import org.shanerx.tradeshop.commands.commandrunners.ShopCommand;
+import org.shanerx.tradeshop.commands.commandrunners.ShopFindCommand;
 import org.shanerx.tradeshop.commands.commandrunners.ShopItemCommand;
 import org.shanerx.tradeshop.commands.commandrunners.ShopUserCommand;
 import org.shanerx.tradeshop.commands.commandrunners.WhatCommand;
@@ -160,6 +161,9 @@ public class CommandCaller implements CommandExecutor {
 				break;
 			case TOGGLE_STATUS:
 				new GeneralPlayerCommand(plugin, cmdPass).toggleStatus();
+				break;
+			case FIND:
+				new ShopFindCommand(plugin, cmdPass).find();
 				break;
 			case CREATE_TRADE:
 				new CreateCommand(plugin, cmdPass).createShop(ShopType.TRADE);

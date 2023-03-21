@@ -28,6 +28,8 @@ package org.shanerx.tradeshop.data.storage;
 import org.shanerx.tradeshop.shop.Shop;
 import org.shanerx.tradeshop.shoplocation.ShopLocation;
 
+import java.util.List;
+
 public interface ShopConfiguration {
 
     void save(Shop shop);
@@ -35,6 +37,8 @@ public interface ShopConfiguration {
     void remove(ShopLocation loc);
 
     Shop load(ShopLocation loc);
+
+    List<ShopLocation> list();
 
     int size();
 }

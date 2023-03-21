@@ -33,6 +33,8 @@ import org.shanerx.tradeshop.shoplocation.ShopChunk;
 import org.shanerx.tradeshop.shoplocation.ShopLocation;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 public class JsonShopConfiguration extends JsonConfiguration implements ShopConfiguration {
@@ -91,6 +93,13 @@ public class JsonShopConfiguration extends JsonConfiguration implements ShopConf
 
         shop.fixAfterLoad();
         return shop;
+    }
+
+    @Override
+    public List<ShopLocation> list() {
+        List<ShopLocation> shopsInFile = new ArrayList<>();
+        jsonObj.keySet().forEach(str -> shopsInFile.add(ShopLocation.deserialize(str)));
+        return shopsInFile;
     }
 
     @Override

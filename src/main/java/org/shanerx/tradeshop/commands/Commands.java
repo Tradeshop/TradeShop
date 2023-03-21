@@ -36,7 +36,7 @@ import java.util.List;
 /**
  * Enum holding all commands as well as aliases,
  * required permissions, minimum and maximum
- * arguments, and whether or not command must be
+ * arguments, and whether the command must be
  * run by a player
  **/
 
@@ -74,6 +74,7 @@ public enum Commands {
 	MULTI(Lists.newArrayList("multi", "multiply", "many"), Permissions.NONE, 1, 2, true, "Changes trade multiplier for this login", "/tradeshop $cmd$ <Amount>"),
 	STATUS(Lists.newArrayList("status", "stats", "s"), Permissions.INFO, 1, 2, true, "Displays the status of all shops the player has a relation to", "/tradeshop $cmd$ [Name]"),
 	TOGGLE_STATUS(Lists.newArrayList("togglestatus", "togglemotd", "tstatus"), Permissions.INFO, 1, 1, true, "Toggles the join message containing the list of shops one is involved with", "/tradeshop togglestatus"),
+	FIND(Lists.newArrayList("find", "where", "nearby"), Permissions.INFO, 3, 50, true, "Finds nearby shops. <Search Parameters> can include \n'cost=item1,item2,moreItems;'\n'product=item1,item2,moreItems;'\n'distance=number'\n    '|' can be used in place of commas in the list if you would like on of multiple items.\n    The lists are read from left to right so 'minecraft:dirt|minecraft:stone,minecraft:dirt' would be dirt of (stone and dit). A shop with just stone would not be found with this.", "/tradeshop $cmd$ <Search Paramaters>"),
 
 	// Other commands
 	HELP(Lists.newArrayList("help", "?"), Permissions.HELP, 1, 2, false, "Display help message", "/tradeshop $cmd$ [command]"),

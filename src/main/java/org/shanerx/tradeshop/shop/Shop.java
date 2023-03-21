@@ -63,6 +63,7 @@ import java.util.stream.Collectors;
 public class Shop implements Serializable {
 
     private final ShopLocation shopLoc;
+    private final TradeShop PLUGIN = TradeShop.getPlugin();
     private ShopUser owner;
     private Set<UUID> managers, members;
     private ShopType shopType;
@@ -70,11 +71,7 @@ public class Shop implements Serializable {
     private ShopLocation chestLoc;
     private transient Utils utils = new Utils();
     private ShopStatus status = ShopStatus.INCOMPLETE;
-
     private Map<ShopSettingKeys, ObjectHolder<?>> shopSettings;
-
-    private final TradeShop PLUGIN = TradeShop.getPlugin();
-
     private int availableTrades = 0;
 
     /**
@@ -1167,6 +1164,29 @@ public class Shop implements Serializable {
 
         saveShop();
         updateSign();
+    }
+
+    /**
+     * Checks if the shop can trade the desired items on the specified side
+     *
+     * @param side         Side to be checked, Checks both sides if biTrade
+     * @param desiredItems Items to check for
+     */
+    public boolean containsSideItems(ShopItemSide side, List<ItemStack> desiredItems) {
+        if (desiredItems == null || desiredItems.isEmpty())
+            return true; //If we aren't looking for anything then just return
+
+        List<Boolean> found = new ArrayList<>(desiredItems.size());
+        List<ShopItemStack> referenceList = new ArrayList<>(getSideList(side)); //Will always check against the specified side
+        if (shopType.isBiTrade())
+            referenceList.addAll(getSideList(side.getReverse())); //Add in opposite side if shop is BiTrade
+
+        for (ItemStack item : desiredItems) {
+            found.set(desiredItems.indexOf(item), //Get index of item being checked to set appropriate boolean in found list.
+                    referenceList.stream().anyMatch(shopItemStack -> shopItemStack.isSimilar(item))); //Returns true if any items are similar
+        }
+
+        return !found.contains(false);
     }
 
     //------------------------------------------------------------------------------------------------------------------
