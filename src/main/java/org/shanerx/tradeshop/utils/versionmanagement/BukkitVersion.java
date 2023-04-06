@@ -26,17 +26,24 @@
 package org.shanerx.tradeshop.utils.versionmanagement;
 
 import org.bukkit.Bukkit;
+import org.shanerx.tradeshop.utils.objects.ObjectHolder;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class BukkitVersion {
-	private final String VERSION = Bukkit.getBukkitVersion();
-	private final Map<String, Integer> verMap;
+	private final String VERSION;
+	private final Map<String, ObjectHolder<Object>> verMap;
 
 	public BukkitVersion() {
+		this(Bukkit.getBukkitVersion());
+	}
+
+	public BukkitVersion(String version) {
+		VERSION = version;
 		verMap = getVerMap();
 	}
 
@@ -49,107 +56,97 @@ public class BukkitVersion {
 	}
 
 	public int getMajor() {
-		return verMap.get("major");
+		return verMap.get("major").asInteger();
 	}
 
 	public int getMinor() {
-		return verMap.get("minor");
+		return verMap.get("minor").asInteger();
 	}
 
 	public int getPatch() {
-		return verMap.get("patch");
+		return verMap.get("patch").asInteger();
 	}
 
+	@Deprecated
 	public boolean isBelow(int major, int minor) {
-		if (getMajor() < major) {
-			return true;
-		} else if (getMajor() == major) {
-			return getMinor() < minor;
-		}
-
-		return false;
+		return isAbove(new int[]{major, minor});
 	}
 
+	@Deprecated
 	public boolean isBelow(int major, int minor, int patch) {
-		if (getMajor() < major) {
-			return true;
-		} else if (getMajor() == major) {
-			if (getMinor() < minor) {
-				return true;
-			} else if (getMinor() == minor) {
-				return getPatch() < patch;
-			}
-		}
-
-		return false;
+		return isAbove(new int[]{major, minor, patch});
 	}
 
-	public boolean isAbove(int major, int minor) {
-		if (getMajor() > major) {
-			return true;
-		} else if (getMajor() == major) {
-			return getMinor() > minor;
-		}
-
-		return false;
-	}
-
+	@Deprecated
 	public boolean isAbove(int major, int minor, int patch) {
-		if (getMajor() > major) {
-			return true;
-		} else if (getMajor() == major) {
-			if (getMinor() > minor) {
-				return true;
-			} else if (getMinor() == minor) {
-				return getPatch() > patch;
-			}
-		}
-
-		return false;
+		return isAbove(new int[]{major, minor, patch});
 	}
 
+	@Deprecated
 	public boolean isAtLeast(int major, int minor) {
-		if (getMajor() > major) {
-			return true;
-		} else if (getMajor() == major) {
-			return getMinor() >= minor;
+		return isAtLeast(new int[]{major, minor});
+	}
+
+	@Deprecated
+	public boolean isAtLeast(int[] minVersion) {
+		return compare(minVersion, ">=");
+	}
+
+	public boolean isAtMost(int[] minVersion) {
+		return compare(minVersion, "<=");
+	}
+
+	public boolean isBelow(int[] maxVersion) {
+		return compare(maxVersion, "<");
+	}
+
+	public boolean isAbove(int[] maxVersion) {
+		return compare(maxVersion, ">");
+	}
+
+	public boolean isNotEqual(int[] deniedVersion) {
+		return compare(deniedVersion, "<>");
+	}
+
+	public boolean isEqual(int[] expectedVersion) {
+		return compare(expectedVersion, "==");
+	}
+
+	public boolean compare(int[] compVersion, String mathComp) {
+		for (int i = compVersion.length - 1; i < 3; i++) {
+			compVersion[i] = 0;
 		}
 
-		return false;
-	}
+		ObjectHolder<Object> simpBukkVer = verMap.get("simplified"),
+				simpCompVer = new ObjectHolder<>((compVersion[0] * 100) + (compVersion[1]) + (compVersion[2]));
 
-	public boolean isAtLeast(int major, int minor, int patch) {
-		if (getMajor() > major) {
-			return true;
-		} else if (getMajor() == major) {
-			if (getMinor() > minor) {
-				return true;
-			} else if (getMinor() == minor) {
-				return getPatch() >= patch;
-			}
+		// Add ? preceding math sign to compare only Major Minor
+		switch (mathComp) {
+			case ">":
+			case "?>":
+				return (mathComp.contains("?") ? simpCompVer.asInteger() : simpCompVer.asDouble()) > (mathComp.contains("?") ? simpBukkVer.asInteger() : simpBukkVer.asDouble()); //Above
+			case ">=":
+			case "?>=":
+				return (mathComp.contains("?") ? simpCompVer.asInteger() : simpCompVer.asDouble()) >= (mathComp.contains("?") ? simpBukkVer.asInteger() : simpBukkVer.asDouble()); //At Least
+			case "<":
+			case "?<":
+				return (mathComp.contains("?") ? simpCompVer.asInteger() : simpCompVer.asDouble()) < (mathComp.contains("?") ? simpBukkVer.asInteger() : simpBukkVer.asDouble()); //Is Below
+			case "<=":
+			case "?<=":
+				return (mathComp.contains("?") ? simpCompVer.asInteger() : simpCompVer.asDouble()) <= (mathComp.contains("?") ? simpBukkVer.asInteger() : simpBukkVer.asDouble()); //At Most
+			case "<>":
+			case "?<>":
+				return (mathComp.contains("?") ? simpCompVer.asInteger() : simpCompVer.asDouble()) != (mathComp.contains("?") ? simpBukkVer.asInteger() : simpBukkVer.asDouble()); //Not Equal
+			case "==":
+			case "?==":
+			case "?":
+			default:
+				return (mathComp.contains("?") ? simpCompVer.asInteger() : simpCompVer.asDouble()) == (mathComp.contains("?") ? simpBukkVer.asInteger() : simpBukkVer.asDouble()); //Equals
 		}
 
-		return false;
 	}
 
-	public boolean isEqual(int major, int minor) {
-		return getMajor() == major && getMinor() == minor;
-	}
-
-	public boolean isEqual(int major, int minor, int patch) {
-		return getMajor() == major && getMinor() == minor && getPatch() == getPatch();
-	}
-
-	public boolean isInt(String str) {
-		try {
-			Integer.parseInt(str);
-			return true;
-		} catch (Exception e) {
-			return false;
-		}
-	}
-
-	public Map<String, Integer> getVerMap() {
+	public Map<String, ObjectHolder<Object>> getVerMap() {
 		Pattern pat = Pattern.compile("(?!\\.)(\\d+(\\.\\d+)+)(?![\\d\\.])");
 		Matcher matcher = pat.matcher(VERSION);
 
@@ -162,18 +159,23 @@ public class BukkitVersion {
 
 		String[] verSplit = ver.split("\\.");
 
-		int[] verInts = new int[3];
+		ArrayList<ObjectHolder<Object>> verInts = new ArrayList<>(3);
 
 		for (int i = 0; i < verSplit.length; i++) {
-			if (isInt(verSplit[i])) {
-				verInts[i] = Integer.parseInt(verSplit[i]);
+			ObjectHolder<Object> iOH = new ObjectHolder<>(verSplit[i]);
+			if (iOH.isInteger()) {
+				verInts.set(i, iOH);
 			}
 		}
 
-		Map<String, Integer> map = new HashMap<>();
-		map.put("major", verInts[0]);
-		map.put("minor", verInts[1]);
-		map.put("patch", verInts[2]);
+		Map<String, ObjectHolder<Object>> map = new HashMap<>();
+		map.put("major", verInts.get(0));
+		map.put("minor", verInts.get(1));
+		map.put("patch", verInts.get(2));
+		map.put("simplified", new ObjectHolder<>(
+				(verInts.get(0).asInteger() * 100) +
+						(verInts.get(1).asInteger()) +
+						(verInts.get(2).asInteger())));
 
 		return map;
 	}
