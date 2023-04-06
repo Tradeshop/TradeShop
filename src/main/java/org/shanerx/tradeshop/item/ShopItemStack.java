@@ -94,32 +94,6 @@ public class ShopItemStack implements Serializable, Cloneable {
         loadLegacyData();
     }
 
-    //Re-added for backwards compatibility
-    @Deprecated
-    public ShopItemStack(String itemStackB64, int compareDurability, boolean compareEnchantments,
-                         boolean compareName, boolean compareLore, boolean compareCustomModelData,
-                         boolean compareItemFlags, boolean compareUnbreakable, boolean compareAttributeModifier,
-                         boolean compareBookAuthor, boolean compareBookPages, boolean compareShulkerInventory) {
-        this.itemStackB64 = itemStackB64;
-
-        itemSettings = new HashMap<>();
-
-        itemSettings.putIfAbsent(ShopItemStackSettingKeys.COMPARE_DURABILITY, new ObjectHolder<>(compareDurability));
-        itemSettings.putIfAbsent(ShopItemStackSettingKeys.COMPARE_NAME, new ObjectHolder<>(compareName));
-        itemSettings.putIfAbsent(ShopItemStackSettingKeys.COMPARE_LORE, new ObjectHolder<>(compareLore));
-        itemSettings.putIfAbsent(ShopItemStackSettingKeys.COMPARE_CUSTOM_MODEL_DATA, new ObjectHolder<>(compareCustomModelData));
-        itemSettings.putIfAbsent(ShopItemStackSettingKeys.COMPARE_ITEM_FLAGS, new ObjectHolder<>(compareItemFlags));
-        itemSettings.putIfAbsent(ShopItemStackSettingKeys.COMPARE_UNBREAKABLE, new ObjectHolder<>(compareUnbreakable));
-        itemSettings.putIfAbsent(ShopItemStackSettingKeys.COMPARE_ATTRIBUTE_MODIFIER, new ObjectHolder<>(compareAttributeModifier));
-        itemSettings.putIfAbsent(ShopItemStackSettingKeys.COMPARE_BOOK_AUTHOR, new ObjectHolder<>(compareBookAuthor));
-        itemSettings.putIfAbsent(ShopItemStackSettingKeys.COMPARE_BOOK_PAGES, new ObjectHolder<>(compareBookPages));
-        itemSettings.putIfAbsent(ShopItemStackSettingKeys.COMPARE_SHULKER_INVENTORY, new ObjectHolder<>(compareShulkerInventory));
-        itemSettings.putIfAbsent(ShopItemStackSettingKeys.COMPARE_ENCHANTMENTS, new ObjectHolder<>(compareEnchantments));
-
-        buildMap();
-        loadLegacyData();
-    }
-
     public static ShopItemStack deserialize(String serialized) {
         ShopItemStack item = new GsonProcessor().fromJson(serialized, ShopItemStack.class);
         item.loadLegacyData();
@@ -166,10 +140,7 @@ public class ShopItemStack implements Serializable, Cloneable {
     }
 
     public void setShopSettings(ShopItemStackSettingKeys key, ObjectHolder<?> value) {
-        if (itemSettings == null) {
-            itemSettings = new HashMap<>();
-            buildMap();
-        }
+        if (itemSettings == null) buildMap();
 
         itemSettings.put(key, value);
     }
@@ -358,40 +329,6 @@ public class ShopItemStack implements Serializable, Cloneable {
                 // Return False if itemStack hasDisplayName && DisplayName is not equal
                 if (itemStackMeta.hasDisplayName() && !itemStackMeta.getDisplayName().equals(toCompareMeta.getDisplayName()))
                     return false;
-            }
-        }
-
-        // If useBookMeta and compareBookAuthor are true
-        if (useBookMeta && getShopSetting(ShopItemStackSettingKeys.COMPARE_BOOK_AUTHOR).asBoolean()) {
-            // Return False if hasAuthor differs (one has one doesn't)
-            debugger.log("itemStackBookMeta hasAuthor: " + itemStackBookMeta.hasAuthor(), DebugLevels.ITEM_COMPARE);
-            debugger.log("toCompareBookMeta hasAuthor: " + toCompareBookMeta.hasAuthor(), DebugLevels.ITEM_COMPARE);
-            if (itemStackBookMeta.hasAuthor() != toCompareBookMeta.hasAuthor()) {
-                return false;
-            }
-
-            // Return False if itemStack hasAuthor && Author is not equal
-            debugger.log("itemStackBookMeta getAuthor: " + itemStackBookMeta.getAuthor(), DebugLevels.ITEM_COMPARE);
-            debugger.log("toCompareBookMeta getAuthor: " + toCompareBookMeta.getAuthor(), DebugLevels.ITEM_COMPARE);
-            if (itemStackBookMeta.hasAuthor() && !Objects.equals(itemStackBookMeta.getAuthor(), toCompareBookMeta.getAuthor())) {
-                return false;
-            }
-        }
-
-        // If useBookMeta and compareBookPages are true
-        if (useBookMeta && getShopSetting(ShopItemStackSettingKeys.COMPARE_BOOK_PAGES).asBoolean()) {
-            // Return False if hasPages differs (one has one doesn't)
-            debugger.log("itemStackBookMeta hasPages: " + itemStackBookMeta.hasPages(), DebugLevels.ITEM_COMPARE);
-            debugger.log("toCompareBookMeta hasPages: " + toCompareBookMeta.hasPages(), DebugLevels.ITEM_COMPARE);
-            if (itemStackBookMeta.hasPages() != toCompareBookMeta.hasPages()) {
-                return false;
-            }
-
-            // Return False if itemStack hasPages && Pages is not equal
-            debugger.log("itemStackBookMeta isNull: " + itemStackBookMeta.getPages(), DebugLevels.ITEM_COMPARE);
-            debugger.log("toCompareBookMeta isNull: " + toCompareBookMeta.getPages(), DebugLevels.ITEM_COMPARE);
-            if (itemStackBookMeta.hasPages() && !Objects.equals(itemStackBookMeta.getPages(), toCompareBookMeta.getPages())) {
-                return false;
             }
         }
 
