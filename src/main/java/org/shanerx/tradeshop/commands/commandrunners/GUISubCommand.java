@@ -53,7 +53,7 @@ import java.util.List;
  *
  * @since 2.6.0
  */
-public class GUICommand extends CommandRunner {
+public class GUISubCommand extends SubCommand {
 
     //region Util Variables
     //------------------------------------------------------------------------------------------------------------------
@@ -73,7 +73,7 @@ public class GUICommand extends CommandRunner {
     //------------------------------------------------------------------------------------------------------------------
     //endregion
 
-    public GUICommand(TradeShop instance, CommandPass command) {
+    public GUISubCommand(TradeShop instance, CommandPass command) {
         super(instance, command);
     }
 
@@ -111,7 +111,7 @@ public class GUICommand extends CommandRunner {
             itemEdit.addElement(new StaticGuiElement('u', item.getItemStack()));
             if (editable) {
                 itemEdit.addElement(new GuiStateElement('j',
-                        (side.equals(ShopItemSide.COST) ? costItemsRemoval : productItemsRemoval).get(index) + "",
+                        String.valueOf((side.equals(ShopItemSide.COST) ? costItemsRemoval : productItemsRemoval).get(index)),
                         new GuiStateElement.State(change -> (side.equals(ShopItemSide.COST) ? costItemsRemoval : productItemsRemoval).set(index, true),
                                 "true",
                                 getBooleanItem(false),

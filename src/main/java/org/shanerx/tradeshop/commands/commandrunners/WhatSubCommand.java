@@ -47,9 +47,9 @@ import org.shanerx.tradeshop.shop.ShopType;
  *
  * @since 2.3.0
  */
-public class WhatCommand extends GUICommand {
+public class WhatSubCommand extends GUISubCommand {
 
-    public WhatCommand(TradeShop instance, CommandPass command) {
+    public WhatSubCommand(TradeShop instance, CommandPass command) {
         super(instance, command);
     }
 

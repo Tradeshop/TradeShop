@@ -39,9 +39,9 @@ import org.shanerx.tradeshop.utils.objects.Tuple;
  *
  * @since 2.6.0
  */
-public class BasicTextCommand extends CommandRunner {
+public class BasicTextSubCommand extends SubCommand {
 
-    public BasicTextCommand(TradeShop instance, CommandPass command) {
+    public BasicTextSubCommand(TradeShop instance, CommandPass command) {
         super(instance, command);
     }
 

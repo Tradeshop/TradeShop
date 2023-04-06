@@ -54,7 +54,7 @@ import java.util.Set;
  *
  * @since 2.3.0
  */
-public class EditCommand extends GUICommand {
+public class EditSubCommand extends GUISubCommand {
 
     private Shop shop;
     private InventoryGui mainMenu,
@@ -64,7 +64,7 @@ public class EditCommand extends GUICommand {
             settingEdit;
 
 
-    public EditCommand(TradeShop instance, CommandPass command) {
+    public EditSubCommand(TradeShop instance, CommandPass command) {
         super(instance, command);
     }
 

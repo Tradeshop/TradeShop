@@ -53,11 +53,11 @@ import java.util.Set;
  *
  * @since 2.6.0
  */
-public class ShopUserCommand extends CommandRunner {
+public class ShopUserSubCommand extends SubCommand {
 
     private OfflinePlayer target;
 
-    public ShopUserCommand(TradeShop instance, CommandPass command) {
+    public ShopUserSubCommand(TradeShop instance, CommandPass command) {
         super(instance, command);
     }
 

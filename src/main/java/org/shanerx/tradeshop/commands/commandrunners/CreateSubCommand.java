@@ -36,9 +36,9 @@ import org.shanerx.tradeshop.shop.ShopType;
  *
  * @since 2.6.0
  */
-public class CreateCommand extends CommandRunner {
+public class CreateSubCommand extends SubCommand {
 
-    public CreateCommand(TradeShop instance, CommandPass command) {
+    public CreateSubCommand(TradeShop instance, CommandPass command) {
         super(instance, command);
     }
 

@@ -44,11 +44,11 @@ import org.shanerx.tradeshop.shop.Shop;
 import org.shanerx.tradeshop.utils.objects.ObjectHolder;
 import org.shanerx.tradeshop.utils.objects.Tuple;
 
-public class ShopItemCommand extends CommandRunner {
+public class ShopItemSubCommand extends SubCommand {
 
     ShopItemSide side;
 
-    public ShopItemCommand(TradeShop instance, CommandPass command, ShopItemSide side) {
+    public ShopItemSubCommand(TradeShop instance, CommandPass command, ShopItemSide side) {
         super(instance, command);
         this.side = side;
     }

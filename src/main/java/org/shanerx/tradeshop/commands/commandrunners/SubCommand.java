@@ -29,12 +29,12 @@ import org.shanerx.tradeshop.TradeShop;
 import org.shanerx.tradeshop.commands.CommandPass;
 import org.shanerx.tradeshop.utils.Utils;
 
-public class CommandRunner extends Utils {
+public class SubCommand extends Utils {
 
 	protected final TradeShop plugin;
 	protected final CommandPass command;
 
-	public CommandRunner(TradeShop instance, CommandPass command) {
+	public SubCommand(TradeShop instance, CommandPass command) {
 		this.plugin = instance;
 		this.command = command;
 	}

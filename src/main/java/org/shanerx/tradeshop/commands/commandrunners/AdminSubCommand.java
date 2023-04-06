@@ -42,9 +42,9 @@ import org.shanerx.tradeshop.utils.objects.Tuple;
  *
  * @since 2.6.0
  */
-public class AdminCommand extends CommandRunner {
+public class AdminSubCommand extends SubCommand {
 
-    public AdminCommand(TradeShop instance, CommandPass command) {
+    public AdminSubCommand(TradeShop instance, CommandPass command) {
         super(instance, command);
     }
 

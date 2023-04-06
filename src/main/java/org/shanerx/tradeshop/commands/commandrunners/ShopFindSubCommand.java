@@ -46,9 +46,9 @@ import java.util.stream.Collectors;
  *
  * @since 2.6.1
  */
-public class ShopFindCommand extends CommandRunner {
+public class ShopFindSubCommand extends SubCommand {
 
-    public ShopFindCommand(TradeShop plugin, CommandPass cmdPass) {
+    public ShopFindSubCommand(TradeShop plugin, CommandPass cmdPass) {
         super(plugin, cmdPass);
     }
 

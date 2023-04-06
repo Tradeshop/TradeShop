@@ -35,9 +35,9 @@ import org.shanerx.tradeshop.player.Permissions;
 import org.shanerx.tradeshop.player.PlayerSetting;
 import org.shanerx.tradeshop.utils.objects.Tuple;
 
-public class GeneralPlayerCommand extends CommandRunner {
+public class GeneralPlayerSubCommand extends SubCommand {
 
-    public GeneralPlayerCommand(TradeShop instance, CommandPass command) {
+    public GeneralPlayerSubCommand(TradeShop instance, CommandPass command) {
         super(instance, command);
     }
 

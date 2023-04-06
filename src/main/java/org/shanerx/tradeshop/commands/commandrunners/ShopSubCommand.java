@@ -39,9 +39,9 @@ import org.shanerx.tradeshop.shop.Shop;
 import org.shanerx.tradeshop.shop.ShopStatus;
 import org.shanerx.tradeshop.utils.objects.Tuple;
 
-public class ShopCommand extends CommandRunner {
+public class ShopSubCommand extends SubCommand {
 
-    public ShopCommand(TradeShop instance, CommandPass command) {
+    public ShopSubCommand(TradeShop instance, CommandPass command) {
         super(instance, command);
     }
 
