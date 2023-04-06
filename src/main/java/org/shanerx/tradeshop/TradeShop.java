@@ -48,9 +48,9 @@ import org.shanerx.tradeshop.utils.ListManager;
 import org.shanerx.tradeshop.utils.MetricsManager;
 import org.shanerx.tradeshop.utils.debug.Debug;
 import org.shanerx.tradeshop.utils.debug.DebugLevels;
-import org.shanerx.tradeshop.utils.versionmanagement.BukkitVersion;
 import org.shanerx.tradeshop.utils.versionmanagement.Expirer;
 import org.shanerx.tradeshop.utils.versionmanagement.Updater;
+import org.shanerx.tradeshop.utils.versionmanagement.Version;
 
 public class TradeShop extends JavaPlugin {
 
@@ -66,7 +66,7 @@ public class TradeShop extends JavaPlugin {
     private ConfigManager settingManager, messageManager;
     private Language language;
 
-    private BukkitVersion version;
+    private Version version;
     private ShopSign signs;
     private ShopStorage storages;
 
@@ -167,9 +167,9 @@ public class TradeShop extends JavaPlugin {
         return lists;
     }
 
-    public BukkitVersion getVersion() {
+    public Version getVersion() {
         if (version == null)
-            version = new BukkitVersion();
+            version = new Version(getServer().getVersion());
 
         return version;
     }

@@ -30,7 +30,7 @@ import org.bukkit.Material;
 import org.shanerx.tradeshop.TradeShop;
 import org.shanerx.tradeshop.utils.Utils;
 import org.shanerx.tradeshop.utils.debug.DebugLevels;
-import org.shanerx.tradeshop.utils.versionmanagement.BukkitVersion;
+import org.shanerx.tradeshop.utils.versionmanagement.Version;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -39,7 +39,7 @@ import java.util.List;
 
 public class ShopStorage extends Utils {
 
-    private final BukkitVersion version = new BukkitVersion();
+    private final Version version = TradeShop.getPlugin().getVersion();
     private final HashMap<String, Storages> storageTypes = new HashMap<>();
 
     public ShopStorage() {

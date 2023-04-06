@@ -48,6 +48,17 @@ public class ObjectHolder<Type> {
         return obj != null && (obj instanceof Integer || (obj instanceof Double && Double.parseDouble(obj.toString()) % 1 == 0));
     }
 
+    public boolean canBeInteger() {
+        try {
+            Integer.parseInt(obj.toString());
+            return true;
+        } catch (NumberFormatException | NullPointerException ignored) {
+        }
+
+        return false;
+    }
+
+
     public boolean isDouble() {
         return obj != null && (obj instanceof Double || obj instanceof Integer);
     }
@@ -61,7 +72,7 @@ public class ObjectHolder<Type> {
     }
 
     public Integer asInteger() {
-        return isInteger() ? (int) Double.parseDouble(obj.toString()) : null;
+        return isInteger() ? Integer.valueOf((int) Double.parseDouble(obj.toString())) : canBeInteger() ? Integer.parseInt(obj.toString()) : null;
     }
 
     public Double asDouble() {
