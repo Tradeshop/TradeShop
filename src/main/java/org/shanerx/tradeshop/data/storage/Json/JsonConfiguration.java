@@ -27,6 +27,7 @@ package org.shanerx.tradeshop.data.storage.Json;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import org.bukkit.Bukkit;
 import org.shanerx.tradeshop.TradeShop;
 import org.shanerx.tradeshop.utils.Utils;
 import org.shanerx.tradeshop.utils.gsonprocessing.GsonProcessor;
@@ -88,16 +89,18 @@ class JsonConfiguration extends Utils {
     }
 
     protected void saveFile() {
-        String str = gson.toJson(jsonObj);
-        if (!str.isEmpty()) {
-            try {
-                FileWriter fileWriter = new FileWriter(this.file);
-                fileWriter.write(str);
-                fileWriter.flush();
-                fileWriter.close();
-            } catch (IOException e) {
-                PLUGIN.getLogger().log(Level.SEVERE, "Could not save " + file.getName() + " file! Data may be lost!", e);
+        Bukkit.getScheduler().runTaskAsynchronously(TradeShop.getPlugin(), () -> {
+            String str = gson.toJson(jsonObj);
+            if (!str.isEmpty()) {
+                try {
+                    FileWriter fileWriter = new FileWriter(this.file);
+                    fileWriter.write(str);
+                    fileWriter.flush();
+                    fileWriter.close();
+                } catch (IOException e) {
+                    PLUGIN.getLogger().log(Level.SEVERE, "Could not save " + file.getName() + " file! Data may be lost!", e);
+                }
             }
-        }
+        });
     }
 }

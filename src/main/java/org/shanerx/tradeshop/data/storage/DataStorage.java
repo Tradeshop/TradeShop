@@ -25,7 +25,10 @@
 
 package org.shanerx.tradeshop.data.storage;
 
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import org.apache.commons.lang.NotImplementedException;
+import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.ChunkSnapshot;
 import org.bukkit.World;
@@ -47,10 +50,25 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class DataStorage extends Utils {
 
     private transient DataType dataType;
+
+    private final Cache<World, LinkageConfiguration> linkCache = CacheBuilder.newBuilder()
+            .maximumSize(50)
+            .expireAfterAccess(30, TimeUnit.MINUTES)
+            .build(),
+            shopCache = CacheBuilder.newBuilder()
+                    .maximumSize(200)
+                    .expireAfterAccess(30, TimeUnit.MINUTES)
+                    .build(),
+            playerCache = CacheBuilder.newBuilder()
+                    .maximumSize(50)
+                    .expireAfterAccess(30, TimeUnit.MINUTES)
+                    .build();
 
     public DataStorage(DataType dataType) {
         reload(dataType);
@@ -101,22 +119,26 @@ public class DataStorage extends Utils {
     }
 
     public int getShopCountInWorld(World world) {
-        int count = 0;
-        switch (dataType) {
-            case FLATFILE:
-                File folder = new File(TradeShop.getPlugin().getDataFolder().getAbsolutePath() + File.separator + "Data" + File.separator + world.getName());
-                if (folder.exists() && folder.listFiles() != null) {
-                    for (File file : folder.listFiles()) {
-                        if (file.getName().contains(world.getName()))
-                            count += new JsonShopConfiguration(ShopChunk.deserialize(file.getName().replace(".json", ""))).size();
+        String worldName = world.getName();
+
+        AtomicInteger count = new AtomicInteger();
+        Bukkit.getScheduler().runTaskAsynchronously(TradeShop.getPlugin(), () -> {
+            switch (dataType) {
+                case FLATFILE:
+                    File folder = new File(TradeShop.getPlugin().getDataFolder().getAbsolutePath() + File.separator + "Data" + File.separator + worldName);
+                    if (folder.exists() && folder.listFiles() != null) {
+                        for (File file : folder.listFiles()) {
+                            if (file.getName().contains(worldName))
+                                count.addAndGet(new JsonShopConfiguration(ShopChunk.deserialize(file.getName().replace(".json", ""))).size());
+                        }
                     }
-                }
-                break;
-            case SQLITE:
-                //TODO add SQLITE support
-                throw new NotImplementedException("SQLITE for getShopCountInWorld has not been implemented yet.");
-        }
-        return count;
+                    break;
+                case SQLITE:
+                    //TODO add SQLITE support
+                    throw new NotImplementedException("SQLITE for getShopCountInWorld has not been implemented yet.");
+            }
+        });
+        return count.get();
     }
 
     public PlayerSetting loadPlayer(UUID uuid) {
@@ -172,9 +194,17 @@ public class DataStorage extends Utils {
     }
 
     protected LinkageConfiguration getLinkageConfiguration(World w) {
-        if (dataType == DataType.FLATFILE) {
-            return new JsonLinkageConfiguration(w);
+
+        if (linkCache.getIfPresent(w) == null) {
+            if (dataType == DataType.FLATFILE) {
+                linkCache.put(w, new JsonLinkageConfiguration(w));
+            }
         }
+
+        if (linkCache.getIfPresent(w) != null) //Not else to catch the set if it was null
+            return linkCache.getIfPresent(w);
+
+
         throw new NotImplementedException("Data storage type " + dataType + " has not been implemented yet.");
     }
 }

@@ -95,30 +95,30 @@ public class Version {
 		compVersion = temp;
 
 		ObjectHolder<Object> simpBukkVer = verMap.get("simplified"),
-				simpCompVer = new ObjectHolder<>((compVersion[0] * 100) + (compVersion[1]) + (compVersion[2]));
+				simpCompVer = new ObjectHolder<>((compVersion[0] * 100) + (compVersion[1]) + (compVersion[2] / 100.0));
 
 		// Add ? preceding math sign to compare only Major Minor
 		switch (mathComp) {
 			case ">":
 			case "?>":
-				return (mathComp.contains("?") ? simpCompVer.asInteger() : simpCompVer.asDouble()) > (mathComp.contains("?") ? simpBukkVer.asInteger() : simpBukkVer.asDouble()); //Above
+				return (mathComp.contains("?") ? simpBukkVer.asInteger() : simpBukkVer.asDouble()) > (mathComp.contains("?") ? simpCompVer.asInteger() : simpCompVer.asDouble()); //Above
 			case ">=":
 			case "?>=":
-				return (mathComp.contains("?") ? simpCompVer.asInteger() : simpCompVer.asDouble()) >= (mathComp.contains("?") ? simpBukkVer.asInteger() : simpBukkVer.asDouble()); //At Least
+				return (mathComp.contains("?") ? simpBukkVer.asInteger() : simpBukkVer.asDouble()) >= (mathComp.contains("?") ? simpCompVer.asInteger() : simpCompVer.asDouble()); //At Least
 			case "<":
 			case "?<":
-				return (mathComp.contains("?") ? simpCompVer.asInteger() : simpCompVer.asDouble()) < (mathComp.contains("?") ? simpBukkVer.asInteger() : simpBukkVer.asDouble()); //Is Below
+				return (mathComp.contains("?") ? simpBukkVer.asInteger() : simpBukkVer.asDouble()) < (mathComp.contains("?") ? simpCompVer.asInteger() : simpCompVer.asDouble()); //Is Below
 			case "<=":
 			case "?<=":
-				return (mathComp.contains("?") ? simpCompVer.asInteger() : simpCompVer.asDouble()) <= (mathComp.contains("?") ? simpBukkVer.asInteger() : simpBukkVer.asDouble()); //At Most
+				return (mathComp.contains("?") ? simpBukkVer.asInteger() : simpBukkVer.asDouble()) <= (mathComp.contains("?") ? simpCompVer.asInteger() : simpCompVer.asDouble()); //At Most
 			case "<>":
 			case "?<>":
-				return (mathComp.contains("?") ? simpCompVer.asInteger() : simpCompVer.asDouble()) != (mathComp.contains("?") ? simpBukkVer.asInteger() : simpBukkVer.asDouble()); //Not Equal
+				return (mathComp.contains("?") ? simpBukkVer.asInteger() : simpBukkVer.asDouble()) != (mathComp.contains("?") ? simpCompVer.asInteger() : simpCompVer.asDouble()); //Not Equal
 			case "==":
 			case "?==":
 			case "?":
 			default:
-				return (mathComp.contains("?") ? simpCompVer.asInteger() : simpCompVer.asDouble()) == (mathComp.contains("?") ? simpBukkVer.asInteger() : simpBukkVer.asDouble()); //Equals
+				return (mathComp.contains("?") ? simpBukkVer.asInteger() : simpBukkVer.asDouble()) == (mathComp.contains("?") ? simpCompVer.asInteger() : simpCompVer.asDouble()); //Equals
 		}
 
 	}
@@ -148,7 +148,7 @@ public class Version {
 		map.put("simplified", new ObjectHolder<>(
 				(verInts.get(0).asInteger() * 100) +
 						(verInts.get(1).asInteger()) +
-						(verInts.get(2).asInteger())));
+						(verInts.get(2).asInteger() / 100.0)));
 
 		return map;
 	}
