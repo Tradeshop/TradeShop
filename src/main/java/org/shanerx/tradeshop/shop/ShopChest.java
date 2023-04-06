@@ -1,6 +1,6 @@
 /*
  *
- *                         Copyright (c) 2016-2019
+ *                         Copyright (c) 2016-2023
  *                SparklingComet @ http://shanerx.org
  *               KillerOfPie @ http://killerofpie.github.io
  *
@@ -52,45 +52,45 @@ import java.util.UUID;
 
 public class ShopChest extends Utils {
 
-	private final static TradeShop plugin = (TradeShop) Bukkit.getPluginManager().getPlugin("TradeShop");
-	private ShopLocation shopSign;
-	private final Location loc;
-	private Block chest;
-	private UUID owner;
-	private final String sectionSeparator = "\\$ \\^";
-	private final String titleSeparator = ";;";
+    private final static TradeShop plugin = (TradeShop) Bukkit.getPluginManager().getPlugin("TradeShop");
+    private final Location loc;
+    private final String sectionSeparator = "\\$ \\^";
+    private final String titleSeparator = ";;";
+    private ShopLocation shopSign;
+    private Block chest;
+    private UUID owner;
 
-	public ShopChest(Location chestLoc) {
-		this.loc = chestLoc;
+    public ShopChest(Location chestLoc) {
+        this.loc = chestLoc;
 
-		getBlock();
-		loadFromName();
-	}
+        getBlock();
+        loadFromName();
+    }
 
-	public ShopChest(Block chest, UUID owner, Location sign) {
-		this.loc = chest.getLocation();
-		this.owner = owner;
-		this.shopSign = new ShopLocation(sign);
-		this.chest = chest;
-	}
+    public ShopChest(Block chest, UUID owner, Location sign) {
+        this.loc = chest.getLocation();
+        this.owner = owner;
+        this.shopSign = new ShopLocation(sign);
+        this.chest = chest;
+    }
 
-	public static boolean isShopChest(Block checking) {
-		try {
-			if (isDoubleChest(checking)) {
-				DoubleChest dbl = getDoubleChest(checking);
+    public static boolean isShopChest(Block checking) {
+        try {
+            if (isDoubleChest(checking)) {
+                DoubleChest dbl = getDoubleChest(checking);
 
-				return ((Container) dbl.getLeftSide()).getPersistentDataContainer().has(plugin.getSignKey(), PersistentDataType.STRING) ||
-						((Container) dbl.getRightSide()).getPersistentDataContainer().has(plugin.getSignKey(), PersistentDataType.STRING);
-			}
-			boolean conHas = ((Container) checking.getState()).getPersistentDataContainer().has(plugin.getSignKey(), PersistentDataType.STRING);
-			return conHas;
-		} catch (NullPointerException | ClassCastException ex) {
-			plugin.getDebugger().log("NPE thrown during isShopChest by: \n" + ex.getCause(), DebugLevels.PROTECTION);
-		}
-		return false;
+                return ((Container) dbl.getLeftSide()).getPersistentDataContainer().has(plugin.getSignKey(), PersistentDataType.STRING) ||
+                        ((Container) dbl.getRightSide()).getPersistentDataContainer().has(plugin.getSignKey(), PersistentDataType.STRING);
+            }
+            boolean conHas = ((Container) checking.getState()).getPersistentDataContainer().has(plugin.getSignKey(), PersistentDataType.STRING);
+            return conHas;
+        } catch (NullPointerException | ClassCastException ex) {
+            plugin.getDebugger().log("NPE thrown during isShopChest by: \n" + ex.getCause(), DebugLevels.PROTECTION);
+        }
+        return false;
 
-		// Old MoveEvent Est ~50mspt
-		/*plugin.getDebugger().log("isShopChest checking Block at " + new ShopLocation(checking.getLocation()).serialize() + "", DebugLevels.PROTECTION);
+        // Old MoveEvent Est ~50mspt
+        /*plugin.getDebugger().log("isShopChest checking Block at " + new ShopLocation(checking.getLocation()).serialize() + "", DebugLevels.PROTECTION);
         try {
             if (isDoubleChest(checking)) {
                 DoubleChest dbl = getDoubleChest(checking);
@@ -137,185 +137,184 @@ public class ShopChest extends Utils {
                     }
                     if (((Nameable) stateLeft).getCustomName().contains("$ ^Sign:l_")) {
                         ((Nameable) stateLeft).setCustomName(((Nameable) stateLeft).getCustomName().split("\\$ \\^")[0]);
-						stateLeft.update();
-					}
+                        stateLeft.update();
+                    }
 
-				} else if (((Nameable) bs).getCustomName().contains("$ ^Sign:l_")) {
-					((Nameable) bs).setCustomName(((Nameable) bs).getCustomName().split("\\$ \\^")[0]);
-					bs.update();
-				}
-			}
-		}
-	}
+                } else if (((Nameable) bs).getCustomName().contains("$ ^Sign:l_")) {
+                    ((Nameable) bs).setCustomName(((Nameable) bs).getCustomName().split("\\$ \\^")[0]);
+                    bs.update();
+                }
+            }
+        }
+    }
 
-	public static Block getOtherHalfOfDoubleChest(Block check) {
-		Block otherChest = null;
-		if (check.getState() instanceof Chest) {
-			Chest chest = (Chest) check.getState();
-			Location chestLoc = chest.getInventory().getLocation(), otherChestLoc = chest.getInventory().getLocation();
-			if (chestLoc.getX() - Math.floor(chestLoc.getX()) > 0) {
-				otherChestLoc.setX(check.getX() == Math.floor(chestLoc.getX()) ? Math.ceil(chestLoc.getX()) : Math.floor(chestLoc.getX()));
-			} else if (chestLoc.getZ() - Math.floor(chestLoc.getZ()) > 0) {
-				otherChestLoc.setZ(check.getX() == Math.floor(chestLoc.getZ()) ? Math.ceil(chestLoc.getZ()) : Math.floor(chestLoc.getZ()));
-			}
-			otherChest = otherChestLoc.getBlock();
-		}
+    public static Block getOtherHalfOfDoubleChest(Block check) {
+        Block otherChest = null;
+        if (check.getState() instanceof Chest) {
+            Chest chest = (Chest) check.getState();
+            Location chestLoc = chest.getInventory().getLocation(), otherChestLoc = chest.getInventory().getLocation();
+            if (chestLoc.getX() - Math.floor(chestLoc.getX()) > 0) {
+                otherChestLoc.setX(check.getX() == Math.floor(chestLoc.getX()) ? Math.ceil(chestLoc.getX()) : Math.floor(chestLoc.getX()));
+            } else if (chestLoc.getZ() - Math.floor(chestLoc.getZ()) > 0) {
+                otherChestLoc.setZ(check.getX() == Math.floor(chestLoc.getZ()) ? Math.ceil(chestLoc.getZ()) : Math.floor(chestLoc.getZ()));
+            }
+            otherChest = otherChestLoc.getBlock();
+        }
 
-		return otherChest;
-	}
+        return otherChest;
+    }
 
-	public static DoubleChest getDoubleChest(Block chest) {
-		try {
-			return (DoubleChest) ((Chest) chest.getState()).getInventory().getHolder();
-		} catch (ClassCastException | NullPointerException ex) {
-			return null;
-		}
-	}
+    public static DoubleChest getDoubleChest(Block chest) {
+        try {
+            return (DoubleChest) ((Chest) chest.getState()).getInventory().getHolder();
+        } catch (ClassCastException | NullPointerException ex) {
+            return null;
+        }
+    }
 
-	public static boolean isDoubleChest(Block chest) {
+    public static boolean isDoubleChest(Block chest) {
         return getDoubleChest(chest) != null;
-	}
+    }
 
-	private void getBlock() {
-		if (plugin.getListManager().isInventory(loc.getBlock())) {
+    private void getBlock() {
+        if (plugin.getListManager().isInventory(loc.getBlock())) {
             Block block = loc.getBlock();
 
-			try {
-				if (isDoubleChest(block)) {
-					DoubleChest dbl = getDoubleChest(block);
-					Container left = ((Container) dbl.getLeftSide()),
-							right = ((Container) dbl.getRightSide());
-					chest = left.getPersistentDataContainer().has(plugin.getSignKey(), PersistentDataType.STRING) ? left.getBlock() : right.getBlock();
+            try {
+                if (isDoubleChest(block)) {
+                    DoubleChest dbl = getDoubleChest(block);
+                    Container left = ((Container) dbl.getLeftSide()),
+                            right = ((Container) dbl.getRightSide());
+                    chest = left.getPersistentDataContainer().has(plugin.getSignKey(), PersistentDataType.STRING) ? left.getBlock() : right.getBlock();
 
-				} else
-					chest = block;
-			} catch (NullPointerException npe) {
-				chest = block;
-			}
-		}
-	}
+                } else
+                    chest = block;
+            } catch (NullPointerException npe) {
+                chest = block;
+            }
+        }
+    }
 
-	public BlockState getBlockState() {
-		return chest.getState();
-	}
+    public BlockState getBlockState() {
+        return chest.getState();
+    }
 
-	public Inventory getInventory() {
-		try {
-			return ((InventoryHolder) chest.getState()).getInventory();
-		} catch (ClassCastException | NullPointerException ex) {
-		}
+    public Inventory getInventory() {
+        try {
+            return ((InventoryHolder) chest.getState()).getInventory();
+        } catch (ClassCastException | NullPointerException ex) {
+        }
 
-		return null;
-	}
+        return null;
+    }
 
-	public boolean hasStock(List<ShopItemStack> itemToCheck) {
-		return itemToCheck.size() > 0 && getItems(getInventory().getStorageContents(), itemToCheck, 1).get(0) != null;
-	}
+    public boolean hasStock(List<ShopItemStack> itemToCheck) {
+        return itemToCheck.size() > 0 && getItems(getInventory().getStorageContents(), itemToCheck, 1).get(0) != null;
+    }
 
-	public void loadFromName() {
-		if (isShopChest(chest)) {
-			String[] name = ((Container) chest.getState()).getPersistentDataContainer().get(plugin.getSignKey(), PersistentDataType.STRING)
-					.replaceAll("Sign:", "Sign" + titleSeparator).replaceAll("Owner:", "Owner" + titleSeparator)
-					.split(sectionSeparator);
-			Map<String, String> chestData = new HashMap<>();
-			for (String s : name) {
-				chestData.put(s.split(titleSeparator)[0], s.replace(s.split(titleSeparator)[0] + titleSeparator, ""));
-			}
+    public void loadFromName() {
+        if (isShopChest(chest)) {
+            String[] name = ((Container) chest.getState()).getPersistentDataContainer().get(plugin.getSignKey(), PersistentDataType.STRING)
+                    .replaceAll("Sign:", "Sign" + titleSeparator).replaceAll("Owner:", "Owner" + titleSeparator)
+                    .split(sectionSeparator);
+            Map<String, String> chestData = new HashMap<>();
+            for (String s : name) {
+                chestData.put(s.split(titleSeparator)[0], s.replace(s.split(titleSeparator)[0] + titleSeparator, ""));
+            }
 
-			chestData.forEach((k, v) -> plugin.getDebugger().log(k + " = " + v, DebugLevels.PROTECTION));
-			try {
-				shopSign = ShopLocation.deserialize(chestData.get("Sign"));
-			} catch (IllegalWorldException e) {
-				shopSign = new ShopLocation(e.getLoc().getLocation(chest.getWorld()));
-			}
+            chestData.forEach((k, v) -> plugin.getDebugger().log(k + " = " + v, DebugLevels.PROTECTION));
+            try {
+                shopSign = ShopLocation.deserialize(chestData.get("Sign"));
+            } catch (IllegalWorldException e) {
+                shopSign = new ShopLocation(e.getLoc().getLocation(chest.getWorld()));
+            }
 
-			owner = UUID.fromString(chestData.get("Owner"));
-		}
-	}
+            owner = UUID.fromString(chestData.get("Owner"));
+        }
+    }
 
-	public boolean isEmpty() {
-		Inventory inv = getInventory();
-		if (inv == null) {
-			return true;
-		}
+    public boolean isEmpty() {
+        Inventory inv = getInventory();
+        if (inv == null) {
+            return true;
+        }
 
-		for (ItemStack i : inv.getStorageContents()) {
-			if (i != null) {
-				return false;
-			}
-		}
+        for (ItemStack i : inv.getStorageContents()) {
+            if (i != null) {
+                return false;
+            }
+        }
 
-		return true;
-	}
+        return true;
+    }
 
-	public String getName() {
-		StringBuilder sb = new StringBuilder();
-		sb.append("$ ^Sign");
-		sb.append(titleSeparator);
-		sb.append(shopSign.serialize());
-		sb.append("$ ^Owner");
-		sb.append(titleSeparator);
-		sb.append(owner.toString());
+    public String getName() {
+        String sb = "$ ^Sign" +
+                titleSeparator +
+                shopSign.serialize() +
+                "$ ^Owner" +
+                titleSeparator +
+                owner.toString();
 
-		return sb.toString();
-	}
+        return sb;
+    }
 
-	public void setName(Block toSet) {
-		Container container = (Container) chest.getState();
-		container.getPersistentDataContainer().set(plugin.getSignKey(), PersistentDataType.STRING, getName());
-		container.update();
-	}
+    public void setName(Block toSet) {
+        Container container = (Container) chest.getState();
+        container.getPersistentDataContainer().set(plugin.getSignKey(), PersistentDataType.STRING, getName());
+        container.update();
+    }
 
-	public void setName() {
+    public void setName() {
         setName(chest);
     }
 
-	public void resetName() {
-		if (isShopChest(chest)) {
-			Container container = (Container) chest.getState();
-			container.getPersistentDataContainer().remove(plugin.getStorageKey());
-			container.getPersistentDataContainer().remove(plugin.getSignKey());
-			container.update();
-		}
-	}
+    public void resetName() {
+        if (isShopChest(chest)) {
+            Container container = (Container) chest.getState();
+            container.getPersistentDataContainer().remove(plugin.getStorageKey());
+            container.getPersistentDataContainer().remove(plugin.getSignKey());
+            container.update();
+        }
+    }
 
-	public void setEventName(BlockPlaceEvent event) {
+    public void setEventName(BlockPlaceEvent event) {
         setName(event.getBlockPlaced());
-	}
+    }
 
-	public void setSign(ShopLocation newSign) {
-		shopSign = newSign;
-	}
+    public void setSign(ShopLocation newSign) {
+        shopSign = newSign;
+    }
 
-	public UUID getOwner() {
-		return owner;
-	}
+    public UUID getOwner() {
+        return owner;
+    }
 
-	public void setOwner(UUID uuid) {
-		owner = uuid;
-	}
+    public void setOwner(UUID uuid) {
+        owner = uuid;
+    }
 
-	public Block getChest() {
-		return chest;
-	}
+    public Block getChest() {
+        return chest;
+    }
 
-	public ShopLocation getShopSign() {
-		return shopSign;
-	}
+    public ShopLocation getShopSign() {
+        return shopSign;
+    }
 
-	public boolean hasOwner() {
-		return owner != null;
-	}
+    public boolean hasOwner() {
+        return owner != null;
+    }
 
-	public boolean hasShopSign() {
-		return shopSign != null;
-	}
+    public boolean hasShopSign() {
+        return shopSign != null;
+    }
 
-	public Shop getShop() {
-		if (hasShopSign()) {
+    public Shop getShop() {
+        if (hasShopSign()) {
             return Shop.loadShop(getShopSign());
-		}
+        }
 
-		return null;
-	}
+        return null;
+    }
 }

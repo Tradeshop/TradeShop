@@ -1,6 +1,6 @@
 /*
  *
- *                         Copyright (c) 2016-2019
+ *                         Copyright (c) 2016-2023
  *                SparklingComet @ http://shanerx.org
  *               KillerOfPie @ http://killerofpie.github.io
  *
@@ -50,12 +50,12 @@ public enum ShopStatus {
         return ChatColor.translateAlternateColorCodes(COLOUR_CHAR, x);
     }
 
-	@Override
-	public String toString() {
+    @Override
+    public String toString() {
         return name();
-	}
+    }
 
-	public String getLine() {
+    public String getLine() {
         return colorize(labelEnum.getString().isEmpty() ? label : labelEnum.getString());
     }
 

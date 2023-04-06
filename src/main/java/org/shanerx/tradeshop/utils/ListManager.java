@@ -1,6 +1,6 @@
 /*
  *
- *                         Copyright (c) 2016-2019
+ *                         Copyright (c) 2016-2023
  *                SparklingComet @ http://shanerx.org
  *               KillerOfPie @ http://killerofpie.github.io
  *
@@ -65,83 +65,83 @@ public class ListManager extends Utils {
     }
 
     private void initSkip() {
-		skippableHoppers = CacheBuilder.newBuilder()
-				.maximumSize(100000)
-				.expireAfterAccess(1000, TimeUnit.MILLISECONDS)
-				.build();
-		skippableShop = CacheBuilder.newBuilder()
-				.maximumSize(1000)
-				.expireAfterWrite(1500, TimeUnit.MILLISECONDS)
-				.build();
-	}
+        skippableHoppers = CacheBuilder.newBuilder()
+                .maximumSize(100000)
+                .expireAfterAccess(1000, TimeUnit.MILLISECONDS)
+                .build();
+        skippableShop = CacheBuilder.newBuilder()
+                .maximumSize(1000)
+                .expireAfterWrite(1500, TimeUnit.MILLISECONDS)
+                .build();
+    }
 
-	/**
-	 * Check if a hopper has already been processed and stored in the cache
-	 *
-	 * @param location What location to check for
-	 * @return return null if not in cache(un-unprocessed) or true/false representing whether to block movement
-	 */
-	public Boolean canSkipHopper(Location location) {
-		if (skippableHoppers.getIfPresent(location) == null && skippableShop.getIfPresent(location) == null)
-			return null;
-		else if (skippableHoppers.getIfPresent(location) != null)
-			return skippableHoppers.getIfPresent(location);
-		else if (skippableShop.getIfPresent(location) != null)
-			return skippableShop.getIfPresent(location);
+    /**
+     * Check if a hopper has already been processed and stored in the cache
+     *
+     * @param location What location to check for
+     * @return return null if not in cache(un-unprocessed) or true/false representing whether to block movement
+     */
+    public Boolean canSkipHopper(Location location) {
+        if (skippableHoppers.getIfPresent(location) == null && skippableShop.getIfPresent(location) == null)
+            return null;
+        else if (skippableHoppers.getIfPresent(location) != null)
+            return skippableHoppers.getIfPresent(location);
+        else if (skippableShop.getIfPresent(location) != null)
+            return skippableShop.getIfPresent(location);
 
-		return null;
-	}
+        return null;
+    }
 
-	public void addSkippableHopper(Location location, boolean shouldBlock) {
-		skippableHoppers.put(location, shouldBlock);
-	}
+    public void addSkippableHopper(Location location, boolean shouldBlock) {
+        skippableHoppers.put(location, shouldBlock);
+    }
 
-	public void addSkippableShop(Location location, boolean shouldBlock) {
-		skippableShop.put(location, shouldBlock);
-	}
+    public void addSkippableShop(Location location, boolean shouldBlock) {
+        skippableShop.put(location, shouldBlock);
+    }
 
-	public void removeSkippableShop(Location location) {
-		skippableShop.invalidate(location);
-	}
+    public void removeSkippableShop(Location location) {
+        skippableShop.invalidate(location);
+    }
 
 
-	public ArrayList<RelativeDirection> getDirections() {
-		return directions;
-	}
+    public ArrayList<RelativeDirection> getDirections() {
+        return directions;
+    }
 
-	public ArrayList<ShopStorage.Storages> getInventories() {
-		return inventories;
-	}
+    public ArrayList<ShopStorage.Storages> getInventories() {
+        return inventories;
+    }
 
-	public IllegalItemList getGlobalList() {
-		return globalList;
-	}
+    public IllegalItemList getGlobalList() {
+        return globalList;
+    }
 
-	public IllegalItemList getCostList() {
-		return costList;
-	}
+    public IllegalItemList getCostList() {
+        return costList;
+    }
 
-	public IllegalItemList getProductList() {
-		return productList;
-	}
+    public IllegalItemList getProductList() {
+        return productList;
+    }
 
-	public ArrayList<String> getGameMats() {
-		return gameMats;
-	}
+    public ArrayList<String> getGameMats() {
+        return gameMats;
+    }
 
-	public boolean isIllegal(ShopItemSide side, Material mat) {
-		if (globalList.isIllegal(mat))
-			return true;
+    public boolean isIllegal(ShopItemSide side, Material mat) {
+        if (globalList.isIllegal(mat))
+            return true;
 
-		return side.equals(ShopItemSide.COST) ? costList.isIllegal(mat) : productList.isIllegal(mat);
-	}
+        return side.equals(ShopItemSide.COST) ? costList.isIllegal(mat) : productList.isIllegal(mat);
+    }
 
-	public boolean isInventory(Block block) {
-		//Get blocks Material and strip all non-alpha chars
-		Material blockMaterial = block.getType();
-		Boolean found = false;
+    public boolean isInventory(Block block) {
+        //Get blocks Material and strip all non-alpha chars
+        Material blockMaterial = block.getType();
+        Boolean found = false;
 
-		PLUGIN.getDebugger().log("isInventory Block Material: " + blockMaterial.name(), DebugLevels.LIST_MANAGER);
+        PLUGIN.getDebugger().log("isInventory Block Material: " + blockMaterial.name(), DebugLevels.LIST_MANAGER);
 
         //For each ShopStorage.Storages in inventories, check if their block list contains the block material. end loop if true.
         for (ShopStorage.Storages storage : inventories) {
@@ -149,123 +149,123 @@ public class ListManager extends Utils {
                 found = true;
                 break;
             }
-		}
+        }
 
-		PLUGIN.getDebugger().log("isInventory Block Material found: " + found, DebugLevels.LIST_MANAGER);
+        PLUGIN.getDebugger().log("isInventory Block Material found: " + found, DebugLevels.LIST_MANAGER);
         return found;
-	}
+    }
 
-	public void reload() {
+    public void reload() {
         //Reloads any lists that need reloading
-		updateIllegalLists();
-		updateDirections();
+        updateIllegalLists();
+        updateDirections();
         updateInventoryMats();
-		setGameMatList();
-		initSkip();
-	}
+        setGameMatList();
+        initSkip();
+    }
 
-	public void clearManager() {
-		// Clears all lists, Only use if plugin is shutting down
-		inventories.clear();
-		globalList.clear();
-		costList.clear();
-		productList.clear();
-		directions.clear();
-		addOnMats.clear();
-		gameMats.clear();
-	}
+    public void clearManager() {
+        // Clears all lists, Only use if plugin is shutting down
+        inventories.clear();
+        globalList.clear();
+        costList.clear();
+        productList.clear();
+        directions.clear();
+        addOnMats.clear();
+        gameMats.clear();
+    }
 
-	private void updateIllegalLists() {
-		//Clears list before regenerating
-		globalList.clear();
-		costList.clear();
-		productList.clear();
+    private void updateIllegalLists() {
+        //Clears list before regenerating
+        globalList.clear();
+        costList.clear();
+        productList.clear();
 
-		globalList.setType(Setting.GLOBAL_ILLEGAL_ITEMS_TYPE.getString());
-		costList.setType(Setting.COST_ILLEGAL_ITEMS_TYPE.getString());
-		productList.setType(Setting.PRODUCT_ILLEGAL_ITEMS_TYPE.getString());
+        globalList.setType(Setting.GLOBAL_ILLEGAL_ITEMS_TYPE.getString());
+        costList.setType(Setting.COST_ILLEGAL_ITEMS_TYPE.getString());
+        productList.setType(Setting.PRODUCT_ILLEGAL_ITEMS_TYPE.getString());
 
-		if (globalList.getType().equals(IllegalItemList.ListType.DISABLED))
-			globalList.setType(IllegalItemList.ListType.BLACKLIST);
+        if (globalList.getType().equals(IllegalItemList.ListType.DISABLED))
+            globalList.setType(IllegalItemList.ListType.BLACKLIST);
 
-		PLUGIN.getDebugger().log("Loading GLOBAL Illegal Item List with mode:  " + globalList.getType(), DebugLevels.ILLEGAL_ITEMS_LIST);
-		if (globalList.getType().equals(IllegalItemList.ListType.BLACKLIST)) {
-			// Add non-removable blacklist items
-			globalList.add(Material.AIR);
-			globalList.add(Material.CAVE_AIR);
-			globalList.add(Material.VOID_AIR);
-		} else if (globalList.getType().equals(IllegalItemList.ListType.WHITELIST)) {
-			globalList.remove(Material.AIR);
-			globalList.remove(Material.CAVE_AIR);
-			globalList.remove(Material.VOID_AIR);
-		}
+        PLUGIN.getDebugger().log("Loading GLOBAL Illegal Item List with mode:  " + globalList.getType(), DebugLevels.ILLEGAL_ITEMS_LIST);
+        if (globalList.getType().equals(IllegalItemList.ListType.BLACKLIST)) {
+            // Add non-removable blacklist items
+            globalList.add(Material.AIR);
+            globalList.add(Material.CAVE_AIR);
+            globalList.add(Material.VOID_AIR);
+        } else if (globalList.getType().equals(IllegalItemList.ListType.WHITELIST)) {
+            globalList.remove(Material.AIR);
+            globalList.remove(Material.CAVE_AIR);
+            globalList.remove(Material.VOID_AIR);
+        }
 
-		for (String str : Setting.GLOBAL_ILLEGAL_ITEMS_LIST.getStringList()) {
-			globalList.checkAndAdd(str);
-		}
+        for (String str : Setting.GLOBAL_ILLEGAL_ITEMS_LIST.getStringList()) {
+            globalList.checkAndAdd(str);
+        }
 
-		PLUGIN.getDebugger().log("Loading COST Illegal Item List with mode:  " + costList.getType(), DebugLevels.ILLEGAL_ITEMS_LIST);
-		for (String str : Setting.COST_ILLEGAL_ITEMS_LIST.getStringList()) {
-			costList.checkAndAdd(str);
-		}
+        PLUGIN.getDebugger().log("Loading COST Illegal Item List with mode:  " + costList.getType(), DebugLevels.ILLEGAL_ITEMS_LIST);
+        for (String str : Setting.COST_ILLEGAL_ITEMS_LIST.getStringList()) {
+            costList.checkAndAdd(str);
+        }
 
-		PLUGIN.getDebugger().log("Loading PRODUCT Illegal Item List with mode:  " + productList.getType(), DebugLevels.ILLEGAL_ITEMS_LIST);
-		for (String str : Setting.PRODUCT_ILLEGAL_ITEMS_LIST.getStringList()) {
-			productList.checkAndAdd(str);
-		}
-	}
+        PLUGIN.getDebugger().log("Loading PRODUCT Illegal Item List with mode:  " + productList.getType(), DebugLevels.ILLEGAL_ITEMS_LIST);
+        for (String str : Setting.PRODUCT_ILLEGAL_ITEMS_LIST.getStringList()) {
+            productList.checkAndAdd(str);
+        }
+    }
 
     private void setGameMatList() {
-		gameMats.clear();
+        gameMats.clear();
 
-		//Adds each Material from Minecraft to a list for command tab complete
-		for (Material mat : Material.values()) {
-			// Only add the material if it isn't BlackListed
-			if (!globalList.isIllegal(mat)) {
-				gameMats.add(mat.toString());
-			}
-		}
+        //Adds each Material from Minecraft to a list for command tab complete
+        for (Material mat : Material.values()) {
+            // Only add the material if it isn't BlackListed
+            if (!globalList.isIllegal(mat)) {
+                gameMats.add(mat.toString());
+            }
+        }
 
-		// Remove all non-obtainable materials that we have found
-		for (NonObtainableMaterials mat : NonObtainableMaterials.values()) {
-			gameMats.remove(mat.toString());
-		}
+        // Remove all non-obtainable materials that we have found
+        for (NonObtainableMaterials mat : NonObtainableMaterials.values()) {
+            gameMats.remove(mat.toString());
+        }
 
-		//Adds any strings that have been added the AddOnMats list to the autocomplete list
-		gameMats.addAll(addOnMats);
-	}
+        //Adds any strings that have been added the AddOnMats list to the autocomplete list
+        gameMats.addAll(addOnMats);
+    }
 
-	private void updateDirections() {
-		directions.clear();
+    private void updateDirections() {
+        directions.clear();
 
-		for (String str : Setting.CHEST_DIRECTIONS.getStringList()) {
-			try {
-				directions.add(RelativeDirection.valueOf(str));
-			} catch (IllegalArgumentException | NullPointerException ignored) {
-			}
-		}
-	}
+        for (String str : Setting.CHEST_DIRECTIONS.getStringList()) {
+            try {
+                directions.add(RelativeDirection.valueOf(str));
+            } catch (IllegalArgumentException | NullPointerException ignored) {
+            }
+        }
+    }
 
     private void updateInventoryMats() {
-		//Clears the list before updating
-		inventories.clear();
+        //Clears the list before updating
+        inventories.clear();
 
-		PLUGIN.getDebugger().log("Inventory Materials from Config:", DebugLevels.STARTUP);
-		PLUGIN.getDebugger().log("Config String | Status | Matching Type", DebugLevels.STARTUP);
+        PLUGIN.getDebugger().log("Inventory Materials from Config:", DebugLevels.STARTUP);
+        PLUGIN.getDebugger().log("Config String | Status | Matching Type", DebugLevels.STARTUP);
 
-		//For each String in the Allowed shops config setting, check if it is a valid inventory and add the ShopStorage.Storages object to the list
-		for (String str : Setting.ALLOWED_SHOPS.getStringList()) {
-			String logMsg = "- " + str;
-			String storageName = PLUGIN.getStorages().isValidInventory(str);
-			if (storageName.length() > 0) {
-				ShopStorage.Storages storage = PLUGIN.getStorages().getValidInventory(storageName);
-				inventories.add(storage);
-				logMsg += " | Valid | " + storage.name();
-			} else {
-				logMsg += " | InValid";
-			}
+        //For each String in the Allowed shops config setting, check if it is a valid inventory and add the ShopStorage.Storages object to the list
+        for (String str : Setting.ALLOWED_SHOPS.getStringList()) {
+            String logMsg = "- " + str;
+            String storageName = PLUGIN.getStorages().isValidInventory(str);
+            if (storageName.length() > 0) {
+                ShopStorage.Storages storage = PLUGIN.getStorages().getValidInventory(storageName);
+                inventories.add(storage);
+                logMsg += " | Valid | " + storage.name();
+            } else {
+                logMsg += " | InValid";
+            }
 
-			PLUGIN.getDebugger().log(logMsg, DebugLevels.STARTUP);
-		}
-	}
+            PLUGIN.getDebugger().log(logMsg, DebugLevels.STARTUP);
+        }
+    }
 }

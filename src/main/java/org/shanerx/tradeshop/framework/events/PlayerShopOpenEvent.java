@@ -1,6 +1,6 @@
 /*
  *
- *                         Copyright (c) 2016-2019
+ *                         Copyright (c) 2016-2023
  *                SparklingComet @ http://shanerx.org
  *               KillerOfPie @ http://killerofpie.github.io
  *
@@ -37,56 +37,56 @@ import org.shanerx.tradeshop.shop.Shop;
  */
 public class PlayerShopOpenEvent extends PlayerEvent implements Cancellable {
 
-	private static final HandlerList handlers = new HandlerList();
-	private final Shop shop;
-	private boolean cancelled;
-	
-	/**
-	 * Constructor for the object.
-	 * @param buyer The {@link org.bukkit.entity.Player} object representing the player who is performing the action.
-	 * @param s The {@link Shop} object which represents the player shop which is being opened.
-	 */
-	public PlayerShopOpenEvent(Player buyer, Shop s) {
-		super(buyer);
-		this.shop = s;
-	}
+    private static final HandlerList handlers = new HandlerList();
+    private final Shop shop;
+    private boolean cancelled;
 
-	public static HandlerList getHandlerList() {
-		return handlers;
-	}
+    /**
+     * Constructor for the object.
+     * @param buyer The {@link org.bukkit.entity.Player} object representing the player who is performing the action.
+     * @param s The {@link Shop} object which represents the player shop which is being opened.
+     */
+    public PlayerShopOpenEvent(Player buyer, Shop s) {
+        super(buyer);
+        this.shop = s;
+    }
 
-	@Override
-	public HandlerList getHandlers() {
-		return handlers;
-	}
-	
-	/**
-	 * Returns the {@link Shop} object representing the player shop this event is about.
-	 * @return the shop.
-	 */
-	public Shop getShop() {
-		return shop;
-	}
-	
-	public Player getBuyer() {
-		return super.getPlayer();
-	}
-	
-	/**
-	 * Returns whether or not the event has been cancelled.
-	 * @return true if the event is being cancelled.
-	 */
-	@Override
-	public boolean isCancelled() {
-		return cancelled;
-	}
-	
-	/**
-	 * Choose whether or not to cancel the event.
-	 * @param cancelled true if the event should be cancelled.
-	 */
-	@Override
-	public void setCancelled(boolean cancelled) {
-		this.cancelled = cancelled;
-	}
+    public static HandlerList getHandlerList() {
+        return handlers;
+    }
+
+    @Override
+    public HandlerList getHandlers() {
+        return handlers;
+    }
+
+    /**
+     * Returns the {@link Shop} object representing the player shop this event is about.
+     * @return the shop.
+     */
+    public Shop getShop() {
+        return shop;
+    }
+
+    public Player getBuyer() {
+        return super.getPlayer();
+    }
+
+    /**
+     * Returns whether or not the event has been cancelled.
+     * @return true if the event is being cancelled.
+     */
+    @Override
+    public boolean isCancelled() {
+        return cancelled;
+    }
+
+    /**
+     * Choose whether or not to cancel the event.
+     * @param cancelled true if the event should be cancelled.
+     */
+    @Override
+    public void setCancelled(boolean cancelled) {
+        this.cancelled = cancelled;
+    }
 }
