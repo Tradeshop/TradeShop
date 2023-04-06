@@ -1,6 +1,6 @@
 /*
  *
- *                         Copyright (c) 2016-2019
+ *                         Copyright (c) 2016-2023
  *                SparklingComet @ http://shanerx.org
  *               KillerOfPie @ http://killerofpie.github.io
  *
@@ -363,7 +363,6 @@ public class ShopProtectionListener extends Utils implements Listener {
         } else {
             event.setCancelled(true);
         }
-        return;
     }
 
     private void scheduleShopDelayUpdate(Shop shop, Long delay) {

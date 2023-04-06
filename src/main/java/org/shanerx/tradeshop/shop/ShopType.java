@@ -1,6 +1,6 @@
 /*
  *
- *                         Copyright (c) 2016-2019
+ *                         Copyright (c) 2016-2023
  *                SparklingComet @ http://shanerx.org
  *               KillerOfPie @ http://killerofpie.github.io
  *
@@ -40,84 +40,84 @@ import java.io.Serializable;
 
 public enum ShopType implements Serializable {
 
-	TRADE(Permissions.CREATE),
+    TRADE(Permissions.CREATE),
 
-	ITRADE(Permissions.CREATEI),
+    ITRADE(Permissions.CREATEI),
 
-	BITRADE(Permissions.CREATEBI);
+    BITRADE(Permissions.CREATEBI);
 
-	private final static TradeShop plugin = (TradeShop) Bukkit.getPluginManager().getPlugin("TradeShop");
-	private Setting key;
-	private final transient Permissions perm;
+    private final static TradeShop plugin = (TradeShop) Bukkit.getPluginManager().getPlugin("TradeShop");
+    private final transient Permissions perm;
+    private Setting key;
 
-	ShopType(Permissions perm) {
-		this.perm = perm;
-	}
+    ShopType(Permissions perm) {
+        this.perm = perm;
+    }
 
-	public static boolean isShop(Sign s) {
-		return getType(s) != null;
-	}
+    public static boolean isShop(Sign s) {
+        return getType(s) != null;
+    }
 
-	public static boolean isShop(Block b) {
-		if (b != null && plugin.getSigns().getSignTypes().contains(b.getType())) {
-			return getType((Sign) b.getState()) != null;
-		}
+    public static boolean isShop(Block b) {
+        if (b != null && plugin.getSigns().getSignTypes().contains(b.getType())) {
+            return getType((Sign) b.getState()) != null;
+        }
 
-		return false;
-	}
+        return false;
+    }
 
-	public static ShopType getType(Sign s) {
-		String header = ChatColor.stripColor(s.getLine(0));
+    public static ShopType getType(Sign s) {
+        String header = ChatColor.stripColor(s.getLine(0));
 
-		if (header.equalsIgnoreCase(TRADE.toHeader())) {
-			return TRADE;
+        if (header.equalsIgnoreCase(TRADE.toHeader())) {
+            return TRADE;
 
-		} else if (header.equalsIgnoreCase(ITRADE.toHeader())) {
-			return ITRADE;
+        } else if (header.equalsIgnoreCase(ITRADE.toHeader())) {
+            return ITRADE;
 
-		} else if (header.equalsIgnoreCase(BITRADE.toHeader())) {
-			return BITRADE;
-		}
+        } else if (header.equalsIgnoreCase(BITRADE.toHeader())) {
+            return BITRADE;
+        }
 
-		return null;
-	}
+        return null;
+    }
 
-	public static ShopType deserialize(String serialized) {
-		return new GsonProcessor().fromJson(serialized, ShopType.class);
-	}
+    public static ShopType deserialize(String serialized) {
+        return new GsonProcessor().fromJson(serialized, ShopType.class);
+    }
 
-	@Override
-	public String toString() {
-		return getKey().getString();
-	}
+    @Override
+    public String toString() {
+        return getKey().getString();
+    }
 
-	public String toHeader() {
-		return "[" + getKey().getString() + "]";
-	}
+    public String toHeader() {
+        return "[" + getKey().getString() + "]";
+    }
 
-	private Setting getKey() {
-		if (key == null)
-			key = Setting.findSetting(name() + "SHOP_HEADER");
-		return key;
-	}
+    private Setting getKey() {
+        if (key == null)
+            key = Setting.findSetting(name() + "SHOP_HEADER");
+        return key;
+    }
 
-	public boolean checkPerm(Player pl) {
-		return Permissions.hasPermission(pl, perm);
-	}
+    public boolean checkPerm(Player pl) {
+        return Permissions.hasPermission(pl, perm);
+    }
 
-	public String serialize() {
-		return new GsonProcessor().toJson(this);
-	}
+    public String serialize() {
+        return new GsonProcessor().toJson(this);
+    }
 
-	public boolean isTrade() {
-		return this.equals(TRADE);
-	}
+    public boolean isTrade() {
+        return this.equals(TRADE);
+    }
 
-	public boolean isITrade() {
-		return this.equals(ITRADE);
-	}
+    public boolean isITrade() {
+        return this.equals(ITRADE);
+    }
 
-	public boolean isBiTrade() {
-		return this.equals(BITRADE);
-	}
+    public boolean isBiTrade() {
+        return this.equals(BITRADE);
+    }
 }

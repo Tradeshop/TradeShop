@@ -1,6 +1,6 @@
 /*
  *
- *                         Copyright (c) 2016-2019
+ *                         Copyright (c) 2016-2023
  *                SparklingComet @ http://shanerx.org
  *               KillerOfPie @ http://killerofpie.github.io
  *
@@ -38,27 +38,27 @@ import org.shanerx.tradeshop.utils.versionmanagement.Updater;
 
 public class JoinEventListener extends Utils implements Listener {
 
-	private final TradeShop plugin;
+    private final TradeShop plugin;
 
-	public JoinEventListener(TradeShop instance) {
-		plugin = instance;
-	}
+    public JoinEventListener(TradeShop instance) {
+        plugin = instance;
+    }
 
-	@EventHandler(priority = EventPriority.HIGH)
-	public void onJoin(PlayerJoinEvent event) {
+    @EventHandler(priority = EventPriority.HIGH)
+    public void onJoin(PlayerJoinEvent event) {
 
-		Player player = event.getPlayer();
+        Player player = event.getPlayer();
 
-		//If player has Manage permission and plugin is behind, then send update message
-		if (Permissions.hasPermission(player, Permissions.MANAGE_PLUGIN)) {
-			BukkitVersion ver = new BukkitVersion();
-			if (plugin.getUpdater().compareVersions((short) ver.getMajor(), (short) ver.getMinor(), (short) ver.getPatch()).equals(Updater.RelationalStatus.BEHIND))
-				player.sendMessage(Message.PLUGIN_BEHIND.getPrefixed());
-		}
+        //If player has Manage permission and plugin is behind, then send update message
+        if (Permissions.hasPermission(player, Permissions.MANAGE_PLUGIN)) {
+            BukkitVersion ver = new BukkitVersion();
+            if (plugin.getUpdater().compareVersions((short) ver.getMajor(), (short) ver.getMinor(), (short) ver.getPatch()).equals(Updater.RelationalStatus.BEHIND))
+                player.sendMessage(Message.PLUGIN_BEHIND.getPrefixed());
+        }
 
-		PlayerSetting playerSetting = plugin.getDataStorage().loadPlayer(player.getUniqueId());
-		if (playerSetting.showInvolvedStatus()) {
-			player.sendMessage(playerSetting.getInvolvedStatusesString());
-		}
-	}
+        PlayerSetting playerSetting = plugin.getDataStorage().loadPlayer(player.getUniqueId());
+        if (playerSetting.showInvolvedStatus()) {
+            player.sendMessage(playerSetting.getInvolvedStatusesString());
+        }
+    }
 }

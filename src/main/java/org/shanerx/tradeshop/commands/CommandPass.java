@@ -1,6 +1,6 @@
 /*
  *
- *                         Copyright (c) 2016-2019
+ *                         Copyright (c) 2016-2023
  *                SparklingComet @ http://shanerx.org
  *               KillerOfPie @ http://killerofpie.github.io
  *
@@ -35,12 +35,12 @@ import java.util.ArrayList;
 
 public class CommandPass {
 
-	private final CommandSender sender;
-	private final Command cmd;
-	private final String label;
-	private final ArrayList<String> args;
+    private final CommandSender sender;
+    private final Command cmd;
+    private final String label;
+    private final ArrayList<String> args;
 
-	public CommandPass(CommandSender sender, Command cmd, String label, String[] args) {
+    public CommandPass(CommandSender sender, Command cmd, String label, String[] args) {
         this.sender = sender;
         this.cmd = cmd;
         this.label = label;
@@ -68,35 +68,35 @@ public class CommandPass {
     }
 
     public int argsSize() {
-		return args.size();
-	}
+        return args.size();
+    }
 
-	public boolean hasArgAt(int index) {
-		return index < argsSize();
-	}
+    public boolean hasArgAt(int index) {
+        return index < argsSize();
+    }
 
-	public String getArgAt(int index) {
-		if (hasArgAt(index)) {
-			return args.get(index);
-		} else {
-			return null;
-		}
-	}
+    public String getArgAt(int index) {
+        if (hasArgAt(index)) {
+            return args.get(index);
+        } else {
+            return null;
+        }
+    }
 
-	public ArrayList<String> getArgs() {
-		return args;
-	}
+    public ArrayList<String> getArgs() {
+        return args;
+    }
 
-	public boolean hasArgs() {
-		return argsSize() > 0;
-	}
+    public boolean hasArgs() {
+        return argsSize() > 0;
+    }
 
-	/**
-	 * Colors and sends the string to the sender
-	 *
-	 * @param message message to send to the sender
-	 */
-	public void sendMessage(String message) {
-		getSender().sendMessage((new Utils()).colorize(message));
-	}
+    /**
+     * Colors and sends the string to the sender
+     *
+     * @param message message to send to the sender
+     */
+    public void sendMessage(String message) {
+        getSender().sendMessage((new Utils()).colorize(message));
+    }
 }

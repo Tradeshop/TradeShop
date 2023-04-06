@@ -1,6 +1,6 @@
 /*
  *
- *                         Copyright (c) 2016-2019
+ *                         Copyright (c) 2016-2023
  *                SparklingComet @ http://shanerx.org
  *               KillerOfPie @ http://killerofpie.github.io
  *
@@ -28,36 +28,36 @@ package org.shanerx.tradeshop.player;
 @SuppressWarnings("unused")
 public enum ShopRole {
 
-	/**
-	 * ShopRole(canDestroy, canEdit, canOpen, canShop)
-	 */
-	OWNER(true, true, true, false),
-	MANAGER(false, true, true, false),
-	MEMBER(false, false, true, false),
-	SHOPPER(false, false, false, true);
+    /**
+     * ShopRole(canDestroy, canEdit, canOpen, canShop)
+     */
+    OWNER(true, true, true, false),
+    MANAGER(false, true, true, false),
+    MEMBER(false, false, true, false),
+    SHOPPER(false, false, false, true);
 
-	private final transient boolean destroy, edit, open, shop;
+    private final transient boolean destroy, edit, open, shop;
 
-	ShopRole(boolean destroy, boolean edit, boolean open, boolean shop) {
-		this.destroy = destroy;
-		this.edit = edit;
-		this.open = open;
-		this.shop = shop;
-	}
+    ShopRole(boolean destroy, boolean edit, boolean open, boolean shop) {
+        this.destroy = destroy;
+        this.edit = edit;
+        this.open = open;
+        this.shop = shop;
+    }
 
-	public boolean canDestroy() {
-		return destroy;
-	}
+    public boolean canDestroy() {
+        return destroy;
+    }
 
-	public boolean canEdit() {
-		return edit;
-	}
+    public boolean canEdit() {
+        return edit;
+    }
 
-	public boolean canOpen() {
-		return open;
-	}
+    public boolean canOpen() {
+        return open;
+    }
 
-	public boolean canShop() {
-		return shop;
-	}
+    public boolean canShop() {
+        return shop;
+    }
 }

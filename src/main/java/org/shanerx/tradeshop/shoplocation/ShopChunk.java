@@ -1,6 +1,6 @@
 /*
  *
- *                         Copyright (c) 2016-2019
+ *                         Copyright (c) 2016-2023
  *                SparklingComet @ http://shanerx.org
  *               KillerOfPie @ http://killerofpie.github.io
  *
@@ -33,57 +33,57 @@ import java.io.Serializable;
 
 public class ShopChunk implements Serializable {
 
-	final private String div = ";;";
-	private final World world;
-	private final int x;
-	private final int z;
-	private final Chunk chunk;
+    final private String div = ";;";
+    private final World world;
+    private final int x;
+    private final int z;
+    private final Chunk chunk;
 
-	public ShopChunk(World w, int x, int z) {
-		this.world = w;
-		this.x = x;
-		this.z = z;
-		chunk = world.getChunkAt(x, z);
-	}
+    public ShopChunk(World w, int x, int z) {
+        this.world = w;
+        this.x = x;
+        this.z = z;
+        chunk = world.getChunkAt(x, z);
+    }
 
-	public ShopChunk(Chunk c) {
-		this.world = c.getWorld();
-		this.x = c.getX();
-		this.z = c.getZ();
-		chunk = c;
-	}
+    public ShopChunk(Chunk c) {
+        this.world = c.getWorld();
+        this.x = c.getX();
+        this.z = c.getZ();
+        chunk = c;
+    }
 
-	public static ShopChunk deserialize(String loc) {
-		if (loc.startsWith("c")) {
-			String[] locA = loc.contains(";;") ? loc.split(";;") : loc.split("_"); //Keep same as div
-			World world = Bukkit.getWorld(locA[1]);
-			if (world == null)
-				world = Bukkit.getWorld(locA[1].replace("-", "_"));
-			int x = Integer.parseInt(locA[2]), z = Integer.parseInt(locA[3]);
+    public static ShopChunk deserialize(String loc) {
+        if (loc.startsWith("c")) {
+            String[] locA = loc.contains(";;") ? loc.split(";;") : loc.split("_"); //Keep same as div
+            World world = Bukkit.getWorld(locA[1]);
+            if (world == null)
+                world = Bukkit.getWorld(locA[1].replace("-", "_"));
+            int x = Integer.parseInt(locA[2]), z = Integer.parseInt(locA[3]);
 
-			return new ShopChunk(world, x, z);
-		}
+            return new ShopChunk(world, x, z);
+        }
 
-		return null;
-	}
+        return null;
+    }
 
-	public String serialize() {
-		return "c" + div + world.getName() + div + x + div + z;
-	}
+    public String serialize() {
+        return "c" + div + world.getName() + div + x + div + z;
+    }
 
-	public World getWorld() {
-		return world;
-	}
+    public World getWorld() {
+        return world;
+    }
 
-	public int getX() {
-		return x;
-	}
+    public int getX() {
+        return x;
+    }
 
-	public int getZ() {
-		return z;
-	}
+    public int getZ() {
+        return z;
+    }
 
-	public Chunk getChunk() {
-		return chunk;
-	}
+    public Chunk getChunk() {
+        return chunk;
+    }
 }

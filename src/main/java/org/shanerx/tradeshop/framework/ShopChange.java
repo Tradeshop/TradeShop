@@ -1,6 +1,6 @@
 /*
  *
- *                         Copyright (c) 2016-2019
+ *                         Copyright (c) 2016-2023
  *                SparklingComet @ http://shanerx.org
  *               KillerOfPie @ http://killerofpie.github.io
  *
@@ -30,15 +30,15 @@ package org.shanerx.tradeshop.framework;
  */
 public enum ShopChange {
 
-	ADD_MANAGER,
-	ADD_MEMBER,
-	SET_MANAGER,
-	SET_MEMBER,
-	ADD_PRODUCT,
-	ADD_COST,
-	REMOVE_USER,
-	REMOVE_PRODUCT,
-	REMOVE_COST,
-	SET_PRODUCT,
-	SET_COST
+    ADD_MANAGER,
+    ADD_MEMBER,
+    SET_MANAGER,
+    SET_MEMBER,
+    ADD_PRODUCT,
+    ADD_COST,
+    REMOVE_USER,
+    REMOVE_PRODUCT,
+    REMOVE_COST,
+    SET_PRODUCT,
+    SET_COST
 }

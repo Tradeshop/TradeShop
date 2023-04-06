@@ -1,6 +1,6 @@
 /*
  *
- *                         Copyright (c) 2016-2019
+ *                         Copyright (c) 2016-2023
  *                SparklingComet @ http://shanerx.org
  *               KillerOfPie @ http://killerofpie.github.io
  *
@@ -42,78 +42,78 @@ import java.util.List;
 
 public class CommandTabCompleter extends Utils {
 
-	private final TradeShop plugin;
-	private final CommandPass command;
-	private Player pSender;
+    private final TradeShop plugin;
+    private final CommandPass command;
+    private Player pSender;
 
-	public CommandTabCompleter(TradeShop instance, CommandPass command) {
-		this.plugin = instance;
-		this.command = command;
+    public CommandTabCompleter(TradeShop instance, CommandPass command) {
+        this.plugin = instance;
+        this.command = command;
 
-		if (command.getSender() instanceof Player) {
-			pSender = (Player) command.getSender();
-		}
-	}
+        if (command.getSender() instanceof Player) {
+            pSender = (Player) command.getSender();
+        }
+    }
 
-	public List<String> help() {
-		if (command.argsSize() == 2) {
-			List<String> subCmds = new ArrayList<>();
-			for (Commands cmds : Commands.values()) {
-				if (cmds.isPartialName(command.getArgAt(1)))
-					subCmds.add(cmds.getFirstName());
-			}
+    public List<String> help() {
+        if (command.argsSize() == 2) {
+            List<String> subCmds = new ArrayList<>();
+            for (Commands cmds : Commands.values()) {
+                if (cmds.isPartialName(command.getArgAt(1)))
+                    subCmds.add(cmds.getFirstName());
+            }
 
-			return subCmds;
-		}
+            return subCmds;
+        }
 
-		return Collections.EMPTY_LIST;
-	}
+        return Collections.EMPTY_LIST;
+    }
 
-	public List<String> addSet() {
-		if (command.argsSize() == 2) {
-			return Arrays.asList("1", "2", "4", "8", "16", "32", "64", "80", "96", "128");
-		} else if (command.argsSize() == 3) {
-			return partialGameMats(command.getArgAt(2));
-		}
-		return Collections.EMPTY_LIST;
-	}
+    public List<String> addSet() {
+        if (command.argsSize() == 2) {
+            return Arrays.asList("1", "2", "4", "8", "16", "32", "64", "80", "96", "128");
+        } else if (command.argsSize() == 3) {
+            return partialGameMats(command.getArgAt(2));
+        }
+        return Collections.EMPTY_LIST;
+    }
 
-	public List<String> fillServerPlayer() {
-		if (command.argsSize() == 2) {
-			return null;
-		}
+    public List<String> fillServerPlayer() {
+        if (command.argsSize() == 2) {
+            return null;
+        }
 
-		return Collections.EMPTY_LIST;
-	}
+        return Collections.EMPTY_LIST;
+    }
 
-	public List<String> fillShopPlayer() {
-		if (command.argsSize() == 2) {
-			Block b = pSender.getTargetBlock(null, Setting.MAX_EDIT_DISTANCE.getInt());
-			Sign s;
+    public List<String> fillShopPlayer() {
+        if (command.argsSize() == 2) {
+            Block b = pSender.getTargetBlock(null, Setting.MAX_EDIT_DISTANCE.getInt());
+            Sign s;
 
             if (plugin.getListManager().isInventory(b)) {
-				s = findShopSign(b);
-			} else if (ShopType.isShop(b)) {
-				s = (Sign) b.getState();
-			} else {
-				return Collections.EMPTY_LIST;
-			}
-			Shop shop = Shop.loadShop(s);
+                s = findShopSign(b);
+            } else if (ShopType.isShop(b)) {
+                s = (Sign) b.getState();
+            } else {
+                return Collections.EMPTY_LIST;
+            }
+            Shop shop = Shop.loadShop(s);
 
-			return shop.getUserNames(ShopRole.MANAGER, ShopRole.MEMBER);
-		}
+            return shop.getUserNames(ShopRole.MANAGER, ShopRole.MEMBER);
+        }
 
-		return Collections.EMPTY_LIST;
-	}
+        return Collections.EMPTY_LIST;
+    }
 
-	private List<String> partialGameMats(String request) {
-		List<String> toReturn = new ArrayList<>();
-		for (String str : plugin.getListManager().getGameMats()) {
-			if (str.toLowerCase().contains(request.toLowerCase())) {
-				toReturn.add(str);
-			}
-		}
+    private List<String> partialGameMats(String request) {
+        List<String> toReturn = new ArrayList<>();
+        for (String str : plugin.getListManager().getGameMats()) {
+            if (str.toLowerCase().contains(request.toLowerCase())) {
+                toReturn.add(str);
+            }
+        }
 
-		return toReturn;
-	}
+        return toReturn;
+    }
 }

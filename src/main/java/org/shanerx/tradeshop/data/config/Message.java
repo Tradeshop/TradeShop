@@ -1,6 +1,6 @@
 /*
  *
- *                         Copyright (c) 2016-2019
+ *                         Copyright (c) 2016-2023
  *                SparklingComet @ http://shanerx.org
  *               KillerOfPie @ http://killerofpie.github.io
  *
@@ -309,7 +309,7 @@ public enum Message {
                 for (ItemStack itm : entry.getValue()) {
                     itemList.append("\n")
                             .append(format.replace(Variable.ITEM.toString(), ShopItemStack.getCleanItemName(itm))
-                                    .replace(Variable.AMOUNT.toString(), itm.getAmount() + ""));
+                                    .replace(Variable.AMOUNT.toString(), String.valueOf(itm.getAmount())));
                 }
 
                 message = message.replace(found, itemList.toString());

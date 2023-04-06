@@ -1,6 +1,6 @@
 /*
  *
- *                         Copyright (c) 2016-2019
+ *                         Copyright (c) 2016-2023
  *                SparklingComet @ http://shanerx.org
  *               KillerOfPie @ http://killerofpie.github.io
  *
@@ -34,84 +34,84 @@ import java.io.Serializable;
 
 public class ShopLocation implements Serializable {
 
-	final private String div = "::";
-	private transient World world;
-	private final String worldName;
-	private final double x;
-	private final double y;
-	private final double z;
+    final private String div = "::";
+    private final String worldName;
+    private final double x;
+    private final double y;
+    private final double z;
+    private transient World world;
 
-	public ShopLocation(World w, double x, double y, double z) {
-		this.world = w;
-		this.worldName = w.getName();
-		this.x = x;
-		this.y = y;
-		this.z = z;
-	}
+    public ShopLocation(World w, double x, double y, double z) {
+        this.world = w;
+        this.worldName = w.getName();
+        this.x = x;
+        this.y = y;
+        this.z = z;
+    }
 
-	public ShopLocation(Location loc) {
-		this.world = loc.getWorld();
-		this.worldName = loc.getWorld().getName();
-		this.x = loc.getX();
-		this.y = loc.getY();
-		this.z = loc.getZ();
-	}
+    public ShopLocation(Location loc) {
+        this.world = loc.getWorld();
+        this.worldName = loc.getWorld().getName();
+        this.x = loc.getX();
+        this.y = loc.getY();
+        this.z = loc.getZ();
+    }
 
-	public static ShopLocation deserialize(String loc) {
-		if (loc.startsWith("l")) {
-			String[] locA = loc.contains("::") ? loc.split("::") : loc.split("_"); //Keep same as div
-			double x = Double.parseDouble(locA[2]), y = Double.parseDouble(locA[3]), z = Double.parseDouble(locA[4]);
+    public static ShopLocation deserialize(String loc) {
+        if (loc.startsWith("l")) {
+            String[] locA = loc.contains("::") ? loc.split("::") : loc.split("_"); //Keep same as div
+            double x = Double.parseDouble(locA[2]), y = Double.parseDouble(locA[3]), z = Double.parseDouble(locA[4]);
 
-			World world = Bukkit.getWorld(locA[1]);
-			if (world == null)
-				world = Bukkit.getWorld(locA[1].replace("-", "_"));
-			if (world == null) {
-				throw new IllegalWorldException("Cannot find world " + locA[1], new WorldlessLocation(x, y, z));
-				// Not to maintainer: do NOT remove this artificial error, it is supposed to be caught elsewhere
-				// (Temporary fix for metadata world renaming bug until metadata is removed entirely)
-			}
+            World world = Bukkit.getWorld(locA[1]);
+            if (world == null)
+                world = Bukkit.getWorld(locA[1].replace("-", "_"));
+            if (world == null) {
+                throw new IllegalWorldException("Cannot find world " + locA[1], new WorldlessLocation(x, y, z));
+                // Not to maintainer: do NOT remove this artificial error, it is supposed to be caught elsewhere
+                // (Temporary fix for metadata world renaming bug until metadata is removed entirely)
+            }
 
-			return new ShopLocation(world, x, y, z);
-		}
+            return new ShopLocation(world, x, y, z);
+        }
 
-		return null;
-	}
+        return null;
+    }
 
-	public String serialize() {
-		return "l" + div + world.getName() + div + x + div + y + div + z;
-	}
+    public String serialize() {
+        return "l" + div + world.getName() + div + x + div + y + div + z;
+    }
 
-	public World getWorld() {
-		return world;
-	}
+    public World getWorld() {
+        return world;
+    }
 
-	public String getWorldName() {
-		return worldName;
-	}
+    public String getWorldName() {
+        return worldName;
+    }
 
-	public void stringToWorld() {
-		if (worldName != null && world == null) {
-			world = Bukkit.getWorld(worldName);
-		}
-	}
+    public void stringToWorld() {
+        if (worldName != null && world == null) {
+            world = Bukkit.getWorld(worldName);
+        }
+    }
 
-	public double getX() {
-		return x;
-	}
+    public double getX() {
+        return x;
+    }
 
-	public double getY() {
-		return y;
-	}
+    public double getY() {
+        return y;
+    }
 
-	public double getZ() {
-		return z;
-	}
+    public double getZ() {
+        return z;
+    }
 
-	public Chunk getChunk() {
-		return getLocation().getChunk();
-	}
+    public Chunk getChunk() {
+        return getLocation().getChunk();
+    }
 
-	public Location getLocation() {
-		return new Location(world, x, y, z);
-	}
+    public Location getLocation() {
+        return new Location(world, x, y, z);
+    }
 }

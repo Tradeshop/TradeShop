@@ -1,6 +1,6 @@
 /*
  *
- *                         Copyright (c) 2016-2019
+ *                         Copyright (c) 2016-2023
  *                SparklingComet @ http://shanerx.org
  *               KillerOfPie @ http://killerofpie.github.io
  *
@@ -31,11 +31,11 @@ import org.shanerx.tradeshop.utils.Utils;
 
 public class SubCommand extends Utils {
 
-	protected final TradeShop plugin;
-	protected final CommandPass command;
+    protected final TradeShop plugin;
+    protected final CommandPass command;
 
-	public SubCommand(TradeShop instance, CommandPass command) {
-		this.plugin = instance;
-		this.command = command;
-	}
+    public SubCommand(TradeShop instance, CommandPass command) {
+        this.plugin = instance;
+        this.command = command;
+    }
 }
