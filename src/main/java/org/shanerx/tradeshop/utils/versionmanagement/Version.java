@@ -25,7 +25,6 @@
 
 package org.shanerx.tradeshop.utils.versionmanagement;
 
-import org.bukkit.Bukkit;
 import org.shanerx.tradeshop.utils.objects.ObjectHolder;
 
 import java.util.ArrayList;
@@ -34,15 +33,11 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class BukkitVersion {
+public class Version {
 	private final String VERSION;
 	private final Map<String, ObjectHolder<Object>> verMap;
 
-	public BukkitVersion() {
-		this(Bukkit.getBukkitVersion());
-	}
-
-	public BukkitVersion(String version) {
+	public Version(String version) {
 		VERSION = version;
 		verMap = getVerMap();
 	}
@@ -113,9 +108,12 @@ public class BukkitVersion {
 	}
 
 	public boolean compare(int[] compVersion, String mathComp) {
-		for (int i = compVersion.length - 1; i < 3; i++) {
-			compVersion[i] = 0;
+		int[] temp = new int[3];
+		for (int i = 0; i < temp.length; i++) {
+			if (compVersion.length > i) temp[i] = compVersion[i];
+			else temp[i] = 0;
 		}
+		compVersion = temp;
 
 		ObjectHolder<Object> simpBukkVer = verMap.get("simplified"),
 				simpCompVer = new ObjectHolder<>((compVersion[0] * 100) + (compVersion[1]) + (compVersion[2]));
@@ -151,22 +149,18 @@ public class BukkitVersion {
 		Matcher matcher = pat.matcher(VERSION);
 
 		String ver;
-		if (matcher.find()) {
-			ver = matcher.group();
-		} else {
-			return null;
-		}
+		if (matcher.find()) ver = matcher.group();
+		else return null;
 
 		String[] verSplit = ver.split("\\.");
-
 		ArrayList<ObjectHolder<Object>> verInts = new ArrayList<>(3);
 
-		for (int i = 0; i < verSplit.length; i++) {
-			ObjectHolder<Object> iOH = new ObjectHolder<>(verSplit[i]);
-			if (iOH.isInteger()) {
-				verInts.set(i, iOH);
-			}
+		for (String s : verSplit) {
+			ObjectHolder<Object> iOH = new ObjectHolder<>(s);
+			if (iOH.canBeInteger()) verInts.add(iOH);
 		}
+
+		while (verInts.size() < 3) verInts.add(new ObjectHolder<>(0));
 
 		Map<String, ObjectHolder<Object>> map = new HashMap<>();
 		map.put("major", verInts.get(0));

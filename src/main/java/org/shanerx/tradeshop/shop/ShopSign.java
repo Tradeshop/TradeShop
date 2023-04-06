@@ -29,7 +29,7 @@ import org.bukkit.Material;
 import org.shanerx.tradeshop.TradeShop;
 import org.shanerx.tradeshop.utils.Utils;
 import org.shanerx.tradeshop.utils.debug.DebugLevels;
-import org.shanerx.tradeshop.utils.versionmanagement.BukkitVersion;
+import org.shanerx.tradeshop.utils.versionmanagement.Version;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -113,7 +113,7 @@ enum Signs {
 
 public class ShopSign extends Utils {
 
-    private final BukkitVersion version = new BukkitVersion();
+    private final Version version = TradeShop.getPlugin().getVersion();
     private final ArrayList<Material> signTypes = new ArrayList<>();
 
     public ShopSign() {
@@ -142,7 +142,7 @@ public class ShopSign extends Utils {
     }
 
     public static Map<String, String> getDefaultColourMap() {
-        final BukkitVersion version = new BukkitVersion();
+        final Version version = TradeShop.getPlugin().getVersion();
         Map<String, String> colourMap = new HashMap<>();
 
         for (Signs value : Signs.values()) {

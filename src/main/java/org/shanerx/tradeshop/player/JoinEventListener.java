@@ -33,8 +33,8 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.shanerx.tradeshop.TradeShop;
 import org.shanerx.tradeshop.data.config.Message;
 import org.shanerx.tradeshop.utils.Utils;
-import org.shanerx.tradeshop.utils.versionmanagement.BukkitVersion;
 import org.shanerx.tradeshop.utils.versionmanagement.Updater;
+import org.shanerx.tradeshop.utils.versionmanagement.Version;
 
 public class JoinEventListener extends Utils implements Listener {
 
@@ -51,7 +51,7 @@ public class JoinEventListener extends Utils implements Listener {
 
         //If player has Manage permission and plugin is behind, then send update message
         if (Permissions.hasPermission(player, Permissions.MANAGE_PLUGIN)) {
-            BukkitVersion ver = new BukkitVersion();
+            Version ver = TradeShop.getPlugin().getVersion();
             if (plugin.getUpdater().compareVersions((short) ver.getMajor(), (short) ver.getMinor(), (short) ver.getPatch()).equals(Updater.RelationalStatus.BEHIND))
                 player.sendMessage(Message.PLUGIN_BEHIND.getPrefixed());
         }
