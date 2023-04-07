@@ -57,7 +57,7 @@ public class PlayerSetting implements Serializable {
 
     private int multi = Setting.MULTI_TRADE_DEFAULT.getInt();
 
-    private final TradeShop PLUGIN = TradeShop.getPlugin();
+    private final transient TradeShop PLUGIN = TradeShop.getPlugin();
 
     private transient Utils utils = new Utils();
 

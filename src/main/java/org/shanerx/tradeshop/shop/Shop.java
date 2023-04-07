@@ -63,7 +63,7 @@ import java.util.stream.Collectors;
 public class Shop implements Serializable {
 
     private final ShopLocation shopLoc;
-    private final TradeShop PLUGIN = TradeShop.getPlugin();
+    private transient TradeShop plugin = TradeShop.getPlugin();
     private ShopUser owner;
     private Set<UUID> managers, members;
     private ShopType shopType;
@@ -90,7 +90,7 @@ public class Shop implements Serializable {
 
         if (locations.getRight() != null) {
             chestLoc = new ShopLocation(locations.getRight());
-            PLUGIN.getDataStorage().addChestLinkage(chestLoc, shopLoc);
+            plugin.getDataStorage().addChestLinkage(chestLoc, shopLoc);
         }
 
         this.shopType = shopType;
@@ -204,7 +204,7 @@ public class Shop implements Serializable {
      */
     public void setInventoryLocation(Location newLoc) {
         chestLoc = new ShopLocation(newLoc);
-        PLUGIN.getDataStorage().addChestLinkage(chestLoc, shopLoc);
+        plugin.getDataStorage().addChestLinkage(chestLoc, shopLoc);
     }
 
     /**
@@ -277,14 +277,14 @@ public class Shop implements Serializable {
      * Fixes values and objects after loading or creating a Shop
      */
     public void fixAfterLoad() {
-        if (utils == null)
-            utils = new Utils();
+        if (utils == null) utils = new Utils();
+        if (plugin == null) plugin = TradeShop.getPlugin();
 
         shopLoc.stringToWorld();
         if (!getShopType().isITrade() && chestLoc != null) {
             chestLoc.stringToWorld();
             cost.removeIf(item -> item.getItemStack().getType().toString().endsWith("SHULKER_BOX") && getInventoryLocation().getBlock().getType().toString().endsWith("SHULKER_BOX"));
-            PLUGIN.getDataStorage().addChestLinkage(chestLoc, shopLoc);
+            plugin.getDataStorage().addChestLinkage(chestLoc, shopLoc);
         }
 
         setShopSettings();
@@ -332,7 +332,7 @@ public class Shop implements Serializable {
      */
     public void saveShop() {
         updateFullTradeCount();
-        PLUGIN.getDataStorage().saveShop(this);
+        plugin.getDataStorage().saveShop(this);
         updateUserFiles();
     }
 
@@ -476,7 +476,7 @@ public class Shop implements Serializable {
      */
     public void removeStorage() {
         if (hasStorage()) {
-            PLUGIN.getDataStorage().removeChestLinkage(chestLoc);
+            plugin.getDataStorage().removeChestLinkage(chestLoc);
             chestLoc = null;
         }
     }
@@ -541,7 +541,7 @@ public class Shop implements Serializable {
      */
     public void remove() {
         purgeFromUserFiles();
-        PLUGIN.getDataStorage().removeShop(this);
+        plugin.getDataStorage().removeShop(this);
     }
 
     /**
@@ -678,7 +678,7 @@ public class Shop implements Serializable {
      */
     public void setShopSettings(Map<ShopSettingKeys, ObjectHolder<?>> newSettings) {
         if (newSettings.size() > 0)
-            PLUGIN.getListManager().removeSkippableShop(getShopLocation());
+            plugin.getListManager().removeSkippableShop(getShopLocation());
 
         for (ShopSettingKeys settingKey : newSettings.keySet()) {
             if (settingKey.isUsable(shopType) && newSettings.get(settingKey) != null) {
@@ -901,7 +901,6 @@ public class Shop implements Serializable {
      * Updates the saved player data for all users
      */
     private void updateUserFiles() {
-        TradeShop plugin = PLUGIN;
         for (UUID user : getUsersUUID(ShopRole.OWNER, ShopRole.MANAGER, ShopRole.MEMBER)) {
             PlayerSetting playerSetting = plugin.getDataStorage().loadPlayer(user);
             playerSetting.updateShop(this);
@@ -913,7 +912,6 @@ public class Shop implements Serializable {
      * Removes this shop from all users
      */
     private void purgeFromUserFiles() {
-        TradeShop plugin = PLUGIN;
         for (UUID user : getUsersUUID(ShopRole.OWNER, ShopRole.MANAGER, ShopRole.MEMBER)) {
             PlayerSetting playerSetting = plugin.getDataStorage().loadPlayer(user);
             playerSetting.removeShop(this);

@@ -39,7 +39,6 @@ import org.shanerx.tradeshop.shop.Shop;
 import org.shanerx.tradeshop.shoplocation.ShopChunk;
 import org.shanerx.tradeshop.shoplocation.ShopLocation;
 import org.shanerx.tradeshop.utils.Utils;
-import org.shanerx.tradeshop.utils.debug.DebugLevels;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -56,7 +55,7 @@ public class DataStorage extends Utils {
 
     public void reload(DataType dataType) {
         this.dataType = dataType;
-        TradeShop.getPlugin().getDebugger().log("Data storage set to: " + dataType.name(), DebugLevels.DISABLED);
+        //TradeShop.getPlugin().getDebugger().log("Data storage set to: " + dataType.name(), DebugLevels.DISABLED);
     }
 
     public Shop loadShopFromSign(ShopLocation sign) {
