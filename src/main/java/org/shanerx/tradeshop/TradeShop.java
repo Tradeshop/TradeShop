@@ -52,6 +52,9 @@ import org.shanerx.tradeshop.utils.versionmanagement.Expirer;
 import org.shanerx.tradeshop.utils.versionmanagement.Updater;
 import org.shanerx.tradeshop.utils.versionmanagement.Version;
 
+import java.util.Arrays;
+import java.util.logging.Level;
+
 public class TradeShop extends JavaPlugin {
 
     private final NamespacedKey storageKey = new NamespacedKey(this, "tradeshop-storage-data");
@@ -73,7 +76,17 @@ public class TradeShop extends JavaPlugin {
     private Debug debugger;
 
     public static TradeShop getPlugin() {
-        return (TradeShop) Bukkit.getPluginManager().getPlugin("TradeShop");
+        TradeShop plugin = null;
+        if (Bukkit.getPluginManager().isPluginEnabled("TradeShop"))
+            plugin = (TradeShop) Bukkit.getPluginManager().getPlugin("TradeShop");
+        else
+            try {
+                Bukkit.getPluginManager().enablePlugin(new TradeShop());
+            } catch (Exception e) {
+                Bukkit.getLogger().log(Level.SEVERE, "Tradeshop could not be found or enabled... \n" + Arrays.toString(e.getStackTrace()));
+            }
+
+        return plugin;
     }
 
     @Override
