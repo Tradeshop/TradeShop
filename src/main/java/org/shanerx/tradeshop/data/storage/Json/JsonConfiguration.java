@@ -39,7 +39,6 @@ import java.io.IOException;
 import java.util.logging.Level;
 
 class JsonConfiguration extends Utils {
-    protected final String path;
     protected final GsonProcessor gson;
     protected File file, pathFile;
     protected JsonObject jsonObj;
@@ -54,12 +53,19 @@ class JsonConfiguration extends Utils {
      */
     protected JsonConfiguration(String folderFromData, String fileName) {
         this.gson = new GsonProcessor();
-        this.path = PLUGIN.getDataFolder().getAbsolutePath() + File.separator + "Data" + File.separator + folderFromData;
-        this.pathFile = new File(path);
-        this.file = new File(path + File.separator + fileName + ".json");
+        this.pathFile = getPath(folderFromData);
+        this.file = getFile(folderFromData, fileName);
 
         buildFilePath();
         loadFile();
+    }
+
+    public static File getFile(String folderFromData, String fileName) {
+        return new File(getPath(folderFromData).getPath() + File.separator + fileName + ".json");
+    }
+
+    public static File getPath(String folderFromData) {
+        return new File(TradeShop.getPlugin().getDataFolder().getAbsolutePath() + File.separator + "Data" + File.separator + folderFromData);
     }
 
     private void buildFilePath() {

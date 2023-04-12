@@ -27,7 +27,7 @@ package org.shanerx.tradeshop.player;
 
 import com.google.gson.annotations.SerializedName;
 import org.bukkit.Bukkit;
-import org.bukkit.Chunk;
+import org.bukkit.ChunkSnapshot;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
@@ -44,11 +44,14 @@ import org.shanerx.tradeshop.data.storage.DataStorage;
 import org.shanerx.tradeshop.shop.Shop;
 import org.shanerx.tradeshop.shop.ShopChest;
 import org.shanerx.tradeshop.shop.ShopType;
+import org.shanerx.tradeshop.shoplocation.ShopChunk;
 import org.shanerx.tradeshop.shoplocation.ShopLocation;
+import org.shanerx.tradeshop.utils.debug.DebugLevels;
 import org.shanerx.tradeshop.utils.gsonprocessing.GsonProcessor;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
@@ -146,24 +149,28 @@ public class ShopUser implements Serializable {
      * @return Shop List containing all shops in any chunk with a block in the range that match criteria specified
      */
     public static List<Shop> findProximityShop(Location center, int range, List<ItemStack> desiredCost, List<ItemStack> desiredProduct) {
-        List<Chunk> chunksInRange = new ArrayList<>(); //Used to prevent checking a chunk more than once
+        List<String> chunksInRange = new ArrayList<>(); //Used to prevent checking a chunk more than once
         List<Shop> foundShops = new ArrayList<>();
         DataStorage dataStorage = TradeShop.getPlugin().getDataStorage();
         World world = center.getWorld();
 
         for (int x = center.getBlockX() - range; x <= center.getBlockX() + range; x++) {
             for (int z = center.getBlockZ() - range; z <= center.getBlockZ() + range; z++) {
+                if (world != null) {
+                    ChunkSnapshot c = world.getEmptyChunkSnapshot(x / 16, z / 16, false, false);
+                    ShopChunk sc = new ShopChunk(c);
 
-                if (!chunksInRange.contains(world.getChunkAt(x, z)) && //If not already processed
-                        ((int) Math.sqrt(Math.pow(x - center.getBlockX(), 2) + Math.pow(z - center.getBlockZ(), 2))) <= range) { //If within range
-                    Chunk c = world.getChunkAt(x, z);
-                    chunksInRange.add(c); //"Mark" as processed
+                    if (!chunksInRange.contains(sc.serialize())) { //If not already processed
+                        chunksInRange.add(sc.serialize()); //"Mark" as processed
 
-                    foundShops.addAll(dataStorage.getMatchingShopsInChunk(c, desiredCost, desiredProduct));
-
+                        foundShops.addAll(dataStorage.getMatchingShopsInChunk(c, desiredCost, desiredProduct));
+                    }
                 }
             }
         }
+
+        TradeShop.getPlugin().getDebugger().log(" --- _F_P_ --- " + Arrays.toString(chunksInRange.toArray()), DebugLevels.DATA_ERROR);
+
         return foundShops;
     }
 

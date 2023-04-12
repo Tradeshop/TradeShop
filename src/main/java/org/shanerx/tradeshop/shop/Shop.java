@@ -45,12 +45,14 @@ import org.shanerx.tradeshop.player.ShopUser;
 import org.shanerx.tradeshop.shoplocation.ShopChunk;
 import org.shanerx.tradeshop.shoplocation.ShopLocation;
 import org.shanerx.tradeshop.utils.Utils;
+import org.shanerx.tradeshop.utils.debug.DebugLevels;
 import org.shanerx.tradeshop.utils.gsonprocessing.GsonProcessor;
 import org.shanerx.tradeshop.utils.objects.ObjectHolder;
 import org.shanerx.tradeshop.utils.objects.Tuple;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -1170,9 +1172,9 @@ public class Shop implements Serializable {
      * @param side         Side to be checked, Checks both sides if biTrade
      * @param desiredItems Items to check for
      */
-    public boolean containsSideItems(ShopItemSide side, List<ItemStack> desiredItems) {
+    public boolean isMissingSideItems(ShopItemSide side, List<ItemStack> desiredItems) {
         if (desiredItems == null || desiredItems.isEmpty())
-            return true; //If we aren't looking for anything then just return
+            return false; //If we aren't looking for anything then just return
 
         List<Boolean> found = new ArrayList<>(desiredItems.size());
         List<ShopItemStack> referenceList = new ArrayList<>(getSideList(side)); //Will always check against the specified side
@@ -1180,11 +1182,13 @@ public class Shop implements Serializable {
             referenceList.addAll(getSideList(side.getReverse())); //Add in opposite side if shop is BiTrade
 
         for (ItemStack item : desiredItems) {
-            found.set(desiredItems.indexOf(item), //Get index of item being checked to set appropriate boolean in found list.
-                    referenceList.stream().anyMatch(shopItemStack -> shopItemStack.isSimilar(item))); //Returns true if any items are similar
+            boolean foundItem = referenceList.stream().anyMatch(shopItemStack -> shopItemStack.isSimilar(item));
+            TradeShop.getPlugin().getDebugger().log(" --- _D_I_ --- " + side.name() + "\n" + item.toString() + "\n" + Arrays.toString(referenceList.stream().map(ShopItemStack::toString).toArray(String[]::new)) + "\n" + foundItem, DebugLevels.DATA_ERROR);
+            found.add(desiredItems.indexOf(item), //Get index of item being checked to set appropriate boolean in found list.
+                    foundItem); //Returns true if any items are similar
         }
 
-        return !found.contains(false);
+        return found.contains(false);
     }
 
     //------------------------------------------------------------------------------------------------------------------

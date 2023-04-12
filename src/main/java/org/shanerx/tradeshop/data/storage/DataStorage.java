@@ -27,6 +27,7 @@ package org.shanerx.tradeshop.data.storage;
 
 import org.apache.commons.lang.NotImplementedException;
 import org.bukkit.Chunk;
+import org.bukkit.ChunkSnapshot;
 import org.bukkit.World;
 import org.bukkit.inventory.ItemStack;
 import org.shanerx.tradeshop.TradeShop;
@@ -39,9 +40,11 @@ import org.shanerx.tradeshop.shop.Shop;
 import org.shanerx.tradeshop.shoplocation.ShopChunk;
 import org.shanerx.tradeshop.shoplocation.ShopLocation;
 import org.shanerx.tradeshop.utils.Utils;
+import org.shanerx.tradeshop.utils.debug.DebugLevels;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
@@ -79,16 +82,21 @@ public class DataStorage extends Utils {
         return getShopConfiguration(chunk).size();
     }
 
-    public List<Shop> getMatchingShopsInChunk(Chunk chunk, List<ItemStack> desiredCosts, List<ItemStack> desiredProducts) {
+    public List<Shop> getMatchingShopsInChunk(ChunkSnapshot chunk, List<ItemStack> desiredCosts, List<ItemStack> desiredProducts) {
         List<Shop> matchingShops = new ArrayList<>();
-        ShopConfiguration config = getShopConfiguration(chunk);
+        ShopChunk shopChunk = new ShopChunk(chunk);
 
-        config.list().forEach(shopLoc -> matchingShops.add(config.load(shopLoc))); //Load all shops and add to matchingShops
+        if (chunkExists(shopChunk)) {
+            ShopConfiguration config = getShopConfiguration(shopChunk);
 
-        matchingShops.removeIf(shop ->
-                !shop.containsSideItems(ShopItemSide.COST, desiredCosts) ||
-                        !shop.containsSideItems(ShopItemSide.PRODUCT, desiredProducts)); //Remove any shops that don't have a matching  cost or product.
+            config.list().forEach(shopLoc -> matchingShops.add(config.load(shopLoc))); //Load all shops and add to matchingShops
 
+            matchingShops.removeIf(shop ->
+                    shop.isMissingSideItems(ShopItemSide.COST, desiredCosts) ||
+                            shop.isMissingSideItems(ShopItemSide.PRODUCT, desiredProducts)); //Remove any shops that don't have a matching  cost or product.
+
+            TradeShop.getPlugin().getDebugger().log(" --- _G_M_ --- " + Arrays.toString(matchingShops.stream().map(shop -> shop.getShopLocationAsSL().serialize()).toArray(String[]::new)), DebugLevels.DATA_ERROR);
+        }
         return matchingShops;
     }
 
@@ -152,6 +160,13 @@ public class DataStorage extends Utils {
     protected ShopConfiguration getShopConfiguration(ShopChunk chunk) {
         if (dataType == DataType.FLATFILE) {
             return new JsonShopConfiguration(chunk);
+        }
+        throw new NotImplementedException("Data storage type " + dataType + " has not been implemented yet.");
+    }
+
+    protected boolean chunkExists(ShopChunk chunk) {
+        if (dataType == DataType.FLATFILE) {
+            return JsonShopConfiguration.doesConfigExist(chunk);
         }
         throw new NotImplementedException("Data storage type " + dataType + " has not been implemented yet.");
     }
