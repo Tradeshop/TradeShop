@@ -46,11 +46,15 @@ public class JsonShopConfiguration extends JsonConfiguration implements ShopConf
         this.chunk = chunk;
     }
 
+    public static boolean doesConfigExist(ShopChunk chunk) {
+        return getFile(chunk.getWorld().getName(), chunk.serialize()).exists();
+    }
+
     @Override
     public void loadFile() {
         if (!this.file.exists()) {
             // If could not find file try with old separators
-            String oldFile = path + File.separator + chunk.serialize().replace(";;", "_") + ".json";
+            String oldFile = file.getPath() + File.separator + chunk.serialize().replace(";;", "_") + ".json";
             if (new File(oldFile).exists())
                 new File(oldFile).renameTo(file);
         }

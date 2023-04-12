@@ -27,6 +27,7 @@ package org.shanerx.tradeshop.shoplocation;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
+import org.bukkit.ChunkSnapshot;
 import org.bukkit.World;
 
 import java.io.Serializable;
@@ -37,20 +38,19 @@ public class ShopChunk implements Serializable {
     private final World world;
     private final int x;
     private final int z;
-    private final Chunk chunk;
 
     public ShopChunk(World w, int x, int z) {
         this.world = w;
         this.x = x;
         this.z = z;
-        chunk = world.getChunkAt(x, z);
     }
 
     public ShopChunk(Chunk c) {
-        this.world = c.getWorld();
-        this.x = c.getX();
-        this.z = c.getZ();
-        chunk = c;
+        this(c.getWorld(), c.getX(), c.getZ());
+    }
+
+    public ShopChunk(ChunkSnapshot c) {
+        this(Bukkit.getWorld(c.getWorldName()), c.getX(), c.getZ());
     }
 
     public static ShopChunk deserialize(String loc) {
@@ -84,6 +84,6 @@ public class ShopChunk implements Serializable {
     }
 
     public Chunk getChunk() {
-        return chunk;
+        return world.getChunkAt(x, z);
     }
 }

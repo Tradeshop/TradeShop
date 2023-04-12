@@ -33,9 +33,11 @@ import org.shanerx.tradeshop.commands.CommandPass;
 import org.shanerx.tradeshop.data.config.Setting;
 import org.shanerx.tradeshop.player.ShopUser;
 import org.shanerx.tradeshop.shop.Shop;
+import org.shanerx.tradeshop.utils.debug.DebugLevels;
 import org.shanerx.tradeshop.utils.objects.ObjectHolder;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -59,35 +61,43 @@ public class ShopFindSubCommand extends SubCommand {
 
         ArrayList<String> lowerArgs = (command.getArgs().stream().map(String::toLowerCase).collect(Collectors.toCollection(ArrayList::new)));
         lowerArgs.remove("find");
-        String searchParam = lowerArgs.stream().reduce("", (s1, s2) -> s1 + s2);
 
         List<Shop> shops = new ArrayList<>();
 
-        for (String str : searchParam.split(";")) {
-            String[] keyVal = str.split("=");
-            switch (keyVal[0]) {
-                case "cost":
-                    desiredCost.putAll(processItemDesires(keyVal[1]));
-                    break;
-                case "product":
-                    desiredProduct.putAll(processItemDesires(keyVal[1]));
-                    break;
-                case "distance":
-                case "range":
-                    ObjectHolder<?> dist = new ObjectHolder<>(keyVal[1]);
-                    if (dist.isInteger() && dist.asInteger() < Setting.MAX_FIND_RANGE.getInt())
-                        desiredRange = dist.asInteger();
-                    break;
+        for (String arg : lowerArgs) {
+            for (String str : arg.split(";")) {
+                String[] keyVal = str.split("=");
+                plugin.getDebugger().log(" --- _S_F_ --- " + keyVal[0] + " = " + (keyVal.length > 1 ? keyVal[1] : "---No Value---"), DebugLevels.DATA_ERROR);
+                switch (keyVal[0]) {
+                    case "cost":
+                        desiredCost.putAll(processItemDesires(keyVal[1]));
+                        break;
+                    case "product":
+                        desiredProduct.putAll(processItemDesires(keyVal[1]));
+                        break;
+                    case "distance":
+                    case "range":
+                        ObjectHolder<?> dist = new ObjectHolder<>(keyVal[1]);
+                        desiredRange = (dist.canBeInteger() && dist.asInteger() < Setting.MAX_FIND_RANGE.getInt()) ?
+                                dist.asInteger() :
+                                Setting.DEFAULT_FIND_RANGE.getInt();
+                }
             }
         }
 
+        plugin.getDebugger().log(" --- _F_F_ --- \n" +
+                "Cost" + " = " + desiredCost + "\n" +
+                "Product" + " = " + desiredProduct + "\n" +
+                "Range" + " = " + desiredRange, DebugLevels.DATA_ERROR);
+
         int finalDesiredRange = desiredRange > 0 ? desiredRange : Setting.DEFAULT_FIND_RANGE.getInt();
         desiredProduct.forEach((prodId, prodItems) -> {
-            desiredProduct.forEach((costId, costItems) -> {
+            desiredCost.forEach((costId, costItems) -> {
                 shops.addAll(ShopUser.findProximityShop(searchFrom, finalDesiredRange, costItems, prodItems));
             });
         });
 
+        plugin.getDebugger().log(" --- _F_D_ --- " + Arrays.toString(shops.stream().map(shop -> shop.getShopLocationAsSL().serialize()).toArray(String[]::new)), DebugLevels.DATA_ERROR);
 
         command.getSender().sendMessage(String.join("\n", shops.stream().map(shop -> shop.getShopLocationAsSL().serialize()).toArray(String[]::new)));
     }
