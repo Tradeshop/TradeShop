@@ -62,48 +62,27 @@ public class Version {
 		return verMap.get("patch").asInteger();
 	}
 
-	@Deprecated
-	public boolean isBelow(int major, int minor) {
-		return isAbove(new int[]{major, minor});
-	}
-
-	@Deprecated
-	public boolean isBelow(int major, int minor, int patch) {
-		return isAbove(new int[]{major, minor, patch});
-	}
-
-	@Deprecated
-	public boolean isAbove(int major, int minor, int patch) {
-		return isAbove(new int[]{major, minor, patch});
-	}
-
-	@Deprecated
-	public boolean isAtLeast(int major, int minor) {
-		return isAtLeast(new int[]{major, minor});
-	}
-
-	@Deprecated
-	public boolean isAtLeast(int[] minVersion) {
+	public boolean isAtLeast(int... minVersion) {
 		return compare(minVersion, ">=");
 	}
 
-	public boolean isAtMost(int[] minVersion) {
+	public boolean isAtMost(int... minVersion) {
 		return compare(minVersion, "<=");
 	}
 
-	public boolean isBelow(int[] maxVersion) {
+	public boolean isBelow(int... maxVersion) {
 		return compare(maxVersion, "<");
 	}
 
-	public boolean isAbove(int[] maxVersion) {
+	public boolean isAbove(int... maxVersion) {
 		return compare(maxVersion, ">");
 	}
 
-	public boolean isNotEqual(int[] deniedVersion) {
+	public boolean isNotEqual(int... deniedVersion) {
 		return compare(deniedVersion, "<>");
 	}
 
-	public boolean isEqual(int[] expectedVersion) {
+	public boolean isEqual(int... expectedVersion) {
 		return compare(expectedVersion, "==");
 	}
 
