@@ -175,6 +175,8 @@ message:
       default: "en-us"
       pre-comment: "This currently does not change anything in the message files, but is used in metrics so that we can see what languages we should try to provide built in support for in the future.\n Please use codes as listed at: https://www.andiamo.co.uk/resources/iso-language-codes/"
       post-comment: "\n"
+    player-locked:
+      default: "&cYou can not make more than 1 trade per 0.5 seconds."
     change-closed:
       default: "&cThe shop is now &l&bCLOSED&r&a."
     change-open:

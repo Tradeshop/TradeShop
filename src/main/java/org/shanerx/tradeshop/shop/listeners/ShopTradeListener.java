@@ -109,6 +109,12 @@ public class ShopTradeListener extends Utils implements Listener {
             return;
         }
 
+        // Attempts to lock the player(True). If player is already locked(False), then cancel trade and send message.
+        if (!TradeShop.getPlugin().getListManager().lockPlayer(buyer.getUniqueId())) {
+            Message.PLAYER_LOCKED.sendMessage(buyer);
+            return;
+        }
+
         PlayerPreTradeEvent preEvent = new PlayerPreTradeEvent(e.getPlayer(), shop.getSideList(ShopItemSide.COST), shop.getSideList(ShopItemSide.PRODUCT), shop, e.getClickedBlock(), e.getBlockFace());
         Bukkit.getPluginManager().callEvent(preEvent);
         if (preEvent.isCancelled()) return;
@@ -202,7 +208,6 @@ public class ShopTradeListener extends Utils implements Listener {
             Message.ON_TRADE.sendItemMultiLineMessage(buyer, tradedItems,
                     new Tuple<>(Variable.SELLER.toString(), shop.getShopType().equals(ShopType.ITRADE) ? Setting.ITRADESHOP_OWNER.getString() : owner));
         }
-
 
         shop.updateFullTradeCount();
         shop.updateSign();

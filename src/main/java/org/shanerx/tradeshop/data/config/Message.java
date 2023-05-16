@@ -50,6 +50,7 @@ public enum Message {
     LANGUAGE(MessageSection.NONE, "language"),
 
     CHANGE_CLOSED(MessageSection.NONE, "change-closed"),
+    PLAYER_LOCKED(MessageSection.NONE, "player-locked"),
     CHANGE_OPEN(MessageSection.NONE, "change-open"),
     EMPTY_TS_ON_SETUP(MessageSection.NONE, "empty-ts-on-setup"),
     EXISTING_SHOP(MessageSection.NONE, "existing-shop"),

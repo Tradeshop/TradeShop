@@ -39,7 +39,9 @@ import org.shanerx.tradeshop.shop.ShopStorage;
 import org.shanerx.tradeshop.utils.debug.DebugLevels;
 import org.shanerx.tradeshop.utils.relativedirection.RelativeDirection;
 
+import java.time.Duration;
 import java.util.ArrayList;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 @SuppressWarnings("unused")
@@ -57,6 +59,7 @@ public class ListManager extends Utils {
     private final TradeShop PLUGIN = TradeShop.getPlugin();
 
     private Cache<Location, Boolean> skippableHoppers, skippableShop;
+    private Cache<UUID, Boolean> lockedPlayers;
 
 
     public ListManager() {
@@ -73,6 +76,30 @@ public class ListManager extends Utils {
                 .maximumSize(1000)
                 .expireAfterWrite(1500, TimeUnit.MILLISECONDS)
                 .build();
+    }
+
+    private void initLocker() {
+        lockedPlayers = CacheBuilder.newBuilder().maximumSize(1000).expireAfterWrite(Duration.ofMillis(500)).build();
+    }
+
+    public boolean lockPlayer(UUID player) {
+        if (isPlayerLocked(player)) {
+            return false;
+        }
+
+        lockedPlayers.put(player, true);
+        return true;
+    }
+
+    public boolean isPlayerLocked(UUID player) {
+        try {
+            if (lockedPlayers.getIfPresent(player)) {
+                return true;
+            }
+        } catch (NullPointerException ignored) {
+        }
+
+        return false;
     }
 
     /**
@@ -162,6 +189,7 @@ public class ListManager extends Utils {
         updateInventoryMats();
         setGameMatList();
         initSkip();
+        initLocker();
     }
 
     public void clearManager() {
