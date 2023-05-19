@@ -57,8 +57,6 @@ public class PlayerSetting implements Serializable {
 
     private int multi = Setting.MULTI_TRADE_DEFAULT.getInt();
 
-    private final transient TradeShop PLUGIN = TradeShop.getPlugin();
-
     private transient Utils utils = new Utils();
 
     public PlayerSetting(UUID playerUUID, Map<String, Integer> data) {
@@ -180,7 +178,7 @@ public class PlayerSetting implements Serializable {
         if (getStaffShops().size() > 0) {
             getStaffShops().forEach(s -> {
                 try {
-                    Shop shop = PLUGIN.getDataStorage().loadShopFromSign(ShopLocation.deserialize(s));
+                    Shop shop = TradeShop.getPlugin().getDataStorage().loadShopFromSign(ShopLocation.deserialize(s));
                     if (shop == null) {
                         nullShops.add(s);
                     } else if (shop.checkRole(uuid) != ShopRole.SHOPPER) {
@@ -204,12 +202,12 @@ public class PlayerSetting implements Serializable {
 
     public InventoryGui getInvolvedStatusesInventory() {
         Set<String> nullShops = new HashSet<>();
-        InventoryGui gui = new InventoryGui(PLUGIN, Bukkit.getOfflinePlayer(uuid).getName() + "'s Shops", new String[]{"ggggggggg", "ggggggggg", " fp   ln "});
+        InventoryGui gui = new InventoryGui(TradeShop.getPlugin(), Bukkit.getOfflinePlayer(uuid).getName() + "'s Shops", new String[]{"ggggggggg", "ggggggggg", " fp   ln "});
         GuiElementGroup group = new GuiElementGroup('g');
         if (getOwnedShops().size() > 0) {
             getOwnedShops().forEach(s -> {
                 try {
-                    Shop shop = PLUGIN.getDataStorage().loadShopFromSign(ShopLocation.deserialize(s));
+                    Shop shop = TradeShop.getPlugin().getDataStorage().loadShopFromSign(ShopLocation.deserialize(s));
                     if (shop == null) {
                         nullShops.add(s);
                     } else if (shop.checkRole(uuid) != ShopRole.SHOPPER) {
@@ -235,7 +233,7 @@ public class PlayerSetting implements Serializable {
         if (getStaffShops().size() > 0) {
             getStaffShops().forEach(s -> {
                 try {
-                    Shop shop = PLUGIN.getDataStorage().loadShopFromSign(ShopLocation.deserialize(s));
+                    Shop shop = TradeShop.getPlugin().getDataStorage().loadShopFromSign(ShopLocation.deserialize(s));
                     if (shop == null) {
                         nullShops.add(s);
                     } else if (shop.checkRole(uuid) != ShopRole.SHOPPER) {

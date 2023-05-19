@@ -38,6 +38,8 @@ public interface ShopConfiguration {
 
     Shop load(ShopLocation loc);
 
+    Shop loadASync(ShopLocation loc);
+
     List<ShopLocation> list();
 
     int size();

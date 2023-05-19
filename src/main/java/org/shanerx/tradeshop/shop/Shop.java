@@ -279,8 +279,7 @@ public class Shop implements Serializable {
      * Fixes values and objects after loading or creating a Shop
      */
     public void fixAfterLoad() {
-        if (utils == null) utils = new Utils();
-        if (plugin == null) plugin = TradeShop.getPlugin();
+        aSyncFix();
 
         shopLoc.stringToWorld();
         if (!getShopType().isITrade() && chestLoc != null) {
@@ -289,13 +288,21 @@ public class Shop implements Serializable {
             plugin.getDataStorage().addChestLinkage(chestLoc, shopLoc);
         }
 
+        if (getShopSign() != null)
+            updateSign();
+    }
+
+    /**
+     * Fixes values and objects after loading or creating a Shop
+     */
+    public void aSyncFix() {
+        if (utils == null) utils = new Utils();
+        if (plugin == null) plugin = TradeShop.getPlugin();
+
         setShopSettings();
 
         fixSide(ShopItemSide.COST);
         fixSide(ShopItemSide.PRODUCT);
-
-        if (getShopSign() != null)
-            updateSign();
     }
 
     /**
