@@ -88,6 +88,9 @@ public class JsonShopConfiguration extends JsonConfiguration implements ShopConf
     public Shop load(ShopLocation loc) {
         Shop shop = loadASync(loc);
 
+        if (shop == null)
+            return null;
+
         shop.fixAfterLoad();
         return shop;
     }
