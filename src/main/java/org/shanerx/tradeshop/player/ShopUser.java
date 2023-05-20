@@ -64,9 +64,7 @@ public class ShopUser implements Serializable {
     private ShopRole role;
 
     public ShopUser(OfflinePlayer player, ShopRole role) {
-        this.player = player;
-        playerUUID = player.getUniqueId().toString();
-        this.role = role;
+        this(player.getUniqueId(), role);
     }
 
     public ShopUser(UUID pUUID, ShopRole role) {
