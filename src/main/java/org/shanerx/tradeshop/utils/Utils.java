@@ -205,18 +205,34 @@ public class Utils {
     /**
      * Sets the event sign to a failed creation sign
      *
-     * @param e    Event to reset the sign for
-     * @param shop Shoptype enum to get header
+     * @param e        Event to reset the sign for
+     * @param shopType Shoptype enum to get header
      */
-    public void failedSignReset(SignChangeEvent e, ShopType shop) {
-        e.setLine(0, colorize(Setting.SHOP_BAD_COLOUR.getString() + shop.toString()));
-        e.setLine(1, "");
-        e.setLine(2, "");
-        e.setLine(3, "");
+    public void failedSignReset(SignChangeEvent e, ShopType shopType) {
+        String[] lines = failedSignLines(shopType);
+        for (int line = 0; line < 4; line++) {
+            e.setLine(line, lines[line]);
+        }
     }
 
     /**
-     * Checks whether or not it is an illegal material.
+     * Returns the failed sign text to be used
+     *
+     * @param shop Shoptype enum to get header
+     */
+    public String[] failedSignLines(ShopType shop) {
+        String[] lines = new String[4];
+
+        lines[0] = colorize(Setting.SHOP_BAD_COLOUR.getString() + shop.toString());
+        for (int i = 1; i < 4; i++) {
+            lines[i] = " ";
+        }
+
+        return lines;
+    }
+
+    /**
+     * Checks whether the material is illegal.
      *
      * @param side What side of the trade the item is on
      * @param mat  String to check

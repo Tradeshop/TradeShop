@@ -104,6 +104,7 @@ public enum Message {
     VARIOUS_ITEM_TYPE(MessageSection.NONE, "various-item-type"),
     TOGGLED_STATUS(MessageSection.NONE, "toggled-status"),
     NO_SIGN_FOUND(MessageSection.NONE, "no-sign-found"),
+    NO_SHOP_FOUND(MessageSection.NONE, "no-shop-found"),
     ADMIN_TOGGLED(MessageSection.NONE, "admin-toggled"),
     FAILED_TRADE(MessageSection.NONE, "failed-trade");
 

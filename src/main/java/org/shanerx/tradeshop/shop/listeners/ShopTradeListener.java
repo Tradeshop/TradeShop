@@ -75,11 +75,13 @@ public class ShopTradeListener extends Utils implements Listener {
         Player buyer = e.getPlayer();
 
         Shop shop;
+        ShopType type;
         Sign s;
         BlockState chestState;
 
         if (ShopType.isShop(e.getClickedBlock())) {
             s = (Sign) e.getClickedBlock().getState();
+            type = ShopType.getType(s);
         } else {
             return;
         }
@@ -87,11 +89,12 @@ public class ShopTradeListener extends Utils implements Listener {
         shop = PLUGIN.getDataStorage().loadShopFromSign(new ShopLocation(s.getLocation()));
 
         if (shop == null) {
-            s.setLine(0, "");
-            s.setLine(1, "");
-            s.setLine(2, "");
-            s.setLine(3, "");
+            String[] lines = failedSignLines(type);
+            for (int line = 0; line < 4; line++) {
+                s.setLine(line, lines[line]);
+            }
             s.update();
+            Message.NO_SHOP_FOUND.sendMessage(buyer);
             return;
         }
 
