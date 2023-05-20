@@ -36,6 +36,9 @@ public enum SettingSection {
 
     NONE(0, ""),
     SYSTEM_OPTIONS(1, "system-options"),
+
+    TRANSACTION_LOGGING_OPTIONS(50, SYSTEM_OPTIONS, "transaction-logging-options"),
+
     LANGUAGE_OPTIONS(2, "language-options"),
     GLOBAL_OPTIONS(3, "global-options"),
     GLOBAL_MULTI_TRADE(50, GLOBAL_OPTIONS, "multi-trade"),

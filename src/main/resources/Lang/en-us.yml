@@ -4,6 +4,8 @@ setting:
       header: ""
     system-options:
       header: "System Options"
+    logging-options:
+      header: "Logging Options"
     language-options:
       header: "Language Options"
     global-options:
@@ -53,6 +55,16 @@ setting:
         pre-comment: "Allow us to connect anonymous metrics so we can see how our plugin is being used to better develop it"
       unlimited-admin:
         pre-comment: "We do not recommend enabling this setting since any editing an admin should need to do can be done without this.\n Should players with Admin permission be able to use any commands on any shops?"
+      logging-options:
+        enable-logging:
+          pre-comment: "Should we log transactions?"
+        output-type:
+          pre-comment: "How should the output file be formatted\n  # Options: `TSV` - Tab Separated Value file"
+        log-time-seperation:
+          pre-comment: "How often should we create new log files.\n  # Options: `M` - Month, `d` - Day, `H` - Hour, `m` - Minute, `s` - Second"
+        transaction-log-format:
+          pre-comment: "How should the output entries be formatted, each value must be seperated by `_@_`\n  # Changes to this may cause formatting errors in the current output log, please remove old output logs once you have changed this.\n  # Values: \n  # %Date \n  # %Time \n  # %ShopType \n  # %Owner \n  # %TradingPlayer \n  # %ShopLocation \n  # %World \n  # %X \n  # %Y \n  # %Z \n  # %CostList \n  # %ProductList"
+          post-comment: "\n"
     language-options:
       message-prefix:
         pre-comment: "The prefix the displays before all plugin messages"
@@ -94,6 +106,12 @@ setting:
           pre-comment: "Default multiplier for trades using shift + click"
         max-multi:
           pre-comment: "Maximum amount a player can set their multiplier to. Not recommended to set any higher than 6 as this can cause bugs with iTrade Shops"
+          post-comment: "\n"
+      global-find-options:
+        max-find-range:
+          pre-comment: "Maximum range that can be searched for a shop. Increasing may drastically increase processioning time and cause server lag."
+        default-find-range:
+          pre-comment: "Default range to use if no range is specified."
           post-comment: "\n"
     illegal-item-options:
       global-illegal-items:
@@ -321,6 +339,9 @@ message:
     no-sign-found:
       default: "&cNo sign in range!"
       pre-comment: "Text to display when a player is too far from a sign"
+    no-shop-found:
+      default: "&cThat shop does not seem to exist!"
+      pre-comment: "Text to display when a shop sign with no shop data is interacted with."
     admin-toggled:
       default: "&aYour Admin mode is currently &e%STATE%&a."
       pre-comment: "Text to display when an admin toggles or views their Admin abilities. \n# \"%STATE%\" will be replaced by the state that the player is in after the command."

@@ -56,6 +56,12 @@ public enum Setting {
     ALLOW_METRICS(SettingSection.SYSTEM_OPTIONS, "allow-metrics", true),
     UNLIMITED_ADMIN(SettingSection.SYSTEM_OPTIONS, "unlimited-admin", false),
 
+    // ^ Logging
+    ENABLE_TRANSACTION_LOGGING(SettingSection.TRANSACTION_LOGGING_OPTIONS, "enable-transaction-logging", true),
+    OUTPUT_TYPE(SettingSection.TRANSACTION_LOGGING_OPTIONS, "output-type", "TSV"),
+    LOG_TIME_SEPARATION(SettingSection.TRANSACTION_LOGGING_OPTIONS, "log-time-separation", "H"),
+    TRANSACTION_LOG_FORMAT(SettingSection.TRANSACTION_LOGGING_OPTIONS, "transaction-log-format", "%Date_@_%Time_@_%ShopType_@_%Owner_@_%TradingPlayer_@_%World_@_%X_@_%Y_@_%Z_@_%CostList_@_%ProductList"),
+
     // Language Options
     MESSAGE_PREFIX(SettingSection.LANGUAGE_OPTIONS, "message-prefix", "&a[&eTradeShop&a]"),
 

@@ -48,6 +48,7 @@ import org.shanerx.tradeshop.utils.ListManager;
 import org.shanerx.tradeshop.utils.MetricsManager;
 import org.shanerx.tradeshop.utils.debug.Debug;
 import org.shanerx.tradeshop.utils.debug.DebugLevels;
+import org.shanerx.tradeshop.utils.logging.transactionlogging.TransactionLogger;
 import org.shanerx.tradeshop.utils.versionmanagement.Expirer;
 import org.shanerx.tradeshop.utils.versionmanagement.Updater;
 import org.shanerx.tradeshop.utils.versionmanagement.Version;
@@ -68,6 +69,8 @@ public class TradeShop extends JavaPlugin {
 
     private ConfigManager settingManager, messageManager;
     private Language language;
+
+    private TransactionLogger transactionLogger;
 
     private Version version;
     private ShopSign signs;
@@ -253,5 +256,12 @@ public class TradeShop extends JavaPlugin {
             language = new Language(this);
 
         return language;
+    }
+
+    public TransactionLogger getTransactionLogger() {
+        if (transactionLogger == null)
+            transactionLogger = new TransactionLogger(this);
+
+        return transactionLogger;
     }
 }
