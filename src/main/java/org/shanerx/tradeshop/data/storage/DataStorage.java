@@ -161,7 +161,8 @@ public class DataStorage extends Utils {
     }
 
     public void addChestLinkage(ShopLocation chestLocation, ShopLocation shopLocation) {
-        getLinkageConfiguration(chestLocation.getWorld()).add(chestLocation, shopLocation);
+        if (Bukkit.isPrimaryThread())
+            getLinkageConfiguration(chestLocation.getWorld()).add(chestLocation, shopLocation);
     }
 
     public void removeChestLinkage(ShopLocation chestLocation) {
