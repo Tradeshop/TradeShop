@@ -181,6 +181,8 @@ public class ShopUserSubCommand extends SubCommand {
      * @throws UnsupportedOperationException if failure
      */
     private Shop shopUserCommandStart(OfflinePlayer target, boolean applyAllOwned) {
+        this.target = target;
+
         if (target == null || !target.hasPlayedBefore()) {
             Message.PLAYER_NOT_FOUND.sendMessage(command.getPlayerSender());
             throw new UnsupportedOperationException();

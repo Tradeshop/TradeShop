@@ -107,7 +107,7 @@ public class DataStorage extends Utils {
         if (chunkExists(shopChunk)) {
             ShopConfiguration config = getShopConfiguration(shopChunk);
 
-            config.list().forEach(shopLoc -> matchingShops.add(config.load(shopLoc))); //Load all shops and add to matchingShops
+            config.list().forEach(shopLoc -> matchingShops.add(config.loadASync(shopLoc))); //Load all shops and add to matchingShops
 
             matchingShops.removeIf(shop ->
                     shop.isMissingSideItems(ShopItemSide.COST, desiredCosts) ||
