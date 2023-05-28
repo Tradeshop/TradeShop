@@ -80,7 +80,7 @@ class JsonConfiguration extends Utils {
 
     protected void loadFile() {
         try {
-            jsonObj = new JsonParser().parse(new FileReader(file)).getAsJsonObject();
+            jsonObj = JsonParser.parseReader(new FileReader(file)).getAsJsonObject();
         } catch (FileNotFoundException e) {
             PLUGIN.getLogger().log(Level.SEVERE, "Could not load " + file.getName() + " file! Data may be lost!", e);
         } catch (IllegalStateException e) {

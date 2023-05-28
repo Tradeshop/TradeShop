@@ -282,8 +282,13 @@ public class Shop implements Serializable {
         aSyncFix();
 
         shopLoc.stringToWorld();
-        if (!getShopType().isITrade() && chestLoc != null) {
+
+        if (!getShopType().isITrade()) {
+            if (chestLoc == null) {
+                chestLoc = new ShopLocation(new Utils().findShopChest(getShopLocation().getBlock()).getLocation());
+            }
             chestLoc.stringToWorld();
+
             cost.removeIf(item -> item.getItemStack().getType().toString().endsWith("SHULKER_BOX") && getInventoryLocation().getBlock().getType().toString().endsWith("SHULKER_BOX"));
             plugin.getDataStorage().addChestLinkage(chestLoc, shopLoc);
         }

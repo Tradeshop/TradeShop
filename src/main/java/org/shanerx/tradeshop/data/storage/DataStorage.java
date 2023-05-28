@@ -88,7 +88,9 @@ public class DataStorage extends Utils {
     }
 
     public void saveShop(Shop shop) {
-        getShopConfiguration(shop.getShopLocation().getChunk()).save(shop);
+        if (Bukkit.isPrimaryThread()) {
+            getShopConfiguration(shop.getShopLocation().getChunk()).save(shop);
+        }
     }
 
     public void removeShop(Shop shop) {
