@@ -48,7 +48,9 @@ import org.shanerx.tradeshop.utils.debug.DebugLevels;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -56,6 +58,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class DataStorage extends Utils {
 
     private transient DataType dataType;
+    public final Map<File, String> saving;
 
     private final Cache<World, LinkageConfiguration> linkCache = CacheBuilder.newBuilder()
             .maximumSize(50)
@@ -71,6 +74,7 @@ public class DataStorage extends Utils {
                     .build();
 
     public DataStorage(DataType dataType) {
+        saving = new HashMap<>();
         reload(dataType);
     }
 

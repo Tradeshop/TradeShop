@@ -27,6 +27,7 @@ package org.shanerx.tradeshop.commands.commandrunners;
 
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.entity.Player;
 import org.shanerx.tradeshop.TradeShop;
 import org.shanerx.tradeshop.commands.CommandPass;
 import org.shanerx.tradeshop.data.config.Message;
@@ -55,7 +56,7 @@ import java.util.Set;
  */
 public class ShopUserSubCommand extends SubCommand {
 
-    private OfflinePlayer target;
+    private Player target;
 
     public ShopUserSubCommand(TradeShop instance, CommandPass command) {
         super(instance, command);
@@ -97,7 +98,9 @@ public class ShopUserSubCommand extends SubCommand {
             Set<Shop> ownedShops = new HashSet<>();
             Map<String, String> updateStatuses = new HashMap<>();
 
-            Shop tempShop = shopUserCommandStart(Bukkit.getOfflinePlayer(command.getArgAt(1)), applyAllOwned);
+            target = Bukkit.getPlayer(command.getArgAt(1));
+
+            Shop tempShop = shopUserCommandStart(target, applyAllOwned);
 
             if (applyAllOwned) {
                 for (String location : plugin.getDataStorage().loadPlayer(command.getPlayerSender().getUniqueId()).getOwnedShops()) {
@@ -180,7 +183,7 @@ public class ShopUserSubCommand extends SubCommand {
      * @return Shop if found or null if not needed; returning null while setting target to null indicates failure, command should respond with an immediate blank return.
      * @throws UnsupportedOperationException if failure
      */
-    private Shop shopUserCommandStart(OfflinePlayer target, boolean applyAllOwned) {
+    private Shop shopUserCommandStart(Player target, boolean applyAllOwned) {
         this.target = target;
 
         if (target == null || !target.hasPlayedBefore()) {

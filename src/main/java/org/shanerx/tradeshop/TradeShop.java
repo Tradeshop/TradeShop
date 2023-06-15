@@ -27,6 +27,7 @@ package org.shanerx.tradeshop;
 
 import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
+import org.bukkit.command.PluginCommand;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.shanerx.tradeshop.commands.CommandCaller;
@@ -54,6 +55,7 @@ import org.shanerx.tradeshop.utils.versionmanagement.Updater;
 import org.shanerx.tradeshop.utils.versionmanagement.Version;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.logging.Level;
 
 public class TradeShop extends JavaPlugin {
@@ -152,6 +154,29 @@ public class TradeShop extends JavaPlugin {
         } else {
             getLogger().warning("Metrics are disabled! Please consider enabling them to support the authors!");
         }
+
+        PluginCommand tsAlias = getCommand("ts");
+
+        while (tsAlias != null) {
+            List<String> aliases = tsAlias.getAliases();
+            aliases.remove("ts");
+
+            String newAlias = "ts";
+
+            while (getCommand(newAlias) != null) {
+                String pl = tsAlias.getPlugin().getName();
+                int baseoffset = (pl.length() / 2) + (newAlias.length() - 2);
+                newAlias += pl.substring(baseoffset - 2, baseoffset - 3);
+            }
+
+
+            aliases.add(newAlias);
+            tsAlias.setAliases(aliases);
+
+
+            tsAlias = getCommand("ts");
+        }
+
     }
 
     @Override

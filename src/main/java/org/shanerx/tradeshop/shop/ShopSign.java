@@ -47,7 +47,8 @@ enum Signs {
     DARK_OAK_SIGN("1.14.0", "", "&f"),
     CRIMSON_SIGN("1.16.0", "", "&0"),
     WARPED_SIGN("1.16.0", "", "&0"),
-    MANGROVE_SIGN("1.19.0", "", "&0");
+    MANGROVE_SIGN("1.19.0", "", "&0"),
+    CHERRY_SIGN("1.20.0", "", "&0");
 
     private final List<Integer> minVer = Arrays.asList(new Integer[3]);
     private final List<Integer> maxVer = Arrays.asList(new Integer[3]);
@@ -133,6 +134,11 @@ public class ShopSign extends Utils {
             if (pass) {
                 signTypes.add(Material.matchMaterial(type.toString()));
                 signTypes.add(Material.matchMaterial(type.toString().toUpperCase().replace("_SIGN", "_WALL_SIGN")));
+                if (version.isAtLeast(1, 20, 0)) {
+                    signTypes.add(Material.matchMaterial(type.toString().toUpperCase().replace("_SIGN", "_HANGING_SIGN")));
+                    signTypes.add(Material.matchMaterial(type.toString().toUpperCase().replace("_SIGN", "_HANGING_WALL_SIGN")));
+                }
+
             }
         }
     }

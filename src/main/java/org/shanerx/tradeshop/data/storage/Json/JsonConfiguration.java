@@ -80,7 +80,11 @@ class JsonConfiguration extends Utils {
 
     protected void loadFile() {
         try {
-            jsonObj = JsonParser.parseReader(new FileReader(file)).getAsJsonObject();
+            if (!PLUGIN.getDataStorage().saving.containsKey(file)) {
+                jsonObj = JsonParser.parseReader(new FileReader(file)).getAsJsonObject();
+            } else {
+                jsonObj = JsonParser.parseString(PLUGIN.getDataStorage().saving.get(this.file)).getAsJsonObject();
+            }
         } catch (FileNotFoundException e) {
             PLUGIN.getLogger().log(Level.SEVERE, "Could not load " + file.getName() + " file! Data may be lost!", e);
         } catch (IllegalStateException e) {
@@ -89,18 +93,23 @@ class JsonConfiguration extends Utils {
     }
 
     protected void saveFile() {
-        Bukkit.getScheduler().runTaskAsynchronously(TradeShop.getPlugin(), () -> {
-            String str = gson.toJson(jsonObj);
-            if (!str.isEmpty()) {
-                try {
-                    FileWriter fileWriter = new FileWriter(this.file);
-                    fileWriter.write(str);
-                    fileWriter.flush();
-                    fileWriter.close();
-                } catch (IOException e) {
-                    PLUGIN.getLogger().log(Level.SEVERE, "Could not save " + file.getName() + " file! Data may be lost!", e);
+        if (!PLUGIN.getDataStorage().saving.containsKey(file)) {
+            final String str = gson.toJson(jsonObj);
+            PLUGIN.getDataStorage().saving.put(file, str);
+
+            Bukkit.getScheduler().runTaskAsynchronously(TradeShop.getPlugin(), () -> {
+                if (!str.isEmpty()) {
+                    try {
+                        FileWriter fileWriter = new FileWriter(this.file);
+                        fileWriter.write(str);
+                        fileWriter.flush();
+                        fileWriter.close();
+                    } catch (IOException e) {
+                        PLUGIN.getLogger().log(Level.SEVERE, "Could not save " + file.getName() + " file! Data may be lost!", e);
+                    }
                 }
-            }
-        });
+                PLUGIN.getDataStorage().saving.remove(file);
+            });
+        }
     }
 }

@@ -104,9 +104,14 @@ public class ShopFindSubCommand extends SubCommand {
                         });
                     });
 
-                    plugin.getDebugger().log(" --- _F_D_ --- " + Arrays.toString(shops.stream().map(shop -> shop.getShopLocationAsSL().serialize()).toArray(String[]::new)), DebugLevels.DATA_ERROR);
+                    String[] shoparray = shops.stream().map(shop -> shop.getShopLocationAsSL().serialize()).toArray(String[]::new);
 
-                    command.getSender().sendMessage(String.join("\n", shops.stream().map(shop -> shop.getShopLocationAsSL().serialize()).toArray(String[]::new)));
+                    plugin.getDebugger().log(" --- _F_D_ --- " + Arrays.toString(shoparray), DebugLevels.DATA_ERROR);
+
+                    if (shoparray.length > 0)
+                        command.getSender().sendMessage(String.join("\n", shoparray));
+                    else
+                        Message.NO_SHOP_FOUND.sendMessage(command.getSender());
                 } else {
                     Message.FEATURE_DISABLED.sendMessage(command.getSender());
                 }
