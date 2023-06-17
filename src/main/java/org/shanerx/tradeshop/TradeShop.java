@@ -25,6 +25,7 @@
 
 package org.shanerx.tradeshop;
 
+import com.google.common.collect.Lists;
 import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
 import org.bukkit.command.PluginCommand;
@@ -55,7 +56,9 @@ import org.shanerx.tradeshop.utils.versionmanagement.Updater;
 import org.shanerx.tradeshop.utils.versionmanagement.Version;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 
 public class TradeShop extends JavaPlugin {
@@ -155,28 +158,36 @@ public class TradeShop extends JavaPlugin {
             getLogger().warning("Metrics are disabled! Please consider enabling them to support the authors!");
         }
 
-        PluginCommand tsAlias = getCommand("ts");
+        String conflictAlias = "ts";
 
-        while (tsAlias != null) {
-            List<String> aliases = tsAlias.getAliases();
-            aliases.remove("ts");
-
-            String newAlias = "ts";
-
-            while (getCommand(newAlias) != null) {
-                String pl = tsAlias.getPlugin().getName();
-                int baseoffset = (pl.length() / 2) + (newAlias.length() - 2);
-                newAlias += pl.substring(baseoffset - 2, baseoffset - 3);
+        Map<String, String[]> conflictingCMDs = new HashMap<>();
+        getServer().getCommandAliases().forEach((cmd, alts) -> {
+            if (Arrays.stream(alts).anyMatch((s -> s.equalsIgnoreCase(conflictAlias)))) {
+                conflictingCMDs.put(cmd, alts);
             }
+        });
 
+        if (conflictingCMDs.size() > 1) {
+            conflictingCMDs.forEach((k, v) -> {
+                PluginCommand tsAlias = getCommand(conflictAlias);
+                List<String> aliases = Lists.newArrayList(v);
+                aliases.remove("ts");
 
-            aliases.add(newAlias);
-            tsAlias.setAliases(aliases);
+                String newAlias = "ts", addition = newAlias.substring(1, newAlias.length() - 1), pl = tsAlias.getPlugin().getName();
 
+                while (getCommand(newAlias) != null) {
+                    //Get the character in the plugin name at the index after the first string of the existing addition
+                    //If trying to grab a character after the end of the plugin name, then add the last digit of `i` instead
+                    int i = pl.indexOf(addition) + 1;
+                    addition += i <= pl.length() ? pl.charAt(i) : i % 10;
 
-            tsAlias = getCommand("ts");
+                    //take first letter of conflicting alias and add the addition to that
+                    newAlias = newAlias.charAt(0) + addition;
+                }
+                aliases.add(newAlias);
+                tsAlias.setAliases(aliases);
+            });
         }
-
     }
 
     @Override
