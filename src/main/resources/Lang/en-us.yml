@@ -135,7 +135,7 @@ setting:
       max-shops-per-chunk:
         pre-comment: "Maximum shops that can exist in a single chunk"
       sum-per-player-limit:
-        pre-comment: "Should we add up all of the shop limit permissions a player has? \n False will return just the highest value \n True will return -1 if any are granted or the sum of all granted permissions",
+        pre-comment: "Should we add up all of the shop limit permissions a player has? \n False will return just the highest value \n True will return -1 if any are granted or the sum of all granted permissions"
       max-shops-per-player:
         pre-comment: "Maximum shops that each player can make. \n Use -1 for unlimited, 0 to effectively disable shop creation."
       max-items-per-trade-side:
