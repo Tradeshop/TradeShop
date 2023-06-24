@@ -47,8 +47,6 @@ import org.shanerx.tradeshop.framework.events.PlayerPreTradeEvent;
 import org.shanerx.tradeshop.framework.events.PlayerPrepareTradeEvent;
 import org.shanerx.tradeshop.framework.events.PlayerSuccessfulTradeEvent;
 import org.shanerx.tradeshop.item.ShopItemSide;
-import org.shanerx.tradeshop.player.Permissions;
-import org.shanerx.tradeshop.player.ShopRole;
 import org.shanerx.tradeshop.shop.ExchangeStatus;
 import org.shanerx.tradeshop.shop.Shop;
 import org.shanerx.tradeshop.shop.ShopType;
@@ -66,7 +64,7 @@ public class ShopTradeListener extends Utils implements Listener {
 
     private final TradeShop PLUGIN = TradeShop.getPlugin();
 
-    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
     public void onBlockInteract(PlayerInteractEvent e) {
 
         if (e.useInteractedBlock().equals(Event.Result.DENY) || e.isCancelled())
@@ -98,31 +96,15 @@ public class ShopTradeListener extends Utils implements Listener {
             return;
         }
 
-        if (!Permissions.hasPermission(buyer, Permissions.TRADE)) {
-            Message.NO_TRADE_PERMISSION.sendMessage(buyer);
-            return;
-        }
-
-        if (shop.getShopType() != ShopType.BITRADE && e.getAction() == Action.LEFT_CLICK_BLOCK) {
-            return;
-        }
-
-        if (!shop.getShopType().equals(ShopType.ITRADE) && shop.getUsersUUID(ShopRole.OWNER, ShopRole.MANAGER, ShopRole.MEMBER).contains(buyer.getUniqueId()) && !Setting.ALLOW_USER_PURCHASING.getBoolean()) {
-            Message.SELF_OWNED.sendMessage(buyer);
-            return;
-        }
-
-        // Attempts to lock the player(True). If player is already locked(False), then cancel trade and send message.
-        if (!TradeShop.getPlugin().getListManager().lockPlayer(buyer.getUniqueId())) {
-            Message.PLAYER_LOCKED.sendMessage(buyer);
-            return;
-        }
-
-        PlayerPreTradeEvent preEvent = new PlayerPreTradeEvent(e.getPlayer(), shop.getSideList(ShopItemSide.COST), shop.getSideList(ShopItemSide.PRODUCT), shop, e.getClickedBlock(), e.getBlockFace());
+        PlayerPreTradeEvent preEvent = new PlayerPreTradeEvent(e.getPlayer(), e.getAction(), shop.getSideList(ShopItemSide.COST), shop.getSideList(ShopItemSide.PRODUCT), shop, e.getClickedBlock(), e.getBlockFace());
         Bukkit.getPluginManager().callEvent(preEvent);
         if (preEvent.isCancelled()) return;
 
-        boolean doBiTradeAlternate = shop.getShopType() == ShopType.BITRADE && e.getAction() == Action.LEFT_CLICK_BLOCK;
+        shop = preEvent.getShop(); //Sets shop to events shop so any changes made in preEvent are carried back
+        shop.updateSide(ShopItemSide.COST, preEvent.getCost());
+        shop.updateSide(ShopItemSide.PRODUCT, preEvent.getProduct());
+
+        boolean doBiTradeAlternate = shop.getShopType().isBiTrade() && preEvent.isAction(Action.LEFT_CLICK_BLOCK);
 
         chestState = shop.getStorage();
         if (!shop.getShopType().equals(ShopType.ITRADE) && chestState == null) {

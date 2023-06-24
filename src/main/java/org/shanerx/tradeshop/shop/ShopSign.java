@@ -48,7 +48,8 @@ enum Signs {
     CRIMSON_SIGN("1.16.0", "", "&0"),
     WARPED_SIGN("1.16.0", "", "&0"),
     MANGROVE_SIGN("1.19.0", "", "&0"),
-    CHERRY_SIGN("1.20.0", "", "&0");
+    CHERRY_SIGN("1.20.0", "", "&0"),
+    BAMBOO_SIGN("1.20.0", "", "&0");
 
     private final List<Integer> minVer = Arrays.asList(new Integer[3]);
     private final List<Integer> maxVer = Arrays.asList(new Integer[3]);

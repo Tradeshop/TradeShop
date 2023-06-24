@@ -27,7 +27,6 @@ package org.shanerx.tradeshop.commands.commandrunners;
 
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
-import org.bukkit.entity.Player;
 import org.shanerx.tradeshop.TradeShop;
 import org.shanerx.tradeshop.commands.CommandPass;
 import org.shanerx.tradeshop.data.config.Message;
@@ -56,7 +55,7 @@ import java.util.Set;
  */
 public class ShopUserSubCommand extends SubCommand {
 
-    private Player target;
+    private OfflinePlayer target;
 
     public ShopUserSubCommand(TradeShop instance, CommandPass command) {
         super(instance, command);
@@ -98,7 +97,7 @@ public class ShopUserSubCommand extends SubCommand {
             Set<Shop> ownedShops = new HashSet<>();
             Map<String, String> updateStatuses = new HashMap<>();
 
-            target = Bukkit.getPlayer(command.getArgAt(1));
+            target = Bukkit.getOfflinePlayer(command.getArgAt(1));
 
             Shop tempShop = shopUserCommandStart(target, applyAllOwned);
 
@@ -113,12 +112,20 @@ public class ShopUserSubCommand extends SubCommand {
             for (Shop shop : ownedShops) {
                 eachOwnedShop:
                 {
+
+                    PlayerShopChangeEvent changeEvent = new PlayerShopChangeEvent(command.getPlayerSender(), shop, change, new ObjectHolder<OfflinePlayer>(target));
+                    Bukkit.getPluginManager().callEvent(changeEvent);
+                    if (changeEvent.isCancelled()) return;
+
+                    boolean success = false;
+
                     switch (change) {
                         case REMOVE_USER:
                             if (!shop.getUsersUUID(ShopRole.MANAGER, ShopRole.MEMBER).contains(target.getUniqueId())) {
                                 updateStatuses.put(shop.getShopLocationAsSL().serialize(), UserOperationStatus.FAILED_MISSING.toString());
                                 break eachOwnedShop;
                             }
+                            success = shop.removeUser(target.getUniqueId());
                             break;
                         case ADD_MANAGER:
                         case ADD_MEMBER:
@@ -129,6 +136,7 @@ public class ShopUserSubCommand extends SubCommand {
                                 updateStatuses.put(shop.getShopLocationAsSL().serialize(), UserOperationStatus.FAILED_CAPACITY.toString());
                                 break eachOwnedShop;
                             }
+                            success = shop.addUser(target.getUniqueId(), role);
                             break;
                         case SET_MANAGER:
                         case SET_MEMBER:
@@ -136,26 +144,7 @@ public class ShopUserSubCommand extends SubCommand {
                                 updateStatuses.put(shop.getShopLocationAsSL().serialize(), UserOperationStatus.FAILED_CAPACITY.toString());
                                 break eachOwnedShop;
                             }
-                            break;
-                    }
-
-                    PlayerShopChangeEvent changeEvent = new PlayerShopChangeEvent(command.getPlayerSender(), shop, change, new ObjectHolder<OfflinePlayer>(target));
-                    Bukkit.getPluginManager().callEvent(changeEvent);
-                    if (changeEvent.isCancelled()) return;
-
-                    boolean success = false;
-
-                    switch (change) {
-                        case SET_MANAGER:
-                        case SET_MEMBER:
                             success = shop.setUser(target.getUniqueId(), role);
-                            break;
-                        case ADD_MEMBER:
-                        case ADD_MANAGER:
-                            success = shop.addUser(target.getUniqueId(), role);
-                            break;
-                        case REMOVE_USER:
-                            success = shop.removeUser(target.getUniqueId());
                             break;
                     }
 
@@ -183,7 +172,7 @@ public class ShopUserSubCommand extends SubCommand {
      * @return Shop if found or null if not needed; returning null while setting target to null indicates failure, command should respond with an immediate blank return.
      * @throws UnsupportedOperationException if failure
      */
-    private Shop shopUserCommandStart(Player target, boolean applyAllOwned) {
+    private Shop shopUserCommandStart(OfflinePlayer target, boolean applyAllOwned) {
         this.target = target;
 
         if (target == null || !target.hasPlayedBefore()) {

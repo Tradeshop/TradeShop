@@ -27,6 +27,8 @@ package org.shanerx.tradeshop.utils.objects;
 
 import com.google.gson.annotations.SerializedName;
 
+import java.util.Map;
+
 public class ObjectHolder<Type> {
 
     @SerializedName(value = "value", alternate = "obj")
@@ -77,6 +79,20 @@ public class ObjectHolder<Type> {
 
     public Double asDouble() {
         return isDouble() ? Double.parseDouble(obj.toString()) : null;
+    }
+
+    public boolean isMap() {
+        return obj != null && obj instanceof Map;
+    }
+
+    public Map<String, Object> asMap() {
+        if (isMap()) {
+            try {
+                return (Map<String, Object>) obj;
+            } catch (ClassCastException ignored) {
+            }
+        }
+        return null;
     }
 
     @Override

@@ -53,15 +53,14 @@ public class PlayerPreTradeEvent extends PlayerInteractEvent implements Cancella
 
     /**
      * Constructor for the object.
-     * @param who The {@link Player} object representing the player who is attempting the trade.
-     * @param cost The object representing the items which are being traded.
+     *
+     * @param who     The {@link Player} object representing the player who is attempting the trade.
+     * @param cost    The object representing the items which are being traded.
      * @param product The object representing the items being traded for.
-     * @param shop The object representing the shop at which the trade takes place.
-     * @param clickedBlock The {@link Block} that was clicked, ie. the sign.
-     * @param clickedFace  The {@link BlockFace} object representing the face of the block that was clicked.
+     * @param shop    The object representing the shop at which the trade takes place.
      */
-    public PlayerPreTradeEvent(Player who, List<ShopItemStack> cost, List<ShopItemStack> product, Shop shop, Block clickedBlock, BlockFace clickedFace) {
-        super(who, Action.RIGHT_CLICK_BLOCK, null, shop.getShopSign().getBlock(), clickedFace);
+    public PlayerPreTradeEvent(Player who, Action action, List<ShopItemStack> cost, List<ShopItemStack> product, Shop shop, Block clickedBlock, BlockFace clickedFace) {
+        super(who, action, null, shop.getShopSign().getBlock(), clickedFace);
         this.shop = shop;
         this.product = product;
         this.cost = cost;
@@ -112,10 +111,15 @@ public class PlayerPreTradeEvent extends PlayerInteractEvent implements Cancella
 
     /**
      * Choose whether or not to cancel the event.
+     *
      * @param cancelled true if the event should be cancelled.
      */
     @Override
     public void setCancelled(boolean cancelled) {
         this.cancelled = cancelled;
+    }
+
+    public boolean isAction(Action action) {
+        return getAction() == action;
     }
 }
