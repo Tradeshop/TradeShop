@@ -29,6 +29,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.permissions.Permission;
 import org.bukkit.permissions.PermissionDefault;
+import org.bukkit.plugin.PluginManager;
 import org.shanerx.tradeshop.TradeShop;
 import org.shanerx.tradeshop.data.config.Language;
 import org.shanerx.tradeshop.utils.Utils;
@@ -69,10 +70,11 @@ public enum Permissions {
     }
 
     public static void registerPermissions() {
+        PluginManager pm = Bukkit.getPluginManager();
         for (Permissions perm : values()) {
             if (!perm.equals(Permissions.NONE)) {
                 Permission permission = perm.getPerm();
-                Bukkit.getPluginManager().addPermission(permission);
+                pm.addPermission(permission);
                 plugin.getDebugger().log("Permission registered: " + permission.getName() + " | State: " + permission.getDefault(), DebugLevels.STARTUP);
             }
         }

@@ -25,6 +25,7 @@
 
 package org.shanerx.tradeshop.utils;
 
+import com.google.common.collect.Maps;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -62,6 +63,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.OptionalInt;
 import java.util.UUID;
 
 
@@ -513,6 +515,21 @@ public class Utils {
         ShopChest shopChest;
         Shop shop;
         Block chest = findShopChest(shopSign.getBlock());
+
+        Map<String, Integer> permittedLimits = Maps.filterEntries(PLUGIN.getListManager().getLimitPermissions(), (entry) -> creator.hasPermission(entry.getKey()));
+        int limit;
+        if (permittedLimits.containsValue(-1)) {
+            limit = -1;
+        } else if (Setting.SUM_PER_PLAYER_LIMIT.getBoolean()) {
+            limit = permittedLimits.values().stream().mapToInt(Integer::intValue).sum();
+        } else {
+            OptionalInt oInt = permittedLimits.values().stream().mapToInt(Integer::intValue).max();
+            limit = oInt.isPresent() ? oInt.getAsInt() : 0;
+        }
+
+        if (PLUGIN.getDataStorage().loadPlayer(owner.getUUID()).getOwnedShops().size() >= limit && limit > -1) {
+            return null;
+        }
 
         if (!shopType.isITrade()) {
             if (ShopChest.isShopChest(chest)) {

@@ -27,9 +27,13 @@ package org.shanerx.tradeshop.utils;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.permissions.Permission;
+import org.bukkit.permissions.PermissionDefault;
+import org.bukkit.plugin.PluginManager;
 import org.shanerx.tradeshop.TradeShop;
 import org.shanerx.tradeshop.data.config.Setting;
 import org.shanerx.tradeshop.item.IllegalItemList;
@@ -37,10 +41,14 @@ import org.shanerx.tradeshop.item.NonObtainableMaterials;
 import org.shanerx.tradeshop.item.ShopItemSide;
 import org.shanerx.tradeshop.shop.ShopStorage;
 import org.shanerx.tradeshop.utils.debug.DebugLevels;
+import org.shanerx.tradeshop.utils.objects.ObjectHolder;
 import org.shanerx.tradeshop.utils.relativedirection.RelativeDirection;
 
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
@@ -55,6 +63,8 @@ public class ListManager extends Utils {
     private final ArrayList<ShopStorage.Storages> inventories = new ArrayList<>();
     private final ArrayList<String> gameMats = new ArrayList<>();
     private final ArrayList<String> addOnMats = new ArrayList<>();
+
+    private final HashMap<String, Integer> limitPermissions = new HashMap<>();
 
     private final TradeShop PLUGIN = TradeShop.getPlugin();
 
@@ -152,6 +162,10 @@ public class ListManager extends Utils {
         return productList;
     }
 
+    public HashMap<String, Integer> getLimitPermissions() {
+        return limitPermissions;
+    }
+
     public ArrayList<String> getGameMats() {
         return gameMats;
     }
@@ -190,6 +204,8 @@ public class ListManager extends Utils {
         setGameMatList();
         initSkip();
         initLocker();
+        clearLimitPermissions();
+        processLimitPermissions("tradeshop.limit", Setting.MAX_SHOPS_PER_PLAYER.getAsMap());
     }
 
     public void clearManager() {
@@ -201,6 +217,41 @@ public class ListManager extends Utils {
         directions.clear();
         addOnMats.clear();
         gameMats.clear();
+        clearLimitPermissions();
+    }
+
+    public void registerLimitPermissions() {
+        PluginManager pm = Bukkit.getPluginManager();
+        limitPermissions.forEach((k, v) -> {
+            Permission perm = new Permission(k,
+                    "Allows creation of " + (v == 0 ? "Zero(Probably an error?)" : v < 0 ? "Unlimited" : v) + " TradeShops.",
+                    k.equalsIgnoreCase("default") ? PermissionDefault.TRUE : PermissionDefault.FALSE);
+            pm.addPermission(perm);
+            PLUGIN.getDebugger().log("Permission registered: " + perm.getName() + " | State: " + perm.getDefault() + " | Description: " + perm.getDescription(), DebugLevels.STARTUP);
+        });
+    }
+
+    public void processLimitPermissions(String preFix, Map<String, Object> limitMap) {
+        for (Entry<String, Object> entry : limitMap.entrySet()) {
+            ObjectHolder<?> vHolder = new ObjectHolder<>(entry.getValue());
+            preFix += "." + entry.getKey();
+            if (vHolder.getObject() == null) {
+                return;
+            }
+
+            if (vHolder.isMap()) {
+                processLimitPermissions(preFix, vHolder.asMap());
+            } else if (vHolder.canBeInteger()) {
+                limitMap.put(preFix, vHolder.asInteger());
+            }
+        }
+    }
+
+    public void clearLimitPermissions() {
+        if (!limitPermissions.isEmpty()) {
+            limitPermissions.keySet().forEach((k) -> Bukkit.getPluginManager().removePermission(k));
+            limitPermissions.clear();
+        }
     }
 
     private void updateIllegalLists() {
