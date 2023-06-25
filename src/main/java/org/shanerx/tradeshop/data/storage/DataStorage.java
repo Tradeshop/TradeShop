@@ -48,9 +48,7 @@ import org.shanerx.tradeshop.utils.debug.DebugLevels;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -58,23 +56,21 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class DataStorage extends Utils {
 
     private transient DataType dataType;
-    public final Map<File, String> saving;
 
     private final Cache<World, LinkageConfiguration> linkCache = CacheBuilder.newBuilder()
             .maximumSize(50)
             .expireAfterAccess(30, TimeUnit.MINUTES)
-            .build(),
-            shopCache = CacheBuilder.newBuilder()
-                    .maximumSize(200)
-                    .expireAfterAccess(30, TimeUnit.MINUTES)
-                    .build(),
-            playerCache = CacheBuilder.newBuilder()
-                    .maximumSize(50)
-                    .expireAfterAccess(30, TimeUnit.MINUTES)
-                    .build();
+            .build();
+    private final Cache<String, Shop> shopCache = CacheBuilder.newBuilder()
+            .maximumSize(200)
+            .expireAfterAccess(30, TimeUnit.MINUTES)
+            .build();
+    private final Cache<UUID, PlayerSetting> playerCache = CacheBuilder.newBuilder()
+            .maximumSize(50)
+            .expireAfterAccess(30, TimeUnit.MINUTES)
+            .build();
 
     public DataStorage(DataType dataType) {
-        saving = new HashMap<>();
         reload(dataType);
     }
 
@@ -84,6 +80,8 @@ public class DataStorage extends Utils {
     }
 
     public Shop loadShopFromSign(ShopLocation sign) {
+        if (shopCache.getIfPresent(sign.serialize()) != null)
+            return shopCache.getIfPresent(sign.serialize());
         return getShopConfiguration(sign.getChunk()).load(sign);
     }
 
@@ -92,14 +90,18 @@ public class DataStorage extends Utils {
     }
 
     public void saveShop(Shop shop) {
-        if (Bukkit.isPrimaryThread()) {
+        shopCache.put(shop.getShopLocationAsSL().serialize(), shop);
+        Bukkit.getScheduler().runTaskAsynchronously(TradeShop.getPlugin(), () -> {
             getShopConfiguration(shop.getShopLocation().getChunk()).save(shop);
-        }
+        });
     }
 
     public void removeShop(Shop shop) {
-        getShopConfiguration(shop.getShopLocation().getChunk()).remove(shop.getShopLocationAsSL());
-        getLinkageConfiguration(shop.getShopLocationAsSL().getWorld()).removeShop(shop.getShopLocationAsSL());
+        Bukkit.getScheduler().runTaskAsynchronously(TradeShop.getPlugin(), () -> {
+            shopCache.invalidate(shop.getShopLocationAsSL().serialize());
+            getShopConfiguration(shop.getShopLocation().getChunk()).remove(shop.getShopLocationAsSL());
+            getLinkageConfiguration(shop.getShopLocationAsSL().getWorld()).removeShop(shop.getShopLocationAsSL());
+        });
     }
 
     public int getShopCountInChunk(Chunk chunk) {
@@ -120,7 +122,7 @@ public class DataStorage extends Utils {
             if (!desiredProducts.isEmpty())
                 matchingShops.removeIf(shop -> shop.isMissingSideItems(ShopItemSide.PRODUCT, desiredProducts)); //Remove any shops that don't have a matching product
             if (inStock)
-                matchingShops.removeIf(shop -> shop.hasSideStock(ShopItemSide.PRODUCT)); //Remove any shops that don't have product stuck when in-stock is set to true
+                matchingShops.removeIf(shop -> shop.getAvailableTrades() == 0); //Remove any shops that can't make trades
 
             TradeShop.getPlugin().getDebugger().log(" --- _G_M_ --- " + Arrays.toString(matchingShops.stream().map(shop -> shop.getShopLocationAsSL().serialize()).toArray(String[]::new)), DebugLevels.DATA_ERROR);
         }
@@ -151,18 +153,24 @@ public class DataStorage extends Utils {
     }
 
     public PlayerSetting loadPlayer(UUID uuid) {
-        PlayerSetting playerSetting = getPlayerConfiguration(uuid).load();
+        PlayerSetting playerSetting = playerCache.getIfPresent(uuid) != null ? playerCache.getIfPresent(uuid) : getPlayerConfiguration(uuid).load();
 
         //If playerSetting data not find create new and return
         return playerSetting != null ? playerSetting : new PlayerSetting(uuid);
     }
 
     public void savePlayer(PlayerSetting playerSetting) {
-        getPlayerConfiguration(playerSetting.getUuid()).save(playerSetting);
+        playerCache.put(playerSetting.getUuid(), playerSetting);
+        Bukkit.getScheduler().runTaskAsynchronously(TradeShop.getPlugin(), () -> {
+            getPlayerConfiguration(playerSetting.getUuid()).save(playerSetting);
+        });
     }
 
     public void removePlayer(PlayerSetting playerSetting) {
-        getPlayerConfiguration(playerSetting.getUuid()).remove();
+        Bukkit.getScheduler().runTaskAsynchronously(TradeShop.getPlugin(), () -> {
+            playerCache.invalidate(playerSetting.getUuid());
+            getPlayerConfiguration(playerSetting.getUuid()).remove();
+        });
     }
 
     public ShopLocation getChestLinkage(ShopLocation chestLocation) {

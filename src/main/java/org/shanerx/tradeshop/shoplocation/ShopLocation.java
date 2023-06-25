@@ -117,6 +117,10 @@ public class ShopLocation implements Serializable {
 
     @Override
     public String toString() {
-        return "World:" + worldName + " X:" + x + " Y:" + y + " Z:" + z;
+        return toString(true);
+    }
+
+    public String toString(boolean includeWorld) {
+        return (includeWorld ? "World:" + worldName + " " : "") + "X:" + x + " Y:" + y + " Z:" + z;
     }
 }

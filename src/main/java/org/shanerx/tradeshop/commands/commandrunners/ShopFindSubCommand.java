@@ -25,6 +25,7 @@
 
 package org.shanerx.tradeshop.commands.commandrunners;
 
+import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.HoverEvent;
@@ -81,6 +82,11 @@ public class ShopFindSubCommand extends SubCommand {
                         for (String str : arg.split(";")) {
                             String[] keyVal = str.contains("=") ? str.split("=") : str.split(":");
                             plugin.getDebugger().log(" --- _S_F_ --- " + keyVal[0] + " = " + (keyVal.length > 1 ? keyVal[1] : "---No Value---"), DebugLevels.DATA_ERROR);
+                            if (keyVal.length != 2) {
+                                Message.INVALID_ARGUMENTS.sendMessage(command.getSender());
+                                return;
+                            }
+
                             switch (keyVal[0]) {
                                 case "c":
                                 case "cost":
@@ -113,6 +119,11 @@ public class ShopFindSubCommand extends SubCommand {
                             "Product" + " = " + desiredProduct + "\n" +
                             "Range" + " = " + desiredRange, DebugLevels.DATA_ERROR);
 
+                    if (desiredProduct.size() == 0)
+                        desiredProduct.put(0, null);
+                    if (desiredCost.size() == 0)
+                        desiredCost.put(0, null);
+
                     int finalDesiredRange = desiredRange > 0 ? desiredRange : Setting.DEFAULT_FIND_RANGE.getInt();
                     final boolean finalInStock = inStock;
                     desiredProduct.forEach((prodId, prodItems) -> {
@@ -124,9 +135,11 @@ public class ShopFindSubCommand extends SubCommand {
                     ArrayList<TextComponent> foundShops = new ArrayList<>();
 
                     shops.forEach((shop -> {
-                        TextComponent message = new TextComponent(shop.getShopLocationAsSL().toString() + "\n");
+                        TextComponent message = new TextComponent(shop.getShopLocationAsSL().toString(false) + "\n");
 
-                        message.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_ITEM,
+                        message.setColor(shop.getAvailableTrades() > 0 ? ChatColor.DARK_GREEN : ChatColor.DARK_RED);
+
+                        message.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
                                 new ComponentBuilder(
                                         String.join("\n",
                                                 Arrays.asList(

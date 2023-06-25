@@ -38,6 +38,7 @@ import org.shanerx.tradeshop.item.ShopItemSide;
 import org.shanerx.tradeshop.shop.Shop;
 import org.shanerx.tradeshop.shop.ShopType;
 import org.shanerx.tradeshop.utils.Utils;
+import org.shanerx.tradeshop.utils.objects.ObjectHolder;
 
 @SuppressWarnings("unused")
 public class ShopCreateListener extends Utils implements Listener {
@@ -73,20 +74,22 @@ public class ShopCreateListener extends Utils implements Listener {
     }
 
     private ItemStack lineCheck(ShopItemSide side, String line) {
-        if (line == null || line.equalsIgnoreCase("") || !line.contains(" ") || line.split(" ").length != 2)
+        if (line == null || !line.contains(" ") || line.split(" ").length != 2)
             return null;
 
         String[] info = line.split(" ");
+        ObjectHolder<String> amount = new ObjectHolder<>(info[0]);
+        Material material = Material.matchMaterial(info[1]);
 
         for (String str : info) {
-            if (str == null || str.equalsIgnoreCase(""))
+            if (str == null || str.isEmpty())
                 return null;
         }
 
-        if (!isInt(info[0]) || Material.matchMaterial(info[1]) == null)
+        if (!amount.canBeInteger() || material == null)
             return null;
 
-        ItemStack item = new ItemStack(Material.matchMaterial(info[1]), Integer.parseInt(info[0]));
+        ItemStack item = new ItemStack(material, amount.asInteger());
 
         if (TradeShop.getPlugin().getListManager().isIllegal(side, item.getType()))
             return null;
