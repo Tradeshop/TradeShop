@@ -242,7 +242,7 @@ public class ListManager extends Utils {
             if (vHolder.isMap()) {
                 processLimitPermissions(preFix, vHolder.asMap());
             } else if (vHolder.canBeInteger()) {
-                limitMap.put(preFix, vHolder.asInteger());
+                limitPermissions.put(preFix, vHolder.asInteger());
             }
         }
     }
