@@ -106,7 +106,7 @@ public class DataStorage extends Utils {
         return getShopConfiguration(chunk).size();
     }
 
-    public List<Shop> getMatchingShopsInChunk(ChunkSnapshot chunk, List<ItemStack> desiredCosts, List<ItemStack> desiredProducts) {
+    public List<Shop> getMatchingShopsInChunk(ChunkSnapshot chunk, boolean inStock, List<ItemStack> desiredCosts, List<ItemStack> desiredProducts) {
         List<Shop> matchingShops = new ArrayList<>();
         ShopChunk shopChunk = new ShopChunk(chunk);
 
@@ -115,9 +115,12 @@ public class DataStorage extends Utils {
 
             config.list().forEach(shopLoc -> matchingShops.add(config.loadASync(shopLoc))); //Load all shops and add to matchingShops
 
-            matchingShops.removeIf(shop ->
-                    shop.isMissingSideItems(ShopItemSide.COST, desiredCosts) ||
-                            shop.isMissingSideItems(ShopItemSide.PRODUCT, desiredProducts)); //Remove any shops that don't have a matching  cost or product.
+            if (!desiredCosts.isEmpty())
+                matchingShops.removeIf(shop -> shop.isMissingSideItems(ShopItemSide.COST, desiredCosts)); //Remove any shops that don't have a matching cost
+            if (!desiredProducts.isEmpty())
+                matchingShops.removeIf(shop -> shop.isMissingSideItems(ShopItemSide.PRODUCT, desiredProducts)); //Remove any shops that don't have a matching product
+            if (inStock)
+                matchingShops.removeIf(shop -> shop.hasSideStock(ShopItemSide.PRODUCT)); //Remove any shops that don't have product stuck when in-stock is set to true
 
             TradeShop.getPlugin().getDebugger().log(" --- _G_M_ --- " + Arrays.toString(matchingShops.stream().map(shop -> shop.getShopLocationAsSL().serialize()).toArray(String[]::new)), DebugLevels.DATA_ERROR);
         }

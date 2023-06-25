@@ -1044,6 +1044,10 @@ public class Shop implements Serializable {
         return ret;
     }
 
+    public List<String> getSideListNames(ShopItemSide side) {
+        return getSideList(side).stream().map(ShopItemStack::getItemName).collect(Collectors.toList());
+    }
+
     /**
      * Removes the item at the index of the specified side
      *

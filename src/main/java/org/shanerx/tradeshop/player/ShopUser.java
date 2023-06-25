@@ -146,8 +146,8 @@ public class ShopUser implements Serializable {
      * @param desiredProduct ShopItemStack List containing Product(s) to search for. Will only find shops that match *ALL* costs in the list. Set null to not check
      * @return Shop List containing all shops in any chunk with a block in the range that match criteria specified
      */
-    public static List<Shop> findProximityShop(Location center, int range, List<ItemStack> desiredCost, List<ItemStack> desiredProduct) {
-        List<String> chunksInRange = new ArrayList<>(); //Used to prevent checking a chunk more than once
+    public static List<Shop> findProximityShop(Location center, int range, boolean inStock, List<ItemStack> desiredCost, List<ItemStack> desiredProduct) {
+        List<ChunkSnapshot> chunksInRange = new ArrayList<>(); //Used to prevent checking a chunk more than once
         List<Shop> foundShops = new ArrayList<>();
         DataStorage dataStorage = TradeShop.getPlugin().getDataStorage();
         World world = center.getWorld();
@@ -155,13 +155,13 @@ public class ShopUser implements Serializable {
         for (int x = center.getBlockX() - range; x <= center.getBlockX() + range; x++) {
             for (int z = center.getBlockZ() - range; z <= center.getBlockZ() + range; z++) {
                 if (world != null) {
-                    ChunkSnapshot c = world.getEmptyChunkSnapshot(x / 16, z / 16, false, false);
-                    ShopChunk sc = new ShopChunk(c);
+                    int cX = x / 16, cZ = z / 16;
+                    if (chunksInRange.stream().noneMatch((tempChunk) -> tempChunk.getWorldName().equalsIgnoreCase(center.getWorld().getName()) && tempChunk.getX() == cX && tempChunk.getZ() == cZ)) { //If not already processed
+                        ChunkSnapshot c = world.getEmptyChunkSnapshot(cX, cZ, false, false);
+                        ShopChunk sc = new ShopChunk(c);
+                        chunksInRange.add(c); //"Mark" as processed
 
-                    if (!chunksInRange.contains(sc.serialize())) { //If not already processed
-                        chunksInRange.add(sc.serialize()); //"Mark" as processed
-
-                        foundShops.addAll(dataStorage.getMatchingShopsInChunk(c, desiredCost, desiredProduct));
+                        foundShops.addAll(dataStorage.getMatchingShopsInChunk(c, inStock, desiredCost, desiredProduct));
                     }
                 }
             }

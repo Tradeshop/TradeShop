@@ -25,6 +25,10 @@
 
 package org.shanerx.tradeshop.commands.commandrunners;
 
+import net.md_5.bungee.api.chat.BaseComponent;
+import net.md_5.bungee.api.chat.ComponentBuilder;
+import net.md_5.bungee.api.chat.HoverEvent;
+import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -33,6 +37,7 @@ import org.shanerx.tradeshop.TradeShop;
 import org.shanerx.tradeshop.commands.CommandPass;
 import org.shanerx.tradeshop.data.config.Message;
 import org.shanerx.tradeshop.data.config.Setting;
+import org.shanerx.tradeshop.item.ShopItemSide;
 import org.shanerx.tradeshop.player.ShopUser;
 import org.shanerx.tradeshop.shop.Shop;
 import org.shanerx.tradeshop.utils.debug.DebugLevels;
@@ -63,6 +68,7 @@ public class ShopFindSubCommand extends SubCommand {
                 Location searchFrom = command.getPlayerSender().getLocation();
                 Map<Integer, List<ItemStack>> desiredCost = new HashMap<>(), desiredProduct = new HashMap<>();
                 int desiredRange = Setting.MAX_FIND_RANGE.getInt();
+                boolean inStock = false;
 
                 if (desiredRange > 0) {
 
@@ -73,15 +79,25 @@ public class ShopFindSubCommand extends SubCommand {
 
                     for (String arg : lowerArgs) {
                         for (String str : arg.split(";")) {
-                            String[] keyVal = str.split("=");
+                            String[] keyVal = str.contains("=") ? str.split("=") : str.split(":");
                             plugin.getDebugger().log(" --- _S_F_ --- " + keyVal[0] + " = " + (keyVal.length > 1 ? keyVal[1] : "---No Value---"), DebugLevels.DATA_ERROR);
                             switch (keyVal[0]) {
+                                case "c":
                                 case "cost":
                                     desiredCost.putAll(processItemDesires(keyVal[1]));
                                     break;
+                                case "p":
                                 case "product":
                                     desiredProduct.putAll(processItemDesires(keyVal[1]));
                                     break;
+                                case "s":
+                                case "in-stock":
+                                case "stock":
+                                    ObjectHolder<?> stock = new ObjectHolder<>(keyVal[1]);
+                                    inStock = stock.isBoolean() ? stock.asBoolean() : false;
+                                    break;
+                                case "d":
+                                case "r":
                                 case "distance":
                                 case "range":
                                     ObjectHolder<?> dist = new ObjectHolder<>(keyVal[1]);
@@ -98,18 +114,35 @@ public class ShopFindSubCommand extends SubCommand {
                             "Range" + " = " + desiredRange, DebugLevels.DATA_ERROR);
 
                     int finalDesiredRange = desiredRange > 0 ? desiredRange : Setting.DEFAULT_FIND_RANGE.getInt();
+                    final boolean finalInStock = inStock;
                     desiredProduct.forEach((prodId, prodItems) -> {
                         desiredCost.forEach((costId, costItems) -> {
-                            shops.addAll(ShopUser.findProximityShop(searchFrom, finalDesiredRange, costItems, prodItems));
+                            shops.addAll(ShopUser.findProximityShop(searchFrom, finalDesiredRange, finalInStock, costItems, prodItems));
                         });
                     });
 
-                    String[] shoparray = shops.stream().map(shop -> shop.getShopLocationAsSL().serialize()).toArray(String[]::new);
+                    ArrayList<TextComponent> foundShops = new ArrayList<>();
 
-                    plugin.getDebugger().log(" --- _F_D_ --- " + Arrays.toString(shoparray), DebugLevels.DATA_ERROR);
+                    shops.forEach((shop -> {
+                        TextComponent message = new TextComponent(shop.getShopLocationAsSL().toString() + "\n");
 
-                    if (shoparray.length > 0)
-                        command.getSender().sendMessage(String.join("\n", shoparray));
+                        message.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_ITEM,
+                                new ComponentBuilder(
+                                        String.join("\n",
+                                                Arrays.asList(
+                                                        shop.getShopType().toString(),
+                                                        shop.getStatus().getLine(),
+                                                        "Cost: " + shop.getSideListNames(ShopItemSide.COST).toString(),
+                                                        "Product: " + shop.getSideListNames(ShopItemSide.PRODUCT)))).create()));
+
+                        foundShops.add(message);
+                    }));
+
+
+                    plugin.getDebugger().log(" --- _F_D_ --- " + Arrays.toString(foundShops.toArray(new BaseComponent[]{})), DebugLevels.DATA_ERROR);
+
+                    if (foundShops.size() > 0)
+                        command.getSender().spigot().sendMessage(foundShops.toArray(new BaseComponent[]{}));
                     else
                         Message.NO_SHOP_FOUND.sendMessage(command.getSender());
                 } else {

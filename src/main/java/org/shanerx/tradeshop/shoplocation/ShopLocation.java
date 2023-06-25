@@ -114,4 +114,9 @@ public class ShopLocation implements Serializable {
     public Location getLocation() {
         return new Location(world, x, y, z);
     }
+
+    @Override
+    public String toString() {
+        return "World:" + worldName + " X:" + x + " Y:" + y + " Z:" + z;
+    }
 }
