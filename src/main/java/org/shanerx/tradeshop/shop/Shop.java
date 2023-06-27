@@ -1045,7 +1045,7 @@ public class Shop implements Serializable {
     }
 
     public List<String> getSideListNames(ShopItemSide side) {
-        return getSideList(side).stream().map(ShopItemStack::getItemName).collect(Collectors.toList());
+        return getSideList(side).stream().map((item) -> item.getAmount() + " x " + item.getItemName()).collect(Collectors.toList());
     }
 
     /**

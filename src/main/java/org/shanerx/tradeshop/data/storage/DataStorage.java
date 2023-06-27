@@ -48,7 +48,9 @@ import org.shanerx.tradeshop.utils.debug.DebugLevels;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -56,6 +58,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class DataStorage extends Utils {
 
     private transient DataType dataType;
+    public final Map<File, String> saving;
 
     private final Cache<World, LinkageConfiguration> linkCache = CacheBuilder.newBuilder()
             .maximumSize(50)
@@ -71,6 +74,7 @@ public class DataStorage extends Utils {
             .build();
 
     public DataStorage(DataType dataType) {
+        saving = new HashMap<>();
         reload(dataType);
     }
 
@@ -117,9 +121,9 @@ public class DataStorage extends Utils {
 
             config.list().forEach(shopLoc -> matchingShops.add(config.loadASync(shopLoc))); //Load all shops and add to matchingShops
 
-            if (!desiredCosts.isEmpty())
+            if (desiredCosts != null && !desiredCosts.isEmpty())
                 matchingShops.removeIf(shop -> shop.isMissingSideItems(ShopItemSide.COST, desiredCosts)); //Remove any shops that don't have a matching cost
-            if (!desiredProducts.isEmpty())
+            if (desiredProducts != null && !desiredProducts.isEmpty())
                 matchingShops.removeIf(shop -> shop.isMissingSideItems(ShopItemSide.PRODUCT, desiredProducts)); //Remove any shops that don't have a matching product
             if (inStock)
                 matchingShops.removeIf(shop -> shop.getAvailableTrades() == 0); //Remove any shops that can't make trades

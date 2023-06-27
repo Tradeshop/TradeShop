@@ -117,7 +117,8 @@ public class ShopFindSubCommand extends SubCommand {
                     plugin.getDebugger().log(" --- _F_F_ --- \n" +
                             "Cost" + " = " + desiredCost + "\n" +
                             "Product" + " = " + desiredProduct + "\n" +
-                            "Range" + " = " + desiredRange, DebugLevels.DATA_ERROR);
+                            "Range" + " = " + desiredRange + "\n" +
+                            "InStock" + " = " + inStock, DebugLevels.DATA_ERROR);
 
                     if (desiredProduct.size() == 0)
                         desiredProduct.put(0, null);
@@ -146,7 +147,8 @@ public class ShopFindSubCommand extends SubCommand {
                                                         shop.getShopType().toString(),
                                                         shop.getStatus().getLine(),
                                                         "Cost: " + shop.getSideListNames(ShopItemSide.COST).toString(),
-                                                        "Product: " + shop.getSideListNames(ShopItemSide.PRODUCT)))).create()));
+                                                        "Product: " + shop.getSideListNames(ShopItemSide.PRODUCT))
+                                        )).create()));
 
                         foundShops.add(message);
                     }));
