@@ -27,6 +27,7 @@ package org.shanerx.tradeshop.data.storage.Json;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.google.gson.JsonSyntaxException;
 import org.bukkit.Bukkit;
 import org.shanerx.tradeshop.TradeShop;
 import org.shanerx.tradeshop.utils.Utils;
@@ -37,6 +38,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.logging.Level;
 
 class JsonConfiguration extends Utils {
@@ -78,6 +80,36 @@ class JsonConfiguration extends Utils {
         }
     }
 
+    public static void jsonSyntaxError(File file, Exception e) {
+        String errStr = "";
+
+        try {
+            errStr = new String(Files.readAllBytes(file.toPath()));
+        } catch (IOException ex) {
+            TradeShop.getPlugin().getLogger().log(Level.SEVERE, "Could not read " + file.getName() + " file! ERR", e);
+        }
+
+        File err = new File(file.getPath() + File.separator + file.getName().replace(".json", ".err"));
+
+        try {
+            FileWriter fileWriter = new FileWriter(err);
+            fileWriter.write(e.toString());
+            fileWriter.append("\n\n--------------------------------------------------------------------------------------\n\n");
+            fileWriter.append(errStr);
+            fileWriter.flush();
+            fileWriter.close();
+        } catch (IOException ex) {
+            TradeShop.getPlugin().getLogger().log(Level.SEVERE, "Could not save " + file.getName() + " file! Writing err to console.", e);
+            TradeShop.getPlugin().getLogger().log(Level.SEVERE, e + "\n\n--------------------------------------------------------------------------------------\n\n" + errStr, e);
+        }
+
+        TradeShop.getPlugin().getServer().getPluginManager().disablePlugin(TradeShop.getPlugin());
+    }
+
+    public static File[] getShopFiles(String folderFromData) {
+        return getPath(folderFromData).listFiles();
+    }
+
     protected void loadFile() {
         try {
             if (!PLUGIN.getDataStorage().saving.containsKey(file)) {
@@ -89,6 +121,10 @@ class JsonConfiguration extends Utils {
             PLUGIN.getLogger().log(Level.SEVERE, "Could not load " + file.getName() + " file! Data may be lost!", e);
         } catch (IllegalStateException e) {
             jsonObj = new JsonObject();
+        } catch (JsonSyntaxException e) {
+            PLUGIN.getLogger().log(Level.SEVERE, "Could not load " + file.getName() + " file due to malformed Json! \n Please send the .err file with the same name to the TradeShop Devs. \n\nTradeShop will now disable, please remove/fix any err files before restarting the plugin.", e);
+
+            jsonSyntaxError(file, e);
         }
     }
 

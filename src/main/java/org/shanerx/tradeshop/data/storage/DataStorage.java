@@ -27,6 +27,7 @@ package org.shanerx.tradeshop.data.storage;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.NotImplementedException;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
@@ -54,6 +55,8 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.logging.Level;
+import java.util.stream.Collectors;
 
 public class DataStorage extends Utils {
 
@@ -61,7 +64,7 @@ public class DataStorage extends Utils {
     public final Map<File, String> saving;
 
     private final Cache<World, LinkageConfiguration> linkCache = CacheBuilder.newBuilder()
-            .maximumSize(50)
+            .maximumSize(100)
             .expireAfterAccess(30, TimeUnit.MINUTES)
             .build();
     private final Cache<String, Shop> shopCache = CacheBuilder.newBuilder()
@@ -80,7 +83,25 @@ public class DataStorage extends Utils {
 
     public void reload(DataType dataType) {
         this.dataType = dataType;
+        if (!validate()) {
+            TradeShop.getPlugin().getLogger().log(Level.SEVERE, "At least one err file(s) were found in the data folders! " +
+                    "\n Please fix any error .json files, remove the .err files, and restart the plugin/server.");
+            TradeShop.getPlugin().getServer().getPluginManager().disablePlugin(TradeShop.getPlugin());
+        }
         //TradeShop.getPlugin().getDebugger().log("Data storage set to: " + dataType.name(), DebugLevels.DISABLED);
+    }
+
+    public boolean validate() {
+        if (dataType == DataType.FLATFILE) {
+            List<File> errFiles = new ArrayList<>();
+            Bukkit.getServer().getWorlds().forEach((w) -> {
+                errFiles.addAll(Arrays.stream(JsonLinkageConfiguration.getShopFiles(w.getName()))
+                        .filter((f) -> FilenameUtils.getExtension(f.getName()).toLowerCase().contains("err")).collect(Collectors.toList()));
+            });
+
+            return errFiles.size() == 0;
+        }
+        throw new NotImplementedException("Data storage type " + dataType + " has not been implemented yet.");
     }
 
     public Shop loadShopFromSign(ShopLocation sign) {

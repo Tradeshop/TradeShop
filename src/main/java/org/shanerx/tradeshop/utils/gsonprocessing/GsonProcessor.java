@@ -42,7 +42,6 @@ public class GsonProcessor {
                 .disableHtmlEscaping()
                 .serializeNulls()
                 .enableComplexMapKeySerialization()
-                .setLenient()
                 .registerTypeHierarchyAdapter(ConfigurationSerializable.class, new ConfigurationSerializableAdapter());
 
         if (doPrettyPrinting) gsonBuilder.setPrettyPrinting();
