@@ -95,8 +95,10 @@ public class DataStorage extends Utils {
         if (dataType == DataType.FLATFILE) {
             List<File> errFiles = new ArrayList<>();
             Bukkit.getServer().getWorlds().forEach((w) -> {
-                errFiles.addAll(Arrays.stream(JsonLinkageConfiguration.getShopFiles(w.getName()))
-                        .filter((f) -> FilenameUtils.getExtension(f.getName()).toLowerCase().contains("err")).collect(Collectors.toList()));
+                File[] list = JsonLinkageConfiguration.getShopFiles(w.getName());
+                if (list != null && list.length > 0) {
+                    errFiles.addAll(Arrays.stream(list).filter((f) -> FilenameUtils.getExtension(f.getName()).toLowerCase().contains("err")).collect(Collectors.toList()));
+                }
             });
 
             return errFiles.size() == 0;
