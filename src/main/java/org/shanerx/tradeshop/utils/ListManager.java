@@ -197,7 +197,7 @@ public class ListManager extends Utils {
     }
 
     public void reload() {
-        //Reloads any lists that need reloading
+        //Reloads and re-process any lists that can be
         updateIllegalLists();
         updateDirections();
         updateInventoryMats();
@@ -206,6 +206,7 @@ public class ListManager extends Utils {
         initLocker();
         clearLimitPermissions();
         processLimitPermissions("tradeshop.limit", Setting.MAX_SHOPS_PER_PLAYER.getAsMap());
+        registerLimitPermissions();
     }
 
     public void clearManager() {
@@ -221,6 +222,8 @@ public class ListManager extends Utils {
     }
 
     public void registerLimitPermissions() {
+        unRegisterLimitPermissions(limitPermissions);
+
         PluginManager pm = Bukkit.getPluginManager();
         limitPermissions.forEach((k, v) -> {
             Permission perm = new Permission(k,
@@ -249,8 +252,14 @@ public class ListManager extends Utils {
 
     public void clearLimitPermissions() {
         if (!limitPermissions.isEmpty()) {
-            limitPermissions.keySet().forEach((k) -> Bukkit.getPluginManager().removePermission(k));
+            unRegisterLimitPermissions(limitPermissions);
             limitPermissions.clear();
+        }
+    }
+
+    public void unRegisterLimitPermissions(HashMap<String, Integer> permissionList) {
+        if (!permissionList.isEmpty()) {
+            permissionList.keySet().forEach((k) -> Bukkit.getPluginManager().removePermission(k));
         }
     }
 
