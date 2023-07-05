@@ -137,7 +137,7 @@ setting:
       sum-per-player-limit:
         pre-comment: "Should we add up all of the shop limit permissions a player has? \n False will return just the highest value \n True will return -1 if any are granted or the sum of all granted permissions"
       max-shops-per-player:
-        pre-comment: "Maximum shops that each player can make. \n Use -1 for unlimited, 0 to effectively disable shop creation."
+        pre-comment: "Maximum shops that each player can make. give the player the `tradeshop.limit.` permission followed by the name set below adding a '.' between each parent/child \nUse -1 for unlimited, 0 to effectively disable shop creation. \nThe permissions can be grouped into trees to allow for better sorting, below is a basic example. \ntree: \nitem2: \n  item2-1: 0 \n  item2-2: 0 \nitem1: 0"
       max-items-per-trade-side:
         pre-comment: "Maximum amount of item stacks per side of trade"
       allow-user-purchasing:

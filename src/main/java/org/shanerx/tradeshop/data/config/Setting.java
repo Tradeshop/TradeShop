@@ -37,7 +37,6 @@ import org.yaml.snakeyaml.Yaml;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -98,21 +97,7 @@ public enum Setting {
     MAX_SHOP_USERS(SettingSection.SHOP_OPTIONS, "max-shop-users", 5),
     MAX_SHOPS_PER_CHUNK(SettingSection.SHOP_OPTIONS, "max-shops-per-chunk", 128),
     SUM_PER_PLAYER_LIMIT(SettingSection.SHOP_OPTIONS, "sum-per-player-limit", false),
-    MAX_SHOPS_PER_PLAYER(SettingSection.SHOP_OPTIONS, "max-shops-per-player", new HashMap<String, Object>() {{
-        //tradeshop.limit.default = -1
-        //uses if player has no other permissions
-        put("default", -1);
-        //tradeshop.limit.tree.item1 = 0
-        //tradeshop.limit.tree.item2.item2-1 = 0
-        //tradeshop.limit.tree.item2.item2-2 = 0
-        put("tree", new HashMap<String, Object>() {{
-            put("item1", 0);
-            put("item2", new HashMap<String, Object>() {{
-                put("item2-1", 0);
-                put("item2-2", 0);
-            }});
-        }});
-    }}),
+    MAX_SHOPS_PER_PLAYER(SettingSection.SHOP_OPTIONS, "max-shops-per-player", Collections.singletonMap("default", -1)),
     MAX_ITEMS_PER_TRADE_SIDE(SettingSection.SHOP_OPTIONS, "max-items-per-trade-side", 6),
     ALLOW_USER_PURCHASING(SettingSection.SHOP_OPTIONS, "allow-user-purchasing", false),
     MULTIPLE_ITEMS_ON_SIGN(SettingSection.SHOP_OPTIONS, "multiple-items-on-sign", "Use '/ts what'"),

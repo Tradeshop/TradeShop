@@ -208,7 +208,7 @@ public class ConfigManager {
         if (value instanceof Map) {
             for (@SuppressWarnings("rawtypes") Map.Entry entry : ((Map<?, ?>) value).entrySet()) {
                 String newNode = node + "." + entry.getKey().toString().toLowerCase().replace("_", "-");
-                if (config.get(newNode) == null || (config.get(newNode) != null && (config.get(newNode).toString().isEmpty()) || config.getConfigurationSection(newNode).getKeys(true).isEmpty())) {
+                if (config.get(newNode) == null || (config.get(newNode) != null && config.get(newNode).toString().isEmpty())) {
                     config.set(newNode, entry.getValue().toString());
                     return true;
                 }
