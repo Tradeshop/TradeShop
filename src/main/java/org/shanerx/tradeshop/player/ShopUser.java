@@ -44,7 +44,6 @@ import org.shanerx.tradeshop.data.storage.DataStorage;
 import org.shanerx.tradeshop.shop.Shop;
 import org.shanerx.tradeshop.shop.ShopChest;
 import org.shanerx.tradeshop.shop.ShopType;
-import org.shanerx.tradeshop.shoplocation.ShopChunk;
 import org.shanerx.tradeshop.shoplocation.ShopLocation;
 import org.shanerx.tradeshop.utils.debug.DebugLevels;
 import org.shanerx.tradeshop.utils.gsonprocessing.GsonProcessor;
@@ -158,7 +157,6 @@ public class ShopUser implements Serializable {
                     int cX = x / 16, cZ = z / 16;
                     if (chunksInRange.stream().noneMatch((tempChunk) -> tempChunk.getWorldName().equalsIgnoreCase(center.getWorld().getName()) && tempChunk.getX() == cX && tempChunk.getZ() == cZ)) { //If not already processed
                         ChunkSnapshot c = world.getEmptyChunkSnapshot(cX, cZ, false, false);
-                        ShopChunk sc = new ShopChunk(c);
                         chunksInRange.add(c); //"Mark" as processed
 
                         foundShops.addAll(dataStorage.getMatchingShopsInChunk(c, inStock, desiredCost, desiredProduct));

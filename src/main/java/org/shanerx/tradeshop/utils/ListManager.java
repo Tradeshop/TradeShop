@@ -234,7 +234,7 @@ public class ListManager extends Utils {
     public void processLimitPermissions(String preFix, Map<String, Object> limitMap) {
         for (Entry<String, Object> entry : limitMap.entrySet()) {
             ObjectHolder<?> vHolder = new ObjectHolder<>(entry.getValue());
-            preFix += "." + entry.getKey();
+            String perm = preFix + "." + entry.getKey();
             if (vHolder.getObject() == null) {
                 return;
             }
