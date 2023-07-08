@@ -51,6 +51,8 @@ public enum Permissions {
 
     INFO("info", PermissionDefault.TRUE),
 
+    FIND("info.find", PermissionDefault.TRUE),
+
     MANAGE_PLUGIN("manage-plugin", PermissionDefault.OP),
 
     TRADE("trade", PermissionDefault.TRUE),

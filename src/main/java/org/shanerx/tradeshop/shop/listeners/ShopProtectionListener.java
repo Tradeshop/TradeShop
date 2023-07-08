@@ -324,18 +324,16 @@ public class ShopProtectionListener extends Utils implements Listener {
 
     @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
     public void onSignEdit(PlayerOpenSignEvent e) {
-        if (e.isCancelled())
-            return;
+        if (e.isCancelled()) return;
 
         if (ShopType.isShop(e.getSign())) e.setCancelled(true);
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onSignChange(SignChangeEvent e) {
-
         if (e.isCancelled()) return;
 
-        e.setCancelled(ShopChest.isShopChest(e.getBlock()));
+        if (ShopType.isShop(e.getBlock())) e.setCancelled(true);
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
