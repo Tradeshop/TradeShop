@@ -43,7 +43,7 @@ import org.shanerx.tradeshop.utils.objects.ObjectHolder;
 @SuppressWarnings("unused")
 public class ShopCreateListener extends Utils implements Listener {
 
-    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
     public void onSignChange(SignChangeEvent event) {
 
         if (event.isCancelled())
