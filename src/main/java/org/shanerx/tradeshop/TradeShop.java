@@ -51,6 +51,7 @@ import org.shanerx.tradeshop.utils.MetricsManager;
 import org.shanerx.tradeshop.utils.debug.Debug;
 import org.shanerx.tradeshop.utils.debug.DebugLevels;
 import org.shanerx.tradeshop.utils.logging.transactionlogging.TransactionLogger;
+import org.shanerx.tradeshop.utils.logging.transactionlogging.listeners.SuccessfulTradeEventListener;
 import org.shanerx.tradeshop.utils.versionmanagement.Expirer;
 import org.shanerx.tradeshop.utils.versionmanagement.Updater;
 import org.shanerx.tradeshop.utils.versionmanagement.Version;
@@ -143,6 +144,7 @@ public class TradeShop extends JavaPlugin {
         pm.registerEvents(new ShopCreateListener(), this);
         pm.registerEvents(new ShopTradeListener(), this);
         pm.registerEvents(new ShopRestockListener(this), this);
+        pm.registerEvents(new SuccessfulTradeEventListener(this), this);
 
         getCommand("tradeshop").setExecutor(new CommandCaller(this));
         getCommand("tradeshop").setTabCompleter(new CommandTabCaller(this));
