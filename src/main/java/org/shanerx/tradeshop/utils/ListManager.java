@@ -243,9 +243,9 @@ public class ListManager extends Utils {
             }
 
             if (vHolder.isMap()) {
-                processLimitPermissions(preFix, vHolder.asMap());
+                processLimitPermissions(perm, vHolder.asMap());
             } else if (vHolder.canBeInteger()) {
-                limitPermissions.put(preFix, vHolder.asInteger());
+                limitPermissions.put(perm, vHolder.asInteger());
             }
         }
     }

@@ -35,12 +35,7 @@ import org.shanerx.tradeshop.utils.debug.Debug;
 import org.shanerx.tradeshop.utils.objects.Tuple;
 import org.yaml.snakeyaml.Yaml;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -106,7 +101,8 @@ public enum Message {
     NO_SIGN_FOUND(MessageSection.NONE, "no-sign-found"),
     NO_SHOP_FOUND(MessageSection.NONE, "no-shop-found"),
     ADMIN_TOGGLED(MessageSection.NONE, "admin-toggled"),
-    FAILED_TRADE(MessageSection.NONE, "failed-trade");
+    FAILED_TRADE(MessageSection.NONE, "failed-trade"),
+    SHOP_LIMIT_REACHED(MessageSection.NONE, "shop-limit-reached");
 
     public static final TradeShop PLUGIN = Objects.requireNonNull((TradeShop) Bukkit.getPluginManager().getPlugin("TradeShop"));
 

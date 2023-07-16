@@ -199,6 +199,8 @@ message:
       post-comment: "\n"
     player-locked:
       default: "&cYou can not make more than 1 trade per 0.5 seconds."
+    shop-limit-reached:
+      default: "&cYou have already reached/exceeded your shop limit of %AMOUNT1% shops!\n        Current shops owned: %AMOUNT2%"
     change-closed:
       default: "&cThe shop is now &l&bCLOSED&r&a."
     change-open:

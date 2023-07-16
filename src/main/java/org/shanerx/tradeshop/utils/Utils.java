@@ -43,6 +43,7 @@ import org.bukkit.plugin.PluginDescriptionFile;
 import org.shanerx.tradeshop.TradeShop;
 import org.shanerx.tradeshop.data.config.Message;
 import org.shanerx.tradeshop.data.config.Setting;
+import org.shanerx.tradeshop.data.config.Variable;
 import org.shanerx.tradeshop.framework.events.PlayerShopCreateEvent;
 import org.shanerx.tradeshop.item.ShopItemSide;
 import org.shanerx.tradeshop.item.ShopItemStack;
@@ -58,13 +59,7 @@ import org.shanerx.tradeshop.utils.objects.Tuple;
 import org.shanerx.tradeshop.utils.relativedirection.LocationOffset;
 import org.shanerx.tradeshop.utils.relativedirection.RelativeDirection;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.OptionalInt;
-import java.util.UUID;
+import java.util.*;
 
 
 /**
@@ -512,10 +507,6 @@ public class Utils {
             return null;
         }
 
-        ShopChest shopChest;
-        Shop shop;
-        Block chest = findShopChest(shopSign.getBlock());
-
         Map<String, Integer> permittedLimits = Maps.filterEntries(PLUGIN.getListManager().getLimitPermissions(), (entry) -> creator.hasPermission(entry.getKey()));
         int limit;
         if (permittedLimits.containsValue(-1)) {
@@ -527,9 +518,18 @@ public class Utils {
             limit = oInt.isPresent() ? oInt.getAsInt() : 0;
         }
 
-        if (PLUGIN.getDataStorage().loadPlayer(owner.getUUID()).getOwnedShops().size() >= limit && limit > -1) {
+        final int OWNED_SHOPS = PLUGIN.getDataStorage().loadPlayer(owner.getUUID()).getOwnedShops().size();
+
+        if (OWNED_SHOPS >= limit && limit != -1) {
+            Message.SHOP_LIMIT_REACHED.sendMessage(creator,
+                    new Tuple<>(Variable.AMOUNT.numbered(1), String.valueOf(limit)),
+                    new Tuple<>(Variable.AMOUNT.numbered(2), String.valueOf(OWNED_SHOPS)));
             return null;
         }
+
+        ShopChest shopChest;
+        Shop shop;
+        Block chest = findShopChest(shopSign.getBlock());
 
         if (!shopType.isITrade()) {
             if (ShopChest.isShopChest(chest)) {
