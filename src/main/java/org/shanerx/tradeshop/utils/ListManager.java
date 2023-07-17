@@ -228,7 +228,7 @@ public class ListManager extends Utils {
         limitPermissions.forEach((k, v) -> {
             Permission perm = new Permission(k,
                     "Allows creation of " + (v == 0 ? "Zero(Probably an error?)" : v < 0 ? "Unlimited" : v) + " TradeShops.",
-                    k.equalsIgnoreCase("default") ? PermissionDefault.TRUE : PermissionDefault.FALSE);
+                    k.toLowerCase().endsWith("default") ? PermissionDefault.TRUE : PermissionDefault.FALSE);
             pm.addPermission(perm);
             PLUGIN.getDebugger().log("Permission registered: " + perm.getName() + " | State: " + perm.getDefault() + " | Description: " + perm.getDescription(), DebugLevels.STARTUP);
         });
