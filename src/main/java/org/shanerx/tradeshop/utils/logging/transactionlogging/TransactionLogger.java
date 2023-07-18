@@ -27,13 +27,13 @@ package org.shanerx.tradeshop.utils.logging.transactionlogging;
 
 import com.google.common.io.Files;
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import org.bukkit.inventory.ItemStack;
 import org.shanerx.tradeshop.TradeShop;
 import org.shanerx.tradeshop.data.config.Setting;
 import org.shanerx.tradeshop.framework.events.PlayerSuccessfulTradeEvent;
 import org.shanerx.tradeshop.shop.Shop;
+import org.shanerx.tradeshop.utils.gsonprocessing.GsonProcessor;
 import org.shanerx.tradeshop.utils.logging.LoggerOutputType;
 
 import java.io.File;
@@ -127,7 +127,7 @@ public class TransactionLogger {
 
     private String getItemListAsString(List<ItemStack> itemList) {
         try {
-            final Gson gson = new GsonBuilder().create();
+            final Gson gson = new GsonProcessor(false).getGlobalGson();
             JsonObject jsonObj = new JsonObject();
             for (int i = 0; i < itemList.size(); i++) {
                 JsonObject temp = gson.toJsonTree(new ItemStack(itemList.get(i))).getAsJsonObject();
