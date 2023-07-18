@@ -45,7 +45,8 @@ public enum DebugLevels {
     SHOP_CREATION(11, Level.INFO), // 1024
     SQLITE(12, Level.INFO), // 2048
     GSON(13, Level.INFO), // 4096
-    DATA_VERIFICATION(13, Level.INFO) // 8192
+    DATA_VERIFICATION(14, Level.INFO), // 8192
+    FIND_COMMAND(15, Level.INFO) // 16384
 
 
     ;

@@ -1193,7 +1193,7 @@ public class Shop implements Serializable {
 
         for (ItemStack item : desiredItems) {
             boolean foundItem = referenceList.stream().anyMatch(shopItemStack -> shopItemStack.isSimilar(item));
-            TradeShop.getPlugin().getDebugger().log(" --- _D_I_ --- " + side.name() + "\n" + item.toString() + "\n" + Arrays.toString(referenceList.stream().map(ShopItemStack::toString).toArray(String[]::new)) + "\n" + foundItem, DebugLevels.DATA_ERROR);
+            TradeShop.getPlugin().getDebugger().log(" --- _D_I_ --- " + side.name() + "\n" + item.toString() + "\n" + Arrays.toString(referenceList.stream().map(ShopItemStack::toString).toArray(String[]::new)) + "\n" + foundItem, DebugLevels.FIND_COMMAND);
             found.add(desiredItems.indexOf(item), //Get index of item being checked to set appropriate boolean in found list.
                     foundItem); //Returns true if any items are similar
         }

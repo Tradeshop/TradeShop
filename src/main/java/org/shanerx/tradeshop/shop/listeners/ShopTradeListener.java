@@ -195,8 +195,8 @@ public class ShopTradeListener extends Utils implements Listener {
         }
 
         shop.updateFullTradeCount();
-        shop.updateSign();
         shop.saveShop();
+        shop.updateSign();
     }
 
     private Tuple<List<ItemStack>, List<ItemStack>> tradeAllItems(Shop shop, int multiplier, PlayerInteractEvent event, Player buyer) {

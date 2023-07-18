@@ -42,6 +42,7 @@ import org.shanerx.tradeshop.data.storage.Json.JsonShopConfiguration;
 import org.shanerx.tradeshop.item.ShopItemSide;
 import org.shanerx.tradeshop.player.PlayerSetting;
 import org.shanerx.tradeshop.shop.Shop;
+import org.shanerx.tradeshop.shop.ShopStatus;
 import org.shanerx.tradeshop.shoplocation.ShopChunk;
 import org.shanerx.tradeshop.shoplocation.ShopLocation;
 import org.shanerx.tradeshop.utils.Utils;
@@ -194,12 +195,13 @@ public class DataStorage extends Utils {
 
             config.list().forEach(shopLoc -> matchingShops.add(config.loadASync(shopLoc))); //Load all shops and add to matchingShops
 
-            if (desiredCosts != null && !desiredCosts.isEmpty())
-                matchingShops.removeIf(shop -> shop.isMissingSideItems(ShopItemSide.COST, desiredCosts)); //Remove any shops that don't have a matching cost
-            if (desiredProducts != null && !desiredProducts.isEmpty())
-                matchingShops.removeIf(shop -> shop.isMissingSideItems(ShopItemSide.PRODUCT, desiredProducts)); //Remove any shops that don't have a matching product
-            if (inStock)
-                matchingShops.removeIf(shop -> shop.getAvailableTrades() == 0); //Remove any shops that can't make trades
+            matchingShops.stream().filter((shop) -> {
+                if ((desiredCosts != null && shop.isMissingSideItems(ShopItemSide.COST, desiredCosts)) ||  //Remove any shops that don't have a matching cost
+                        (desiredProducts != null && shop.isMissingSideItems(ShopItemSide.PRODUCT, desiredProducts)))
+                    return false; //Remove any shops that don't have a matching product
+
+                return !inStock || shop.getStatus().equals(ShopStatus.OPEN); //Remove any shops that can't make trades
+            });
 
             TradeShop.getPlugin().getDebugger().log(" --- _G_M_ --- " + Arrays.toString(matchingShops.stream().map(shop -> shop.getShopLocationAsSL().serialize()).toArray(String[]::new)), DebugLevels.DATA_ERROR);
         }

@@ -28,7 +28,6 @@ package org.shanerx.tradeshop.data.storage.Json;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
-import org.bukkit.Bukkit;
 import org.shanerx.tradeshop.TradeShop;
 import org.shanerx.tradeshop.utils.Utils;
 import org.shanerx.tradeshop.utils.gsonprocessing.GsonProcessor;
@@ -46,7 +45,7 @@ class JsonConfiguration extends Utils {
     protected File file, pathFile;
     protected JsonObject jsonObj;
 
-    private final TradeShop PLUGIN = TradeShop.getPlugin();
+    protected final TradeShop PLUGIN = TradeShop.getPlugin();
 
     /**
      * Creates a JsonConfiguration object assisting with managing JSON data
@@ -112,11 +111,8 @@ class JsonConfiguration extends Utils {
 
     protected void loadFile() {
         try {
-            if (!PLUGIN.getDataStorage().saving.containsKey(file)) {
-                jsonObj = JsonParser.parseReader(new FileReader(file)).getAsJsonObject();
-            } else {
-                jsonObj = JsonParser.parseString(PLUGIN.getDataStorage().saving.get(this.file)).getAsJsonObject();
-            }
+            jsonObj = JsonParser.parseReader(new FileReader(file)).getAsJsonObject();
+
         } catch (FileNotFoundException e) {
             PLUGIN.getLogger().log(Level.SEVERE, "Could not load " + file.getName() + " file! Data may be lost!", e);
         } catch (IllegalStateException e) {
@@ -129,23 +125,18 @@ class JsonConfiguration extends Utils {
     }
 
     protected void saveFile() {
-        if (!PLUGIN.getDataStorage().saving.containsKey(file)) {
-            final String str = gson.toJson(jsonObj);
-            PLUGIN.getDataStorage().saving.put(file, str);
-
-            Bukkit.getScheduler().runTaskAsynchronously(TradeShop.getPlugin(), () -> {
-                if (!str.isEmpty()) {
-                    try {
-                        FileWriter fileWriter = new FileWriter(this.file);
-                        fileWriter.write(str);
-                        fileWriter.flush();
-                        fileWriter.close();
-                    } catch (IOException e) {
-                        PLUGIN.getLogger().log(Level.SEVERE, "Could not save " + file.getName() + " file! Data may be lost!", e);
-                    }
-                }
-                PLUGIN.getDataStorage().saving.remove(file);
-            });
+        final String str = gson.toJson(jsonObj);
+        if (!str.isEmpty()) {
+            try {
+                FileWriter fileWriter = new FileWriter(this.file);
+                fileWriter.write(str);
+                fileWriter.flush();
+                fileWriter.close();
+            } catch (IOException e) {
+                PLUGIN.getLogger().log(Level.SEVERE, "Could not save " + this.file.getName() + " file! Data may be lost!", e);
+            }
         }
+        PLUGIN.getDataStorage().saving.remove(this.file);
+
     }
 }

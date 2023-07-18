@@ -34,13 +34,15 @@ import java.io.Serializable;
 
 public class ShopChunk implements Serializable {
 
-    final private String div = ";;";
+    private final String div = ";;",
+            worldName;
     private final World world;
     private final int x;
     private final int z;
 
     public ShopChunk(World w, int x, int z) {
         this.world = w;
+        this.worldName = world.getName();
         this.x = x;
         this.z = z;
     }
@@ -73,6 +75,10 @@ public class ShopChunk implements Serializable {
 
     public World getWorld() {
         return world;
+    }
+
+    public String getWorldName() {
+        return worldName;
     }
 
     public int getX() {

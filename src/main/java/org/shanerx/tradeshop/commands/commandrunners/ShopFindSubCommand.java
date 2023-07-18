@@ -81,7 +81,7 @@ public class ShopFindSubCommand extends SubCommand {
                     for (String arg : lowerArgs) {
                         for (String str : arg.split(";")) {
                             String[] keyVal = str.contains("=") ? str.split("=") : str.split(":");
-                            plugin.getDebugger().log(" --- _S_F_ --- " + keyVal[0] + " = " + (keyVal.length > 1 ? keyVal[1] : "---No Value---"), DebugLevels.DATA_ERROR);
+                            plugin.getDebugger().log(" --- _S_F_ --- " + keyVal[0] + " = " + (keyVal.length > 1 ? keyVal[1] : "---No Value---"), DebugLevels.FIND_COMMAND);
                             if (keyVal.length != 2) {
                                 Message.INVALID_ARGUMENTS.sendMessage(command.getSender());
                                 return;
@@ -98,6 +98,7 @@ public class ShopFindSubCommand extends SubCommand {
                                     break;
                                 case "s":
                                 case "in-stock":
+                                case "instock":
                                 case "stock":
                                     ObjectHolder<?> stock = new ObjectHolder<>(keyVal[1]);
                                     inStock = stock.isBoolean() ? stock.asBoolean() : false;
@@ -118,7 +119,7 @@ public class ShopFindSubCommand extends SubCommand {
                             "Cost" + " = " + desiredCost + "\n" +
                             "Product" + " = " + desiredProduct + "\n" +
                             "Range" + " = " + desiredRange + "\n" +
-                            "InStock" + " = " + inStock, DebugLevels.DATA_ERROR);
+                            "InStock" + " = " + inStock, DebugLevels.FIND_COMMAND);
 
                     if (desiredProduct.size() == 0)
                         desiredProduct.put(0, null);
@@ -154,7 +155,7 @@ public class ShopFindSubCommand extends SubCommand {
                     }));
 
 
-                    plugin.getDebugger().log(" --- _F_D_ --- " + Arrays.toString(foundShops.toArray(new BaseComponent[]{})), DebugLevels.DATA_ERROR);
+                    plugin.getDebugger().log(" --- _F_D_ --- " + Arrays.toString(foundShops.toArray(new BaseComponent[]{})), DebugLevels.FIND_COMMAND);
 
                     if (foundShops.size() > 0)
                         command.getSender().spigot().sendMessage(foundShops.toArray(new BaseComponent[]{}));
