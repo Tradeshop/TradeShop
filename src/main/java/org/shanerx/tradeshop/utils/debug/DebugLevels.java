@@ -44,7 +44,8 @@ public enum DebugLevels {
     OUTPUT(10, Level.WARNING), // 512
     SHOP_CREATION(11, Level.INFO), // 1024
     SQLITE(12, Level.INFO), // 2048
-    GSON(13, Level.INFO) // 4096
+    GSON(13, Level.INFO), // 4096
+    DATA_VERIFICATION(13, Level.INFO) // 8192
 
 
     ;

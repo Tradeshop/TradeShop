@@ -27,6 +27,7 @@ package org.shanerx.tradeshop.data.storage;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.NotImplementedException;
 import org.bukkit.Bukkit;
@@ -47,6 +48,9 @@ import org.shanerx.tradeshop.utils.Utils;
 import org.shanerx.tradeshop.utils.debug.DebugLevels;
 
 import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -62,6 +66,7 @@ public class DataStorage extends Utils {
 
     private transient DataType dataType;
     public final Map<File, String> saving;
+    private final String BROKEN_JSON_START = "} \"";
 
     private final Cache<World, LinkageConfiguration> linkCache = CacheBuilder.newBuilder()
             .maximumSize(100)
@@ -83,17 +88,23 @@ public class DataStorage extends Utils {
 
     public void reload(DataType dataType) {
         this.dataType = dataType;
+        TradeShop.getPlugin().getDebugger().log("Data storage set to: " + dataType.name(), DebugLevels.DATA_VERIFICATION);
+        TradeShop.getPlugin().getDebugger().log("Validating Data Integrity...", DebugLevels.DATA_ERROR);
         if (!validate()) {
             TradeShop.getPlugin().getLogger().log(Level.SEVERE, "At least one err file(s) were found in the data folders! " +
                     "\n Please fix any error .json files, remove the .err files, and restart the plugin/server.");
             TradeShop.getPlugin().getServer().getPluginManager().disablePlugin(TradeShop.getPlugin());
+            return;
         }
-        //TradeShop.getPlugin().getDebugger().log("Data storage set to: " + dataType.name(), DebugLevels.DISABLED);
+        TradeShop.getPlugin().getDebugger().log("Data Validated.", DebugLevels.DATA_ERROR);
     }
 
     public boolean validate() {
         if (dataType == DataType.FLATFILE) {
             List<File> errFiles = new ArrayList<>();
+            Map<File, String> correctedFiles = new HashMap<>();
+
+            //Check for err files
             Bukkit.getServer().getWorlds().forEach((w) -> {
                 File[] list = JsonLinkageConfiguration.getShopFiles(w.getName());
                 if (list != null && list.length > 0) {
@@ -101,7 +112,46 @@ public class DataStorage extends Utils {
                 }
             });
 
-            return errFiles.size() == 0;
+            TradeShop.getPlugin().getDebugger().log("FLATFILE ERR Files Found: \n" + errFiles, DebugLevels.DATA_VERIFICATION);
+
+            //Check for and correct malformed files
+            Bukkit.getServer().getWorlds().forEach((w) -> {
+                File[] list = JsonLinkageConfiguration.getShopFiles(w.getName());
+                if (list != null && list.length > 0) {
+                    Arrays.stream(list).forEach((f) -> {
+                        try {
+                            String fileStr = FileUtils.readFileToString(f, StandardCharsets.UTF_8);
+                            if (fileStr.contains(BROKEN_JSON_START)) {
+                                correctedFiles.put(f, fileStr.substring(0, fileStr.indexOf(BROKEN_JSON_START) + 1));
+
+                                TradeShop.getPlugin().getDebugger().log("Error found in file: " + f.getName() + "\n Text Removed: ---\n" + fileStr.substring(fileStr.indexOf(BROKEN_JSON_START) + 1), DebugLevels.DATA_VERIFICATION);
+                            }
+                        } catch (IOException e) {
+                            correctedFiles.put(f, null);
+                        }
+                    });
+                }
+            });
+
+            TradeShop.getPlugin().getDebugger().log("FLATFILE Malformed Files Found: " + correctedFiles.size(), DebugLevels.DATA_ERROR);
+
+            //Write corrected malformed files
+            if (correctedFiles.size() > 0) {
+                correctedFiles.forEach((k, v) -> {
+                    if (v != null && !v.isEmpty()) {
+                        try {
+                            FileWriter fileWriter = new FileWriter(k);
+                            fileWriter.write(v);
+                            fileWriter.flush();
+                            fileWriter.close();
+                        } catch (IOException e) {
+                            TradeShop.getPlugin().getDebugger().log("Could not save corrected " + k.getName() + " file! Data may be lost!", DebugLevels.DATA_ERROR);
+                        }
+                    }
+                });
+            }
+
+            return errFiles.size() < 1;
         }
         throw new NotImplementedException("Data storage type " + dataType + " has not been implemented yet.");
     }
