@@ -714,7 +714,7 @@ public class Shop implements Serializable {
      * @return list of ShopUsers.
      */
     public List<ShopUser> getUsers(ShopRole... roles) {
-        return getUsersExcluding(Collections.emptyList(), roles);
+        return getUsersUUID(roles).stream().map((uuid) -> new ShopUser(uuid, ShopRole.MANAGER)).collect(Collectors.toList());
     }
 
     /**
@@ -725,13 +725,7 @@ public class Shop implements Serializable {
      * @return list of ShopUsers.
      */
     public List<ShopUser> getUsersExcluding(List<UUID> excludedPlayers, ShopRole... roles) {
-        List<ShopUser> users = new ArrayList<>();
-        getUsers(roles).forEach(user -> {
-            if (!excludedPlayers.contains(user.getUUID()))
-                users.add(user);
-        });
-
-        return users;
+        return getUsers(roles).stream().filter((shopUser) -> !excludedPlayers.contains(shopUser.getUUID())).collect(Collectors.toList());
     }
 
     /**
