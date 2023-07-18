@@ -46,6 +46,25 @@ public class ObjectHolder<Type> {
         return obj != null && obj instanceof Boolean;
     }
 
+    /**
+     * Converts string to boolean based on acceptable responses
+     *
+     * @return true if acceptable string was found
+     */
+    public boolean canBeBoolean() {
+        switch (obj.toString().toLowerCase()) {
+            case "true":
+            case "t":
+            case "tru":
+            case "yes":
+            case "y":
+            case "all":
+                return true;
+            default:
+                return false;
+        }
+    }
+
     public boolean isInteger() {
         return obj != null && (obj instanceof Integer || (obj instanceof Double && Double.parseDouble(obj.toString()) % 1 == 0));
     }
@@ -70,7 +89,7 @@ public class ObjectHolder<Type> {
     }
 
     public Boolean asBoolean() {
-        return isBoolean() ? Boolean.parseBoolean(obj.toString()) : null;
+        return canBeBoolean();
     }
 
     public Integer asInteger() {

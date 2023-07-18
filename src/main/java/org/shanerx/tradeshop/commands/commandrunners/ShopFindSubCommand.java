@@ -101,7 +101,7 @@ public class ShopFindSubCommand extends SubCommand {
                                 case "instock":
                                 case "stock":
                                     ObjectHolder<?> stock = new ObjectHolder<>(keyVal[1]);
-                                    inStock = stock.isBoolean() ? stock.asBoolean() : false;
+                                    inStock = stock.asBoolean();
                                     break;
                                 case "d":
                                 case "r":
