@@ -52,7 +52,7 @@ import java.util.UUID;
 
 public class ShopChest extends Utils {
 
-    private final static TradeShop plugin = (TradeShop) Bukkit.getPluginManager().getPlugin("TradeShop");
+    private final static TradeShop PLUGIN = (TradeShop) Bukkit.getPluginManager().getPlugin("TradeShop");
     private final Location loc;
     private final String sectionSeparator = "\\$ \\^";
     private final String titleSeparator = ";;";
@@ -62,9 +62,16 @@ public class ShopChest extends Utils {
 
     public ShopChest(Location chestLoc) {
         this.loc = chestLoc;
+        ShopLocation signLoc = PLUGIN.getDataStorage().getChestLinkage(new ShopLocation(chestLoc));
+
+        if (signLoc != null) {
+            this.shopSign = signLoc;
+            this.owner = Shop.loadShop(signLoc).getOwner().getUUID();
+        } else {
+            loadFromName();
+        }
 
         getBlock();
-        loadFromName();
     }
 
     public ShopChest(Block chest, UUID owner, Location sign) {
@@ -79,13 +86,13 @@ public class ShopChest extends Utils {
             if (isDoubleChest(checking)) {
                 DoubleChest dbl = getDoubleChest(checking);
 
-                return ((Container) dbl.getLeftSide()).getPersistentDataContainer().has(plugin.getSignKey(), PersistentDataType.STRING) ||
-                        ((Container) dbl.getRightSide()).getPersistentDataContainer().has(plugin.getSignKey(), PersistentDataType.STRING);
+                return ((Container) dbl.getLeftSide()).getPersistentDataContainer().has(PLUGIN.getSignKey(), PersistentDataType.STRING) ||
+                        ((Container) dbl.getRightSide()).getPersistentDataContainer().has(PLUGIN.getSignKey(), PersistentDataType.STRING);
             }
-            boolean conHas = ((Container) checking.getState()).getPersistentDataContainer().has(plugin.getSignKey(), PersistentDataType.STRING);
+            boolean conHas = ((Container) checking.getState()).getPersistentDataContainer().has(PLUGIN.getSignKey(), PersistentDataType.STRING);
             return conHas;
         } catch (NullPointerException | ClassCastException ex) {
-            plugin.getDebugger().log("NPE thrown during isShopChest by: \n" + ex.getCause(), DebugLevels.PROTECTION);
+            PLUGIN.getDebugger().log("NPE thrown during isShopChest by: \n" + ex.getCause(), DebugLevels.PROTECTION);
         }
         return false;
 
@@ -177,7 +184,7 @@ public class ShopChest extends Utils {
     }
 
     private void getBlock() {
-        if (plugin.getListManager().isInventory(loc.getBlock())) {
+        if (PLUGIN.getListManager().isInventory(loc.getBlock())) {
             Block block = loc.getBlock();
 
             try {
@@ -185,7 +192,7 @@ public class ShopChest extends Utils {
                     DoubleChest dbl = getDoubleChest(block);
                     Container left = ((Container) dbl.getLeftSide()),
                             right = ((Container) dbl.getRightSide());
-                    chest = left.getPersistentDataContainer().has(plugin.getSignKey(), PersistentDataType.STRING) ? left.getBlock() : right.getBlock();
+                    chest = left.getPersistentDataContainer().has(PLUGIN.getSignKey(), PersistentDataType.STRING) ? left.getBlock() : right.getBlock();
 
                 } else
                     chest = block;
@@ -212,9 +219,10 @@ public class ShopChest extends Utils {
         return itemToCheck.size() > 0 && getItems(getInventory().getStorageContents(), itemToCheck, 1).get(0) != null;
     }
 
+    @Deprecated
     public void loadFromName() {
         if (isShopChest(chest)) {
-            String[] name = ((Container) chest.getState()).getPersistentDataContainer().get(plugin.getSignKey(), PersistentDataType.STRING)
+            String[] name = ((Container) chest.getState()).getPersistentDataContainer().get(PLUGIN.getSignKey(), PersistentDataType.STRING)
                     .replaceAll("Sign:", "Sign" + titleSeparator).replaceAll("Owner:", "Owner" + titleSeparator)
                     .split(sectionSeparator);
             Map<String, String> chestData = new HashMap<>();
@@ -222,7 +230,7 @@ public class ShopChest extends Utils {
                 chestData.put(s.split(titleSeparator)[0], s.replace(s.split(titleSeparator)[0] + titleSeparator, ""));
             }
 
-            chestData.forEach((k, v) -> plugin.getDebugger().log(k + " = " + v, DebugLevels.PROTECTION));
+            chestData.forEach((k, v) -> PLUGIN.getDebugger().log(k + " = " + v, DebugLevels.PROTECTION));
             try {
                 shopSign = ShopLocation.deserialize(chestData.get("Sign"));
             } catch (IllegalWorldException e) {
@@ -261,7 +269,7 @@ public class ShopChest extends Utils {
 
     public void setName(Block toSet) {
         Container container = (Container) chest.getState();
-        container.getPersistentDataContainer().set(plugin.getSignKey(), PersistentDataType.STRING, getName());
+        container.getPersistentDataContainer().set(PLUGIN.getSignKey(), PersistentDataType.STRING, getName());
         container.update();
     }
 
@@ -272,8 +280,8 @@ public class ShopChest extends Utils {
     public void resetName() {
         if (isShopChest(chest)) {
             Container container = (Container) chest.getState();
-            container.getPersistentDataContainer().remove(plugin.getStorageKey());
-            container.getPersistentDataContainer().remove(plugin.getSignKey());
+            container.getPersistentDataContainer().remove(PLUGIN.getStorageKey());
+            container.getPersistentDataContainer().remove(PLUGIN.getSignKey());
             container.update();
         }
     }
