@@ -193,14 +193,18 @@ public class DataStorage extends Utils {
         if (chunkExists(shopChunk)) {
             ShopConfiguration config = getShopConfiguration(shopChunk);
 
-            config.list().forEach(shopLoc -> matchingShops.add(config.loadASync(shopLoc))); //Load all shops and add to matchingShops
+            config.list().forEach((shopLoc) -> {
+                Shop shop = config.loadASync(shopLoc);
 
-            matchingShops.stream().filter((shop) -> {
-                if ((desiredCosts != null && shop.isMissingSideItems(ShopItemSide.COST, desiredCosts)) ||  //Remove any shops that don't have a matching cost
+                if ((desiredCosts != null && shop.isMissingSideItems(ShopItemSide.COST, desiredCosts)) ||
                         (desiredProducts != null && shop.isMissingSideItems(ShopItemSide.PRODUCT, desiredProducts)))
-                    return false; //Remove any shops that don't have a matching product
+                    return; //Ignore any shops that don't have a matching product/cost
 
-                return !inStock || shop.getStatus().equals(ShopStatus.OPEN); //Remove any shops that can't make trades
+                if (inStock && !shop.getStatus().equals(ShopStatus.OPEN)) {
+                    // Do Nothing, Ignores shops that don't have stock when we only want ones that are
+                } else {
+                    matchingShops.add(shop);
+                }
             });
 
             TradeShop.getPlugin().getDebugger().log(" --- _G_M_ --- " + Arrays.toString(matchingShops.stream().map(shop -> shop.getShopLocationAsSL().serialize()).toArray(String[]::new)), DebugLevels.DATA_ERROR);
