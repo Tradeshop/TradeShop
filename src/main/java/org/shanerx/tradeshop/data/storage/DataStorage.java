@@ -175,8 +175,8 @@ public class DataStorage extends Utils {
     }
 
     public void removeShop(Shop shop) {
+        shopCache.invalidate(shop.getShopLocationAsSL().serialize());
         Bukkit.getScheduler().runTaskAsynchronously(TradeShop.getPlugin(), () -> {
-            shopCache.invalidate(shop.getShopLocationAsSL().serialize());
             getShopConfiguration(shop.getShopLocation().getChunk()).remove(shop.getShopLocationAsSL());
             getLinkageConfiguration(shop.getShopLocationAsSL().getWorld()).removeShop(shop.getShopLocationAsSL());
         });
