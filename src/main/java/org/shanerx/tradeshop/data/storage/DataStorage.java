@@ -107,7 +107,7 @@ public class DataStorage extends Utils {
 
             //Check for err files
             Bukkit.getServer().getWorlds().forEach((w) -> {
-                File[] list = JsonLinkageConfiguration.getShopFiles(w.getName());
+                File[] list = JsonShopConfiguration.getFilesInFolder(w.getName());
                 if (list != null && list.length > 0) {
                     errFiles.addAll(Arrays.stream(list).filter((f) -> FilenameUtils.getExtension(f.getName()).toLowerCase().contains("err")).collect(Collectors.toList()));
                 }
@@ -117,7 +117,7 @@ public class DataStorage extends Utils {
 
             //Check for and correct malformed files
             Bukkit.getServer().getWorlds().forEach((w) -> {
-                File[] list = JsonLinkageConfiguration.getShopFiles(w.getName());
+                File[] list = JsonShopConfiguration.getFilesInFolder(w.getName());
                 if (list != null && list.length > 0) {
                     Arrays.stream(list).forEach((f) -> {
                         try {
@@ -152,6 +152,27 @@ public class DataStorage extends Utils {
                 });
             }
 
+
+            TradeShop.getPlugin().getDebugger().log("Removing empty player files... ", DebugLevels.DATA_VERIFICATION);
+
+            List<String> deletedResults = new ArrayList<>();
+            Map<String, Exception> failedResults = new HashMap<>();
+            Arrays.stream(JsonPlayerConfiguration.getAllPlayers()).forEach((file) -> {
+                if (file.isFile() && file.length() == 0) {
+                    try {
+                        file.delete();
+                        deletedResults.add(file.getName());
+                    } catch (Exception e) {
+                        failedResults.put(file.getName(), e);
+                    }
+                }
+                TradeShop.getPlugin().getDebugger().log("Empty file for Player UUID &&FILE_NAME&& deleted... ", DebugLevels.DATA_VERIFICATION);
+                TradeShop.getPlugin().getDebugger().log("Empty player file could not be removed.\n File name: &&FILE_NAME&&\n Reason: &&FAILED_REASON&&", DebugLevels.DATA_ERROR);
+            });
+
+            TradeShop.getPlugin().getDebugger().log("Empty files deleted: " + deletedResults.size(), DebugLevels.DATA_VERIFICATION);
+            TradeShop.getPlugin().getDebugger().log("# of empty player files that couldn't be deleted: " + failedResults.size() + "\nFailed Deletion results: \n" + failedResults.entrySet().stream().map((entry) -> entry.getKey() + ": " + entry.getValue().getMessage()).collect(Collectors.joining("\n")), DebugLevels.DATA_ERROR);
+
             return errFiles.size() < 1;
         }
         throw new NotImplementedException("Data storage type " + dataType + " has not been implemented yet.");
@@ -169,17 +190,13 @@ public class DataStorage extends Utils {
 
     public void saveShop(Shop shop) {
         shopCache.put(shop.getShopLocationAsSL().serialize(), shop);
-        Bukkit.getScheduler().runTaskAsynchronously(TradeShop.getPlugin(), () -> {
-            getShopConfiguration(shop.getShopLocation().getChunk()).save(shop);
-        });
+        getShopConfiguration(shop.getShopLocation().getChunk()).save(shop);
     }
 
     public void removeShop(Shop shop) {
         shopCache.invalidate(shop.getShopLocationAsSL().serialize());
-        Bukkit.getScheduler().runTaskAsynchronously(TradeShop.getPlugin(), () -> {
-            getShopConfiguration(shop.getShopLocation().getChunk()).remove(shop.getShopLocationAsSL());
-            getLinkageConfiguration(shop.getShopLocationAsSL().getWorld()).removeShop(shop.getShopLocationAsSL());
-        });
+        getShopConfiguration(shop.getShopLocation().getChunk()).remove(shop.getShopLocationAsSL());
+        getLinkageConfiguration(shop.getShopLocationAsSL().getWorld()).removeShop(shop.getShopLocationAsSL());
     }
 
     public int getShopCountInChunk(Chunk chunk) {
@@ -244,16 +261,12 @@ public class DataStorage extends Utils {
 
     public void savePlayer(PlayerSetting playerSetting) {
         playerCache.put(playerSetting.getUuid(), playerSetting);
-        Bukkit.getScheduler().runTaskAsynchronously(TradeShop.getPlugin(), () -> {
-            getPlayerConfiguration(playerSetting.getUuid()).save(playerSetting);
-        });
+        getPlayerConfiguration(playerSetting.getUuid()).save(playerSetting);
     }
 
     public void removePlayer(PlayerSetting playerSetting) {
-        Bukkit.getScheduler().runTaskAsynchronously(TradeShop.getPlugin(), () -> {
-            playerCache.invalidate(playerSetting.getUuid());
-            getPlayerConfiguration(playerSetting.getUuid()).remove();
-        });
+        playerCache.invalidate(playerSetting.getUuid());
+        getPlayerConfiguration(playerSetting.getUuid()).remove();
     }
 
     public ShopLocation getChestLinkage(ShopLocation chestLocation) {

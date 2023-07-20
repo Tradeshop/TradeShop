@@ -105,7 +105,7 @@ class JsonConfiguration extends Utils {
         TradeShop.getPlugin().getServer().getPluginManager().disablePlugin(TradeShop.getPlugin());
     }
 
-    public static File[] getShopFiles(String folderFromData) {
+    public static File[] getFilesInFolder(String folderFromData) {
         return getPath(folderFromData).listFiles();
     }
 
