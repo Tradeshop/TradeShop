@@ -41,7 +41,6 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.block.SignChangeEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
-import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryMoveItemEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.PlayerInteractEvent;
@@ -148,7 +147,7 @@ public class ShopProtectionListener extends Utils implements Listener {
         //plugin.getListManager().addSkippableShop(event.getInitiator().getLocation(), hopperEvent.isForbidden());
 
         if (!hopperEvent.isForbidden()) {
-            scheduleShopDelayUpdate(shop, 2L);
+            scheduleShopDelayUpdate("ShopProtectionListener#onInventoryMoveItem", shop, 2L);
         }
     }
 
@@ -337,19 +336,6 @@ public class ShopProtectionListener extends Utils implements Listener {
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
-    public void onChestInventoryClose(InventoryCloseEvent e) {
-        if (e.getInventory().getLocation() == null)
-            return;
-
-        Block block = e.getInventory().getLocation().getBlock();
-
-        if (ShopChest.isShopChest(block)) {
-            scheduleShopDelayUpdate(new ShopChest(block.getLocation()).getShop(), 2L);
-        }
-
-    }
-
-    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onBlockPlace(BlockPlaceEvent event) {
 
         if (event.isCancelled())
@@ -379,17 +365,5 @@ public class ShopProtectionListener extends Utils implements Listener {
         } else {
             event.setCancelled(true);
         }
-    }
-
-    private void scheduleShopDelayUpdate(Shop shop, Long delay) {
-        plugin.getDebugger().log("Shop Being updated from ProtectionListener...\n  " + shop.getShopLocationAsSL().serialize(), DebugLevels.PROTECTION);
-        Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
-            @Override
-            public void run() {
-                shop.updateFullTradeCount();
-                shop.updateSign();
-                shop.saveShop();
-            }
-        }, delay);
     }
 }

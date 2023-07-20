@@ -59,7 +59,13 @@ import org.shanerx.tradeshop.utils.objects.Tuple;
 import org.shanerx.tradeshop.utils.relativedirection.LocationOffset;
 import org.shanerx.tradeshop.utils.relativedirection.RelativeDirection;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.OptionalInt;
+import java.util.UUID;
 
 
 /**
@@ -722,7 +728,9 @@ public class Utils {
      *
      * @param check String to convert to boolean
      * @return true if acceptable string was found
+     * @deprecated Functionality moved to ObjectHolder
      */
+    @Deprecated
     public boolean textToBool(String check) {
         switch (check.toLowerCase()) {
             case "true":
@@ -734,5 +742,14 @@ public class Utils {
             default:
                 return false;
         }
+    }
+
+    public void scheduleShopDelayUpdate(String cause, Shop shop, Long delay) {
+        PLUGIN.getDebugger().log("Shop delay update caused by " + cause + ": " + shop.getShopLocationAsSL().serialize(), DebugLevels.PROTECTION);
+        Bukkit.getScheduler().scheduleSyncDelayedTask(PLUGIN, () -> {
+            shop.updateFullTradeCount();
+            shop.updateSign();
+            shop.saveShop();
+        }, delay);
     }
 }
