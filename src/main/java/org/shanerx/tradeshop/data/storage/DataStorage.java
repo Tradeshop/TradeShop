@@ -52,12 +52,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
@@ -154,7 +149,7 @@ public class DataStorage extends Utils {
             TradeShop.getPlugin().getDebugger().log("Removing empty player files... ", DebugLevels.DATA_VERIFICATION);
 
             File[] playerFiles = JsonPlayerConfiguration.getAllPlayers();
-            if (playerFiles.length == 0) {
+            if (playerFiles != null) {
                 List<String> deletedResults = new ArrayList<>();
                 Map<String, Exception> failedResults = new HashMap<>();
                 Arrays.stream(playerFiles).forEach((file) -> {
