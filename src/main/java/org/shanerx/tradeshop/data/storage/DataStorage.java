@@ -178,9 +178,8 @@ public class DataStorage extends Utils {
     }
 
     public Shop loadShopFromSign(ShopLocation sign) {
-        if (shopCache.getIfPresent(sign.serialize()) != null)
-            return shopCache.getIfPresent(sign.serialize());
-        return getShopConfiguration(sign.getChunk()).load(sign);
+        Shop cached = shopCache.getIfPresent(sign.serialize());
+        return cached != null ? cached : getShopConfiguration(sign.getChunk()).load(sign);
     }
 
     public Shop loadShopFromStorage(ShopLocation chest) {
@@ -216,9 +215,7 @@ public class DataStorage extends Utils {
                         (desiredProducts != null && shop.isMissingSideItems(ShopItemSide.PRODUCT, desiredProducts)))
                     return; //Ignore any shops that don't have a matching product/cost
 
-                if (inStock && !shop.getStatus().equals(ShopStatus.OPEN)) {
-                    // Do Nothing, Ignores shops that don't have stock when we only want ones that are
-                } else {
+                if (!inStock || shop.getStatus().equals(ShopStatus.OPEN)) {
                     matchingShops.add(shop);
                 }
             });

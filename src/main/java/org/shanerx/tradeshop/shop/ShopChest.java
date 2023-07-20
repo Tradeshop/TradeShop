@@ -82,6 +82,10 @@ public class ShopChest extends Utils {
     }
 
     public static boolean isShopChest(Block checking) {
+        ShopLocation linked = PLUGIN.getVarManager().getDataStorage().getChestLinkage(new ShopLocation(checking.getLocation()));
+
+        if (linked != null) return true;
+
         try {
             if (isDoubleChest(checking)) {
                 DoubleChest dbl = getDoubleChest(checking);
@@ -92,7 +96,7 @@ public class ShopChest extends Utils {
             boolean conHas = ((Container) checking.getState()).getPersistentDataContainer().has(PLUGIN.getSignKey(), PersistentDataType.STRING);
             return conHas;
         } catch (NullPointerException | ClassCastException ex) {
-            PLUGIN.getDebugger().log("NPE thrown during isShopChest by: \n" + ex.getCause(), DebugLevels.PROTECTION);
+            PLUGIN.getDebugger().log("Error thrown during isShopChest by: \n" + ex, DebugLevels.PROTECTION);
         }
         return false;
 
