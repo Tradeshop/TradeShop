@@ -153,7 +153,7 @@ public class VarManager {
     }
 
     public ConfigManager getSettingManager() {
-        if (getSettingManager() == null) resetSettingManager();
+        if (settingManager == null) resetSettingManager();
 
         return settingManager;
     }
