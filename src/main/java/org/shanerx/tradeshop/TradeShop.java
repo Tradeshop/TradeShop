@@ -80,7 +80,7 @@ public class TradeShop extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        varManager = new VarManager(this);
+        getVarManager();
 
         if (loadChecks()) {
             getServer().getPluginManager().disablePlugin(this);
@@ -270,6 +270,8 @@ public class TradeShop extends JavaPlugin {
     }
 
     public VarManager getVarManager() {
+        if (varManager == null) varManager = new VarManager(this);
+
         return varManager;
     }
 
