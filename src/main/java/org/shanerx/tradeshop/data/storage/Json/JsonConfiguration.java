@@ -30,6 +30,7 @@ import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
 import org.shanerx.tradeshop.TradeShop;
 import org.shanerx.tradeshop.utils.Utils;
+import org.shanerx.tradeshop.utils.debug.DebugLevels;
 import org.shanerx.tradeshop.utils.gsonprocessing.GsonProcessor;
 
 import java.io.File;
@@ -101,12 +102,12 @@ class JsonConfiguration extends Utils {
             TradeShop.getPlugin().getLogger().log(Level.SEVERE, "Could not save " + file.getName() + " file! Writing err to console.", e);
             TradeShop.getPlugin().getLogger().log(Level.SEVERE, e + "\n\n--------------------------------------------------------------------------------------\n\n" + errStr, e);
         }
-
-        TradeShop.getPlugin().getServer().getPluginManager().disablePlugin(TradeShop.getPlugin());
     }
 
     public static File[] getFilesInFolder(String folderFromData) {
-        return getPath(folderFromData).listFiles();
+        File dir = getPath(folderFromData);
+        TradeShop.getPlugin().getVarManager().getDebugger().log("reading file list from " + dir.getAbsolutePath(), DebugLevels.DATA_VERIFICATION);
+        return dir.listFiles();
     }
 
     protected void loadFile() {

@@ -153,21 +153,24 @@ public class DataStorage extends Utils {
 
             TradeShop.getPlugin().getDebugger().log("Removing empty player files... ", DebugLevels.DATA_VERIFICATION);
 
-            List<String> deletedResults = new ArrayList<>();
-            Map<String, Exception> failedResults = new HashMap<>();
-            Arrays.stream(JsonPlayerConfiguration.getAllPlayers()).forEach((file) -> {
-                if (file.isFile() && file.length() == 0) {
-                    try {
-                        file.delete();
-                        deletedResults.add(file.getName());
-                    } catch (Exception e) {
-                        failedResults.put(file.getName(), e);
+            File[] playerFiles = JsonPlayerConfiguration.getAllPlayers();
+            if (playerFiles.length == 0) {
+                List<String> deletedResults = new ArrayList<>();
+                Map<String, Exception> failedResults = new HashMap<>();
+                Arrays.stream(playerFiles).forEach((file) -> {
+                    if (file.isFile() && file.length() == 0) {
+                        try {
+                            file.delete();
+                            deletedResults.add(file.getName());
+                        } catch (Exception e) {
+                            failedResults.put(file.getName(), e);
+                        }
                     }
-                }
-            });
+                });
 
-            TradeShop.getPlugin().getDebugger().log("Empty files deleted: " + deletedResults.size(), DebugLevels.DATA_VERIFICATION);
-            TradeShop.getPlugin().getDebugger().log("# of empty player files that couldn't be deleted: " + failedResults.size() + (failedResults.size() > 0 ? ("\nFailed Deletion results: \n" + failedResults.entrySet().stream().map((entry) -> entry.getKey() + ": " + entry.getValue().getMessage()).collect(Collectors.joining("\n"))) : "\n"), DebugLevels.DATA_ERROR);
+                TradeShop.getPlugin().getDebugger().log("Empty files deleted: " + deletedResults.size(), DebugLevels.DATA_VERIFICATION);
+                TradeShop.getPlugin().getDebugger().log("# of empty player files that couldn't be deleted: " + failedResults.size() + (failedResults.size() > 0 ? ("\nFailed Deletion results: \n" + failedResults.entrySet().stream().map((entry) -> entry.getKey() + ": " + entry.getValue().getMessage()).collect(Collectors.joining("\n"))) : "\n"), DebugLevels.DATA_ERROR);
+            }
 
             return errFiles.size() < 1;
         }
