@@ -27,6 +27,7 @@ package org.shanerx.tradeshop.utils.management;
 
 import com.google.common.collect.Lists;
 import org.bukkit.NamespacedKey;
+import org.bukkit.World;
 import org.shanerx.tradeshop.TradeShop;
 import org.shanerx.tradeshop.data.config.ConfigManager;
 import org.shanerx.tradeshop.data.config.Language;
@@ -84,6 +85,10 @@ public class VarManager {
         if (!expirer.initiateDevExpiration()) {
             expirer = null;
         }
+
+        for (World world : TRADESHOP.getServer().getWorlds()) {
+            adjustShops(getDataStorage().getShopCountInWorld(world));
+        }
     }
 
     //<editor-fold desc="Getters & (Re)Setters">
@@ -114,6 +119,14 @@ public class VarManager {
 
     public void resetMetricsManager() {
         this.metricsManager = new MetricsManager(TRADESHOP);
+    }
+
+    public void addTrade() {
+        tradeCounter.set(lastIndex, tradeCounter.get(lastIndex) + 1);
+    }
+
+    public void adjustShops(int adjustment) {
+        shopCounter += adjustment;
     }
 
     public boolean isSkipHopperProtection() {

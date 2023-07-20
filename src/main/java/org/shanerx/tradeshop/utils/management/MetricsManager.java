@@ -31,7 +31,6 @@ import org.bstats.charts.AdvancedPie;
 import org.bstats.charts.SimpleBarChart;
 import org.bstats.charts.SimplePie;
 import org.bstats.charts.SingleLineChart;
-import org.bukkit.World;
 import org.shanerx.tradeshop.TradeShop;
 import org.shanerx.tradeshop.data.config.Message;
 import org.shanerx.tradeshop.data.config.Setting;
@@ -49,10 +48,6 @@ public class MetricsManager {
         this.varManager = plugin.getVarManager();
         metrics = new Metrics(plugin, varManager.getbStatsPluginID());
 
-        for (World world : plugin.getServer().getWorlds()) {
-            adjustShops(plugin.getDataStorage().getShopCountInWorld(world));
-        }
-
         addTradeMetric();
         addShopMetric();
         addOtherSettingMetrics();
@@ -66,14 +61,6 @@ public class MetricsManager {
         addFeaturePieMetrics();
         addSettingStringListAdvancedPieMetrics();
         addIllegalItemsPieMetric();
-    }
-
-    public void addTrade() {
-        varManager.tradeCounter.set(varManager.lastIndex, varManager.tradeCounter.get(varManager.lastIndex) + 1);
-    }
-
-    public void adjustShops(int adjustment) {
-        varManager.shopCounter += adjustment;
     }
 
     private void addTradeMetric() {

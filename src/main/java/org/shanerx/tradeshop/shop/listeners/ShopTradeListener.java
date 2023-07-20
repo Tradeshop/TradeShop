@@ -282,7 +282,7 @@ public class ShopTradeListener extends Utils implements Listener {
         PLUGIN.getDebugger().log("ShopTradeListener > tradeAll > end-costItems: " + costItems, DebugLevels.TRADE);
 
         Bukkit.getPluginManager().callEvent(new PlayerSuccessfulTradeEvent(buyer, costItems, productItems, shop, event.getClickedBlock(), event.getBlockFace()));
-        PLUGIN.getMetricsManager().addTrade();
+        PLUGIN.getVarManager().addTrade();
 
         return new Tuple<>(productItems, costItems); //Successfully completed trade
     }

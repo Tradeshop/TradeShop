@@ -50,7 +50,7 @@ public class PlayerShopDestroyEvent extends PlayerEvent implements Cancellable {
     public PlayerShopDestroyEvent(Player p, Shop shop) {
         super(p);
         this.shop = shop;
-        TradeShop.getPlugin().getMetricsManager().adjustShops(-1);
+        TradeShop.getPlugin().getVarManager().adjustShops(-1);
     }
 
     public static HandlerList getHandlerList() {

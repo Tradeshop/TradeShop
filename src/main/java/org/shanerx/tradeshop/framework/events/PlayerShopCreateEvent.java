@@ -50,7 +50,7 @@ public class PlayerShopCreateEvent extends PlayerEvent implements Cancellable {
     public PlayerShopCreateEvent(Player p, Shop shop) {
         super(p);
         this.shop = shop;
-        TradeShop.getPlugin().getMetricsManager().adjustShops(1);
+        TradeShop.getPlugin().getVarManager().adjustShops(1);
     }
 
     public static HandlerList getHandlerList() {
