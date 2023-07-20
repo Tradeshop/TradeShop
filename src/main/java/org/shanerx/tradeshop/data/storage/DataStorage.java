@@ -92,9 +92,7 @@ public class DataStorage extends Utils {
         TradeShop.getPlugin().getDebugger().log("Data storage set to: " + dataType.name(), DebugLevels.DATA_VERIFICATION);
         TradeShop.getPlugin().getDebugger().log("Validating Data Integrity...", DebugLevels.DATA_ERROR);
         if (!validate()) {
-            TradeShop.getPlugin().getLogger().log(Level.SEVERE, "At least one err file(s) were found in the data folders! " +
-                    "\n Please fix any error .json files, remove the .err files, and restart the plugin/server.");
-            TradeShop.getPlugin().getServer().getPluginManager().disablePlugin(TradeShop.getPlugin());
+            TradeShop.getPlugin().getLogger().log(Level.SEVERE, "Data could not be properly validated! \nAccessing these files could cause errors.");
             return;
         }
         TradeShop.getPlugin().getDebugger().log("Data Validated.", DebugLevels.DATA_ERROR);
@@ -166,12 +164,10 @@ public class DataStorage extends Utils {
                         failedResults.put(file.getName(), e);
                     }
                 }
-                TradeShop.getPlugin().getDebugger().log("Empty file for Player UUID &&FILE_NAME&& deleted... ", DebugLevels.DATA_VERIFICATION);
-                TradeShop.getPlugin().getDebugger().log("Empty player file could not be removed.\n File name: &&FILE_NAME&&\n Reason: &&FAILED_REASON&&", DebugLevels.DATA_ERROR);
             });
 
             TradeShop.getPlugin().getDebugger().log("Empty files deleted: " + deletedResults.size(), DebugLevels.DATA_VERIFICATION);
-            TradeShop.getPlugin().getDebugger().log("# of empty player files that couldn't be deleted: " + failedResults.size() + "\nFailed Deletion results: \n" + failedResults.entrySet().stream().map((entry) -> entry.getKey() + ": " + entry.getValue().getMessage()).collect(Collectors.joining("\n")), DebugLevels.DATA_ERROR);
+            TradeShop.getPlugin().getDebugger().log("# of empty player files that couldn't be deleted: " + failedResults.size() + (failedResults.size() > 0 ? ("\nFailed Deletion results: \n" + failedResults.entrySet().stream().map((entry) -> entry.getKey() + ": " + entry.getValue().getMessage()).collect(Collectors.joining("\n"))) : "\n"), DebugLevels.DATA_ERROR);
 
             return errFiles.size() < 1;
         }

@@ -82,7 +82,7 @@ public class TradeShop extends JavaPlugin {
     public void onEnable() {
         getVarManager();
 
-        if (loadChecks()) {
+        if (!loadChecks()) {
             getServer().getPluginManager().disablePlugin(this);
             return;
         }
