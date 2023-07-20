@@ -81,6 +81,8 @@ public class VarManager {
     }
 
     public void startup() {
+        getDebugger();
+
         if (!expirer.initiateDevExpiration()) {
             expirer = null;
         }

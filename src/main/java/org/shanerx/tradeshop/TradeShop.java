@@ -89,8 +89,6 @@ public class TradeShop extends JavaPlugin {
 
         registration();
 
-        getDebugger();
-
         getSettingManager().updateSkipHoppers();
 
         getSigns();
