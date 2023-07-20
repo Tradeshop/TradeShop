@@ -180,6 +180,9 @@ public class CommandCaller implements CommandExecutor {
 			case ADMIN:
 				new AdminSubCommand(plugin, cmdPass).admin();
 				break;
+			case METRICS:
+				new AdminSubCommand(plugin, cmdPass).metrics();
+				break;
 		}
 
 		return true;
