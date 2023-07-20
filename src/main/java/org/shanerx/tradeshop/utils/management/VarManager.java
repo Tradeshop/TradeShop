@@ -73,7 +73,6 @@ public class VarManager {
         this.TRADESHOP = plugin;
         storageKey = new NamespacedKey(TRADESHOP, "tradeshop-storage-data");
         signKey = new NamespacedKey(TRADESHOP, "tradeshop-sign-data");
-        expirer = new Expirer(TRADESHOP);
         tradeCounter = Lists.newArrayList(0);
         lastIndex = tradeCounter.size() - 1;
 
@@ -83,6 +82,7 @@ public class VarManager {
     public void startup() {
         getDebugger();
 
+        expirer = new Expirer(TRADESHOP);
         if (!expirer.initiateDevExpiration()) {
             expirer = null;
         }
