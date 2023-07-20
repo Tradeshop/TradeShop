@@ -83,6 +83,7 @@
         <commit/> <!-- default value for excluding commit -->
         <branch/> <!-- default value for excluding commit -->
         <fileTimeStamp/> <!-- default value for excluding commit -->
+        <build/> <!-- default value for jenkins build number -->
 
         <!-- Changeable variables  -->
         <outputDir>target/output-files
@@ -131,11 +132,19 @@
                 </branch> <!-- `-Dbranch_name=###` is required for the branch name to appear in the file name -->
             </properties>
         </profile>
+        <profile>
+            <id>includeBuild</id> <!-- additional profile for a non-commit named build -->
+            <properties>
+                <!--suppress UnresolvedMavenProperty -->
+                <branch>-${build_num}
+                </branch> <!-- `-Dbuild_num=###` is required for the branch name to appear in the file name -->
+            </properties>
+        </profile>
     </profiles>
 
     <build>
         <defaultGoal>${doClean} install</defaultGoal>
-        <finalName>${project.name}-${project.version}${branch}${commit}${fileTimeStamp}</finalName>
+        <finalName>${project.name}-${project.version}${branch}${commit}${fileTimeStamp}${build}</finalName>
 
         <sourceDirectory>src/main/java</sourceDirectory>
         <resources>

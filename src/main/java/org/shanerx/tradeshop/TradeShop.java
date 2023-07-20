@@ -37,7 +37,6 @@ import org.shanerx.tradeshop.data.config.ConfigManager;
 import org.shanerx.tradeshop.data.config.Language;
 import org.shanerx.tradeshop.data.config.Setting;
 import org.shanerx.tradeshop.data.storage.DataStorage;
-import org.shanerx.tradeshop.data.storage.DataType;
 import org.shanerx.tradeshop.player.JoinEventListener;
 import org.shanerx.tradeshop.player.Permissions;
 import org.shanerx.tradeshop.shop.ShopSign;
@@ -46,13 +45,12 @@ import org.shanerx.tradeshop.shop.listeners.ShopCreateListener;
 import org.shanerx.tradeshop.shop.listeners.ShopProtectionListener;
 import org.shanerx.tradeshop.shop.listeners.ShopRestockListener;
 import org.shanerx.tradeshop.shop.listeners.ShopTradeListener;
-import org.shanerx.tradeshop.utils.ListManager;
-import org.shanerx.tradeshop.utils.MetricsManager;
 import org.shanerx.tradeshop.utils.debug.Debug;
-import org.shanerx.tradeshop.utils.debug.DebugLevels;
 import org.shanerx.tradeshop.utils.logging.transactionlogging.TransactionLogger;
 import org.shanerx.tradeshop.utils.logging.transactionlogging.listeners.SuccessfulTradeEventListener;
-import org.shanerx.tradeshop.utils.versionmanagement.Expirer;
+import org.shanerx.tradeshop.utils.management.ListManager;
+import org.shanerx.tradeshop.utils.management.MetricsManager;
+import org.shanerx.tradeshop.utils.management.VarManager;
 import org.shanerx.tradeshop.utils.versionmanagement.Updater;
 import org.shanerx.tradeshop.utils.versionmanagement.Version;
 
@@ -64,25 +62,7 @@ import java.util.logging.Level;
 
 public class TradeShop extends JavaPlugin {
 
-    private final NamespacedKey storageKey = new NamespacedKey(this, "tradeshop-storage-data");
-    private final NamespacedKey signKey = new NamespacedKey(this, "tradeshop-sign-data");
-    private Expirer expirer = new Expirer(this);
-    private MetricsManager metricsManager;
-    private boolean skipHopperProtection = false;
-
-    private ListManager lists;
-    private DataStorage dataStorage;
-
-    private ConfigManager settingManager, messageManager;
-    private Language language;
-
-    private TransactionLogger transactionLogger;
-
-    private Version version;
-    private ShopSign signs;
-    private ShopStorage storages;
-
-    private Debug debugger;
+    private VarManager varManager;
 
     public static TradeShop getPlugin() {
         TradeShop plugin = null;
@@ -100,54 +80,22 @@ public class TradeShop extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        if (!expirer.initiateDevExpiration()) {
-            expirer = null;
-        }
+        varManager = new VarManager(this);
 
-        if (getVersion().isBelow(1, 9)) {
-            getLogger().info("[TradeShop] Minecraft versions before 1.9 are not supported beyond TradeShop version 1.5.2!");
+        if (loadChecks()) {
             getServer().getPluginManager().disablePlugin(this);
             return;
         }
 
-        if (getVersion().isBelow(1, 13)) {
-            getLogger().info("[TradeShop] Minecraft versions before 1.13 are not supported beyond TradeShop version 1.8.2!");
-            getServer().getPluginManager().disablePlugin(this);
-            return;
-        }
-
-        getLanguage();
-        if (!language.isLoaded()) {
-            getServer().getPluginManager().disablePlugin(this);
-            return;
-        }
-
-        getSettingManager().reload();
-        getMessageManager().reload();
-
-        getSettingManager().updateSkipHoppers();
+        registration();
 
         getDebugger();
 
-        Permissions.registerPermissions();
-
-        if (getDataStorage() == null)
-            return;
+        getSettingManager().updateSkipHoppers();
 
         getSigns();
         getStorages();
         getListManager();
-
-        PluginManager pm = getServer().getPluginManager();
-        pm.registerEvents(new JoinEventListener(this), this);
-        pm.registerEvents(new ShopProtectionListener(this), this);
-        pm.registerEvents(new ShopCreateListener(), this);
-        pm.registerEvents(new ShopTradeListener(), this);
-        pm.registerEvents(new ShopRestockListener(this), this);
-        pm.registerEvents(new SuccessfulTradeEventListener(this), this);
-
-        getCommand("tradeshop").setExecutor(new CommandCaller(this));
-        getCommand("tradeshop").setTabCompleter(new CommandTabCaller(this));
 
         if (Setting.CHECK_UPDATES.getBoolean()) {
             new Thread(() -> getUpdater().checkCurrentVersion()).start();
@@ -160,8 +108,55 @@ public class TradeShop extends JavaPlugin {
             getLogger().warning("Metrics are disabled! Please consider enabling them to support the authors!");
         }
 
-        String conflictAlias = "ts";
+        aliasCheck("ts");
+    }
 
+    @Override
+    public void onDisable() {
+        if (getListManager() != null)
+            getListManager().clearManager();
+    }
+
+    //<editor-fold desc="Helpers">
+    private boolean loadChecks() {
+        if (getVersion().isBelow(1, 9)) {
+            getLogger().info("[TradeShop] Minecraft versions before 1.9 are not supported beyond TradeShop version 1.5.2!");
+            return false;
+        }
+
+        if (getVersion().isBelow(1, 13)) {
+            getLogger().info("[TradeShop] Minecraft versions before 1.13 are not supported beyond TradeShop version 1.8.2!");
+            return false;
+        }
+
+        if (!getLanguage().isLoaded()) {
+            return false;
+        }
+
+        getSettingManager().reload();
+        getMessageManager().reload();
+
+        return getDataStorage() != null;
+    }
+
+    private void registration() {
+
+        Permissions.registerPermissions();
+
+
+        PluginManager pm = getServer().getPluginManager();
+        pm.registerEvents(new JoinEventListener(this), this);
+        pm.registerEvents(new ShopProtectionListener(this), this);
+        pm.registerEvents(new ShopCreateListener(), this);
+        pm.registerEvents(new ShopTradeListener(), this);
+        pm.registerEvents(new ShopRestockListener(this), this);
+        pm.registerEvents(new SuccessfulTradeEventListener(this), this);
+
+        getCommand("tradeshop").setExecutor(new CommandCaller(this));
+        getCommand("tradeshop").setTabCompleter(new CommandTabCaller(this));
+    }
+
+    private void aliasCheck(String conflictAlias) {
         Map<String, String[]> conflictingCMDs = new HashMap<>();
         getServer().getCommandAliases().forEach((cmd, alts) -> {
             if (Arrays.stream(alts).anyMatch((s -> s.equalsIgnoreCase(conflictAlias)))) {
@@ -191,115 +186,92 @@ public class TradeShop extends JavaPlugin {
             });
         }
     }
+    //</editor-fold>
 
-    @Override
-    public void onDisable() {
-        if (lists != null)
-            getListManager().clearManager();
-    }
-
+    //<editor-fold desc="Getters">
+    @Deprecated
     public boolean doSkipHopperProtection() {
-        return skipHopperProtection;
+        return varManager.isSkipHopperProtection();
     }
 
+    @Deprecated
     public void setSkipHopperProtection(boolean skipHopperProtection) {
-        this.skipHopperProtection = skipHopperProtection;
+        varManager.setSkipHopperProtection(skipHopperProtection);
     }
 
+    @Deprecated
     public NamespacedKey getStorageKey() {
-        return storageKey;
+        return varManager.getStorageKey();
     }
 
+    @Deprecated
     public NamespacedKey getSignKey() {
-        return signKey;
+        return varManager.getSignKey();
     }
 
+    @Deprecated
     public ListManager getListManager() {
-        if (lists == null)
-            lists = new ListManager();
-
-        return lists;
+        return varManager.getListManager();
     }
 
+    @Deprecated
     public Version getVersion() {
-        if (version == null)
-            version = new Version(getServer().getVersion());
-
-        return version;
+        return varManager.getVersion();
     }
 
+    @Deprecated
     public ShopSign getSigns() {
-        if (signs == null)
-            signs = new ShopSign();
-
-        return signs;
+        return varManager.getSigns();
     }
 
+    @Deprecated
     public ShopStorage getStorages() {
-        if (storages == null)
-            storages = new ShopStorage();
-
-        return storages;
+        return varManager.getStorages();
     }
 
+    @Deprecated
     public Updater getUpdater() {
-        return new Updater(getDescription(), "https://api.spigotmc.org/legacy/update.php?resource=32762", "https://www.spigotmc.org/resources/tradeshop.32762/");
+        return varManager.getUpdater();
     }
 
+    @Deprecated
     public Debug getDebugger() {
-        if (debugger == null)
-            debugger = new Debug();
-
-        return debugger;
+        return varManager.getDebugger();
     }
 
+    @Deprecated
     public DataStorage getDataStorage() {
-        if (dataStorage == null) {
-            try {
-                dataStorage = new DataStorage(DataType.valueOf(Setting.DATA_STORAGE_TYPE.getString().toUpperCase()));
-            } catch (IllegalArgumentException iae) {
-                debugger.log("Config value for data storage set to an invalid value: " + Setting.DATA_STORAGE_TYPE.getString(), DebugLevels.DATA_ERROR);
-                debugger.log("TradeShop will now disable...", DebugLevels.DATA_ERROR);
-                getServer().getPluginManager().disablePlugin(this);
-                return null;
-            }
-        }
-
-        return dataStorage;
+        return varManager.getDataStorage();
     }
 
+    @Deprecated
     public MetricsManager getMetricsManager() {
-        if (metricsManager == null)
-            metricsManager = new MetricsManager(this);
-
-        return metricsManager;
+        return varManager.getMetricsManager();
     }
 
+    @Deprecated
     public ConfigManager getSettingManager() {
-        if (settingManager == null)
-            settingManager = new ConfigManager(this, ConfigManager.ConfigType.CONFIG);
-
-        return settingManager;
+        return varManager.getSettingManager();
     }
 
+    @Deprecated
     public ConfigManager getMessageManager() {
-        if (messageManager == null)
-            messageManager = new ConfigManager(this, ConfigManager.ConfigType.MESSAGES);
-
-        return messageManager;
+        return varManager.getMessageManager();
     }
 
+    @Deprecated
     public Language getLanguage() {
-        if (language == null)
-            language = new Language(this);
-
-        return language;
+        return varManager.getLanguage();
     }
 
+    @Deprecated
     public TransactionLogger getTransactionLogger() {
-        if (transactionLogger == null)
-            transactionLogger = new TransactionLogger(this);
-
-        return transactionLogger;
+        return varManager.getTransactionLogger();
     }
+
+    public VarManager getVarManager() {
+        return varManager;
+    }
+
+    //</editor-fold>
 }

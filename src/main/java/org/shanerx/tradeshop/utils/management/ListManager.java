@@ -23,7 +23,7 @@
  *
  */
 
-package org.shanerx.tradeshop.utils;
+package org.shanerx.tradeshop.utils.management;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
@@ -40,6 +40,7 @@ import org.shanerx.tradeshop.item.IllegalItemList;
 import org.shanerx.tradeshop.item.NonObtainableMaterials;
 import org.shanerx.tradeshop.item.ShopItemSide;
 import org.shanerx.tradeshop.shop.ShopStorage;
+import org.shanerx.tradeshop.utils.Utils;
 import org.shanerx.tradeshop.utils.debug.DebugLevels;
 import org.shanerx.tradeshop.utils.objects.ObjectHolder;
 import org.shanerx.tradeshop.utils.relativedirection.RelativeDirection;
