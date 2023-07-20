@@ -117,6 +117,8 @@ public class TradeShop extends JavaPlugin {
 
     //<editor-fold desc="Helpers">
     private boolean loadChecks() {
+        varManager.startup();
+
         if (getVersion().isBelow(1, 9)) {
             getLogger().info("[TradeShop] Minecraft versions before 1.9 are not supported beyond TradeShop version 1.5.2!");
             return false;

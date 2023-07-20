@@ -75,8 +75,6 @@ public class VarManager {
         signKey = new NamespacedKey(TRADESHOP, "tradeshop-sign-data");
         tradeCounter = Lists.newArrayList(0);
         lastIndex = tradeCounter.size() - 1;
-
-        startup();
     }
 
     public void startup() {
