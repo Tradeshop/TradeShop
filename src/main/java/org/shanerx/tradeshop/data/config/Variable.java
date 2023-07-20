@@ -46,7 +46,11 @@ public enum Variable {
     RECEIVED_LINES,
     GIVEN_LINES,
     UPDATED_SHOPS,
-    SHOP;
+    SHOP,
+    KEY,
+    VALUE,
+    TIMEFRAME,
+    CALC;
 
     final String SURROUND = "%";
 

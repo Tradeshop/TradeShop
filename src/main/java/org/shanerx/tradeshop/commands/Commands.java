@@ -73,7 +73,7 @@ public enum Commands {
     WHAT(Lists.newArrayList("what", "peek", "shop", "view"), Permissions.INFO, 1, 1, true, "Peek at shop inventory", "/tradeshop $cmd$"),
     MULTI(Lists.newArrayList("multi", "multiply", "many"), Permissions.NONE, 1, 2, true, "Changes trade multiplier for this login", "/tradeshop $cmd$ <Amount>"),
     STATUS(Lists.newArrayList("status", "stats", "s"), Permissions.INFO, 1, 2, true, "Displays the status of all shops the player has a relation to", "/tradeshop $cmd$ [Name]"),
-    TOGGLE_STATUS(Lists.newArrayList("togglestatus", "togglemotd", "tstatus"), Permissions.INFO, 1, 1, true, "Toggles the join message containing the list of shops one is involved with", "/tradeshop togglestatus"),
+    TOGGLE_STATUS(Lists.newArrayList("togglestatus", "togglemotd", "tstatus"), Permissions.INFO, 1, 1, true, "Toggles the join message containing the list of shops one is involved with", "/tradeshop $cmd$"),
     FIND(Lists.newArrayList("find", "where", "nearby"), Permissions.FIND, 2, 50, true, "Finds nearby shops. <Search Parameters> can include \n'cost=item1,item2,moreItems;'\n'product=item1,item2,moreItems;'\n'distance=number'\n    '|' can be used in place of commas in the list if you would like on of multiple items.\n    The lists are read from left to right so 'minecraft:dirt|minecraft:stone,minecraft:dirt' would be dirt of (stone and dit). A shop with just stone would not be found with this.", "/tradeshop $cmd$ <Search Paramaters>"),
 
     // Other commands
@@ -82,6 +82,7 @@ public enum Commands {
     BUGS(Lists.newArrayList("bugs", "bug"), Permissions.NONE, 1, 1, false, "Report bugs to the developers", "/tradeshop $cmd$"),
     TOGGLE_ADMIN(Lists.newArrayList("toggleadmin", "tadmin", "ta"), Permissions.ADMIN, 1, 1, true, "Toggles Admin mode for players with the admin permission", "/tradeshop $cmd$"),
     ADMIN(Lists.newArrayList("admin"), Permissions.ADMIN, 1, 2, true, "Shows players their current admin mode or changes with optional variable", "/tradeshop $cmd$ [True/False]"),
+    METRICS(Lists.newArrayList("metrics", "metric", "m"), Permissions.ADMIN, 1, 1, false, "Displays the plugins counted metrics.", "/tradeshop $cmd$"),
     RELOAD(Lists.newArrayList("reload"), Permissions.MANAGE_PLUGIN, 1, 1, false, "Reload configuration files", "/tradeshop $cmd$");
 
 

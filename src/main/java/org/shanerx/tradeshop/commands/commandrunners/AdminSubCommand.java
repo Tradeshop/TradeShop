@@ -37,6 +37,8 @@ import org.shanerx.tradeshop.player.PlayerSetting;
 import org.shanerx.tradeshop.utils.debug.DebugLevels;
 import org.shanerx.tradeshop.utils.objects.Tuple;
 
+import java.util.List;
+
 /**
  * Implementation of CommandRunner for commands that are used for administration purposes
  *
@@ -107,5 +109,23 @@ public class AdminSubCommand extends SubCommand {
         }
 
         Message.ADMIN_TOGGLED.sendMessage(command.getPlayerSender(), new Tuple<>(Variable.STATE.toString(), playerSetting.isAdminEnabled() ? "enabled" : "disabled"));
+    }
+
+    /**
+     * Shows counted metrics data
+     */
+    public void metrics() {
+        Message.METRICS_MESSAGE.sendMessage(command.getSender());
+
+        List<Integer> trades = plugin.getVarManager().getTradeCounter();
+
+        Message.METRICS_COUNTER.sendMessage(command.getSender(),
+                new Tuple<>(Variable.KEY.toString(), "TradeShops"),
+                new Tuple<>(Variable.VALUE.toString(), String.valueOf(plugin.getVarManager().getShopCounter())));
+        Message.METRICS_TIMED_COUNTER.sendMessage(command.getSender(),
+                new Tuple<>(Variable.KEY.toString(), "Recent Trades"),
+                new Tuple<>(Variable.VALUE.toString(), String.valueOf(trades.get(trades.size() - 1))),
+                new Tuple<>(Variable.CALC.toString(), String.valueOf(trades.stream().mapToInt(Integer::intValue).sum() / trades.size())),
+                new Tuple<>(Variable.TIMEFRAME.toString(), "~30Min"));
     }
 }

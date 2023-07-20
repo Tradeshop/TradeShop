@@ -187,6 +187,8 @@ message:
   sections:
     none:
       header: ""
+    metrics:
+      header: "Metrics"
     unused:
       header: ""
   values:
@@ -197,6 +199,15 @@ message:
       default: "en-us"
       pre-comment: "This currently does not change anything in the message files, but is used in metrics so that we can see what languages we should try to provide built in support for in the future.\n Please use codes as listed at: https://www.andiamo.co.uk/resources/iso-language-codes/"
       post-comment: "\n"
+    metrics:
+      message:
+        default: "&a    --- &eMetrics &a---\n     ---------------\n "
+      counter:
+        default: "&aThere are &e%VALUE% %KEY%."
+      timed-counter:
+        default: "&aThere have recently been &e%VALUE% %KEY%.\n With and avg of %CALC% per %TIMEFRAME%."
+      version:
+        default: "&e%KEY% &aversion: &e%VALUE%."
     player-locked:
       default: "&cYou can not make more than 1 trade per 0.5 seconds."
     shop-limit-reached:

@@ -32,7 +32,8 @@ import java.util.Objects;
 
 enum MessageSection {
 
-    NONE(10, ""),
+    NONE(90, ""),
+    METRICS(10, "metrics"),
     UNUSED(100, "");
 
     public static final TradeShop PLUGIN = Objects.requireNonNull((TradeShop) Bukkit.getPluginManager().getPlugin("TradeShop"));

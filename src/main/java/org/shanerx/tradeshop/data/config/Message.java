@@ -35,7 +35,12 @@ import org.shanerx.tradeshop.utils.debug.Debug;
 import org.shanerx.tradeshop.utils.objects.Tuple;
 import org.yaml.snakeyaml.Yaml;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -102,7 +107,11 @@ public enum Message {
     NO_SHOP_FOUND(MessageSection.NONE, "no-shop-found"),
     ADMIN_TOGGLED(MessageSection.NONE, "admin-toggled"),
     FAILED_TRADE(MessageSection.NONE, "failed-trade"),
-    SHOP_LIMIT_REACHED(MessageSection.NONE, "shop-limit-reached");
+    SHOP_LIMIT_REACHED(MessageSection.NONE, "shop-limit-reached"),
+    METRICS_MESSAGE(MessageSection.METRICS, "message"),
+    METRICS_COUNTER(MessageSection.METRICS, "counter"),
+    METRICS_TIMED_COUNTER(MessageSection.METRICS, "times-counter"),
+    METRICS_VERSION(MessageSection.METRICS, "version");
 
     public static final TradeShop PLUGIN = Objects.requireNonNull((TradeShop) Bukkit.getPluginManager().getPlugin("TradeShop"));
 
@@ -281,6 +290,27 @@ public enum Message {
     }
 
     @SafeVarargs
+    public final void sendMessage(CommandSender sender, Tuple<String, String>... replacements) {
+        if (sender instanceof Player) {
+            sendMessage((Player) sender, replacements);
+            return;
+        }
+
+        String message = getPrefixed();
+        for (Tuple<String, String> replace : replacements) {
+            message = message.replace(replace.getLeft().toUpperCase(), replace.getRight())
+                    .replace(replace.getLeft().toLowerCase(), replace.getRight())
+                    .replace(replace.getLeft(), replace.getRight());
+        }
+
+        if (getString().startsWith("#json ")) {
+            message = message.replaceFirst("#json ", "");
+        }
+
+        sendMessageDirect(sender, message);
+    }
+
+    @SafeVarargs
     public final void sendItemMultiLineMessage(Player player, Map<Variable, List<ItemStack>> itemsToFill, Tuple<String, String>... replacements) {
         if (itemsToFill.isEmpty()) {
             sendMessage(player, replacements);
@@ -371,27 +401,6 @@ public enum Message {
         } else {
             sendMessageDirect(player, message);
         }
-    }
-
-    @SafeVarargs
-    public final void sendMessage(CommandSender sender, Tuple<String, String>... replacements) {
-        if (sender instanceof Player) {
-            sendMessage((Player) sender, replacements);
-            return;
-        }
-
-        String message = getPrefixed();
-        for (Tuple<String, String> replace : replacements) {
-            message = message.replace(replace.getLeft().toUpperCase(), replace.getRight())
-                    .replace(replace.getLeft().toLowerCase(), replace.getRight())
-                    .replace(replace.getLeft(), replace.getRight());
-        }
-
-        if (getString().startsWith("#json ")) {
-            message = message.replaceFirst("#json ", "");
-        }
-
-        sendMessageDirect(sender, message);
     }
 }
 
