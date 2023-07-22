@@ -555,7 +555,6 @@ public class Utils {
             }
 
             shop = new Shop(new Tuple<>(shopSign.getLocation(), shopChest.getChest().getLocation()), shopType, owner);
-            shopChest.setName();
 
             if (cost != null && !shop.hasSide(ShopItemSide.COST))
                 shop.setSideItems(ShopItemSide.COST, cost);

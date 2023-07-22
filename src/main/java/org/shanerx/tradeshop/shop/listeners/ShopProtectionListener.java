@@ -166,8 +166,6 @@ public class ShopProtectionListener extends Utils implements Listener {
                     if (!Setting.findSetting((shop.getShopType().name() + "SHOP_EXPLODE").toUpperCase()).getBoolean())
                         i.remove();
                     else {
-                        if (shop.getStorage() != null)
-                            shop.getChestAsSC().resetName();
                         shop.remove();
                     }
 
@@ -190,10 +188,6 @@ public class ShopProtectionListener extends Utils implements Listener {
                 } else {
                     Shop shop = Shop.loadShop((Sign) b.getState());
                     if (shop != null) {
-
-                        if (shop.getStorage() != null)
-                            shop.getChestAsSC().resetName();
-
                         shop.remove();
                     }
                 }
@@ -225,9 +219,6 @@ public class ShopProtectionListener extends Utils implements Listener {
                     event.setCancelled(destroyEvent.destroyBlock());
                     return;
                 }
-
-                if (shop.getChestAsSC() != null)
-                    shop.getChestAsSC().resetName();
                 shop.remove();
                 return;
             }
@@ -249,8 +240,6 @@ public class ShopProtectionListener extends Utils implements Listener {
                 }
 
                 ShopChest sc = shop.getChestAsSC();
-                if (sc != null)
-                    sc.resetName();
 
                 if (shop.getInventoryLocationAsSL().equals(new ShopLocation(block.getLocation())))
                     shop.removeStorage();
@@ -298,14 +287,11 @@ public class ShopProtectionListener extends Utils implements Listener {
             return;
         }
 
-        ShopChest.resetOldName(block);
-
         if (ShopChest.isShopChest(block)) {
             Shop shop = new ShopChest(block.getLocation()).getShop();
             PlayerShopInventoryOpenEvent openEvent = new PlayerShopInventoryOpenEvent(e.getPlayer(), shop, e.getAction(), e.getItem(), e.getClickedBlock(), e.getBlockFace());
 
             if (shop == null) {
-                new ShopChest(block.getLocation()).resetName();
                 return;
             }
 
@@ -358,7 +344,6 @@ public class ShopProtectionListener extends Utils implements Listener {
 
         if (shop.getUsersUUID(ShopRole.OWNER, ShopRole.MANAGER).contains(event.getPlayer().getUniqueId())) {
             if (!shop.hasStorage()) {
-                new ShopChest(block, shop.getOwner().getUUID(), shopSign.getLocation()).setEventName(event);
                 shop.setInventoryLocation(block.getLocation());
                 shop.saveShop();
             }
