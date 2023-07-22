@@ -183,11 +183,8 @@ public class Shop implements Serializable {
      * @return Shop storage as ShopChest
      */
     public ShopChest getChestAsSC() {
-        try {
-            return new ShopChest(chestLoc.getLocation());
-        } catch (NullPointerException ex) {
-            return null;
-        }
+        ShopChest sc = new ShopChest(chestLoc.getLocation());
+        return sc != null ? sc : new ShopChest(getInventoryLocation().getBlock(), getOwner().getUUID(), getShopLocation());
     }
 
     /**
