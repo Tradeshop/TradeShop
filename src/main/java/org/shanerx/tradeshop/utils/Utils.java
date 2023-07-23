@@ -587,10 +587,10 @@ public class Utils {
 
         if (event != null) {
             shop.updateSign(event);
-            PLUGIN.getDebugger().log("Event Sign Lines: \n" + event.getLine(0) + "\n" + event.getLine(1) + "\n" + event.getLine(2) + "\n" + event.getLine(3), DebugLevels.SHOP_CREATION);
+            PLUGIN.getDebugger().log("Event Sign Lines: \n" + String.join("\n", event.getLines()), DebugLevels.SHOP_CREATION);
         } else {
             shop.updateSign(shopSign);
-            PLUGIN.getDebugger().log("Sign Lines: \n" + shopSign.getLine(0) + "\n" + shopSign.getLine(1) + "\n" + shopSign.getLine(2) + "\n" + shopSign.getLine(3), DebugLevels.SHOP_CREATION);
+            PLUGIN.getDebugger().log("Sign Lines: \n" + String.join("\n", shopSign.getLines()), DebugLevels.SHOP_CREATION);
         }
 
         Message.SUCCESSFUL_SETUP.sendMessage(creator);

@@ -352,6 +352,7 @@ public class Shop implements Serializable {
 
         updateFullTradeCount();
         plugin.getDataStorage().saveShop(this);
+        if (!aSync) updateSign();
         updateUserFiles();
     }
 
