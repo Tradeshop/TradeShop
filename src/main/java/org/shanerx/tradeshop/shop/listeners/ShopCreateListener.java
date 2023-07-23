@@ -74,25 +74,26 @@ public class ShopCreateListener extends Utils implements Listener {
     }
 
     private ItemStack lineCheck(ShopItemSide side, String line) {
-        if (line == null || !line.contains(" ") || line.split(" ").length != 2)
+        if (line == null || line.isEmpty())
             return null;
 
         String[] info = line.split(" ");
-        ObjectHolder<String> amount = new ObjectHolder<>(info[0]);
-        Material material = Material.matchMaterial(info[1]);
+        int amount = 0;
+        Material material = null;
 
         for (String str : info) {
-            if (str == null || str.equalsIgnoreCase(""))
-                return null;
+            ObjectHolder<String> temp = new ObjectHolder<>(str);
+            if (temp.canBeInteger()) {
+                amount = temp.asInteger();
+            } else if (temp.canBeMaterial()) {
+                material = temp.asMaterial();
+            }
         }
 
-        if (!amount.canBeInteger() || material == null)
+        if (material == null || TradeShop.getPlugin().getVarManager().getListManager().isIllegal(side, material))
             return null;
 
-        ItemStack item = new ItemStack(material, amount.asInteger());
-
-        if (TradeShop.getPlugin().getListManager().isIllegal(side, item.getType()))
-            return null;
+        ItemStack item = new ItemStack(material, amount > 0 ? amount : 1);
 
         return item;
     }

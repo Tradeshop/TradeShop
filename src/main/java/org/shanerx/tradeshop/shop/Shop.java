@@ -345,7 +345,10 @@ public class Shop implements Serializable {
      * Saves the shop to file
      */
     public void saveShop() {
-        if (aSync) return;
+        if (aSync) {
+            plugin.getVarManager().getDebugger().log("Save aSync skipped for shop: " + shopLoc, DebugLevels.GSON);
+            return;
+        }
 
         updateFullTradeCount();
         plugin.getDataStorage().saveShop(this);

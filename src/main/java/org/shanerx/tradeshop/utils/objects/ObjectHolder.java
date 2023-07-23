@@ -26,6 +26,7 @@
 package org.shanerx.tradeshop.utils.objects;
 
 import com.google.gson.annotations.SerializedName;
+import org.bukkit.Material;
 
 import java.util.Map;
 
@@ -112,6 +113,14 @@ public class ObjectHolder<Type> {
             }
         }
         return null;
+    }
+
+    public boolean canBeMaterial() {
+        return asMaterial() != null;
+    }
+
+    public Material asMaterial() {
+        return Material.matchMaterial(obj.toString());
     }
 
     @Override
