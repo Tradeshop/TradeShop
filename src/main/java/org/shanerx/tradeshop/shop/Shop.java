@@ -277,8 +277,8 @@ public class Shop implements Serializable {
      * Fixes values and objects after loading or creating a Shop
      */
     public void fixAfterLoad() {
-        aSync = false;
         aSyncFix();
+        aSync = false;
 
         shopLoc.stringToWorld();
 
