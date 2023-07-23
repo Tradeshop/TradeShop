@@ -38,6 +38,8 @@ import org.shanerx.tradeshop.item.ShopItemSide;
 import org.shanerx.tradeshop.shop.Shop;
 import org.shanerx.tradeshop.shop.ShopType;
 import org.shanerx.tradeshop.utils.Utils;
+import org.shanerx.tradeshop.utils.debug.Debug;
+import org.shanerx.tradeshop.utils.debug.DebugLevels;
 import org.shanerx.tradeshop.utils.objects.ObjectHolder;
 
 @SuppressWarnings("unused")
@@ -74,8 +76,11 @@ public class ShopCreateListener extends Utils implements Listener {
     }
 
     private ItemStack lineCheck(ShopItemSide side, String line) {
-        if (line == null || line.isEmpty())
+        Debug debug = TradeShop.getPlugin().getVarManager().getDebugger();
+        if (line == null || line.isEmpty()) {
+            debug.log("LineCheck - Failed due to empty line", DebugLevels.SHOP_CREATION);
             return null;
+        }
 
         String[] info = line.split(" ");
         int amount = 0;
@@ -90,11 +95,11 @@ public class ShopCreateListener extends Utils implements Listener {
             }
         }
 
-        if (material == null || TradeShop.getPlugin().getVarManager().getListManager().isIllegal(side, material))
+        if (material == null || TradeShop.getPlugin().getVarManager().getListManager().isIllegal(side, material)) {
+            debug.log("LineCheck - Failed due missing material. Line Text: " + line, DebugLevels.SHOP_CREATION);
             return null;
+        }
 
-        ItemStack item = new ItemStack(material, amount > 0 ? amount : 1);
-
-        return item;
+        return new ItemStack(material, amount > 0 ? amount : 1);
     }
 }
