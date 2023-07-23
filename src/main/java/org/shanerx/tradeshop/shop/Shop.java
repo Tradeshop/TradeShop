@@ -345,6 +345,8 @@ public class Shop implements Serializable {
      * Saves the shop to file
      */
     public void saveShop() {
+        if (aSync) return;
+
         updateFullTradeCount();
         plugin.getDataStorage().saveShop(this);
         updateUserFiles();

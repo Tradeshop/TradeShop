@@ -111,7 +111,7 @@ public class JsonShopConfiguration extends JsonConfiguration implements ShopConf
             final String str = gson.toJson(jsonObj);
             PLUGIN.getDataStorage().saving.put(file, str);
 
-            //new Thread(() -> {
+            new Thread(() -> {
                 if (!str.isEmpty()) {
                     try {
                         FileWriter fileWriter = new FileWriter(this.file);
@@ -123,7 +123,7 @@ public class JsonShopConfiguration extends JsonConfiguration implements ShopConf
                     }
                 }
                 PLUGIN.getDataStorage().saving.remove(this.file);
-            //});
+            });
         }
     }
 
