@@ -54,7 +54,6 @@ public interface LinkageConfiguration {
             getLinkageData().replace(chestLocation.serialize(), shopLocation.serialize());
         else
             getLinkageData().put(chestLocation.serialize(), shopLocation.serialize());
-        save();
     }
 
     default void add(ShopLocation chestLocation, ShopLocation shopLocation) {

@@ -52,7 +52,12 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
@@ -265,7 +270,7 @@ public class DataStorage extends Utils {
     }
 
     public void addChestLinkage(ShopLocation chestLocation, ShopLocation shopLocation) {
-        if (Bukkit.isPrimaryThread())
+        if (Bukkit.isPrimaryThread() && getChestLinkage(chestLocation) == null)
             getLinkageConfiguration(chestLocation.getWorld()).add(chestLocation, shopLocation);
     }
 

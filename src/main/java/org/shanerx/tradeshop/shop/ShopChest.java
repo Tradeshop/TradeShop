@@ -74,7 +74,7 @@ public class ShopChest extends Utils {
     public static boolean isShopChest(Block checking) {
         ShopLocation linked = PLUGIN.getVarManager().getDataStorage().getChestLinkage(new ShopLocation(checking.getLocation()));
 
-        if (linked != null && Shop.loadShop(linked) != null) return true;
+        if (linked != null) return true;
 
         try {
             if (isDoubleChest(checking)) {
