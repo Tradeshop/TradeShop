@@ -28,8 +28,6 @@ package org.shanerx.tradeshop.data.storage.Json;
 import com.google.common.collect.Sets;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
-import org.bukkit.Bukkit;
-import org.shanerx.tradeshop.TradeShop;
 import org.shanerx.tradeshop.data.storage.ShopConfiguration;
 import org.shanerx.tradeshop.shop.Shop;
 import org.shanerx.tradeshop.shoplocation.ShopChunk;
@@ -113,7 +111,7 @@ public class JsonShopConfiguration extends JsonConfiguration implements ShopConf
             final String str = gson.toJson(jsonObj);
             PLUGIN.getDataStorage().saving.put(file, str);
 
-            Bukkit.getScheduler().runTaskAsynchronously(TradeShop.getPlugin(), () -> {
+            //new Thread(() -> {
                 if (!str.isEmpty()) {
                     try {
                         FileWriter fileWriter = new FileWriter(this.file);
@@ -125,7 +123,7 @@ public class JsonShopConfiguration extends JsonConfiguration implements ShopConf
                     }
                 }
                 PLUGIN.getDataStorage().saving.remove(this.file);
-            });
+            //});
         }
     }
 
@@ -137,7 +135,6 @@ public class JsonShopConfiguration extends JsonConfiguration implements ShopConf
             if (new File(oldFile).exists())
                 new File(oldFile).renameTo(file);
         }
-
 
         if (PLUGIN.getDataStorage().saving.containsKey(file)) {
             jsonObj = JsonParser.parseString(PLUGIN.getDataStorage().saving.get(file)).getAsJsonObject();

@@ -97,7 +97,7 @@ public class ShopProtectionListener extends Utils implements Listener {
 
         Block invBlock;
 
-        // Ignore below warning, try/catch is for this NPE since It should almost never happen with previous checks I believe this is faster than a if null
+        // Ignore below warning, try/catch is for this NPE since It should almost never happen with previous checks I believe this is faster than an if null
         try {
             invBlock = (fromHopper ? event.getDestination() : event.getSource()).getLocation().getBlock();
         } catch (NullPointerException ignored) {
@@ -114,9 +114,6 @@ public class ShopProtectionListener extends Utils implements Listener {
 
         if (!ShopChest.isShopChest(invBlock)) {
             //Just return as adding these to the skip would often catch the second half of hoppers pulling from shops then pushing to a chest
-
-            //plugin.getListManager().addSkippableHopper(event.getInitiator().getLocation(), false);
-            //plugin.getDebugger().log("Protection ShopChest Catch for \n  " + event.getInitiator().getLocation() + "\n  Source: " + event.getSource().getLocation() + "\n  Destination: " + event.getDestination().getLocation(), DebugLevels.PROTECTION);
             return;
         }
 

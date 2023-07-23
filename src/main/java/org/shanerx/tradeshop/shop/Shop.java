@@ -75,6 +75,7 @@ public class Shop implements Serializable {
     private ShopStatus status = ShopStatus.INCOMPLETE;
     private Map<ShopSettingKeys, ObjectHolder<?>> shopSettings;
     private int availableTrades = 0;
+    private transient boolean aSync = false;
 
     /**
      * Creates a Shop object
@@ -276,6 +277,7 @@ public class Shop implements Serializable {
      * Fixes values and objects after loading or creating a Shop
      */
     public void fixAfterLoad() {
+        aSync = false;
         aSyncFix();
 
         shopLoc.stringToWorld();
@@ -298,6 +300,7 @@ public class Shop implements Serializable {
      * Fixes values and objects after loading or creating a Shop
      */
     public void aSyncFix() {
+        aSync = true;
         if (utils == null) utils = new Utils();
         if (plugin == null) plugin = TradeShop.getPlugin();
 
@@ -362,7 +365,7 @@ public class Shop implements Serializable {
      * @return Shop sign as Sign
      */
     public Sign getShopSign() {
-        Block b = getShopLocation().getBlock();
+        Block b = shopLoc.getLocation().getBlock();
         Sign s = null;
 
         if (ShopType.isShop(b)) {
@@ -375,24 +378,15 @@ public class Shop implements Serializable {
      * Updates the text on the shops sign
      */
     public void updateSign() {
-        Sign s = getShopSign();
-
-        if (s == null)
-            return;
-
-        String[] signLines = updateSignLines(Setting.SHOP_SIGN_DEFAULT_COLOURS.getMappedString(Signs.match(s.getType()).name()));
-
-        for (int i = 0; i < 4; i++) {
-            s.setLine(i, signLines[i]);
-        }
-
-        s.update();
+        updateSign(getShopSign());
     }
 
     /**
      * Updates the text on the shops sign using the events sign if it matches location
      */
     public void updateSign(SignChangeEvent event) {
+        if (aSync) return;
+
         if (event == null || !event.getBlock().getLocation().equals(getShopLocation()))
             return;
 
@@ -407,6 +401,8 @@ public class Shop implements Serializable {
      * Updates the text on the shops sign using the passed sign if it matches location
      */
     public void updateSign(Sign sign) {
+        if (aSync) return;
+
         if (sign == null || !sign.getLocation().equals(getShopLocation()))
             return;
 
@@ -475,6 +471,8 @@ public class Shop implements Serializable {
      * @return shops inventory as BlockState
      */
     public BlockState getStorage() {
+        if (aSync) return null;
+
         try {
             return getInventoryLocation().getBlock().getState();
         } catch (NullPointerException npe) {
@@ -954,7 +952,7 @@ public class Shop implements Serializable {
             });
 
             updateFullTradeCount();
-            updateSign();
+            if (!aSync) updateSign();
             saveShop();
         }
     }

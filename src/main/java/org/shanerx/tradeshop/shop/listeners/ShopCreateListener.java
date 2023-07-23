@@ -82,7 +82,7 @@ public class ShopCreateListener extends Utils implements Listener {
         Material material = Material.matchMaterial(info[1]);
 
         for (String str : info) {
-            if (str == null || str.isEmpty())
+            if (str == null || str.equalsIgnoreCase(""))
                 return null;
         }
 
