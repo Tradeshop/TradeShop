@@ -57,25 +57,30 @@ public class ConfigurationSerializableAdapter implements JsonSerializer<Configur
         Debug.findDebugger().log("Serialized ConSer pre-Deserialize: " + json, DebugLevels.GSON);
 
         for (Map.Entry<String, JsonElement> entry : json.getAsJsonObject().entrySet()) {
-            final JsonElement value = entry.getValue();
-            final String name = entry.getKey();
+            try {
+                final JsonElement value = entry.getValue();
+                final String name = entry.getKey();
 
-            if (value.isJsonObject() && value.getAsJsonObject().has(ConfigurationSerialization.SERIALIZED_TYPE_KEY)) {
-                map.put(name, this.deserialize(value, value.getClass(), context));
-                Debug.findDebugger().log("DeSer ConSer Loaded ConSer: \n  " + name + " = \n    " + this.deserialize(value, value.getClass(), context).toString(), DebugLevels.GSON);
-            } else {
-                Object val = context.deserialize(value, Object.class);
-
-                if (val instanceof Map) {
-                    ((Map) context.deserialize(value, Object.class)).forEach((k, v) -> ((Map<Object, Object>) val).replace(k, v, loadNumber(v)));
-                }
-
-                if (val instanceof Double) {
-                    Debug.findDebugger().log("DeSer ConSer Loaded Num: \n  " + name + " = \n    " + (((Double) val) % 1 == 0 ? ((Double) val).intValue() : val), DebugLevels.GSON);
+                if (value.isJsonObject() && value.getAsJsonObject().has(ConfigurationSerialization.SERIALIZED_TYPE_KEY)) {
+                    map.put(name, this.deserialize(value, value.getClass(), context));
+                    Debug.findDebugger().log("DeSer ConfSer Loaded ConfSer: \n  " + name + " = \n    " + this.deserialize(value, value.getClass(), context).toString(), DebugLevels.GSON);
                 } else {
-                    Debug.findDebugger().log("DeSer ConSer Loaded Object: \n  " + name + " = \n    " + val.toString(), DebugLevels.GSON);
+                    Object val = context.deserialize(value, Object.class);
+
+                    if (val instanceof Map) {
+                        ((Map) context.deserialize(value, Object.class)).forEach((k, v) -> ((Map<Object, Object>) val).replace(k, v, loadNumber(v)));
+                    }
+
+                    if (val instanceof Double) {
+                        Debug.findDebugger().log("DeSer ConfSer Loaded Num: \n  " + name + " = \n    " + (((Double) val) % 1 == 0 ? ((Double) val).intValue() : val), DebugLevels.GSON);
+                    } else {
+                        Debug.findDebugger().log("DeSer ConfSer Loaded Object: \n  " + name + " = \n    " + val.toString(), DebugLevels.GSON);
+                    }
+                    map.put(name, loadNumber(val));
                 }
-                map.put(name, loadNumber(val));
+            } catch (NullPointerException | IllegalArgumentException ex) {
+                if (entry != null)
+                    Debug.findDebugger().log("DeSer ConfSer Failed Entry: \n  " + entry, DebugLevels.GSON);
             }
         }
 
