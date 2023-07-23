@@ -567,6 +567,12 @@ public class Utils {
             }
         } else {
             shop = new Shop(shopSign.getLocation(), shopType, owner);
+
+            if (cost != null && !shop.hasSide(ShopItemSide.COST))
+                shop.setSideItems(ShopItemSide.COST, cost);
+
+            if (product != null && !shop.hasSide(ShopItemSide.PRODUCT))
+                shop.setSideItems(ShopItemSide.PRODUCT, product);
         }
 
         PLUGIN.getDebugger().log("-----Pre-Event-----", DebugLevels.SHOP_CREATION);
