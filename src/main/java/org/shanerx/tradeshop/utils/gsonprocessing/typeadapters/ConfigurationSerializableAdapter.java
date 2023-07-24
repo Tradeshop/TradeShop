@@ -78,13 +78,14 @@ public class ConfigurationSerializableAdapter implements JsonSerializer<Configur
                     }
                     map.put(name, loadNumber(val));
                 }
+
+                return ConfigurationSerialization.deserializeObject(map);
             } catch (NullPointerException | IllegalArgumentException ex) {
                 if (entry != null)
                     Debug.findDebugger().log("DeSer ConfSer Failed Entry: \n  " + entry, DebugLevels.GSON);
             }
         }
-
-        return ConfigurationSerialization.deserializeObject(map);
+        return null;
     }
 
     @Override
