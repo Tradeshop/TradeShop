@@ -137,7 +137,6 @@ class JsonConfiguration extends Utils {
                 PLUGIN.getLogger().log(Level.SEVERE, "Could not save " + this.file.getName() + " file! Data may be lost!", e);
             }
         }
-        PLUGIN.getDataStorage().saving.remove(this.file);
 
     }
 }

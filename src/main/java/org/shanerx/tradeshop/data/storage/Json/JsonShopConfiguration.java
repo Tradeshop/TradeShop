@@ -28,6 +28,8 @@ package org.shanerx.tradeshop.data.storage.Json;
 import com.google.common.collect.Sets;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
+import org.bukkit.Bukkit;
+import org.shanerx.tradeshop.TradeShop;
 import org.shanerx.tradeshop.data.storage.ShopConfiguration;
 import org.shanerx.tradeshop.shop.Shop;
 import org.shanerx.tradeshop.shoplocation.ShopChunk;
@@ -111,7 +113,7 @@ public class JsonShopConfiguration extends JsonConfiguration implements ShopConf
             final String str = gson.toJson(jsonObj);
             PLUGIN.getDataStorage().saving.put(file, str);
 
-            new Thread(() -> {
+            Bukkit.getScheduler().runTaskAsynchronously(TradeShop.getPlugin(), () -> {
                 if (!str.isEmpty()) {
                     try {
                         FileWriter fileWriter = new FileWriter(this.file);
