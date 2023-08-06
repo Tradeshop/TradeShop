@@ -85,12 +85,17 @@ public class JsonShopConfiguration extends JsonConfiguration implements ShopConf
     @Override
     public Shop loadASync(ShopLocation loc) {
         String locStr = loc.serialize();
+        Shop shop = null;
 
         if (!jsonObj.has(locStr)) return null;
 
-        Shop shop = gson.fromJson(jsonObj.get(locStr), Shop.class);
+        try {
+            shop = gson.fromJson(jsonObj.get(locStr), Shop.class);
+            shop.aSyncFix();
+        } catch (IllegalArgumentException ignored) {
+            remove(loc);
 
-        shop.aSyncFix();
+        }
 
         return shop;
     }

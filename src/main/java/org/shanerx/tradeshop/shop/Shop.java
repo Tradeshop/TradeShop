@@ -943,7 +943,7 @@ public class Shop implements Serializable {
 
         Set<Material> matSet = new HashSet<>();
 
-        ogItems.forEach((item) -> matSet.add(item.getItemStack().getType()));
+        ogItems.stream().filter(shopItemStack -> shopItemStack.getItemStack() != null).forEach((item) -> matSet.add(item.getItemStack().getType()));
 
 
         if (ogItems.size() > 1 && ogItems.size() != matSet.size()) {
