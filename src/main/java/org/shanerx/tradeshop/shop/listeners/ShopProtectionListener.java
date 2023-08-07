@@ -25,7 +25,6 @@
 
 package org.shanerx.tradeshop.shop.listeners;
 
-import io.papermc.paper.event.player.PlayerOpenSignEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -302,13 +301,6 @@ public class ShopProtectionListener extends Utils implements Listener {
                 e.getPlayer().sendMessage(Message.NO_TS_OPEN.getPrefixed());
             }
         }
-    }
-
-    @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
-    public void onSignEdit(PlayerOpenSignEvent e) {
-        if (e.isCancelled()) return;
-
-        if (ShopType.isShop(e.getSign())) e.setCancelled(true);
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)

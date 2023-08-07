@@ -41,6 +41,7 @@ import org.shanerx.tradeshop.player.JoinEventListener;
 import org.shanerx.tradeshop.player.Permissions;
 import org.shanerx.tradeshop.shop.ShopSign;
 import org.shanerx.tradeshop.shop.ShopStorage;
+import org.shanerx.tradeshop.shop.listeners.PaperShopProtectionListener;
 import org.shanerx.tradeshop.shop.listeners.ShopCreateListener;
 import org.shanerx.tradeshop.shop.listeners.ShopProtectionListener;
 import org.shanerx.tradeshop.shop.listeners.ShopRestockListener;
@@ -151,6 +152,10 @@ public class TradeShop extends JavaPlugin {
         pm.registerEvents(new ShopTradeListener(), this);
         pm.registerEvents(new ShopRestockListener(this), this);
         pm.registerEvents(new SuccessfulTradeEventListener(this), this);
+
+        if (getServer().getVersion().toLowerCase().contains("paper")) {
+            pm.registerEvents(new PaperShopProtectionListener(), this);
+        }
 
         getCommand("tradeshop").setExecutor(new CommandCaller(this));
         getCommand("tradeshop").setTabCompleter(new CommandTabCaller(this));
