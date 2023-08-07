@@ -34,6 +34,7 @@ import org.shanerx.tradeshop.data.storage.ShopConfiguration;
 import org.shanerx.tradeshop.shop.Shop;
 import org.shanerx.tradeshop.shoplocation.ShopChunk;
 import org.shanerx.tradeshop.shoplocation.ShopLocation;
+import org.shanerx.tradeshop.utils.debug.DebugLevels;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -92,9 +93,10 @@ public class JsonShopConfiguration extends JsonConfiguration implements ShopConf
         try {
             shop = gson.fromJson(jsonObj.get(locStr), Shop.class);
             shop.aSyncFix();
-        } catch (IllegalArgumentException ignored) {
+        } catch (IllegalArgumentException iAe) {
+            PLUGIN.getVarManager().getDebugger().log("Shop Json with null material: " + jsonObj.get(locStr), DebugLevels.DATA_ERROR);
+            iAe.printStackTrace();
             remove(loc);
-
         }
 
         return shop;
@@ -114,24 +116,20 @@ public class JsonShopConfiguration extends JsonConfiguration implements ShopConf
 
     @Override
     protected void saveFile() {
-        if (!PLUGIN.getDataStorage().saving.containsKey(file)) {
-            final String str = gson.toJson(jsonObj);
-            PLUGIN.getDataStorage().saving.put(file, str);
-
-            Bukkit.getScheduler().runTaskAsynchronously(TradeShop.getPlugin(), () -> {
-                if (!str.isEmpty()) {
-                    try {
-                        FileWriter fileWriter = new FileWriter(this.file);
-                        fileWriter.write(str);
-                        fileWriter.flush();
-                        fileWriter.close();
-                    } catch (IOException e) {
-                        PLUGIN.getLogger().log(Level.SEVERE, "Could not save " + this.file.getName() + " file! Data may be lost!", e);
-                    }
+        final String str = gson.toJson(jsonObj);
+        Bukkit.getScheduler().runTaskAsynchronously(TradeShop.getPlugin(), () -> {
+            if (!str.isEmpty()) {
+                try {
+                    FileWriter fileWriter = new FileWriter(this.file);
+                    fileWriter.write(str);
+                    fileWriter.flush();
+                    fileWriter.close();
+                    PLUGIN.getVarManager().getDebugger().log("File saved: " + this.file.getName() + "\nContents: ---\n" + str, DebugLevels.DATA_ERROR);
+                } catch (IOException e) {
+                    PLUGIN.getLogger().log(Level.SEVERE, "Could not save " + this.file.getName() + " file! Data may be lost!", e);
                 }
-                PLUGIN.getDataStorage().saving.remove(this.file);
-            });
-        }
+            }
+        });
     }
 
     @Override
