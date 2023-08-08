@@ -27,7 +27,6 @@ package org.shanerx.tradeshop.data.storage.Json;
 
 import com.google.common.collect.Sets;
 import com.google.gson.JsonElement;
-import com.google.gson.JsonParser;
 import org.bukkit.Bukkit;
 import org.shanerx.tradeshop.TradeShop;
 import org.shanerx.tradeshop.data.storage.ShopConfiguration;
@@ -117,8 +116,8 @@ public class JsonShopConfiguration extends JsonConfiguration implements ShopConf
     @Override
     protected void saveFile() {
         final String str = gson.toJson(jsonObj);
-        Bukkit.getScheduler().runTaskAsynchronously(TradeShop.getPlugin(), () -> {
-            if (!str.isEmpty()) {
+        if (!str.isEmpty()) {
+            Bukkit.getScheduler().runTaskAsynchronously(TradeShop.getPlugin(), () -> {
                 try {
                     FileWriter fileWriter = new FileWriter(this.file);
                     fileWriter.write(str);
@@ -128,8 +127,8 @@ public class JsonShopConfiguration extends JsonConfiguration implements ShopConf
                 } catch (IOException e) {
                     PLUGIN.getLogger().log(Level.SEVERE, "Could not save " + this.file.getName() + " file! Data may be lost!", e);
                 }
-            }
-        });
+            });
+        }
     }
 
     @Override
@@ -141,11 +140,7 @@ public class JsonShopConfiguration extends JsonConfiguration implements ShopConf
                 new File(oldFile).renameTo(file);
         }
 
-        if (PLUGIN.getDataStorage().saving.containsKey(file)) {
-            jsonObj = JsonParser.parseString(PLUGIN.getDataStorage().saving.get(file)).getAsJsonObject();
-        } else {
-            super.loadFile();
-        }
+        super.loadFile();
 
         for (Map.Entry<String, JsonElement> entry : Sets.newHashSet(jsonObj.entrySet())) {
             if (entry.getKey().contains("l_")) {

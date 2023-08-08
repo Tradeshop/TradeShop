@@ -70,9 +70,11 @@ public class ShopCreateListener extends Utils implements Listener {
 
         Shop shop = createShop(shopSign, p, shopType, lineCheck(ShopItemSide.COST, event.getLine(2)), lineCheck(ShopItemSide.PRODUCT, event.getLine(1)), event);
 
-        if (shop == null) {
-            failedSignReset(event, shopType);
+        if (shop != null) {
+            return;
         }
+
+        failedSignReset(event, shopType);
     }
 
     private ItemStack lineCheck(ShopItemSide side, String line) {
