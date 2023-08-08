@@ -129,7 +129,7 @@ public class VarManager {
         shopCounter += adjustment;
     }
 
-    public boolean isSkipHopperProtection() {
+    public boolean doSkipHopperProtection() {
         return skipHopperProtection;
     }
 

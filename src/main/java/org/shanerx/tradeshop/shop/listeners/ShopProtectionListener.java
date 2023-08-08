@@ -76,7 +76,7 @@ public class ShopProtectionListener extends Utils implements Listener {
     public void onInventoryMoveItem(InventoryMoveItemEvent event) {
 
         //If all Hopper Settings should be allowed, ignore event
-        if (plugin.doSkipHopperProtection()) {
+        if (plugin.getVarManager().doSkipHopperProtection()) {
             return;
         }
 

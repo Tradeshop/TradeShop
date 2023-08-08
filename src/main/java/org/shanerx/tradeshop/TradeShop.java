@@ -196,7 +196,7 @@ public class TradeShop extends JavaPlugin {
     //<editor-fold desc="Getters">
     @Deprecated
     public boolean doSkipHopperProtection() {
-        return varManager.isSkipHopperProtection();
+        return varManager.doSkipHopperProtection();
     }
 
     @Deprecated

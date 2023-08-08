@@ -122,16 +122,17 @@ public class ConfigManager {
         try {
             Set<Boolean> skipCheck = new HashSet<>();
             skipCheck.add(ShopSettingKeys.HOPPER_EXPORT.getDefaultValue(ShopType.TRADE).asBoolean());
+            skipCheck.add(ShopSettingKeys.HOPPER_EXPORT.isUserEditable(ShopType.TRADE));
             skipCheck.add(ShopSettingKeys.HOPPER_IMPORT.getDefaultValue(ShopType.TRADE).asBoolean());
+            skipCheck.add(ShopSettingKeys.HOPPER_IMPORT.isUserEditable(ShopType.TRADE));
             skipCheck.add(ShopSettingKeys.HOPPER_EXPORT.getDefaultValue(ShopType.BITRADE).asBoolean());
+            skipCheck.add(ShopSettingKeys.HOPPER_EXPORT.isUserEditable(ShopType.BITRADE));
             skipCheck.add(ShopSettingKeys.HOPPER_IMPORT.getDefaultValue(ShopType.BITRADE).asBoolean());
-            skipCheck.add(!ShopSettingKeys.HOPPER_EXPORT.isUserEditable(ShopType.TRADE));
-            skipCheck.add(!ShopSettingKeys.HOPPER_IMPORT.isUserEditable(ShopType.TRADE));
-            skipCheck.add(!ShopSettingKeys.HOPPER_EXPORT.isUserEditable(ShopType.BITRADE));
-            skipCheck.add(!ShopSettingKeys.HOPPER_IMPORT.isUserEditable(ShopType.BITRADE));
-            skipCheck.remove(true);
+            skipCheck.add(ShopSettingKeys.HOPPER_IMPORT.isUserEditable(ShopType.BITRADE));
 
-            PLUGIN.setSkipHopperProtection(!skipCheck.contains(false));
+            skipCheck.remove(false);
+
+            PLUGIN.getVarManager().setSkipHopperProtection(skipCheck.isEmpty());
         } catch (NullPointerException ignored) {
         }
     }
