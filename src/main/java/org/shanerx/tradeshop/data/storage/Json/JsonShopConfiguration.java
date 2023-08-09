@@ -90,10 +90,11 @@ public class JsonShopConfiguration extends JsonConfiguration implements ShopConf
         if (!jsonObj.has(locStr)) return null;
 
         try {
+            PLUGIN.getVarManager().getDebugger().log("Shop Json being deserialized: " + jsonObj.get(locStr).getAsString(), DebugLevels.DATA_ERROR);
             shop = gson.fromJson(jsonObj.get(locStr), Shop.class);
             shop.aSyncFix();
         } catch (IllegalArgumentException iAe) {
-            PLUGIN.getVarManager().getDebugger().log("Shop Json with null material: " + jsonObj.get(locStr), DebugLevels.DATA_ERROR);
+            PLUGIN.getVarManager().getDebugger().log("Shop Json with null material: " + jsonObj.get(locStr).getAsString(), DebugLevels.DATA_ERROR);
             iAe.printStackTrace();
             remove(loc);
         }
