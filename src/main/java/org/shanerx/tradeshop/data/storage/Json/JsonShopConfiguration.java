@@ -27,8 +27,6 @@ package org.shanerx.tradeshop.data.storage.Json;
 
 import com.google.common.collect.Sets;
 import com.google.gson.JsonElement;
-import org.bukkit.Bukkit;
-import org.shanerx.tradeshop.TradeShop;
 import org.shanerx.tradeshop.data.storage.ShopConfiguration;
 import org.shanerx.tradeshop.shop.Shop;
 import org.shanerx.tradeshop.shoplocation.ShopChunk;
@@ -118,17 +116,15 @@ public class JsonShopConfiguration extends JsonConfiguration implements ShopConf
     protected void saveFile() {
         final String str = gson.toJson(jsonObj);
         if (!str.isEmpty()) {
-            Bukkit.getScheduler().runTaskAsynchronously(TradeShop.getPlugin(), () -> {
-                try {
-                    FileWriter fileWriter = new FileWriter(this.file);
-                    fileWriter.write(str);
-                    fileWriter.flush();
-                    fileWriter.close();
-                    PLUGIN.getVarManager().getDebugger().log("File saved: " + this.file.getName() + "\nContents: ---\n" + str, DebugLevels.DATA_ERROR);
-                } catch (IOException e) {
-                    PLUGIN.getLogger().log(Level.SEVERE, "Could not save " + this.file.getName() + " file! Data may be lost!", e);
-                }
-            });
+            try {
+                FileWriter fileWriter = new FileWriter(this.file);
+                fileWriter.write(str);
+                fileWriter.flush();
+                fileWriter.close();
+                PLUGIN.getVarManager().getDebugger().log("File saved: " + this.file.getName() + "\nContents: ---\n" + str, DebugLevels.DATA_ERROR);
+            } catch (IOException e) {
+                PLUGIN.getLogger().log(Level.SEVERE, "Could not save " + this.file.getName() + " file! Data may be lost!", e);
+            }
         }
     }
 

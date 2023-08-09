@@ -67,7 +67,7 @@ public class DataStorage extends Utils {
 
     private transient DataType dataType;
     public final Map<File, String> saving;
-    private final String BROKEN_JSON_START = "} \"";
+    private final String BROKEN_JSON_START = "}(.*[\"\\w:])";
 
     private final Cache<World, LinkageConfiguration> linkCache = CacheBuilder.newBuilder()
             .maximumSize(100)
@@ -119,11 +119,12 @@ public class DataStorage extends Utils {
                 if (list != null && list.length > 0) {
                     Arrays.stream(list).forEach((f) -> {
                         try {
-                            String fileStr = FileUtils.readFileToString(f, StandardCharsets.UTF_8);
-                            if (fileStr.contains(BROKEN_JSON_START)) {
-                                correctedFiles.put(f, fileStr.substring(0, fileStr.indexOf(BROKEN_JSON_START) + 1));
+                            String fileStr = FileUtils.readFileToString(f, StandardCharsets.UTF_8),
+                                    correctedString = fileStr.split(BROKEN_JSON_START)[0];
+                            if (correctedString.length() < fileStr.length()) {
+                                correctedFiles.put(f, correctedString);
 
-                                TradeShop.getPlugin().getDebugger().log("Error found in file: " + f.getName() + "\n Text Removed: ---\n" + fileStr.substring(fileStr.indexOf(BROKEN_JSON_START) + 1), DebugLevels.DATA_VERIFICATION);
+                                TradeShop.getPlugin().getDebugger().log("Error found in file: " + f.getName() + "\n Text Removed: ---\n" + correctedString, DebugLevels.DATA_VERIFICATION);
                             }
                         } catch (IOException e) {
                             correctedFiles.put(f, null);
