@@ -52,12 +52,12 @@ public class ConfigurationSerializableAdapter implements JsonSerializer<Configur
             JsonElement json,
             Type typeOfT,
             JsonDeserializationContext context) throws JsonParseException {
-        final Map<String, Object> map = new LinkedHashMap<>();
         ConfigurationSerializable obj = null;
 
         Debug.findDebugger().log("Serialized ConSer pre-Deserialize: " + json, DebugLevels.GSON);
 
         for (Map.Entry<String, JsonElement> entry : json.getAsJsonObject().entrySet()) {
+            final Map<String, Object> map = new LinkedHashMap<>();
             try {
                 final JsonElement value = entry.getValue();
                 final String name = entry.getKey();
