@@ -288,7 +288,7 @@ public class Shop implements Serializable {
             }
             chestLoc.stringToWorld();
 
-            cost.removeIf(item -> item.getItemStack().getType().toString().endsWith("SHULKER_BOX") && getInventoryLocation().getBlock().getType().toString().endsWith("SHULKER_BOX"));
+            cost.removeIf(item -> item.getItemStack() == null || (item.getItemStack().getType().toString().endsWith("SHULKER_BOX") && getInventoryLocation().getBlock().getType().toString().endsWith("SHULKER_BOX")));
             plugin.getDataStorage().addChestLinkage(chestLoc, shopLoc);
         }
 
