@@ -52,12 +52,11 @@ public class ConfigurationSerializableAdapter implements JsonSerializer<Configur
             JsonElement json,
             Type typeOfT,
             JsonDeserializationContext context) throws JsonParseException {
-        ConfigurationSerializable obj = null;
+        final Map<String, Object> map = new LinkedHashMap<>();
 
         Debug.findDebugger().log("Serialized ConSer pre-Deserialize: " + json, DebugLevels.GSON);
 
         for (Map.Entry<String, JsonElement> entry : json.getAsJsonObject().entrySet()) {
-            final Map<String, Object> map = new LinkedHashMap<>();
             try {
                 final JsonElement value = entry.getValue();
                 final String name = entry.getKey();
@@ -80,14 +79,12 @@ public class ConfigurationSerializableAdapter implements JsonSerializer<Configur
                     map.put(name, loadNumber(val));
                 }
                 Debug.findDebugger().log("DeSer ConfSer final map: \n  " + map, DebugLevels.DATA_ERROR);
-
-                obj = ConfigurationSerialization.deserializeObject(map);
             } catch (NullPointerException | IllegalArgumentException ex) {
                 if (entry != null)
                     Debug.findDebugger().log("DeSer ConfSer Failed Entry: \n  " + entry, DebugLevels.GSON);
             }
         }
-        return obj;
+        return ConfigurationSerialization.deserializeObject(map);
     }
 
     @Override
