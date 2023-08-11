@@ -79,6 +79,7 @@ public class ConfigurationSerializableAdapter implements JsonSerializer<Configur
                     }
                     map.put(name, loadNumber(val));
                 }
+                Debug.findDebugger().log("DeSer ConfSer final map: \n  " + map, DebugLevels.DATA_ERROR);
 
                 obj = ConfigurationSerialization.deserializeObject(map);
             } catch (NullPointerException | IllegalArgumentException ex) {
