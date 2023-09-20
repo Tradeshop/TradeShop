@@ -26,6 +26,7 @@
 package org.shanerx.tradeshop.player;
 
 import com.google.gson.annotations.SerializedName;
+import org.apache.commons.compress.utils.Lists;
 import org.bukkit.Bukkit;
 import org.bukkit.ChunkSnapshot;
 import org.bukkit.Location;
@@ -135,6 +136,19 @@ public class ShopUser implements Serializable {
     }
 
     /**
+     * Implementation of Cantor's pairing function.
+     * Maps to integers (in this case x and z coords) to a single unique index.
+     * Ref: https://en.wikipedia.org/wiki/Pairing_function
+     *
+     * @param x the x coord
+     * @param z the z coord
+     * @return unique index of the (x,z)-tuple
+     */
+    private static int cantorPairingFunction(int x, int z) {
+        return z + (x+z)*(x+z+1)/2; // always even, so division by 2 is ok!
+    }
+
+    /**
      * Returns a list of shops that contain the specified items within the specified range
      *
      * @param center         Location to search from
@@ -144,30 +158,30 @@ public class ShopUser implements Serializable {
      * @return Shop List containing all shops in any chunk with a block in the range that match criteria specified
      */
     public static List<Shop> findProximityShop(Location center, int range, boolean inStock, List<ItemStack> desiredCost, List<ItemStack> desiredProduct) {
-        Set<ChunkSnapshot> chunksInRange = new HashSet<>(); //Used to prevent checking a chunk more than once
+        if (range <= 0) return new ArrayList<>();
+
         List<Shop> foundShops = new ArrayList<>();
         DataStorage dataStorage = TradeShop.getPlugin().getDataStorage();
         World world = center.getWorld();
 
-        if (world != null) {
-            for (int x = center.getBlockX() - range; x <= center.getBlockX() + range; x++) {
-                for (int z = center.getBlockZ() - range; z <= center.getBlockZ() + range; z++) {
-                    int cX = x / 16, cZ = z / 16;
-                    if (chunksInRange.stream().noneMatch((tempChunk) -> tempChunk.getWorldName().equals(center.getWorld().getName()) && tempChunk.getX() == cX && tempChunk.getZ() == cZ)) { //If not already processed
-                        ChunkSnapshot c = world.getEmptyChunkSnapshot(cX, cZ, false, false);
-                        chunksInRange.add(c); //"Mark" as processed
+        Map<Integer, ChunkSnapshot> searchedChunks = new HashMap<>();
 
-                        foundShops.addAll(dataStorage.getMatchingShopsInChunk(c, inStock, desiredCost, desiredProduct)
-                                .stream()
-                                .filter(shop -> Math.pow(shop.getShopLocation().getBlockX(), 2) + Math.pow(shop.getShopLocation().getBlockZ(), 2) < Math.pow(range, 2))
-                                .collect(Collectors.toList()));
-                    }
-                }
+        if (world != null) {
+            for (int cx = center.getChunk().getX(); cx < center.add(range, 0, 0).getChunk().getX(); cx++) {
+                for (int cz = center.getChunk().getZ(); cz < center.add(0, 0, range).getChunk().getZ(); cz++) {
+                    int idx = cantorPairingFunction(cx, cz);
+                    if (searchedChunks.containsKey(idx)) continue;
+                    ChunkSnapshot chs = world.getEmptyChunkSnapshot(cx, cz, false, false);
+                    searchedChunks.put(idx, chs);
+
+                    foundShops.addAll(dataStorage.getMatchingShopsInChunk(chs, inStock, desiredCost, desiredProduct)
+                            .stream()
+                            .filter(shop -> Math.pow(shop.getShopLocation().getBlockX(), 2) + Math.pow(shop.getShopLocation().getBlockZ(), 2) < Math.pow(range, 2))
+                            .collect(Collectors.toList()));                }
             }
         }
 
-        TradeShop.getPlugin().getDebugger().log(" --- _F_P_ --- " + Arrays.toString(chunksInRange.toArray()), DebugLevels.DATA_ERROR);
-
+        TradeShop.getPlugin().getDebugger().log(" --- _F_P_ --- " + Arrays.toString(searchedChunks.values().toArray()), DebugLevels.DATA_ERROR);
         return foundShops;
     }
 

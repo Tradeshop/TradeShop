@@ -109,7 +109,7 @@ public class ShopFindSubCommand extends SubCommand {
                                 case "range":
                                     ObjectHolder<?> dist = new ObjectHolder<>(keyVal[1]);
                                     desiredRange = (dist.canBeInteger() && dist.asInteger() < desiredRange) ?
-                                            dist.asInteger() :
+                                            dist.asInteger():
                                             Setting.DEFAULT_FIND_RANGE.getInt();
                             }
                         }
@@ -126,8 +126,9 @@ public class ShopFindSubCommand extends SubCommand {
                     if (desiredCost.size() == 0)
                         desiredCost.put(0, null);
 
-                    int finalDesiredRange = desiredRange > 0 ? desiredRange : Setting.DEFAULT_FIND_RANGE.getInt();
+                    final int finalDesiredRange = Math.min(desiredRange, Setting.MAX_FIND_RANGE.getInt());
                     final boolean finalInStock = inStock;
+
                     desiredProduct.forEach((prodId, prodItems) -> {
                         desiredCost.forEach((costId, costItems) -> {
                             shops.addAll(ShopUser.findProximityShop(searchFrom, finalDesiredRange, finalInStock, costItems, prodItems));
