@@ -26,8 +26,10 @@
 package org.shanerx.tradeshop.commands.commandrunners;
 
 import org.bukkit.Bukkit;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandSender;
 import org.shanerx.tradeshop.TradeShop;
-import org.shanerx.tradeshop.commands.CommandPass;
+import org.shanerx.tradeshop.commands.SubCommand;
 import org.shanerx.tradeshop.data.config.Message;
 import org.shanerx.tradeshop.data.config.Setting;
 import org.shanerx.tradeshop.data.config.Variable;
@@ -46,8 +48,8 @@ import java.util.List;
  */
 public class AdminSubCommand extends SubCommand {
 
-    public AdminSubCommand(TradeShop instance, CommandPass command) {
-        super(instance, command);
+    public AdminSubCommand(TradeShop instance, CommandSender sender, String[] args) {
+        super(instance, sender, args);
     }
 
     /**
@@ -68,32 +70,32 @@ public class AdminSubCommand extends SubCommand {
             return;
         }
 
-        command.sendMessage(Setting.MESSAGE_PREFIX.getString().trim() + "&6The configuration files have been reloaded!");
-        Bukkit.getPluginManager().callEvent(new TradeShopReloadEvent(plugin, command.getSender()));
+        sendMessage(Setting.MESSAGE_PREFIX.getString().trim() + "&6The configuration files have been reloaded!");
+        Bukkit.getPluginManager().callEvent(new TradeShopReloadEvent(plugin, getSender()));
     }
 
     /**
      * Changes the players with the ADMIN permission to toggle whether it is enabled for them
      */
     public void toggleAdmin() {
-        PlayerSetting playerSetting = plugin.getDataStorage().loadPlayer(command.getPlayerSender().getUniqueId());
+        PlayerSetting playerSetting = plugin.getDataStorage().loadPlayer(getPlayerSender().getUniqueId());
 
         playerSetting.setAdminEnabled(!playerSetting.isAdminEnabled());
         plugin.getDataStorage().savePlayer(playerSetting);
 
-        Message.ADMIN_TOGGLED.sendMessage(command.getPlayerSender(), new Tuple<>(Variable.STATE.toString(), playerSetting.isAdminEnabled() ? "enabled" : "disabled"));
+        Message.ADMIN_TOGGLED.sendMessage(getPlayerSender(), new Tuple<>(Variable.STATE.toString(), playerSetting.isAdminEnabled() ? "enabled" : "disabled"));
     }
 
     /**
      * Shows players their current admin mode or changes with optional variable
      */
     public void admin() {
-        PlayerSetting playerSetting = plugin.getDataStorage().loadPlayer(command.getPlayerSender().getUniqueId());
+        PlayerSetting playerSetting = plugin.getDataStorage().loadPlayer(getPlayerSender().getUniqueId());
         boolean initialValue = playerSetting.isAdminEnabled();
 
-        if (command.hasArgAt(1)) {
+        if (hasArgAt(1)) {
 
-            switch (command.getArgAt(1).toLowerCase()) {
+            switch (getArgAt(1).toLowerCase()) {
                 case "true":
                 case "t":
                     playerSetting.setAdminEnabled(true);
@@ -108,21 +110,21 @@ public class AdminSubCommand extends SubCommand {
                 plugin.getDataStorage().savePlayer(playerSetting);
         }
 
-        Message.ADMIN_TOGGLED.sendMessage(command.getPlayerSender(), new Tuple<>(Variable.STATE.toString(), playerSetting.isAdminEnabled() ? "enabled" : "disabled"));
+        Message.ADMIN_TOGGLED.sendMessage(getPlayerSender(), new Tuple<>(Variable.STATE.toString(), playerSetting.isAdminEnabled() ? "enabled" : "disabled"));
     }
 
     /**
      * Shows counted metrics data
      */
     public void metrics() {
-        Message.METRICS_MESSAGE.sendMessage(command.getSender());
+        Message.METRICS_MESSAGE.sendMessage(getSender());
 
         List<Integer> trades = plugin.getVarManager().getTradeCounter();
 
-        Message.METRICS_COUNTER.sendMessage(command.getSender(),
+        Message.METRICS_COUNTER.sendMessage(getSender(),
                 new Tuple<>(Variable.KEY.toString(), "TradeShops"),
                 new Tuple<>(Variable.VALUE.toString(), String.valueOf(plugin.getVarManager().getShopCounter())));
-        Message.METRICS_TIMED_COUNTER.sendMessage(command.getSender(),
+        Message.METRICS_TIMED_COUNTER.sendMessage(getSender(),
                 new Tuple<>(Variable.KEY.toString(), "Recent Trades"),
                 new Tuple<>(Variable.VALUE.toString(), String.valueOf(trades.get(trades.size() - 1))),
                 new Tuple<>(Variable.CALC.toString(), String.valueOf(trades.stream().mapToInt(Integer::intValue).sum() / trades.size())),

@@ -26,8 +26,10 @@
 package org.shanerx.tradeshop.commands.commandrunners;
 
 import org.bukkit.block.Sign;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandSender;
 import org.shanerx.tradeshop.TradeShop;
-import org.shanerx.tradeshop.commands.CommandPass;
+import org.shanerx.tradeshop.commands.SubCommand;
 import org.shanerx.tradeshop.player.ShopUser;
 import org.shanerx.tradeshop.shop.ShopType;
 
@@ -38,19 +40,19 @@ import org.shanerx.tradeshop.shop.ShopType;
  */
 public class CreateSubCommand extends SubCommand {
 
-    public CreateSubCommand(TradeShop instance, CommandPass command) {
-        super(instance, command);
+    public CreateSubCommand(TradeShop instance, CommandSender sender, String[] args) {
+        super(instance, sender, args);
     }
 
     /**
      * Create a shop with the specified type using a sign in front of the player
      */
     public void createShop(ShopType shopType) {
-        Sign sign = ShopUser.findObservedSign(command.getPlayerSender());
+        Sign sign = ShopUser.findObservedSign(getPlayerSender());
 
         if (sign == null)
             return;
 
-        createShop(sign, command.getPlayerSender(), shopType);
+        createShop(sign, getPlayerSender(), shopType);
     }
 }

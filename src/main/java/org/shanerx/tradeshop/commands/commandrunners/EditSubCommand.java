@@ -31,9 +31,10 @@ import de.themoep.inventorygui.GuiStateElement;
 import de.themoep.inventorygui.InventoryGui;
 import de.themoep.inventorygui.StaticGuiElement;
 import org.bukkit.Material;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandSender;
 import org.bukkit.inventory.ItemStack;
 import org.shanerx.tradeshop.TradeShop;
-import org.shanerx.tradeshop.commands.CommandPass;
 import org.shanerx.tradeshop.data.config.Message;
 import org.shanerx.tradeshop.item.ShopItemSide;
 import org.shanerx.tradeshop.item.ShopItemStack;
@@ -63,23 +64,22 @@ public class EditSubCommand extends GUISubCommand {
             productEdit,
             settingEdit;
 
-
-    public EditSubCommand(TradeShop instance, CommandPass command) {
-        super(instance, command);
+    public EditSubCommand(TradeShop instance, CommandSender sender, String[] args) {
+        super(instance, sender, args);
     }
 
     /**
      * Opens a GUI allowing the player to edit the shop
      */
     public void edit() {
-        shop = ShopUser.findObservedShop(command.getPlayerSender());
+        shop = ShopUser.findObservedShop(getPlayerSender());
 
         if (shop == null)
             return;
 
-        if (!(shop.getUsersUUID(ShopRole.MANAGER, ShopRole.OWNER).contains(command.getPlayerSender().getUniqueId())
-                || Permissions.isAdminEnabled(command.getPlayerSender()))) {
-            command.sendMessage(Message.NO_SHOP_PERMISSION.getPrefixed());
+        if (!(shop.getUsersUUID(ShopRole.MANAGER, ShopRole.OWNER).contains(getPlayerSender().getUniqueId())
+                || Permissions.isAdminEnabled(getPlayerSender()))) {
+            sendMessage(Message.NO_SHOP_PERMISSION.getPrefixed());
             return;
         }
 
@@ -96,7 +96,7 @@ public class EditSubCommand extends GUISubCommand {
 
         mainMenu.addElement(editSettingsMenu('d'));
 
-        mainMenu.show(command.getPlayerSender());
+        mainMenu.show(getPlayerSender());
     }
 
     private GuiElement editSettingsMenu(char slotChar) {
@@ -154,7 +154,7 @@ public class EditSubCommand extends GUISubCommand {
             settingEdit.addElement(new StaticGuiElement('s', new ItemStack(Material.ANVIL), click3 -> {
                 shop.setShopSettings(changedSettings);
                 shop.saveShop(changedSettings.size() > 0);
-                InventoryGui.goBack(command.getPlayerSender());
+                InventoryGui.goBack(getPlayerSender());
                 return true;
             }, "Save Changes"));
 
@@ -162,7 +162,7 @@ public class EditSubCommand extends GUISubCommand {
 
             settingEdit.addElements(getNextButton(), getPrevButton(), viewGroup, changeGroup);
 
-            settingEdit.show(command.getPlayerSender());
+            settingEdit.show(getPlayerSender());
             return true;
         }, colorize("&eEdit Shop Settings"));
     }
@@ -187,12 +187,12 @@ public class EditSubCommand extends GUISubCommand {
             // Owner added separately as it is not editable
             userGroup.addElement(new StaticGuiElement('e', shop.getOwner().getHead(), shop.getOwner().getName(), "Position: " + shop.getOwner().getRole().toString()));
 
-            if (shop.getOwner().getUUID().equals(command.getPlayerSender().getUniqueId())) {
+            if (shop.getOwner().getUUID().equals(getPlayerSender().getUniqueId())) {
 
                 // Save and Back
                 userEdit.addElement(new StaticGuiElement('s', new ItemStack(Material.ANVIL), click3 -> {
                     shop.updateShopUsers(shopUsers);
-                    InventoryGui.goBack(command.getPlayerSender());
+                    InventoryGui.goBack(getPlayerSender());
                     return true;
                 }, "Save Changes"));
 
@@ -239,7 +239,7 @@ public class EditSubCommand extends GUISubCommand {
                 }
             }
             userEdit.addElement(userGroup);
-            userEdit.show(command.getPlayerSender());
+            userEdit.show(getPlayerSender());
             return true;
         }, colorize("&eEdit Shop Users"));
     }
@@ -272,7 +272,7 @@ public class EditSubCommand extends GUISubCommand {
                 }
                 shop.updateSide(ShopItemSide.COST, costItems);
                 shop.saveShop();
-                InventoryGui.goBack(command.getPlayerSender());
+                InventoryGui.goBack(getPlayerSender());
                 return true;
             }, "Save Changes"));
 
@@ -283,7 +283,7 @@ public class EditSubCommand extends GUISubCommand {
             }
 
             costEdit.addElement(costGroup);
-            costEdit.show(command.getPlayerSender());
+            costEdit.show(getPlayerSender());
             return true;
         }, colorize("&eEdit Shop Costs"));
     }
@@ -316,7 +316,7 @@ public class EditSubCommand extends GUISubCommand {
                 }
                 shop.updateSide(ShopItemSide.PRODUCT, productItems);
                 shop.saveShop();
-                InventoryGui.goBack(command.getPlayerSender());
+                InventoryGui.goBack(getPlayerSender());
                 return true;
             }, "Save Changes"));
 
@@ -327,7 +327,7 @@ public class EditSubCommand extends GUISubCommand {
             }
 
             productEdit.addElement(productGroup);
-            productEdit.show(command.getPlayerSender());
+            productEdit.show(getPlayerSender());
             return true;
         }, colorize("&eEdit Shop Products"));
     }

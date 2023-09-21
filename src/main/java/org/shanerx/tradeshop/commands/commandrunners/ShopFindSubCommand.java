@@ -33,9 +33,11 @@ import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandSender;
 import org.bukkit.inventory.ItemStack;
 import org.shanerx.tradeshop.TradeShop;
-import org.shanerx.tradeshop.commands.CommandPass;
+import org.shanerx.tradeshop.commands.SubCommand;
 import org.shanerx.tradeshop.data.config.Message;
 import org.shanerx.tradeshop.data.config.Setting;
 import org.shanerx.tradeshop.item.ShopItemSide;
@@ -58,22 +60,22 @@ import java.util.stream.Collectors;
  */
 public class ShopFindSubCommand extends SubCommand {
 
-    public ShopFindSubCommand(TradeShop plugin, CommandPass cmdPass) {
-        super(plugin, cmdPass);
+    public ShopFindSubCommand(TradeShop instance, CommandSender sender, String[] args) {
+        super(instance, sender, args);
     }
 
     public void find() {
         Bukkit.getScheduler().runTaskAsynchronously(plugin, new Runnable() {
             @Override
             public void run() {
-                Location searchFrom = command.getPlayerSender().getLocation();
+                Location searchFrom = getPlayerSender().getLocation();
                 Map<Integer, List<ItemStack>> desiredCost = new HashMap<>(), desiredProduct = new HashMap<>();
                 int desiredRange = Setting.MAX_FIND_RANGE.getInt();
                 boolean inStock = false;
 
                 if (desiredRange > 0) {
 
-                    ArrayList<String> lowerArgs = (command.getArgs().stream().map(String::toLowerCase).collect(Collectors.toCollection(ArrayList::new)));
+                    ArrayList<String> lowerArgs = (getArgs().stream().map(String::toLowerCase).collect(Collectors.toCollection(ArrayList::new)));
                     lowerArgs.remove("find");
 
                     List<Shop> shops = new ArrayList<>();
@@ -83,7 +85,7 @@ public class ShopFindSubCommand extends SubCommand {
                             String[] keyVal = str.contains("=") ? str.split("=") : str.split(":");
                             plugin.getDebugger().log(" --- _S_F_ --- " + keyVal[0] + " = " + (keyVal.length > 1 ? keyVal[1] : "---No Value---"), DebugLevels.FIND_COMMAND);
                             if (keyVal.length != 2) {
-                                Message.INVALID_ARGUMENTS.sendMessage(command.getSender());
+                                Message.INVALID_ARGUMENTS.sendMessage(getSender());
                                 return;
                             }
 
@@ -159,11 +161,11 @@ public class ShopFindSubCommand extends SubCommand {
                     plugin.getDebugger().log(" --- _F_D_ --- " + Arrays.toString(foundShops.toArray(new BaseComponent[]{})), DebugLevels.FIND_COMMAND);
 
                     if (foundShops.size() > 0)
-                        command.getSender().spigot().sendMessage(foundShops.toArray(new BaseComponent[]{}));
+                        getSender().spigot().sendMessage(foundShops.toArray(new BaseComponent[]{}));
                     else
-                        Message.NO_SHOP_FOUND.sendMessage(command.getSender());
+                        Message.NO_SHOP_FOUND.sendMessage(getSender());
                 } else {
-                    Message.FEATURE_DISABLED.sendMessage(command.getSender());
+                    Message.FEATURE_DISABLED.sendMessage(getSender());
                 }
             }
 

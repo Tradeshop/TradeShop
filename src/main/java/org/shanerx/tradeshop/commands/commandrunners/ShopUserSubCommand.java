@@ -27,8 +27,10 @@ package org.shanerx.tradeshop.commands.commandrunners;
 
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandSender;
 import org.shanerx.tradeshop.TradeShop;
-import org.shanerx.tradeshop.commands.CommandPass;
+import org.shanerx.tradeshop.commands.SubCommand;
 import org.shanerx.tradeshop.data.config.Message;
 import org.shanerx.tradeshop.data.config.Setting;
 import org.shanerx.tradeshop.data.config.Variable;
@@ -57,21 +59,22 @@ public class ShopUserSubCommand extends SubCommand {
 
     private OfflinePlayer target;
 
-    public ShopUserSubCommand(TradeShop instance, CommandPass command) {
-        super(instance, command);
+    public ShopUserSubCommand(TradeShop instance, CommandSender sender, String[] args) {
+        super(instance, sender, args);
     }
+
 
     /**
      * Tells the player who the Owner/Managers/Members that are on the shop are
      */
     public void who() {
-        Shop shop = ShopUser.findObservedShop(command.getPlayerSender());
+        Shop shop = ShopUser.findObservedShop(getPlayerSender());
 
         if (shop == null)
             return;
 
         if (shop.getShopType().isITrade()) {
-            Message.WHO_MESSAGE.sendMessage(command.getPlayerSender(),
+            Message.WHO_MESSAGE.sendMessage(getPlayerSender(),
                     new Tuple<>(Variable.OWNER.toString(), Setting.ITRADESHOP_OWNER.getString()),
                     new Tuple<>(Variable.MANAGERS.toString(), "None"),
                     new Tuple<>(Variable.MEMBERS.toString(), "None"));
@@ -82,7 +85,7 @@ public class ShopUserSubCommand extends SubCommand {
         String managers = String.join(", ", shop.getUserNames(ShopRole.MANAGER));
         String members = String.join(", ", shop.getUserNames(ShopRole.MEMBER));
 
-        Message.WHO_MESSAGE.sendMessage(command.getPlayerSender(),
+        Message.WHO_MESSAGE.sendMessage(getPlayerSender(),
                 new Tuple<>(Variable.OWNER.toString(), owner.length() < 3 ? "None" : owner),
                 new Tuple<>(Variable.MANAGERS.toString(), managers.length() < 3 ? "None" : managers),
                 new Tuple<>(Variable.MEMBERS.toString(), members.length() < 3 ? "None" : members));
@@ -93,16 +96,16 @@ public class ShopUserSubCommand extends SubCommand {
      */
     public void editUser(ShopRole role, ShopChange change) {
         try {
-            boolean applyAllOwned = command.hasArgAt(2) && command.getArgAt(2).length() > 0 && textToBool(command.getArgAt(2));
+            boolean applyAllOwned = hasArgAt(2) && getArgAt(2).length() > 0 && textToBool(getArgAt(2));
             Set<Shop> ownedShops = new HashSet<>();
             Map<String, String> updateStatuses = new HashMap<>();
 
-            target = Bukkit.getOfflinePlayer(command.getArgAt(1));
+            target = Bukkit.getOfflinePlayer(getArgAt(1));
 
             Shop tempShop = shopUserCommandStart(target, applyAllOwned);
 
             if (applyAllOwned) {
-                for (String location : plugin.getDataStorage().loadPlayer(command.getPlayerSender().getUniqueId()).getOwnedShops()) {
+                for (String location : plugin.getDataStorage().loadPlayer(getPlayerSender().getUniqueId()).getOwnedShops()) {
                     ownedShops.add(plugin.getDataStorage().loadShopFromSign(ShopLocation.deserialize(location)));
                 }
             } else {
@@ -113,7 +116,7 @@ public class ShopUserSubCommand extends SubCommand {
                 eachOwnedShop:
                 {
 
-                    PlayerShopChangeEvent changeEvent = new PlayerShopChangeEvent(command.getPlayerSender(), shop, change, new ObjectHolder<OfflinePlayer>(target));
+                    PlayerShopChangeEvent changeEvent = new PlayerShopChangeEvent(getPlayerSender(), shop, change, new ObjectHolder<OfflinePlayer>(target));
                     Bukkit.getPluginManager().callEvent(changeEvent);
                     if (changeEvent.isCancelled()) return;
 
@@ -155,7 +158,7 @@ public class ShopUserSubCommand extends SubCommand {
                 }
             }
 
-            Message.UPDATED_SHOP_USERS.sendUserEditMultiLineMessage(command.getPlayerSender(), Collections.singletonMap(Variable.UPDATED_SHOPS, updateStatuses));
+            Message.UPDATED_SHOP_USERS.sendUserEditMultiLineMessage(getPlayerSender(), Collections.singletonMap(Variable.UPDATED_SHOPS, updateStatuses));
 
         } catch (UnsupportedOperationException ignored) {
         }
@@ -176,21 +179,21 @@ public class ShopUserSubCommand extends SubCommand {
         this.target = target;
 
         if (target == null || !target.hasPlayedBefore()) {
-            Message.PLAYER_NOT_FOUND.sendMessage(command.getPlayerSender());
+            Message.PLAYER_NOT_FOUND.sendMessage(getPlayerSender());
             throw new UnsupportedOperationException();
         }
 
         if (!applyAllOwned) {
-            Shop shop = ShopUser.findObservedShop(command.getPlayerSender());
+            Shop shop = ShopUser.findObservedShop(getPlayerSender());
 
             if (shop == null) {
                 // Message.NO_SIGHTED_SHOP.sendMessage(command.getPlayerSender()); // Message is sent by findShop()
                 throw new UnsupportedOperationException();
             }
 
-            if (!shop.getOwner().getUUID().equals(command.getPlayerSender().getUniqueId())
-                    || (Setting.UNLIMITED_ADMIN.getBoolean() && Permissions.isAdminEnabled(command.getPlayerSender()))) {
-                Message.NO_SHOP_PERMISSION.sendMessage(command.getPlayerSender());
+            if (!shop.getOwner().getUUID().equals(getPlayerSender().getUniqueId())
+                    || (Setting.UNLIMITED_ADMIN.getBoolean() && Permissions.isAdminEnabled(getPlayerSender()))) {
+                Message.NO_SHOP_PERMISSION.sendMessage(getPlayerSender());
                 throw new UnsupportedOperationException();
             }
 

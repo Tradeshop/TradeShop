@@ -60,16 +60,14 @@ public class CommandCaller implements CommandExecutor {
 
 	@Override
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
-		CommandPass cmdPass = new CommandPass(sender, cmd, label, args);
-		Commands command = Commands.getType(cmdPass.getArgAt(0));
+		CommandType commandType = CommandType.getType(args[0]);
 
-		if (!cmdPass.hasArgs() || command == null) {
+		if (args.length == 0 || commandType == null) {
 			Message.INVALID_ARGUMENTS.sendMessage(sender);
 			return true;
-
 		}
 
-		switch (command.checkPerm(sender)) {
+		switch (commandType.checkPerm(sender)) {
 			case NO_PERM:
 				Message.NO_COMMAND_PERMISSION.sendMessage(sender);
 				return true;
@@ -78,112 +76,12 @@ public class CommandCaller implements CommandExecutor {
 				return true;
 		}
 
-		if (command.getMinArgs() > args.length || command.getMaxArgs() < args.length) {
+		if (commandType.getMinArgs() > args.length || commandType.getMaxArgs() < args.length) {
 			Message.INVALID_ARGUMENTS.sendMessage(sender);
 			return true;
 		}
 
-		switch (command) {
-			case HELP:
-				new BasicTextSubCommand(plugin, cmdPass).help();
-				break;
-			case BUGS:
-				new BasicTextSubCommand(plugin, cmdPass).bugs();
-				break;
-			case SETUP:
-				new BasicTextSubCommand(plugin, cmdPass).setup();
-				break;
-			case RELOAD:
-				new AdminSubCommand(plugin, cmdPass).reload();
-				break;
-			case ADD_PRODUCT:
-				new ShopItemSubCommand(plugin, cmdPass, ShopItemSide.PRODUCT).addSide();
-				break;
-			case ADD_COST:
-				new ShopItemSubCommand(plugin, cmdPass, ShopItemSide.COST).addSide();
-				break;
-			case OPEN:
-				new ShopSubCommand(plugin, cmdPass).open();
-				break;
-			case CLOSE:
-				new ShopSubCommand(plugin, cmdPass).close();
-				break;
-			case SWITCH:
-				new ShopSubCommand(plugin, cmdPass).switchShop();
-				break;
-			case WHAT:
-				new WhatSubCommand(plugin, cmdPass).what();
-				break;
-			case WHO:
-				new ShopUserSubCommand(plugin, cmdPass).who();
-				break;
-			case REMOVE_USER:
-				new ShopUserSubCommand(plugin, cmdPass).editUser(ShopRole.SHOPPER, ShopChange.REMOVE_USER);
-				break;
-			case ADD_MANAGER:
-				new ShopUserSubCommand(plugin, cmdPass).editUser(ShopRole.MANAGER, ShopChange.ADD_MANAGER);
-				break;
-			case ADD_MEMBER:
-				new ShopUserSubCommand(plugin, cmdPass).editUser(ShopRole.MEMBER, ShopChange.ADD_MEMBER);
-				break;
-			case SET_MANAGER:
-				new ShopUserSubCommand(plugin, cmdPass).editUser(ShopRole.MANAGER, ShopChange.SET_MANAGER);
-				break;
-			case SET_MEMBER:
-				new ShopUserSubCommand(plugin, cmdPass).editUser(ShopRole.MEMBER, ShopChange.SET_MEMBER);
-				break;
-			case MULTI:
-				new GeneralPlayerSubCommand(plugin, cmdPass).multi();
-				break;
-			case SET_PRODUCT:
-				new ShopItemSubCommand(plugin, cmdPass, ShopItemSide.PRODUCT).setSide();
-				break;
-			case SET_COST:
-				new ShopItemSubCommand(plugin, cmdPass, ShopItemSide.COST).setSide();
-				break;
-			case LIST_PRODUCT:
-				new ShopItemSubCommand(plugin, cmdPass, ShopItemSide.PRODUCT).listSide();
-				break;
-			case LIST_COST:
-				new ShopItemSubCommand(plugin, cmdPass, ShopItemSide.COST).listSide();
-				break;
-			case REMOVE_PRODUCT:
-				new ShopItemSubCommand(plugin, cmdPass, ShopItemSide.PRODUCT).removeSide();
-				break;
-			case REMOVE_COST:
-				new ShopItemSubCommand(plugin, cmdPass, ShopItemSide.COST).removeSide();
-				break;
-			case STATUS:
-				new GeneralPlayerSubCommand(plugin, cmdPass).status();
-				break;
-			case EDIT:
-				new EditSubCommand(plugin, cmdPass).edit();
-				break;
-			case TOGGLE_STATUS:
-				new GeneralPlayerSubCommand(plugin, cmdPass).toggleStatus();
-				break;
-			case FIND:
-				new ShopFindSubCommand(plugin, cmdPass).find();
-				break;
-			case CREATE_TRADE:
-				new CreateSubCommand(plugin, cmdPass).createShop(ShopType.TRADE);
-				break;
-			case CREATE_BITRADE:
-				new CreateSubCommand(plugin, cmdPass).createShop(ShopType.BITRADE);
-				break;
-			case CREATE_ITRADE:
-				new CreateSubCommand(plugin, cmdPass).createShop(ShopType.ITRADE);
-				break;
-			case TOGGLE_ADMIN:
-				new AdminSubCommand(plugin, cmdPass).toggleAdmin();
-				break;
-			case ADMIN:
-				new AdminSubCommand(plugin, cmdPass).admin();
-				break;
-			case METRICS:
-				new AdminSubCommand(plugin, cmdPass).metrics();
-				break;
-		}
+		SubCommand.runSubCommand(commandType, sender, args);
 
 		return true;
 	}

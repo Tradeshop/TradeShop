@@ -30,9 +30,10 @@ import de.themoep.inventorygui.InventoryGui;
 import de.themoep.inventorygui.StaticGuiElement;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandSender;
 import org.bukkit.inventory.ItemStack;
 import org.shanerx.tradeshop.TradeShop;
-import org.shanerx.tradeshop.commands.CommandPass;
 import org.shanerx.tradeshop.data.config.Message;
 import org.shanerx.tradeshop.data.config.Setting;
 import org.shanerx.tradeshop.item.ShopItemSide;
@@ -49,8 +50,8 @@ import org.shanerx.tradeshop.shop.ShopType;
  */
 public class WhatSubCommand extends GUISubCommand {
 
-    public WhatSubCommand(TradeShop instance, CommandPass command) {
-        super(instance, command);
+    public WhatSubCommand(TradeShop instance, CommandSender sender, String[] args) {
+        super(instance, sender, args);
     }
 
     /**
@@ -76,7 +77,7 @@ public class WhatSubCommand extends GUISubCommand {
 
          */
 
-        Shop shop = ShopUser.findObservedShop(command.getPlayerSender());
+        Shop shop = ShopUser.findObservedShop(getPlayerSender());
 
         if (shop == null)
             return;
@@ -84,8 +85,8 @@ public class WhatSubCommand extends GUISubCommand {
         shop.updateFullTradeCount();
         shop.updateSign();
 
-        if (!Permissions.hasPermission(command.getPlayerSender(), Permissions.INFO)) {
-            command.sendMessage(Message.NO_COMMAND_PERMISSION.getPrefixed());
+        if (!Permissions.hasPermission(getPlayerSender(), Permissions.INFO)) {
+            sendMessage(Message.NO_COMMAND_PERMISSION.getPrefixed());
             return;
         }
 
@@ -134,7 +135,7 @@ public class WhatSubCommand extends GUISubCommand {
         gui.addElement(costGroup);
         gui.addElement(productGroup);
 
-        gui.show(command.getPlayerSender());
+        gui.show(getPlayerSender());
 
     }
 }

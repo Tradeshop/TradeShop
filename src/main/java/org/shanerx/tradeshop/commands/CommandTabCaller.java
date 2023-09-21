@@ -38,8 +38,6 @@ import java.util.List;
 public class CommandTabCaller implements TabCompleter {
 
     private final TradeShop plugin;
-    private CommandPass cmdPass;
-    private Commands command;
     private CommandTabCompleter tabCompleter;
 
     public CommandTabCaller(TradeShop instance) {
@@ -48,12 +46,11 @@ public class CommandTabCaller implements TabCompleter {
 
     @Override
     public List<String> onTabComplete(CommandSender sender, Command cmd, String label, String[] args) {
-        cmdPass = new CommandPass(sender, cmd, label, args);
-        command = Commands.getType(cmdPass.getArgAt(0));
+        CommandType commandType = CommandType.getType(args[0]);
 
-        if (command != null) {
+        if (commandType != null) {
 
-            switch (command.checkPerm(sender)) {
+            switch (commandType.checkPerm(sender)) {
                 case NO_PERM:
                     return Collections.EMPTY_LIST;
                 case PLAYER_ONLY:
@@ -61,9 +58,9 @@ public class CommandTabCaller implements TabCompleter {
                     return Collections.EMPTY_LIST;
             }
 
-            tabCompleter = new CommandTabCompleter(plugin, cmdPass);
+            tabCompleter = new CommandTabCompleter(plugin, sender, args);
 
-            switch (command) {
+            switch (commandType) {
                 case HELP:
                     return tabCompleter.help();
                 case ADD_PRODUCT:
@@ -82,9 +79,9 @@ public class CommandTabCaller implements TabCompleter {
                     return Collections.EMPTY_LIST;
             }
         } else {
-            if (cmdPass.argsSize() < 2) {
+            if (args.length < 2) {
                 List<String> subCmds = new ArrayList<>();
-                for (Commands cmds : Commands.values()) {
+                for (CommandType cmds : CommandType.values()) {
                     if (cmds.isPartialName(args[0]))
                         subCmds.add(cmds.getFirstName());
                 }

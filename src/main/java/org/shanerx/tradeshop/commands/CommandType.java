@@ -40,7 +40,7 @@ import java.util.List;
  * run by a player
  **/
 
-public enum Commands {
+public enum CommandType {
 
     // Shop other management commands
     OPEN(Lists.newArrayList("open"), Permissions.NONE, 1, 1, true, "Open shop", "/tradeshop $cmd$"),
@@ -122,7 +122,7 @@ public enum Commands {
      */
     private final String usage;
 
-    Commands(List<String> names, Permissions perm, int minArgs, int maxArgs, boolean needsPlayer, String description, String usage) {
+    CommandType(List<String> names, Permissions perm, int minArgs, int maxArgs, boolean needsPlayer, String description, String usage) {
         this.names = names;
         this.perm = perm;
         this.minArgs = minArgs;
@@ -139,8 +139,8 @@ public enum Commands {
      * @param toCheck String to check if enum exists for
      * @return Commands Enum value of string
      */
-    public static Commands getType(String toCheck) {
-        for (Commands cmd : values()) {
+    public static CommandType getType(String toCheck) {
+        for (CommandType cmd : values()) {
             for (String str : cmd.getNames()) {
                 if (str.equalsIgnoreCase(toCheck)) {
                     return cmd;

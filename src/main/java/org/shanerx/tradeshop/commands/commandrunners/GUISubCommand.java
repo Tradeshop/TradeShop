@@ -32,13 +32,15 @@ import de.themoep.inventorygui.GuiStateElement;
 import de.themoep.inventorygui.InventoryGui;
 import de.themoep.inventorygui.StaticGuiElement;
 import org.bukkit.Material;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandSender;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BookMeta;
 import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.shanerx.tradeshop.TradeShop;
-import org.shanerx.tradeshop.commands.CommandPass;
+import org.shanerx.tradeshop.commands.SubCommand;
 import org.shanerx.tradeshop.item.ShopItemSide;
 import org.shanerx.tradeshop.item.ShopItemStack;
 import org.shanerx.tradeshop.item.ShopItemStackSettingKeys;
@@ -69,14 +71,12 @@ public class GUISubCommand extends SubCommand {
     protected List<Boolean> costItemsRemoval = new ArrayList<>(),
             productItemsRemoval = new ArrayList<>();
 
-
     //------------------------------------------------------------------------------------------------------------------
     //endregion
 
-    public GUISubCommand(TradeShop instance, CommandPass command) {
-        super(instance, command);
+    public GUISubCommand(TradeShop instance, CommandSender sender, String[] args) {
+        super(instance, sender, args);
     }
-
 
     //region Util Methods
     //------------------------------------------------------------------------------------------------------------------
@@ -187,11 +187,11 @@ public class GUISubCommand extends SubCommand {
             // Add Save button only when editable - Saves and Goes to previous screen
             if (editable) itemEdit.addElement(new StaticGuiElement('s', new ItemStack(Material.ANVIL), click3 -> {
                 shop.updateSideItem(side, item, index);
-                InventoryGui.goBack(command.getPlayerSender());
+                InventoryGui.goBack(getPlayerSender());
                 return true;
             }, "Save Changes"));
 
-            itemEdit.show(command.getPlayerSender());
+            itemEdit.show(getPlayerSender());
             return true;
         });
     }
@@ -279,7 +279,7 @@ public class GUISubCommand extends SubCommand {
 
     protected GuiElement getBackButton(boolean asCancel) {
         return new StaticGuiElement(asCancel ? 'c' : 'b', new ItemStack(Material.END_CRYSTAL), click3 -> {
-            InventoryGui.goBack(command.getPlayerSender());
+            InventoryGui.goBack(getPlayerSender());
             return true;
         }, asCancel ? "Cancel Changes" : "Back");
     }
