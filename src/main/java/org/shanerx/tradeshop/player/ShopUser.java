@@ -27,12 +27,7 @@ package org.shanerx.tradeshop.player;
 
 import com.google.gson.annotations.SerializedName;
 import org.apache.commons.compress.utils.Lists;
-import org.bukkit.Bukkit;
-import org.bukkit.ChunkSnapshot;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.OfflinePlayer;
-import org.bukkit.World;
+import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
@@ -135,17 +130,8 @@ public class ShopUser implements Serializable {
         }
     }
 
-    /**
-     * Implementation of Cantor's pairing function.
-     * Maps to integers (in this case x and z coords) to a single unique index.
-     * Ref: https://en.wikipedia.org/wiki/Pairing_function
-     *
-     * @param x the x coord
-     * @param z the z coord
-     * @return unique index of the (x,z)-tuple
-     */
-    private static int cantorPairingFunction(int x, int z) {
-        return z + (x+z)*(x+z+1)/2; // always even, so division by 2 is ok!
+    private static String chunkCoords2String(ChunkSnapshot chs) {
+        return String.format("%d_%d", chs.getX(), chs.getZ());
     }
 
     /**
@@ -164,24 +150,24 @@ public class ShopUser implements Serializable {
         DataStorage dataStorage = TradeShop.getPlugin().getDataStorage();
         World world = center.getWorld();
 
-        Map<Integer, ChunkSnapshot> searchedChunks = new HashMap<>();
+        Set<String> searchedChunks = new HashSet<>();
 
-        if (world != null) {
-            for (int cx = center.getChunk().getX(); cx < center.add(range, 0, 0).getChunk().getX(); cx++) {
-                for (int cz = center.getChunk().getZ(); cz < center.add(0, 0, range).getChunk().getZ(); cz++) {
-                    int idx = cantorPairingFunction(cx, cz);
-                    if (searchedChunks.containsKey(idx)) continue;
-                    ChunkSnapshot chs = world.getEmptyChunkSnapshot(cx, cz, false, false);
-                    searchedChunks.put(idx, chs);
+        if (world == null) return foundShops;
+        for (int x = center.getBlockX() - range; x <= center.getBlockX() + range; x++) {
+            for (int z = center.getBlockZ() - range; z <= center.getBlockZ() + range; z++) {
+                ChunkSnapshot chs = world.getChunkAt(new Location(world, x, 63, z)).getChunkSnapshot();
+                String chsStr = chunkCoords2String(chs);
+                if (searchedChunks.contains(chsStr)) continue;
+                searchedChunks.add(chsStr);
 
-                    foundShops.addAll(dataStorage.getMatchingShopsInChunk(chs, inStock, desiredCost, desiredProduct)
-                            .stream()
-                            .filter(shop -> Math.pow(shop.getShopLocation().getBlockX(), 2) + Math.pow(shop.getShopLocation().getBlockZ(), 2) < Math.pow(range, 2))
-                            .collect(Collectors.toList()));                }
+                foundShops.addAll(dataStorage.getMatchingShopsInChunk(chs, inStock, desiredCost, desiredProduct)
+                        .stream()
+                        .filter(shop -> Math.pow(center.getX() - shop.getShopLocation().getBlockX(), 2) + Math.pow(center.getZ() - shop.getShopLocation().getBlockZ(), 2) <= Math.pow(range, 2))
+                        .collect(Collectors.toList()));
             }
         }
 
-        TradeShop.getPlugin().getDebugger().log(" --- _F_P_ --- " + Arrays.toString(searchedChunks.values().toArray()), DebugLevels.DATA_ERROR);
+        System.out.println("How many chunks did we put in the set? " + searchedChunks.size());
         return foundShops;
     }
 
