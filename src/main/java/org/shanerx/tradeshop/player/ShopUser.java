@@ -26,7 +26,6 @@
 package org.shanerx.tradeshop.player;
 
 import com.google.gson.annotations.SerializedName;
-import org.apache.commons.compress.utils.Lists;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
@@ -41,7 +40,6 @@ import org.shanerx.tradeshop.shop.Shop;
 import org.shanerx.tradeshop.shop.ShopChest;
 import org.shanerx.tradeshop.shop.ShopType;
 import org.shanerx.tradeshop.shoplocation.ShopLocation;
-import org.shanerx.tradeshop.utils.debug.DebugLevels;
 import org.shanerx.tradeshop.utils.gsonprocessing.GsonProcessor;
 
 import java.io.Serializable;
@@ -167,7 +165,6 @@ public class ShopUser implements Serializable {
             }
         }
 
-        System.out.println("How many chunks did we put in the set? " + searchedChunks.size());
         return foundShops;
     }
 

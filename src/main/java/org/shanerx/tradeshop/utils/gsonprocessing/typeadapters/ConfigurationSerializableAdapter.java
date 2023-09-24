@@ -29,12 +29,14 @@ import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.configuration.serialization.ConfigurationSerialization;
+import org.shanerx.tradeshop.TradeShop;
 import org.shanerx.tradeshop.utils.debug.Debug;
 import org.shanerx.tradeshop.utils.debug.DebugLevels;
 
 import java.lang.reflect.Type;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.logging.Level;
 
 //Based off of ConfigurationSerializableAdapter by Schottky <https://www.spigotmc.org/members/schottky.632864/> @ https://www.spigotmc.org/threads/configurationserializable-to-json-using-gson.467776/
 public class ConfigurationSerializableAdapter implements JsonSerializer<ConfigurationSerializable>, JsonDeserializer<ConfigurationSerializable> {
@@ -52,8 +54,6 @@ public class ConfigurationSerializableAdapter implements JsonSerializer<Configur
             throws JsonParseException {
         final Map<String, Object> map = new LinkedHashMap<>();
 
-        Debug.findDebugger().log("Serialized ConSer pre-Deserialize: " + json, DebugLevels.GSON);
-
         for (Map.Entry<String, JsonElement> entry : json.getAsJsonObject().entrySet()) {
             try {
                 final JsonElement value = entry.getValue();
@@ -61,7 +61,6 @@ public class ConfigurationSerializableAdapter implements JsonSerializer<Configur
 
                 if (value.isJsonObject() && value.getAsJsonObject().has(ConfigurationSerialization.SERIALIZED_TYPE_KEY)) {
                     map.put(name, this.deserialize(value, value.getClass(), context));
-                    Debug.findDebugger().log("DeSer ConfSer Loaded ConfSer: \n  " + name + " = \n    " + this.deserialize(value, value.getClass(), context).toString(), DebugLevels.GSON);
                 } else {
                     Object val = context.deserialize(value, Object.class);
 
@@ -69,17 +68,13 @@ public class ConfigurationSerializableAdapter implements JsonSerializer<Configur
                         ((Map) context.deserialize(value, Object.class)).forEach((k, v) -> ((Map<Object, Object>) val).replace(k, v, loadNumber(v)));
                     }
 
-                    if (val instanceof Double) {
-                        Debug.findDebugger().log("DeSer ConfSer Loaded Num: \n  " + name + " = \n    " + (((Double) val) % 1 == 0 ? ((Double) val).intValue() : val), DebugLevels.GSON);
-                    } else {
-                        Debug.findDebugger().log("DeSer ConfSer Loaded Object: \n  " + name + " = \n    " + val.toString(), DebugLevels.GSON);
-                    }
                     map.put(name, loadNumber(val));
                 }
-                Debug.findDebugger().log("DeSer ConfSer final map: \n  " + map, DebugLevels.DATA_ERROR);
             } catch (NullPointerException | IllegalArgumentException ex) {
-                if (entry != null)
+                if (entry != null) {
+                    TradeShop.getPlugin().getLogger().log(Level.SEVERE, "Failed to serialize json element, turn on debug for more information");
                     Debug.findDebugger().log("DeSer ConfSer Failed Entry: \n  " + entry, DebugLevels.GSON);
+                }
             }
         }
 
@@ -111,7 +106,6 @@ public class ConfigurationSerializableAdapter implements JsonSerializer<Configur
                 }
             }
 
-            Debug.findDebugger().log("Serialized ConSer: " + context.serialize(map, objectStringMapType), DebugLevels.GSON);
             return context.serialize(map, objectStringMapType);
     }
 
