@@ -60,9 +60,9 @@ public class CommandCaller implements CommandExecutor {
 
 	@Override
 	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
-		CommandType commandType = CommandType.getType(args[0]);
+		CommandType commandType;
 
-		if (args.length == 0 || commandType == null) {
+		if (args.length == 0 || (commandType = CommandType.getType(args[0])) == null) {
 			Message.INVALID_ARGUMENTS.sendMessage(sender);
 			return true;
 		}
