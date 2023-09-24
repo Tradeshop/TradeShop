@@ -90,11 +90,9 @@ public class JsonShopConfiguration extends JsonConfiguration implements ShopConf
         if (!jsonObj.has(locStr)) return null;
 
         try {
-            PLUGIN.getVarManager().getDebugger().log("Shop Json being deserialized: " + jsonObj.get(locStr), DebugLevels.DATA_ERROR);
             shop = gson.fromJson(jsonObj.get(locStr), Shop.class);
             shop.aSyncFix();
         } catch (IllegalArgumentException iAe) {
-            PLUGIN.getVarManager().getDebugger().log("Shop Json with null material: " + jsonObj.get(locStr), DebugLevels.DATA_ERROR);
             iAe.printStackTrace();
             remove(loc);
         }
@@ -126,7 +124,6 @@ public class JsonShopConfiguration extends JsonConfiguration implements ShopConf
                         fileWriter.write(str);
                         fileWriter.flush();
                         fileWriter.close();
-                        PLUGIN.getVarManager().getDebugger().log("File saved: " + this.file.getName() + "\nContents: ---\n" + str, DebugLevels.DATA_ERROR);
                     } catch (IOException e) {
                         PLUGIN.getLogger().log(Level.SEVERE, "Could not save " + this.file.getName() + " file! Data may be lost!", e);
                     }

@@ -90,12 +90,9 @@ public class DataStorage extends Utils {
     public void reload(DataType dataType) {
         this.dataType = dataType;
         TradeShop.getPlugin().getDebugger().log("Data storage set to: " + dataType.name(), DebugLevels.DATA_VERIFICATION);
-        TradeShop.getPlugin().getDebugger().log("Validating Data Integrity...", DebugLevels.DATA_ERROR);
         if (!validate()) {
             TradeShop.getPlugin().getLogger().log(Level.SEVERE, "Data could not be properly validated! \nAccessing these files could cause errors.");
-            return;
         }
-        TradeShop.getPlugin().getDebugger().log("Data Validated.", DebugLevels.DATA_ERROR);
     }
 
     public boolean validate() {
