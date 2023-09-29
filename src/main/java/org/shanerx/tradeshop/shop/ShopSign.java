@@ -1,6 +1,6 @@
 /*
  *
- *                         Copyright (c) 2016-2019
+ *                         Copyright (c) 2016-2023
  *                SparklingComet @ http://shanerx.org
  *               KillerOfPie @ http://killerofpie.github.io
  *
@@ -26,9 +26,10 @@
 package org.shanerx.tradeshop.shop;
 
 import org.bukkit.Material;
+import org.shanerx.tradeshop.TradeShop;
 import org.shanerx.tradeshop.utils.Utils;
 import org.shanerx.tradeshop.utils.debug.DebugLevels;
-import org.shanerx.tradeshop.utils.versionmanagement.BukkitVersion;
+import org.shanerx.tradeshop.utils.versionmanagement.Version;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -46,7 +47,9 @@ enum Signs {
     DARK_OAK_SIGN("1.14.0", "", "&f"),
     CRIMSON_SIGN("1.16.0", "", "&0"),
     WARPED_SIGN("1.16.0", "", "&0"),
-    MANGROVE_SIGN("1.19.0", "", "&0");
+    MANGROVE_SIGN("1.19.0", "", "&0"),
+    CHERRY_SIGN("1.20.0", "", "&0"),
+    BAMBOO_SIGN("1.20.0", "", "&0");
 
     private final List<Integer> minVer = Arrays.asList(new Integer[3]);
     private final List<Integer> maxVer = Arrays.asList(new Integer[3]);
@@ -112,15 +115,16 @@ enum Signs {
 
 public class ShopSign extends Utils {
 
-    private final BukkitVersion version = new BukkitVersion();
+    private final Version version = TradeShop.getPlugin().getVersion();
     private final ArrayList<Material> signTypes = new ArrayList<>();
 
     public ShopSign() {
+        TradeShop plugin = TradeShop.getPlugin();
         for (Signs type : Signs.values()) {
             boolean pass = true;
-            PLUGIN.getDebugger().log(type.toString(), DebugLevels.STARTUP);
-            PLUGIN.getDebugger().log(String.format("MinVer: %s", type.getMinVersionAsString()), DebugLevels.STARTUP);
-            PLUGIN.getDebugger().log(String.format("MaxVer: %s", type.getMaxVersionAsString()), DebugLevels.STARTUP);
+            plugin.getDebugger().log(type.toString(), DebugLevels.STARTUP);
+            plugin.getDebugger().log(String.format("MinVer: %s", type.getMinVersionAsString()), DebugLevels.STARTUP);
+            plugin.getDebugger().log(String.format("MaxVer: %s", type.getMaxVersionAsString()), DebugLevels.STARTUP);
 
             if (type.hasMinVersion() && version.isBelow(type.getMinVer().get(0), type.getMinVer().get(1), type.getMinVer().get(2))) {
                 pass = false;
@@ -131,6 +135,11 @@ public class ShopSign extends Utils {
             if (pass) {
                 signTypes.add(Material.matchMaterial(type.toString()));
                 signTypes.add(Material.matchMaterial(type.toString().toUpperCase().replace("_SIGN", "_WALL_SIGN")));
+                if (version.isAtLeast(1, 20, 0)) {
+                    signTypes.add(Material.matchMaterial(type.toString().toUpperCase().replace("_SIGN", "_HANGING_SIGN")));
+                    signTypes.add(Material.matchMaterial(type.toString().toUpperCase().replace("_SIGN", "_HANGING_WALL_SIGN")));
+                }
+
             }
         }
     }
@@ -140,7 +149,7 @@ public class ShopSign extends Utils {
     }
 
     public static Map<String, String> getDefaultColourMap() {
-        final BukkitVersion version = new BukkitVersion();
+        final Version version = TradeShop.getPlugin().getVersion();
         Map<String, String> colourMap = new HashMap<>();
 
         for (Signs value : Signs.values()) {

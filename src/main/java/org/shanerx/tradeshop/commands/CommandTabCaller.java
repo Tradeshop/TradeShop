@@ -1,6 +1,6 @@
 /*
  *
- *                         Copyright (c) 2016-2019
+ *                         Copyright (c) 2016-2023
  *                SparklingComet @ http://shanerx.org
  *               KillerOfPie @ http://killerofpie.github.io
  *
@@ -37,62 +37,59 @@ import java.util.List;
 
 public class CommandTabCaller implements TabCompleter {
 
-	private final TradeShop plugin;
-	private CommandPass cmdPass;
-	private Commands command;
-	private CommandTabCompleter tabCompleter;
+    private final TradeShop plugin;
+    private CommandTabCompleter tabCompleter;
 
-	public CommandTabCaller(TradeShop instance) {
-		plugin = instance;
-	}
+    public CommandTabCaller(TradeShop instance) {
+        plugin = instance;
+    }
 
-	@Override
-	public List<String> onTabComplete(CommandSender sender, Command cmd, String label, String[] args) {
-		cmdPass = new CommandPass(sender, cmd, label, args);
-		command = Commands.getType(cmdPass.getArgAt(0));
+    @Override
+    public List<String> onTabComplete(CommandSender sender, Command cmd, String label, String[] args) {
+        CommandType commandType = CommandType.getType(args[0]);
 
-		if (command != null) {
+        if (commandType != null) {
 
-			switch (command.checkPerm(sender)) {
-				case NO_PERM:
-					return Collections.EMPTY_LIST;
-				case PLAYER_ONLY:
-					sender.sendMessage(Message.PLAYER_ONLY_COMMAND.getPrefixed());
-					return Collections.EMPTY_LIST;
-			}
+            switch (commandType.checkPerm(sender)) {
+                case NO_PERM:
+                    return Collections.EMPTY_LIST;
+                case PLAYER_ONLY:
+                    sender.sendMessage(Message.PLAYER_ONLY_COMMAND.getPrefixed());
+                    return Collections.EMPTY_LIST;
+            }
 
-			tabCompleter = new CommandTabCompleter(plugin, cmdPass);
+            tabCompleter = new CommandTabCompleter(plugin, sender, args);
 
-			switch (command) {
-				case HELP:
-					return tabCompleter.help();
-				case ADD_PRODUCT:
-				case ADD_COST:
-				case SET_COST:
-				case SET_PRODUCT:
-					return tabCompleter.addSet();
-				case REMOVE_USER:
-					return tabCompleter.fillShopPlayer();
-				case ADD_MANAGER:
-				case ADD_MEMBER:
-				case SET_MEMBER:
-				case SET_MANAGER:
-					return tabCompleter.fillServerPlayer();
-				default:
-					return Collections.EMPTY_LIST;
-			}
-		} else {
-			if (cmdPass.argsSize() < 2) {
-				List<String> subCmds = new ArrayList<>();
-				for (Commands cmds : Commands.values()) {
-					if (cmds.isPartialName(args[0]))
-						subCmds.add(cmds.getFirstName());
-				}
+            switch (commandType) {
+                case HELP:
+                    return tabCompleter.help();
+                case ADD_PRODUCT:
+                case ADD_COST:
+                case SET_COST:
+                case SET_PRODUCT:
+                    return tabCompleter.addSet();
+                case REMOVE_USER:
+                    return tabCompleter.fillShopPlayer();
+                case ADD_MANAGER:
+                case ADD_MEMBER:
+                case SET_MEMBER:
+                case SET_MANAGER:
+                    return tabCompleter.fillServerPlayer();
+                default:
+                    return Collections.EMPTY_LIST;
+            }
+        } else {
+            if (args.length < 2) {
+                List<String> subCmds = new ArrayList<>();
+                for (CommandType cmds : CommandType.values()) {
+                    if (cmds.isPartialName(args[0]))
+                        subCmds.add(cmds.getFirstName());
+                }
 
-				return subCmds;
-			}
+                return subCmds;
+            }
 
-			return Collections.EMPTY_LIST;
-		}
-	}
+            return Collections.EMPTY_LIST;
+        }
+    }
 }

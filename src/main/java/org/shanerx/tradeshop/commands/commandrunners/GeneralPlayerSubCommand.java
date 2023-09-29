@@ -1,6 +1,6 @@
 /*
  *
- *                         Copyright (c) 2016-2019
+ *                         Copyright (c) 2016-2023
  *                SparklingComet @ http://shanerx.org
  *               KillerOfPie @ http://killerofpie.github.io
  *
@@ -26,8 +26,10 @@
 package org.shanerx.tradeshop.commands.commandrunners;
 
 import org.bukkit.Bukkit;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandSender;
 import org.shanerx.tradeshop.TradeShop;
-import org.shanerx.tradeshop.commands.CommandPass;
+import org.shanerx.tradeshop.commands.SubCommand;
 import org.shanerx.tradeshop.data.config.Message;
 import org.shanerx.tradeshop.data.config.Setting;
 import org.shanerx.tradeshop.data.config.Variable;
@@ -35,10 +37,10 @@ import org.shanerx.tradeshop.player.Permissions;
 import org.shanerx.tradeshop.player.PlayerSetting;
 import org.shanerx.tradeshop.utils.objects.Tuple;
 
-public class GeneralPlayerCommand extends CommandRunner {
+public class GeneralPlayerSubCommand extends SubCommand {
 
-    public GeneralPlayerCommand(TradeShop instance, CommandPass command) {
-        super(instance, command);
+    public GeneralPlayerSubCommand(TradeShop instance, CommandSender sender, String[] args) {
+        super(instance, sender, args);
     }
 
     /**
@@ -46,29 +48,26 @@ public class GeneralPlayerCommand extends CommandRunner {
      */
     public void multi() {
         if (!Setting.ALLOW_MULTI_TRADE.getBoolean()) {
-            Message.FEATURE_DISABLED.sendMessage(pSender);
+            Message.FEATURE_DISABLED.sendMessage(getPlayerSender());
             return;
         }
 
-        PlayerSetting playerSetting = plugin.getDataStorage().loadPlayer(pSender.getUniqueId());
+        PlayerSetting playerSetting = plugin.getDataStorage().loadPlayer(getPlayerSender().getUniqueId());
 
-        if (command.argsSize() == 1) {
-            Message.MULTI_AMOUNT.sendMessage(pSender, new Tuple<>(Variable.AMOUNT.toString(), String.valueOf(playerSetting.getMulti())));
+        if (argsSize() == 1) {
+            Message.MULTI_AMOUNT.sendMessage(getPlayerSender(), new Tuple<>(Variable.AMOUNT.toString(), String.valueOf(playerSetting.getMulti())));
         } else {
             int amount = Setting.MULTI_TRADE_DEFAULT.getInt();
 
-            if (isInt(command.getArgAt(1)))
-                amount = Integer.parseInt(command.getArgAt(1));
+            if (isInt(getArgAt(1)))
+                amount = Integer.parseInt(getArgAt(1));
 
-            if (amount < 2)
-                amount = 2;
-            else if (amount > Setting.MULTI_TRADE_MAX.getInt())
-                amount = Setting.MULTI_TRADE_MAX.getInt();
+            amount = Math.min(Math.max(2, amount), Setting.MULTI_TRADE_MAX.getInt());
 
             playerSetting.setMulti(amount);
             plugin.getDataStorage().savePlayer(playerSetting);
 
-            Message.MULTI_UPDATE.sendMessage(pSender, new Tuple<>(Variable.AMOUNT.toString(), String.valueOf(amount)));
+            Message.MULTI_UPDATE.sendMessage(getPlayerSender(), new Tuple<>(Variable.AMOUNT.toString(), String.valueOf(amount)));
         }
     }
 
@@ -77,33 +76,33 @@ public class GeneralPlayerCommand extends CommandRunner {
      */
     public void toggleStatus() {
         if (!Setting.ALLOW_TOGGLE_STATUS.getBoolean()) {
-            Message.FEATURE_DISABLED.sendMessage(pSender);
+            Message.FEATURE_DISABLED.sendMessage(getPlayerSender());
             return;
         }
 
-        PlayerSetting playerSetting = plugin.getDataStorage().loadPlayer(pSender.getUniqueId());
+        PlayerSetting playerSetting = plugin.getDataStorage().loadPlayer(getPlayerSender().getUniqueId());
         playerSetting.setShowInvolvedStatus(!playerSetting.showInvolvedStatus());
         plugin.getDataStorage().savePlayer(playerSetting);
-        Message.TOGGLED_STATUS.sendMessage(pSender, new Tuple<>(Variable.STATUS.toString(), playerSetting.showInvolvedStatus() ? "on" : "off"));
+        Message.TOGGLED_STATUS.sendMessage(getPlayerSender(), new Tuple<>(Variable.STATUS.toString(), playerSetting.showInvolvedStatus() ? "on" : "off"));
     }
 
     /**
      * Shows the player the status of all shops they are involved with or the specified player is involved with
      */
     public void status() {
-        if (command.hasArgAt(1)) {
-            if (!Permissions.isAdminEnabled(pSender)) {
-                Message.NO_COMMAND_PERMISSION.sendMessage(pSender);
+        if (hasArgAt(1)) {
+            if (!Permissions.isAdminEnabled(getPlayerSender())) {
+                Message.NO_COMMAND_PERMISSION.sendMessage(getPlayerSender());
                 return;
             }
-            if (Bukkit.getOfflinePlayer(command.getArgAt(1)).hasPlayedBefore()) {
-                plugin.getDataStorage().loadPlayer(Bukkit.getOfflinePlayer(command.getArgAt(1)).getUniqueId())
-                        .getInvolvedStatusesInventory().show(pSender.getPlayer());
+            if (Bukkit.getOfflinePlayer(getArgAt(1)).hasPlayedBefore()) {
+                plugin.getDataStorage().loadPlayer(Bukkit.getOfflinePlayer(getArgAt(1)).getUniqueId())
+                        .getInvolvedStatusesInventory().show(getPlayerSender().getPlayer());
             } else {
-                Message.PLAYER_NOT_FOUND.sendMessage(pSender);
+                Message.PLAYER_NOT_FOUND.sendMessage(getPlayerSender());
             }
         } else {
-            plugin.getDataStorage().loadPlayer(pSender.getUniqueId()).getInvolvedStatusesInventory().show(pSender.getPlayer());
+            plugin.getDataStorage().loadPlayer(getPlayerSender().getUniqueId()).getInvolvedStatusesInventory().show(getPlayerSender().getPlayer());
         }
     }
 }

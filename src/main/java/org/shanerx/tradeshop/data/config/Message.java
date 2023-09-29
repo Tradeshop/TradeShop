@@ -1,6 +1,6 @@
 /*
  *
- *                         Copyright (c) 2016-2019
+ *                         Copyright (c) 2016-2023
  *                SparklingComet @ http://shanerx.org
  *               KillerOfPie @ http://killerofpie.github.io
  *
@@ -31,7 +31,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.shanerx.tradeshop.TradeShop;
 import org.shanerx.tradeshop.item.ShopItemStack;
-import org.shanerx.tradeshop.utils.Utils;
 import org.shanerx.tradeshop.utils.debug.Debug;
 import org.shanerx.tradeshop.utils.objects.Tuple;
 import org.yaml.snakeyaml.Yaml;
@@ -51,6 +50,7 @@ public enum Message {
     LANGUAGE(MessageSection.NONE, "language"),
 
     CHANGE_CLOSED(MessageSection.NONE, "change-closed"),
+    PLAYER_LOCKED(MessageSection.NONE, "player-locked"),
     CHANGE_OPEN(MessageSection.NONE, "change-open"),
     EMPTY_TS_ON_SETUP(MessageSection.NONE, "empty-ts-on-setup"),
     EXISTING_SHOP(MessageSection.NONE, "existing-shop"),
@@ -104,8 +104,14 @@ public enum Message {
     VARIOUS_ITEM_TYPE(MessageSection.NONE, "various-item-type"),
     TOGGLED_STATUS(MessageSection.NONE, "toggled-status"),
     NO_SIGN_FOUND(MessageSection.NONE, "no-sign-found"),
+    NO_SHOP_FOUND(MessageSection.NONE, "no-shop-found"),
     ADMIN_TOGGLED(MessageSection.NONE, "admin-toggled"),
-    FAILED_TRADE(MessageSection.NONE, "failed-trade");
+    FAILED_TRADE(MessageSection.NONE, "failed-trade"),
+    SHOP_LIMIT_REACHED(MessageSection.NONE, "shop-limit-reached"),
+    METRICS_MESSAGE(MessageSection.METRICS, "message"),
+    METRICS_COUNTER(MessageSection.METRICS, "counter"),
+    METRICS_TIMED_COUNTER(MessageSection.METRICS, "times-counter"),
+    METRICS_VERSION(MessageSection.METRICS, "version");
 
     public static final TradeShop PLUGIN = Objects.requireNonNull((TradeShop) Bukkit.getPluginManager().getPlugin("TradeShop"));
 
@@ -284,6 +290,27 @@ public enum Message {
     }
 
     @SafeVarargs
+    public final void sendMessage(CommandSender sender, Tuple<String, String>... replacements) {
+        if (sender instanceof Player) {
+            sendMessage((Player) sender, replacements);
+            return;
+        }
+
+        String message = getPrefixed();
+        for (Tuple<String, String> replace : replacements) {
+            message = message.replace(replace.getLeft().toUpperCase(), replace.getRight())
+                    .replace(replace.getLeft().toLowerCase(), replace.getRight())
+                    .replace(replace.getLeft(), replace.getRight());
+        }
+
+        if (getString().startsWith("#json ")) {
+            message = message.replaceFirst("#json ", "");
+        }
+
+        sendMessageDirect(sender, message);
+    }
+
+    @SafeVarargs
     public final void sendItemMultiLineMessage(Player player, Map<Variable, List<ItemStack>> itemsToFill, Tuple<String, String>... replacements) {
         if (itemsToFill.isEmpty()) {
             sendMessage(player, replacements);
@@ -293,7 +320,7 @@ public enum Message {
         boolean isJson = getString().startsWith("#json ");
         String message = getPrefixed().replaceFirst("#json ", "");
 
-        Debug debug = new Utils().PLUGIN.getDebugger();
+        Debug debug = TradeShop.getPlugin().getDebugger();
 
         for (Map.Entry<Variable, List<ItemStack>> entry : itemsToFill.entrySet()) {
             Pattern pattern = Pattern.compile(MULTILINEREGEX.replace("&V&", entry.getKey().toString()));
@@ -310,7 +337,7 @@ public enum Message {
                 for (ItemStack itm : entry.getValue()) {
                     itemList.append("\n")
                             .append(format.replace(Variable.ITEM.toString(), ShopItemStack.getCleanItemName(itm))
-                                    .replace(Variable.AMOUNT.toString(), itm.getAmount() + ""));
+                                    .replace(Variable.AMOUNT.toString(), String.valueOf(itm.getAmount())));
                 }
 
                 message = message.replace(found, itemList.toString());
@@ -340,7 +367,7 @@ public enum Message {
         boolean isJson = getString().startsWith("#json ");
         String message = getPrefixed().replaceFirst("#json ", "");
 
-        Debug debug = new Utils().PLUGIN.getDebugger();
+        Debug debug = TradeShop.getPlugin().getDebugger();
 
         for (Map.Entry<Variable, Map<String, String>> entry : valuesToFill.entrySet()) {
             Pattern pattern = Pattern.compile(MULTILINEREGEX.replace("&V&", entry.getKey().toString()));
@@ -374,27 +401,6 @@ public enum Message {
         } else {
             sendMessageDirect(player, message);
         }
-    }
-
-    @SafeVarargs
-    public final void sendMessage(CommandSender sender, Tuple<String, String>... replacements) {
-        if (sender instanceof Player) {
-            sendMessage((Player) sender, replacements);
-            return;
-        }
-
-        String message = getPrefixed();
-        for (Tuple<String, String> replace : replacements) {
-            message = message.replace(replace.getLeft().toUpperCase(), replace.getRight())
-                    .replace(replace.getLeft().toLowerCase(), replace.getRight())
-                    .replace(replace.getLeft(), replace.getRight());
-        }
-
-        if (getString().startsWith("#json ")) {
-            message = message.replaceFirst("#json ", "");
-        }
-
-        sendMessageDirect(sender, message);
     }
 }
 

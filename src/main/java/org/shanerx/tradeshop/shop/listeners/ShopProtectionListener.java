@@ -1,6 +1,6 @@
 /*
  *
- *                         Copyright (c) 2016-2019
+ *                         Copyright (c) 2016-2023
  *                SparklingComet @ http://shanerx.org
  *               KillerOfPie @ http://killerofpie.github.io
  *
@@ -38,8 +38,8 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.block.SignChangeEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
-import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryMoveItemEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.PlayerInteractEvent;
@@ -76,7 +76,7 @@ public class ShopProtectionListener extends Utils implements Listener {
     public void onInventoryMoveItem(InventoryMoveItemEvent event) {
 
         //If all Hopper Settings should be allowed, ignore event
-        if (plugin.doSkipHopperProtection()) {
+        if (plugin.getVarManager().doSkipHopperProtection()) {
             return;
         }
 
@@ -96,7 +96,7 @@ public class ShopProtectionListener extends Utils implements Listener {
 
         Block invBlock;
 
-        // Ignore below warning, try/catch is for this NPE since It should almost never happen with previous checks I believe this is faster than a if null
+        // Ignore below warning, try/catch is for this NPE since It should almost never happen with previous checks I believe this is faster than an if null
         try {
             invBlock = (fromHopper ? event.getDestination() : event.getSource()).getLocation().getBlock();
         } catch (NullPointerException ignored) {
@@ -113,9 +113,6 @@ public class ShopProtectionListener extends Utils implements Listener {
 
         if (!ShopChest.isShopChest(invBlock)) {
             //Just return as adding these to the skip would often catch the second half of hoppers pulling from shops then pushing to a chest
-
-            //plugin.getListManager().addSkippableHopper(event.getInitiator().getLocation(), false);
-            //plugin.getDebugger().log("Protection ShopChest Catch for \n  " + event.getInitiator().getLocation() + "\n  Source: " + event.getSource().getLocation() + "\n  Destination: " + event.getDestination().getLocation(), DebugLevels.PROTECTION);
             return;
         }
 
@@ -146,7 +143,7 @@ public class ShopProtectionListener extends Utils implements Listener {
         //plugin.getListManager().addSkippableShop(event.getInitiator().getLocation(), hopperEvent.isForbidden());
 
         if (!hopperEvent.isForbidden()) {
-            scheduleShopDelayUpdate(shop, 2L);
+            scheduleShopDelayUpdate("ShopProtectionListener#onInventoryMoveItem", shop, 2L);
         }
     }
 
@@ -165,8 +162,6 @@ public class ShopProtectionListener extends Utils implements Listener {
                     if (!Setting.findSetting((shop.getShopType().name() + "SHOP_EXPLODE").toUpperCase()).getBoolean())
                         i.remove();
                     else {
-                        if (shop.getStorage() != null)
-                            shop.getChestAsSC().resetName();
                         shop.remove();
                     }
 
@@ -189,10 +184,6 @@ public class ShopProtectionListener extends Utils implements Listener {
                 } else {
                     Shop shop = Shop.loadShop((Sign) b.getState());
                     if (shop != null) {
-
-                        if (shop.getStorage() != null)
-                            shop.getChestAsSC().resetName();
-
                         shop.remove();
                     }
                 }
@@ -224,9 +215,6 @@ public class ShopProtectionListener extends Utils implements Listener {
                     event.setCancelled(destroyEvent.destroyBlock());
                     return;
                 }
-
-                if (shop.getChestAsSC() != null)
-                    shop.getChestAsSC().resetName();
                 shop.remove();
                 return;
             }
@@ -248,8 +236,6 @@ public class ShopProtectionListener extends Utils implements Listener {
                 }
 
                 ShopChest sc = shop.getChestAsSC();
-                if (sc != null)
-                    sc.resetName();
 
                 if (shop.getInventoryLocationAsSL().equals(new ShopLocation(block.getLocation())))
                     shop.removeStorage();
@@ -297,14 +283,11 @@ public class ShopProtectionListener extends Utils implements Listener {
             return;
         }
 
-        ShopChest.resetOldName(block);
-
         if (ShopChest.isShopChest(block)) {
             Shop shop = new ShopChest(block.getLocation()).getShop();
             PlayerShopInventoryOpenEvent openEvent = new PlayerShopInventoryOpenEvent(e.getPlayer(), shop, e.getAction(), e.getItem(), e.getClickedBlock(), e.getBlockFace());
 
             if (shop == null) {
-                new ShopChest(block.getLocation()).resetName();
                 return;
             }
 
@@ -321,16 +304,10 @@ public class ShopProtectionListener extends Utils implements Listener {
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
-    public void onChestInventoryClose(InventoryCloseEvent e) {
-        if (e.getInventory().getLocation() == null)
-            return;
+    public void onSignChange(SignChangeEvent e) {
+        if (e.isCancelled()) return;
 
-        Block block = e.getInventory().getLocation().getBlock();
-
-        if (ShopChest.isShopChest(block)) {
-            scheduleShopDelayUpdate(new ShopChest(block.getLocation()).getShop(), 2L);
-        }
-
+        if (ShopType.isShop(e.getBlock())) e.setCancelled(true);
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
@@ -356,25 +333,11 @@ public class ShopProtectionListener extends Utils implements Listener {
 
         if (shop.getUsersUUID(ShopRole.OWNER, ShopRole.MANAGER).contains(event.getPlayer().getUniqueId())) {
             if (!shop.hasStorage()) {
-                new ShopChest(block, shop.getOwner().getUUID(), shopSign.getLocation()).setEventName(event);
                 shop.setInventoryLocation(block.getLocation());
                 shop.saveShop();
             }
         } else {
             event.setCancelled(true);
         }
-        return;
-    }
-
-    private void scheduleShopDelayUpdate(Shop shop, Long delay) {
-        plugin.getDebugger().log("Shop Being updated from ProtectionListener...\n  " + shop.getShopLocationAsSL().serialize(), DebugLevels.PROTECTION);
-        Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
-            @Override
-            public void run() {
-                shop.updateFullTradeCount();
-                shop.updateSign();
-                shop.saveShop();
-            }
-        }, delay);
     }
 }

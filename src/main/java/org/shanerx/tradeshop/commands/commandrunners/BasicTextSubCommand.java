@@ -1,6 +1,6 @@
 /*
  *
- *                         Copyright (c) 2016-2019
+ *                         Copyright (c) 2016-2023
  *                SparklingComet @ http://shanerx.org
  *               KillerOfPie @ http://killerofpie.github.io
  *
@@ -25,9 +25,11 @@
 
 package org.shanerx.tradeshop.commands.commandrunners;
 
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandSender;
 import org.shanerx.tradeshop.TradeShop;
-import org.shanerx.tradeshop.commands.CommandPass;
-import org.shanerx.tradeshop.commands.Commands;
+import org.shanerx.tradeshop.commands.CommandType;
+import org.shanerx.tradeshop.commands.SubCommand;
 import org.shanerx.tradeshop.data.config.Message;
 import org.shanerx.tradeshop.data.config.Setting;
 import org.shanerx.tradeshop.data.config.Variable;
@@ -39,18 +41,18 @@ import org.shanerx.tradeshop.utils.objects.Tuple;
  *
  * @since 2.6.0
  */
-public class BasicTextCommand extends CommandRunner {
+public class BasicTextSubCommand extends SubCommand {
 
-    public BasicTextCommand(TradeShop instance, CommandPass command) {
-        super(instance, command);
+    public BasicTextSubCommand(TradeShop instance, CommandSender sender,String[] args) {
+        super(instance, sender, args);
     }
 
     /**
      * Builds and sends the sender the help message
      */
     public void help() {
-        if (command.argsSize() == 2) {
-            usage(command.getArgAt(1));
+        if (argsSize() == 2) {
+            usage(getArgAt(1));
             return;
         }
 
@@ -63,14 +65,14 @@ public class BasicTextCommand extends CommandRunner {
                 .append(" by ").append(pdf.getAuthors().get(0)).append(" & ").append(pdf.getAuthors().get(1))
                 .append("\n\n&b/tradeshop &f &f Display help message\n");
 
-        for (Commands c : Commands.values()) {
-            if (c.checkPerm(command.getSender()) == PermStatus.GOOD) {
+        for (CommandType c : CommandType.values()) {
+            if (c.checkPerm(getSender()) == PermStatus.GOOD) {
                 sb.append(plugin.getMessageManager().colour(String.format("&b/ts %s  &f %s\n", c.getFirstName(), c.getDescription())));
             }
         }
 
         sb.append("\n ");
-        command.sendMessage(colorize(sb.toString()));
+        sendMessage(colorize(sb.toString()));
     }
 
     /**
@@ -79,25 +81,25 @@ public class BasicTextCommand extends CommandRunner {
      * @param subcmd string we should search for a sub-command
      */
     public void usage(String subcmd) {
-        Commands cmd = Commands.getType(subcmd);
+        CommandType cmd = CommandType.getType(subcmd);
         if (cmd == null) {
-            command.sendMessage(plugin.getMessageManager().colour(String.format("&4Cannot find usages for &c%s&r", subcmd)));
+            sendMessage(plugin.getMessageManager().colour(String.format("&4Cannot find usages for &c%s&r", subcmd)));
             return;
         }
-        command.sendMessage(plugin.getMessageManager().colour(String.format("&6Showing help for &c%s&r\n&bUsage:&e %s \n&bAliases: %s\n&bDescription:&e %s", subcmd, cmd.getUsage(), cmd.getAliases(), cmd.getDescription())));
+        sendMessage(plugin.getMessageManager().colour(String.format("&6Showing help for &c%s&r\n&bUsage:&e %s \n&bAliases: %s\n&bDescription:&e %s", subcmd, cmd.getUsage(), cmd.getAliases(), cmd.getDescription())));
     }
 
     /**
      * Sends the sender the bug message
      */
     public void bugs() {
-        command.sendMessage("\n&a[&eTradeShop&a] \n&2To report any bugs to the author, either send a PM on &cSpigot &2- &egoo.gl/s6Jk23 &2or open an issue on &cGitHub &2-&e goo.gl/X4qqyg\n");
+        sendMessage("\n&a[&eTradeShop&a] \n&2To report any bugs to the author, either send a PM on &cSpigot &2- &egoo.gl/s6Jk23 &2or open an issue on &cGitHub &2-&e goo.gl/X4qqyg\n");
     }
 
     /**
      * Sends the sender the setup message
      */
     public void setup() {
-        Message.SETUP_HELP.sendMessage(pSender, new Tuple<>(Variable.HEADER.toString(), Setting.TRADESHOP_HEADER.getString()));
+        Message.SETUP_HELP.sendMessage(getPlayerSender(), new Tuple<>(Variable.HEADER.toString(), Setting.TRADESHOP_HEADER.getString()));
     }
 }

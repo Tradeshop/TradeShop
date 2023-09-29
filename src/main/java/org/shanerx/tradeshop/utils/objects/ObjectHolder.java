@@ -1,6 +1,6 @@
 /*
  *
- *                         Copyright (c) 2016-2019
+ *                         Copyright (c) 2016-2023
  *                SparklingComet @ http://shanerx.org
  *               KillerOfPie @ http://killerofpie.github.io
  *
@@ -26,6 +26,9 @@
 package org.shanerx.tradeshop.utils.objects;
 
 import com.google.gson.annotations.SerializedName;
+import org.bukkit.Material;
+
+import java.util.Map;
 
 public class ObjectHolder<Type> {
 
@@ -44,9 +47,39 @@ public class ObjectHolder<Type> {
         return obj != null && obj instanceof Boolean;
     }
 
+    /**
+     * Converts string to boolean based on acceptable responses
+     *
+     * @return true if acceptable string was found
+     */
+    public boolean canBeBoolean() {
+        switch (obj.toString().toLowerCase()) {
+            case "true":
+            case "t":
+            case "tru":
+            case "yes":
+            case "y":
+            case "all":
+                return true;
+            default:
+                return false;
+        }
+    }
+
     public boolean isInteger() {
         return obj != null && (obj instanceof Integer || (obj instanceof Double && Double.parseDouble(obj.toString()) % 1 == 0));
     }
+
+    public boolean canBeInteger() {
+        try {
+            Integer.parseInt(obj.toString());
+            return true;
+        } catch (NumberFormatException | NullPointerException ignored) {
+        }
+
+        return false;
+    }
+
 
     public boolean isDouble() {
         return obj != null && (obj instanceof Double || obj instanceof Integer);
@@ -57,15 +90,37 @@ public class ObjectHolder<Type> {
     }
 
     public Boolean asBoolean() {
-        return isBoolean() ? Boolean.parseBoolean(obj.toString()) : null;
+        return canBeBoolean();
     }
 
     public Integer asInteger() {
-        return isInteger() ? (int) Double.parseDouble(obj.toString()) : null;
+        return isInteger() ? Integer.valueOf((int) Double.parseDouble(obj.toString())) : canBeInteger() ? Integer.parseInt(obj.toString()) : null;
     }
 
     public Double asDouble() {
         return isDouble() ? Double.parseDouble(obj.toString()) : null;
+    }
+
+    public boolean isMap() {
+        return obj != null && obj instanceof Map;
+    }
+
+    public Map<String, Object> asMap() {
+        if (isMap()) {
+            try {
+                return (Map<String, Object>) obj;
+            } catch (ClassCastException ignored) {
+            }
+        }
+        return null;
+    }
+
+    public boolean canBeMaterial() {
+        return asMaterial() != null;
+    }
+
+    public Material asMaterial() {
+        return Material.matchMaterial(obj.toString());
     }
 
     @Override

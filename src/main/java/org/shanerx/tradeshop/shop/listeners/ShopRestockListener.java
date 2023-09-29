@@ -1,6 +1,6 @@
 /*
  *
- *                         Copyright (c) 2016-2019
+ *                         Copyright (c) 2016-2023
  *                SparklingComet @ http://shanerx.org
  *               KillerOfPie @ http://killerofpie.github.io
  *
@@ -45,13 +45,14 @@ public class ShopRestockListener extends Utils implements Listener {
     //If it is a shopchest, this updates the sign when the inventory is closed
 
     //Doesn't update double chests closing --Bug, unsure how to fix
-    @EventHandler(priority = EventPriority.HIGH)
+    @EventHandler(priority = EventPriority.LOWEST)
     public void onInventoryClose(InventoryCloseEvent event) {
         if (ShopChest.isShopChest(event.getInventory())) {
             Shop shop = new ShopChest(event.getInventory().getLocation()).getShop();
             if (shop != null) {
                 shop.updateSign();
                 shop.saveShop();
+                scheduleShopDelayUpdate("ShopRestockListener#onInventoryClose", shop, 10L);
             }
         }
     }

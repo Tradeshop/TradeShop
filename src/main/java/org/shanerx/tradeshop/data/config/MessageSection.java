@@ -1,6 +1,6 @@
 /*
  *
- *                         Copyright (c) 2016-2019
+ *                         Copyright (c) 2016-2023
  *                SparklingComet @ http://shanerx.org
  *               KillerOfPie @ http://killerofpie.github.io
  *
@@ -32,7 +32,8 @@ import java.util.Objects;
 
 enum MessageSection {
 
-    NONE(10, ""),
+    NONE(90, ""),
+    METRICS(10, "metrics"),
     UNUSED(100, "");
 
     public static final TradeShop PLUGIN = Objects.requireNonNull((TradeShop) Bukkit.getPluginManager().getPlugin("TradeShop"));

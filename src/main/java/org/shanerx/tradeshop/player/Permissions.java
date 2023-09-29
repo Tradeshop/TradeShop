@@ -1,6 +1,6 @@
 /*
  *
- *                         Copyright (c) 2016-2019
+ *                         Copyright (c) 2016-2023
  *                SparklingComet @ http://shanerx.org
  *               KillerOfPie @ http://killerofpie.github.io
  *
@@ -29,6 +29,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.permissions.Permission;
 import org.bukkit.permissions.PermissionDefault;
+import org.bukkit.plugin.PluginManager;
 import org.shanerx.tradeshop.TradeShop;
 import org.shanerx.tradeshop.data.config.Language;
 import org.shanerx.tradeshop.utils.Utils;
@@ -36,71 +37,74 @@ import org.shanerx.tradeshop.utils.debug.DebugLevels;
 
 public enum Permissions {
 
-	HELP("help", PermissionDefault.TRUE),
+    HELP("help", PermissionDefault.TRUE),
 
-	CREATE("create", PermissionDefault.TRUE),
+    CREATE("create", PermissionDefault.TRUE),
 
-	CREATEI("create.infinite", PermissionDefault.OP),
+    CREATEI("create.infinite", PermissionDefault.OP),
 
-	CREATEBI("create.bi", PermissionDefault.TRUE),
+    CREATEBI("create.bi", PermissionDefault.TRUE),
 
-	ADMIN("admin", PermissionDefault.OP),
+    ADMIN("admin", PermissionDefault.OP),
 
-	EDIT("edit", PermissionDefault.TRUE), // non admin perm
+    EDIT("edit", PermissionDefault.TRUE), // non admin perm
 
-	INFO("info", PermissionDefault.TRUE),
+    INFO("info", PermissionDefault.TRUE),
 
-	MANAGE_PLUGIN("manage-plugin", PermissionDefault.OP),
+    FIND("info.find", PermissionDefault.TRUE),
 
-	TRADE("trade", PermissionDefault.TRUE),
+    MANAGE_PLUGIN("manage-plugin", PermissionDefault.OP),
 
-	NONE("", PermissionDefault.TRUE);
+    TRADE("trade", PermissionDefault.TRUE),
 
-	private final static TradeShop plugin = (TradeShop) Bukkit.getPluginManager().getPlugin("TradeShop");
-	private final Utils utils = new Utils();
-	private final String key;
-	private final PermissionDefault defaultState;
-	private final String description;
+    NONE("", PermissionDefault.TRUE);
 
-	Permissions(String key, PermissionDefault defaultState) {
-		this.key = key;
-		this.defaultState = defaultState;
-		this.description = utils.PLUGIN.getLanguage().getString(Language.LangSection.PERMISSION, Language.LangSubSection.VALUES, name().toLowerCase().replace("_", "-"), "description");
-	}
+    private final static TradeShop plugin = (TradeShop) Bukkit.getPluginManager().getPlugin("TradeShop");
+    private final Utils utils = new Utils();
+    private final String key;
+    private final PermissionDefault defaultState;
+    private final String description;
 
-	@Override
-	public String toString() {
-		return "tradeshop." + key;
-	}
+    Permissions(String key, PermissionDefault defaultState) {
+        this.key = key;
+        this.defaultState = defaultState;
+        this.description = TradeShop.getPlugin().getLanguage().getString(Language.LangSection.PERMISSION, Language.LangSubSection.VALUES, name().toLowerCase().replace("_", "-"), "description");
+    }
 
-	public String getValue() {
-		return this.toString();
-	}
+    public static void registerPermissions() {
+        PluginManager pm = Bukkit.getPluginManager();
+        for (Permissions perm : values()) {
+            if (!perm.equals(Permissions.NONE)) {
+                Permission permission = perm.getPerm();
+                pm.addPermission(permission);
+                plugin.getDebugger().log("Permission registered: " + permission.getName() + " | State: " + permission.getDefault(), DebugLevels.STARTUP);
+            }
+        }
 
-	public static void registerPermissions() {
-		for (Permissions perm : values()) {
-			if (!perm.equals(Permissions.NONE)) {
-				Permission permission = perm.getPerm();
-				Bukkit.getPluginManager().addPermission(permission);
-				plugin.getDebugger().log("Permission registered: " + permission.getName() + " | State: " + permission.getDefault(), DebugLevels.STARTUP);
-			}
-		}
+        StringBuilder str = new StringBuilder();
+        str.append("defaultPermissions: \n");
+        Bukkit.getPluginManager().getDefaultPermissions(false).forEach((perm) -> str.append(perm.getName()).append("\n"));
+        plugin.getDebugger().log(str.toString(), DebugLevels.STARTUP);
+    }
 
-		StringBuilder str = new StringBuilder();
-		str.append("defaultPermissions: \n");
-		Bukkit.getPluginManager().getDefaultPermissions(false).forEach((perm) -> str.append(perm.getName()).append("\n"));
-		plugin.getDebugger().log(str.toString(), DebugLevels.STARTUP);
-	}
+    public static boolean hasPermission(Player player, Permissions permission) {
+        return permission.equals(Permissions.NONE) || player.hasPermission(permission.getPerm());
+    }
 
-	public static boolean hasPermission(Player player, Permissions permission) {
-		return permission.equals(Permissions.NONE) || player.hasPermission(permission.getPerm());
-	}
+    public static boolean isAdminEnabled(Player player) {
+        return hasPermission(player, Permissions.ADMIN) && plugin.getDataStorage().loadPlayer(player.getUniqueId()).isAdminEnabled();
+    }
 
-	public static boolean isAdminEnabled(Player player) {
-		return hasPermission(player, Permissions.ADMIN) && plugin.getDataStorage().loadPlayer(player.getUniqueId()).isAdminEnabled();
-	}
+    @Override
+    public String toString() {
+        return "tradeshop." + key;
+    }
 
-	public Permission getPerm() {
-		return new Permission(toString(), description, defaultState);
-	}
+    public String getValue() {
+        return this.toString();
+    }
+
+    public Permission getPerm() {
+        return new Permission(toString(), description, defaultState);
+    }
 }

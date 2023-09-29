@@ -1,6 +1,6 @@
 /*
  *
- *                         Copyright (c) 2016-2019
+ *                         Copyright (c) 2016-2023
  *                SparklingComet @ http://shanerx.org
  *               KillerOfPie @ http://killerofpie.github.io
  *
@@ -27,40 +27,33 @@ package org.shanerx.tradeshop.data.storage.Json;
 
 import com.google.common.collect.Sets;
 import com.google.gson.JsonElement;
+import org.bukkit.Bukkit;
+import org.shanerx.tradeshop.TradeShop;
 import org.shanerx.tradeshop.data.storage.ShopConfiguration;
 import org.shanerx.tradeshop.shop.Shop;
 import org.shanerx.tradeshop.shoplocation.ShopChunk;
 import org.shanerx.tradeshop.shoplocation.ShopLocation;
+import org.shanerx.tradeshop.utils.debug.DebugLevels;
 
 import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
 
 public class JsonShopConfiguration extends JsonConfiguration implements ShopConfiguration {
 
     private final ShopChunk chunk;
 
     public JsonShopConfiguration(ShopChunk chunk) {
-        super(chunk.getWorld().getName(), chunk.serialize());
+        super(chunk.getWorldName(), chunk.serialize());
         this.chunk = chunk;
     }
 
-    @Override
-    public void loadFile() {
-        if (!this.file.exists()) {
-            // If could not find file try with old separators
-            String oldFile = path + File.separator + chunk.serialize().replace(";;", "_") + ".json";
-            if (new File(oldFile).exists())
-                new File(oldFile).renameTo(file);
-        }
-
-        super.loadFile();
-
-        for (Map.Entry<String, JsonElement> entry : Sets.newHashSet(jsonObj.entrySet())) {
-            if (entry.getKey().contains("l_")) {
-                jsonObj.add(ShopLocation.deserialize(entry.getKey()).serialize(), entry.getValue());
-                jsonObj.remove(entry.getKey());
-            }
-        }
+    public static boolean doesConfigExist(ShopChunk chunk) {
+        return getFile(chunk.getWorldName(), chunk.serialize()).exists();
     }
 
     @Override
@@ -80,21 +73,82 @@ public class JsonShopConfiguration extends JsonConfiguration implements ShopConf
 
     @Override
     public Shop load(ShopLocation loc) {
-        Shop shop;
-        String locStr = loc.serialize();
+        Shop shop = loadASync(loc);
 
-        if (!jsonObj.has(locStr)) {
+        if (shop == null)
             return null;
-        }
-
-        shop = gson.fromJson(jsonObj.get(locStr), Shop.class);
 
         shop.fixAfterLoad();
         return shop;
     }
 
     @Override
+    public Shop loadASync(ShopLocation loc) {
+        String locStr = loc.serialize();
+        Shop shop = null;
+
+        if (!jsonObj.has(locStr)) return null;
+
+        try {
+            shop = gson.fromJson(jsonObj.get(locStr), Shop.class);
+            shop.aSyncFix();
+        } catch (IllegalArgumentException iAe) {
+            iAe.printStackTrace();
+            remove(loc);
+        }
+
+        return shop;
+    }
+
+    @Override
+    public List<ShopLocation> list() {
+        List<ShopLocation> shopsInFile = new ArrayList<>();
+        jsonObj.keySet().forEach(str -> shopsInFile.add(ShopLocation.deserialize(str)));
+        return shopsInFile;
+    }
+
+    @Override
     public int size() {
         return jsonObj.size();
+    }
+
+    @Override
+    protected void saveFile() {
+        if (!PLUGIN.getDataStorage().saving.containsKey(file)) {
+            final String str = gson.toJson(jsonObj);
+            PLUGIN.getDataStorage().saving.put(file, str);
+            if (!str.isEmpty()) {
+                Bukkit.getScheduler().runTaskAsynchronously(TradeShop.getPlugin(), () -> {
+                    try {
+                        FileWriter fileWriter = new FileWriter(this.file);
+                        fileWriter.write(str);
+                        fileWriter.flush();
+                        fileWriter.close();
+                    } catch (IOException e) {
+                        PLUGIN.getLogger().log(Level.SEVERE, "Could not save " + this.file.getName() + " file! Data may be lost!", e);
+                    }
+                    PLUGIN.getDataStorage().saving.remove(this.file);
+                });
+            }
+        }
+    }
+
+    @Override
+    protected void loadFile() {
+        if (!this.file.exists()) {
+            // If could not find file try with old separators
+            String oldFile = file.getPath() + File.separator + chunk.serialize().replace(";;", "_") + ".json";
+            if (new File(oldFile).exists())
+                new File(oldFile).renameTo(file);
+        }
+
+        super.loadFile();
+
+        for (Map.Entry<String, JsonElement> entry : Sets.newHashSet(jsonObj.entrySet())) {
+            if (entry.getKey().contains("l_")) {
+                jsonObj.add(ShopLocation.deserialize(entry.getKey()).serialize(), entry.getValue());
+                jsonObj.remove(entry.getKey());
+            }
+        }
     }
 }

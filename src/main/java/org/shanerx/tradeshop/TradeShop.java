@@ -1,6 +1,6 @@
 /*
  *
- *                         Copyright (c) 2016-2019
+ *                         Copyright (c) 2016-2023
  *                SparklingComet @ http://shanerx.org
  *               KillerOfPie @ http://killerofpie.github.io
  *
@@ -25,7 +25,10 @@
 
 package org.shanerx.tradeshop;
 
+import com.google.common.collect.Lists;
+import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
+import org.bukkit.command.PluginCommand;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.shanerx.tradeshop.commands.CommandCaller;
@@ -34,208 +37,248 @@ import org.shanerx.tradeshop.data.config.ConfigManager;
 import org.shanerx.tradeshop.data.config.Language;
 import org.shanerx.tradeshop.data.config.Setting;
 import org.shanerx.tradeshop.data.storage.DataStorage;
-import org.shanerx.tradeshop.data.storage.DataType;
 import org.shanerx.tradeshop.player.JoinEventListener;
 import org.shanerx.tradeshop.player.Permissions;
 import org.shanerx.tradeshop.shop.ShopSign;
 import org.shanerx.tradeshop.shop.ShopStorage;
+import org.shanerx.tradeshop.shop.listeners.PaperShopProtectionListener;
 import org.shanerx.tradeshop.shop.listeners.ShopCreateListener;
 import org.shanerx.tradeshop.shop.listeners.ShopProtectionListener;
 import org.shanerx.tradeshop.shop.listeners.ShopRestockListener;
 import org.shanerx.tradeshop.shop.listeners.ShopTradeListener;
-import org.shanerx.tradeshop.utils.ListManager;
-import org.shanerx.tradeshop.utils.MetricsManager;
 import org.shanerx.tradeshop.utils.debug.Debug;
-import org.shanerx.tradeshop.utils.debug.DebugLevels;
-import org.shanerx.tradeshop.utils.versionmanagement.BukkitVersion;
-import org.shanerx.tradeshop.utils.versionmanagement.Expirer;
+import org.shanerx.tradeshop.utils.logging.transactionlogging.TransactionLogger;
+import org.shanerx.tradeshop.utils.logging.transactionlogging.listeners.SuccessfulTradeEventListener;
+import org.shanerx.tradeshop.utils.management.ListManager;
+import org.shanerx.tradeshop.utils.management.MetricsManager;
+import org.shanerx.tradeshop.utils.management.VarManager;
 import org.shanerx.tradeshop.utils.versionmanagement.Updater;
+import org.shanerx.tradeshop.utils.versionmanagement.Version;
+
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.logging.Level;
 
 public class TradeShop extends JavaPlugin {
 
-	private Expirer expirer = new Expirer(this);
+    private VarManager varManager;
 
-	private final NamespacedKey storageKey = new NamespacedKey(this, "tradeshop-storage-data");
-	private final NamespacedKey signKey = new NamespacedKey(this, "tradeshop-sign-data");
+    public static TradeShop getPlugin() {
+        TradeShop plugin = null;
+        if (Bukkit.getPluginManager().isPluginEnabled("TradeShop"))
+            plugin = (TradeShop) Bukkit.getPluginManager().getPlugin("TradeShop");
+        else
+            try {
+                Bukkit.getPluginManager().enablePlugin(new TradeShop());
+            } catch (Exception e) {
+                Bukkit.getLogger().log(Level.SEVERE, "Tradeshop could not be found or enabled... \n" + Arrays.toString(e.getStackTrace()));
+            }
 
-	private MetricsManager metricsManager;
-	private boolean skipHopperProtection = false;
+        return plugin;
+    }
 
-	private ListManager lists;
-	private DataStorage dataStorage;
+    @Override
+    public void onEnable() {
+        getVarManager();
 
-	private ConfigManager settingManager, messageManager;
-	private Language language;
+        if (!loadChecks()) {
+            getServer().getPluginManager().disablePlugin(this);
+            return;
+        }
 
-	private BukkitVersion version;
-	private ShopSign signs;
-	private ShopStorage storages;
+        registration();
 
-	private Debug debugger;
+        getSettingManager().updateSkipHoppers();
 
-	@Override
-	public void onEnable() {
-		if (!expirer.initiateDevExpiration()) {
-			expirer = null;
-		}
-
-		if (getVersion().isBelow(1, 9)) {
-			getLogger().info("[TradeShop] Minecraft versions before 1.9 are not supported beyond TradeShop version 1.5.2!");
-			getServer().getPluginManager().disablePlugin(this);
-			return;
-		}
-
-		if (getVersion().isBelow(1, 13)) {
-			getLogger().info("[TradeShop] Minecraft versions before 1.13 are not supported beyond TradeShop version 1.8.2!");
-			getServer().getPluginManager().disablePlugin(this);
-			return;
-		}
-
-		getLanguage();
-		if (!language.isLoaded()) {
-			getServer().getPluginManager().disablePlugin(this);
-			return;
-		}
-
-		getSettingManager().reload();
-		getMessageManager().reload();
-
-		getSettingManager().updateSkipHoppers();
-
-		getDebugger();
-
-		Permissions.registerPermissions();
-
-		if (getDataStorage() == null)
-			return;
-
-		getSigns();
-		getStorages();
-		getListManager();
-
-		PluginManager pm = getServer().getPluginManager();
-		pm.registerEvents(new JoinEventListener(this), this);
-		pm.registerEvents(new ShopProtectionListener(this), this);
-		pm.registerEvents(new ShopCreateListener(), this);
-		pm.registerEvents(new ShopTradeListener(), this);
-		pm.registerEvents(new ShopRestockListener(this), this);
-
-		getCommand("tradeshop").setExecutor(new CommandCaller(this));
-		getCommand("tradeshop").setTabCompleter(new CommandTabCaller(this));
+        getSigns();
+        getStorages();
+        getListManager();
 
         if (Setting.CHECK_UPDATES.getBoolean()) {
-			new Thread(() -> getUpdater().checkCurrentVersion()).start();
-		}
+            new Thread(() -> getUpdater().checkCurrentVersion()).start();
+        }
 
-		if (Setting.ALLOW_METRICS.getBoolean()) {
-			getMetricsManager();
-			getLogger().info("Metrics successfully initialized!");
-		} else {
-			getLogger().warning("Metrics are disabled! Please consider enabling them to support the authors!");
-		}
-	}
+        if (Setting.ALLOW_METRICS.getBoolean()) {
+            getMetricsManager();
+            getLogger().info("Metrics successfully initialized!");
+        } else {
+            getLogger().warning("Metrics are disabled! Please consider enabling them to support the authors!");
+        }
 
-	@Override
-	public void onDisable() {
-		if (lists != null)
-			getListManager().clearManager();
-	}
+        aliasCheck("ts");
+    }
 
-	public boolean doSkipHopperProtection() {
-		return skipHopperProtection;
-	}
+    @Override
+    public void onDisable() {
+        if (getListManager() != null)
+            getListManager().clearManager();
+    }
 
-	public void setSkipHopperProtection(boolean skipHopperProtection) {
-		this.skipHopperProtection = skipHopperProtection;
-	}
+    //<editor-fold desc="Helpers">
+    private boolean loadChecks() {
+        varManager.startup();
 
-	public NamespacedKey getStorageKey() {
-		return storageKey;
-	}
+        if (getVersion().isBelow(1, 9)) {
+            getLogger().info("[TradeShop] Minecraft versions before 1.9 are not supported beyond TradeShop version 1.5.2!");
+            return false;
+        }
 
-	public NamespacedKey getSignKey() {
-		return signKey;
-	}
+        if (getVersion().isBelow(1, 13)) {
+            getLogger().info("[TradeShop] Minecraft versions before 1.13 are not supported beyond TradeShop version 1.8.2!");
+            return false;
+        }
 
-	public ListManager getListManager() {
-		if (lists == null)
-			lists = new ListManager();
+        if (!getLanguage().isLoaded()) {
+            return false;
+        }
 
-		return lists;
-	}
+        getSettingManager().reload();
+        getMessageManager().reload();
 
-    public BukkitVersion getVersion() {
-		if (version == null)
-			version = new BukkitVersion();
+        return getDataStorage() != null;
+    }
 
-		return version;
-	}
+    private void registration() {
 
+        Permissions.registerPermissions();
+
+
+        PluginManager pm = getServer().getPluginManager();
+        pm.registerEvents(new JoinEventListener(this), this);
+        pm.registerEvents(new ShopProtectionListener(this), this);
+        pm.registerEvents(new ShopCreateListener(), this);
+        pm.registerEvents(new ShopTradeListener(), this);
+        pm.registerEvents(new ShopRestockListener(this), this);
+        pm.registerEvents(new SuccessfulTradeEventListener(this), this);
+
+        if (getServer().getVersion().toLowerCase().contains("paper")) {
+            pm.registerEvents(new PaperShopProtectionListener(), this);
+        }
+
+        getCommand("tradeshop").setExecutor(new CommandCaller(this));
+        getCommand("tradeshop").setTabCompleter(new CommandTabCaller(this));
+    }
+
+    private void aliasCheck(String conflictAlias) {
+        Map<String, String[]> conflictingCMDs = new HashMap<>();
+        getServer().getCommandAliases().forEach((cmd, alts) -> {
+            if (Arrays.stream(alts).anyMatch((s -> s.equalsIgnoreCase(conflictAlias)))) {
+                conflictingCMDs.put(cmd, alts);
+            }
+        });
+
+        if (conflictingCMDs.size() > 1) {
+            conflictingCMDs.forEach((k, v) -> {
+                PluginCommand tsAlias = getCommand(conflictAlias);
+                List<String> aliases = Lists.newArrayList(v);
+                aliases.remove("ts");
+
+                String newAlias = "ts", addition = newAlias.substring(1, newAlias.length() - 1), pl = tsAlias.getPlugin().getName();
+
+                while (getCommand(newAlias) != null) {
+                    //Get the character in the plugin name at the index after the first string of the existing addition
+                    //If trying to grab a character after the end of the plugin name, then add the last digit of `i` instead
+                    int i = pl.indexOf(addition) + 1;
+                    addition += i <= pl.length() ? pl.charAt(i) : i % 10;
+
+                    //take first letter of conflicting alias and add the addition to that
+                    newAlias = newAlias.charAt(0) + addition;
+                }
+                aliases.add(newAlias);
+                tsAlias.setAliases(aliases);
+            });
+        }
+    }
+    //</editor-fold>
+
+    //<editor-fold desc="Getters">
+    @Deprecated
+    public boolean doSkipHopperProtection() {
+        return varManager.doSkipHopperProtection();
+    }
+
+    @Deprecated
+    public void setSkipHopperProtection(boolean skipHopperProtection) {
+        varManager.setSkipHopperProtection(skipHopperProtection);
+    }
+
+    @Deprecated
+    public NamespacedKey getStorageKey() {
+        return varManager.getStorageKey();
+    }
+
+    @Deprecated
+    public NamespacedKey getSignKey() {
+        return varManager.getSignKey();
+    }
+
+    @Deprecated
+    public ListManager getListManager() {
+        return varManager.getListManager();
+    }
+
+    @Deprecated
+    public Version getVersion() {
+        return varManager.getVersion();
+    }
+
+    @Deprecated
     public ShopSign getSigns() {
-		if (signs == null)
-			signs = new ShopSign();
+        return varManager.getSigns();
+    }
 
-		return signs;
-	}
-
+    @Deprecated
     public ShopStorage getStorages() {
-		if (storages == null)
-			storages = new ShopStorage();
+        return varManager.getStorages();
+    }
 
-		return storages;
-	}
-
+    @Deprecated
     public Updater getUpdater() {
-		return new Updater(getDescription(), "https://api.spigotmc.org/legacy/update.php?resource=32762", "https://www.spigotmc.org/resources/tradeshop.32762/");
-	}
+        return varManager.getUpdater();
+    }
 
-	public Debug getDebugger() {
-		if (debugger == null)
-			debugger = new Debug();
+    @Deprecated
+    public Debug getDebugger() {
+        return varManager.getDebugger();
+    }
 
-		return debugger;
-	}
+    @Deprecated
+    public DataStorage getDataStorage() {
+        return varManager.getDataStorage();
+    }
 
-	public DataStorage getDataStorage() {
-		if (dataStorage == null) {
-			try {
-				dataStorage = new DataStorage(DataType.valueOf(Setting.DATA_STORAGE_TYPE.getString().toUpperCase()));
-			} catch (IllegalArgumentException iae) {
-				debugger.log("Config value for data storage set to an invalid value: " + Setting.DATA_STORAGE_TYPE.getString(), DebugLevels.DATA_ERROR);
-				debugger.log("TradeShop will now disable...", DebugLevels.DATA_ERROR);
-				getServer().getPluginManager().disablePlugin(this);
-				return null;
-			}
-		}
+    @Deprecated
+    public MetricsManager getMetricsManager() {
+        return varManager.getMetricsManager();
+    }
 
-		return dataStorage;
-	}
+    @Deprecated
+    public ConfigManager getSettingManager() {
+        return varManager.getSettingManager();
+    }
 
-	public MetricsManager getMetricsManager() {
-		if (metricsManager == null)
-			metricsManager = new MetricsManager(this);
+    @Deprecated
+    public ConfigManager getMessageManager() {
+        return varManager.getMessageManager();
+    }
 
-		return metricsManager;
-	}
+    @Deprecated
+    public Language getLanguage() {
+        return varManager.getLanguage();
+    }
 
-	public ConfigManager getSettingManager() {
-		if (settingManager == null)
-			settingManager = new ConfigManager(this, ConfigManager.ConfigType.CONFIG);
+    @Deprecated
+    public TransactionLogger getTransactionLogger() {
+        return varManager.getTransactionLogger();
+    }
 
-		return settingManager;
-	}
+    public VarManager getVarManager() {
+        if (varManager == null) varManager = new VarManager(this);
 
-	public ConfigManager getMessageManager() {
-		if (messageManager == null)
-			messageManager = new ConfigManager(this, ConfigManager.ConfigType.MESSAGES);
+        return varManager;
+    }
 
-		return messageManager;
-	}
-
-	public Language getLanguage() {
-		if (language == null)
-			language = new Language(this);
-
-		return language;
-	}
+    //</editor-fold>
 }

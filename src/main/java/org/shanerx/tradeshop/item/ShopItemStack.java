@@ -1,6 +1,6 @@
 /*
  *
- *                         Copyright (c) 2016-2019
+ *                         Copyright (c) 2016-2023
  *                SparklingComet @ http://shanerx.org
  *               KillerOfPie @ http://killerofpie.github.io
  *
@@ -42,7 +42,7 @@ import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.util.io.BukkitObjectInputStream;
-import org.shanerx.tradeshop.utils.Utils;
+import org.shanerx.tradeshop.TradeShop;
 import org.shanerx.tradeshop.utils.debug.Debug;
 import org.shanerx.tradeshop.utils.debug.DebugLevels;
 import org.shanerx.tradeshop.utils.gsonprocessing.GsonProcessor;
@@ -63,7 +63,7 @@ public class ShopItemStack implements Serializable, Cloneable {
     private ItemStack itemStack;
     private transient Debug debugger;
 
-    @Expose(serialize = true, deserialize = true)
+    @Expose(serialize = false)
     private String itemStackB64;
 
     @Expose
@@ -120,10 +120,6 @@ public class ShopItemStack implements Serializable, Cloneable {
         loadLegacyData();
     }
 
-    public Map<ShopItemStackSettingKeys, ObjectHolder<?>> getItemSettings() {
-        return itemSettings;
-    }
-
     public static ShopItemStack deserialize(String serialized) {
         ShopItemStack item = new GsonProcessor().fromJson(serialized, ShopItemStack.class);
         item.loadLegacyData();
@@ -169,28 +165,21 @@ public class ShopItemStack implements Serializable, Cloneable {
         }
     }
 
-    public boolean setShopSettings(ShopItemStackSettingKeys key, ObjectHolder<?> value) {
+    public void setShopSettings(ShopItemStackSettingKeys key, ObjectHolder<?> value) {
         if (itemSettings == null) {
             itemSettings = new HashMap<>();
             buildMap();
         }
 
         itemSettings.put(key, value);
-        return false;
     }
 
     public int getAmount() {
-        if (itemStack == null) //TODO this fixes an NPE from this method when itemstack is null(idk why itemstack would be null, this fixes for now so hopefully it will be enough)
-            return 0;
-        return itemStack.getAmount();
+        return itemStack == null ? 0 : itemStack.getAmount();
     }
 
     public void setAmount(int amount) {
         itemStack.setAmount(amount);
-    }
-
-    public String getItemStackB64() {
-        return itemStackB64;
     }
 
     public boolean hasBase64() {
@@ -198,7 +187,7 @@ public class ShopItemStack implements Serializable, Cloneable {
     }
 
     public boolean isSimilar(ItemStack toCompare) {
-        debugger = new Utils().PLUGIN.getDebugger();
+        debugger = TradeShop.getPlugin().getDebugger();
 
         // Return False if either item is null
         if (itemStack == null || toCompare == null) {
@@ -255,18 +244,17 @@ public class ShopItemStack implements Serializable, Cloneable {
         }
 
         // If compareBundleInventory is on and version is above 1.17 also check Bundles
-        if (new Utils().PLUGIN.getVersion().isAtLeast(1, 17) &&
+        if (TradeShop.getPlugin().getVersion().isAtLeast(1, 17) &&
                 itemStack.getType().equals(Material.BUNDLE) &&
                 getShopSetting(ShopItemStackSettingKeys.COMPARE_BUNDLE_INVENTORY).asBoolean()) {
             try {
+                if (((BundleMeta) itemStackMeta).hasItems() != ((BundleMeta) toCompareMeta).hasItems()) return false;
+
                 ArrayList<ItemStack> itemStackContents = Lists.newArrayList(((BundleMeta) toCompareMeta).getItems()),
                         toCompareContents = Lists.newArrayList(((BundleMeta) itemStackMeta).getItems());
 
                 itemStackContents.removeIf(Objects::isNull);
                 toCompareContents.removeIf(Objects::isNull);
-
-                if (itemStackContents.isEmpty() != toCompareContents.isEmpty())
-                    return false;
 
                 for (ItemStack itm : toCompareContents) {
                     if (!itemStackContents.remove(itm))
@@ -298,22 +286,22 @@ public class ShopItemStack implements Serializable, Cloneable {
 
                 // Return False compareDurability is set to '==' and ItemStack Damage is not equal
                 if (compareDurability == 1 && itemStackDamageable.getDamage() != toCompareDamageable.getDamage()) {
-                    debugger.log("itemstack Durabilty (==): " + itemStackDamageable.getDamage(), DebugLevels.ITEM_COMPARE);
-                    debugger.log("toCompare Durabilty (==): " + toCompareDamageable.getDamage(), DebugLevels.ITEM_COMPARE);
+                    debugger.log("itemstack Durability (==): " + itemStackDamageable.getDamage(), DebugLevels.ITEM_COMPARE);
+                    debugger.log("toCompare Durability (==): " + toCompareDamageable.getDamage(), DebugLevels.ITEM_COMPARE);
                     return false;
                 }
 
                 // Return False compareDurability is set to '<=' and ItemStack Damage less than toCompare Damage
                 if (compareDurability == 0 && itemStackDamageable.getDamage() > toCompareDamageable.getDamage()) {
-                    debugger.log("itemstack Durabilty (<=): " + itemStackDamageable.getDamage(), DebugLevels.ITEM_COMPARE);
-                    debugger.log("toCompare Durabilty (<=): " + toCompareDamageable.getDamage(), DebugLevels.ITEM_COMPARE);
+                    debugger.log("itemstack Durability (<=): " + itemStackDamageable.getDamage(), DebugLevels.ITEM_COMPARE);
+                    debugger.log("toCompare Durability (<=): " + toCompareDamageable.getDamage(), DebugLevels.ITEM_COMPARE);
                     return false;
                 }
 
                 // Return False compareDurability is set to '>=' and ItemStack Damage greater than toCompare Damage
                 if (compareDurability == 2 && itemStackDamageable.getDamage() < toCompareDamageable.getDamage()) {
-                    debugger.log("itemstack Durabilty (>=): " + itemStackDamageable.getDamage(), DebugLevels.ITEM_COMPARE);
-                    debugger.log("toCompare Durabilty (>=): " + toCompareDamageable.getDamage(), DebugLevels.ITEM_COMPARE);
+                    debugger.log("itemstack Durability (>=): " + itemStackDamageable.getDamage(), DebugLevels.ITEM_COMPARE);
+                    debugger.log("toCompare Durability (>=): " + toCompareDamageable.getDamage(), DebugLevels.ITEM_COMPARE);
                     return false;
                 }
             }
@@ -355,7 +343,7 @@ public class ShopItemStack implements Serializable, Cloneable {
         if (getShopSetting(ShopItemStackSettingKeys.COMPARE_NAME).asBoolean()) {
             debugger.log("ShopItemStack > isSimilar > getDisplayName: " + itemStackMeta.getDisplayName() + " - " + toCompareMeta.getDisplayName(), DebugLevels.NAME_COMPARE);
 
-            // If ItemStack Meta are BookMeta then compare title, otherwise compare displayname
+            // If ItemStack Meta are BookMeta then compare title, otherwise compare item#displayName
             if (useBookMeta) {
                 // Return False if hasTitle differs (one has one doesn't)
                 if (itemStackBookMeta.hasTitle() != toCompareBookMeta.hasTitle()) return false;
@@ -513,35 +501,20 @@ public class ShopItemStack implements Serializable, Cloneable {
 
     public String getStateString(ObjectHolder<?> stateSetting) {
         try {
-            String ret = "";
+            String ret = "Unknown";
             if (stateSetting.isBoolean()) {
-                if ((Boolean) stateSetting.getObject()) {
-                    ret = "True";
-                } else {
-                    ret = "False";
-                }
+                ret = (Boolean) stateSetting.getObject() ? "True" : "False";
             } else if (stateSetting.isInteger()) {
-                switch (stateSetting.asInteger()) {
-                    case 2:
-                        ret = ">=";
-                        break;
-                    case 1:
-                        ret = "==";
-                        break;
-                    case 0:
-                        ret = "<=";
-                        break;
-                    case -1:
-                    default:
-                        ret = "False";
+                try {
+                    ret = (new String[]{"<=", "==", ">="})[stateSetting.asInteger()];
+                } catch (ArrayIndexOutOfBoundsException ignored) {
+                    ret = "False";
                 }
             }
 
-            if (ret.length() < 2)
-                ret = "Unknown";
-
             return "State: " + ret;
         } catch (ClassCastException ex) {
+            ex.printStackTrace();
             return "State: ERROR";
         }
     }
@@ -550,13 +523,6 @@ public class ShopItemStack implements Serializable, Cloneable {
     public String toString() {
         return new GsonProcessor().toJson(this);
     }
-
-    /**
-     *
-     * Original code from https://gist.github.com/graywolf336/8153678
-     * Tweaked for use with single itemstacks
-     *
-     */
 
     /**
      * Sets the objects {@link ItemStack} from its Base64.

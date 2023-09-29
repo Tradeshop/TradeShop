@@ -1,6 +1,6 @@
 /*
  *
- *                         Copyright (c) 2016-2019
+ *                         Copyright (c) 2016-2023
  *                SparklingComet @ http://shanerx.org
  *               KillerOfPie @ http://killerofpie.github.io
  *
@@ -39,6 +39,7 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.shanerx.tradeshop.TradeShop;
 import org.shanerx.tradeshop.data.config.Message;
 import org.shanerx.tradeshop.data.config.Setting;
 import org.shanerx.tradeshop.data.config.Variable;
@@ -46,8 +47,6 @@ import org.shanerx.tradeshop.framework.events.PlayerPreTradeEvent;
 import org.shanerx.tradeshop.framework.events.PlayerPrepareTradeEvent;
 import org.shanerx.tradeshop.framework.events.PlayerSuccessfulTradeEvent;
 import org.shanerx.tradeshop.item.ShopItemSide;
-import org.shanerx.tradeshop.player.Permissions;
-import org.shanerx.tradeshop.player.ShopRole;
 import org.shanerx.tradeshop.shop.ExchangeStatus;
 import org.shanerx.tradeshop.shop.Shop;
 import org.shanerx.tradeshop.shop.ShopType;
@@ -63,7 +62,9 @@ import java.util.Map;
 
 public class ShopTradeListener extends Utils implements Listener {
 
-    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+    private final TradeShop PLUGIN = TradeShop.getPlugin();
+
+    @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
     public void onBlockInteract(PlayerInteractEvent e) {
 
         if (e.useInteractedBlock().equals(Event.Result.DENY) || e.isCancelled())
@@ -72,11 +73,13 @@ public class ShopTradeListener extends Utils implements Listener {
         Player buyer = e.getPlayer();
 
         Shop shop;
+        ShopType type;
         Sign s;
         BlockState chestState;
 
         if (ShopType.isShop(e.getClickedBlock())) {
             s = (Sign) e.getClickedBlock().getState();
+            type = ShopType.getType(s);
         } else {
             return;
         }
@@ -84,33 +87,24 @@ public class ShopTradeListener extends Utils implements Listener {
         shop = PLUGIN.getDataStorage().loadShopFromSign(new ShopLocation(s.getLocation()));
 
         if (shop == null) {
-            s.setLine(0, "");
-            s.setLine(1, "");
-            s.setLine(2, "");
-            s.setLine(3, "");
+            String[] lines = failedSignLines(type);
+            for (int line = 0; line < 4; line++) {
+                s.setLine(line, lines[line]);
+            }
             s.update();
+            Message.NO_SHOP_FOUND.sendMessage(buyer);
             return;
         }
 
-        if (!Permissions.hasPermission(buyer, Permissions.TRADE)) {
-            Message.NO_TRADE_PERMISSION.sendMessage(buyer);
-            return;
-        }
-
-        if (shop.getShopType() != ShopType.BITRADE && e.getAction() == Action.LEFT_CLICK_BLOCK) {
-            return;
-        }
-
-        if (!shop.getShopType().equals(ShopType.ITRADE) && shop.getUsersUUID(ShopRole.OWNER, ShopRole.MANAGER, ShopRole.MEMBER).contains(buyer.getUniqueId()) && !Setting.ALLOW_USER_PURCHASING.getBoolean()) {
-            Message.SELF_OWNED.sendMessage(buyer);
-            return;
-        }
-
-        PlayerPreTradeEvent preEvent = new PlayerPreTradeEvent(e.getPlayer(), shop.getSideList(ShopItemSide.COST), shop.getSideList(ShopItemSide.PRODUCT), shop, e.getClickedBlock(), e.getBlockFace());
+        PlayerPreTradeEvent preEvent = new PlayerPreTradeEvent(e.getPlayer(), e.getAction(), shop.getSideList(ShopItemSide.COST), shop.getSideList(ShopItemSide.PRODUCT), shop, e.getClickedBlock(), e.getBlockFace());
         Bukkit.getPluginManager().callEvent(preEvent);
         if (preEvent.isCancelled()) return;
 
-        boolean doBiTradeAlternate = shop.getShopType() == ShopType.BITRADE && e.getAction() == Action.LEFT_CLICK_BLOCK;
+        shop = preEvent.getShop(); //Sets shop to events shop so any changes made in preEvent are carried back
+        shop.updateSide(ShopItemSide.COST, preEvent.getCost());
+        shop.updateSide(ShopItemSide.PRODUCT, preEvent.getProduct());
+
+        boolean doBiTradeAlternate = shop.getShopType().isBiTrade() && preEvent.isAction(Action.LEFT_CLICK_BLOCK);
 
         chestState = shop.getStorage();
         if (!shop.getShopType().equals(ShopType.ITRADE) && chestState == null) {
@@ -200,10 +194,9 @@ public class ShopTradeListener extends Utils implements Listener {
                     new Tuple<>(Variable.SELLER.toString(), shop.getShopType().equals(ShopType.ITRADE) ? Setting.ITRADESHOP_OWNER.getString() : owner));
         }
 
-
         shop.updateFullTradeCount();
-        shop.updateSign();
         shop.saveShop();
+        shop.updateSign();
     }
 
     private Tuple<List<ItemStack>, List<ItemStack>> tradeAllItems(Shop shop, int multiplier, PlayerInteractEvent event, Player buyer) {
@@ -289,7 +282,7 @@ public class ShopTradeListener extends Utils implements Listener {
         PLUGIN.getDebugger().log("ShopTradeListener > tradeAll > end-costItems: " + costItems, DebugLevels.TRADE);
 
         Bukkit.getPluginManager().callEvent(new PlayerSuccessfulTradeEvent(buyer, costItems, productItems, shop, event.getClickedBlock(), event.getBlockFace()));
-        PLUGIN.getMetricsManager().addTrade();
+        PLUGIN.getVarManager().addTrade();
 
         return new Tuple<>(productItems, costItems); //Successfully completed trade
     }

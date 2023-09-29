@@ -1,6 +1,6 @@
 /*
  *
- *                         Copyright (c) 2016-2019
+ *                         Copyright (c) 2016-2023
  *                SparklingComet @ http://shanerx.org
  *               KillerOfPie @ http://killerofpie.github.io
  *
@@ -25,24 +25,23 @@
 
 package org.shanerx.tradeshop.utils.gsonprocessing.typeadapters;
 
-import com.google.gson.JsonDeserializationContext;
-import com.google.gson.JsonDeserializer;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonParseException;
-import com.google.gson.JsonSerializationContext;
-import com.google.gson.JsonSerializer;
+import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.configuration.serialization.ConfigurationSerialization;
+import org.shanerx.tradeshop.TradeShop;
 import org.shanerx.tradeshop.utils.debug.Debug;
 import org.shanerx.tradeshop.utils.debug.DebugLevels;
 
 import java.lang.reflect.Type;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.logging.Level;
 
 //Based off of ConfigurationSerializableAdapter by Schottky <https://www.spigotmc.org/members/schottky.632864/> @ https://www.spigotmc.org/threads/configurationserializable-to-json-using-gson.467776/
 public class ConfigurationSerializableAdapter implements JsonSerializer<ConfigurationSerializable>, JsonDeserializer<ConfigurationSerializable> {
+
+    private static final String LINEFEED_ESCAPE = "##**M7a5b9c0fe874g398ff**##";
 
     final Type objectStringMapType = new TypeToken<Map<String, Object>>() {
     }.getType();
@@ -51,31 +50,37 @@ public class ConfigurationSerializableAdapter implements JsonSerializer<Configur
     public ConfigurationSerializable deserialize(
             JsonElement json,
             Type typeOfT,
-            JsonDeserializationContext context) throws JsonParseException {
+            JsonDeserializationContext context)
+            throws JsonParseException {
         final Map<String, Object> map = new LinkedHashMap<>();
 
-        Debug.findDebugger().log("Serialized ConSer pre-Deserialize: " + json, DebugLevels.GSON);
-
         for (Map.Entry<String, JsonElement> entry : json.getAsJsonObject().entrySet()) {
-            final JsonElement value = entry.getValue();
-            final String name = entry.getKey();
+            try {
+                final JsonElement value = entry.getValue();
+                final String name = entry.getKey();
 
-            if (value.isJsonObject() && value.getAsJsonObject().has(ConfigurationSerialization.SERIALIZED_TYPE_KEY)) {
-                map.put(name, this.deserialize(value, value.getClass(), context));
-                Debug.findDebugger().log("DeSer ConSer Loaded ConSer: \n  " + name + " = \n    " + this.deserialize(value, value.getClass(), context).toString(), DebugLevels.GSON);
-            } else {
-                Object val = context.deserialize(value, Object.class);
-
-                if (val instanceof Map) {
-                    ((Map) context.deserialize(value, Object.class)).forEach((k, v) -> ((Map<Object, Object>) val).replace(k, v, loadNumber(v)));
-                }
-
-                if (val instanceof Double) {
-                    Debug.findDebugger().log("DeSer ConSer Loaded Num: \n  " + name + " = \n    " + (((Double) val) % 1 == 0 ? ((Double) val).intValue() : val), DebugLevels.GSON);
+                if (value.isJsonObject() && value.getAsJsonObject().has(ConfigurationSerialization.SERIALIZED_TYPE_KEY)) {
+                    map.put(name, this.deserialize(value, value.getClass(), context));
                 } else {
-                    Debug.findDebugger().log("DeSer ConSer Loaded Object: \n  " + name + " = \n    " + val.toString(), DebugLevels.GSON);
+                    Object val = context.deserialize(value, Object.class);
+
+                    if (val instanceof Map) {
+                        ((Map) context.deserialize(value, Object.class)).forEach((k, v) -> ((Map<Object, Object>) val).replace(k, v, loadNumber(v)));
+                    }
+
+                    map.put(name, loadNumber(val));
                 }
-                map.put(name, loadNumber(val));
+            } catch (NullPointerException | IllegalArgumentException ex) {
+                if (entry != null) {
+                    TradeShop.getPlugin().getLogger().log(Level.SEVERE, "Failed to serialize json element, turn on debug for more information");
+                    Debug.findDebugger().log("DeSer ConfSer Failed Entry: \n  " + entry, DebugLevels.GSON);
+                }
+            }
+        }
+
+        for (Map.Entry<String, Object> entry: map.entrySet()) {
+            if (entry.getValue() instanceof String) {
+                map.put(entry.getKey(), ((String) entry.getValue()).replace(LINEFEED_ESCAPE, "\n"));
             }
         }
 
@@ -88,15 +93,20 @@ public class ConfigurationSerializableAdapter implements JsonSerializer<Configur
             Type typeOfSrc,
             JsonSerializationContext context) {
 
-        final Map<String, Object> map = new LinkedHashMap<>();
-        map.put(ConfigurationSerialization.SERIALIZED_TYPE_KEY, ConfigurationSerialization.getAlias(src.getClass()));
+            final Map<String, Object> map = new LinkedHashMap<>();
+            map.put(ConfigurationSerialization.SERIALIZED_TYPE_KEY, ConfigurationSerialization.getAlias(src.getClass()));
 
-        for (Map.Entry<String, Object> entry : src.serialize().entrySet()) {
-            map.put(entry.getKey(), context.serialize(entry.getValue()));
-        }
+            for (Map.Entry<String, Object> entry : src.serialize().entrySet()) {
+                JsonElement value = context.serialize(entry.getValue());
+                if (value instanceof JsonPrimitive && ((JsonPrimitive) value).isString()) {
+                    String str = value.getAsString();
+                    map.put(entry.getKey(), str.replace("\n", LINEFEED_ESCAPE));
+                } else {
+                    map.put(entry.getKey(), value);
+                }
+            }
 
-        Debug.findDebugger().log("Serialized ConSer: " + context.serialize(map, objectStringMapType), DebugLevels.GSON);
-        return context.serialize(map, objectStringMapType);
+            return context.serialize(map, objectStringMapType);
     }
 
     private Object loadNumber(Object val) {

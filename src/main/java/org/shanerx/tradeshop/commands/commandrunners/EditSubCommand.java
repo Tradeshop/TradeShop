@@ -1,6 +1,6 @@
 /*
  *
- *                         Copyright (c) 2016-2019
+ *                         Copyright (c) 2016-2023
  *                SparklingComet @ http://shanerx.org
  *               KillerOfPie @ http://killerofpie.github.io
  *
@@ -31,9 +31,10 @@ import de.themoep.inventorygui.GuiStateElement;
 import de.themoep.inventorygui.InventoryGui;
 import de.themoep.inventorygui.StaticGuiElement;
 import org.bukkit.Material;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandSender;
 import org.bukkit.inventory.ItemStack;
 import org.shanerx.tradeshop.TradeShop;
-import org.shanerx.tradeshop.commands.CommandPass;
 import org.shanerx.tradeshop.data.config.Message;
 import org.shanerx.tradeshop.item.ShopItemSide;
 import org.shanerx.tradeshop.item.ShopItemStack;
@@ -54,7 +55,7 @@ import java.util.Set;
  *
  * @since 2.3.0
  */
-public class EditCommand extends GUICommand {
+public class EditSubCommand extends GUISubCommand {
 
     private Shop shop;
     private InventoryGui mainMenu,
@@ -63,23 +64,22 @@ public class EditCommand extends GUICommand {
             productEdit,
             settingEdit;
 
-
-    public EditCommand(TradeShop instance, CommandPass command) {
-        super(instance, command);
+    public EditSubCommand(TradeShop instance, CommandSender sender, String[] args) {
+        super(instance, sender, args);
     }
 
     /**
      * Opens a GUI allowing the player to edit the shop
      */
     public void edit() {
-        shop = findShop();
+        shop = ShopUser.findObservedShop(getPlayerSender());
 
         if (shop == null)
             return;
 
-        if (!(shop.getUsersUUID(ShopRole.MANAGER, ShopRole.OWNER).contains(pSender.getUniqueId())
-                || Permissions.isAdminEnabled(pSender))) {
-            command.sendMessage(Message.NO_SHOP_PERMISSION.getPrefixed());
+        if (!(shop.getUsersUUID(ShopRole.MANAGER, ShopRole.OWNER).contains(getPlayerSender().getUniqueId())
+                || Permissions.isAdminEnabled(getPlayerSender()))) {
+            sendMessage(Message.NO_SHOP_PERMISSION.getPrefixed());
             return;
         }
 
@@ -96,7 +96,7 @@ public class EditCommand extends GUICommand {
 
         mainMenu.addElement(editSettingsMenu('d'));
 
-        mainMenu.show(pSender);
+        mainMenu.show(getPlayerSender());
     }
 
     private GuiElement editSettingsMenu(char slotChar) {
@@ -154,7 +154,7 @@ public class EditCommand extends GUICommand {
             settingEdit.addElement(new StaticGuiElement('s', new ItemStack(Material.ANVIL), click3 -> {
                 shop.setShopSettings(changedSettings);
                 shop.saveShop(changedSettings.size() > 0);
-                InventoryGui.goBack(pSender);
+                InventoryGui.goBack(getPlayerSender());
                 return true;
             }, "Save Changes"));
 
@@ -162,7 +162,7 @@ public class EditCommand extends GUICommand {
 
             settingEdit.addElements(getNextButton(), getPrevButton(), viewGroup, changeGroup);
 
-            settingEdit.show(pSender);
+            settingEdit.show(getPlayerSender());
             return true;
         }, colorize("&eEdit Shop Settings"));
     }
@@ -187,12 +187,12 @@ public class EditCommand extends GUICommand {
             // Owner added separately as it is not editable
             userGroup.addElement(new StaticGuiElement('e', shop.getOwner().getHead(), shop.getOwner().getName(), "Position: " + shop.getOwner().getRole().toString()));
 
-            if (shop.getOwner().getUUID().equals(pSender.getUniqueId())) {
+            if (shop.getOwner().getUUID().equals(getPlayerSender().getUniqueId())) {
 
                 // Save and Back
                 userEdit.addElement(new StaticGuiElement('s', new ItemStack(Material.ANVIL), click3 -> {
                     shop.updateShopUsers(shopUsers);
-                    InventoryGui.goBack(pSender);
+                    InventoryGui.goBack(getPlayerSender());
                     return true;
                 }, "Save Changes"));
 
@@ -239,7 +239,7 @@ public class EditCommand extends GUICommand {
                 }
             }
             userEdit.addElement(userGroup);
-            userEdit.show(pSender);
+            userEdit.show(getPlayerSender());
             return true;
         }, colorize("&eEdit Shop Users"));
     }
@@ -272,7 +272,7 @@ public class EditCommand extends GUICommand {
                 }
                 shop.updateSide(ShopItemSide.COST, costItems);
                 shop.saveShop();
-                InventoryGui.goBack(pSender);
+                InventoryGui.goBack(getPlayerSender());
                 return true;
             }, "Save Changes"));
 
@@ -283,7 +283,7 @@ public class EditCommand extends GUICommand {
             }
 
             costEdit.addElement(costGroup);
-            costEdit.show(pSender);
+            costEdit.show(getPlayerSender());
             return true;
         }, colorize("&eEdit Shop Costs"));
     }
@@ -316,7 +316,7 @@ public class EditCommand extends GUICommand {
                 }
                 shop.updateSide(ShopItemSide.PRODUCT, productItems);
                 shop.saveShop();
-                InventoryGui.goBack(pSender);
+                InventoryGui.goBack(getPlayerSender());
                 return true;
             }, "Save Changes"));
 
@@ -327,7 +327,7 @@ public class EditCommand extends GUICommand {
             }
 
             productEdit.addElement(productGroup);
-            productEdit.show(pSender);
+            productEdit.show(getPlayerSender());
             return true;
         }, colorize("&eEdit Shop Products"));
     }

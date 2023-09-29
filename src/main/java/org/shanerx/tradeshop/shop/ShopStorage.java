@@ -1,6 +1,6 @@
 /*
  *
- *                         Copyright (c) 2016-2019
+ *                         Copyright (c) 2016-2023
  *                SparklingComet @ http://shanerx.org
  *               KillerOfPie @ http://killerofpie.github.io
  *
@@ -27,9 +27,10 @@ package org.shanerx.tradeshop.shop;
 
 import com.google.common.collect.Lists;
 import org.bukkit.Material;
+import org.shanerx.tradeshop.TradeShop;
 import org.shanerx.tradeshop.utils.Utils;
 import org.shanerx.tradeshop.utils.debug.DebugLevels;
-import org.shanerx.tradeshop.utils.versionmanagement.BukkitVersion;
+import org.shanerx.tradeshop.utils.versionmanagement.Version;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -38,16 +39,17 @@ import java.util.List;
 
 public class ShopStorage extends Utils {
 
-    private final BukkitVersion version = new BukkitVersion();
+    private final Version version = TradeShop.getPlugin().getVersion();
     private final HashMap<String, Storages> storageTypes = new HashMap<>();
 
     public ShopStorage() {
+        TradeShop plugin = TradeShop.getPlugin();
         for (Storages type : Storages.values()) {
 
-            PLUGIN.getDebugger().log(type.toString(), DebugLevels.STARTUP);
-            PLUGIN.getDebugger().log(String.format("- MinVer: %s", type.getMinVersionAsString()), DebugLevels.STARTUP);
-            PLUGIN.getDebugger().log(String.format("- MaxVer: %s", type.getMaxVersionAsString()), DebugLevels.STARTUP);
-            PLUGIN.getDebugger().log(String.format("- Weight: %s", type.getWeight()), DebugLevels.STARTUP);
+            plugin.getDebugger().log(type.toString(), DebugLevels.STARTUP);
+            plugin.getDebugger().log(String.format("- MinVer: %s", type.getMinVersionAsString()), DebugLevels.STARTUP);
+            plugin.getDebugger().log(String.format("- MaxVer: %s", type.getMaxVersionAsString()), DebugLevels.STARTUP);
+            plugin.getDebugger().log(String.format("- Weight: %s", type.getWeight()), DebugLevels.STARTUP);
 
             boolean added = false;
 
@@ -57,7 +59,7 @@ public class ShopStorage extends Utils {
                 added = true;
             }
 
-            PLUGIN.getDebugger().log(String.format("- Added: %s", added), DebugLevels.STARTUP);
+            plugin.getDebugger().log(String.format("- Added: %s", added), DebugLevels.STARTUP);
         }
     }
 

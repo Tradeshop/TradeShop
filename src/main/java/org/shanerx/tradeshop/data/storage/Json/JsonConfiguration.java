@@ -1,6 +1,6 @@
 /*
  *
- *                         Copyright (c) 2016-2019
+ *                         Copyright (c) 2016-2023
  *                SparklingComet @ http://shanerx.org
  *               KillerOfPie @ http://killerofpie.github.io
  *
@@ -27,7 +27,10 @@ package org.shanerx.tradeshop.data.storage.Json;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.google.gson.JsonSyntaxException;
+import org.shanerx.tradeshop.TradeShop;
 import org.shanerx.tradeshop.utils.Utils;
+import org.shanerx.tradeshop.utils.debug.DebugLevels;
 import org.shanerx.tradeshop.utils.gsonprocessing.GsonProcessor;
 
 import java.io.File;
@@ -35,13 +38,15 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.logging.Level;
 
 class JsonConfiguration extends Utils {
-    protected final String path;
     protected final GsonProcessor gson;
     protected File file, pathFile;
     protected JsonObject jsonObj;
+
+    protected final TradeShop PLUGIN = TradeShop.getPlugin();
 
     /**
      * Creates a JsonConfiguration object assisting with managing JSON data
@@ -51,12 +56,19 @@ class JsonConfiguration extends Utils {
      */
     protected JsonConfiguration(String folderFromData, String fileName) {
         this.gson = new GsonProcessor();
-        this.path = PLUGIN.getDataFolder().getAbsolutePath() + File.separator + "Data" + File.separator + folderFromData;
-        this.pathFile = new File(path);
-        this.file = new File(path + File.separator + fileName + ".json");
+        this.pathFile = getPath(folderFromData);
+        this.file = getFile(folderFromData, fileName);
 
         buildFilePath();
         loadFile();
+    }
+
+    public static File getFile(String folderFromData, String fileName) {
+        return new File(getPath(folderFromData).getPath() + File.separator + fileName + ".json");
+    }
+
+    public static File getPath(String folderFromData) {
+        return new File(TradeShop.getPlugin().getDataFolder().getAbsolutePath() + File.separator + "Data" + File.separator + folderFromData);
     }
 
     private void buildFilePath() {
@@ -68,18 +80,53 @@ class JsonConfiguration extends Utils {
         }
     }
 
+    public static void jsonSyntaxError(File file, Exception e) {
+        String errStr = "";
+
+        try {
+            errStr = new String(Files.readAllBytes(file.toPath()));
+        } catch (IOException ex) {
+            TradeShop.getPlugin().getLogger().log(Level.SEVERE, "Could not read " + file.getName() + " file! ERR", e);
+        }
+
+        File err = new File(file.getPath() + File.separator + file.getName().replace(".json", ".err"));
+
+        try {
+            FileWriter fileWriter = new FileWriter(err);
+            fileWriter.write(e.toString());
+            fileWriter.append("\n\n--------------------------------------------------------------------------------------\n\n");
+            fileWriter.append(errStr);
+            fileWriter.flush();
+            fileWriter.close();
+        } catch (IOException ex) {
+            TradeShop.getPlugin().getLogger().log(Level.SEVERE, "Could not save " + file.getName() + " file! Writing err to console.", e);
+            TradeShop.getPlugin().getLogger().log(Level.SEVERE, e + "\n\n--------------------------------------------------------------------------------------\n\n" + errStr, e);
+        }
+    }
+
+    public static File[] getFilesInFolder(String folderFromData) {
+        File dir = getPath(folderFromData);
+        TradeShop.getPlugin().getVarManager().getDebugger().log("reading file list from " + dir.getAbsolutePath(), DebugLevels.DATA_VERIFICATION);
+        return dir.listFiles();
+    }
+
     protected void loadFile() {
         try {
-            jsonObj = new JsonParser().parse(new FileReader(file)).getAsJsonObject();
+            jsonObj = JsonParser.parseReader(new FileReader(file)).getAsJsonObject();
+
         } catch (FileNotFoundException e) {
             PLUGIN.getLogger().log(Level.SEVERE, "Could not load " + file.getName() + " file! Data may be lost!", e);
         } catch (IllegalStateException e) {
             jsonObj = new JsonObject();
+        } catch (JsonSyntaxException e) {
+            PLUGIN.getLogger().log(Level.SEVERE, "Could not load " + file.getName() + " file due to malformed Json! \n Please send the .err file with the same name to the TradeShop Devs. \n\nTradeShop will now disable, please remove/fix any err files before restarting the plugin.", e);
+
+            jsonSyntaxError(file, e);
         }
     }
 
     protected void saveFile() {
-        String str = gson.toJson(jsonObj);
+        final String str = gson.toJson(jsonObj);
         if (!str.isEmpty()) {
             try {
                 FileWriter fileWriter = new FileWriter(this.file);
@@ -87,8 +134,9 @@ class JsonConfiguration extends Utils {
                 fileWriter.flush();
                 fileWriter.close();
             } catch (IOException e) {
-                PLUGIN.getLogger().log(Level.SEVERE, "Could not save " + file.getName() + " file! Data may be lost!", e);
+                PLUGIN.getLogger().log(Level.SEVERE, "Could not save " + this.file.getName() + " file! Data may be lost!", e);
             }
         }
+
     }
 }

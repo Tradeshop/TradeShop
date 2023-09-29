@@ -1,6 +1,6 @@
 /*
  *
- *                         Copyright (c) 2016-2019
+ *                         Copyright (c) 2016-2023
  *                SparklingComet @ http://shanerx.org
  *               KillerOfPie @ http://killerofpie.github.io
  *
@@ -27,63 +27,69 @@ package org.shanerx.tradeshop.shoplocation;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
+import org.bukkit.ChunkSnapshot;
 import org.bukkit.World;
 
 import java.io.Serializable;
 
 public class ShopChunk implements Serializable {
 
-	final private String div = ";;";
-	private final World world;
-	private final int x;
-	private final int z;
-	private final Chunk chunk;
+    private final String div = ";;",
+            worldName;
+    private final World world;
+    private final int x;
+    private final int z;
 
-	public ShopChunk(World w, int x, int z) {
-		this.world = w;
-		this.x = x;
-		this.z = z;
-		chunk = world.getChunkAt(x, z);
-	}
+    public ShopChunk(World w, int x, int z) {
+        this.world = w;
+        this.worldName = world.getName();
+        this.x = x;
+        this.z = z;
+    }
 
-	public ShopChunk(Chunk c) {
-		this.world = c.getWorld();
-		this.x = c.getX();
-		this.z = c.getZ();
-		chunk = c;
-	}
+    public ShopChunk(Chunk c) {
+        this(c.getWorld(), c.getX(), c.getZ());
+    }
 
-	public static ShopChunk deserialize(String loc) {
-		if (loc.startsWith("c")) {
-			String[] locA = loc.contains(";;") ? loc.split(";;") : loc.split("_"); //Keep same as div
-			World world = Bukkit.getWorld(locA[1]);
-			if (world == null)
-				world = Bukkit.getWorld(locA[1].replace("-", "_"));
-			int x = Integer.parseInt(locA[2]), z = Integer.parseInt(locA[3]);
+    public ShopChunk(ChunkSnapshot c) {
+        this(Bukkit.getWorld(c.getWorldName()), c.getX(), c.getZ());
+    }
 
-			return new ShopChunk(world, x, z);
-		}
+    public static ShopChunk deserialize(String loc) {
+        if (loc.startsWith("c")) {
+            String[] locA = loc.contains(";;") ? loc.split(";;") : loc.split("_"); //Keep same as div
+            World world = Bukkit.getWorld(locA[1]);
+            if (world == null)
+                world = Bukkit.getWorld(locA[1].replace("-", "_"));
+            int x = Integer.parseInt(locA[2]), z = Integer.parseInt(locA[3]);
 
-		return null;
-	}
+            return new ShopChunk(world, x, z);
+        }
 
-	public String serialize() {
-		return "c" + div + world.getName() + div + x + div + z;
-	}
+        return null;
+    }
 
-	public World getWorld() {
-		return world;
-	}
+    public String serialize() {
+        return "c" + div + world.getName() + div + x + div + z;
+    }
 
-	public int getX() {
-		return x;
-	}
+    public World getWorld() {
+        return world;
+    }
 
-	public int getZ() {
-		return z;
-	}
+    public String getWorldName() {
+        return worldName;
+    }
 
-	public Chunk getChunk() {
-		return chunk;
-	}
+    public int getX() {
+        return x;
+    }
+
+    public int getZ() {
+        return z;
+    }
+
+    public Chunk getChunk() {
+        return world.getChunkAt(x, z);
+    }
 }

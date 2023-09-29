@@ -1,6 +1,6 @@
 /*
  *
- *                         Copyright (c) 2016-2019
+ *                         Copyright (c) 2016-2023
  *                SparklingComet @ http://shanerx.org
  *               KillerOfPie @ http://killerofpie.github.io
  *
@@ -30,14 +30,16 @@ import de.themoep.inventorygui.InventoryGui;
 import de.themoep.inventorygui.StaticGuiElement;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandSender;
 import org.bukkit.inventory.ItemStack;
 import org.shanerx.tradeshop.TradeShop;
-import org.shanerx.tradeshop.commands.CommandPass;
 import org.shanerx.tradeshop.data.config.Message;
 import org.shanerx.tradeshop.data.config.Setting;
 import org.shanerx.tradeshop.item.ShopItemSide;
 import org.shanerx.tradeshop.item.ShopItemStack;
 import org.shanerx.tradeshop.player.Permissions;
+import org.shanerx.tradeshop.player.ShopUser;
 import org.shanerx.tradeshop.shop.Shop;
 import org.shanerx.tradeshop.shop.ShopType;
 
@@ -46,10 +48,10 @@ import org.shanerx.tradeshop.shop.ShopType;
  *
  * @since 2.3.0
  */
-public class WhatCommand extends GUICommand {
+public class WhatSubCommand extends GUISubCommand {
 
-    public WhatCommand(TradeShop instance, CommandPass command) {
-        super(instance, command);
+    public WhatSubCommand(TradeShop instance, CommandSender sender, String[] args) {
+        super(instance, sender, args);
     }
 
     /**
@@ -57,7 +59,7 @@ public class WhatCommand extends GUICommand {
      */
     public void what() {
         /* Dumb test code TODO: Remove before 2.6.0 release(or not it's not like it affects anything)
-        ItemStack src = pSender.getInventory().getItemInMainHand();
+        ItemStack src = command.getPlayerSender().getInventory().getItemInMainHand();
 
         final Gson gson = new GsonBuilder()
                 .disableHtmlEscaping()
@@ -75,7 +77,7 @@ public class WhatCommand extends GUICommand {
 
          */
 
-        Shop shop = findShop();
+        Shop shop = ShopUser.findObservedShop(getPlayerSender());
 
         if (shop == null)
             return;
@@ -83,8 +85,8 @@ public class WhatCommand extends GUICommand {
         shop.updateFullTradeCount();
         shop.updateSign();
 
-        if (!Permissions.hasPermission(pSender, Permissions.INFO)) {
-            command.sendMessage(Message.NO_COMMAND_PERMISSION.getPrefixed());
+        if (!Permissions.hasPermission(getPlayerSender(), Permissions.INFO)) {
+            sendMessage(Message.NO_COMMAND_PERMISSION.getPrefixed());
             return;
         }
 
@@ -133,7 +135,7 @@ public class WhatCommand extends GUICommand {
         gui.addElement(costGroup);
         gui.addElement(productGroup);
 
-        gui.show(pSender);
+        gui.show(getPlayerSender());
 
     }
 }

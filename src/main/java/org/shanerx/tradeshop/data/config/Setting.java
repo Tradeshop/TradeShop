@@ -1,6 +1,6 @@
 /*
  *
- *                         Copyright (c) 2016-2019
+ *                         Copyright (c) 2016-2023
  *                SparklingComet @ http://shanerx.org
  *               KillerOfPie @ http://killerofpie.github.io
  *
@@ -56,6 +56,12 @@ public enum Setting {
     ALLOW_METRICS(SettingSection.SYSTEM_OPTIONS, "allow-metrics", true),
     UNLIMITED_ADMIN(SettingSection.SYSTEM_OPTIONS, "unlimited-admin", false),
 
+    // ^ Logging
+    ENABLE_TRANSACTION_LOGGING(SettingSection.TRANSACTION_LOGGING_OPTIONS, "enable-transaction-logging", true),
+    OUTPUT_TYPE(SettingSection.TRANSACTION_LOGGING_OPTIONS, "output-type", "TSV"),
+    LOG_TIME_SEPARATION(SettingSection.TRANSACTION_LOGGING_OPTIONS, "log-time-separation", "H"),
+    TRANSACTION_LOG_FORMAT(SettingSection.TRANSACTION_LOGGING_OPTIONS, "transaction-log-format", "%Date_@_%Time_@_%ShopType_@_%Owner_@_%TradingPlayer_@_%World_@_%X_@_%Y_@_%Z_@_%CostList_@_%ProductList"),
+
     // Language Options
     MESSAGE_PREFIX(SettingSection.LANGUAGE_OPTIONS, "message-prefix", "&a[&eTradeShop&a]"),
 
@@ -76,14 +82,22 @@ public enum Setting {
     ALLOW_SIGN_BREAK(SettingSection.GLOBAL_OPTIONS, "allow-sign-break", false),
     ALLOW_CHEST_BREAK(SettingSection.GLOBAL_OPTIONS, "allow-chest-break", false),
 
+
     // ^ Multi Trade
     ALLOW_MULTI_TRADE(SettingSection.GLOBAL_MULTI_TRADE, "enable", true),
     MULTI_TRADE_DEFAULT(SettingSection.GLOBAL_MULTI_TRADE, "default-multi", 2),
     MULTI_TRADE_MAX(SettingSection.GLOBAL_MULTI_TRADE, "max-multi", 6),
 
+    // ^ Global Find Options
+    MAX_FIND_RANGE(SettingSection.GLOBAL_FIND_OPTIONS, "max-find-range", 256),
+    DEFAULT_FIND_RANGE(SettingSection.GLOBAL_FIND_OPTIONS, "default-find-range", 64),
+
+
     // Shop Options
     MAX_SHOP_USERS(SettingSection.SHOP_OPTIONS, "max-shop-users", 5),
     MAX_SHOPS_PER_CHUNK(SettingSection.SHOP_OPTIONS, "max-shops-per-chunk", 128),
+    SUM_PER_PLAYER_LIMIT(SettingSection.SHOP_OPTIONS, "sum-per-player-limit", false),
+    MAX_SHOPS_PER_PLAYER(SettingSection.SHOP_OPTIONS, "max-shops-per-player", Collections.singletonMap("default", -1)),
     MAX_ITEMS_PER_TRADE_SIDE(SettingSection.SHOP_OPTIONS, "max-items-per-trade-side", 6),
     ALLOW_USER_PURCHASING(SettingSection.SHOP_OPTIONS, "allow-user-purchasing", false),
     MULTIPLE_ITEMS_ON_SIGN(SettingSection.SHOP_OPTIONS, "multiple-items-on-sign", "Use '/ts what'"),
@@ -351,6 +365,10 @@ public enum Setting {
         return keyOutput.toString();
     }
 
+    public Map<String, Object> getAsMap() {
+        return PLUGIN.getSettingManager().getConfig().getConfigurationSection(getPath()).getValues(true);
+    }
+
     public void setValue(Object obj) {
         PLUGIN.getSettingManager().getConfig().set(getPath(), obj);
     }
@@ -370,21 +388,21 @@ public enum Setting {
 
     public String getString() {
         return PLUGIN.getSettingManager().getConfig().getString(getPath());
-	}
+    }
 
-	public List<String> getStringList() {
+    public List<String> getStringList() {
         return PLUGIN.getSettingManager().getConfig().getStringList(getPath());
-	}
+    }
 
-	public int getInt() {
+    public int getInt() {
         return PLUGIN.getSettingManager().getConfig().getInt(getPath());
-	}
+    }
 
-	public double getDouble() {
+    public double getDouble() {
         return PLUGIN.getSettingManager().getConfig().getDouble(getPath());
-	}
+    }
 
-	public boolean getBoolean() {
+    public boolean getBoolean() {
         return PLUGIN.getSettingManager().getConfig().getBoolean(getPath());
-	}
+    }
 }

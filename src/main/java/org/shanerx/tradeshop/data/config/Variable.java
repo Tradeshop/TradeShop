@@ -1,6 +1,6 @@
 /*
  *
- *                         Copyright (c) 2016-2019
+ *                         Copyright (c) 2016-2023
  *                SparklingComet @ http://shanerx.org
  *               KillerOfPie @ http://killerofpie.github.io
  *
@@ -46,7 +46,11 @@ public enum Variable {
     RECEIVED_LINES,
     GIVEN_LINES,
     UPDATED_SHOPS,
-    SHOP;
+    SHOP,
+    KEY,
+    VALUE,
+    TIMEFRAME,
+    CALC;
 
     final String SURROUND = "%";
 

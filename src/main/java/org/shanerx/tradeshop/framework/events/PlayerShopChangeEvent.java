@@ -1,6 +1,6 @@
 /*
  *
- *                         Copyright (c) 2016-2019
+ *                         Copyright (c) 2016-2023
  *                SparklingComet @ http://shanerx.org
  *               KillerOfPie @ http://killerofpie.github.io
  *
@@ -39,76 +39,76 @@ import org.shanerx.tradeshop.utils.objects.ObjectHolder;
  */
 public class PlayerShopChangeEvent extends PlayerEvent implements Cancellable {
 
-	private static final HandlerList handlers = new HandlerList();
-	private final Shop shop;
-	private ObjectHolder<?> what;
-	private ShopChange change;
-	private boolean cancelled;
-	
-	/**
-	 * Constructor for the object.
-	 * @param player The {@link org.bukkit.entity.Player} object representing the player who is attempting the change.
-	 * @param s The {@link Shop} object representing the shop.
-	 * @param change The {@link ShopChange} enum entry which represents the kind of action which caused the event to be fired.
-	 * @param what The data representing the object the change is about, wrapped inside an {@link ObjectHolder} for polymorphism purposes.
-	 */
-	public PlayerShopChangeEvent(Player player, Shop s, ShopChange change, ObjectHolder<?> what) {
-		super(player);
-		this.shop = s;
-		this.what = what;
-		this.change = change;
-	}
+    private static final HandlerList handlers = new HandlerList();
+    private final Shop shop;
+    private final ObjectHolder<?> what;
+    private final ShopChange change;
+    private boolean cancelled;
 
-	public static HandlerList getHandlerList() {
-		return handlers;
-	}
+    /**
+     * Constructor for the object.
+     * @param player The {@link org.bukkit.entity.Player} object representing the player who is attempting the change.
+     * @param s The {@link Shop} object representing the shop.
+     * @param change The {@link ShopChange} enum entry which represents the kind of action which caused the event to be fired.
+     * @param what The data representing the object the change is about, wrapped inside an {@link ObjectHolder} for polymorphism purposes.
+     */
+    public PlayerShopChangeEvent(Player player, Shop s, ShopChange change, ObjectHolder<?> what) {
+        super(player);
+        this.shop = s;
+        this.what = what;
+        this.change = change;
+    }
 
-	@Override
-	public HandlerList getHandlers() {
-		return handlers;
-	}
-	
-	/**
-	 * Returns the {@link Shop} object representing the player shop this event is about.
-	 * @return the shop.
-	 */
-	public Shop getShop() {
-		return shop;
-	}
-	
-	/**
-	 * Returns whether or not the event has been cancelled.
-	 * @return true if the event is being cancelled.
-	 */
-	@Override
-	public boolean isCancelled() {
-		return cancelled;
-	}
-	
-	/**
-	 * Choose whether or not to cancel the event.
-	 * @param cancelled true if the event should be cancelled.
-	 */
-	@Override
-	public void setCancelled(boolean cancelled) {
-		this.cancelled = cancelled;
-	}
-	
-	/**
-	 * Returns the {@link ObjectHolder} instance which wraps the object representing the data which is being changed.
-	 * This can be of type {@link org.bukkit.entity.Player}, {@link org.bukkit.inventory.ItemStack} or {@link java.lang.Integer}.
-	 * @return the object the change is about.
-	 */
-	public ObjectHolder<?> getWhat() {
-		return what;
-	}
+    public static HandlerList getHandlerList() {
+        return handlers;
+    }
 
-	/**
-	 * Returns the {@link ShopChange} instance which wraps the object representing the data which is being changed.
-	 * This is an enum type entry which represents which property or attribute was changed.
-	 * @return the type of change.
-	 */
-	public ShopChange getChange() {
-		return change;
-	}
+    @Override
+    public HandlerList getHandlers() {
+        return handlers;
+    }
+
+    /**
+     * Returns the {@link Shop} object representing the player shop this event is about.
+     * @return the shop.
+     */
+    public Shop getShop() {
+        return shop;
+    }
+
+    /**
+     * Returns whether or not the event has been cancelled.
+     * @return true if the event is being cancelled.
+     */
+    @Override
+    public boolean isCancelled() {
+        return cancelled;
+    }
+
+    /**
+     * Choose whether or not to cancel the event.
+     * @param cancelled true if the event should be cancelled.
+     */
+    @Override
+    public void setCancelled(boolean cancelled) {
+        this.cancelled = cancelled;
+    }
+
+    /**
+     * Returns the {@link ObjectHolder} instance which wraps the object representing the data which is being changed.
+     * This can be of type {@link org.bukkit.entity.Player}, {@link org.bukkit.inventory.ItemStack} or {@link java.lang.Integer}.
+     * @return the object the change is about.
+     */
+    public ObjectHolder<?> getWhat() {
+        return what;
+    }
+
+    /**
+     * Returns the {@link ShopChange} instance which wraps the object representing the data which is being changed.
+     * This is an enum type entry which represents which property or attribute was changed.
+     * @return the type of change.
+     */
+    public ShopChange getChange() {
+        return change;
+    }
 }

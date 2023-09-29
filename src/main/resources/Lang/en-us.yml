@@ -4,6 +4,8 @@ setting:
       header: ""
     system-options:
       header: "System Options"
+    logging-options:
+      header: "Logging Options"
     language-options:
       header: "Language Options"
     global-options:
@@ -53,6 +55,16 @@ setting:
         pre-comment: "Allow us to connect anonymous metrics so we can see how our plugin is being used to better develop it"
       unlimited-admin:
         pre-comment: "We do not recommend enabling this setting since any editing an admin should need to do can be done without this.\n Should players with Admin permission be able to use any commands on any shops?"
+      logging-options:
+        enable-logging:
+          pre-comment: "Should we log transactions?"
+        output-type:
+          pre-comment: "How should the output file be formatted\n  # Options: `TSV` - Tab Separated Value file"
+        log-time-seperation:
+          pre-comment: "How often should we create new log files.\n  # Options: `M` - Month, `d` - Day, `H` - Hour, `m` - Minute, `s` - Second"
+        transaction-log-format:
+          pre-comment: "How should the output entries be formatted, each value must be seperated by `_@_`\n  # Changes to this may cause formatting errors in the current output log, please remove old output logs once you have changed this.\n  # Values: \n  # %Date \n  # %Time \n  # %ShopType \n  # %Owner \n  # %TradingPlayer \n  # %ShopLocation \n  # %World \n  # %X \n  # %Y \n  # %Z \n  # %CostList \n  # %ProductList"
+          post-comment: "\n"
     language-options:
       message-prefix:
         pre-comment: "The prefix the displays before all plugin messages"
@@ -95,6 +107,12 @@ setting:
         max-multi:
           pre-comment: "Maximum amount a player can set their multiplier to. Not recommended to set any higher than 6 as this can cause bugs with iTrade Shops"
           post-comment: "\n"
+      global-find-options:
+        max-find-range:
+          pre-comment: "Maximum range that can be searched for a shop. Increasing may drastically increase processioning time and cause server lag."
+        default-find-range:
+          pre-comment: "Default range to use if no range is specified."
+          post-comment: "\n"
     illegal-item-options:
       global-illegal-items:
         type:
@@ -116,6 +134,10 @@ setting:
         pre-comment: "Maximum users(Managers/Members) a shop can have"
       max-shops-per-chunk:
         pre-comment: "Maximum shops that can exist in a single chunk"
+      sum-per-player-limit:
+        pre-comment: "Should we add up all of the shop limit permissions a player has? \n False will return just the highest value \n True will return -1 if any are granted or the sum of all granted permissions"
+      max-shops-per-player:
+        pre-comment: "Maximum shops that each player can make. give the player the `tradeshop.limit.` permission followed by the name set below adding a '.' between each parent/child \n Use -1 for unlimited, 0 to effectively disable shop creation. \n The permissions can be grouped into trees to allow for better sorting, below is a basic example. \n tree: \n item2: \n  item2-1: 0 \n  item2-2: 0 \n item1: 0"
       max-items-per-trade-side:
         pre-comment: "Maximum amount of item stacks per side of trade"
       allow-user-purchasing:
@@ -165,6 +187,8 @@ message:
   sections:
     none:
       header: ""
+    metrics:
+      header: "Metrics"
     unused:
       header: ""
   values:
@@ -175,6 +199,19 @@ message:
       default: "en-us"
       pre-comment: "This currently does not change anything in the message files, but is used in metrics so that we can see what languages we should try to provide built in support for in the future.\n Please use codes as listed at: https://www.andiamo.co.uk/resources/iso-language-codes/"
       post-comment: "\n"
+    metrics:
+      message:
+        default: "&a    --- &eMetrics &a---\n     ---------------\n "
+      counter:
+        default: "&aThere are &e%VALUE% %KEY%."
+      timed-counter:
+        default: "&aThere have recently been &e%VALUE% %KEY%.\n With and avg of %CALC% per %TIMEFRAME%."
+      version:
+        default: "&e%KEY% &aversion: &e%VALUE%."
+    player-locked:
+      default: "&cYou can not make more than 1 trade per 0.5 seconds."
+    shop-limit-reached:
+      default: "&cYou have already reached/exceeded your shop limit of %AMOUNT1% shops!\n        Current shops owned: %AMOUNT2%"
     change-closed:
       default: "&cThe shop is now &l&bCLOSED&r&a."
     change-open:
@@ -319,6 +356,9 @@ message:
     no-sign-found:
       default: "&cNo sign in range!"
       pre-comment: "Text to display when a player is too far from a sign"
+    no-shop-found:
+      default: "&cThat shop does not seem to exist!"
+      pre-comment: "Text to display when a shop sign with no shop data is interacted with."
     admin-toggled:
       default: "&aYour Admin mode is currently &e%STATE%&a."
       pre-comment: "Text to display when an admin toggles or views their Admin abilities. \n# \"%STATE%\" will be replaced by the state that the player is in after the command."

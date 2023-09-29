@@ -1,6 +1,6 @@
 /*
  *
- *                         Copyright (c) 2016-2019
+ *                         Copyright (c) 2016-2023
  *                SparklingComet @ http://shanerx.org
  *               KillerOfPie @ http://killerofpie.github.io
  *
@@ -36,9 +36,13 @@ public enum SettingSection {
 
     NONE(0, ""),
     SYSTEM_OPTIONS(1, "system-options"),
+
+    TRANSACTION_LOGGING_OPTIONS(50, SYSTEM_OPTIONS, "transaction-logging-options"),
+
     LANGUAGE_OPTIONS(2, "language-options"),
     GLOBAL_OPTIONS(3, "global-options"),
     GLOBAL_MULTI_TRADE(50, GLOBAL_OPTIONS, "multi-trade"),
+    GLOBAL_FIND_OPTIONS(51, GLOBAL_OPTIONS, "global-find-options"),
     SHOP_OPTIONS(4, "shop-options"),
 
     SHOP_ITEM_OPTIONS(5, SHOP_OPTIONS, "shop-per-item-options"),

@@ -1,6 +1,6 @@
 /*
  *
- *                         Copyright (c) 2016-2019
+ *                         Copyright (c) 2016-2023
  *                SparklingComet @ http://shanerx.org
  *               KillerOfPie @ http://killerofpie.github.io
  *
@@ -42,6 +42,7 @@ public class GsonProcessor {
                 .disableHtmlEscaping()
                 .serializeNulls()
                 .enableComplexMapKeySerialization()
+                .setLenient()
                 .registerTypeHierarchyAdapter(ConfigurationSerializable.class, new ConfigurationSerializableAdapter());
 
         if (doPrettyPrinting) gsonBuilder.setPrettyPrinting();

@@ -1,6 +1,6 @@
 /*
  *
- *                         Copyright (c) 2016-2019
+ *                         Copyright (c) 2016-2023
  *                SparklingComet @ http://shanerx.org
  *               KillerOfPie @ http://killerofpie.github.io
  *
@@ -31,8 +31,8 @@ import org.bukkit.event.HandlerList;
 import org.bukkit.event.server.ServerEvent;
 import org.shanerx.tradeshop.TradeShop;
 import org.shanerx.tradeshop.data.storage.DataStorage;
-import org.shanerx.tradeshop.utils.ListManager;
 import org.shanerx.tradeshop.utils.debug.Debug;
+import org.shanerx.tradeshop.utils.management.ListManager;
 
 // TODO javadocs for TradeShopReloadEvent
 public class TradeShopReloadEvent extends ServerEvent {

@@ -1,6 +1,6 @@
 /*
  *
- *                         Copyright (c) 2016-2019
+ *                         Copyright (c) 2016-2023
  *                SparklingComet @ http://shanerx.org
  *               KillerOfPie @ http://killerofpie.github.io
  *
@@ -54,7 +54,6 @@ public interface LinkageConfiguration {
             getLinkageData().replace(chestLocation.serialize(), shopLocation.serialize());
         else
             getLinkageData().put(chestLocation.serialize(), shopLocation.serialize());
-        save();
     }
 
     default void add(ShopLocation chestLocation, ShopLocation shopLocation) {

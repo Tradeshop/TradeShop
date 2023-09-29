@@ -1,6 +1,6 @@
 /*
  *
- *                         Copyright (c) 2016-2019
+ *                         Copyright (c) 2016-2023
  *                SparklingComet @ http://shanerx.org
  *               KillerOfPie @ http://killerofpie.github.io
  *
@@ -113,7 +113,7 @@ public class ConfigManager {
                 break;
         }
 
-        save(hasUpgraded.contains(true));
+        if (hasUpgraded.contains(true)) save();
 
         updateSkipHoppers();
     }
@@ -122,16 +122,17 @@ public class ConfigManager {
         try {
             Set<Boolean> skipCheck = new HashSet<>();
             skipCheck.add(ShopSettingKeys.HOPPER_EXPORT.getDefaultValue(ShopType.TRADE).asBoolean());
+            skipCheck.add(ShopSettingKeys.HOPPER_EXPORT.isUserEditable(ShopType.TRADE));
             skipCheck.add(ShopSettingKeys.HOPPER_IMPORT.getDefaultValue(ShopType.TRADE).asBoolean());
+            skipCheck.add(ShopSettingKeys.HOPPER_IMPORT.isUserEditable(ShopType.TRADE));
             skipCheck.add(ShopSettingKeys.HOPPER_EXPORT.getDefaultValue(ShopType.BITRADE).asBoolean());
+            skipCheck.add(ShopSettingKeys.HOPPER_EXPORT.isUserEditable(ShopType.BITRADE));
             skipCheck.add(ShopSettingKeys.HOPPER_IMPORT.getDefaultValue(ShopType.BITRADE).asBoolean());
-            skipCheck.add(!ShopSettingKeys.HOPPER_EXPORT.isUserEditable(ShopType.TRADE));
-            skipCheck.add(!ShopSettingKeys.HOPPER_IMPORT.isUserEditable(ShopType.TRADE));
-            skipCheck.add(!ShopSettingKeys.HOPPER_EXPORT.isUserEditable(ShopType.BITRADE));
-            skipCheck.add(!ShopSettingKeys.HOPPER_IMPORT.isUserEditable(ShopType.BITRADE));
-            skipCheck.remove(true);
+            skipCheck.add(ShopSettingKeys.HOPPER_IMPORT.isUserEditable(ShopType.BITRADE));
 
-            PLUGIN.setSkipHopperProtection(!skipCheck.contains(false));
+            skipCheck.remove(false);
+
+            PLUGIN.getVarManager().setSkipHopperProtection(skipCheck.isEmpty());
         } catch (NullPointerException ignored) {
         }
     }
@@ -149,15 +150,6 @@ public class ConfigManager {
         }
 
         return hasUpgraded.contains(true);
-    }
-
-    /**
-     * Saves the file if passed boolean is true
-     *
-     * @param shouldSave true if save should proceed
-     */
-    public void save(boolean shouldSave) {
-        if (shouldSave) save();
     }
 
     public void save() {
@@ -215,7 +207,7 @@ public class ConfigManager {
     private boolean addKeyValue(String node, Object value) {
         node = node.toLowerCase().replace("_", "-");
         if (value instanceof Map) {
-            for (Map.Entry entry : ((Map<?, ?>) value).entrySet()) {
+            for (@SuppressWarnings("rawtypes") Map.Entry entry : ((Map<?, ?>) value).entrySet()) {
                 String newNode = node + "." + entry.getKey().toString().toLowerCase().replace("_", "-");
                 if (config.get(newNode) == null || (config.get(newNode) != null && config.get(newNode).toString().isEmpty())) {
                     config.set(newNode, entry.getValue().toString());
@@ -259,7 +251,7 @@ public class ConfigManager {
                 // if neither is the parent of the other but one Section has a parent and the other doesn't
             } else if (o1.hasParent() != o2.hasParent()) {
                 return o1.hasParent() ? compare(o1.getParent(), o2) : compare(o1, o2.getParent()); // compare existing parent to other section
-                // if both have parents but they aren't the same parent
+                // if both have different parents
             } else if (o1.getParent() != null && !o1.getParent().equals(o2.getParent())) {
                 return compare(o1.getParent(), o2.getParent()); // compare the parents of both
             }
@@ -281,7 +273,7 @@ public class ConfigManager {
                 // if neither is the parent of the other but one Section has a parent and the other doesn't
             } else if (o1.hasParent() != o2.hasParent()) {
                 return o1.hasParent() ? compare(o1.getParent(), o2) : compare(o1, o2.getParent()); // compare existing parent to other section
-                // if both have parents but they aren't the same parent
+                // if both have different parents
             } else if (o1.getParent() != null && !o1.getParent().equals(o2.getParent())) {
                 return compare(o1.getParent(), o2.getParent()); // compare the parents of both
             }

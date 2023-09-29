@@ -1,6 +1,6 @@
 /*
  *
- *                         Copyright (c) 2016-2019
+ *                         Copyright (c) 2016-2023
  *                SparklingComet @ http://shanerx.org
  *               KillerOfPie @ http://killerofpie.github.io
  *
@@ -29,6 +29,7 @@ import com.google.gson.reflect.TypeToken;
 import org.shanerx.tradeshop.data.storage.PlayerConfiguration;
 import org.shanerx.tradeshop.player.PlayerSetting;
 
+import java.io.File;
 import java.util.Map;
 import java.util.UUID;
 
@@ -36,9 +37,10 @@ public class JsonPlayerConfiguration extends JsonConfiguration implements Player
 
     private final transient UUID playerUUID;
     private transient PlayerSetting playerSetting;
+    private static final String playerFolder = "Players";
 
     public JsonPlayerConfiguration(UUID uuid) {
-        super("Players", uuid.toString());
+        super(playerFolder, uuid.toString());
 
         playerUUID = uuid;
     }
@@ -71,5 +73,9 @@ public class JsonPlayerConfiguration extends JsonConfiguration implements Player
     @Override
     public void remove() {
         file.delete();
+    }
+
+    public static File[] getAllPlayers() {
+        return getFilesInFolder(playerFolder);
     }
 }

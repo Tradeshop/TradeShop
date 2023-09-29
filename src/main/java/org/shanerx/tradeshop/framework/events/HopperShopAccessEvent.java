@@ -1,6 +1,6 @@
 /*
  *
- *                         Copyright (c) 2016-2019
+ *                         Copyright (c) 2016-2023
  *                SparklingComet @ http://shanerx.org
  *               KillerOfPie @ http://killerofpie.github.io
  *
@@ -39,63 +39,62 @@ import org.shanerx.tradeshop.shop.Shop;
  */
 public class HopperShopAccessEvent extends InventoryMoveItemEvent {
 
-	public enum HopperDirection {
-		FROM_HOPPER,
-		TO_HOPPER
-	}
-	
-	private static final HandlerList handlers = new HandlerList();
-	private Shop shop;
-	private boolean isForbidden;
-	private final HopperDirection dir;
+    private static final HandlerList handlers = new HandlerList();
+    private final HopperDirection dir;
+    private Shop shop;
+    private boolean isForbidden;
+    /**
+     * Constructor for the object.
+     * @param s The {@link Shop} object representing the Shop in question.
+     * @param source The source {@link org.bukkit.inventory.Inventory} object.
+     * @param destination The source {@link org.bukkit.inventory.Inventory} object.
+     * @param itm The {@link org.bukkit.inventory.ItemStack} object representing the item in transaction.
+     */
+    public HopperShopAccessEvent(Shop s, Inventory source, Inventory destination, ItemStack itm, HopperDirection dir) {
+        super(source, itm, destination, false);
+        this.isForbidden = false;
+        this.dir = dir;
+    }
 
-	public static HandlerList getHandlerList() {
-		return handlers;
-	}
+    public static HandlerList getHandlerList() {
+        return handlers;
+    }
 
-	@Override
-	public HandlerList getHandlers() {
-		return handlers;
-	}
+    @Override
+    public HandlerList getHandlers() {
+        return handlers;
+    }
 
-	/**
-	 * Constructor for the object.
-	 * @param s The {@link Shop} object representing the Shop in question.
-	 * @param source The source {@link org.bukkit.inventory.Inventory} object.
-	 * @param destination The source {@link org.bukkit.inventory.Inventory} object.
-	 * @param itm The {@link org.bukkit.inventory.ItemStack} object representing the item in transaction.
-	 */
-	public HopperShopAccessEvent(Shop s, Inventory source, Inventory destination, ItemStack itm, HopperDirection dir) {
-		super(source, itm, destination, false);
-		this.isForbidden = false;
-		this.dir = dir;
-	}
-	
-	/**
-	 * Returns the {@link Shop} object representing the player shop this event is about.
-	 * @return the shop.
-	 */
-	public Shop getShop() {
-		return shop;
-	}
-	
-	/**
-	 * Whether or not to forbid the item from making the transition. The default value is the one set in the plugin configuration.
-	 * @return `true` if the transition is being blocked. 
-	 */
-	public boolean isForbidden() {
-		return isForbidden;
-	}
-	
-	/**
-	 * Set whether or not to block the transition from happening.
-	 * @param forbidden `true` if the transition must be blocked.
-	 */
-	public void setForbidden(boolean forbidden) {
-		isForbidden = forbidden;
-	}
+    /**
+     * Returns the {@link Shop} object representing the player shop this event is about.
+     * @return the shop.
+     */
+    public Shop getShop() {
+        return shop;
+    }
 
-	public HopperDirection getItemDirection() {
-		return dir;
-	}
+    /**
+     * Whether or not to forbid the item from making the transition. The default value is the one set in the plugin configuration.
+     * @return `true` if the transition is being blocked.
+     */
+    public boolean isForbidden() {
+        return isForbidden;
+    }
+
+    /**
+     * Set whether or not to block the transition from happening.
+     * @param forbidden `true` if the transition must be blocked.
+     */
+    public void setForbidden(boolean forbidden) {
+        isForbidden = forbidden;
+    }
+
+    public HopperDirection getItemDirection() {
+        return dir;
+    }
+
+    public enum HopperDirection {
+        FROM_HOPPER,
+        TO_HOPPER
+    }
 }
