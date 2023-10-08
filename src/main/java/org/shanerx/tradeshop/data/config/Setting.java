@@ -51,6 +51,7 @@ public enum Setting {
 
     // System Options
     DATA_STORAGE_TYPE(SettingSection.SYSTEM_OPTIONS, "data-storage-type", "FLATFILE"),
+    MAX_SAVE_THREADS(SettingSection.SYSTEM_OPTIONS, "max-save-threads", 1),
     ENABLE_DEBUG(SettingSection.SYSTEM_OPTIONS, "enable-debug", 0),
     CHECK_UPDATES(SettingSection.SYSTEM_OPTIONS, "check-updates", true),
     ALLOW_METRICS(SettingSection.SYSTEM_OPTIONS, "allow-metrics", true),

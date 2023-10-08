@@ -37,6 +37,8 @@ import org.shanerx.tradeshop.data.config.ConfigManager;
 import org.shanerx.tradeshop.data.config.Language;
 import org.shanerx.tradeshop.data.config.Setting;
 import org.shanerx.tradeshop.data.storage.DataStorage;
+import org.shanerx.tradeshop.data.storage.DataType;
+import org.shanerx.tradeshop.data.storage.Json.JsonShopConfiguration;
 import org.shanerx.tradeshop.player.JoinEventListener;
 import org.shanerx.tradeshop.player.Permissions;
 import org.shanerx.tradeshop.shop.ShopSign;
@@ -112,6 +114,8 @@ public class TradeShop extends JavaPlugin {
 
     @Override
     public void onDisable() {
+        varManager.getDataStorage().ensureFinalSave();
+
         if (getListManager() != null)
             getListManager().clearManager();
     }

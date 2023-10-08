@@ -27,21 +27,25 @@ package org.shanerx.tradeshop.data.storage.Json;
 
 import com.google.common.collect.Sets;
 import com.google.gson.JsonElement;
-import org.bukkit.Bukkit;
+import com.google.gson.JsonObject;
+import org.bukkit.scheduler.BukkitRunnable;
 import org.shanerx.tradeshop.TradeShop;
+import org.shanerx.tradeshop.data.config.Setting;
 import org.shanerx.tradeshop.data.storage.ShopConfiguration;
 import org.shanerx.tradeshop.shop.Shop;
 import org.shanerx.tradeshop.shoplocation.ShopChunk;
 import org.shanerx.tradeshop.shoplocation.ShopLocation;
-import org.shanerx.tradeshop.utils.debug.DebugLevels;
+import org.shanerx.tradeshop.utils.gsonprocessing.GsonProcessor;
+import org.shanerx.tradeshop.utils.objects.Tuple;
 
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class JsonShopConfiguration extends JsonConfiguration implements ShopConfiguration {
 
@@ -65,12 +69,8 @@ public class JsonShopConfiguration extends JsonConfiguration implements ShopConf
 
     @Override
     public void remove(ShopLocation loc) {
-        System.out.println("PREV: " + gson.toJson(jsonObj));
-
         if (jsonObj.has(loc.serialize()))
             jsonObj.remove(loc.serialize());
-
-        System.out.println("NOW: " + gson.toJson(jsonObj));
         saveFile();
     }
 
@@ -117,29 +117,7 @@ public class JsonShopConfiguration extends JsonConfiguration implements ShopConf
 
     @Override
     protected void saveFile() {
-        if (PLUGIN.getDataStorage().saving.containsKey(this.file)) {
-            return;
-        }
-
-        final String str = gson.toJson(jsonObj);
-        if (str.isEmpty() || jsonObj.entrySet().isEmpty()) {
-            this.file.delete();
-            return;
-        }
-
-        PLUGIN.getDataStorage().saving.put(this.file, str);
-//        Bukkit.getScheduler().runTaskAsynchronously(TradeShop.getPlugin(), () -> {
-            try {
-                System.out.println("SAVE: " + str);
-                FileWriter fileWriter = new FileWriter(this.file);
-                fileWriter.write(str);
-                fileWriter.flush();
-                fileWriter.close();
-            } catch (IOException e) {
-                PLUGIN.getLogger().log(Level.SEVERE, "Could not save " + this.file.getName() + " file! Data may be lost!", e);
-            }
-            PLUGIN.getDataStorage().saving.remove(this.file);
-//        });
+        SaveThreadMaster.getInstance().enqueue(this.file, this.jsonObj);
     }
 
     @Override
@@ -158,6 +136,125 @@ public class JsonShopConfiguration extends JsonConfiguration implements ShopConf
                 jsonObj.add(ShopLocation.deserialize(entry.getKey()).serialize(), entry.getValue());
                 jsonObj.remove(entry.getKey());
             }
+        }
+    }
+
+    public static class SaveThreadMaster {
+
+        private static SaveThreadMaster singleton;
+
+        private Queue<Tuple<File, JsonObject>> saveQueue;
+        private Set<BukkitRunnable> runningTasks;
+        private Map<File, SaveTask> filesBeingSaved;
+
+        private int maxThreads;
+        private final GsonProcessor gson = new GsonProcessor();
+
+        private SaveThreadMaster() {
+            if (singleton != null) {
+                throw new UnsupportedOperationException("Attempting to create further instance of singleton class SaveThreadMaster!");
+            }
+
+            saveQueue = new ConcurrentLinkedQueue<>();
+            runningTasks = new HashSet<>();
+            filesBeingSaved = new ConcurrentHashMap<>();
+            maxThreads = Math.max(0, Setting.MAX_SAVE_THREADS.getInt());
+
+            singleton = this;
+        }
+
+        public static SaveThreadMaster getInstance() {
+            if (singleton == null) {
+                return new SaveThreadMaster();
+            }
+
+            return singleton;
+        }
+
+        Queue<Tuple<File, JsonObject>> getSaveQueue() {
+            return saveQueue;
+        }
+
+        private SaveTask makeRunnable() {
+            return new SaveTask();
+        }
+
+        void enqueue(File file, JsonObject jsonObj) {
+            if (filesBeingSaved.containsKey(file)) {
+                SaveTask task = filesBeingSaved.get(file);
+                task.enqueue(new Tuple<>(file, jsonObj));
+            } else {
+                saveQueue.add(new Tuple<>(file, jsonObj));
+            }
+
+            if (maxThreads == 0) {
+                makeRunnable().run();
+                if (!saveQueue.isEmpty()) {
+                    throw new IllegalStateException("saveQueue should be empty but has unsaved shop data: " + saveQueue.size());
+                }
+            } else if (runningTasks.size() < maxThreads) {
+                makeRunnable().runTaskAsynchronously(TradeShop.getPlugin());
+            }
+        }
+
+        public void saveEverythingNow() {
+            if (saveQueue.isEmpty()) return;
+            for (int i = 0; i < maxThreads; ++i) {
+                makeRunnable().runTaskAsynchronously(TradeShop.getPlugin());
+            }
+        }
+    }
+
+    static class SaveTask extends BukkitRunnable {
+        private SaveThreadMaster master;
+        private Queue<Tuple<File, JsonObject>> ownQueue;
+
+        SaveTask() {
+            this.master = SaveThreadMaster.getInstance();
+            ownQueue = new ConcurrentLinkedQueue<>();
+        }
+
+        private Tuple<File, JsonObject> pollNext() {
+            if (!ownQueue.isEmpty()) return ownQueue.poll();
+            else return master.getSaveQueue().poll();
+        }
+
+        void enqueue(Tuple<File, JsonObject> elem) {
+            ownQueue.add(elem);
+        }
+
+        @Override
+        public void run() {
+            Logger logger = TradeShop.getPlugin().getLogger();
+            Tuple<File, JsonObject> elem;
+
+            while ((elem = pollNext()) != null) {
+                File file = elem.getLeft();
+                JsonObject jsonObj = elem.getRight();
+                String str = master.gson.toJson(jsonObj);
+
+                if (str.isEmpty() || jsonObj.entrySet().isEmpty()) {
+                    file.delete();
+                    return;
+                }
+
+                try {
+                    FileWriter fileWriter = new FileWriter(file);
+                    fileWriter.write(str);
+                    fileWriter.flush();
+                    fileWriter.close();
+                } catch (IOException e) {
+                    logger.log(Level.SEVERE, "Could not save " + file.getName() + " file! Data may be lost!", e);
+                }
+            }
+
+            // task dies now:
+            master.filesBeingSaved.remove(this);
+        }
+
+        @Override
+        public int hashCode() {
+            return super.getTaskId();
         }
     }
 }

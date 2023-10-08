@@ -67,7 +67,6 @@ import java.util.stream.Collectors;
 public class DataStorage extends Utils {
 
     private transient DataType dataType;
-    public final Map<File, String> saving;
     private final String BROKEN_JSON_START = "}(.*[\"\\w:])";
 
     private final Cache<World, LinkageConfiguration> linkCache = CacheBuilder.newBuilder()
@@ -84,7 +83,6 @@ public class DataStorage extends Utils {
             .build();
 
     public DataStorage(DataType dataType) {
-        saving = new ConcurrentHashMap<>();
         reload(dataType);
     }
 
@@ -130,8 +128,6 @@ public class DataStorage extends Utils {
                     });
                 }
             });
-
-            TradeShop.getPlugin().getDebugger().log("FLATFILE Malformed Files Found: " + correctedFiles.size(), DebugLevels.DATA_ERROR);
 
             //Write corrected malformed files
             if (correctedFiles.size() > 0) {
@@ -313,6 +309,14 @@ public class DataStorage extends Utils {
 
 
         throw new NotImplementedException("Data storage type " + dataType + " has not been implemented yet.");
+    }
+
+    public void ensureFinalSave() {
+        // for onDisable !!!
+        if (dataType == DataType.FLATFILE) {
+            JsonShopConfiguration.SaveThreadMaster.getInstance().saveEverythingNow();
+        }
+        // SQLITE will have an analogous branch
     }
 }
 
