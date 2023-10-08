@@ -58,6 +58,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
@@ -83,7 +84,7 @@ public class DataStorage extends Utils {
             .build();
 
     public DataStorage(DataType dataType) {
-        saving = new HashMap<>();
+        saving = new ConcurrentHashMap<>();
         reload(dataType);
     }
 
@@ -217,8 +218,6 @@ public class DataStorage extends Utils {
                     matchingShops.add(shop);
                 }
             });
-
-            TradeShop.getPlugin().getDebugger().log(" --- _G_M_ --- " + Arrays.toString(matchingShops.stream().map(shop -> shop.getShopLocationAsSL().serialize()).toArray(String[]::new)), DebugLevels.DATA_ERROR);
         }
         return matchingShops;
     }

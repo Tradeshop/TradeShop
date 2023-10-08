@@ -65,9 +65,12 @@ public class JsonShopConfiguration extends JsonConfiguration implements ShopConf
 
     @Override
     public void remove(ShopLocation loc) {
+        System.out.println("PREV: " + gson.toJson(jsonObj));
+
         if (jsonObj.has(loc.serialize()))
             jsonObj.remove(loc.serialize());
 
+        System.out.println("NOW: " + gson.toJson(jsonObj));
         saveFile();
     }
 
@@ -114,23 +117,29 @@ public class JsonShopConfiguration extends JsonConfiguration implements ShopConf
 
     @Override
     protected void saveFile() {
-        if (!PLUGIN.getDataStorage().saving.containsKey(file)) {
-            final String str = gson.toJson(jsonObj);
-            PLUGIN.getDataStorage().saving.put(file, str);
-            if (!str.isEmpty()) {
-                Bukkit.getScheduler().runTaskAsynchronously(TradeShop.getPlugin(), () -> {
-                    try {
-                        FileWriter fileWriter = new FileWriter(this.file);
-                        fileWriter.write(str);
-                        fileWriter.flush();
-                        fileWriter.close();
-                    } catch (IOException e) {
-                        PLUGIN.getLogger().log(Level.SEVERE, "Could not save " + this.file.getName() + " file! Data may be lost!", e);
-                    }
-                    PLUGIN.getDataStorage().saving.remove(this.file);
-                });
-            }
+        if (PLUGIN.getDataStorage().saving.containsKey(this.file)) {
+            return;
         }
+
+        final String str = gson.toJson(jsonObj);
+        if (str.isEmpty() || jsonObj.entrySet().isEmpty()) {
+            this.file.delete();
+            return;
+        }
+
+        PLUGIN.getDataStorage().saving.put(this.file, str);
+//        Bukkit.getScheduler().runTaskAsynchronously(TradeShop.getPlugin(), () -> {
+            try {
+                System.out.println("SAVE: " + str);
+                FileWriter fileWriter = new FileWriter(this.file);
+                fileWriter.write(str);
+                fileWriter.flush();
+                fileWriter.close();
+            } catch (IOException e) {
+                PLUGIN.getLogger().log(Level.SEVERE, "Could not save " + this.file.getName() + " file! Data may be lost!", e);
+            }
+            PLUGIN.getDataStorage().saving.remove(this.file);
+//        });
     }
 
     @Override
