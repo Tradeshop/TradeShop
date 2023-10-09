@@ -180,19 +180,21 @@ public class JsonShopConfiguration extends JsonConfiguration implements ShopConf
         }
 
         void enqueue(File file, JsonObject jsonObj) {
-            if (filesBeingSaved.containsKey(file)) {
-                SaveTask task = filesBeingSaved.get(file);
-                task.enqueue(new Tuple<>(file, jsonObj));
-            } else {
-                saveQueue.add(new Tuple<>(file, jsonObj));
-            }
-
             if (maxThreads == 0) {
                 makeRunnable().run();
                 if (!saveQueue.isEmpty()) {
                     throw new IllegalStateException("saveQueue should be empty but has unsaved shop data: " + saveQueue.size());
                 }
-            } else if (runningTasks.size() < maxThreads) {
+                return;
+            } else if (filesBeingSaved.containsKey(file)) {
+                SaveTask task = filesBeingSaved.get(file);
+                task.enqueue(new Tuple<>(file, jsonObj));
+                return;
+            }
+
+            saveQueue.add(new Tuple<>(file, jsonObj));
+
+            if (runningTasks.size() < maxThreads) {
                 makeRunnable().runTaskAsynchronously(TradeShop.getPlugin());
             }
         }
@@ -208,10 +210,12 @@ public class JsonShopConfiguration extends JsonConfiguration implements ShopConf
     static class SaveTask extends BukkitRunnable {
         private SaveThreadMaster master;
         private Queue<Tuple<File, JsonObject>> ownQueue;
+        private Set<File> ownFiles;
 
         SaveTask() {
-            this.master = SaveThreadMaster.getInstance();
+            master = SaveThreadMaster.getInstance();
             ownQueue = new ConcurrentLinkedQueue<>();
+            ownFiles = new HashSet<>();
         }
 
         private Tuple<File, JsonObject> pollNext() {
@@ -221,6 +225,7 @@ public class JsonShopConfiguration extends JsonConfiguration implements ShopConf
 
         void enqueue(Tuple<File, JsonObject> elem) {
             ownQueue.add(elem);
+            ownFiles.add(elem.getLeft());
         }
 
         @Override
@@ -249,7 +254,8 @@ public class JsonShopConfiguration extends JsonConfiguration implements ShopConf
             }
 
             // task dies now:
-            master.filesBeingSaved.remove(this);
+            ownFiles.forEach(f -> master.filesBeingSaved.remove(f, this));
+            ownFiles.clear();
         }
 
         @Override
