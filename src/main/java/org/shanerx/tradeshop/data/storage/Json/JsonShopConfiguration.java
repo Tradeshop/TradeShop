@@ -140,7 +140,6 @@ public class JsonShopConfiguration extends JsonConfiguration implements ShopConf
     }
 
     public static class SaveThreadMaster {
-
         private static SaveThreadMaster singleton;
 
         private Queue<Tuple<File, JsonObject>> saveQueue;
@@ -181,6 +180,7 @@ public class JsonShopConfiguration extends JsonConfiguration implements ShopConf
 
         void enqueue(File file, JsonObject jsonObj) {
             if (maxThreads == 0) {
+                saveQueue.add(new Tuple<>(file, jsonObj));
                 makeRunnable().run();
                 if (!saveQueue.isEmpty()) {
                     throw new IllegalStateException("saveQueue should be empty but has unsaved shop data: " + saveQueue.size());
@@ -188,12 +188,14 @@ public class JsonShopConfiguration extends JsonConfiguration implements ShopConf
                 return;
             } else if (filesBeingSaved.containsKey(file)) {
                 SaveTask task = filesBeingSaved.get(file);
-                task.enqueue(new Tuple<>(file, jsonObj));
-                return;
+                if (runningTasks.contains(task)) {
+                    task.enqueue(new Tuple<>(file, jsonObj));
+                    return;
+                }
+                // fallthrough
             }
 
             saveQueue.add(new Tuple<>(file, jsonObj));
-
             if (runningTasks.size() < maxThreads) {
                 makeRunnable().runTaskAsynchronously(TradeShop.getPlugin());
             }
@@ -260,7 +262,7 @@ public class JsonShopConfiguration extends JsonConfiguration implements ShopConf
 
         @Override
         public int hashCode() {
-            return super.getTaskId();
+            return master.maxThreads == 0 ? 0 : super.getTaskId();
         }
     }
 }
