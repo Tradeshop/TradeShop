@@ -242,7 +242,7 @@ public class JsonShopConfiguration extends JsonConfiguration implements ShopConf
 
                 if (str.isEmpty() || jsonObj.entrySet().isEmpty()) {
                     file.delete();
-                    return;
+                    continue;
                 }
 
                 try {
