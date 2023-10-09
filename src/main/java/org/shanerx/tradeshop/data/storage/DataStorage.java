@@ -163,8 +163,13 @@ public class DataStorage extends Utils {
                     }
                 });
 
-                TradeShop.getPlugin().getDebugger().log("Empty files deleted: " + deletedResults.size(), DebugLevels.DATA_VERIFICATION);
-                TradeShop.getPlugin().getDebugger().log("# of empty player files that couldn't be deleted: " + failedResults.size() + (failedResults.size() > 0 ? ("\nFailed Deletion results: \n" + failedResults.entrySet().stream().map((entry) -> entry.getKey() + ": " + entry.getValue().getMessage()).collect(Collectors.joining("\n"))) : "\n"), DebugLevels.DATA_ERROR);
+                if (deletedResults.size() != 0)
+                    TradeShop.getPlugin().getDebugger().log("Empty files deleted: " + deletedResults.size(), DebugLevels.DATA_VERIFICATION);
+                if (failedResults.size() != 0)
+                    TradeShop.getPlugin().getDebugger().log("# of empty player files that couldn't be deleted: "
+                            + failedResults.size()
+                            + (failedResults.size() > 0 ? ("\nFailed Deletion results: \n" + failedResults.entrySet().stream().map((entry) -> entry.getKey() + ": " + entry.getValue().getMessage()).collect(Collectors.joining("\n"))) : "\n")
+                            , DebugLevels.DATA_ERROR);
             }
 
             return errFiles.size() < 1;
