@@ -143,7 +143,7 @@ public class JsonShopConfiguration extends JsonConfiguration implements ShopConf
         private static SaveThreadMaster singleton;
 
         private Queue<Tuple<File, JsonObject>> saveQueue;
-        private Set<BukkitRunnable> runningTasks;
+        private Set<SaveTask> runningTasks;
         private Map<File, SaveTask> filesBeingSaved;
 
         private int maxThreads;
@@ -155,7 +155,7 @@ public class JsonShopConfiguration extends JsonConfiguration implements ShopConf
             }
 
             saveQueue = new ConcurrentLinkedQueue<>();
-            runningTasks = new HashSet<>();
+            runningTasks = Collections.newSetFromMap(new ConcurrentHashMap<SaveTask, Boolean>());
             filesBeingSaved = new ConcurrentHashMap<>();
             maxThreads = Math.max(0, Setting.MAX_SAVE_THREADS.getInt());
 
@@ -166,7 +166,6 @@ public class JsonShopConfiguration extends JsonConfiguration implements ShopConf
             if (singleton == null) {
                 return new SaveThreadMaster();
             }
-
             return singleton;
         }
 
@@ -178,7 +177,7 @@ public class JsonShopConfiguration extends JsonConfiguration implements ShopConf
             return new SaveTask();
         }
 
-        void enqueue(File file, JsonObject jsonObj) {
+        synchronized void enqueue(File file, JsonObject jsonObj) {
             if (maxThreads == 0) {
                 saveQueue.add(new Tuple<>(file, jsonObj));
                 makeRunnable().run();
@@ -192,6 +191,7 @@ public class JsonShopConfiguration extends JsonConfiguration implements ShopConf
                     task.enqueue(new Tuple<>(file, jsonObj));
                     return;
                 }
+                filesBeingSaved.remove(file);
                 // fallthrough
             }
 
@@ -201,9 +201,25 @@ public class JsonShopConfiguration extends JsonConfiguration implements ShopConf
             }
         }
 
+        private synchronized Tuple<File, JsonObject> pollNext(SaveTask task) {
+            Tuple <File, JsonObject> elem;
+            if (!task.ownQueue.isEmpty())
+                elem = task.ownQueue.poll();
+            else
+                elem = saveQueue.poll();
+
+            if (elem != null) {
+                File file = elem.getLeft();
+                filesBeingSaved.put(file, task);
+                task.ownFiles.add(file);
+            }
+
+            return elem;
+        }
+
         public void saveEverythingNow() {
             if (saveQueue.isEmpty()) return;
-            for (int i = 0; i < maxThreads; ++i) {
+            for (int i = runningTasks.size(); i < maxThreads; ++i) {
                 makeRunnable().runTaskAsynchronously(TradeShop.getPlugin());
             }
         }
@@ -220,22 +236,19 @@ public class JsonShopConfiguration extends JsonConfiguration implements ShopConf
             ownFiles = new HashSet<>();
         }
 
-        private Tuple<File, JsonObject> pollNext() {
-            if (!ownQueue.isEmpty()) return ownQueue.poll();
-            else return master.getSaveQueue().poll();
-        }
-
-        void enqueue(Tuple<File, JsonObject> elem) {
+        synchronized void enqueue(Tuple<File, JsonObject> elem) {
             ownQueue.add(elem);
             ownFiles.add(elem.getLeft());
         }
 
         @Override
         public void run() {
+            master.runningTasks.add(this);
+
             Logger logger = TradeShop.getPlugin().getLogger();
             Tuple<File, JsonObject> elem;
 
-            while ((elem = pollNext()) != null) {
+            while ((elem = master.pollNext(this)) != null) {
                 File file = elem.getLeft();
                 JsonObject jsonObj = elem.getRight();
                 String str = master.gson.toJson(jsonObj);
@@ -258,6 +271,7 @@ public class JsonShopConfiguration extends JsonConfiguration implements ShopConf
             // task dies now:
             ownFiles.forEach(f -> master.filesBeingSaved.remove(f, this));
             ownFiles.clear();
+            master.runningTasks.remove(this);
         }
 
         @Override
