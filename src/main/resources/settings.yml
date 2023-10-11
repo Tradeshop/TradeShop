@@ -9,6 +9,9 @@ config-version: 1.2
 system-options:
   # How would you like your servers data stored? (FLATFILE)
   data-storage-type: FLATFILE
+  # Max. number of additional subthreads to spawn. For the best performance, take into account how many cores you have.
+  # Set to 0 to save everything in the main thread (not recommended unless you experience issues with data saving).
+  max-save-threads: 3
   # What debug code should be run. This will add significant amounts of spam to the console/log, generally not used unless requested by Devs
   enable-debug: 0
   # Should we check for updates when the server starts

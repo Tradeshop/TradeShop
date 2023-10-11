@@ -47,6 +47,8 @@ setting:
     system-options:
       data-storage-type:
         pre-comment: "How would you like your servers data stored? (FLATFILE, SQLITE)"
+      max-save-threads:
+        pre-comment: "Max. number of additional subthreads to spawn. For the best performance, take into account how many cores you have.\nSet to 0 to save everything in the main thread (not recommended unless you experience issues with data saving)."
       enable-debug:
         pre-comment: "What debug code should be run. This will add significant amounts of spam to the console/log, generally not used unless requested by Devs"
       check-updates:
