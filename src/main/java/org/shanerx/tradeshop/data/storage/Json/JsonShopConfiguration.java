@@ -29,6 +29,7 @@ import com.google.common.collect.Sets;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.jetbrains.annotations.NotNull;
 import org.shanerx.tradeshop.TradeShop;
 import org.shanerx.tradeshop.data.config.Setting;
 import org.shanerx.tradeshop.data.storage.ShopConfiguration;
@@ -41,9 +42,11 @@ import org.shanerx.tradeshop.utils.objects.Tuple;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -139,12 +142,55 @@ public class JsonShopConfiguration extends JsonConfiguration implements ShopConf
         }
     }
 
+    public static class SaveOperation implements Comparable<SaveOperation> {
+
+        private File file;
+        private JsonObject jsonObj;
+        private long time;
+
+        SaveOperation(File file, JsonObject jsonObj) {
+            this.file = file;
+            this.jsonObj = jsonObj;
+            this.time = System.currentTimeMillis();
+        }
+
+        @Override
+        public int compareTo(@NotNull SaveOperation so) {
+            try {
+                if (Files.isSameFile(this.file.toPath(), so.file.toPath())) return 0;
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+
+            if (this.time <= so.time) return -1;
+            return 1;
+        }
+
+        @Override
+        public int hashCode() {
+            return file.hashCode();
+        }
+
+        public File getFile() {
+            return file;
+        }
+
+        public JsonObject getJson() {
+            return jsonObj;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (!(obj instanceof SaveOperation)) return false;
+            return hashCode() == obj.hashCode();
+        }
+    }
+
     public static class SaveThreadMaster {
         private static SaveThreadMaster singleton;
 
-        private Queue<Tuple<File, JsonObject>> saveQueue;
+        private ConcurrentSkipListSet<SaveOperation> saveQueue;
         private Set<SaveTask> runningTasks;
-        private Map<File, SaveTask> filesBeingSaved;
 
         private int maxThreads;
         private final GsonProcessor gson = new GsonProcessor();
@@ -154,9 +200,8 @@ public class JsonShopConfiguration extends JsonConfiguration implements ShopConf
                 throw new UnsupportedOperationException("Attempting to create further instance of singleton class SaveThreadMaster!");
             }
 
-            saveQueue = new ConcurrentLinkedQueue<>();
+            saveQueue = new ConcurrentSkipListSet<>();
             runningTasks = Collections.newSetFromMap(new ConcurrentHashMap<SaveTask, Boolean>());
-            filesBeingSaved = new ConcurrentHashMap<>();
             maxThreads = Math.max(0, Setting.MAX_SAVE_THREADS.getInt());
 
             singleton = this;
@@ -169,52 +214,24 @@ public class JsonShopConfiguration extends JsonConfiguration implements ShopConf
             return singleton;
         }
 
-        Queue<Tuple<File, JsonObject>> getSaveQueue() {
-            return saveQueue;
-        }
-
         private SaveTask makeRunnable() {
             return new SaveTask();
         }
 
         synchronized void enqueue(File file, JsonObject jsonObj) {
-            if (maxThreads == 0) {
-                saveQueue.add(new Tuple<>(file, jsonObj));
-                makeRunnable().run();
-                if (!saveQueue.isEmpty()) {
-                    throw new IllegalStateException("saveQueue should be empty but has unsaved shop data: " + saveQueue.size());
-                }
-                return;
-            } else if (filesBeingSaved.containsKey(file)) {
-                SaveTask task = filesBeingSaved.get(file);
-                if (runningTasks.contains(task)) {
-                    task.enqueue(new Tuple<>(file, jsonObj));
-                    return;
-                }
-                filesBeingSaved.remove(file);
-                // fallthrough
-            }
+            SaveOperation op = new SaveOperation(file, jsonObj);
+            saveQueue.remove(op); // removes ops with a similar file
+            saveQueue.add(op);
 
-            saveQueue.add(new Tuple<>(file, jsonObj));
-            if (runningTasks.size() < maxThreads) {
+            if (maxThreads == 0) {
+                makeRunnable().run();
+            } else if (runningTasks.size() < maxThreads) {
                 makeRunnable().runTaskAsynchronously(TradeShop.getPlugin());
             }
         }
 
-        private synchronized Tuple<File, JsonObject> pollNext(SaveTask task) {
-            Tuple <File, JsonObject> elem;
-            if (!task.ownQueue.isEmpty())
-                elem = task.ownQueue.poll();
-            else
-                elem = saveQueue.poll();
-
-            if (elem != null) {
-                File file = elem.getLeft();
-                filesBeingSaved.put(file, task);
-                task.ownFiles.add(file);
-            }
-
-            return elem;
+        private synchronized SaveOperation pollNext() {
+            return saveQueue.pollFirst();
         }
 
         public void saveEverythingNow() {
@@ -227,18 +244,9 @@ public class JsonShopConfiguration extends JsonConfiguration implements ShopConf
 
     static class SaveTask extends BukkitRunnable {
         private SaveThreadMaster master;
-        private Queue<Tuple<File, JsonObject>> ownQueue;
-        private Set<File> ownFiles;
 
         SaveTask() {
             master = SaveThreadMaster.getInstance();
-            ownQueue = new ConcurrentLinkedQueue<>();
-            ownFiles = new HashSet<>();
-        }
-
-        synchronized void enqueue(Tuple<File, JsonObject> elem) {
-            ownQueue.add(elem);
-            ownFiles.add(elem.getLeft());
         }
 
         @Override
@@ -246,11 +254,11 @@ public class JsonShopConfiguration extends JsonConfiguration implements ShopConf
             master.runningTasks.add(this);
 
             Logger logger = TradeShop.getPlugin().getLogger();
-            Tuple<File, JsonObject> elem;
+            SaveOperation op;
 
-            while ((elem = master.pollNext(this)) != null) {
-                File file = elem.getLeft();
-                JsonObject jsonObj = elem.getRight();
+            while ((op = master.pollNext()) != null) {
+                File file = op.getFile();
+                JsonObject jsonObj = op.getJson();
                 String str = master.gson.toJson(jsonObj);
 
                 if (str.isEmpty() || jsonObj.entrySet().isEmpty()) {
@@ -269,8 +277,6 @@ public class JsonShopConfiguration extends JsonConfiguration implements ShopConf
             }
 
             // task dies now:
-            ownFiles.forEach(f -> master.filesBeingSaved.remove(f, this));
-            ownFiles.clear();
             master.runningTasks.remove(this);
         }
 
