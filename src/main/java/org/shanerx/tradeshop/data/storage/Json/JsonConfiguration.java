@@ -39,6 +39,8 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Level;
 
 class JsonConfiguration extends Utils {
@@ -63,8 +65,18 @@ class JsonConfiguration extends Utils {
         loadFile();
     }
 
+    // Caching File objects for synchronized(File) {} blocks
+    private static Map<String, File> fileCache = new HashMap<>();
     public static File getFile(String folderFromData, String fileName) {
-        return new File(getPath(folderFromData).getPath() + File.separator + fileName + ".json");
+        String path = getPath(folderFromData).getPath() + File.separator + fileName + ".json";
+
+        if (fileCache.containsKey(path)) {
+            return fileCache.get(path);
+        }
+
+        File f = new File(path);
+        fileCache.put(path, f);
+        return f;
     }
 
     public static File getPath(String folderFromData) {
