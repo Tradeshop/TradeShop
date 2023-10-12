@@ -42,7 +42,10 @@ import org.shanerx.tradeshop.utils.objects.Tuple;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
 import java.nio.file.Files;
+import java.nio.file.StandardOpenOption;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -201,7 +204,7 @@ public class JsonShopConfiguration extends JsonConfiguration implements ShopConf
             }
 
             saveQueue = new ConcurrentSkipListSet<>();
-            runningTasks = Collections.newSetFromMap(new ConcurrentHashMap<SaveTask, Boolean>());
+            runningTasks = Collections.newSetFromMap(new ConcurrentHashMap<>());
             maxThreads = Math.max(0, Setting.MAX_SAVE_THREADS.getInt());
 
             singleton = this;
@@ -258,21 +261,23 @@ public class JsonShopConfiguration extends JsonConfiguration implements ShopConf
 
             while ((op = master.pollNext()) != null) {
                 File file = op.getFile();
-                JsonObject jsonObj = op.getJson();
-                String str = master.gson.toJson(jsonObj);
+                synchronized (file) {
+                    JsonObject jsonObj = op.getJson();
+                    String str = master.gson.toJson(jsonObj);
 
-                if (str.isEmpty() || jsonObj.entrySet().isEmpty()) {
-                    file.delete();
-                    continue;
-                }
+                    if (str.isEmpty() || jsonObj.entrySet().isEmpty()) {
+                        file.delete();
+                        continue;
+                    }
 
-                try {
-                    FileWriter fileWriter = new FileWriter(file);
-                    fileWriter.write(str);
-                    fileWriter.flush();
-                    fileWriter.close();
-                } catch (IOException e) {
-                    logger.log(Level.SEVERE, "Could not save " + file.getName() + " file! Data may be lost!", e);
+                    try {
+                        FileChannel chan = FileChannel.open(file.toPath(), StandardOpenOption.WRITE, StandardOpenOption.WRITE);
+                        chan.write(ByteBuffer.wrap(str.getBytes()));
+                        chan.force(false);
+                        chan.close();
+                    } catch (IOException e) {
+                        logger.log(Level.SEVERE, "Could not save " + file.getName() + " file! Data may be lost!", e);
+                    }
                 }
             }
 
