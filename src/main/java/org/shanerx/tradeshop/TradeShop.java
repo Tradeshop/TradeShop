@@ -37,8 +37,6 @@ import org.shanerx.tradeshop.data.config.ConfigManager;
 import org.shanerx.tradeshop.data.config.Language;
 import org.shanerx.tradeshop.data.config.Setting;
 import org.shanerx.tradeshop.data.storage.DataStorage;
-import org.shanerx.tradeshop.data.storage.DataType;
-import org.shanerx.tradeshop.data.storage.Json.JsonShopConfiguration;
 import org.shanerx.tradeshop.player.JoinEventListener;
 import org.shanerx.tradeshop.player.Permissions;
 import org.shanerx.tradeshop.shop.ShopSign;
@@ -48,6 +46,7 @@ import org.shanerx.tradeshop.shop.listeners.ShopCreateListener;
 import org.shanerx.tradeshop.shop.listeners.ShopProtectionListener;
 import org.shanerx.tradeshop.shop.listeners.ShopRestockListener;
 import org.shanerx.tradeshop.shop.listeners.ShopTradeListener;
+import org.shanerx.tradeshop.shop.listeners.ChunkUnloadListener;
 import org.shanerx.tradeshop.utils.debug.Debug;
 import org.shanerx.tradeshop.utils.logging.transactionlogging.TransactionLogger;
 import org.shanerx.tradeshop.utils.logging.transactionlogging.listeners.SuccessfulTradeEventListener;
@@ -156,6 +155,7 @@ public class TradeShop extends JavaPlugin {
         pm.registerEvents(new ShopTradeListener(), this);
         pm.registerEvents(new ShopRestockListener(this), this);
         pm.registerEvents(new SuccessfulTradeEventListener(this), this);
+        pm.registerEvents(new ChunkUnloadListener(this), this);
 
         if (getServer().getVersion().toLowerCase().contains("paper")) {
             pm.registerEvents(new PaperShopProtectionListener(), this);

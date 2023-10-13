@@ -33,13 +33,13 @@ import java.io.File;
 import java.util.Map;
 import java.util.UUID;
 
-public class JsonPlayerConfiguration extends JsonConfiguration implements PlayerConfiguration {
+public class JsonPlayerData extends JsonConfiguration implements PlayerConfiguration {
 
     private final transient UUID playerUUID;
     private transient PlayerSetting playerSetting;
     private static final String playerFolder = "Players";
 
-    public JsonPlayerConfiguration(UUID uuid) {
+    public JsonPlayerData(UUID uuid) {
         super(playerFolder, uuid.toString());
 
         playerUUID = uuid;

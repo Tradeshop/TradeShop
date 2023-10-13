@@ -54,11 +54,11 @@ import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class JsonShopConfiguration extends JsonConfiguration implements ShopConfiguration {
+public class JsonShopData extends JsonConfiguration implements ShopConfiguration {
 
     private final ShopChunk chunk;
 
-    public JsonShopConfiguration(ShopChunk chunk) {
+    public JsonShopData(ShopChunk chunk) {
         super(chunk.getWorldName(), chunk.serialize());
         this.chunk = chunk;
     }
@@ -272,9 +272,9 @@ public class JsonShopConfiguration extends JsonConfiguration implements ShopConf
                     }
 
                     try {
-                        FileChannel chan = FileChannel.open(file.toPath(), StandardOpenOption.WRITE, StandardOpenOption.WRITE);
+                        FileChannel chan = FileChannel.open(file.toPath(), StandardOpenOption.CREATE, StandardOpenOption.WRITE);
                         chan.write(ByteBuffer.wrap(str.getBytes()));
-                        chan.force(false);
+                        chan.force(true);
                         chan.close();
                     } catch (IOException e) {
                         logger.log(Level.SEVERE, "Could not save " + file.getName() + " file! Data may be lost!", e);

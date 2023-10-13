@@ -32,11 +32,11 @@ import org.shanerx.tradeshop.data.storage.LinkageConfiguration;
 import java.util.HashMap;
 import java.util.Map;
 
-public class JsonLinkageConfiguration extends JsonConfiguration implements LinkageConfiguration {
+public class JsonLinkageData extends JsonConfiguration implements LinkageConfiguration {
 
     Map<String, String> linkageData;
 
-    public JsonLinkageConfiguration(World world) {
+    public JsonLinkageData(World world) {
         super(world.getName(), "chest_linkage");
         load();
     }
