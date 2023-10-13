@@ -186,7 +186,7 @@ public class GUISubCommand extends SubCommand {
 
             // Add Save button only when editable - Saves and Goes to previous screen
             if (editable) itemEdit.addElement(new StaticGuiElement('s', new ItemStack(Material.ANVIL), click3 -> {
-                shop.updateSideItem(side, item, index);
+                shop.updateSideItem(side, item, index, true);
                 InventoryGui.goBack(getPlayerSender());
                 return true;
             }, "Save Changes"));

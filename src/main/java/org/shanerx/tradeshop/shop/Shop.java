@@ -1145,15 +1145,16 @@ public class Shop implements Serializable {
      *
      * @param side            Side to be updated
      * @param updatedItemList list to set updatedItemList to
+     * @param save2disk       whether or not to save to disk
      */
-    public void updateSide(ShopItemSide side, List<ShopItemStack> updatedItemList) {
+    public void updateSide(ShopItemSide side, List<ShopItemStack> updatedItemList, boolean save2disk) {
         if (!getShopType().isITrade() && chestLoc != null)
             updatedItemList.removeIf(item -> item.getItemStack().getType().toString().endsWith("SHULKER_BOX") && getInventoryLocation().getBlock().getType().toString().endsWith("SHULKER_BOX"));
 
         if (side.equals(ShopItemSide.PRODUCT)) product = updatedItemList;
         else cost = updatedItemList;
 
-        saveShop();
+        if (save2disk) saveShop();
         updateSign();
     }
 
@@ -1164,7 +1165,7 @@ public class Shop implements Serializable {
      * @param updatedItem Item to be updated at the specified index and side
      * @param index       index of the item t be updated
      */
-    public void updateSideItem(ShopItemSide side, ShopItemStack updatedItem, int index) {
+    public void updateSideItem(ShopItemSide side, ShopItemStack updatedItem, int index, boolean save2disk) {
         if (!getShopType().isITrade() &&
                 chestLoc != null &&
                 updatedItem.getItemStack().getType().toString().endsWith("SHULKER_BOX") &&
@@ -1173,7 +1174,7 @@ public class Shop implements Serializable {
 
         (side.equals(ShopItemSide.PRODUCT) ? product : cost).set(index, updatedItem);
 
-        saveShop();
+        if (save2disk) saveShop();
         updateSign();
     }
 

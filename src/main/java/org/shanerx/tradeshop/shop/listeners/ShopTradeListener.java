@@ -66,7 +66,6 @@ public class ShopTradeListener extends Utils implements Listener {
 
     @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
     public void onBlockInteract(PlayerInteractEvent e) {
-
         if (e.useInteractedBlock().equals(Event.Result.DENY) || e.isCancelled())
             return;
 
@@ -100,9 +99,8 @@ public class ShopTradeListener extends Utils implements Listener {
         Bukkit.getPluginManager().callEvent(preEvent);
         if (preEvent.isCancelled()) return;
 
-        shop = preEvent.getShop(); //Sets shop to events shop so any changes made in preEvent are carried back
-        shop.updateSide(ShopItemSide.COST, preEvent.getCost());
-        shop.updateSide(ShopItemSide.PRODUCT, preEvent.getProduct());
+        shop.updateSide(ShopItemSide.COST, preEvent.getCost(), false);
+        shop.updateSide(ShopItemSide.PRODUCT, preEvent.getProduct(), false);
 
         boolean doBiTradeAlternate = shop.getShopType().isBiTrade() && preEvent.isAction(Action.LEFT_CLICK_BLOCK);
 

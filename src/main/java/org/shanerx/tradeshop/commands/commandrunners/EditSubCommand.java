@@ -270,7 +270,7 @@ public class EditSubCommand extends GUISubCommand {
                     if (costItemsRemoval.get(i))
                         costItems.remove(i);
                 }
-                shop.updateSide(ShopItemSide.COST, costItems);
+                shop.updateSide(ShopItemSide.COST, costItems, false);
                 shop.saveShop();
                 InventoryGui.goBack(getPlayerSender());
                 return true;
@@ -314,7 +314,7 @@ public class EditSubCommand extends GUISubCommand {
                     if (productItemsRemoval.get(i))
                         productItems.remove(i);
                 }
-                shop.updateSide(ShopItemSide.PRODUCT, productItems);
+                shop.updateSide(ShopItemSide.PRODUCT, productItems, false);
                 shop.saveShop();
                 InventoryGui.goBack(getPlayerSender());
                 return true;
