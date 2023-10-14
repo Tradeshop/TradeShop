@@ -91,18 +91,18 @@ public class TradeShop extends JavaPlugin {
 
         registration();
 
-        getSettingManager().updateSkipHoppers();
+        getVarManager().getSettingManager().updateSkipHoppers();
 
-        getSigns();
-        getStorages();
-        getListManager();
+        getVarManager().getSigns();
+        getVarManager().getStorages();
+        getVarManager().getListManager();
 
         if (Setting.CHECK_UPDATES.getBoolean()) {
             new Thread(() -> getUpdater().checkCurrentVersion()).start();
         }
 
         if (Setting.ALLOW_METRICS.getBoolean()) {
-            getMetricsManager();
+            getVarManager().getMetricsManager();
             getLogger().info("Metrics successfully initialized!");
         } else {
             getLogger().warning("Metrics are disabled! Please consider enabling them to support the authors!");

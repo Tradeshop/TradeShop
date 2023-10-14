@@ -25,7 +25,6 @@
 
 package org.shanerx.tradeshop.commands.commandrunners;
 
-import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.shanerx.tradeshop.TradeShop;
 import org.shanerx.tradeshop.commands.CommandType;
