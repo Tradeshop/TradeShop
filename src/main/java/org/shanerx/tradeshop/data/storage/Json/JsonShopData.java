@@ -27,7 +27,10 @@ package org.shanerx.tradeshop.data.storage.Json;
 
 import com.google.common.collect.Sets;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonIOException;
 import com.google.gson.JsonObject;
+import com.google.gson.stream.MalformedJsonException;
+import org.apache.logging.log4j.util.Chars;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
 import org.shanerx.tradeshop.TradeShop;
@@ -42,17 +45,15 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 public class JsonShopData extends JsonConfiguration implements ShopConfiguration {
 
@@ -148,9 +149,9 @@ public class JsonShopData extends JsonConfiguration implements ShopConfiguration
 
     public static class SaveOperation implements Comparable<SaveOperation> {
 
-        private File file;
-        private JsonObject jsonObj;
-        private long time;
+        private final File file;
+        private final JsonObject jsonObj;
+        private final long time;
 
         SaveOperation(File file, JsonObject jsonObj) {
             this.file = file;
@@ -193,10 +194,10 @@ public class JsonShopData extends JsonConfiguration implements ShopConfiguration
     public static class SaveThreadMaster {
         private static SaveThreadMaster singleton;
 
-        private ConcurrentSkipListSet<SaveOperation> saveQueue;
-        private Set<SaveTask> runningTasks;
+        private final ConcurrentSkipListSet<SaveOperation> saveQueue;
+        private final Set<SaveTask> runningTasks;
 
-        private int maxThreads;
+        private final int maxThreads;
         private final GsonProcessor gson = new GsonProcessor();
 
         private SaveThreadMaster() {
@@ -247,7 +248,7 @@ public class JsonShopData extends JsonConfiguration implements ShopConfiguration
     }
 
     static class SaveTask extends BukkitRunnable {
-        private SaveThreadMaster master;
+        private final SaveThreadMaster master;
 
         SaveTask() {
             master = SaveThreadMaster.getInstance();
@@ -261,7 +262,7 @@ public class JsonShopData extends JsonConfiguration implements ShopConfiguration
             SaveOperation op;
 
             while ((op = master.pollNext()) != null) {
-                File file = op.getFile();
+                File file = op.getFile(), bak = new File(file.getParentFile(), file.getName() + ".bak"), mjf = new File(file.getParentFile(), file.getName() + ".mjf");
                 synchronized (file) {
                     JsonObject jsonObj = op.getJson();
                     String str = master.gson.toJson(jsonObj);
@@ -271,19 +272,59 @@ public class JsonShopData extends JsonConfiguration implements ShopConfiguration
                         continue;
                     }
 
+                    int expectedLength = str.getBytes(StandardCharsets.UTF_8).length;
+
                     try {
-                        FileChannel chan = FileChannel.open(file.toPath(), StandardOpenOption.CREATE, StandardOpenOption.WRITE);
-                        chan.write(ByteBuffer.wrap(str.getBytes()));
-                        chan.force(true);
-                        chan.close();
+                        if (file.exists()) {
+                            bak.delete();
+                            mjf.delete(); // Delete previous malformed and bak files to prevent conflicts with new ones. Could potentially rename with a counter if we really want to see a lot of malformed files.
+                            file.renameTo(bak); // Create Backup Json file in case new write is bad.
+                        }
+                        int fileBytes = write(file, str);
+                        write(mjf, str); // Create a Malformed Json File(MJF), this will be deleted if the saved file is verified
+                        if (fileBytes != expectedLength) {
+                            FileChannel chan = FileChannel.open(file.toPath(), StandardOpenOption.READ, StandardOpenOption.WRITE);
+                            ByteBuffer byteBuff = ByteBuffer.allocate((int) chan.size());
+                            chan.read(byteBuff);
+                            ArrayList<Character> chars = new String(byteBuff.asCharBuffer().array()).chars().mapToObj(i -> (char) i).collect(Collectors.toCollection(ArrayList::new));
+                            while (chars.contains('{') && chars.contains('}')) {
+                                chars.set(chars.indexOf('{'), Chars.SPACE);
+                                chars.set(chars.indexOf('}'), Chars.SPACE);
+                            }
+                            char c = chars.contains('{') ? '{' : '}';
+                            while (chars.contains(c)) {
+                                byteBuff.putChar(chars.indexOf(c), Chars.SPACE);
+                            }
+
+                            fileBytes = chan.write(byteBuff);
+                            chan.force(true);
+                            chan.close();
+
+                            if (fileBytes != expectedLength)
+                                throw new JsonIOException("Saved json could not be validated, please contact developers...");
+
+                            throw new MalformedJsonException("Written length of file is not equal to expected length! File was fixed with a temporary solution, please notify the developers... \n Expected/Written = " + fileBytes + "/" + file.length());
+                        }
+                        mjf.delete();
+                    } catch (MalformedJsonException mje) {
+                        logger.log(Level.WARNING, mje.getMessage());
                     } catch (IOException e) {
                         logger.log(Level.SEVERE, "Could not save " + file.getName() + " file! Data may be lost!", e);
                     }
+
                 }
             }
 
             // task dies now:
             master.runningTasks.remove(this);
+        }
+
+        private int write(File file, String str) throws IOException {
+            FileChannel chan = FileChannel.open(file.toPath(), StandardOpenOption.CREATE, StandardOpenOption.WRITE);
+            int ret = chan.write(ByteBuffer.wrap(str.getBytes()));
+            chan.force(true);
+            chan.close();
+            return ret;
         }
 
         @Override
