@@ -58,7 +58,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
@@ -233,7 +232,7 @@ public class DataStorage extends Utils {
                     File folder = new File(TradeShop.getPlugin().getDataFolder().getAbsolutePath() + File.separator + "Data" + File.separator + worldName);
                     if (folder.exists() && folder.listFiles() != null) {
                         for (File file : folder.listFiles()) {
-                            if (file.getName().contains(worldName))
+                            if (file.getName().contains(worldName) && file.getName().endsWith(".json"))
                                 count.addAndGet(new JsonShopData(ShopChunk.deserialize(file.getName().replace(".json", ""))).size());
                         }
                     }
@@ -287,7 +286,7 @@ public class DataStorage extends Utils {
         return getShopData(new ShopChunk(chunk));
     }
 
-    private Map<String, JsonShopData> chunkDataCache = new HashMap<>();
+    private final Map<String, JsonShopData> chunkDataCache = new HashMap<>();
     protected ShopConfiguration getShopData(ShopChunk chunk) {
         if (dataType == DataType.FLATFILE) {
             String serializedChunk = chunk.serialize();
