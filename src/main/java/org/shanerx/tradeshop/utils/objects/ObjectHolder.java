@@ -44,6 +44,10 @@ public class ObjectHolder<Type> {
         return obj;
     }
 
+    public boolean isNull() {
+        return obj == null;
+    }
+
     public boolean isBoolean() {
         return obj != null && obj instanceof Boolean;
     }

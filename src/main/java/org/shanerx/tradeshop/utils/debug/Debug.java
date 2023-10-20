@@ -64,6 +64,18 @@ public abstract class Debug {
 
         ObjectHolder<Object> debugToConsole = new ObjectHolder<>(Setting.DEBUG_TO_CONSOLE.getSetting()),
                 debugToFile = new ObjectHolder<>(Setting.DEBUG_TO_FILE.getSetting());
+
+        if (debugToConsole.isNull()) {
+            Setting.DEBUG_TO_CONSOLE.resetSetting();
+            debugToConsole = new ObjectHolder<>(Setting.DEBUG_TO_CONSOLE.getSetting());
+        }
+
+        if (debugToFile.isNull()) {
+            Setting.DEBUG_TO_FILE.resetSetting();
+            debugToFile = new ObjectHolder<>(Setting.DEBUG_TO_FILE.getSetting());
+        }
+
+
         boolean debugToConsoleAsList = debugToConsole.isList() && debugToConsole.asStringList().isEmpty(),
                 debugToFileAsList = debugToFile.isList() && debugToFile.asStringList().isEmpty(),
                 debugToConsoleAsInt = debugToConsole.isInteger() && debugToConsole.asInteger() == 0,

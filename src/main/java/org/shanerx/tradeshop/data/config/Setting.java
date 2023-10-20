@@ -57,8 +57,8 @@ public enum Setting {
     UNLIMITED_ADMIN(SettingSection.SYSTEM_OPTIONS, "unlimited-admin", false),
 
     // ^ Debug Settings
-    DEBUG_TO_CONSOLE(SettingSection.DEBUG_SETTINGS, "debug-to-console", Collections.singletonList("")),
-    DEBUG_TO_FILE(SettingSection.DEBUG_SETTINGS, "debug-to-file", Collections.singletonList("")),
+    DEBUG_TO_CONSOLE(SettingSection.DEBUG_SETTINGS, "debug-to-console", Collections.singletonList("Disabled")),
+    DEBUG_TO_FILE(SettingSection.DEBUG_SETTINGS, "debug-to-file", Collections.singletonList("Disabled")),
 
     // ^ Logging
     ENABLE_TRANSACTION_LOGGING(SettingSection.TRANSACTION_LOGGING_OPTIONS, "enable-transaction-logging", true),

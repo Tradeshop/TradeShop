@@ -47,8 +47,9 @@ public enum DebugLevels {
     SQLITE(12, Level.INFO), // 2048
     GSON(13, Level.INFO), // 4096
     DATA_VERIFICATION(14, Level.INFO), // 8192
-    FIND_COMMAND(15, Level.INFO) // 16384
-
+    FIND_COMMAND(15, Level.INFO), // 16384
+    JSON_SAVING(16, Level.INFO), // 32768
+    JSON_LOADING(17, Level.INFO) // 65536
 
     ;
 
