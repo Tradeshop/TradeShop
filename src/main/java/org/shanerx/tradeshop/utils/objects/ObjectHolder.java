@@ -28,6 +28,7 @@ package org.shanerx.tradeshop.utils.objects;
 import com.google.gson.annotations.SerializedName;
 import org.bukkit.Material;
 
+import java.util.List;
 import java.util.Map;
 
 public class ObjectHolder<Type> {
@@ -109,6 +110,20 @@ public class ObjectHolder<Type> {
         if (isMap()) {
             try {
                 return (Map<String, Object>) obj;
+            } catch (ClassCastException ignored) {
+            }
+        }
+        return null;
+    }
+
+    public boolean isList() {
+        return obj != null && obj instanceof List;
+    }
+
+    public List<String> asStringList() {
+        if (isMap()) {
+            try {
+                return (List<String>) obj;
             } catch (ClassCastException ignored) {
             }
         }

@@ -36,8 +36,9 @@ public enum SettingSection {
 
     NONE(0, ""),
     SYSTEM_OPTIONS(1, "system-options"),
+    DEBUG_SETTINGS(50, SYSTEM_OPTIONS, "debug-settings"),
 
-    TRANSACTION_LOGGING_OPTIONS(50, SYSTEM_OPTIONS, "transaction-logging-options"),
+    TRANSACTION_LOGGING_OPTIONS(51, SYSTEM_OPTIONS, "transaction-logging-options"),
 
     LANGUAGE_OPTIONS(2, "language-options"),
     GLOBAL_OPTIONS(3, "global-options"),

@@ -25,6 +25,7 @@
 
 package org.shanerx.tradeshop.utils.debug;
 
+import java.util.Optional;
 import java.util.logging.Level;
 
 public enum DebugLevels {
@@ -86,6 +87,18 @@ public enum DebugLevels {
 
     public String getPrefix() {
         return " - " + name();
+    }
+
+    public static Optional<DebugLevels> match(String desiredLevel) {
+        Optional<DebugLevels> ret = Optional.empty();
+        for (DebugLevels level : values()) {
+            if (level.name().replaceAll("\\w", "").equalsIgnoreCase(desiredLevel)) {
+                ret = Optional.of(level);
+                break;
+            }
+        }
+
+        return ret;
     }
 
 }

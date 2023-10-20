@@ -4,6 +4,8 @@ setting:
       header: ""
     system-options:
       header: "System Options"
+    debug-settings:
+      header: "Debug Settings"
     logging-options:
       header: "Logging Options"
     language-options:
@@ -49,14 +51,17 @@ setting:
         pre-comment: "How would you like your servers data stored? (FLATFILE, SQLITE)"
       max-save-threads:
         pre-comment: "Max. number of additional subthreads to spawn. For the best performance, take into account how many cores you have.\nSet to 0 to save everything in the main thread (not recommended unless you experience issues with data saving)."
-      enable-debug:
-        pre-comment: "What debug code should be run. This will add significant amounts of spam to the console/log, generally not used unless requested by Devs"
       check-updates:
         pre-comment: "Should we check for updates when the server starts"
       allow-metrics:
         pre-comment: "Allow us to connect anonymous metrics so we can see how our plugin is being used to better develop it"
       unlimited-admin:
         pre-comment: "We do not recommend enabling this setting since any editing an admin should need to do can be done without this.\n Should players with Admin permission be able to use any commands on any shops?"
+      debug-settings:
+        debug-to-console:
+          pre-comment: "List of debug values to output to console"
+        debug-to-file:
+          pre-comment: "List of debug values to output to file"
       logging-options:
         enable-logging:
           pre-comment: "Should we log transactions?"
