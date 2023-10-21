@@ -30,6 +30,7 @@ import org.shanerx.tradeshop.TradeShop;
 import org.shanerx.tradeshop.data.config.Setting;
 import org.shanerx.tradeshop.utils.objects.ObjectHolder;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.logging.Level;
@@ -76,8 +77,8 @@ public abstract class Debug {
         }
 
 
-        boolean debugToConsoleAsList = debugToConsole.isList() && debugToConsole.asStringList().isEmpty(),
-                debugToFileAsList = debugToFile.isList() && debugToFile.asStringList().isEmpty(),
+        boolean debugToConsoleAsList = debugToConsole.asStringList().orElse(Collections.emptyList()).isEmpty(),
+                debugToFileAsList = debugToFile.isList() && debugToFile.asStringList().orElse(Collections.emptyList()).isEmpty(),
                 debugToConsoleAsInt = debugToConsole.isInteger() && debugToConsole.asInteger() == 0,
                 debugToFileAsInt = debugToFile.isInteger() && debugToFile.asInteger() == 0;
 

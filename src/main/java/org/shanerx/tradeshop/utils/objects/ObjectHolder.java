@@ -30,6 +30,7 @@ import org.bukkit.Material;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 public class ObjectHolder<Type> {
 
@@ -121,17 +122,18 @@ public class ObjectHolder<Type> {
     }
 
     public boolean isList() {
-        return obj != null && obj instanceof List;
+        return !isNull() && obj instanceof List;
     }
 
-    public List<String> asStringList() {
-        if (isMap()) {
+    public Optional<List<String>> asStringList() {
+        Optional<List<String>> ret = Optional.empty();
+        if (isList()) {
             try {
-                return (List<String>) obj;
+                ret = Optional.of((List<String>) obj);
             } catch (ClassCastException ignored) {
             }
         }
-        return null;
+        return ret;
     }
 
     public boolean canBeMaterial() {

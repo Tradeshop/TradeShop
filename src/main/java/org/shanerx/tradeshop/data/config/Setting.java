@@ -389,11 +389,11 @@ public enum Setting {
     }
 
     public void clearSetting() {
-        PLUGIN.getSettingManager().getConfig().set(getPath(), null);
+        setValue(null);
     }
 
     public void resetSetting() {
-        PLUGIN.getSettingManager().getConfig().set(getPath(), getDefaultValue());
+        setValue(getDefaultValue());
     }
 
     public Object getSetting() {
