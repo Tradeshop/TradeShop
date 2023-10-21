@@ -29,6 +29,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitScheduler;
+import org.shanerx.tradeshop.TradeShop;
 import org.shanerx.tradeshop.player.Permissions;
 import org.shanerx.tradeshop.utils.debug.Debug;
 import org.shanerx.tradeshop.utils.debug.DebugLevels;
@@ -57,7 +58,7 @@ public class Expirer {
         final int devExpirationDays = 60, disableDayMessages = 25, expiredMessagesPerDay = 10;
         final long postExpirationRunTimeInTicks = 1728000, ticksPerDay = 1728000;
 
-        Debug debugger = Debug.findDebugger();
+        Debug debugger = TradeShop.getPlugin().getVarManager().getDebugger();
 
         if (buildTime.plusDays(devExpirationDays).isBefore(ChronoLocalDateTime.from(LocalDateTime.now()))) {
 

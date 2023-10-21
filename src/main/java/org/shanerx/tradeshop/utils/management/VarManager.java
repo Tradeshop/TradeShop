@@ -236,13 +236,10 @@ public class VarManager {
     }
 
     public Debug getDebugger() {
-        if (debugger == null) resetDebugger();
+        if (debugger == null)
+            debugger = Debug.newDebug(); //Debug attempts to determine if the setting is version 2(int) or 3(List<String>). If it fails, it resets the setting to default values(V3).
 
         return debugger;
-    }
-
-    public void resetDebugger() {
-        this.debugger = new Debug();
     }
 
     public int getbStatsPluginID() {

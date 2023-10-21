@@ -28,58 +28,139 @@ package org.shanerx.tradeshop.utils.debug;
 import org.bukkit.Bukkit;
 import org.shanerx.tradeshop.TradeShop;
 import org.shanerx.tradeshop.data.config.Setting;
+import org.shanerx.tradeshop.utils.objects.ObjectHolder;
 
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Optional;
 import java.util.logging.Level;
 
-public class Debug {
+public abstract class Debug {
 
-    private final String PREFIX = "[TradeShop Debug%level%] ";
-    private int decimalDebugLevel;
-    private String binaryDebugLevel;
+    protected final String PREFIX;
 
-    public Debug() {
+    protected HashSet<DebugLevels> debugToConsole = new HashSet<>(),
+            debugToFile = new HashSet<>();
+
+    public Debug(int version) {
+        PREFIX = "[TradeShop Debug%V%%level%] ".replace("%V%", "V" + version);
         reload();
     }
 
     public static Debug findDebugger() {
         final TradeShop plugin = ((TradeShop) Bukkit.getPluginManager().getPlugin("TradeShop"));
-        if (plugin != null) {
-            return plugin.getDebugger();
+        if (plugin == null) return null;
+
+        Debug debugger = plugin.getVarManager().getDebugger();
+        if (debugger != null) return debugger;
+
+        return newDebug();
+    }
+
+    /**
+     * @return true if the debug should be V3
+     */
+    public static Optional<Boolean> detectDebugVersion() {
+        Optional<Boolean> v3 = Optional.empty();
+
+        ObjectHolder<Object> debugToConsole = new ObjectHolder<>(Setting.DEBUG_TO_CONSOLE.getSetting()),
+                debugToFile = new ObjectHolder<>(Setting.DEBUG_TO_FILE.getSetting());
+
+        if (debugToConsole.isNull()) {
+            Setting.DEBUG_TO_CONSOLE.resetSetting();
+            debugToConsole = new ObjectHolder<>(Setting.DEBUG_TO_CONSOLE.getSetting());
+        }
+
+        if (debugToFile.isNull()) {
+            Setting.DEBUG_TO_FILE.resetSetting();
+            debugToFile = new ObjectHolder<>(Setting.DEBUG_TO_FILE.getSetting());
+        }
+
+
+        boolean debugToConsoleAsList = debugToConsole.asStringList().orElse(Collections.emptyList()).isEmpty(),
+                debugToFileAsList = debugToFile.isList() && debugToFile.asStringList().orElse(Collections.emptyList()).isEmpty(),
+                debugToConsoleAsInt = debugToConsole.isInteger() && debugToConsole.asInteger() == 0,
+                debugToFileAsInt = debugToFile.isInteger() && debugToFile.asInteger() == 0;
+
+        if (debugToConsole.isInteger() && debugToFile.isInteger()) {
+            v3 = Optional.of(true);
+        } else if (debugToConsole.isList() && debugToFile.isList()) {
+            v3 = Optional.of(true);
+        } else if (debugToConsoleAsList || debugToFileAsList || debugToConsoleAsInt || debugToFileAsInt) {
+            if (debugToConsoleAsInt || debugToConsoleAsList) {
+                v3 = Optional.of(debugToFile.isList());
+            } else {
+                v3 = Optional.of(debugToConsole.isList());
+            }
+        }
+        return v3;
+    }
+
+    public static Debug newDebug() {
+        Optional<Boolean> debugVersion = detectDebugVersion();
+        if (debugVersion.isPresent()) {
+            return debugVersion.get() ? new DebugV3() : new DebugV2();
         } else {
-            return new Debug();
+            Setting.DEBUG_TO_CONSOLE.resetSetting();
+            Setting.DEBUG_TO_FILE.resetSetting();
+            return new DebugV3();
         }
     }
 
     public void reload() {
-        decimalDebugLevel = Setting.ENABLE_DEBUG.getInt();
-        if (decimalDebugLevel < 0) {
-            decimalDebugLevel = DebugLevels.maxValue();
+        if (loadDebugLevel(Setting.DEBUG_TO_CONSOLE, debugToConsole)) {
+            Bukkit.getLogger().log(Level.INFO, PREFIX.replace("%level%", "") + "Console Debugging enabled!");
+            Bukkit.getLogger().log(Level.INFO, PREFIX.replace("%level%", "") + "Enabled debuggers: " + debugToConsole.toString());
         }
-        StringBuilder sb = new StringBuilder(Integer.toBinaryString(decimalDebugLevel));
-        while (sb.length() < DebugLevels.levels())
-            sb.insert(0, 0);
-
-        binaryDebugLevel = sb.reverse().toString();
-
-
-        if (decimalDebugLevel > 0) {
-            Bukkit.getLogger().log(Level.INFO, PREFIX.replace("%level%", "") + "Debugging enabled!");
-            Bukkit.getLogger().log(Level.INFO, PREFIX.replace("%level%", "") + "Decimal Debug level: " + decimalDebugLevel);
-            Bukkit.getLogger().log(Level.INFO, PREFIX.replace("%level%", "") + "Debug levels: " + binaryDebugLevel);
+        if (loadDebugLevel(Setting.DEBUG_TO_FILE, debugToFile)) {
+            Bukkit.getLogger().log(Level.INFO, PREFIX.replace("%level%", "") + "File Debugging enabled!");
+            Bukkit.getLogger().log(Level.INFO, PREFIX.replace("%level%", "") + "Enabled debuggers: " + debugToFile.toString());
         }
     }
 
-    public void log(String message, DebugLevels level) {
-        if (level.getPosition() > 0 && binaryDebugLevel.charAt(level.getPosition() - 1) == '1') {
-            Bukkit.getLogger().log(level.getLogLevel(), PREFIX.replace("%level%", level.getPrefix()) + message);
-        } else if (level == DebugLevels.DISABLED) {
-            Bukkit.getLogger().log(level.getLogLevel(), PREFIX.replace(" Debug%level%", "") + message);
-        } else if (level.getPosition() < 0) {
-            Bukkit.getLogger().log(level.getLogLevel(), PREFIX.replace("%level%", level.getPrefix()) + message);
-        }
-    }
+    /**
+     * @return true if debugging is enabled
+     * @implNote This method is called by {@link #reload()} to load the debug level. It should add enums from DebugLevels to the {@link HashSet} specified by debugDestination to enable debugging for each item.
+     * @var debugDestination The {@link HashSet} to add the debug levels to
+     * @var settingToReadFrom The {@link Setting} to read the debug level from
+     */
+    public abstract boolean loadDebugLevel(Setting settingToReadFrom, HashSet<DebugLevels> debugDestination);
 
     public String getFormattedPrefix(DebugLevels debugLevel) {
         return PREFIX.replace("%level%", debugLevel.getPrefix());
     }
+
+    public void log(String message, DebugLevels level) {
+        log(message, level, null);
+    }
+
+    public void log(String message, DebugLevels level, String positionalNote) {
+        StringBuilder messageBuilder = new StringBuilder();
+
+        if (debugToConsole.contains(level)) {
+            message = PREFIX.replace("%level%", level.getPrefix()) + message;
+        } else if (level == DebugLevels.DISABLED) {
+            message = PREFIX.replaceAll("( Debug.%level%)", "") + message;
+        } else if (level.getPosition() < 0) {
+            message = PREFIX.replace("%level%", level.getPrefix()) + message;
+        }
+
+        if (positionalNote != null && !positionalNote.isEmpty()) {
+            messageBuilder.append("{ ").append(level.getPrefix()).append(" }\n");
+        }
+
+        messageBuilder.append(message);
+
+        if (debugToConsole.contains(level)) logToConsole(level.getLogLevel(), messageBuilder.toString());
+        if (debugToFile.contains(level)) logToFile(level.getLogLevel(), messageBuilder.toString());
+    }
+
+    private void logToConsole(Level level, String message) {
+        Bukkit.getLogger().log(level, message);
+    }
+
+    private void logToFile(Level level, String message) {
+        Bukkit.getLogger().log(level, "\n----- LOGTOFILE -----" + message + "\n----- END LOGTOFILE -----\n"); //TODO: Add file logging
+    }
+
 }

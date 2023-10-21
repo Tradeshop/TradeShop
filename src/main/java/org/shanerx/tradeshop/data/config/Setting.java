@@ -47,15 +47,18 @@ public enum Setting {
     // PostComment " " adds single newline below setting and "\n" adds 2 newlines below
     // PreComment `/n ` will have a new comment marker added after a sufficient space for proper formatting
 
-    CONFIG_VERSION(SettingSection.NONE, "config-version", 1.3),
+    CONFIG_VERSION(SettingSection.NONE, "config-version", 1.4),
 
     // System Options
     DATA_STORAGE_TYPE(SettingSection.SYSTEM_OPTIONS, "data-storage-type", "FLATFILE"),
     MAX_SAVE_THREADS(SettingSection.SYSTEM_OPTIONS, "max-save-threads", 3),
-    ENABLE_DEBUG(SettingSection.SYSTEM_OPTIONS, "enable-debug", 0),
     CHECK_UPDATES(SettingSection.SYSTEM_OPTIONS, "check-updates", true),
     ALLOW_METRICS(SettingSection.SYSTEM_OPTIONS, "allow-metrics", true),
     UNLIMITED_ADMIN(SettingSection.SYSTEM_OPTIONS, "unlimited-admin", false),
+
+    // ^ Debug Settings
+    DEBUG_TO_CONSOLE(SettingSection.DEBUG_SETTINGS, "debug-to-console", Collections.singletonList("Disabled")),
+    DEBUG_TO_FILE(SettingSection.DEBUG_SETTINGS, "debug-to-file", Collections.singletonList("Disabled")),
 
     // ^ Logging
     ENABLE_TRANSACTION_LOGGING(SettingSection.TRANSACTION_LOGGING_OPTIONS, "enable-transaction-logging", true),
@@ -156,12 +159,7 @@ public enum Setting {
     static boolean upgrade() {
         double version = CONFIG_VERSION.getDouble();
         Set<Boolean> hasUpgraded = new HashSet<>(); // Uses this instead of a boolean to later replace below ifs with boolean return methods...
-        ConfigManager configManager = PLUGIN.getSettingManager();
-
-        // 2.2.2 Changed enable debug from true/false to integer
-        if (!configManager.getConfig().isInt(ENABLE_DEBUG.path)) {
-            ENABLE_DEBUG.clearSetting();
-        }
+        ConfigManager configManager = PLUGIN.getVarManager().getSettingManager();
 
         // 2.2.2 Better Sorted/potentially commented config
         if (version < 1.1) {
@@ -280,6 +278,17 @@ public enum Setting {
             version = 1.3;
         }
 
+        if (version < 1.4) {
+
+            String oldKey = "system-options.enable-debug";
+            if (configManager.getConfig().contains(oldKey)) {
+                configManager.getConfig().set(oldKey, null);
+                hasUpgraded.add(true);
+            }
+
+            version = 1.4;
+        }
+
         CONFIG_VERSION.setValue(version);
 
         return hasUpgraded.contains(true);
@@ -380,7 +389,11 @@ public enum Setting {
     }
 
     public void clearSetting() {
-        PLUGIN.getSettingManager().getConfig().set(getPath(), null);
+        setValue(null);
+    }
+
+    public void resetSetting() {
+        setValue(getDefaultValue());
     }
 
     public Object getSetting() {

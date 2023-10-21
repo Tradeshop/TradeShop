@@ -39,6 +39,8 @@ import org.shanerx.tradeshop.data.storage.ShopConfiguration;
 import org.shanerx.tradeshop.shop.Shop;
 import org.shanerx.tradeshop.shoplocation.ShopChunk;
 import org.shanerx.tradeshop.shoplocation.ShopLocation;
+import org.shanerx.tradeshop.utils.debug.Debug;
+import org.shanerx.tradeshop.utils.debug.DebugLevels;
 import org.shanerx.tradeshop.utils.gsonprocessing.GsonProcessor;
 
 import java.io.File;
@@ -48,7 +50,11 @@ import java.nio.channels.FileChannel;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.logging.Level;
@@ -273,8 +279,10 @@ public class JsonShopData extends JsonConfiguration implements ShopConfiguration
                     }
 
                     int expectedLength = str.getBytes(StandardCharsets.UTF_8).length;
+                    Debug debug = Debug.findDebugger();
 
                     try {
+                        debug.log(str, DebugLevels.JSON_SAVING, "JsonShopData^SaveThreadMaster#run().try-1 - " + file.getName());
                         if (file.exists()) {
                             bak.delete();
                             mjf.delete(); // Delete previous malformed and bak files to prevent conflicts with new ones. Could potentially rename with a counter if we really want to see a lot of malformed files.
@@ -297,6 +305,7 @@ public class JsonShopData extends JsonConfiguration implements ShopConfiguration
                             }
 
                             fileBytes = chan.write(byteBuff);
+                            debug.log(new String(byteBuff.asCharBuffer().array()), DebugLevels.JSON_SAVING, "JsonShopData^SaveThreadMaster#run().try-1_post-verify - " + file.getName());
                             chan.force(true);
                             chan.close();
 
