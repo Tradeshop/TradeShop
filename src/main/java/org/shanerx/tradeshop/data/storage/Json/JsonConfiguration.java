@@ -66,7 +66,7 @@ class JsonConfiguration extends Utils {
     }
 
     // Caching File objects for synchronized(File) {} blocks
-    private static Map<String, File> fileCache = new HashMap<>();
+    private static final Map<String, File> fileCache = new HashMap<>();
     public static File getFile(String folderFromData, String fileName) {
         String path = getPath(folderFromData).getPath() + File.separator + fileName + ".json";
 
@@ -124,6 +124,7 @@ class JsonConfiguration extends Utils {
 
     protected void loadFile() {
         try {
+            PLUGIN.getVarManager().getDebugger().log(String.join("\n", Files.readAllLines(file.toPath())), DebugLevels.JSON_LOADING, "JsonConfiguration#loadFile() - " + file.getName());
             jsonObj = JsonParser.parseReader(new FileReader(file)).getAsJsonObject();
 
         } catch (FileNotFoundException e) {
@@ -134,6 +135,8 @@ class JsonConfiguration extends Utils {
             PLUGIN.getLogger().log(Level.SEVERE, "Could not load " + file.getName() + " file due to malformed Json! \n Please send the .err file with the same name to the TradeShop Devs. \n\nTradeShop will now disable, please remove/fix any err files before restarting the plugin.", e);
 
             jsonSyntaxError(file, e);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 

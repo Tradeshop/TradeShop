@@ -25,7 +25,6 @@
 
 package org.shanerx.tradeshop.data.config;
 
-import org.bukkit.Bukkit;
 import org.shanerx.tradeshop.TradeShop;
 import org.shanerx.tradeshop.item.IllegalItemList;
 import org.shanerx.tradeshop.item.ShopItemStackSettingKeys;
@@ -133,7 +132,7 @@ public enum Setting {
     PRODUCT_ILLEGAL_ITEMS_TYPE(SettingSection.PRODUCT_ILLEGAL_ITEMS, "type", IllegalItemList.ListType.DISABLED.toString()),
     PRODUCT_ILLEGAL_ITEMS_LIST(SettingSection.PRODUCT_ILLEGAL_ITEMS, "list", new String[]{});
 
-    public static final TradeShop PLUGIN = (TradeShop) Bukkit.getPluginManager().getPlugin("TradeShop");
+    public static final TradeShop PLUGIN = TradeShop.getPlugin();
 
     private final String key, path;
     private final Object defaultValue;
@@ -156,12 +155,7 @@ public enum Setting {
     static boolean upgrade() {
         double version = CONFIG_VERSION.getDouble();
         Set<Boolean> hasUpgraded = new HashSet<>(); // Uses this instead of a boolean to later replace below ifs with boolean return methods...
-        ConfigManager configManager = PLUGIN.getSettingManager();
-
-        // 2.2.2 Changed enable debug from true/false to integer
-        if (!configManager.getConfig().isInt(ENABLE_DEBUG.path)) {
-            ENABLE_DEBUG.clearSetting();
-        }
+        ConfigManager configManager = PLUGIN.getVarManager().getSettingManager();
 
         // 2.2.2 Better Sorted/potentially commented config
         if (version < 1.1) {
@@ -294,23 +288,23 @@ public enum Setting {
     }
 
     public String getMappedString(String subKey) {
-        return PLUGIN.getSettingManager().getConfig().getConfigurationSection(getPath()).getString(subKey.toLowerCase().replace("_", "-"));
+        return PLUGIN.getVarManager().getSettingManager().getConfig().getConfigurationSection(getPath()).getString(subKey.toLowerCase().replace("_", "-"));
     }
 
     public boolean getMappedBoolean(String subKey) {
-        return PLUGIN.getSettingManager().getConfig().getConfigurationSection(getPath()).getBoolean(subKey.toLowerCase().replace("_", "-"));
+        return PLUGIN.getVarManager().getSettingManager().getConfig().getConfigurationSection(getPath()).getBoolean(subKey.toLowerCase().replace("_", "-"));
     }
 
     public Object getMappedObject(String subKey) {
-        return PLUGIN.getSettingManager().getConfig().getConfigurationSection(getPath()).get(subKey.toLowerCase().replace("_", "-"));
+        return PLUGIN.getVarManager().getSettingManager().getConfig().getConfigurationSection(getPath()).get(subKey.toLowerCase().replace("_", "-"));
     }
 
     public String getPostComment() {
-        return PLUGIN.getLanguage().getPostComment(Language.LangSection.SETTING, Language.LangSubSection.VALUES, path);
+        return PLUGIN.getVarManager().getLanguage().getPostComment(Language.LangSection.SETTING, Language.LangSubSection.VALUES, path);
     }
 
     public String getPreComment() {
-        return PLUGIN.getLanguage().getPreComment(Language.LangSection.SETTING, Language.LangSubSection.VALUES, path);
+        return PLUGIN.getVarManager().getLanguage().getPreComment(Language.LangSection.SETTING, Language.LangSubSection.VALUES, path);
     }
 
     public SettingSection getSection() {
@@ -346,7 +340,7 @@ public enum Setting {
         StringBuilder keyOutput = new StringBuilder();
 
         if (!getPreComment().isEmpty()) {
-            keyOutput.append(section.getSectionLead()).append("# ").append(PLUGIN.getSettingManager().fixCommentNewLines(section.getSectionLead(), getPreComment())).append("\n");
+            keyOutput.append(section.getSectionLead()).append("# ").append(PLUGIN.getVarManager().getSettingManager().fixCommentNewLines(section.getSectionLead(), getPreComment())).append("\n");
         }
 
         if (defaultValue instanceof Map) {
@@ -360,50 +354,54 @@ public enum Setting {
             if (getPostComment().equals(" ") || getPostComment().equals("\n"))
                 keyOutput.append(getPostComment()).append("\n");
             else
-                keyOutput.append(section.getSectionLead()).append("# ").append(PLUGIN.getSettingManager().fixCommentNewLines(section.getSectionLead(), getPostComment())).append("\n");
+                keyOutput.append(section.getSectionLead()).append("# ").append(PLUGIN.getVarManager().getSettingManager().fixCommentNewLines(section.getSectionLead(), getPostComment())).append("\n");
         }
 
         return keyOutput.toString();
     }
 
     public Map<String, Object> getAsMap() {
-        return PLUGIN.getSettingManager().getConfig().getConfigurationSection(getPath()).getValues(true);
+        return PLUGIN.getVarManager().getSettingManager().getConfig().getConfigurationSection(getPath()).getValues(true);
     }
 
     public void setValue(Object obj) {
-        PLUGIN.getSettingManager().getConfig().set(getPath(), obj);
+        PLUGIN.getVarManager().getSettingManager().getConfig().set(getPath(), obj);
     }
 
     public void setMappedValue(String subKey, Object obj) {
         String newNode = getPath() + "." + subKey;
-        PLUGIN.getSettingManager().getConfig().set(newNode, obj);
+        PLUGIN.getVarManager().getSettingManager().getConfig().set(newNode, obj);
     }
 
     public void clearSetting() {
-        PLUGIN.getSettingManager().getConfig().set(getPath(), null);
+        setValue(null);
+    }
+
+    public void resetSetting() {
+        setValue(getDefaultValue());
     }
 
     public Object getSetting() {
-        return PLUGIN.getSettingManager().getConfig().get(getPath());
+        return PLUGIN.getVarManager().getSettingManager().getConfig().get(getPath());
     }
 
     public String getString() {
-        return PLUGIN.getSettingManager().getConfig().getString(getPath());
+        return PLUGIN.getVarManager().getSettingManager().getConfig().getString(getPath());
     }
 
     public List<String> getStringList() {
-        return PLUGIN.getSettingManager().getConfig().getStringList(getPath());
+        return PLUGIN.getVarManager().getSettingManager().getConfig().getStringList(getPath());
     }
 
     public int getInt() {
-        return PLUGIN.getSettingManager().getConfig().getInt(getPath());
+        return PLUGIN.getVarManager().getSettingManager().getConfig().getInt(getPath());
     }
 
     public double getDouble() {
-        return PLUGIN.getSettingManager().getConfig().getDouble(getPath());
+        return PLUGIN.getVarManager().getSettingManager().getConfig().getDouble(getPath());
     }
 
     public boolean getBoolean() {
-        return PLUGIN.getSettingManager().getConfig().getBoolean(getPath());
+        return PLUGIN.getVarManager().getSettingManager().getConfig().getBoolean(getPath());
     }
 }
