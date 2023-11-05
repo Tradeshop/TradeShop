@@ -25,6 +25,7 @@
 
 package org.shanerx.tradeshop.shop;
 
+import com.bergerkiller.bukkit.common.config.JsonSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -152,8 +153,13 @@ public class Shop implements Serializable {
      * @return Shop object from file
      */
     public static Shop deserialize(String serialized) {
-        Shop shop = new GsonProcessor().fromJson(serialized, Shop.class);
-        shop.fixAfterLoad();
+        Shop shop = null;
+        try {
+            shop = new GsonProcessor().fromJson(serialized, Shop.class);
+        } catch (JsonSerializer.JsonSyntaxException ignored) {
+        }
+        if (shop != null)
+            shop.fixAfterLoad();
 
         return shop;
     }

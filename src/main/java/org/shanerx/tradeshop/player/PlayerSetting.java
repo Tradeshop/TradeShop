@@ -25,6 +25,7 @@
 
 package org.shanerx.tradeshop.player;
 
+import com.bergerkiller.bukkit.common.config.JsonSerializer;
 import com.google.common.collect.Sets;
 import de.themoep.inventorygui.GuiElementGroup;
 import de.themoep.inventorygui.GuiPageElement;
@@ -82,8 +83,13 @@ public class PlayerSetting implements Serializable {
     }
 
     public static PlayerSetting deserialize(String serialized) {
-        PlayerSetting playerSetting = new GsonProcessor().fromJson(serialized, PlayerSetting.class);
-        playerSetting.load();
+        PlayerSetting playerSetting = null;
+        try {
+            playerSetting = GsonProcessor.fromJson(serialized, PlayerSetting.class);
+            playerSetting.load();
+        } catch (JsonSerializer.JsonSyntaxException ignored) {
+        }
+
         return playerSetting;
     }
 

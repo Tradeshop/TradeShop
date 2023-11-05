@@ -41,12 +41,12 @@ import org.shanerx.tradeshop.player.JoinEventListener;
 import org.shanerx.tradeshop.player.Permissions;
 import org.shanerx.tradeshop.shop.ShopSign;
 import org.shanerx.tradeshop.shop.ShopStorage;
+import org.shanerx.tradeshop.shop.listeners.ChunkUnloadListener;
 import org.shanerx.tradeshop.shop.listeners.PaperShopProtectionListener;
 import org.shanerx.tradeshop.shop.listeners.ShopCreateListener;
 import org.shanerx.tradeshop.shop.listeners.ShopProtectionListener;
 import org.shanerx.tradeshop.shop.listeners.ShopRestockListener;
 import org.shanerx.tradeshop.shop.listeners.ShopTradeListener;
-import org.shanerx.tradeshop.shop.listeners.ChunkUnloadListener;
 import org.shanerx.tradeshop.utils.debug.Debug;
 import org.shanerx.tradeshop.utils.logging.transactionlogging.TransactionLogger;
 import org.shanerx.tradeshop.utils.logging.transactionlogging.listeners.SuccessfulTradeEventListener;
@@ -140,7 +140,12 @@ public class TradeShop extends JavaPlugin {
         getSettingManager().reload();
         getMessageManager().reload();
 
-        return getDataStorage() != null;
+        if (Setting.MESSAGE_PREFIX.getString().startsWith("§a§b§2§3§6§1")) { //TODO remove for release if old data will not be lost
+            getLogger().log(Level.SEVERE, "This version will most likely break existing data. To continue, please add `§a§b§2§3§6§1` before the message prefix in the config and restart the server.");
+            return false;
+        }
+
+        return getVarManager().getDataStorage() != null;
     }
 
     private void registration() {

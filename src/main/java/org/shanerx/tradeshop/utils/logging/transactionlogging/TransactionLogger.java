@@ -26,8 +26,6 @@
 package org.shanerx.tradeshop.utils.logging.transactionlogging;
 
 import com.google.common.io.Files;
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
 import org.bukkit.inventory.ItemStack;
 import org.shanerx.tradeshop.TradeShop;
 import org.shanerx.tradeshop.data.config.Setting;
@@ -40,13 +38,9 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
-import java.util.Base64;
 import java.util.Date;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class TransactionLogger {
 
@@ -126,29 +120,14 @@ public class TransactionLogger {
     }
 
     private String getItemListAsString(List<ItemStack> itemList) {
-        try {
-            final Gson gson = new GsonProcessor(false).getGlobalGson();
-            JsonObject jsonObj = new JsonObject();
+        //try {
+        String[] itemArray = new String[itemList.size()];
             for (int i = 0; i < itemList.size(); i++) {
-                JsonObject temp = gson.toJsonTree(new ItemStack(itemList.get(i))).getAsJsonObject();
-
-                // remove unneeded tags
-                if (temp.has("meta")) {
-                    JsonObject tempMeta = temp.getAsJsonObject("meta");
-                    tempMeta.remove("placeableKeys");
-                    tempMeta.remove("destroyableKeys");
-
-                    if (tempMeta.has("persistentDataContainer")) {
-                        JsonObject tempPerData = tempMeta.getAsJsonObject("persistentDataContainer");
-                        tempPerData.remove("registry");
-                        tempPerData.remove("adapterContext");
-                    }
-                }
-
-                jsonObj.add("Item #" + i, temp);
+                itemArray[i] = GsonProcessor.itemStackToJson(new ItemStack(itemList.get(i)));
             }
 
-            String ret = gson.toJson(jsonObj);
+           /*
+           String ret = gson.toJson(jsonObj);
 
             Matcher m = Pattern.compile("(/).+( [\\[{])").matcher(ret);
 
@@ -181,7 +160,7 @@ public class TransactionLogger {
                 }
             }
 
-        /*
+        *//*
         // Replaces get rid of " that break the json output
         // Remove " from :"{
         ret = ret.replace(":\"{", ":{");
@@ -197,7 +176,7 @@ public class TransactionLogger {
         ret = ret.replace("}\"}", "}}");
         // Replace empty "" with "unknown"
         ret = ret.replace("{\"\",", "[");
-        */
+        *//*
 
             return ret
                     // Remove " from :"{
@@ -216,10 +195,14 @@ public class TransactionLogger {
                     .replace("}\"}", "}}")
                     // Replace empty "" with "unknown"
                     .replace("\"\",", "");
+                    */
+        return GsonProcessor.toJson(itemArray);
+            /*
         } catch (Exception e) {
             e.printStackTrace();
             return "Error: " + Base64.getEncoder().encodeToString(e.getStackTrace().toString().getBytes(StandardCharsets.UTF_8));
         }
+             */
     }
 
     private String getFileTimeString() {

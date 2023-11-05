@@ -25,8 +25,14 @@
 
 package org.shanerx.tradeshop.player;
 
+import com.bergerkiller.bukkit.common.config.JsonSerializer;
 import com.google.gson.annotations.SerializedName;
-import org.bukkit.*;
+import org.bukkit.Bukkit;
+import org.bukkit.ChunkSnapshot;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.OfflinePlayer;
+import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
@@ -43,7 +49,11 @@ import org.shanerx.tradeshop.shoplocation.ShopLocation;
 import org.shanerx.tradeshop.utils.gsonprocessing.GsonProcessor;
 
 import java.io.Serializable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @SuppressWarnings("unused")
@@ -64,8 +74,8 @@ public class ShopUser implements Serializable {
         this.role = role;
     }
 
-    public static ShopUser deserialize(String serialized) {
-        ShopUser shopUser = new GsonProcessor().fromJson(serialized, ShopUser.class);
+    public static ShopUser deserialize(String serialized) throws JsonSerializer.JsonSyntaxException {
+        ShopUser shopUser = GsonProcessor.fromJson(serialized, ShopUser.class);
         shopUser.player = Bukkit.getOfflinePlayer(UUID.fromString(shopUser.playerUUID));
         return shopUser;
     }

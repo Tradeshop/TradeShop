@@ -25,52 +25,37 @@
 
 package org.shanerx.tradeshop.utils.gsonprocessing;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonSyntaxException;
-import org.bukkit.configuration.serialization.ConfigurationSerializable;
-import org.shanerx.tradeshop.utils.gsonprocessing.typeadapters.ConfigurationSerializableAdapter;
+import com.bergerkiller.bukkit.common.config.JsonSerializer;
+import com.bergerkiller.bukkit.common.utils.LogicUtil;
+import org.bukkit.inventory.ItemStack;
 
-import java.lang.reflect.Type;
+import java.util.Map;
 
 public class GsonProcessor {
-    private final Gson globalGson;
+    private static final JsonSerializer jsonSerializer = new JsonSerializer();
 
-    public GsonProcessor(boolean doPrettyPrinting) {
-        GsonBuilder gsonBuilder = new GsonBuilder()
-                .disableHtmlEscaping()
-                .serializeNulls()
-                .enableComplexMapKeySerialization()
-                .setLenient()
-                .registerTypeHierarchyAdapter(ConfigurationSerializable.class, new ConfigurationSerializableAdapter());
-
-        if (doPrettyPrinting) gsonBuilder.setPrettyPrinting();
-
-        globalGson = gsonBuilder.create();
+    public static ItemStack fromJsonToItemStack(String json) throws JsonSerializer.JsonSyntaxException {
+        return jsonSerializer.fromJsonToItemStack(json);
     }
 
-    public GsonProcessor() {
-        this(true);
+    @SuppressWarnings("unchecked")
+    public static Map<String, Object> jsonToMap(String json) throws JsonSerializer.JsonSyntaxException {
+        return jsonSerializer.fromJson(json, Map.class);
     }
 
-    public <T> T fromJson(String json, Class<T> classOfT) throws JsonSyntaxException {
-        return globalGson.fromJson(json, (Type) classOfT);
+    public static <T> T fromJson(String json, Class<T> type) throws JsonSerializer.JsonSyntaxException {
+        return jsonSerializer.fromJson(json, type);
     }
 
-    public <T> T fromJson(JsonElement json, Type typeOfT) throws JsonSyntaxException {
-        return globalGson.fromJson(json, typeOfT);
+    public static String itemStackToJson(ItemStack item) {
+        return jsonSerializer.mapToJson(LogicUtil.serializeDeep(item));
     }
 
-    public String toJson(Object src) {
-        return globalGson.toJson(src, src.getClass());
+    public static String mapToJson(Map<String, Object> map) {
+        return jsonSerializer.mapToJson(map);
     }
 
-    public JsonElement toJsonTree(Object src) {
-        return globalGson.toJsonTree(src, src.getClass());
-    }
-
-    public Gson getGlobalGson() {
-        return globalGson;
+    public static String toJson(Object value) {
+        return jsonSerializer.toJson(value);
     }
 }

@@ -25,6 +25,7 @@
 
 package org.shanerx.tradeshop.item;
 
+import com.bergerkiller.bukkit.common.config.JsonSerializer;
 import com.google.common.collect.Lists;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
@@ -59,8 +60,9 @@ import java.util.Objects;
 
 public class ShopItemStack implements Serializable, Cloneable {
 
-    @Expose
+    @Expose(serialize = false)
     private ItemStack itemStack;
+    private String itemStackString;
     private transient Debug debugger;
 
     @Expose(serialize = false)
@@ -91,7 +93,12 @@ public class ShopItemStack implements Serializable, Cloneable {
         itemSettings.forEach((key, value) -> this.itemSettings.put(ShopItemStackSettingKeys.match(key), value));
 
         buildMap();
-        loadLegacyData();
+        try {
+            fixLoadedData();
+        } catch (JsonSerializer.JsonSyntaxException e) {
+            itemStack = null;
+            itemSettings = null;
+        }
     }
 
     //Re-added for backwards compatibility
@@ -117,18 +124,30 @@ public class ShopItemStack implements Serializable, Cloneable {
         itemSettings.putIfAbsent(ShopItemStackSettingKeys.COMPARE_ENCHANTMENTS, new ObjectHolder<>(compareEnchantments));
 
         buildMap();
-        loadLegacyData();
+        try {
+            fixLoadedData();
+        } catch (JsonSerializer.JsonSyntaxException e) {
+            itemStack = null;
+            itemSettings = null;
+        }
     }
 
     public static ShopItemStack deserialize(String serialized) {
-        ShopItemStack item = new GsonProcessor().fromJson(serialized, ShopItemStack.class);
-        item.loadLegacyData();
+        ShopItemStack item = null;
+        try {
+            item = GsonProcessor.fromJson(serialized, ShopItemStack.class);
+            item.fixLoadedData();
+        } catch (JsonSerializer.JsonSyntaxException e) {
+            return null;
+        }
+
         item.buildMap();
         return item;
     }
 
     public String serialize() {
-        return new GsonProcessor().toJson(this);
+        itemStackString = GsonProcessor.toJson(itemStack);
+        return GsonProcessor.toJson(this);
     }
 
     public ObjectHolder<?> getShopSetting(ShopItemStackSettingKeys key) {
@@ -470,7 +489,12 @@ public class ShopItemStack implements Serializable, Cloneable {
 
     public ItemStack getItemStack() {
         if (itemStack == null)
-            loadLegacyData();
+            try {
+                fixLoadedData();
+            } catch (JsonSerializer.JsonSyntaxException e) {
+                itemStack = null;
+                itemSettings = null;
+            }
         return itemStack;
     }
 
@@ -521,29 +545,34 @@ public class ShopItemStack implements Serializable, Cloneable {
 
     @Override
     public String toString() {
-        return new GsonProcessor().toJson(this);
+        return GsonProcessor.toJson(this);
     }
 
     /**
      * Sets the objects {@link ItemStack} from its Base64.
      */
-    private void loadLegacyData() {
-        if (itemStack == null && hasBase64()) {
-            try {
-                ByteArrayInputStream inputStream = new ByteArrayInputStream(Base64Coder.decodeLines(itemStackB64));
-                BukkitObjectInputStream dataInput = new BukkitObjectInputStream(inputStream);
+    private void fixLoadedData() throws JsonSerializer.JsonSyntaxException {
+        if (itemStack == null) {
+            if (hasBase64()) {
+                try {
+                    ByteArrayInputStream inputStream = new ByteArrayInputStream(Base64Coder.decodeLines(itemStackB64));
+                    BukkitObjectInputStream dataInput = new BukkitObjectInputStream(inputStream);
 
-                // Read the serialized inventory
-                itemStack = new ItemStack((ItemStack) dataInput.readObject());
+                    // Read the serialized inventory
+                    itemStack = new ItemStack((ItemStack) dataInput.readObject());
 
-                dataInput.close();
-            } catch (ClassNotFoundException | IOException e) {
-                itemStack = null;
+                    dataInput.close();
+                } catch (ClassNotFoundException | IOException e) {
+                    itemStack = null;
+                }
+            } else if (itemStackString != null && !itemStackString.isEmpty()) {
+                itemStack = GsonProcessor.fromJsonToItemStack(itemStackString);
             }
         }
+
     }
 
     public String toConsoleText() {
-        return new GsonProcessor().toJson(this);
+        return serialize();
     }
 }

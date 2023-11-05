@@ -25,10 +25,12 @@
 
 package org.shanerx.tradeshop.data.storage.Json;
 
+import com.bergerkiller.bukkit.common.config.JsonSerializer;
 import com.google.common.collect.Sets;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonIOException;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
 import com.google.gson.stream.MalformedJsonException;
 import org.apache.logging.log4j.util.Chars;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -76,7 +78,7 @@ public class JsonShopData extends JsonConfiguration implements ShopConfiguration
 
     @Override
     public void save(Shop shop) {
-        jsonObj.add(shop.getShopLocationAsSL().serialize(), gson.toJsonTree(shop));
+        jsonObj.add(shop.getShopLocationAsSL().serialize(), new JsonPrimitive(GsonProcessor.toJson(shop)));
 
         saveFile();
     }
@@ -107,10 +109,10 @@ public class JsonShopData extends JsonConfiguration implements ShopConfiguration
         if (!jsonObj.has(locStr)) return null;
 
         try {
-            shop = gson.fromJson(jsonObj.get(locStr), Shop.class);
+            shop = GsonProcessor.fromJson(jsonObj.get(locStr).getAsString(), Shop.class);
             shop.aSyncFix();
-        } catch (IllegalArgumentException iAe) {
-            iAe.printStackTrace();
+        } catch (IllegalArgumentException | JsonSerializer.JsonSyntaxException e) {
+            e.printStackTrace();
             remove(loc);
         }
 
@@ -271,7 +273,7 @@ public class JsonShopData extends JsonConfiguration implements ShopConfiguration
                 File file = op.getFile(), bak = new File(file.getParentFile(), file.getName() + ".bak"), mjf = new File(file.getParentFile(), file.getName() + ".mjf");
                 synchronized (file) {
                     JsonObject jsonObj = op.getJson();
-                    String str = master.gson.toJson(jsonObj);
+                    String str = GsonProcessor.toJson(jsonObj);
 
                     if (str.isEmpty() || jsonObj.entrySet().isEmpty()) {
                         file.delete();

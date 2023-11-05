@@ -25,6 +25,7 @@
 
 package org.shanerx.tradeshop.shop;
 
+import com.bergerkiller.bukkit.common.config.JsonSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.block.Block;
@@ -77,8 +78,8 @@ public enum ShopType implements Serializable {
         return null;
     }
 
-    public static ShopType deserialize(String serialized) {
-        return new GsonProcessor().fromJson(serialized, ShopType.class);
+    public static ShopType deserialize(String serialized) throws JsonSerializer.JsonSyntaxException {
+        return GsonProcessor.fromJson(serialized, ShopType.class);
     }
 
     @Override

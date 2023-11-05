@@ -25,12 +25,13 @@
 
 package org.shanerx.tradeshop.data.storage.Json;
 
-import com.google.gson.reflect.TypeToken;
+import com.bergerkiller.bukkit.common.config.JsonSerializer;
+import com.google.gson.JsonPrimitive;
 import org.shanerx.tradeshop.data.storage.PlayerConfiguration;
 import org.shanerx.tradeshop.player.PlayerSetting;
+import org.shanerx.tradeshop.utils.gsonprocessing.GsonProcessor;
 
 import java.io.File;
-import java.util.Map;
 import java.util.UUID;
 
 public class JsonPlayerData extends JsonConfiguration implements PlayerConfiguration {
@@ -48,20 +49,17 @@ public class JsonPlayerData extends JsonConfiguration implements PlayerConfigura
     @Override
     public void save(PlayerSetting playerSetting) {
         this.playerSetting = playerSetting;
-        jsonObj.add(playerSetting.getUuid().toString(), gson.toJsonTree(playerSetting));
+        jsonObj.add(playerSetting.getUuid().toString(), new JsonPrimitive(GsonProcessor.toJson(playerSetting)));
 
         saveFile();
     }
 
     @Override
     public PlayerSetting load() {
-        if (jsonObj.has("data")) {
-            playerSetting = new PlayerSetting(playerUUID, gson.fromJson(jsonObj.get("data"), new TypeToken<Map<String, Integer>>() {
-            }.getType()));
-            jsonObj.remove("data");
-            saveFile();
-        } else {
-            playerSetting = gson.fromJson(jsonObj.get(playerUUID.toString()), PlayerSetting.class);
+        try {
+            playerSetting = GsonProcessor.fromJson(jsonObj.get(playerUUID.toString()).getAsString(), PlayerSetting.class);
+        } catch (JsonSerializer.JsonSyntaxException ex) {
+            playerSetting = new PlayerSetting(playerUUID);
         }
 
         if (playerSetting != null)

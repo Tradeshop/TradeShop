@@ -25,12 +25,15 @@
 
 package org.shanerx.tradeshop.data.storage.Json;
 
-import com.google.gson.reflect.TypeToken;
+import com.bergerkiller.bukkit.common.config.JsonSerializer;
+import com.google.gson.JsonPrimitive;
 import org.bukkit.World;
 import org.shanerx.tradeshop.data.storage.LinkageConfiguration;
+import org.shanerx.tradeshop.utils.gsonprocessing.GsonProcessor;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class JsonLinkageData extends JsonConfiguration implements LinkageConfiguration {
 
@@ -43,11 +46,12 @@ public class JsonLinkageData extends JsonConfiguration implements LinkageConfigu
 
     @Override
     public void load() {
-        linkageData = gson.fromJson(jsonObj.get("linkage_data"), new TypeToken<Map<String, String>>() {
-        }.getType());
-
-        if (linkageData == null)
+        try {
+            linkageData = GsonProcessor.jsonToMap(jsonObj.get("linkage_data").getAsString()).entrySet().stream()
+                    .collect(Collectors.toMap(Map.Entry::getKey, e -> (String) e.getValue()));
+        } catch (JsonSerializer.JsonSyntaxException ex) {
             linkageData = new HashMap<>();
+        }
     }
 
     @Override
@@ -57,7 +61,7 @@ public class JsonLinkageData extends JsonConfiguration implements LinkageConfigu
 
     @Override
     public void save() {
-        jsonObj.add("linkage_data", gson.toJsonTree(linkageData));
+        jsonObj.add("linkage_data", new JsonPrimitive(GsonProcessor.toJson(linkageData)));
 
         saveFile();
     }
