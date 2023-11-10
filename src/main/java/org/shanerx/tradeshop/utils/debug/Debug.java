@@ -81,16 +81,8 @@ public class Debug {
             message = PREFIX.replace("%level%", level.getPrefix()) + message;
         }
 
-        if (level.getPosition() > 0 && binaryDebugLevel.charAt(level.getPosition() - 1) == '1') {
-            message = PREFIX.replace("%level%", level.getPrefix()) + message;
-        } else if (level == DebugLevels.DISABLED) {
-            message = PREFIX.replaceAll("( Debug.%level%)", "") + message;
-        } else if (level.getPosition() < 0) {
-            message = PREFIX.replace("%level%", level.getPrefix()) + message;
-        }
-
         if (positionalNote != null && !positionalNote.isEmpty()) {
-            messageBuilder.append("{ ").append(level.getPrefix()).append(" }\n");
+            messageBuilder.append("{ ").append(positionalNote).append(" }\n");
         }
 
         messageBuilder.append(message);
