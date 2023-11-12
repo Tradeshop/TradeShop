@@ -140,7 +140,7 @@ public class TradeShop extends JavaPlugin {
         getSettingManager().reload();
         getMessageManager().reload();
 
-        String lockout = "§a§b§2§c§6§1";
+        String lockout = "§a§f§2§c§6§1";
         if (Setting.MESSAGE_PREFIX.getString().startsWith(lockout)) { //TODO remove for release if old data will not be lost
             getLogger().log(Level.SEVERE, "This version will most likely break existing data. To continue, please add `" + lockout + "` before the message prefix in the config and restart the server.");
             return false;

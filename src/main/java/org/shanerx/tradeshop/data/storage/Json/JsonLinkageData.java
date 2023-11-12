@@ -49,7 +49,7 @@ public class JsonLinkageData extends JsonConfiguration implements LinkageConfigu
         try {
             linkageData = GsonProcessor.jsonToMap(jsonObj.get("linkage_data").toString()).entrySet().stream()
                     .collect(Collectors.toMap(Map.Entry::getKey, e -> (String) e.getValue()));
-        } catch (JsonSerializer.JsonSyntaxException ex) {
+        } catch (JsonSerializer.JsonSyntaxException | NullPointerException ignored) {
             linkageData = new HashMap<>();
         }
     }
