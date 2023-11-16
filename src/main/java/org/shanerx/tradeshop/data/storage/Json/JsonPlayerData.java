@@ -58,7 +58,7 @@ public class JsonPlayerData extends JsonConfiguration implements PlayerConfigura
     public PlayerSetting load() {
         try {
             playerSetting = GsonProcessor.fromJson(jsonObj.get(playerUUID.toString()).getAsString(), PlayerSetting.class);
-        } catch (JsonSerializer.JsonSyntaxException ex) {
+        } catch (JsonSerializer.JsonSyntaxException | NullPointerException ex) {
             playerSetting = new PlayerSetting(playerUUID);
         }
 
