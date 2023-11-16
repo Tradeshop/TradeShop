@@ -109,7 +109,7 @@ public class JsonShopData extends JsonConfiguration implements ShopConfiguration
         if (!jsonObj.has(locStr)) return null;
 
         try {
-            shop = GsonProcessor.fromJson(jsonObj.get(locStr).getAsString(), Shop.class);
+            shop = GsonProcessor.fromJson(jsonObj.get(locStr).toString(), Shop.class);
             shop.aSyncFix();
         } catch (IllegalArgumentException | JsonSerializer.JsonSyntaxException e) {
             e.printStackTrace();
