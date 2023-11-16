@@ -118,6 +118,12 @@ public class ShopProtectionListener extends Utils implements Listener {
 
         Shop shop = plugin.getDataStorage().loadShopFromStorage(new ShopLocation(invBlock.getLocation()));
 
+        if (shop == null) {
+            plugin.getListManager().addSkippableHopper(event.getInitiator().getLocation(), false);
+            plugin.getDebugger().log("Protection Shop Null Catch for \n  " + event.getInitiator().getLocation(), DebugLevels.PROTECTION);
+            return;
+        }
+
         boolean isForbidden = !(fromHopper ? shop.getShopSetting(ShopSettingKeys.HOPPER_IMPORT).asBoolean() : shop.getShopSetting(ShopSettingKeys.HOPPER_EXPORT).asBoolean());
         if (isForbidden) {
             event.setCancelled(true);

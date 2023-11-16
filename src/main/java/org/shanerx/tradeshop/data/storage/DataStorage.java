@@ -177,6 +177,7 @@ public class DataStorage extends Utils {
     }
 
     public Shop loadShopFromSign(ShopLocation sign) {
+        if (sign == null) return null;
         Shop cached = shopCache.getIfPresent(sign.serialize());
         return cached != null ? cached : getShopData(sign.getChunk()).load(sign);
     }
