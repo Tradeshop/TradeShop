@@ -112,7 +112,7 @@ public class JsonShopData extends JsonConfiguration implements ShopConfiguration
         Shop shop = null;
         String json;
 
-        if (!jsonObj.has("members")) {
+        if (!jsonObj.has("members") && jsonObj.size() > 25) {
             JsonObject oldData = jsonObj.deepCopy();
             jsonObj = new JsonObject();
 
@@ -135,9 +135,9 @@ public class JsonShopData extends JsonConfiguration implements ShopConfiguration
         try {
             shop = GsonProcessor.fromJson(jsonObj.getAsJsonObject(locStr).getAsJsonObject("value").getAsString(), Shop.class);
             shop.aSyncFix();
-        } catch (IllegalArgumentException | JsonSerializer.JsonSyntaxException e) {
-            e.printStackTrace();
+        } catch (IllegalArgumentException | JsonSerializer.JsonSyntaxException | NullPointerException e) {
             remove(loc);
+            saveFile();
         }
 
         return shop;
