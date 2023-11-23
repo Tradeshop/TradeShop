@@ -30,6 +30,7 @@ import com.google.common.collect.Sets;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonIOException;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
 import com.google.gson.stream.MalformedJsonException;
 import org.apache.logging.log4j.util.Chars;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -122,13 +123,7 @@ public class JsonShopData extends JsonConfiguration implements ShopConfiguration
                 tempHolder.put(entry.getKey(), tempHolder.put("value", entry.getValue()));
             }
 
-            try {
-                jsonObj.add("members", GsonProcessor.stringToJsonObject(GsonProcessor.mapToJson(tempHolder)));
-            } catch (JsonSerializer.JsonSyntaxException ignored) {
-
-            }
-
-            saveFile();
+            jsonObj.add("members", new JsonPrimitive(GsonProcessor.mapToJson(tempHolder)));
         }
 
 
@@ -137,7 +132,6 @@ public class JsonShopData extends JsonConfiguration implements ShopConfiguration
             shop.aSyncFix();
         } catch (IllegalArgumentException | JsonSerializer.JsonSyntaxException | NullPointerException e) {
             remove(loc);
-            saveFile();
         }
 
         return shop;

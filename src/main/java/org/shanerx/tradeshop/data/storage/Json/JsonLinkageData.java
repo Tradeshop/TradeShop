@@ -47,7 +47,8 @@ public class JsonLinkageData extends JsonConfiguration implements LinkageConfigu
     @Override
     public void load() {
         try {
-            linkageData = GsonProcessor.jsonToMap(jsonObj.get("linkage_data").toString()).entrySet().stream()
+            String path = jsonObj.has("members") ? "members.linkage_data" : "linkage_data";
+            linkageData = GsonProcessor.jsonToMap(path).entrySet().stream()
                     .collect(Collectors.toMap(Map.Entry::getKey, e -> (String) e.getValue()));
         } catch (JsonSerializer.JsonSyntaxException | NullPointerException ignored) {
             linkageData = new HashMap<>();
