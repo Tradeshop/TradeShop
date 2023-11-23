@@ -30,7 +30,6 @@ import com.google.common.collect.Sets;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonIOException;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonPrimitive;
 import com.google.gson.stream.MalformedJsonException;
 import org.apache.logging.log4j.util.Chars;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -54,6 +53,7 @@ import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -78,7 +78,12 @@ public class JsonShopData extends JsonConfiguration implements ShopConfiguration
 
     @Override
     public void save(Shop shop) {
-        jsonObj.add(shop.getShopLocationAsSL().serialize(), new JsonPrimitive(GsonProcessor.toJson(shop)));
+        try {
+            jsonObj.add(shop.getShopLocationAsSL().serialize(), GsonProcessor.fromJson(GsonProcessor.toJson(shop), JsonObject.class));
+        } catch (JsonSerializer.JsonSyntaxException e) {
+            e.printStackTrace();
+            return;
+        }
 
         saveFile();
     }
@@ -105,11 +110,30 @@ public class JsonShopData extends JsonConfiguration implements ShopConfiguration
     public Shop loadASync(ShopLocation loc) {
         String locStr = loc.serialize();
         Shop shop = null;
+        String json;
 
-        if (!jsonObj.has(locStr)) return null;
+        if (!jsonObj.has("members")) {
+            JsonObject oldData = jsonObj.deepCopy();
+            jsonObj = new JsonObject();
+
+            Map<String, Object> tempHolder = new HashMap<>();
+
+            for (Map.Entry<String, JsonElement> entry : oldData.entrySet()) {
+                tempHolder.put(entry.getKey(), tempHolder.put("value", entry.getValue()));
+            }
+
+            try {
+                jsonObj.add("members", GsonProcessor.stringToJsonObject(GsonProcessor.mapToJson(tempHolder)));
+            } catch (JsonSerializer.JsonSyntaxException ignored) {
+
+            }
+
+            saveFile();
+        }
+
 
         try {
-            shop = GsonProcessor.fromJson(jsonObj.get(locStr).toString(), Shop.class);
+            shop = GsonProcessor.fromJson(jsonObj.getAsJsonObject(locStr).getAsJsonObject("value").getAsString(), Shop.class);
             shop.aSyncFix();
         } catch (IllegalArgumentException | JsonSerializer.JsonSyntaxException e) {
             e.printStackTrace();

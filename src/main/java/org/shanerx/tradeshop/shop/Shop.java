@@ -155,7 +155,7 @@ public class Shop implements Serializable {
     public static Shop deserialize(String serialized) {
         Shop shop = null;
         try {
-            shop = new GsonProcessor().fromJson(serialized, Shop.class);
+            shop = GsonProcessor.jsonToShop(GsonProcessor.stringToJsonObject(serialized));
         } catch (JsonSerializer.JsonSyntaxException ignored) {
         }
         if (shop != null)

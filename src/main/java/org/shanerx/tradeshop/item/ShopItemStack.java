@@ -76,7 +76,7 @@ public class ShopItemStack implements Serializable, Cloneable {
         this(itemStack, new HashMap<>());
     }
 
-    public ShopItemStack(ItemStack itemStack, HashMap<ShopItemStackSettingKeys, ObjectHolder<?>> itemSettings) {
+    public ShopItemStack(ItemStack itemStack, Map<ShopItemStackSettingKeys, ObjectHolder<?>> itemSettings) {
         this.itemStack = itemStack;
         this.itemSettings = itemSettings;
         buildMap();

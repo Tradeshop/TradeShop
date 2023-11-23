@@ -44,7 +44,6 @@ import java.util.Map;
 import java.util.logging.Level;
 
 class JsonConfiguration extends Utils {
-    protected final GsonProcessor gson;
     protected File file, pathFile;
     protected JsonObject jsonObj;
 
@@ -57,7 +56,6 @@ class JsonConfiguration extends Utils {
      * @param fileName       name of the file to load without extension
      */
     protected JsonConfiguration(String folderFromData, String fileName) {
-        this.gson = new GsonProcessor();
         this.pathFile = getPath(folderFromData);
         this.file = getFile(folderFromData, fileName);
 
@@ -141,7 +139,7 @@ class JsonConfiguration extends Utils {
     }
 
     protected void saveFile() {
-        final String str = gson.toJson(jsonObj);
+        final String str = GsonProcessor.toJson(jsonObj);
         if (!str.isEmpty()) {
             try {
                 FileWriter fileWriter = new FileWriter(this.file);
