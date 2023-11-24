@@ -113,14 +113,14 @@ public class JsonShopData extends JsonConfiguration implements ShopConfiguration
         Shop shop = null;
         String json;
 
-        if (!jsonObj.has("members") && jsonObj.size() > 25) {
+        if (!jsonObj.has("members") && jsonObj.size() > 10) {
             JsonObject oldData = jsonObj.deepCopy();
             jsonObj = new JsonObject();
 
             Map<String, Object> tempHolder = new HashMap<>();
 
             for (Map.Entry<String, JsonElement> entry : oldData.entrySet()) {
-                tempHolder.put(entry.getKey(), tempHolder.put("value", entry.getValue()));
+                tempHolder.put(entry.getKey(), tempHolder.put("value", "\"" + entry.getValue().toString() + "\""));
             }
 
             jsonObj.add("members", new JsonPrimitive(GsonProcessor.mapToJson(tempHolder)));
