@@ -26,11 +26,7 @@
 package org.shanerx.tradeshop.data.storage.Json;
 
 import com.bergerkiller.bukkit.common.config.JsonSerializer;
-import com.google.common.collect.Sets;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonIOException;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonPrimitive;
 import com.google.gson.stream.MalformedJsonException;
 import org.apache.logging.log4j.util.Chars;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -53,6 +49,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -67,6 +64,7 @@ import java.util.stream.Collectors;
 public class JsonShopData extends JsonConfiguration implements ShopConfiguration {
 
     private final ShopChunk chunk;
+    private Map<String, Object> chunkMap;
 
     public JsonShopData(ShopChunk chunk) {
         super(chunk.getWorldName(), chunk.serialize());
@@ -74,25 +72,18 @@ public class JsonShopData extends JsonConfiguration implements ShopConfiguration
     }
 
     public static boolean doesConfigExist(ShopChunk chunk) {
-        return getFile(chunk.getWorldName(), chunk.serialize()).exists();
+        return getFile(chunk.getWorldName(), chunk.serialize()).isFile();
     }
 
     @Override
     public void save(Shop shop) {
-        try {
-            jsonObj.add(shop.getShopLocationAsSL().serialize(), GsonProcessor.fromJson(GsonProcessor.toJson(shop), JsonObject.class));
-        } catch (JsonSerializer.JsonSyntaxException e) {
-            e.printStackTrace();
-            return;
-        }
-
+        chunkMap.put(shop.getShopLocationAsSL().serialize(), shop);
         saveFile();
     }
 
     @Override
     public void remove(ShopLocation loc) {
-        if (jsonObj.has(loc.serialize()))
-            jsonObj.remove(loc.serialize());
+        chunkMap.remove(loc.serialize());
         saveFile();
     }
 
@@ -109,32 +100,9 @@ public class JsonShopData extends JsonConfiguration implements ShopConfiguration
 
     @Override
     public Shop loadASync(ShopLocation loc) {
-        String locStr = loc.serialize();
-        Shop shop = null;
-        String json;
+        Object obj = chunkMap.get(loc.serialize());
 
-        if (!jsonObj.has("members") && jsonObj.size() > 10) {
-            JsonObject oldData = jsonObj.deepCopy();
-            jsonObj = new JsonObject();
-
-            Map<String, Object> tempHolder = new HashMap<>();
-
-            for (Map.Entry<String, JsonElement> entry : oldData.entrySet()) {
-                tempHolder.put(entry.getKey(), tempHolder.put("value", "\"" + entry.getValue().toString() + "\""));
-            }
-
-            jsonObj.add("members", new JsonPrimitive(GsonProcessor.mapToJson(tempHolder)));
-        }
-
-
-        try {
-            shop = GsonProcessor.fromJson(jsonObj.getAsJsonObject(locStr).getAsJsonObject("value").getAsString(), Shop.class);
-            shop.aSyncFix();
-        } catch (IllegalArgumentException | JsonSerializer.JsonSyntaxException | NullPointerException e) {
-            remove(loc);
-        }
-
-        return shop;
+        return obj instanceof Shop ? (Shop) obj : null;
     }
 
     @Override
@@ -151,37 +119,46 @@ public class JsonShopData extends JsonConfiguration implements ShopConfiguration
 
     @Override
     protected void saveFile() {
-        SaveThreadMaster.getInstance().enqueue(this.file, this.jsonObj);
+        SaveThreadMaster.getInstance().enqueue(this.file, this.chunkMap);
     }
 
     @Override
     protected void loadFile() {
-        if (!this.file.exists()) {
+        if (!this.file.isFile()) {
             // If could not find file try with old separators
             String oldFile = file.getPath() + File.separator + chunk.serialize().replace(";;", "_") + ".json";
-            if (new File(oldFile).exists())
-                new File(oldFile).renameTo(file);
+            if (new File(oldFile).isFile()) new File(oldFile).renameTo(file);
         }
 
-        super.loadFile();
+        try {
+            JsonSerializer jsonSer = new JsonSerializer();
+            chunkMap = jsonSer.jsonToMap(Arrays.toString(Files.readAllBytes(file.toPath())));
 
-        for (Map.Entry<String, JsonElement> entry : Sets.newHashSet(jsonObj.entrySet())) {
-            if (entry.getKey().contains("l_")) {
-                jsonObj.add(ShopLocation.deserialize(entry.getKey()).serialize(), entry.getValue());
-                jsonObj.remove(entry.getKey());
+            for (Map.Entry<String, Object> entry : chunkMap.entrySet()) {
+                if (entry.getKey().contains("l_")) {
+                    chunkMap.put(ShopLocation.deserialize(entry.getKey()).serialize(), entry.getValue());
+                    chunkMap.remove(entry.getKey());
+                }
+
+                if (!(entry.getValue() instanceof Shop)) {
+                    Shop shop = (Shop) entry.getValue();
+                    chunkMap.put(entry.getKey(), shop);
+                }
             }
+        } catch (JsonSerializer.JsonSyntaxException | IOException e) {
+            chunkMap = new HashMap<>();
         }
     }
 
     public static class SaveOperation implements Comparable<SaveOperation> {
 
         private final File file;
-        private final JsonObject jsonObj;
+        private final Map<String, Object> chunkMap;
         private final long time;
 
-        SaveOperation(File file, JsonObject jsonObj) {
+        SaveOperation(File file, Map<String, Object> chunkMap) {
             this.file = file;
-            this.jsonObj = jsonObj;
+            this.chunkMap = chunkMap;
             this.time = System.currentTimeMillis();
         }
 
@@ -210,8 +187,8 @@ public class JsonShopData extends JsonConfiguration implements ShopConfiguration
             return file;
         }
 
-        public JsonObject getJson() {
-            return jsonObj;
+        public Map<String, Object> getChunkMap() {
+            return chunkMap;
         }
 
         @Override
@@ -253,8 +230,8 @@ public class JsonShopData extends JsonConfiguration implements ShopConfiguration
             return new SaveTask();
         }
 
-        synchronized void enqueue(File file, JsonObject jsonObj) {
-            SaveOperation op = new SaveOperation(file, jsonObj);
+        synchronized void enqueue(File file, Map<String, Object> chunkMap) {
+            SaveOperation op = new SaveOperation(file, chunkMap);
             saveQueue.remove(op); // removes ops with a similar file
             saveQueue.add(op);
 
@@ -294,10 +271,10 @@ public class JsonShopData extends JsonConfiguration implements ShopConfiguration
             while ((op = master.pollNext()) != null) {
                 File file = op.getFile(), bak = new File(file.getParentFile(), file.getName() + ".bak"), mjf = new File(file.getParentFile(), file.getName() + ".mjf");
                 synchronized (file) {
-                    JsonObject jsonObj = op.getJson();
-                    String str = GsonProcessor.toJson(jsonObj);
+                    Map<String, Object> chunkMap = op.getChunkMap();
+                    String str = GsonProcessor.mapToJson(chunkMap);
 
-                    if (str.isEmpty() || jsonObj.entrySet().isEmpty()) {
+                    if (str.isEmpty() || chunkMap.entrySet().isEmpty()) {
                         file.delete();
                         continue;
                     }
