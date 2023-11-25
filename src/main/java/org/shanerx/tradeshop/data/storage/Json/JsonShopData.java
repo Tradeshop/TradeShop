@@ -187,6 +187,10 @@ public class JsonShopData extends JsonConfiguration implements ShopConfiguration
 
         @Override
         public int compareTo(@NotNull SaveOperation so) {
+            if (!this.file.exists() || (this.file.isFile() != so.file.isFile())) {
+                return -1;
+            }
+
             try {
                 if (Files.isSameFile(this.file.toPath(), so.file.toPath())) return 0;
             } catch (IOException e) {
