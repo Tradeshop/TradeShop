@@ -124,29 +124,40 @@ public class JsonShopData extends JsonConfiguration implements ShopConfiguration
 
     @Override
     protected void loadFile() {
+
         if (!this.file.isFile()) {
             // If could not find file try with old separators
             String oldFile = file.getPath() + File.separator + chunk.serialize().replace(";;", "_") + ".json";
             if (new File(oldFile).isFile()) new File(oldFile).renameTo(file);
         }
 
+        String data = "";
+
         try {
             JsonSerializer jsonSer = new JsonSerializer();
-            chunkMap = jsonSer.jsonToMap(Arrays.toString(Files.readAllBytes(file.toPath())));
+            data = Arrays.toString(Files.readAllBytes(file.toPath()));
+            chunkMap = jsonSer.jsonToMap(data);
 
             for (Map.Entry<String, Object> entry : chunkMap.entrySet()) {
                 if (entry.getKey().contains("l_")) {
-                    chunkMap.put(ShopLocation.deserialize(entry.getKey()).serialize(), entry.getValue());
+                    Debug.findDebugger().log("Found old shop location format, converting...", DebugLevels.JSON_LOADING, "JsonShopData#loadFile()-forKeys-contans{l_} - " + file.getName());
+                    chunkMap.put(ShopLocation.deserialize(entry.getKey()).serialize(), entry.getValue()); //de -> re serialization performs reformatting
                     chunkMap.remove(entry.getKey());
                 }
 
                 if (!(entry.getValue() instanceof Shop)) {
                     Shop shop = (Shop) entry.getValue();
                     chunkMap.put(entry.getKey(), shop);
+                    Debug.findDebugger().log("Found shop at location, converting...\n\n\n" +
+                        "Shop#toString(): \n" +
+                        entry.getValue().toString(), DebugLevels.JSON_LOADING, "JsonShopData#loadFile()-forKeys-contans{l_} - " + entry.getKey());
                 }
             }
         } catch (JsonSerializer.JsonSyntaxException | IOException e) {
             chunkMap = new HashMap<>();
+            TradeShop.getPlugin().getLogger().log(Level.SEVERE, "Could not load " + file.getName() + " file!\n" +
+                "isFile: " + file.isFile() + "\n" +
+                "readAllBytes - toString: " + data, e);
         }
     }
 

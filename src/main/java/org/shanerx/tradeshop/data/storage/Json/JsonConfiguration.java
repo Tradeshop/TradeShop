@@ -57,7 +57,7 @@ class JsonConfiguration extends Utils {
      */
     protected JsonConfiguration(String folderFromData, String fileName) {
         this.pathFile = getPath(folderFromData);
-        this.file = getFile(folderFromData, fileName);
+        this.file = getFile(pathFile.getAbsolutePath(), fileName);
 
         buildFilePath();
         loadFile();
