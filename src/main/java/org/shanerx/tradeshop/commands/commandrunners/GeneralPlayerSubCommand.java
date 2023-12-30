@@ -26,7 +26,6 @@
 package org.shanerx.tradeshop.commands.commandrunners;
 
 import org.bukkit.Bukkit;
-import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.shanerx.tradeshop.TradeShop;
 import org.shanerx.tradeshop.commands.SubCommand;
@@ -35,6 +34,7 @@ import org.shanerx.tradeshop.data.config.Setting;
 import org.shanerx.tradeshop.data.config.Variable;
 import org.shanerx.tradeshop.player.Permissions;
 import org.shanerx.tradeshop.player.PlayerSetting;
+import org.shanerx.tradeshop.utils.Utils;
 import org.shanerx.tradeshop.utils.objects.Tuple;
 
 public class GeneralPlayerSubCommand extends SubCommand {
@@ -59,7 +59,7 @@ public class GeneralPlayerSubCommand extends SubCommand {
         } else {
             int amount = Setting.MULTI_TRADE_DEFAULT.getInt();
 
-            if (isInt(getArgAt(1)))
+            if (new Utils().isInt(getArgAt(1)))
                 amount = Integer.parseInt(getArgAt(1));
 
             amount = Math.min(Math.max(2, amount), Setting.MULTI_TRADE_MAX.getInt());

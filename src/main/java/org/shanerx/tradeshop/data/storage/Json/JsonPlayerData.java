@@ -25,13 +25,11 @@
 
 package org.shanerx.tradeshop.data.storage.Json;
 
-import com.bergerkiller.bukkit.common.config.JsonSerializer;
-import com.google.gson.JsonPrimitive;
 import org.shanerx.tradeshop.data.storage.PlayerConfiguration;
 import org.shanerx.tradeshop.player.PlayerSetting;
-import org.shanerx.tradeshop.utils.gsonprocessing.GsonProcessor;
 
 import java.io.File;
+import java.util.List;
 import java.util.UUID;
 
 public class JsonPlayerData extends JsonConfiguration implements PlayerConfiguration {
@@ -46,35 +44,34 @@ public class JsonPlayerData extends JsonConfiguration implements PlayerConfigura
         playerUUID = uuid;
     }
 
+    public static List<File> getAllPlayers() {
+        return getFilesInFolder(playerFolder);
+    }
+
     @Override
     public void save(PlayerSetting playerSetting) {
         this.playerSetting = playerSetting;
-        jsonObj.add(playerSetting.getUuid().toString(), new JsonPrimitive(GsonProcessor.toJson(playerSetting)));
+        set(playerSetting.getUuid().toString(), playerSetting.serialize());
 
         saveFile();
     }
 
     @Override
     public PlayerSetting load() {
-        try {
-            String path = jsonObj.has("members") ? "members." + playerUUID.toString() : playerUUID.toString();
-            playerSetting = GsonProcessor.fromJson(jsonObj.get(path).toString(), PlayerSetting.class);
-        } catch (JsonSerializer.JsonSyntaxException | NullPointerException ex) {
+        playerSetting = PlayerSetting.deserialize(getMapParameterized(playerUUID.toString()));
+
+        if (playerSetting == null) {
             playerSetting = new PlayerSetting(playerUUID);
+            save(playerSetting);
         }
 
-        if (playerSetting != null)
-            playerSetting.load();
+        playerSetting.load();
 
         return playerSetting;
     }
 
     @Override
     public void remove() {
-        file.delete();
-    }
-
-    public static File[] getAllPlayers() {
-        return getFilesInFolder(playerFolder);
+        super.remove(playerUUID.toString());
     }
 }

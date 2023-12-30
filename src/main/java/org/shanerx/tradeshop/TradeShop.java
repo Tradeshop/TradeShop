@@ -153,7 +153,6 @@ public class TradeShop extends JavaPlugin {
 
         Permissions.registerPermissions();
 
-
         PluginManager pm = getServer().getPluginManager();
         pm.registerEvents(new JoinEventListener(this), this);
         pm.registerEvents(new ShopProtectionListener(this), this);

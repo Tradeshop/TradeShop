@@ -23,51 +23,33 @@
  *
  */
 
-package org.shanerx.tradeshop.utils.objects;
+package org.shanerx.tradeshop.utils.simplix.serializers;
 
-import com.google.gson.annotations.SerializedName;
+import org.bukkit.configuration.serialization.ConfigurationSerializable;
+import org.bukkit.configuration.serialization.ConfigurationSerialization;
+import org.bukkit.inventory.ItemStack;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
-public class Tuple<L, R> {
-
-    @SerializedName("right")
-    private R r;
-    @SerializedName("left")
-    private L l;
-
-    public Tuple() {
+public class ConfSerSerializer {
+    public static ItemStack deserializeItemStack(Map<String, Object> map) {
+        return (ItemStack) ConfigurationSerialization.deserializeObject(map, ItemStack.class);
     }
 
-    public Tuple(L l, R r) {
-        this.r = r;
-        this.l = l;
+    public static Map<String, Object> serialize(ConfigurationSerializable configurationSerializable) {
+        return toMap(configurationSerializable);
     }
 
-    public Tuple(Tuple<? extends L, ? extends R> t) {
-        this.r = t.r;
-        this.l = t.l;
-    }
+    public static Map<String, Object> toMap(ConfigurationSerializable src) {
+        Map<String, Object> map = new LinkedHashMap<>(src.serialize());
 
-    public R getRight() {
-        return r;
-    }
-
-    public L getLeft() {
-        return l;
-    }
-
-    public Map<String, Object> serialize() {
-        Map<String, Object> map = new HashMap<>();
-        map.put("L", l);
-        map.put("R", r);
+        map.forEach((k, v) -> {
+            if (v instanceof ConfigurationSerializable) {
+                map.replace(k, toMap((ConfigurationSerializable) v));
+            }
+        });
 
         return map;
-    }
-
-    @Override
-    public String toString() {
-        return serialize().toString();
     }
 }

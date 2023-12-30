@@ -28,6 +28,7 @@ package org.shanerx.tradeshop.utils.objects;
 import com.google.gson.annotations.SerializedName;
 import org.bukkit.Material;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -39,6 +40,14 @@ public class ObjectHolder<Type> {
 
     public ObjectHolder(Type obj) {
         this.obj = obj;
+    }
+
+    public static ObjectHolder<?> deserialize(Map<String, Object> serialized) {
+        return new ObjectHolder<>(serialized.get("obj"));
+    }
+
+    public Map<String, Object> serialize() {
+        return Collections.singletonMap("obj", obj);
     }
 
     public Type getObject() {

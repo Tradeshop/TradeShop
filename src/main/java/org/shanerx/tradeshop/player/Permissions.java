@@ -60,7 +60,7 @@ public enum Permissions {
     NONE("", PermissionDefault.TRUE);
 
     private final static TradeShop plugin = (TradeShop) Bukkit.getPluginManager().getPlugin("TradeShop");
-    private final Utils utils = new Utils();
+    private final transient Utils utils = new Utils();
     private final String key;
     private final PermissionDefault defaultState;
     private final String description;

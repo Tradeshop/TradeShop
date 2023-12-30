@@ -71,6 +71,9 @@ public class Debug {
 
     public void log(String message, DebugLevels level, String positionalNote) {
         StringBuilder messageBuilder = new StringBuilder();
+        if (level.getPosition() > 0 && decimalDebugLevel < 1) {
+            return;
+        }
 
 
         if (level.getPosition() > 0 && binaryDebugLevel.charAt(level.getPosition() - 1) == '1') {

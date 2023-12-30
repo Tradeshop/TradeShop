@@ -45,7 +45,6 @@ import org.shanerx.tradeshop.shop.Shop;
 import org.shanerx.tradeshop.shop.ShopStatus;
 import org.shanerx.tradeshop.shoplocation.ShopChunk;
 import org.shanerx.tradeshop.shoplocation.ShopLocation;
-import org.shanerx.tradeshop.utils.Utils;
 import org.shanerx.tradeshop.utils.debug.DebugLevels;
 
 import java.io.File;
@@ -53,7 +52,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -63,7 +61,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
-public class DataStorage extends Utils {
+public class DataStorage {
 
     private transient DataType dataType;
     private final String BROKEN_JSON_START = "}(.*[\"\\w:])";
@@ -100,9 +98,9 @@ public class DataStorage extends Utils {
 
             //Check for err files
             Bukkit.getServer().getWorlds().forEach((w) -> {
-                File[] list = JsonShopData.getFilesInFolder(w.getName());
-                if (list != null && list.length > 0) {
-                    errFiles.addAll(Arrays.stream(list).filter((f) -> FilenameUtils.getExtension(f.getName()).toLowerCase().contains("err")).collect(Collectors.toList()));
+                List<File> list = JsonShopData.getFilesInFolder(w.getName());
+                if (!list.isEmpty()) {
+                    errFiles.addAll(list.stream().filter((f) -> FilenameUtils.getExtension(f.getName()).toLowerCase().contains("err")).collect(Collectors.toList()));
                 }
             });
 
@@ -110,9 +108,9 @@ public class DataStorage extends Utils {
 
             //Check for and correct malformed files
             Bukkit.getServer().getWorlds().forEach((w) -> {
-                File[] list = JsonShopData.getFilesInFolder(w.getName());
-                if (list != null && list.length > 0) {
-                    Arrays.stream(list).forEach((f) -> {
+                List<File> list = JsonShopData.getFilesInFolder(w.getName());
+                if (!list.isEmpty()) {
+                    list.forEach((f) -> {
                         try {
                             String fileStr = FileUtils.readFileToString(f, StandardCharsets.UTF_8),
                                     correctedString = fileStr.split(BROKEN_JSON_START)[0];
@@ -147,11 +145,11 @@ public class DataStorage extends Utils {
 
             TradeShop.getPlugin().getDebugger().log("Removing empty player files... ", DebugLevels.DATA_VERIFICATION);
 
-            File[] playerFiles = JsonPlayerData.getAllPlayers();
+            List<File> playerFiles = JsonPlayerData.getAllPlayers();
             if (playerFiles != null) {
                 List<String> deletedResults = new ArrayList<>();
                 Map<String, Exception> failedResults = new HashMap<>();
-                Arrays.stream(playerFiles).forEach((file) -> {
+                playerFiles.forEach((file) -> {
                     if (file.isFile() && file.length() == 0) {
                         try {
                             file.delete();
@@ -178,7 +176,7 @@ public class DataStorage extends Utils {
 
     public Shop loadShopFromSign(ShopLocation sign) {
         if (sign == null) return null;
-        Shop cached = shopCache.getIfPresent(sign.serialize());
+        Shop cached = shopCache.getIfPresent(sign.toString());
         return cached != null ? cached : getShopData(sign.getChunk()).load(sign);
     }
 
@@ -187,12 +185,12 @@ public class DataStorage extends Utils {
     }
 
     public void saveShop(Shop shop) {
-        shopCache.put(shop.getShopLocationAsSL().serialize(), shop);
+        shopCache.put(shop.getShopLocationAsSL().toString(), shop);
         getShopData(shop.getShopLocation().getChunk()).save(shop);
     }
 
     public void removeShop(Shop shop) {
-        shopCache.invalidate(shop.getShopLocationAsSL().serialize());
+        shopCache.invalidate(shop.getShopLocationAsSL().toString());
         getShopData(shop.getShopLocation().getChunk()).remove(shop.getShopLocationAsSL());
         getLinkageData(shop.getShopLocationAsSL().getWorld()).removeShop(shop.getShopLocationAsSL());
     }
@@ -203,23 +201,21 @@ public class DataStorage extends Utils {
 
     public List<Shop> getMatchingShopsInChunk(ChunkSnapshot chunk, boolean inStock, List<ItemStack> desiredCosts, List<ItemStack> desiredProducts) {
         List<Shop> matchingShops = new ArrayList<>();
-        ShopChunk shopChunk = new ShopChunk(chunk);
 
-        if (chunkExists(shopChunk)) {
-            ShopConfiguration config = getShopData(shopChunk);
+        ShopConfiguration config = getShopData(new ShopChunk(chunk));
 
-            config.list().forEach((shopLoc) -> {
-                Shop shop = config.loadASync(shopLoc);
+        config.list().forEach((shopLoc) -> {
+            Shop shop = config.loadASync(shopLoc);
 
-                if ((desiredCosts != null && shop.isMissingSideItems(ShopItemSide.COST, desiredCosts)) ||
-                        (desiredProducts != null && shop.isMissingSideItems(ShopItemSide.PRODUCT, desiredProducts)))
-                    return; //Ignore any shops that don't have a matching product/cost
+            if ((desiredCosts != null && shop.isMissingSideItems(ShopItemSide.COST, desiredCosts)) ||
+                (desiredProducts != null && shop.isMissingSideItems(ShopItemSide.PRODUCT, desiredProducts)))
+                return; //Ignore any shops that don't have a matching product/cost
 
-                if (!inStock || shop.getStatus().equals(ShopStatus.OPEN)) {
-                    matchingShops.add(shop);
-                }
-            });
-        }
+            if (!inStock || shop.getStatus().equals(ShopStatus.OPEN)) {
+                matchingShops.add(shop);
+            }
+        });
+
         return matchingShops;
     }
 
@@ -303,13 +299,6 @@ public class DataStorage extends Utils {
 
     public void dropShopData(ShopChunk chunk) {
         chunkDataCache.remove(chunk.serialize());
-    }
-
-    protected boolean chunkExists(ShopChunk chunk) {
-        if (dataType == DataType.FLATFILE) {
-            return JsonShopData.doesConfigExist(chunk);
-        }
-        throw new NotImplementedException("Data storage type " + dataType + " has not been implemented yet.");
     }
 
     protected LinkageConfiguration getLinkageData(World w) {

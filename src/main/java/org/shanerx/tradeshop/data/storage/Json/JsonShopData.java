@@ -25,10 +25,7 @@
 
 package org.shanerx.tradeshop.data.storage.Json;
 
-import com.bergerkiller.bukkit.common.config.JsonSerializer;
-import com.google.gson.JsonIOException;
-import com.google.gson.stream.MalformedJsonException;
-import org.apache.logging.log4j.util.Chars;
+import lombok.Getter;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
 import org.shanerx.tradeshop.TradeShop;
@@ -37,29 +34,18 @@ import org.shanerx.tradeshop.data.storage.ShopConfiguration;
 import org.shanerx.tradeshop.shop.Shop;
 import org.shanerx.tradeshop.shoplocation.ShopChunk;
 import org.shanerx.tradeshop.shoplocation.ShopLocation;
-import org.shanerx.tradeshop.utils.debug.Debug;
-import org.shanerx.tradeshop.utils.debug.DebugLevels;
-import org.shanerx.tradeshop.utils.gsonprocessing.GsonProcessor;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.nio.channels.FileChannel;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentSkipListSet;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import java.util.stream.Collectors;
 
 public class JsonShopData extends JsonConfiguration implements ShopConfiguration {
 
@@ -71,20 +57,16 @@ public class JsonShopData extends JsonConfiguration implements ShopConfiguration
         this.chunk = chunk;
     }
 
-    public static boolean doesConfigExist(ShopChunk chunk) {
-        return getFile(chunk.getWorldName(), chunk.serialize()).isFile();
-    }
 
     @Override
     public void save(Shop shop) {
-        chunkMap.put(shop.getShopLocationAsSL().serialize(), shop);
+        set(shop.getShopLocationAsSL().toString(), shop.serialize());
         saveFile();
     }
 
     @Override
     public void remove(ShopLocation loc) {
-        chunkMap.remove(loc.serialize());
-        saveFile();
+        remove(loc.toString());
     }
 
     @Override
@@ -100,26 +82,31 @@ public class JsonShopData extends JsonConfiguration implements ShopConfiguration
 
     @Override
     public Shop loadASync(ShopLocation loc) {
-        Object obj = chunkMap.get(loc.serialize());
+        String locStr = loc.toString();
+        if (!fileData.containsKey(locStr))
+            return null;
 
-        return obj instanceof Shop ? (Shop) obj : null;
+        Shop shop = Shop.deserialize(getSection(locStr));
+
+        shop.aSyncFix();
+        return shop;
     }
 
     @Override
     public List<ShopLocation> list() {
         List<ShopLocation> shopsInFile = new ArrayList<>();
-        jsonObj.keySet().forEach(str -> shopsInFile.add(ShopLocation.deserialize(str)));
+        keySet().forEach(str -> shopsInFile.add(ShopLocation.deserialize(str)));
         return shopsInFile;
     }
 
     @Override
     public int size() {
-        return jsonObj.size();
+        return keySet().size();
     }
 
     @Override
     protected void saveFile() {
-        SaveThreadMaster.getInstance().enqueue(this.file, this.chunkMap);
+        SaveThreadMaster.getInstance().enqueue(this);
     }
 
     @Override
@@ -145,31 +132,26 @@ public class JsonShopData extends JsonConfiguration implements ShopConfiguration
                     chunkMap.remove(entry.getKey());
                 }
 
-                if (!(entry.getValue() instanceof Shop)) {
-                    Shop shop = (Shop) entry.getValue();
-                    chunkMap.put(entry.getKey(), shop);
-                    Debug.findDebugger().log("Found shop at location, converting...\n\n\n" +
-                        "Shop#toString(): \n" +
-                        entry.getValue().toString(), DebugLevels.JSON_LOADING, "JsonShopData#loadFile()-forKeys-contans{l_} - " + entry.getKey());
+        try {
+            for (Map.Entry<String, Object> entry : readToMap().entrySet()) {
+                if (entry.getKey().contains("l_")) {
+                    set(ShopLocation.deserialize(entry.getKey()).toString(), entry.getValue());
+                    remove(entry.getKey());
                 }
             }
-        } catch (JsonSerializer.JsonSyntaxException | IOException e) {
-            chunkMap = new HashMap<>();
-            TradeShop.getPlugin().getLogger().log(Level.SEVERE, "Could not load " + file.getName() + " file!\n" +
-                "isFile: " + file.isFile() + "\n" +
-                "readAllBytes - toString: " + data, e);
+        } catch (IOException ex) {
+            ex.printStackTrace();
         }
     }
 
     public static class SaveOperation implements Comparable<SaveOperation> {
-
-        private final File file;
-        private final Map<String, Object> chunkMap;
+      
+        @Getter
+        private final JsonConfiguration jsonConfig;
         private final long time;
 
-        SaveOperation(File file, Map<String, Object> chunkMap) {
-            this.file = file;
-            this.chunkMap = chunkMap;
+        SaveOperation(JsonConfiguration jsonConfig) {
+            this.jsonConfig = jsonConfig;
             this.time = System.currentTimeMillis();
         }
 
@@ -180,7 +162,7 @@ public class JsonShopData extends JsonConfiguration implements ShopConfiguration
             }
 
             try {
-                if (Files.isSameFile(this.file.toPath(), so.file.toPath())) return 0;
+                if (Files.isSameFile(this.jsonConfig.getFile().toPath(), so.jsonConfig.getFile().toPath())) return 0;
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
@@ -191,15 +173,7 @@ public class JsonShopData extends JsonConfiguration implements ShopConfiguration
 
         @Override
         public int hashCode() {
-            return file.hashCode();
-        }
-
-        public File getFile() {
-            return file;
-        }
-
-        public Map<String, Object> getChunkMap() {
-            return chunkMap;
+            return jsonConfig.getFile().hashCode();
         }
 
         @Override
@@ -216,7 +190,6 @@ public class JsonShopData extends JsonConfiguration implements ShopConfiguration
         private final Set<SaveTask> runningTasks;
 
         private final int maxThreads;
-        private final GsonProcessor gson = new GsonProcessor();
 
         private SaveThreadMaster() {
             if (singleton != null) {
@@ -241,8 +214,9 @@ public class JsonShopData extends JsonConfiguration implements ShopConfiguration
             return new SaveTask();
         }
 
-        synchronized void enqueue(File file, Map<String, Object> chunkMap) {
-            SaveOperation op = new SaveOperation(file, chunkMap);
+
+        synchronized void enqueue(JsonConfiguration jsonConfig) {
+            SaveOperation op = new SaveOperation(jsonConfig);
             saveQueue.remove(op); // removes ops with a similar file
             saveQueue.add(op);
 
@@ -275,77 +249,22 @@ public class JsonShopData extends JsonConfiguration implements ShopConfiguration
         @Override
         public void run() {
             master.runningTasks.add(this);
-
-            Logger logger = TradeShop.getPlugin().getLogger();
             SaveOperation op;
 
             while ((op = master.pollNext()) != null) {
-                File file = op.getFile(), bak = new File(file.getParentFile(), file.getName() + ".bak"), mjf = new File(file.getParentFile(), file.getName() + ".mjf");
+                File file = op.jsonConfig.getFile();
                 synchronized (file) {
-                    Map<String, Object> chunkMap = op.getChunkMap();
-                    String str = GsonProcessor.mapToJson(chunkMap);
-
-                    if (str.isEmpty() || chunkMap.entrySet().isEmpty()) {
+                    if (op.jsonConfig.keySet().isEmpty()) {
                         file.delete();
                         continue;
                     }
 
-                    int expectedLength = str.getBytes(StandardCharsets.UTF_8).length;
-                    Debug debug = Debug.findDebugger();
-
-                    try {
-                        debug.log(str, DebugLevels.JSON_SAVING, "JsonShopData^SaveThreadMaster#run().try-1 - " + file.getName());
-                        if (file.exists()) {
-                            bak.delete();
-                            mjf.delete(); // Delete previous malformed and bak files to prevent conflicts with new ones. Could potentially rename with a counter if we really want to see a lot of malformed files.
-                            file.renameTo(bak); // Create Backup Json file in case new write is bad.
-                        }
-                        int fileBytes = write(file, str);
-                        write(mjf, str); // Create a Malformed Json File(MJF), this will be deleted if the saved file is verified
-                        if (fileBytes != expectedLength) {
-                            FileChannel chan = FileChannel.open(file.toPath(), StandardOpenOption.READ, StandardOpenOption.WRITE);
-                            ByteBuffer byteBuff = ByteBuffer.allocate((int) chan.size());
-                            chan.read(byteBuff);
-                            ArrayList<Character> chars = new String(byteBuff.asCharBuffer().array()).chars().mapToObj(i -> (char) i).collect(Collectors.toCollection(ArrayList::new));
-                            while (chars.contains('{') && chars.contains('}')) {
-                                chars.set(chars.indexOf('{'), Chars.SPACE);
-                                chars.set(chars.indexOf('}'), Chars.SPACE);
-                            }
-                            char c = chars.contains('{') ? '{' : '}';
-                            while (chars.contains(c)) {
-                                byteBuff.putChar(chars.indexOf(c), Chars.SPACE);
-                            }
-
-                            fileBytes = chan.write(byteBuff);
-                            debug.log(new String(byteBuff.asCharBuffer().array()), DebugLevels.JSON_SAVING, "JsonShopData^SaveThreadMaster#run().try-1_post-verify - " + file.getName());
-                            chan.force(true);
-                            chan.close();
-
-                            if (fileBytes != expectedLength)
-                                throw new JsonIOException("Saved json could not be validated, please contact developers...");
-
-                            throw new MalformedJsonException("Written length of file is not equal to expected length! File was fixed with a temporary solution, please notify the developers... \n Expected/Written = " + fileBytes + "/" + file.length());
-                        }
-                        mjf.delete();
-                    } catch (MalformedJsonException mje) {
-                        logger.log(Level.WARNING, mje.getMessage());
-                    } catch (IOException e) {
-                        logger.log(Level.SEVERE, "Could not save " + file.getName() + " file! Data may be lost!", e);
-                    }
-
+                    op.jsonConfig.saveFile();
                 }
             }
 
             // task dies now:
             master.runningTasks.remove(this);
-        }
-
-        private int write(File file, String str) throws IOException {
-            FileChannel chan = FileChannel.open(file.toPath(), StandardOpenOption.CREATE, StandardOpenOption.WRITE);
-            int ret = chan.write(ByteBuffer.wrap(str.getBytes()));
-            chan.force(true);
-            chan.close();
-            return ret;
         }
 
         @Override
