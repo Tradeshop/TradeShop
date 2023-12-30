@@ -242,12 +242,12 @@ public class Shop {
 
         StringBuilder dataRemaining = new StringBuilder();
 
-        data.remove("shopLoc");
-        data.remove("shopType");
-        data.remove("owner");
-
         for (String key : data.keySet()) {
             switch (key) {
+                case "shopLoc":
+                case "shopType":
+                case "owner":
+                    break; // Already used so skip
                 case "managers":
                     shop.managers = new HashSet<>(data.getSerializableList(key, UUID.class));
                     break;
