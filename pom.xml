@@ -182,8 +182,7 @@
                     <minimizeJar>true</minimizeJar>
                     <createDependencyReducedPom>false</createDependencyReducedPom>
                     <outputDirectory>${outputDir}/shade</outputDirectory>
-                    <outputFile>C:/Users/natha/OneDrive/Documents/MC Servers/Dungeons and Diamonds
-                        SMP/120923/plugins/${build.finalName}.jar
+                    <outputFile>target/server/plugins/${build.finalName}.jar
                     </outputFile>
                     <artifactSet>
                         <includes>

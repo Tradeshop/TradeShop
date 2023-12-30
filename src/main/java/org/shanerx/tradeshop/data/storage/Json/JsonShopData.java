@@ -39,7 +39,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -121,18 +120,6 @@ public class JsonShopData extends JsonConfiguration implements ShopConfiguration
         String data = "";
 
         try {
-            JsonSerializer jsonSer = new JsonSerializer();
-            data = Arrays.toString(Files.readAllBytes(file.toPath()));
-            chunkMap = jsonSer.jsonToMap(data);
-
-            for (Map.Entry<String, Object> entry : chunkMap.entrySet()) {
-                if (entry.getKey().contains("l_")) {
-                    Debug.findDebugger().log("Found old shop location format, converting...", DebugLevels.JSON_LOADING, "JsonShopData#loadFile()-forKeys-contans{l_} - " + file.getName());
-                    chunkMap.put(ShopLocation.deserialize(entry.getKey()).serialize(), entry.getValue()); //de -> re serialization performs reformatting
-                    chunkMap.remove(entry.getKey());
-                }
-
-        try {
             for (Map.Entry<String, Object> entry : readToMap().entrySet()) {
                 if (entry.getKey().contains("l_")) {
                     set(ShopLocation.deserialize(entry.getKey()).toString(), entry.getValue());
@@ -157,7 +144,7 @@ public class JsonShopData extends JsonConfiguration implements ShopConfiguration
 
         @Override
         public int compareTo(@NotNull SaveOperation so) {
-            if (!this.file.exists() || (this.file.isFile() != so.file.isFile())) {
+            if (!this.jsonConfig.getFile().exists() || (this.jsonConfig.getFile().isFile() != so.jsonConfig.getFile().isFile())) {
                 return -1;
             }
 
