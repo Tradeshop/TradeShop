@@ -39,6 +39,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -49,16 +50,17 @@ import java.util.concurrent.ConcurrentSkipListSet;
 public class JsonShopData extends JsonConfiguration implements ShopConfiguration {
 
     private final ShopChunk chunk;
+    private Map<String, Object> chunkMap;
 
     public JsonShopData(ShopChunk chunk) {
         super(chunk.getWorldName(), chunk.serialize());
         this.chunk = chunk;
     }
 
+
     @Override
     public void save(Shop shop) {
         set(shop.getShopLocationAsSL().toString(), shop.serialize());
-
         saveFile();
     }
 
@@ -109,14 +111,26 @@ public class JsonShopData extends JsonConfiguration implements ShopConfiguration
 
     @Override
     protected void loadFile() {
-        if (!this.file.exists()) {
+
+        if (!this.file.isFile()) {
             // If could not find file try with old separators
             String oldFile = file.getPath() + File.separator + chunk.serialize().replace(";;", "_") + ".json";
-            if (new File(oldFile).exists())
-                new File(oldFile).renameTo(file);
+            if (new File(oldFile).isFile()) new File(oldFile).renameTo(file);
         }
 
-        super.loadFile();
+        String data = "";
+
+        try {
+            JsonSerializer jsonSer = new JsonSerializer();
+            data = Arrays.toString(Files.readAllBytes(file.toPath()));
+            chunkMap = jsonSer.jsonToMap(data);
+
+            for (Map.Entry<String, Object> entry : chunkMap.entrySet()) {
+                if (entry.getKey().contains("l_")) {
+                    Debug.findDebugger().log("Found old shop location format, converting...", DebugLevels.JSON_LOADING, "JsonShopData#loadFile()-forKeys-contans{l_} - " + file.getName());
+                    chunkMap.put(ShopLocation.deserialize(entry.getKey()).serialize(), entry.getValue()); //de -> re serialization performs reformatting
+                    chunkMap.remove(entry.getKey());
+                }
 
         try {
             for (Map.Entry<String, Object> entry : readToMap().entrySet()) {
@@ -131,7 +145,7 @@ public class JsonShopData extends JsonConfiguration implements ShopConfiguration
     }
 
     public static class SaveOperation implements Comparable<SaveOperation> {
-
+      
         @Getter
         private final JsonConfiguration jsonConfig;
         private final long time;
@@ -143,6 +157,10 @@ public class JsonShopData extends JsonConfiguration implements ShopConfiguration
 
         @Override
         public int compareTo(@NotNull SaveOperation so) {
+            if (!this.file.exists() || (this.file.isFile() != so.file.isFile())) {
+                return -1;
+            }
+
             try {
                 if (Files.isSameFile(this.jsonConfig.getFile().toPath(), so.jsonConfig.getFile().toPath())) return 0;
             } catch (IOException e) {
@@ -195,6 +213,7 @@ public class JsonShopData extends JsonConfiguration implements ShopConfiguration
         private SaveTask makeRunnable() {
             return new SaveTask();
         }
+
 
         synchronized void enqueue(JsonConfiguration jsonConfig) {
             SaveOperation op = new SaveOperation(jsonConfig);
