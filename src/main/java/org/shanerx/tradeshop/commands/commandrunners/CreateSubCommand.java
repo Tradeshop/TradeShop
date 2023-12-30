@@ -26,12 +26,12 @@
 package org.shanerx.tradeshop.commands.commandrunners;
 
 import org.bukkit.block.Sign;
-import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.shanerx.tradeshop.TradeShop;
 import org.shanerx.tradeshop.commands.SubCommand;
 import org.shanerx.tradeshop.player.ShopUser;
 import org.shanerx.tradeshop.shop.ShopType;
+import org.shanerx.tradeshop.utils.Utils;
 
 /**
  * Implementation of CommandRunner for plugin commands that create new shops
@@ -53,6 +53,6 @@ public class CreateSubCommand extends SubCommand {
         if (sign == null)
             return;
 
-        createShop(sign, getPlayerSender(), shopType);
+        new Utils().createShop(sign, getPlayerSender(), shopType);
     }
 }

@@ -44,7 +44,7 @@ import org.shanerx.tradeshop.utils.debug.DebugLevels;
 import java.util.List;
 import java.util.UUID;
 
-public class ShopChest extends Utils {
+public class ShopChest {
 
     private final static TradeShop PLUGIN = TradeShop.getPlugin();
     private final Location loc;
@@ -160,7 +160,7 @@ public class ShopChest extends Utils {
 
     public boolean hasStock(List<ShopItemStack> itemToCheck) {
         if (isEmpty()) return false;
-        return itemToCheck.size() > 0 && getItems(getInventory().getStorageContents(), itemToCheck, 1).get(0) != null;
+        return itemToCheck.size() > 0 && new Utils().getItems(getInventory().getStorageContents(), itemToCheck, 1).get(0) != null;
     }
 
     public boolean isEmpty() {

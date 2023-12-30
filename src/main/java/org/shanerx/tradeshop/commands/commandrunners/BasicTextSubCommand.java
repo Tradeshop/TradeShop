@@ -33,6 +33,7 @@ import org.shanerx.tradeshop.data.config.Message;
 import org.shanerx.tradeshop.data.config.Setting;
 import org.shanerx.tradeshop.data.config.Variable;
 import org.shanerx.tradeshop.player.PermStatus;
+import org.shanerx.tradeshop.utils.Utils;
 import org.shanerx.tradeshop.utils.objects.Tuple;
 
 /**
@@ -58,10 +59,10 @@ public class BasicTextSubCommand extends SubCommand {
         StringBuilder sb = new StringBuilder();
 
         sb.append("\n&2")
-                .append(getPluginName())
+            .append(new Utils().getPluginName())
                 .append(" ")
-                .append(getVersion())
-                .append(" by ").append(pdf.getAuthors().get(0)).append(" & ").append(pdf.getAuthors().get(1))
+            .append(new Utils().getVersion())
+            .append(" by ").append(new Utils().getAuthors().get(0)).append(" & ").append(new Utils().getAuthors().get(1))
                 .append("\n\n&b/tradeshop &f &f Display help message\n");
 
         for (CommandType c : CommandType.values()) {
@@ -71,7 +72,7 @@ public class BasicTextSubCommand extends SubCommand {
         }
 
         sb.append("\n ");
-        sendMessage(colorize(sb.toString()));
+        sendMessage(new Utils().colorize(sb.toString()));
     }
 
     /**

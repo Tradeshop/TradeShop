@@ -41,11 +41,11 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-public class CommandTabCompleter extends Utils {
+public class CommandTabCompleter {
 
     private final TradeShop plugin;
-    private CommandSender sender;
-    private String[] args;
+    private final CommandSender sender;
+    private final String[] args;
     private Player pSender;
 
 
@@ -97,7 +97,7 @@ public class CommandTabCompleter extends Utils {
         Sign s;
 
         if (plugin.getListManager().isInventory(b)) {
-            s = findShopSign(b);
+            s = new Utils().findShopSign(b);
         } else if (ShopType.isShop(b)) {
             s = (Sign) b.getState();
         } else {

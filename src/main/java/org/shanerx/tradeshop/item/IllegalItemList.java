@@ -27,14 +27,13 @@ package org.shanerx.tradeshop.item;
 
 import org.bukkit.Material;
 import org.shanerx.tradeshop.TradeShop;
-import org.shanerx.tradeshop.utils.Utils;
 import org.shanerx.tradeshop.utils.debug.DebugLevels;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class IllegalItemList extends Utils {
+public class IllegalItemList {
 
     private ListType type;
     private ArrayList<Material> list;

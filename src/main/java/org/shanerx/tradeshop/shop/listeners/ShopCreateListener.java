@@ -43,7 +43,7 @@ import org.shanerx.tradeshop.utils.debug.DebugLevels;
 import org.shanerx.tradeshop.utils.objects.ObjectHolder;
 
 @SuppressWarnings("unused")
-public class ShopCreateListener extends Utils implements Listener {
+public class ShopCreateListener implements Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onSignChange(SignChangeEvent event) {
@@ -68,13 +68,13 @@ public class ShopCreateListener extends Utils implements Listener {
         // Required as the createShop method needs to make sure the first line is blank for commands to avoid overwriting existing shops
         shopSign.setLine(0, "");
 
-        Shop shop = createShop(shopSign, p, shopType, lineCheck(ShopItemSide.COST, event.getLine(2)), lineCheck(ShopItemSide.PRODUCT, event.getLine(1)), event);
+        Shop shop = new Utils().createShop(shopSign, p, shopType, lineCheck(ShopItemSide.COST, event.getLine(2)), lineCheck(ShopItemSide.PRODUCT, event.getLine(1)), event);
 
         if (shop != null) {
             return;
         }
 
-        failedSignReset(event, shopType);
+        new Utils().failedSignReset(event, shopType);
     }
 
     private ItemStack lineCheck(ShopItemSide side, String line) {

@@ -30,7 +30,6 @@ import de.themoep.inventorygui.InventoryGui;
 import de.themoep.inventorygui.StaticGuiElement;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.inventory.ItemStack;
 import org.shanerx.tradeshop.TradeShop;
@@ -42,6 +41,7 @@ import org.shanerx.tradeshop.player.Permissions;
 import org.shanerx.tradeshop.player.ShopUser;
 import org.shanerx.tradeshop.shop.Shop;
 import org.shanerx.tradeshop.shop.ShopType;
+import org.shanerx.tradeshop.utils.Utils;
 
 /**
  * Implementation of GUICommand for the `what` command
@@ -90,7 +90,7 @@ public class WhatSubCommand extends GUISubCommand {
             return;
         }
 
-        InventoryGui gui = new InventoryGui(plugin, colorize(shop.getShopType() == ShopType.ITRADE ?
+        InventoryGui gui = new InventoryGui(plugin, new Utils().colorize(shop.getShopType() == ShopType.ITRADE ?
                 Setting.ITRADESHOP_OWNER.getString() :
                 Bukkit.getOfflinePlayer(shop.getOwner().getUUID()).getName() + "'s Shop"),
                 WHAT_MENU);

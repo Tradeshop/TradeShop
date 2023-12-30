@@ -32,7 +32,6 @@ import de.themoep.inventorygui.GuiStateElement;
 import de.themoep.inventorygui.InventoryGui;
 import de.themoep.inventorygui.StaticGuiElement;
 import org.bukkit.Material;
-import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BookMeta;
@@ -45,6 +44,7 @@ import org.shanerx.tradeshop.item.ShopItemSide;
 import org.shanerx.tradeshop.item.ShopItemStack;
 import org.shanerx.tradeshop.item.ShopItemStackSettingKeys;
 import org.shanerx.tradeshop.shop.Shop;
+import org.shanerx.tradeshop.utils.Utils;
 import org.shanerx.tradeshop.utils.objects.ObjectHolder;
 
 import java.util.ArrayList;
@@ -86,7 +86,7 @@ public class GUISubCommand extends SubCommand {
         ItemStack tempStack = item.getItemStack().clone();
         ItemMeta tempMeta = tempStack.getItemMeta();
         List<String> newLore = new ArrayList<>();
-        newLore.add(colorize("&8Amount &7» &f" + item.getAmount()));
+        newLore.add(new Utils().colorize("&8Amount &7» &f" + item.getAmount()));
 
         if (tempMeta != null && tempMeta.hasLore()) {
             newLore.add("");

@@ -25,19 +25,14 @@
 
 package org.shanerx.tradeshop.data.storage.Json;
 
-import com.bergerkiller.bukkit.common.config.JsonSerializer;
-import com.google.gson.JsonPrimitive;
 import org.bukkit.World;
 import org.shanerx.tradeshop.data.storage.LinkageConfiguration;
-import org.shanerx.tradeshop.utils.gsonprocessing.GsonProcessor;
 
-import java.util.HashMap;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 public class JsonLinkageData extends JsonConfiguration implements LinkageConfiguration {
 
-    Map<String, String> linkageData;
+    Map<String, Object> linkageData;
 
     public JsonLinkageData(World world) {
         super(world.getName(), "chest_linkage");
@@ -46,24 +41,19 @@ public class JsonLinkageData extends JsonConfiguration implements LinkageConfigu
 
     @Override
     public void load() {
-        try {
-            String path = jsonObj.has("members") ? "members.linkage_data" : "linkage_data";
-            linkageData = GsonProcessor.jsonToMap(path).entrySet().stream()
-                    .collect(Collectors.toMap(Map.Entry::getKey, e -> (String) e.getValue()));
-        } catch (JsonSerializer.JsonSyntaxException | NullPointerException ignored) {
-            linkageData = new HashMap<>();
-        }
+        loadFile();
+        linkageData = getMapParameterized("linkage_data");
     }
 
     @Override
-    public Map<String, String> getLinkageData() {
+    public Map<String, Object> getLinkageData() {
         return linkageData;
     }
 
     @Override
     public void save() {
-        jsonObj.add("linkage_data", new JsonPrimitive(GsonProcessor.toJson(linkageData)));
-
+        if (linkageData == null) load();
+        set("linkage_data", linkageData);
         saveFile();
     }
 }

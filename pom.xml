@@ -179,12 +179,18 @@
                 <artifactId>maven-shade-plugin</artifactId>
                 <version>3.3.0</version>
                 <configuration>
-                    <outputDirectory>${outputDir}/PreShade</outputDirectory>
+                    <minimizeJar>true</minimizeJar>
                     <createDependencyReducedPom>false</createDependencyReducedPom>
+                    <outputDirectory>${outputDir}/shade</outputDirectory>
+                    <outputFile>C:/Users/natha/OneDrive/Documents/MC Servers/Dungeons and Diamonds
+                        SMP/120923/plugins/${build.finalName}.jar
+                    </outputFile>
                     <artifactSet>
                         <includes>
                             <include>org.bstats:*</include>
                             <include>de.themoep:*</include>
+                            <include>com.bergerkiller.bukkit:*</include>
+                            <include>com.github.simplix-softworks:*</include>
                         </includes>
                     </artifactSet>
                     <relocations>
@@ -271,6 +277,11 @@
             <id>papermc</id>
             <url>https://repo.papermc.io/repository/maven-public/</url>
         </repository>
+
+        <repository>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
+        </repository>
     </repositories>
 
     <dependencies>
@@ -319,6 +330,20 @@
             <artifactId>BKCommonLib</artifactId>
             <version>1.20.2-v1</version>
             <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>1.18.26</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.github.simplix-softworks</groupId>
+            <artifactId>SimplixStorage</artifactId>
+            <version>3.2.7</version>
+            <scope>compile</scope>
         </dependency>
     </dependencies>
 

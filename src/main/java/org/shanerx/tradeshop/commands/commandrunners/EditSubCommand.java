@@ -31,7 +31,6 @@ import de.themoep.inventorygui.GuiStateElement;
 import de.themoep.inventorygui.InventoryGui;
 import de.themoep.inventorygui.StaticGuiElement;
 import org.bukkit.Material;
-import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.inventory.ItemStack;
 import org.shanerx.tradeshop.TradeShop;
@@ -43,6 +42,7 @@ import org.shanerx.tradeshop.player.ShopRole;
 import org.shanerx.tradeshop.player.ShopUser;
 import org.shanerx.tradeshop.shop.Shop;
 import org.shanerx.tradeshop.shop.ShopSettingKeys;
+import org.shanerx.tradeshop.utils.Utils;
 import org.shanerx.tradeshop.utils.objects.ObjectHolder;
 
 import java.util.HashMap;
@@ -83,7 +83,7 @@ public class EditSubCommand extends GUISubCommand {
             return;
         }
 
-        mainMenu = new InventoryGui(plugin, "Edit Menu-" + shop.getShopLocationAsSL().serialize(), MENU_LAYOUT);
+        mainMenu = new InventoryGui(plugin, "Edit Menu-" + shop.getShopLocationAsSL().toString(), MENU_LAYOUT);
 
         mainMenu.setFiller(new ItemStack(Material.LIGHT_GRAY_STAINED_GLASS_PANE, 1));
 
@@ -164,7 +164,7 @@ public class EditSubCommand extends GUISubCommand {
 
             settingEdit.show(getPlayerSender());
             return true;
-        }, colorize("&eEdit Shop Settings"));
+        }, new Utils().colorize("&eEdit Shop Settings"));
     }
 
     private GuiElement editUserMenu(char slotChar) {
@@ -241,7 +241,7 @@ public class EditSubCommand extends GUISubCommand {
             userEdit.addElement(userGroup);
             userEdit.show(getPlayerSender());
             return true;
-        }, colorize("&eEdit Shop Users"));
+        }, new Utils().colorize("&eEdit Shop Users"));
     }
 
     private GuiElement editCostMenu(char slotChar) {
@@ -285,7 +285,7 @@ public class EditSubCommand extends GUISubCommand {
             costEdit.addElement(costGroup);
             costEdit.show(getPlayerSender());
             return true;
-        }, colorize("&eEdit Shop Costs"));
+        }, new Utils().colorize("&eEdit Shop Costs"));
     }
 
     private GuiElement editProductMenu(char slotChar) {
@@ -329,6 +329,6 @@ public class EditSubCommand extends GUISubCommand {
             productEdit.addElement(productGroup);
             productEdit.show(getPlayerSender());
             return true;
-        }, colorize("&eEdit Shop Products"));
+        }, new Utils().colorize("&eEdit Shop Products"));
     }
 }

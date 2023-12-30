@@ -75,10 +75,10 @@ import java.util.UUID;
  */
 public class Utils {
 
-    private final UUID KOPUUID = UUID.fromString("daf79be7-bc1d-47d3-9896-f97b8d4cea7d");
-    private final UUID LORIUUID = UUID.fromString("e296bc43-2972-4111-9843-48fc32302fd4");
-    private final TradeShop PLUGIN = TradeShop.getPlugin();
-    protected PluginDescriptionFile pdf = PLUGIN.getDescription();
+    private final transient UUID KOPUUID = UUID.fromString("daf79be7-bc1d-47d3-9896-f97b8d4cea7d");
+    private final transient UUID LORIUUID = UUID.fromString("e296bc43-2972-4111-9843-48fc32302fd4");
+    private final transient TradeShop PLUGIN = TradeShop.getPlugin();
+    protected transient PluginDescriptionFile pdf = PLUGIN.getDescription();
 
     public Utils() {
     }
@@ -92,7 +92,7 @@ public class Utils {
      *
      * @return the name.
      */
-    protected String getPluginName() {
+    public String getPluginName() {
         return pdf.getName();
     }
 
@@ -514,14 +514,14 @@ public class Utils {
         }
 
         Map<String, Integer> permittedLimits = Maps.filterEntries(PLUGIN.getListManager().getLimitPermissions(), (entry) -> creator.hasPermission(entry.getKey()));
-        int limit;
-        if (permittedLimits.containsValue(-1)) {
-            limit = -1;
-        } else if (Setting.SUM_PER_PLAYER_LIMIT.getBoolean()) {
-            limit = permittedLimits.values().stream().mapToInt(Integer::intValue).sum();
-        } else {
-            OptionalInt oInt = permittedLimits.values().stream().mapToInt(Integer::intValue).max();
-            limit = oInt.isPresent() ? oInt.getAsInt() : 0;
+        OptionalInt oMaxInt = permittedLimits.values().stream().mapToInt(Integer::intValue).reduce(Integer::max), //process max value
+            oSumInt = permittedLimits.values().stream().mapToInt(Integer::intValue).reduce(Integer::sum); //process sum value
+        int limit = -1; // set default value to -1
+
+        if (permittedLimits.size() > 0 && !permittedLimits.containsValue(-1)) { //If the player has set permissions and does not have an unlimited permission(-1)
+            limit = Setting.SUM_PER_PLAYER_LIMIT.getBoolean() ? //set based on config setting
+                oSumInt.getAsInt() : // set to sum if enabled
+                oMaxInt.getAsInt(); //set to max if disabled
         }
 
         final int OWNED_SHOPS = PLUGIN.getDataStorage().loadPlayer(owner.getUUID()).getOwnedShops().size();
@@ -537,13 +537,13 @@ public class Utils {
         Shop shop;
         Block chest = findShopChest(shopSign.getBlock());
 
-        if (!shopType.isITrade()) {
             if (ShopChest.isShopChest(chest)) {
                 shopChest = new ShopChest(chest.getLocation());
             } else {
                 shopChest = new ShopChest(chest, creator.getUniqueId(), shopSign.getLocation());
             }
 
+        if (!shopType.isITrade()) {
             if (shopChest.hasOwner() && !shopChest.getOwner().equals(owner.getUUID())) {
                 Message.NO_SHOP_PERMISSION.sendMessage(creator);
                 return null;
@@ -750,7 +750,7 @@ public class Utils {
     }
 
     public void scheduleShopDelayUpdate(String cause, Shop shop, Long delay) {
-        PLUGIN.getDebugger().log("Shop delay update caused by " + cause + ": " + shop.getShopLocationAsSL().serialize(), DebugLevels.PROTECTION);
+        PLUGIN.getDebugger().log("Shop delay update caused by " + cause + ": " + shop.getShopLocationAsSL().toString(), DebugLevels.PROTECTION);
         Bukkit.getScheduler().scheduleSyncDelayedTask(PLUGIN, () -> {
             shop.updateFullTradeCount();
             shop.updateSign();

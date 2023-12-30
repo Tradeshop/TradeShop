@@ -36,10 +36,8 @@ import org.shanerx.tradeshop.data.config.Setting;
 import org.shanerx.tradeshop.player.Permissions;
 import org.shanerx.tradeshop.utils.gsonprocessing.GsonProcessor;
 
-import java.io.Serializable;
 
-
-public enum ShopType implements Serializable {
+public enum ShopType {
 
     TRADE(Permissions.CREATE),
 
@@ -78,8 +76,13 @@ public enum ShopType implements Serializable {
         return null;
     }
 
-    public static ShopType deserialize(String serialized) throws JsonSerializer.JsonSyntaxException {
-        return GsonProcessor.fromJson(serialized, ShopType.class);
+    public static ShopType deserialize(String serialized) {
+        try {
+            return GsonProcessor.fromJson(serialized, ShopType.class);
+        } catch (JsonSerializer.JsonSyntaxException ex) {
+            ex.printStackTrace();
+        }
+        return null;
     }
 
     @Override
@@ -102,7 +105,7 @@ public enum ShopType implements Serializable {
     }
 
     public String serialize() {
-        return new GsonProcessor().toJson(this);
+        return GsonProcessor.toJson(this);
     }
 
     public boolean isTrade() {

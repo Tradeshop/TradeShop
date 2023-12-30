@@ -27,7 +27,6 @@ package org.shanerx.tradeshop.commands.commandrunners;
 
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
-import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.shanerx.tradeshop.TradeShop;
 import org.shanerx.tradeshop.commands.SubCommand;
@@ -41,6 +40,7 @@ import org.shanerx.tradeshop.player.ShopRole;
 import org.shanerx.tradeshop.player.ShopUser;
 import org.shanerx.tradeshop.shop.Shop;
 import org.shanerx.tradeshop.shoplocation.ShopLocation;
+import org.shanerx.tradeshop.utils.Utils;
 import org.shanerx.tradeshop.utils.objects.ObjectHolder;
 import org.shanerx.tradeshop.utils.objects.Tuple;
 
@@ -96,7 +96,7 @@ public class ShopUserSubCommand extends SubCommand {
      */
     public void editUser(ShopRole role, ShopChange change) {
         try {
-            boolean applyAllOwned = hasArgAt(2) && getArgAt(2).length() > 0 && textToBool(getArgAt(2));
+            boolean applyAllOwned = hasArgAt(2) && getArgAt(2).length() > 0 && new Utils().textToBool(getArgAt(2));
             Set<Shop> ownedShops = new HashSet<>();
             Map<String, String> updateStatuses = new HashMap<>();
 
@@ -125,7 +125,7 @@ public class ShopUserSubCommand extends SubCommand {
                     switch (change) {
                         case REMOVE_USER:
                             if (!shop.getUsersUUID(ShopRole.MANAGER, ShopRole.MEMBER).contains(target.getUniqueId())) {
-                                updateStatuses.put(shop.getShopLocationAsSL().serialize(), UserOperationStatus.FAILED_MISSING.toString());
+                                updateStatuses.put(shop.getShopLocationAsSL().toString(), UserOperationStatus.FAILED_MISSING.toString());
                                 break eachOwnedShop;
                             }
                             success = shop.removeUser(target.getUniqueId());
@@ -133,10 +133,10 @@ public class ShopUserSubCommand extends SubCommand {
                         case ADD_MANAGER:
                         case ADD_MEMBER:
                             if (shop.getUsersUUID(ShopRole.MANAGER, ShopRole.MEMBER).contains(target.getUniqueId())) {
-                                updateStatuses.put(shop.getShopLocationAsSL().serialize(), UserOperationStatus.FAILED_EXISTING.toString());
+                                updateStatuses.put(shop.getShopLocationAsSL().toString(), UserOperationStatus.FAILED_EXISTING.toString());
                                 break eachOwnedShop;
                             } else if (shop.getUsers(ShopRole.MANAGER, ShopRole.MEMBER).size() >= Setting.MAX_SHOP_USERS.getInt()) {
-                                updateStatuses.put(shop.getShopLocationAsSL().serialize(), UserOperationStatus.FAILED_CAPACITY.toString());
+                                updateStatuses.put(shop.getShopLocationAsSL().toString(), UserOperationStatus.FAILED_CAPACITY.toString());
                                 break eachOwnedShop;
                             }
                             success = shop.addUser(target.getUniqueId(), role);
@@ -144,7 +144,7 @@ public class ShopUserSubCommand extends SubCommand {
                         case SET_MANAGER:
                         case SET_MEMBER:
                             if (shop.getUsersExcluding(Collections.singletonList(target.getUniqueId()), ShopRole.MANAGER, ShopRole.MEMBER).size() >= Setting.MAX_SHOP_USERS.getInt()) {
-                                updateStatuses.put(shop.getShopLocationAsSL().serialize(), UserOperationStatus.FAILED_CAPACITY.toString());
+                                updateStatuses.put(shop.getShopLocationAsSL().toString(), UserOperationStatus.FAILED_CAPACITY.toString());
                                 break eachOwnedShop;
                             }
                             success = shop.setUser(target.getUniqueId(), role);
@@ -152,9 +152,9 @@ public class ShopUserSubCommand extends SubCommand {
                     }
 
                     if (success)
-                        updateStatuses.put(shop.getShopLocationAsSL().serialize(), UserOperationStatus.SUCCESSFUL.toString());
+                        updateStatuses.put(shop.getShopLocationAsSL().toString(), UserOperationStatus.SUCCESSFUL.toString());
                     else
-                        updateStatuses.put(shop.getShopLocationAsSL().serialize(), UserOperationStatus.FAILED.toString());
+                        updateStatuses.put(shop.getShopLocationAsSL().toString(), UserOperationStatus.FAILED.toString());
                 }
             }
 
