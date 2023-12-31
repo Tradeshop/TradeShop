@@ -71,7 +71,7 @@ public class Debug {
 
     public void log(String message, DebugLevels level, String positionalNote) {
         StringBuilder messageBuilder = new StringBuilder();
-        if (level.getPosition() > 0 && decimalDebugLevel < 1) {
+        if (level.getPosition() > 0 && decimalDebugLevel <= 0) {
             return;
         }
 
@@ -79,7 +79,7 @@ public class Debug {
         if (level.getPosition() > 0 && binaryDebugLevel.charAt(level.getPosition() - 1) == '1') {
             message = PREFIX.replace("%level%", level.getPrefix()) + message;
         } else if (level == DebugLevels.DISABLED) {
-            message = PREFIX.replaceAll("( Debug.%level%)", "") + message;
+            message = PREFIX.replaceAll("( Debug.%level%)", "(D) ") + message;
         } else if (level.getPosition() < 0) {
             message = PREFIX.replace("%level%", level.getPrefix()) + message;
         }

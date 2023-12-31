@@ -242,7 +242,7 @@ public class Shop {
 
         StringBuilder dataRemaining = new StringBuilder();
 
-        for (String key : data.keySet()) {
+        for (String key : data.singleLayerKeySet()) {
             switch (key) {
                 case "shopLoc":
                 case "shopType":
@@ -282,8 +282,6 @@ public class Shop {
         if (dataRemaining.length() > 0) {
             TradeShop.getPlugin().getVarManager().getDebugger().log("Shop (" + shop.shopLoc + ") deserialized completed with data remaining: \n" + dataRemaining, DebugLevels.DATA_ERROR);
         }
-
-        shop.fixAfterLoad();
 
         return shop;
     }
@@ -339,7 +337,6 @@ public class Shop {
      * Fixes values and objects after loading or creating a Shop
      */
     public void fixAfterLoad() {
-        aSyncFix();
         aSync = false;
 
         shopLoc.stringToWorld();
