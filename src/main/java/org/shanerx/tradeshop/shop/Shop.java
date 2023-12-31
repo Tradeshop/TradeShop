@@ -255,12 +255,10 @@ public class Shop {
                     shop.members = new HashSet<>(data.getSerializableList(key, UUID.class));
                     break;
                 case "product":
-                    shop.product = new ArrayList<>();
-                    data.keySet(key).forEach((itmKey) -> shop.product.add(ShopItemStack.deserialize(data.getSection(itmKey))));
+                    data.keySet(key).forEach((itmKey) -> shop.addSideItem(ShopItemSide.PRODUCT, ShopItemStack.deserialize(data.getSection(itmKey))));
                     break;
                 case "cost":
-                    shop.cost = new ArrayList<>();
-                    data.keySet(key).forEach((itmKey) -> shop.cost.add(ShopItemStack.deserialize(data.getSection(itmKey))));
+                    data.keySet(key).forEach((itmKey) -> shop.addSideItem(ShopItemSide.COST, ShopItemStack.deserialize(data.getSection(itmKey))));
                     break;
                 case "chestLoc":
                     shop.chestLoc = ShopLocation.deserialize(data.get(key).toString());
