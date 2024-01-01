@@ -189,7 +189,7 @@ public class ShopItemStack implements Cloneable {
 
         Map<ShopItemStackSettingKeys, ObjectHolder<?>> settings = new HashMap<>();
 
-        for (String key : serialized.singleLayerKeySet()) {
+        for (String key : serialized.keySet()) {
             switch (key) {
                 case "itemStackString":
                     item.setItemStack(ConfSerSerializer.deserializeItemStack(serialized.getMapParameterized(key)));

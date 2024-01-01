@@ -242,7 +242,7 @@ public class Shop {
 
         StringBuilder dataRemaining = new StringBuilder();
 
-        for (String key : data.singleLayerKeySet()) {
+        for (String key : data.keySet()) {
             switch (key) {
                 case "shopLoc":
                 case "shopType":
@@ -342,7 +342,7 @@ public class Shop {
         shopLoc.stringToWorld();
 
         if (!getShopType().isITrade()) {
-            if (chestLoc == null) {
+            if (chestLoc == null && getShopLocation() != null) {
                 chestLoc = new ShopLocation(new Utils().findShopChest(getShopLocation().getBlock()).getLocation());
             }
             chestLoc.stringToWorld();
