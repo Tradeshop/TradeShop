@@ -30,12 +30,10 @@ import de.leonhard.storage.util.FileUtils;
 import org.shanerx.tradeshop.TradeShop;
 
 import java.io.File;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 class JsonConfiguration extends Json {
-    protected static final Map<String, JsonConfiguration> fileCache = new HashMap<>();
+    //protected static final Map<String, JsonConfiguration> fileCache = new HashMap<>();
 
     protected final TradeShop PLUGIN = TradeShop.getPlugin();
     protected final String fileKey;
@@ -56,9 +54,9 @@ class JsonConfiguration extends Json {
     public static JsonConfiguration getJsonConfiguration(String folderFromData, String fileName) {
         String key = folderFromData + ":" + fileName;
 
-        if (fileCache.containsKey(key)) {
+        /*if (fileCache.containsKey(key)) {
             return fileCache.get(key);
-        }
+        }*/
 
         return new JsonConfiguration(folderFromData, fileName);
     }
@@ -73,7 +71,7 @@ class JsonConfiguration extends Json {
 
     protected void loadFile() {
         forceReload();
-        fileCache.put(fileKey, this);
+        //fileCache.put(fileKey, this);
     }
 
     protected void saveFile() {
