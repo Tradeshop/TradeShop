@@ -351,6 +351,8 @@ public class Shop {
             plugin.getDataStorage().addChestLinkage(chestLoc, shopLoc);
         }
 
+        aFixup();
+
         if (getShopSign() != null)
             updateSign();
     }
@@ -360,6 +362,10 @@ public class Shop {
      */
     public void aSyncFix() {
         aSync = true;
+        aFixup();
+    }
+
+    private void aFixup() {
         if (utils == null) utils = new Utils();
         if (plugin == null) plugin = TradeShop.getPlugin();
 
