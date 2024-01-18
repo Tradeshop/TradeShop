@@ -23,51 +23,37 @@
  *
  */
 
-package org.shanerx.tradeshop.utils.objects;
+package org.shanerx.tradeshop.data.storage.Json;
 
-import com.google.gson.annotations.SerializedName;
+import org.bukkit.World;
+import org.shanerx.tradeshop.data.storage.LinkageConfiguration;
 
-import java.util.HashMap;
 import java.util.Map;
 
-public class Tuple<L, R> {
+public class JsonLinkageData extends JsonConfiguration implements LinkageConfiguration {
 
-    @SerializedName("right")
-    private R r;
-    @SerializedName("left")
-    private L l;
+    Map<String, Object> linkageData;
 
-    public Tuple() {
-    }
-
-    public Tuple(L l, R r) {
-        this.r = r;
-        this.l = l;
-    }
-
-    public Tuple(Tuple<? extends L, ? extends R> t) {
-        this.r = t.r;
-        this.l = t.l;
-    }
-
-    public R getRight() {
-        return r;
-    }
-
-    public L getLeft() {
-        return l;
-    }
-
-    public Map<String, Object> serialize() {
-        Map<String, Object> map = new HashMap<>();
-        map.put("L", l);
-        map.put("R", r);
-
-        return map;
+    public JsonLinkageData(World world) {
+        super(world.getName(), "chest_linkage");
+        load();
     }
 
     @Override
-    public String toString() {
-        return serialize().toString();
+    public void load() {
+        loadFile();
+        linkageData = getMapParameterized("linkage_data");
+    }
+
+    @Override
+    public Map<String, Object> getLinkageData() {
+        return linkageData;
+    }
+
+    @Override
+    public void save() {
+        if (linkageData == null) load();
+        set("linkage_data", linkageData);
+        saveFile();
     }
 }

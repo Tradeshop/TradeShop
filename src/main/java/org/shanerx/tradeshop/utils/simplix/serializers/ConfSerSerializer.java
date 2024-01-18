@@ -23,42 +23,33 @@
  *
  */
 
-package org.shanerx.tradeshop.data.storage.Json;
+package org.shanerx.tradeshop.utils.simplix.serializers;
 
-import com.google.gson.reflect.TypeToken;
-import org.bukkit.World;
-import org.shanerx.tradeshop.data.storage.LinkageConfiguration;
+import org.bukkit.configuration.serialization.ConfigurationSerializable;
+import org.bukkit.configuration.serialization.ConfigurationSerialization;
+import org.bukkit.inventory.ItemStack;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
-public class JsonLinkageConfiguration extends JsonConfiguration implements LinkageConfiguration {
-
-    Map<String, String> linkageData;
-
-    public JsonLinkageConfiguration(World world) {
-        super(world.getName(), "chest_linkage");
-        load();
+public class ConfSerSerializer {
+    public static ItemStack deserializeItemStack(Map<String, Object> map) {
+        return (ItemStack) ConfigurationSerialization.deserializeObject(map, ItemStack.class);
     }
 
-    @Override
-    public void load() {
-        linkageData = gson.fromJson(jsonObj.get("linkage_data"), new TypeToken<Map<String, String>>() {
-        }.getType());
-
-        if (linkageData == null)
-            linkageData = new HashMap<>();
+    public static Map<String, Object> serialize(ConfigurationSerializable configurationSerializable) {
+        return toMap(configurationSerializable);
     }
 
-    @Override
-    public Map<String, String> getLinkageData() {
-        return linkageData;
-    }
+    public static Map<String, Object> toMap(ConfigurationSerializable src) {
+        Map<String, Object> map = new LinkedHashMap<>(src.serialize());
 
-    @Override
-    public void save() {
-        jsonObj.add("linkage_data", gson.toJsonTree(linkageData));
+        map.forEach((k, v) -> {
+            if (v instanceof ConfigurationSerializable) {
+                map.replace(k, toMap((ConfigurationSerializable) v));
+            }
+        });
 
-        saveFile();
+        return map;
     }
 }

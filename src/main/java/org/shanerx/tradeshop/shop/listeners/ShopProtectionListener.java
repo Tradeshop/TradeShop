@@ -64,7 +64,7 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
-public class ShopProtectionListener extends Utils implements Listener {
+public class ShopProtectionListener implements Listener {
 
     private final TradeShop plugin;
 
@@ -118,6 +118,12 @@ public class ShopProtectionListener extends Utils implements Listener {
 
         Shop shop = plugin.getDataStorage().loadShopFromStorage(new ShopLocation(invBlock.getLocation()));
 
+        if (shop == null) {
+            plugin.getListManager().addSkippableHopper(event.getInitiator().getLocation(), false);
+            plugin.getDebugger().log("Protection Shop Null Catch for \n  " + event.getInitiator().getLocation(), DebugLevels.PROTECTION);
+            return;
+        }
+
         boolean isForbidden = !(fromHopper ? shop.getShopSetting(ShopSettingKeys.HOPPER_IMPORT).asBoolean() : shop.getShopSetting(ShopSettingKeys.HOPPER_EXPORT).asBoolean());
         if (isForbidden) {
             event.setCancelled(true);
@@ -126,7 +132,7 @@ public class ShopProtectionListener extends Utils implements Listener {
         }
 
         plugin.getDebugger().log("ShopProtectionListener: Triggered > " + (fromHopper ? "FROM_HOPPER" : "TO_HOPPER"), DebugLevels.PROTECTION);
-        plugin.getDebugger().log("ShopProtectionListener: Shop Location as SL > " + shop.getInventoryLocationAsSL().serialize(), DebugLevels.PROTECTION);
+        plugin.getDebugger().log("ShopProtectionListener: Shop Location as SL > " + shop.getInventoryLocationAsSL().toString(), DebugLevels.PROTECTION);
         plugin.getDebugger().log("ShopProtectionListener: checked hopper setting > " + shop.getShopType().name() + "SHOP_HOPPER_EXPORT", DebugLevels.PROTECTION);
         HopperShopAccessEvent hopperEvent = new HopperShopAccessEvent(
                 shop,
@@ -143,7 +149,7 @@ public class ShopProtectionListener extends Utils implements Listener {
         //plugin.getListManager().addSkippableShop(event.getInitiator().getLocation(), hopperEvent.isForbidden());
 
         if (!hopperEvent.isForbidden()) {
-            scheduleShopDelayUpdate("ShopProtectionListener#onInventoryMoveItem", shop, 2L);
+            new Utils().scheduleShopDelayUpdate("ShopProtectionListener#onInventoryMoveItem", shop, 2L);
         }
     }
 
@@ -321,7 +327,7 @@ public class ShopProtectionListener extends Utils implements Listener {
         if (!plugin.getListManager().isInventory(block))
             return;
 
-        Sign shopSign = findShopSign(block);
+        Sign shopSign = new Utils().findShopSign(block);
 
         if (shopSign == null)
             return;

@@ -73,100 +73,100 @@ public class ShopFindSubCommand extends SubCommand {
                 int desiredRange = Setting.MAX_FIND_RANGE.getInt();
                 boolean inStock = false;
 
-                if (desiredRange > 0) {
-
-                    ArrayList<String> lowerArgs = (getArgs().stream().map(String::toLowerCase).collect(Collectors.toCollection(ArrayList::new)));
-                    lowerArgs.remove("find");
-
-                    List<Shop> shops = new ArrayList<>();
-
-                    for (String arg : lowerArgs) {
-                        for (String str : arg.split(";")) {
-                            String[] keyVal = str.contains("=") ? str.split("=") : str.split(":");
-                            plugin.getDebugger().log(" --- _S_F_ --- " + keyVal[0] + " = " + (keyVal.length > 1 ? keyVal[1] : "---No Value---"), DebugLevels.FIND_COMMAND);
-                            if (keyVal.length != 2) {
-                                Message.INVALID_ARGUMENTS.sendMessage(getSender());
-                                return;
-                            }
-
-                            switch (keyVal[0]) {
-                                case "c":
-                                case "cost":
-                                    desiredCost.putAll(processItemDesires(keyVal[1]));
-                                    break;
-                                case "p":
-                                case "product":
-                                    desiredProduct.putAll(processItemDesires(keyVal[1]));
-                                    break;
-                                case "s":
-                                case "in-stock":
-                                case "instock":
-                                case "stock":
-                                    ObjectHolder<?> stock = new ObjectHolder<>(keyVal[1]);
-                                    inStock = stock.asBoolean();
-                                    break;
-                                case "d":
-                                case "r":
-                                case "distance":
-                                case "range":
-                                    ObjectHolder<?> dist = new ObjectHolder<>(keyVal[1]);
-                                    desiredRange = (dist.canBeInteger() && dist.asInteger() < desiredRange) ?
-                                            dist.asInteger():
-                                            Setting.DEFAULT_FIND_RANGE.getInt();
-                            }
-                        }
-                    }
-
-                    plugin.getDebugger().log(" --- _F_F_ --- \n" +
-                            "Cost" + " = " + desiredCost + "\n" +
-                            "Product" + " = " + desiredProduct + "\n" +
-                            "Range" + " = " + desiredRange + "\n" +
-                            "InStock" + " = " + inStock, DebugLevels.FIND_COMMAND);
-
-                    if (desiredProduct.size() == 0)
-                        desiredProduct.put(0, null);
-                    if (desiredCost.size() == 0)
-                        desiredCost.put(0, null);
-
-                    final int finalDesiredRange = Math.min(desiredRange, Setting.MAX_FIND_RANGE.getInt());
-                    final boolean finalInStock = inStock;
-
-                    desiredProduct.forEach((prodId, prodItems) -> {
-                        desiredCost.forEach((costId, costItems) -> {
-                            shops.addAll(ShopUser.findProximityShop(searchFrom, finalDesiredRange, finalInStock, costItems, prodItems));
-                        });
-                    });
-
-                    ArrayList<TextComponent> foundShops = new ArrayList<>();
-
-                    shops.forEach((shop -> {
-                        TextComponent message = new TextComponent(shop.getShopLocationAsSL().toString(false) + "\n");
-
-                        message.setColor(shop.getAvailableTrades() > 0 ? ChatColor.DARK_GREEN : ChatColor.DARK_RED);
-
-                        message.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
-                                new ComponentBuilder(
-                                        String.join("\n",
-                                                Arrays.asList(
-                                                        shop.getShopType().toString(),
-                                                        shop.getStatus().getLine(),
-                                                        "Cost: " + shop.getSideListNames(ShopItemSide.COST).toString(),
-                                                        "Product: " + shop.getSideListNames(ShopItemSide.PRODUCT))
-                                        )).create()));
-
-                        foundShops.add(message);
-                    }));
-
-
-                    plugin.getDebugger().log(" --- _F_D_ --- " + Arrays.toString(foundShops.toArray(new BaseComponent[]{})), DebugLevels.FIND_COMMAND);
-
-                    if (foundShops.size() > 0)
-                        getSender().spigot().sendMessage(foundShops.toArray(new BaseComponent[]{}));
-                    else
-                        Message.NO_SHOP_FOUND.sendMessage(getSender());
-                } else {
+                if (desiredRange <= 0) {
                     Message.FEATURE_DISABLED.sendMessage(getSender());
                 }
+
+                ArrayList<String> lowerArgs = (getArgs().stream().map(String::toLowerCase).collect(Collectors.toCollection(ArrayList::new)));
+                lowerArgs.remove("find");
+
+                List<Shop> shops = new ArrayList<>();
+
+                for (String arg : lowerArgs) {
+                    for (String str : arg.split(";")) {
+                        String[] keyVal = str.contains("=") ? str.split("=") : str.split(":");
+                        plugin.getDebugger().log(" --- _S_F_ --- " + keyVal[0] + " = " + (keyVal.length > 1 ? keyVal[1] : "---No Value---"), DebugLevels.FIND_COMMAND);
+                        if (keyVal.length != 2) {
+                            Message.INVALID_ARGUMENTS.sendMessage(getSender());
+                            return;
+                        }
+
+                        switch (keyVal[0]) {
+                            case "c":
+                            case "cost":
+                                desiredCost.putAll(processItemDesires(keyVal[1]));
+                                break;
+                            case "p":
+                            case "product":
+                                desiredProduct.putAll(processItemDesires(keyVal[1]));
+                                break;
+                            case "s":
+                            case "in-stock":
+                            case "instock":
+                            case "stock":
+                                ObjectHolder<?> stock = new ObjectHolder<>(keyVal[1]);
+                                inStock = stock.asBoolean();
+                                break;
+                            case "d":
+                            case "r":
+                            case "distance":
+                            case "range":
+                            case "radius":
+                                ObjectHolder<?> dist = new ObjectHolder<>(keyVal[1]);
+                                desiredRange = (dist.canBeInteger() && dist.asInteger() < desiredRange) ?
+                                        dist.asInteger():
+                                        Setting.DEFAULT_FIND_RANGE.getInt();
+                        }
+                    }
+                }
+
+                plugin.getDebugger().log(" --- _F_F_ --- \n" +
+                        "Cost" + " = " + desiredCost + "\n" +
+                        "Product" + " = " + desiredProduct + "\n" +
+                        "Range" + " = " + desiredRange + "\n" +
+                        "InStock" + " = " + inStock, DebugLevels.FIND_COMMAND);
+
+                if (desiredProduct.size() == 0)
+                    desiredProduct.put(0, null);
+                if (desiredCost.size() == 0)
+                    desiredCost.put(0, null);
+
+                final int finalDesiredRange = Math.min(desiredRange, Setting.MAX_FIND_RANGE.getInt());
+                final boolean finalInStock = inStock;
+
+                desiredProduct.forEach((prodId, prodItems) -> {
+                    desiredCost.forEach((costId, costItems) -> {
+                        shops.addAll(ShopUser.findProximityShop(searchFrom, finalDesiredRange, finalInStock, costItems, prodItems));
+                    });
+                });
+
+                ArrayList<TextComponent> foundShops = new ArrayList<>();
+
+                shops.forEach((shop -> {
+                    TextComponent message = new TextComponent(shop.getShopLocationAsSL().toString(false) + "\n");
+
+                    message.setColor(shop.getAvailableTrades() > 0 ? ChatColor.DARK_GREEN : ChatColor.DARK_RED);
+
+                    message.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
+                            new ComponentBuilder(
+                                    String.join("\n",
+                                            Arrays.asList(
+                                                    shop.getShopType().toString(),
+                                                    shop.getStatus().getLine(),
+                                                    "Cost: " + shop.getSideListNames(ShopItemSide.COST).toString(),
+                                                    "Product: " + shop.getSideListNames(ShopItemSide.PRODUCT))
+                                    )).create()));
+
+                    foundShops.add(message);
+                }));
+
+
+                plugin.getDebugger().log(" --- _F_D_ --- " + Arrays.toString(foundShops.toArray(new BaseComponent[]{})), DebugLevels.FIND_COMMAND);
+
+                if (foundShops.size() > 0)
+                    getSender().spigot().sendMessage(foundShops.toArray(new BaseComponent[]{}));
+                else
+                    Message.NO_SHOP_FOUND.sendMessage(getSender());
             }
 
             private Map<Integer, List<ItemStack>> processItemDesires(String desire) {

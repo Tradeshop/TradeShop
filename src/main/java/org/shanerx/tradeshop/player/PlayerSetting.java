@@ -30,6 +30,8 @@ import de.themoep.inventorygui.GuiElementGroup;
 import de.themoep.inventorygui.GuiPageElement;
 import de.themoep.inventorygui.InventoryGui;
 import de.themoep.inventorygui.StaticGuiElement;
+import lombok.Getter;
+import lombok.Setter;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
@@ -39,22 +41,29 @@ import org.shanerx.tradeshop.shop.Shop;
 import org.shanerx.tradeshop.shoplocation.IllegalWorldException;
 import org.shanerx.tradeshop.shoplocation.ShopLocation;
 import org.shanerx.tradeshop.utils.Utils;
-import org.shanerx.tradeshop.utils.gsonprocessing.GsonProcessor;
 
-import java.io.Serializable;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
-public class PlayerSetting implements Serializable {
+public class PlayerSetting {
 
-    private transient UUID uuid;
-    private final String uuidString;
+    @Getter
     private final Set<String> ownedShops;
+    private final String uuidString;
+    @Getter
     private final Set<String> staffShops;
+    @Getter
+    private transient UUID uuid;
+    @Getter
+    @Setter
     private boolean showInvolvedStatus, adminEnabled = true;
 
+    @Setter
+    @Getter
     private int multi = Setting.MULTI_TRADE_DEFAULT.getInt();
 
     private transient Utils utils = new Utils();
@@ -81,44 +90,60 @@ public class PlayerSetting implements Serializable {
         load();
     }
 
-    public static PlayerSetting deserialize(String serialized) {
-        PlayerSetting playerSetting = new GsonProcessor().fromJson(serialized, PlayerSetting.class);
-        playerSetting.load();
+    public static PlayerSetting deserialize(Map<String, Object> serialized) {
+        if (!serialized.containsKey("uuidString")) return null; //TODO: Add error message (Player UUID is null)
+
+        UUID plUUID = UUID.fromString(serialized.get("uuidString").toString());
+        PlayerSetting playerSetting = new PlayerSetting(plUUID);
+
+        for (Map.Entry<String, Object> entry : serialized.entrySet()) {
+            switch (entry.getKey()) {
+                case "ownedShops":
+                    playerSetting.ownedShops.addAll((List<String>) entry.getValue());
+                    break;
+                case "staffShops":
+                    playerSetting.staffShops.addAll((List<String>) entry.getValue());
+                    break;
+                case "showInvolvedStatus":
+                    playerSetting.showInvolvedStatus = (boolean) entry.getValue();
+                    break;
+                case "adminEnabled":
+                    playerSetting.adminEnabled = (boolean) entry.getValue();
+                    break;
+                case "multi":
+                    playerSetting.multi = (int) entry.getValue();
+                    break;
+            }
+        }
+
+
         return playerSetting;
     }
 
-    public boolean isAdminEnabled() {
-        return adminEnabled;
-    }
+    public Map<String, Object> serialize() {
+        HashMap<String, Object> data = new HashMap<>();
+        data.put("uuidString", uuidString);
+        data.put("ownedShops", ownedShops);
+        data.put("staffShops", staffShops);
+        data.put("showInvolvedStatus", showInvolvedStatus);
+        data.put("adminEnabled", adminEnabled);
+        data.put("multi", multi);
 
-    public void setAdminEnabled(boolean adminEnabled) {
-        this.adminEnabled = adminEnabled;
-    }
-
-    public int getMulti() {
-        return multi;
-    }
-
-    public void setMulti(int multi) {
-        this.multi = multi;
-    }
-
-    public Set<String> getOwnedShops() {
-        return ownedShops;
+        return data;
     }
 
     public void addShop(Shop shop) {
         if (shop.getOwner().getUUID().equals(uuid) &&
-                !ownedShops.contains(shop.getShopLocationAsSL().serialize()))
-            ownedShops.add(shop.getShopLocationAsSL().serialize());
+            !ownedShops.contains(shop.getShopLocationAsSL().toString()))
+            ownedShops.add(shop.getShopLocationAsSL().toString());
         else if (shop.getUsersUUID(ShopRole.MANAGER, ShopRole.MEMBER).contains(uuid) &&
-                !ownedShops.contains(shop.getShopLocationAsSL().serialize()))
-            staffShops.add(shop.getShopLocationAsSL().serialize());
+            !ownedShops.contains(shop.getShopLocationAsSL().toString()))
+            staffShops.add(shop.getShopLocationAsSL().toString());
     }
 
     public void removeShop(Shop shop) {
-        ownedShops.remove(shop.getShopLocationAsSL().serialize());
-        staffShops.remove(shop.getShopLocationAsSL().serialize());
+        ownedShops.remove(shop.getShopLocationAsSL().toString());
+        staffShops.remove(shop.getShopLocationAsSL().toString());
     }
 
     public void removeShop(String shop) {
@@ -134,22 +159,10 @@ public class PlayerSetting implements Serializable {
 
     }
 
-    public UUID getUuid() {
-        return uuid;
-    }
-
-    public Set<String> getStaffShops() {
-        return staffShops;
-    }
-
     public void load() {
         if (uuid == null) uuid = UUID.fromString(uuidString);
         if (multi > Setting.MULTI_TRADE_MAX.getInt()) multi = Setting.MULTI_TRADE_MAX.getInt();
         utils = new Utils();
-    }
-
-    public String serialize() {
-        return new GsonProcessor().toJson(this);
     }
 
     public String getInvolvedStatusesString() {
@@ -157,7 +170,7 @@ public class PlayerSetting implements Serializable {
         StringBuilder sb = new StringBuilder();
         sb.append("&eStatus of your shops: \n");
         sb.append("&eShop Role &f| &eType &f| &eAvailable Trades &f| &eLocation &f| &eInventory Status\n&b");
-        if (getOwnedShops().size() > 0) {
+        if (!getOwnedShops().isEmpty()) {
             getOwnedShops().forEach(s -> {
                 try {
                     Shop shop = TradeShop.getPlugin().getDataStorage().loadShopFromSign(ShopLocation.deserialize(s));
@@ -175,7 +188,7 @@ public class PlayerSetting implements Serializable {
                 }
             });
         }
-        if (getStaffShops().size() > 0) {
+        if (!getStaffShops().isEmpty()) {
             getStaffShops().forEach(s -> {
                 try {
                     Shop shop = TradeShop.getPlugin().getDataStorage().loadShopFromSign(ShopLocation.deserialize(s));
@@ -204,7 +217,7 @@ public class PlayerSetting implements Serializable {
         Set<String> nullShops = new HashSet<>();
         InventoryGui gui = new InventoryGui(TradeShop.getPlugin(), Bukkit.getOfflinePlayer(uuid).getName() + "'s Shops", new String[]{"ggggggggg", "ggggggggg", " fp   ln "});
         GuiElementGroup group = new GuiElementGroup('g');
-        if (getOwnedShops().size() > 0) {
+        if (!getOwnedShops().isEmpty()) {
             getOwnedShops().forEach(s -> {
                 try {
                     Shop shop = TradeShop.getPlugin().getDataStorage().loadShopFromSign(ShopLocation.deserialize(s));
@@ -230,7 +243,7 @@ public class PlayerSetting implements Serializable {
                 }
             });
         }
-        if (getStaffShops().size() > 0) {
+        if (!getStaffShops().isEmpty()) {
             getStaffShops().forEach(s -> {
                 try {
                     Shop shop = TradeShop.getPlugin().getDataStorage().loadShopFromSign(ShopLocation.deserialize(s));
@@ -283,7 +296,4 @@ public class PlayerSetting implements Serializable {
         return showInvolvedStatus;
     }
 
-    public void setShowInvolvedStatus(boolean showInvolvedStatus) {
-        this.showInvolvedStatus = showInvolvedStatus;
-    }
 }

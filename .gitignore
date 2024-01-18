@@ -30,3 +30,5 @@ dependency-reduced-pom.xml
 # Temporary and log files
 **/temp.**
 *.log
+/.run/Run Test Server.run.xml
+/.vscode/settings.json

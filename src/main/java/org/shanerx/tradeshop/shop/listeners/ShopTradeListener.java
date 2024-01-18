@@ -60,13 +60,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class ShopTradeListener extends Utils implements Listener {
+public class ShopTradeListener implements Listener {
 
     private final TradeShop PLUGIN = TradeShop.getPlugin();
 
     @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
     public void onBlockInteract(PlayerInteractEvent e) {
-
         if (e.useInteractedBlock().equals(Event.Result.DENY) || e.isCancelled())
             return;
 
@@ -87,7 +86,7 @@ public class ShopTradeListener extends Utils implements Listener {
         shop = PLUGIN.getDataStorage().loadShopFromSign(new ShopLocation(s.getLocation()));
 
         if (shop == null) {
-            String[] lines = failedSignLines(type);
+            String[] lines = new Utils().failedSignLines(type);
             for (int line = 0; line < 4; line++) {
                 s.setLine(line, lines[line]);
             }
@@ -100,9 +99,8 @@ public class ShopTradeListener extends Utils implements Listener {
         Bukkit.getPluginManager().callEvent(preEvent);
         if (preEvent.isCancelled()) return;
 
-        shop = preEvent.getShop(); //Sets shop to events shop so any changes made in preEvent are carried back
-        shop.updateSide(ShopItemSide.COST, preEvent.getCost());
-        shop.updateSide(ShopItemSide.PRODUCT, preEvent.getProduct());
+        shop.updateSide(ShopItemSide.COST, preEvent.getCost(), false);
+        shop.updateSide(ShopItemSide.PRODUCT, preEvent.getProduct(), false);
 
         boolean doBiTradeAlternate = shop.getShopType().isBiTrade() && preEvent.isAction(Action.LEFT_CLICK_BLOCK);
 
@@ -137,7 +135,7 @@ public class ShopTradeListener extends Utils implements Listener {
                 }
 
                 if (shop.hasSide(ShopItemSide.PRODUCT)) {
-                    List<ItemStack> searchResult = getItems(shop.getChestAsSC().getInventory().getStorageContents(), shop.getSideList(ShopItemSide.PRODUCT, doBiTradeAlternate), multiplier);
+                    List<ItemStack> searchResult = new Utils().getItems(shop.getChestAsSC().getInventory().getStorageContents(), shop.getSideList(ShopItemSide.PRODUCT, doBiTradeAlternate), multiplier);
                     Message.SHOP_INSUFFICIENT_ITEMS.sendItemMultiLineMessage(buyer, Collections.singletonMap(Variable.MISSING_ITEMS, searchResult));
                 }
                 return;
@@ -152,7 +150,7 @@ public class ShopTradeListener extends Utils implements Listener {
         e.setCancelled(true);
         shop = PLUGIN.getDataStorage().loadShopFromSign(new ShopLocation(s.getLocation()));
 
-        Tuple<ExchangeStatus, List<ItemStack>> canExchangeResult = canExchangeAll(shop, buyer.getInventory(), multiplier, e.getAction());
+        Tuple<ExchangeStatus, List<ItemStack>> canExchangeResult = new Utils().canExchangeAll(shop, buyer.getInventory(), multiplier, e.getAction());
 
         PLUGIN.getDebugger().log("ExchangeResult " + canExchangeResult.getLeft(), DebugLevels.TRADE);
         switch (canExchangeResult.getLeft()) {
@@ -201,7 +199,7 @@ public class ShopTradeListener extends Utils implements Listener {
 
     private Tuple<List<ItemStack>, List<ItemStack>> tradeAllItems(Shop shop, int multiplier, PlayerInteractEvent event, Player buyer) {
         Action action = event.getAction();
-        List<ItemStack> costItems = createBadList(), productItems = createBadList(); // Start with Bad lists so that in the event of failure at least one list has to have null at 0
+        List<ItemStack> costItems = new Utils().createBadList(), productItems = new Utils().createBadList(); // Start with Bad lists so that in the event of failure at least one list has to have null at 0
         Inventory shopInventory = shop.hasStorage() ? shop.getChestAsSC().getInventory() : null;
         Inventory playerInventory = buyer.getInventory();
 
@@ -220,7 +218,7 @@ public class ShopTradeListener extends Utils implements Listener {
 
         //Method to find Cost items in player inventory and add to cost array
         if (useCost) {
-            costItems = getItems(playerInventory.getStorageContents(), shop.getSideList(ShopItemSide.COST, isBi), multiplier);
+            costItems = new Utils().getItems(playerInventory.getStorageContents(), shop.getSideList(ShopItemSide.COST, isBi), multiplier);
             if (costItems.get(0) == null) {
                 ItemStack item = costItems.get(1);
                 Message.INSUFFICIENT_ITEMS.sendItemMultiLineMessage(buyer, Collections.singletonMap(Variable.MISSING_ITEMS, costItems));
@@ -239,7 +237,7 @@ public class ShopTradeListener extends Utils implements Listener {
         }
 
         //Method to find Product items in shop inventory and add to product array
-        productItems = getItems(shopInventory.getStorageContents(), shop.getSideList(ShopItemSide.PRODUCT, isBi), multiplier);
+        productItems = new Utils().getItems(shopInventory.getStorageContents(), shop.getSideList(ShopItemSide.PRODUCT, isBi), multiplier);
         if (productItems.get(0) == null) {
             ItemStack item = productItems.get(1);
             shop.updateStatus();
@@ -269,13 +267,13 @@ public class ShopTradeListener extends Utils implements Listener {
         if (useCost) {
             //For loop to put cost items in shop inventory
             for (ItemStack item : costItems) {
-                addItemToInventory(shopInventory, item.clone());
+                new Utils().addItemToInventory(shopInventory, item.clone());
             }
         }
 
         //For loop to put product items in player inventory
         for (ItemStack item : productItems) {
-            addItemToInventory(playerInventory, item.clone());
+            new Utils().addItemToInventory(playerInventory, item.clone());
         }
 
         PLUGIN.getDebugger().log("ShopTradeListener > tradeAll > end-productItems: " + productItems, DebugLevels.TRADE);

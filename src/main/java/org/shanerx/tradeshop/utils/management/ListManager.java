@@ -40,7 +40,6 @@ import org.shanerx.tradeshop.item.IllegalItemList;
 import org.shanerx.tradeshop.item.NonObtainableMaterials;
 import org.shanerx.tradeshop.item.ShopItemSide;
 import org.shanerx.tradeshop.shop.ShopStorage;
-import org.shanerx.tradeshop.utils.Utils;
 import org.shanerx.tradeshop.utils.debug.DebugLevels;
 import org.shanerx.tradeshop.utils.objects.ObjectHolder;
 import org.shanerx.tradeshop.utils.relativedirection.RelativeDirection;
@@ -54,7 +53,7 @@ import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 @SuppressWarnings("unused")
-public class ListManager extends Utils {
+public class ListManager {
 
     private final IllegalItemList globalList = new IllegalItemList(IllegalItemList.ListType.DISABLED, new ArrayList<>());
     private final IllegalItemList costList = new IllegalItemList(IllegalItemList.ListType.DISABLED, new ArrayList<>());

@@ -25,6 +25,7 @@
 
 package org.shanerx.tradeshop.shop;
 
+import com.bergerkiller.bukkit.common.config.JsonSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.block.Block;
@@ -35,10 +36,8 @@ import org.shanerx.tradeshop.data.config.Setting;
 import org.shanerx.tradeshop.player.Permissions;
 import org.shanerx.tradeshop.utils.gsonprocessing.GsonProcessor;
 
-import java.io.Serializable;
 
-
-public enum ShopType implements Serializable {
+public enum ShopType {
 
     TRADE(Permissions.CREATE),
 
@@ -78,7 +77,12 @@ public enum ShopType implements Serializable {
     }
 
     public static ShopType deserialize(String serialized) {
-        return new GsonProcessor().fromJson(serialized, ShopType.class);
+        try {
+            return GsonProcessor.fromJson(serialized, ShopType.class);
+        } catch (JsonSerializer.JsonSyntaxException ex) {
+            ex.printStackTrace();
+        }
+        return null;
     }
 
     @Override
@@ -101,7 +105,7 @@ public enum ShopType implements Serializable {
     }
 
     public String serialize() {
-        return new GsonProcessor().toJson(this);
+        return GsonProcessor.toJson(this);
     }
 
     public boolean isTrade() {

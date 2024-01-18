@@ -26,12 +26,19 @@
 package org.shanerx.tradeshop.commands;
 
 import com.google.common.collect.Lists;
-import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.shanerx.tradeshop.TradeShop;
-import org.shanerx.tradeshop.commands.commandrunners.*;
-import org.shanerx.tradeshop.data.config.Message;
+import org.shanerx.tradeshop.commands.commandrunners.AdminSubCommand;
+import org.shanerx.tradeshop.commands.commandrunners.BasicTextSubCommand;
+import org.shanerx.tradeshop.commands.commandrunners.CreateSubCommand;
+import org.shanerx.tradeshop.commands.commandrunners.EditSubCommand;
+import org.shanerx.tradeshop.commands.commandrunners.GeneralPlayerSubCommand;
+import org.shanerx.tradeshop.commands.commandrunners.ShopFindSubCommand;
+import org.shanerx.tradeshop.commands.commandrunners.ShopItemSubCommand;
+import org.shanerx.tradeshop.commands.commandrunners.ShopSubCommand;
+import org.shanerx.tradeshop.commands.commandrunners.ShopUserSubCommand;
+import org.shanerx.tradeshop.commands.commandrunners.WhatSubCommand;
 import org.shanerx.tradeshop.framework.ShopChange;
 import org.shanerx.tradeshop.item.ShopItemSide;
 import org.shanerx.tradeshop.player.ShopRole;
@@ -40,7 +47,7 @@ import org.shanerx.tradeshop.utils.Utils;
 
 import java.util.ArrayList;
 
-public abstract class SubCommand extends Utils {
+public abstract class SubCommand {
 
     protected final TradeShop plugin;
 
@@ -190,7 +197,7 @@ public abstract class SubCommand extends Utils {
         }
     }
 
-    public static String getArgAt(String args[], int index) {
+    public static String getArgAt(String[] args, int index) {
         if (index < args.length) {
             return args[index];
         }

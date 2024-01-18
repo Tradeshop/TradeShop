@@ -42,9 +42,9 @@ public class Debug {
     }
 
     public static Debug findDebugger() {
-        final TradeShop plugin = ((TradeShop) Bukkit.getPluginManager().getPlugin("TradeShop"));
+        final TradeShop plugin = TradeShop.getPlugin();
         if (plugin != null) {
-            return plugin.getDebugger();
+            return plugin.getVarManager().getDebugger();
         } else {
             return new Debug();
         }
@@ -69,14 +69,32 @@ public class Debug {
         }
     }
 
-    public void log(String message, DebugLevels level) {
-        if (level.getPosition() > 0 && binaryDebugLevel.charAt(level.getPosition() - 1) == '1') {
-            Bukkit.getLogger().log(level.getLogLevel(), PREFIX.replace("%level%", level.getPrefix()) + message);
-        } else if (level == DebugLevels.DISABLED) {
-            Bukkit.getLogger().log(level.getLogLevel(), PREFIX.replace(" Debug%level%", "") + message);
-        } else if (level.getPosition() < 0) {
-            Bukkit.getLogger().log(level.getLogLevel(), PREFIX.replace("%level%", level.getPrefix()) + message);
+    public void log(String message, DebugLevels level, String positionalNote) {
+        StringBuilder messageBuilder = new StringBuilder();
+        if (level.getPosition() > 0 && decimalDebugLevel <= 0) {
+            return;
         }
+
+
+        if (level.getPosition() > 0 && binaryDebugLevel.charAt(level.getPosition() - 1) == '1') {
+            message = PREFIX.replace("%level%", level.getPrefix()) + message;
+        } else if (level == DebugLevels.DISABLED) {
+            message = PREFIX.replaceAll("( Debug.%level%)", "(D) ") + message;
+        } else if (level.getPosition() < 0) {
+            message = PREFIX.replace("%level%", level.getPrefix()) + message;
+        }
+
+        if (positionalNote != null && !positionalNote.isEmpty()) {
+            messageBuilder.append("{ ").append(positionalNote).append(" }\n");
+        }
+
+        messageBuilder.append(message);
+
+        Bukkit.getLogger().log(level.getLogLevel(), messageBuilder.toString());
+    }
+
+    public void log(String message, DebugLevels level) {
+        log(message, level, null);
     }
 
     public String getFormattedPrefix(DebugLevels debugLevel) {

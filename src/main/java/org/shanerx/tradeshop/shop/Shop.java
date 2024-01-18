@@ -25,6 +25,8 @@
 
 package org.shanerx.tradeshop.shop;
 
+import de.leonhard.storage.sections.FlatFileSection;
+import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -46,11 +48,9 @@ import org.shanerx.tradeshop.shoplocation.ShopChunk;
 import org.shanerx.tradeshop.shoplocation.ShopLocation;
 import org.shanerx.tradeshop.utils.Utils;
 import org.shanerx.tradeshop.utils.debug.DebugLevels;
-import org.shanerx.tradeshop.utils.gsonprocessing.GsonProcessor;
 import org.shanerx.tradeshop.utils.objects.ObjectHolder;
 import org.shanerx.tradeshop.utils.objects.Tuple;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -62,18 +62,32 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-public class Shop implements Serializable {
+public class Shop {
 
     private final ShopLocation shopLoc;
     private transient TradeShop plugin = TradeShop.getPlugin();
     private ShopUser owner;
     private Set<UUID> managers, members;
+    /**
+     * -- GETTER --
+     * Returns the type of the shop
+     *
+     * @return list of managers as ShopUser
+     */
+    @Getter
     private ShopType shopType;
     private List<ShopItemStack> product, cost;
     private ShopLocation chestLoc;
     private transient Utils utils = new Utils();
     private ShopStatus status = ShopStatus.INCOMPLETE;
     private Map<ShopSettingKeys, ObjectHolder<?>> shopSettings;
+    /**
+     * -- GETTER --
+     * Returns the amount of trades the shop could do when last accessed
+     *
+     * @return amount of trades the shop can do
+     */
+    @Getter
     private int availableTrades = 0;
     private transient boolean aSync = false;
 
@@ -146,19 +160,6 @@ public class Shop implements Serializable {
     }
 
     /**
-     * Deserializes the object to Json using Gson
-     *
-     * @param serialized Shop GSON to be deserialized
-     * @return Shop object from file
-     */
-    public static Shop deserialize(String serialized) {
-        Shop shop = new GsonProcessor().fromJson(serialized, Shop.class);
-        shop.fixAfterLoad();
-
-        return shop;
-    }
-
-    /**
      * Loads a shop from file and returns the Shop object
      *
      * @param loc Location of the shop sign
@@ -217,15 +218,6 @@ public class Shop implements Serializable {
     }
 
     /**
-     * Returns the type of the shop
-     *
-     * @return list of managers as ShopUser
-     */
-    public ShopType getShopType() {
-        return shopType;
-    }
-
-    /**
      * Sets the shops type
      *
      * @param newType new type as ShopType
@@ -238,12 +230,60 @@ public class Shop implements Serializable {
     }
 
     /**
-     * Returns the amount of trades the shop could do when last accessed
+     * Deserializes the object to Json using Gson
      *
-     * @return amount of trades the shop can do
+     * @param data Shop Map to be deserialized from file data
+     * @return Shop object from file
      */
-    public int getAvailableTrades() {
-        return availableTrades;
+    public static Shop deserialize(FlatFileSection data) {
+        Shop shop = new Shop(ShopLocation.deserialize(data.getMapParameterized("shopLoc")).getLocation(),
+            ShopType.valueOf(data.getString("shopType")),
+            ShopUser.deserialize(data.getMapParameterized("owner")));
+
+        StringBuilder dataRemaining = new StringBuilder();
+
+        for (String key : data.keySet()) {
+            switch (key) {
+                case "shopLoc":
+                case "shopType":
+                case "owner":
+                    break; // Already used so skip
+                case "managers":
+                    shop.managers = new HashSet<>(data.getSerializableList(key, UUID.class));
+                    break;
+                case "members":
+                    shop.members = new HashSet<>(data.getSerializableList(key, UUID.class));
+                    break;
+                case "product":
+                    data.keySet(key).forEach((itmKey) -> shop.addSideItem(ShopItemSide.PRODUCT, ShopItemStack.deserialize(data.getSection(itmKey))));
+                    break;
+                case "cost":
+                    data.keySet(key).forEach((itmKey) -> shop.addSideItem(ShopItemSide.COST, ShopItemStack.deserialize(data.getSection(itmKey))));
+                    break;
+                case "chestLoc":
+                    shop.chestLoc = ShopLocation.deserialize(data.get(key).toString());
+                    break;
+                case "status":
+                    shop.status = ShopStatus.valueOf(data.get(key).toString());
+                    break;
+                case "shopSettings":
+                    shop.shopSettings = data.getMapParameterized(key);
+                    data.remove(key);
+                    break;
+                case "availableTrades":
+                    shop.availableTrades = (int) data.get(key);
+                    break;
+                default:
+                    dataRemaining.append(key).append(": ").append(data.get(key)).append("\n");
+                    break;
+            }
+        }
+
+        if (dataRemaining.length() > 0) {
+            TradeShop.getPlugin().getVarManager().getDebugger().log("Shop (" + shop.shopLoc + ") deserialized completed with data remaining: \n" + dataRemaining, DebugLevels.DATA_ERROR);
+        }
+
+        return shop;
     }
 
     /**
@@ -251,8 +291,28 @@ public class Shop implements Serializable {
      *
      * @return serialized string
      */
-    public String serialize() {
-        return new GsonProcessor().toJson(this);
+    public Map<String, Object> serialize() {
+        Map<String, Object> map = new HashMap<>();
+        Map<String, ObjectHolder<?>> settings = new HashMap<>();
+        ArrayList<Map<String, Object>> products = new ArrayList<>(), costs = new ArrayList<>();
+
+        product.forEach(item -> products.add(item.serialize()));
+        cost.forEach(item -> costs.add(item.serialize()));
+        shopSettings.forEach((key, value) -> settings.put(key.getConfigKey(), value));
+
+        map.put("shopLoc", shopLoc.serialize());
+        map.put("owner", owner.serialize());
+        map.put("managers", managers);
+        map.put("members", members);
+        map.put("shopType", shopType.name());
+        map.put("product", products);
+        map.put("cost", costs);
+        map.put("chestLoc", chestLoc.serialize());
+        map.put("status", status.toString());
+        map.put("shopSettings", settings);
+        map.put("availableTrades", availableTrades);
+
+        return map;
     }
 
     /**
@@ -277,13 +337,12 @@ public class Shop implements Serializable {
      * Fixes values and objects after loading or creating a Shop
      */
     public void fixAfterLoad() {
-        aSyncFix();
         aSync = false;
 
         shopLoc.stringToWorld();
 
         if (!getShopType().isITrade()) {
-            if (chestLoc == null) {
+            if (chestLoc == null && getShopLocation() != null) {
                 chestLoc = new ShopLocation(new Utils().findShopChest(getShopLocation().getBlock()).getLocation());
             }
             chestLoc.stringToWorld();
@@ -291,6 +350,8 @@ public class Shop implements Serializable {
             cost.removeIf(item -> item.getItemStack() == null || (item.getItemStack().getType().toString().endsWith("SHULKER_BOX") && getInventoryLocation().getBlock().getType().toString().endsWith("SHULKER_BOX")));
             plugin.getDataStorage().addChestLinkage(chestLoc, shopLoc);
         }
+
+        aFixup();
 
         if (getShopSign() != null)
             updateSign();
@@ -301,6 +362,10 @@ public class Shop implements Serializable {
      */
     public void aSyncFix() {
         aSync = true;
+        aFixup();
+    }
+
+    private void aFixup() {
         if (utils == null) utils = new Utils();
         if (plugin == null) plugin = TradeShop.getPlugin();
 
@@ -319,10 +384,10 @@ public class Shop implements Serializable {
         StringBuilder sb = new StringBuilder();
         sb.append("Shop Debug: \n");
         sb.append("Shop Chunk: ").append(new ShopChunk(shopLoc.getChunk()).serialize()).append("\n");
-        sb.append("Sign Location: ").append(shopLoc.serialize()).append("\n");
+        sb.append("Sign Location: ").append(shopLoc).append("\n");
         sb.append("Shop Type: ").append((isMissingItems() ? Setting.SHOP_INCOMPLETE_COLOUR : Setting.SHOP_GOOD_COLOUR).getString()).append(shopType.toHeader()).append("\n");
         sb.append("Shop Status: ").append(status.getLine()).append("\n");
-        sb.append("Storage Location: ").append(hasStorage() ? getInventoryLocationAsSL().serialize() : "N/A").append("\n");
+        sb.append("Storage Location: ").append(hasStorage() ? getInventoryLocationAsSL().toString() : "N/A").append("\n");
         sb.append("Storage Type: ").append(hasStorage() ? getStorage().getType().toString() : "N/A").append("\n");
         sb.append("Owner: ").append(owner.getName()).append(" | ").append(owner.getUUID()).append("\n");
         sb.append("Managers: ").append(managers.isEmpty() ? "N/A" : managers.size()).append("\n");
@@ -1145,15 +1210,16 @@ public class Shop implements Serializable {
      *
      * @param side            Side to be updated
      * @param updatedItemList list to set updatedItemList to
+     * @param save2disk       whether or not to save to disk
      */
-    public void updateSide(ShopItemSide side, List<ShopItemStack> updatedItemList) {
+    public void updateSide(ShopItemSide side, List<ShopItemStack> updatedItemList, boolean save2disk) {
         if (!getShopType().isITrade() && chestLoc != null)
             updatedItemList.removeIf(item -> item.getItemStack().getType().toString().endsWith("SHULKER_BOX") && getInventoryLocation().getBlock().getType().toString().endsWith("SHULKER_BOX"));
 
         if (side.equals(ShopItemSide.PRODUCT)) product = updatedItemList;
         else cost = updatedItemList;
 
-        saveShop();
+        if (save2disk) saveShop();
         updateSign();
     }
 
@@ -1164,7 +1230,7 @@ public class Shop implements Serializable {
      * @param updatedItem Item to be updated at the specified index and side
      * @param index       index of the item t be updated
      */
-    public void updateSideItem(ShopItemSide side, ShopItemStack updatedItem, int index) {
+    public void updateSideItem(ShopItemSide side, ShopItemStack updatedItem, int index, boolean save2disk) {
         if (!getShopType().isITrade() &&
                 chestLoc != null &&
                 updatedItem.getItemStack().getType().toString().endsWith("SHULKER_BOX") &&
@@ -1173,7 +1239,7 @@ public class Shop implements Serializable {
 
         (side.equals(ShopItemSide.PRODUCT) ? product : cost).set(index, updatedItem);
 
-        saveShop();
+        if (save2disk) saveShop();
         updateSign();
     }
 

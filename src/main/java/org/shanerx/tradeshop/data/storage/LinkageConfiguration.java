@@ -38,11 +38,11 @@ public interface LinkageConfiguration {
 
     void load();
 
-    Map<String, String> getLinkageData();
+    Map<String, Object> getLinkageData();
 
     default ShopLocation getLinkedShop(ShopLocation chestLocation) {
-        String loc = chestLocation.serialize();
-        return getLinkageData().containsKey(loc) ? ShopLocation.deserialize(getLinkageData().get(chestLocation.serialize())) : null;
+        String loc = chestLocation.toString();
+        return getLinkageData().containsKey(loc) ? ShopLocation.deserialize(getLinkageData().get(chestLocation.toString()).toString()) : null;
     }
 
     default int size() {
@@ -50,10 +50,10 @@ public interface LinkageConfiguration {
     }
 
     default void addLinkage(ShopLocation chestLocation, ShopLocation shopLocation) {
-        if (getLinkageData().containsKey(chestLocation.serialize()))
-            getLinkageData().replace(chestLocation.serialize(), shopLocation.serialize());
+        if (getLinkageData().containsKey(chestLocation.toString()))
+            getLinkageData().replace(chestLocation.toString(), shopLocation.toString());
         else
-            getLinkageData().put(chestLocation.serialize(), shopLocation.serialize());
+            getLinkageData().put(chestLocation.toString(), shopLocation.toString());
     }
 
     default void add(ShopLocation chestLocation, ShopLocation shopLocation) {
@@ -73,7 +73,7 @@ public interface LinkageConfiguration {
 
     default void removeShop(ShopLocation shopLocation) {
         List<String> removeChests = new ArrayList<>();
-        String shopLoc = shopLocation.serialize();
+        String shopLoc = shopLocation.toString();
 
         getLinkageData().forEach((key, value) -> {
             if (value.equals(shopLoc))

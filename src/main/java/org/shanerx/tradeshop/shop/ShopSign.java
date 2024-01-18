@@ -27,7 +27,6 @@ package org.shanerx.tradeshop.shop;
 
 import org.bukkit.Material;
 import org.shanerx.tradeshop.TradeShop;
-import org.shanerx.tradeshop.utils.Utils;
 import org.shanerx.tradeshop.utils.debug.DebugLevels;
 import org.shanerx.tradeshop.utils.versionmanagement.Version;
 
@@ -113,7 +112,7 @@ enum Signs {
     }
 }
 
-public class ShopSign extends Utils {
+public class ShopSign {
 
     private final Version version = TradeShop.getPlugin().getVersion();
     private final ArrayList<Material> signTypes = new ArrayList<>();

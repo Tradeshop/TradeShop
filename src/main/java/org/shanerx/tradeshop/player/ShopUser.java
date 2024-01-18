@@ -26,7 +26,14 @@
 package org.shanerx.tradeshop.player;
 
 import com.google.gson.annotations.SerializedName;
-import org.bukkit.*;
+import lombok.Getter;
+import lombok.Setter;
+import org.bukkit.Bukkit;
+import org.bukkit.ChunkSnapshot;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.OfflinePlayer;
+import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
@@ -40,18 +47,24 @@ import org.shanerx.tradeshop.shop.Shop;
 import org.shanerx.tradeshop.shop.ShopChest;
 import org.shanerx.tradeshop.shop.ShopType;
 import org.shanerx.tradeshop.shoplocation.ShopLocation;
-import org.shanerx.tradeshop.utils.gsonprocessing.GsonProcessor;
 
-import java.io.Serializable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @SuppressWarnings("unused")
-public class ShopUser implements Serializable {
+public class ShopUser {
 
     @SerializedName("player")
     private final String playerUUID;
     private transient OfflinePlayer player;
+    @Getter
+    @Setter
     private ShopRole role;
 
     public ShopUser(OfflinePlayer player, ShopRole role) {
@@ -64,10 +77,17 @@ public class ShopUser implements Serializable {
         this.role = role;
     }
 
-    public static ShopUser deserialize(String serialized) {
-        ShopUser shopUser = new GsonProcessor().fromJson(serialized, ShopUser.class);
-        shopUser.player = Bukkit.getOfflinePlayer(UUID.fromString(shopUser.playerUUID));
-        return shopUser;
+    public static ShopUser deserialize(Map<String, Object> serialized) {
+        return new ShopUser(UUID.fromString((String) serialized.get("player")), ShopRole.valueOf((String) serialized.get("role")));
+    }
+
+    public Map<String, Object> serialize() {
+        Map<String, Object> map = new HashMap<>();
+
+        map.put("player", playerUUID);
+        map.put("role", role.name());
+
+        return map;
     }
 
     /**
@@ -177,14 +197,6 @@ public class ShopUser implements Serializable {
         return getPlayer().getUniqueId();
     }
 
-    public ShopRole getRole() {
-        return role;
-    }
-
-    public void setRole(ShopRole newRole) {
-        role = newRole;
-    }
-
     public String getName() {
         return getPlayer().getName();
     }
@@ -193,10 +205,6 @@ public class ShopUser implements Serializable {
         if (player == null && playerUUID != null && !playerUUID.equalsIgnoreCase("")) {
             player = Bukkit.getOfflinePlayer(UUID.fromString(playerUUID));
         }
-    }
-
-    public String serialize() {
-        return new GsonProcessor().toJson(this);
     }
 
     public ItemStack getHead() {

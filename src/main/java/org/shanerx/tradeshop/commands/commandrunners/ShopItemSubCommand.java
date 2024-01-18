@@ -27,7 +27,6 @@ package org.shanerx.tradeshop.commands.commandrunners;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.inventory.ItemStack;
 import org.shanerx.tradeshop.TradeShop;
@@ -43,6 +42,7 @@ import org.shanerx.tradeshop.player.Permissions;
 import org.shanerx.tradeshop.player.ShopRole;
 import org.shanerx.tradeshop.player.ShopUser;
 import org.shanerx.tradeshop.shop.Shop;
+import org.shanerx.tradeshop.utils.Utils;
 import org.shanerx.tradeshop.utils.objects.ObjectHolder;
 import org.shanerx.tradeshop.utils.objects.Tuple;
 
@@ -86,7 +86,7 @@ public class ShopItemSubCommand extends SubCommand {
 
         int index;
 
-        if (isInt(getArgAt(1))) {
+        if (new Utils().isInt(getArgAt(1))) {
             index = Integer.parseInt(getArgAt(1)) - 1;
         } else if (shop.getSideList(side).size() == 1) {
             index = 0;
@@ -132,7 +132,7 @@ public class ShopItemSubCommand extends SubCommand {
         int amount = 0;
         Material mat = null;
 
-        if (hasArgAt(1) && isInt(getArgAt(1))) {
+        if (hasArgAt(1) && new Utils().isInt(getArgAt(1))) {
             amount = Integer.parseInt(getArgAt(1));
         }
 
@@ -159,7 +159,7 @@ public class ShopItemSubCommand extends SubCommand {
             return;
         }
 
-        if (isIllegal(side, itemInHand.getType())) {
+        if (new Utils().isIllegal(side, itemInHand.getType())) {
             Message.ILLEGAL_ITEM.sendMessage(getPlayerSender());
             return;
         }
@@ -208,7 +208,7 @@ public class ShopItemSubCommand extends SubCommand {
         int amount = 0;
         Material mat = null;
 
-        if (hasArgAt(1) && isInt(getArgAt(1))) {
+        if (hasArgAt(1) && new Utils().isInt(getArgAt(1))) {
             amount = Integer.parseInt(getArgAt(1));
         }
 
@@ -235,7 +235,7 @@ public class ShopItemSubCommand extends SubCommand {
             return;
         }
 
-        if (isIllegal(side, itemInHand.getType())) {
+        if (new Utils().isIllegal(side, itemInHand.getType())) {
             Message.ILLEGAL_ITEM.sendMessage(getPlayerSender());
             return;
         }

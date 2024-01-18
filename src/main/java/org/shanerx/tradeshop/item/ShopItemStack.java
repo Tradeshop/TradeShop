@@ -25,9 +25,11 @@
 
 package org.shanerx.tradeshop.item;
 
+import com.bergerkiller.bukkit.common.config.JsonSerializer;
 import com.google.common.collect.Lists;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
+import de.leonhard.storage.sections.FlatFileSection;
 import net.md_5.bungee.api.ChatColor;
 import org.apache.commons.lang.WordUtils;
 import org.bukkit.FireworkEffect;
@@ -47,20 +49,21 @@ import org.shanerx.tradeshop.utils.debug.Debug;
 import org.shanerx.tradeshop.utils.debug.DebugLevels;
 import org.shanerx.tradeshop.utils.gsonprocessing.GsonProcessor;
 import org.shanerx.tradeshop.utils.objects.ObjectHolder;
+import org.shanerx.tradeshop.utils.simplix.serializers.ConfSerSerializer;
 import org.yaml.snakeyaml.external.biz.base64Coder.Base64Coder;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-public class ShopItemStack implements Serializable, Cloneable {
+public class ShopItemStack implements Cloneable {
 
-    @Expose
+    @Expose(serialize = false)
     private ItemStack itemStack;
+    private String itemStackString;
     private transient Debug debugger;
 
     @Expose(serialize = false)
@@ -70,20 +73,53 @@ public class ShopItemStack implements Serializable, Cloneable {
     @SerializedName(value = "itemSettings", alternate = "shopSettings")
     private Map<ShopItemStackSettingKeys, ObjectHolder<?>> itemSettings;
 
+    /**
+     * Create a ShopItemStack with a Base64 encoded {@link ItemStack} and default item Settings.
+     *
+     * @param itemStack Bukkit ItemStack object to be used
+     * @deprecated Constructors for ShopItemStack are being depreciated in favor of {@link ShopItemStackBuilder}
+     */
+    @Deprecated
     public ShopItemStack(ItemStack itemStack) {
         this(itemStack, new HashMap<>());
     }
 
-    public ShopItemStack(ItemStack itemStack, HashMap<ShopItemStackSettingKeys, ObjectHolder<?>> itemSettings) {
+    /**
+     * Create a ShopItemStack with an {@link ItemStack} and Map containing item Settings.
+     * @deprecated
+     * Constructors for ShopItemStack are being depreciated in favor of {@link ShopItemStackBuilder}
+     *
+     * @param itemStack Bukkit ItemStack object to be used
+     * @param itemSettings Map of ShopItemStackSettingKeys and ObjectHolders
+     */
+    @Deprecated
+    public ShopItemStack(ItemStack itemStack, Map<ShopItemStackSettingKeys, ObjectHolder<?>> itemSettings) {
         this.itemStack = itemStack;
         this.itemSettings = itemSettings;
         buildMap();
     }
 
+    /**
+     * Create a ShopItemStack with a Base64 encoded {@link ItemStack} and default item Settings.
+     * @deprecated
+     * Constructors for ShopItemStack are being depreciated in favor of {@link ShopItemStackBuilder}
+     *
+     * @param itemStackB64 Base64 encoded ItemStack
+     */
+    @Deprecated
     public ShopItemStack(String itemStackB64) {
         this(itemStackB64, new HashMap<>());
     }
 
+    /**
+     * Create a ShopItemStack with a Base64 encoded {@link ItemStack} and Map containing item Settings.
+     * @deprecated
+     * Constructors for ShopItemStack are being depreciated in favor of {@link ShopItemStackBuilder}
+     *
+     * @param itemStackB64 Base64 encoded ItemStack
+     * @param itemSettings Map of ShopItemStackSettingKeys and ObjectHolders
+     */
+    @Deprecated
     public ShopItemStack(String itemStackB64, HashMap<String, ObjectHolder<?>> itemSettings) {
         this.itemStackB64 = itemStackB64;
         this.itemSettings = new HashMap<>();
@@ -91,10 +127,33 @@ public class ShopItemStack implements Serializable, Cloneable {
         itemSettings.forEach((key, value) -> this.itemSettings.put(ShopItemStackSettingKeys.match(key), value));
 
         buildMap();
-        loadLegacyData();
+        try {
+            fixLoadedData();
+        } catch (JsonSerializer.JsonSyntaxException e) {
+            itemStack = null;
+            itemSettings = null;
+        }
     }
 
-    //Re-added for backwards compatibility
+    /**
+     * Re-added for backwards compatibility
+     * Create a ShopItemStack with a Base64 encoded {@link ItemStack} and argument for each setting.
+     * @deprecated
+     * Constructors for ShopItemStack are being depreciated in favor of {@link ShopItemStackBuilder}
+     *
+     * @param itemStackB64 Base64 encoded ItemStack
+     * @param compareDurability Compare Durability
+     * @param compareEnchantments Compare Enchantments
+     * @param compareName Compare Name
+     * @param compareLore Compare Lore
+     * @param compareCustomModelData Compare Custom Model Data
+     * @param compareItemFlags Compare Item Flags
+     * @param compareUnbreakable Compare Unbreakable
+     * @param compareAttributeModifier Compare Attribute Modifier
+     * @param compareBookAuthor Compare Book Author
+     * @param compareBookPages Compare Book Pages
+     * @param compareShulkerInventory Compare Shulker Inventory
+     */
     @Deprecated
     public ShopItemStack(String itemStackB64, int compareDurability, boolean compareEnchantments,
                          boolean compareName, boolean compareLore, boolean compareCustomModelData,
@@ -117,18 +176,49 @@ public class ShopItemStack implements Serializable, Cloneable {
         itemSettings.putIfAbsent(ShopItemStackSettingKeys.COMPARE_ENCHANTMENTS, new ObjectHolder<>(compareEnchantments));
 
         buildMap();
-        loadLegacyData();
+        try {
+            fixLoadedData();
+        } catch (JsonSerializer.JsonSyntaxException e) {
+            itemStack = null;
+            itemSettings = null;
+        }
     }
 
-    public static ShopItemStack deserialize(String serialized) {
-        ShopItemStack item = new GsonProcessor().fromJson(serialized, ShopItemStack.class);
-        item.loadLegacyData();
-        item.buildMap();
-        return item;
+    public static ShopItemStack deserialize(FlatFileSection serialized) {
+        ShopItemStackBuilder item = new ShopItemStackBuilder();
+
+        Map<ShopItemStackSettingKeys, ObjectHolder<?>> settings = new HashMap<>();
+
+        for (String key : serialized.keySet()) {
+            switch (key) {
+                case "itemStackString":
+                    item.setItemStack(ConfSerSerializer.deserializeItemStack(serialized.getMapParameterized(key)));
+                    break;
+                case "itemSettings":
+                case "shopSettings":
+                    Map<String, Map<String, Object>> temp = serialized.getMapParameterized(key);
+                    temp.forEach((k, v) -> settings.put(ShopItemStackSettingKeys.valueOf(k), ObjectHolder.deserialize(v)));
+                    item.setItemSettings(settings);
+                    break;
+                case "itemStackB64":
+                    item.setItemStackB64(serialized.getString(key));
+                    break;
+            }
+        }
+
+        return item.build();
     }
 
-    public String serialize() {
-        return new GsonProcessor().toJson(this);
+    public Map<String, Object> serialize() {
+        HashMap<String, Object> map = new HashMap<>();
+        Map<String, Object> settings = new HashMap<>();
+        itemSettings.forEach((key, value) -> settings.put(key.getConfigName(), value.serialize()));
+
+        map.put("itemStackString", ConfSerSerializer.serialize(itemStack));
+        map.put("itemSettings", settings);
+        if (itemStackB64 != null && !itemStackB64.isEmpty()) map.put("itemStackB64", itemStackB64);
+
+        return map;
     }
 
     public ObjectHolder<?> getShopSetting(ShopItemStackSettingKeys key) {
@@ -470,7 +560,12 @@ public class ShopItemStack implements Serializable, Cloneable {
 
     public ItemStack getItemStack() {
         if (itemStack == null)
-            loadLegacyData();
+            try {
+                fixLoadedData();
+            } catch (JsonSerializer.JsonSyntaxException e) {
+                itemStack = null;
+                itemSettings = null;
+            }
         return itemStack;
     }
 
@@ -521,14 +616,94 @@ public class ShopItemStack implements Serializable, Cloneable {
 
     @Override
     public String toString() {
-        return new GsonProcessor().toJson(this);
+        return serialize().toString();
     }
 
     /**
      * Sets the objects {@link ItemStack} from its Base64.
      */
-    private void loadLegacyData() {
-        if (itemStack == null && hasBase64()) {
+    private void fixLoadedData() throws JsonSerializer.JsonSyntaxException {
+        if (itemStack == null) {
+            if (hasBase64()) {
+                try {
+                    ByteArrayInputStream inputStream = new ByteArrayInputStream(Base64Coder.decodeLines(itemStackB64));
+                    BukkitObjectInputStream dataInput = new BukkitObjectInputStream(inputStream);
+
+                    // Read the serialized inventory
+                    itemStack = new ItemStack((ItemStack) dataInput.readObject());
+
+                    dataInput.close();
+                } catch (ClassNotFoundException | IOException e) {
+                    itemStack = null;
+                }
+            } else if (itemStackString != null && !itemStackString.isEmpty()) {
+                itemStack = GsonProcessor.fromJsonToItemStack(itemStackString);
+            }
+        }
+
+    }
+
+    public String toConsoleText() {
+        return serialize().toString();
+    }
+}
+
+class ShopItemStackBuilder {
+    private ItemStack itemStack = null;
+    private Map<ShopItemStackSettingKeys, ObjectHolder<?>> itemSettings = null;
+    private String itemStackB64 = "", itemStackString = "";
+
+    ShopItemStackBuilder() {
+    }
+
+    ShopItemStackBuilder(ItemStack itm) {
+        itemStack = itm;
+    }
+
+    ShopItemStackBuilder(String json) {
+        itemStackString = json;
+    }
+
+    ShopItemStackBuilder setItemStack(ItemStack itemStack) {
+        this.itemStack = itemStack;
+        return this;
+    }
+
+    ShopItemStackBuilder setItemSettings(Map<ShopItemStackSettingKeys, ObjectHolder<?>> itemSettings) {
+        this.itemSettings = itemSettings;
+        return this;
+    }
+
+    ShopItemStackBuilder setItemStackB64(String itemStackB64) {
+        this.itemStackB64 = itemStackB64;
+        return this;
+    }
+
+    ShopItemStackBuilder setItemStackString(String itemStackString) {
+        this.itemStackString = itemStackString;
+        return this;
+    }
+
+    ShopItemStack build() {
+        processLoadedData();
+
+        return itemStack == null ? null : new ShopItemStack(itemStack, itemSettings);
+    }
+
+    /**
+     * Verifies that the objects {@link ItemStack} is appropriately set.
+     */
+    private void processLoadedData() {
+        processB64();
+        processJSON();
+
+        if (itemSettings == null) {
+            itemSettings = ShopItemStackSettingKeys.getDefaultSettings();
+        }
+    }
+
+    private void processB64() {
+        if (itemStack == null && !itemStackB64.isEmpty()) {
             try {
                 ByteArrayInputStream inputStream = new ByteArrayInputStream(Base64Coder.decodeLines(itemStackB64));
                 BukkitObjectInputStream dataInput = new BukkitObjectInputStream(inputStream);
@@ -543,7 +718,13 @@ public class ShopItemStack implements Serializable, Cloneable {
         }
     }
 
-    public String toConsoleText() {
-        return new GsonProcessor().toJson(this);
+    private void processJSON() {
+        if (itemStack == null && itemStackString != null && !itemStackString.isEmpty()) {
+            try {
+                itemStack = GsonProcessor.fromJsonToItemStack(itemStackString);
+            } catch (JsonSerializer.JsonSyntaxException e) {
+                itemStack = null;
+            }
+        }
     }
 }

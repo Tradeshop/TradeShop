@@ -28,7 +28,6 @@ package org.shanerx.tradeshop.shop;
 import com.google.common.collect.Lists;
 import org.bukkit.Material;
 import org.shanerx.tradeshop.TradeShop;
-import org.shanerx.tradeshop.utils.Utils;
 import org.shanerx.tradeshop.utils.debug.DebugLevels;
 import org.shanerx.tradeshop.utils.versionmanagement.Version;
 
@@ -37,7 +36,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
-public class ShopStorage extends Utils {
+public class ShopStorage {
 
     private final Version version = TradeShop.getPlugin().getVersion();
     private final HashMap<String, Storages> storageTypes = new HashMap<>();

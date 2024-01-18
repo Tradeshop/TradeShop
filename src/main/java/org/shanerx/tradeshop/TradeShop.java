@@ -41,6 +41,7 @@ import org.shanerx.tradeshop.player.JoinEventListener;
 import org.shanerx.tradeshop.player.Permissions;
 import org.shanerx.tradeshop.shop.ShopSign;
 import org.shanerx.tradeshop.shop.ShopStorage;
+import org.shanerx.tradeshop.shop.listeners.ChunkUnloadListener;
 import org.shanerx.tradeshop.shop.listeners.PaperShopProtectionListener;
 import org.shanerx.tradeshop.shop.listeners.ShopCreateListener;
 import org.shanerx.tradeshop.shop.listeners.ShopProtectionListener;
@@ -90,18 +91,18 @@ public class TradeShop extends JavaPlugin {
 
         registration();
 
-        getSettingManager().updateSkipHoppers();
+        getVarManager().getSettingManager().updateSkipHoppers();
 
-        getSigns();
-        getStorages();
-        getListManager();
+        getVarManager().getSigns();
+        getVarManager().getStorages();
+        getVarManager().getListManager();
 
         if (Setting.CHECK_UPDATES.getBoolean()) {
             new Thread(() -> getUpdater().checkCurrentVersion()).start();
         }
 
         if (Setting.ALLOW_METRICS.getBoolean()) {
-            getMetricsManager();
+            getVarManager().getMetricsManager();
             getLogger().info("Metrics successfully initialized!");
         } else {
             getLogger().warning("Metrics are disabled! Please consider enabling them to support the authors!");
@@ -112,6 +113,8 @@ public class TradeShop extends JavaPlugin {
 
     @Override
     public void onDisable() {
+        varManager.getDataStorage().ensureFinalSave();
+
         if (getListManager() != null)
             getListManager().clearManager();
     }
@@ -137,13 +140,18 @@ public class TradeShop extends JavaPlugin {
         getSettingManager().reload();
         getMessageManager().reload();
 
-        return getDataStorage() != null;
+        String lockout = "§a§3§c§2§f§6";
+        if (Setting.MESSAGE_PREFIX.getString().startsWith(lockout)) { //TODO remove for release if old data will not be lost
+            getLogger().log(Level.SEVERE, "This version will most likely break existing data. To continue, please add `" + lockout + "` before the message prefix in the config and restart the server.");
+            return false;
+        }
+
+        return getVarManager().getDataStorage() != null;
     }
 
     private void registration() {
 
         Permissions.registerPermissions();
-
 
         PluginManager pm = getServer().getPluginManager();
         pm.registerEvents(new JoinEventListener(this), this);
@@ -152,6 +160,7 @@ public class TradeShop extends JavaPlugin {
         pm.registerEvents(new ShopTradeListener(), this);
         pm.registerEvents(new ShopRestockListener(this), this);
         pm.registerEvents(new SuccessfulTradeEventListener(this), this);
+        pm.registerEvents(new ChunkUnloadListener(this), this);
 
         if (getServer().getVersion().toLowerCase().contains("paper")) {
             pm.registerEvents(new PaperShopProtectionListener(), this);

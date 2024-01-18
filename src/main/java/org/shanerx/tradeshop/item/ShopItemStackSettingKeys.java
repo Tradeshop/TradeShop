@@ -31,8 +31,10 @@ import org.bukkit.inventory.ItemStack;
 import org.shanerx.tradeshop.data.config.Setting;
 import org.shanerx.tradeshop.utils.objects.ObjectHolder;
 
+import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Stream;
 
 public enum ShopItemStackSettingKeys {
 
@@ -65,16 +67,34 @@ public enum ShopItemStackSettingKeys {
     public static Map<String, Object> getDefaultConfigMap() {
         Map<String, Object> configMap = new HashMap<>();
 
-        for (ShopItemStackSettingKeys value : values()) {
-            String key = value.getConfigName();
-            Map<String, Object> subConfigMap = new HashMap<>();
-            subConfigMap.put(defaultKey, value.preConfigDefault);
-            subConfigMap.put(userEditableKey, true);
+        Stream.of(values()).forEach(key -> configMap.put(key.getKey(String.class), key.getSubConfigMap()));
 
-            configMap.put(key, subConfigMap);
-        }
 
         return configMap;
+    }
+
+    public static Map<ShopItemStackSettingKeys, ObjectHolder<?>> getDefaultSettings() {
+        Map<ShopItemStackSettingKeys, ObjectHolder<?>> defaultMap = new HashMap<>();
+
+        Stream.of(values()).forEach(key -> defaultMap.put(key.getKey(ShopItemStackSettingKeys.class), key.getDefaultValue()));
+
+        return defaultMap;
+    }
+
+    private Map<String, Object> getSubConfigMap() {
+        Map<String, Object> subConfigMap = new HashMap<>();
+        subConfigMap.put(defaultKey, preConfigDefault);
+        subConfigMap.put(userEditableKey, true);
+        return subConfigMap;
+    }
+
+    private <T> T getKey(Type T) {
+        if (T.equals(ShopItemStackSettingKeys.class)) {
+            return (T) this;
+        } else if (T.equals(String.class)) {
+            return (T) getConfigName();
+        }
+        return null;
     }
 
     public String makeReadable() {

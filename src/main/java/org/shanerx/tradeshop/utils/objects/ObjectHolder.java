@@ -28,7 +28,10 @@ package org.shanerx.tradeshop.utils.objects;
 import com.google.gson.annotations.SerializedName;
 import org.bukkit.Material;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 public class ObjectHolder<Type> {
 
@@ -39,8 +42,20 @@ public class ObjectHolder<Type> {
         this.obj = obj;
     }
 
+    public static ObjectHolder<?> deserialize(Map<String, Object> serialized) {
+        return new ObjectHolder<>(serialized.get("obj"));
+    }
+
+    public Map<String, Object> serialize() {
+        return Collections.singletonMap("obj", obj);
+    }
+
     public Type getObject() {
         return obj;
+    }
+
+    public boolean isNull() {
+        return obj == null;
     }
 
     public boolean isBoolean() {
@@ -113,6 +128,21 @@ public class ObjectHolder<Type> {
             }
         }
         return null;
+    }
+
+    public boolean isList() {
+        return !isNull() && obj instanceof List;
+    }
+
+    public Optional<List<String>> asStringList() {
+        Optional<List<String>> ret = Optional.empty();
+        if (isList()) {
+            try {
+                ret = Optional.of((List<String>) obj);
+            } catch (ClassCastException ignored) {
+            }
+        }
+        return ret;
     }
 
     public boolean canBeMaterial() {
