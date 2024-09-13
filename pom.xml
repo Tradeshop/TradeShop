@@ -168,7 +168,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.8.1</version>
+                <version>3.12.1</version>
                 <configuration>
                     <source>1.8</source>
                     <target>1.8</target>
@@ -190,6 +190,7 @@
                             <include>de.themoep:*</include>
                             <include>com.bergerkiller.bukkit:*</include>
                             <include>com.github.simplix-softworks:*</include>
+                            <include>de.leonhart:*</include>
                         </includes>
                     </artifactSet>
                     <relocations>
@@ -334,7 +335,7 @@
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <version>1.18.26</version>
+            <version>1.18.30</version>
             <scope>provided</scope>
         </dependency>
 
