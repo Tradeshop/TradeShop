@@ -105,6 +105,13 @@ public class JsonShopData extends JsonConfiguration implements ShopConfiguration
 
     @Override
     protected void saveFile() {
+        if (super.keySet().isEmpty()) {
+            super.file.delete();
+        } else {
+            super.saveFile();
+        }
+        
+        /*
         //SaveThreadMaster.getInstance().enqueue(this);
     
         File file = op.jsonConfig.getFile();
@@ -113,6 +120,8 @@ public class JsonShopData extends JsonConfiguration implements ShopConfiguration
         } else {
             op.jsonConfig.saveFile();
         }
+        */
+        
     }
 
     @Override
