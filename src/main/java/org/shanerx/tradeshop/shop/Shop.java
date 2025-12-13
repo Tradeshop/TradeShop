@@ -702,7 +702,7 @@ public class Shop implements Serializable {
      * @return list of ShopUsers.
      */
     public List<ShopUser> getUsers(ShopRole... roles) {
-        return getUsersExcluding(Collections.emptyList(), roles);
+        return getUsersUUID(roles).stream().map((uuid) -> new ShopUser(uuid, ShopRole.MANAGER)).collect(Collectors.toList());
     }
 
     /**
@@ -713,13 +713,7 @@ public class Shop implements Serializable {
      * @return list of ShopUsers.
      */
     public List<ShopUser> getUsersExcluding(List<UUID> excludedPlayers, ShopRole... roles) {
-        List<ShopUser> users = new ArrayList<>();
-        getUsers(roles).forEach(user -> {
-            if (!excludedPlayers.contains(user.getUUID()))
-                users.add(user);
-        });
-
-        return users;
+        return getUsers(roles).stream().filter((shopUser) -> !excludedPlayers.contains(shopUser.getUUID())).collect(Collectors.toList());
     }
 
     /**
@@ -936,7 +930,7 @@ public class Shop implements Serializable {
 
         Set<Material> matSet = new HashSet<>();
 
-        ogItems.forEach((item) -> matSet.add(item.getItemStack().getType()));
+    ogItems.stream().filter(shopItemStack -> shopItemStack.getItemStack() != null).forEach((item) -> matSet.add(item.getItemStack().getType()));
 
 
         if (ogItems.size() > 1 && ogItems.size() != matSet.size()) {

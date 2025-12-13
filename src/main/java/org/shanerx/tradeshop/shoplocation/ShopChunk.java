@@ -29,10 +29,13 @@ import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.ChunkSnapshot;
 import org.bukkit.World;
+import org.shanerx.tradeshop.TradeShop;
 
 import java.io.Serializable;
+import java.util.logging.Level;
 
 public class ShopChunk implements Serializable {
+    
 
     final private String div = ";;";
     private final World world;
@@ -59,9 +62,14 @@ public class ShopChunk implements Serializable {
             World world = Bukkit.getWorld(locA[1]);
             if (world == null)
                 world = Bukkit.getWorld(locA[1].replace("-", "_"));
-            int x = Integer.parseInt(locA[2]), z = Integer.parseInt(locA[3]);
-
+            try     {
+                int x = Integer.parseInt(locA[2]);
+                int z = Integer.parseInt(locA[3]);
             return new ShopChunk(world, x, z);
+            } catch (NumberFormatException e) {
+                TradeShop.getPlugin().getLogger().log(Level.SEVERE, "Failed to deserialize ShopChunk from string: " + loc, e);
+                return null;
+            }
         }
 
         return null;

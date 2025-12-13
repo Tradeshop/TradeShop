@@ -76,41 +76,83 @@ public class ShopChest extends Utils {
 
     public static boolean isShopChest(Block checking) {
         try {
+            // Check if input is valid
+            if (checking == null) {
+                plugin.getDebugger().log("isShopChest: Block input is null", DebugLevels.PROTECTION);
+                return false;
+            }
+
             if (isDoubleChest(checking)) {
+                //plugin.getDebugger().log("isShopChest: Block is a double chest", DebugLevels.PROTECTION);
                 DoubleChest dbl = getDoubleChest(checking);
 
-                return ((Container) dbl.getLeftSide()).getPersistentDataContainer().has(plugin.getSignKey(), PersistentDataType.STRING) ||
-                        ((Container) dbl.getRightSide()).getPersistentDataContainer().has(plugin.getSignKey(), PersistentDataType.STRING);
+                if (dbl == null) {
+                    plugin.getDebugger().log("isShopChest: getDoubleChest returned null", DebugLevels.PROTECTION);
+                    return false;
+                }
+
+                // Check left side
+                InventoryHolder leftSide = dbl.getLeftSide();
+                if (leftSide == null) {
+                    //plugin.getDebugger().log("isShopChest: Double chest left side is null", DebugLevels.PROTECTION);
+                } else {
+                    Container leftContainer = (Container) leftSide;
+                    if (leftContainer.getPersistentDataContainer() == null) {
+                        //plugin.getDebugger().log("isShopChest: Left container persistent data container is null", DebugLevels.PROTECTION);
+                    } else if (leftContainer.getPersistentDataContainer().has(plugin.getSignKey(), PersistentDataType.STRING)) {
+                        //plugin.getDebugger().log("isShopChest: Found sign key in left side of double chest", DebugLevels.PROTECTION);
+                        return true;
+                    }
+                }
+
+                // Check right side
+                InventoryHolder rightSide = dbl.getRightSide();
+                if (rightSide == null) {
+                    //plugin.getDebugger().log("isShopChest: Double chest right side is null", DebugLevels.PROTECTION);
+                } else {
+                    Container rightContainer = (Container) rightSide;
+                    if (rightContainer.getPersistentDataContainer() == null) {
+                        //plugin.getDebugger().log("isShopChest: Right container persistent data container is null", DebugLevels.PROTECTION);
+                    } else if (rightContainer.getPersistentDataContainer().has(plugin.getSignKey(), PersistentDataType.STRING)) {
+                        //plugin.getDebugger().log("isShopChest: Found sign key in right side of double chest", DebugLevels.PROTECTION);
+                        return true;
+                    }
+                }
+
+                return false;
             }
-            boolean conHas = ((Container) checking.getState()).getPersistentDataContainer().has(plugin.getSignKey(), PersistentDataType.STRING);
+
+            // Single chest check
+            //plugin.getDebugger().log("isShopChest: Block is a single inventory", DebugLevels.PROTECTION);
+            BlockState state = checking.getState();
+            if (state == null) {
+                plugin.getDebugger().log("isShopChest: Block state is null", DebugLevels.PROTECTION);
+                return false;
+            }
+
+            if (!(state instanceof Container)) {
+                plugin.getDebugger().log("isShopChest: Block state is not a Container: " + state.getType().toString(), DebugLevels.PROTECTION);
+                return false;
+            }
+
+            Container container = (Container) state;
+            if (container.getPersistentDataContainer() == null) {
+                plugin.getDebugger().log("isShopChest: Container persistent data container is null", DebugLevels.PROTECTION);
+                return false;
+            }
+
+            boolean conHas = container.getPersistentDataContainer().has(plugin.getSignKey(), PersistentDataType.STRING);
+            //plugin.getDebugger().log("isShopChest: Single chest sign key check result: " + conHas, DebugLevels.PROTECTION);
             return conHas;
-        } catch (NullPointerException | ClassCastException ex) {
-            plugin.getDebugger().log("NPE thrown during isShopChest by: \n" + ex.getCause(), DebugLevels.PROTECTION);
+
+        } catch (NullPointerException ex) {
+            plugin.getDebugger().log("NPE thrown during isShopChest: " + ex.getMessage(), DebugLevels.PROTECTION);
+            plugin.getDebugger().log("Stack trace: ", DebugLevels.PROTECTION);
+            ex.printStackTrace();
+        } catch (ClassCastException ex) {
+            plugin.getDebugger().log("ClassCastException thrown during isShopChest: " + ex.getMessage(), DebugLevels.PROTECTION);
         }
         return false;
-
-        // Old MoveEvent Est ~50mspt
-        /*plugin.getDebugger().log("isShopChest checking Block at " + new ShopLocation(checking.getLocation()).serialize() + "", DebugLevels.PROTECTION);
-        try {
-            if (isDoubleChest(checking)) {
-                DoubleChest dbl = getDoubleChest(checking);
-				boolean leftHas = ((Container) dbl.getLeftSide()).getPersistentDataContainer().has(plugin.getSignKey(), PersistentDataType.STRING),
-						rightHas = ((Container) dbl.getRightSide()).getPersistentDataContainer().has(plugin.getSignKey(), PersistentDataType.STRING);
-
-				plugin.getDebugger().log("Block is DoubleChest", DebugLevels.PROTECTION);
-				plugin.getDebugger().log("Left side PerData: " + (leftHas ? ((Container) dbl.getLeftSide()).getPersistentDataContainer().get(plugin.getSignKey(), PersistentDataType.STRING) : "null"), DebugLevels.PROTECTION);
-				plugin.getDebugger().log("Right side PerData: " + (rightHas ? ((Container) dbl.getRightSide()).getPersistentDataContainer().get(plugin.getSignKey(), PersistentDataType.STRING) : "null"), DebugLevels.PROTECTION);
-
-				return leftHas || rightHas;
-            }
-			boolean conHas = ((Container) checking.getState()).getPersistentDataContainer().has(plugin.getSignKey(), PersistentDataType.STRING);
-			plugin.getDebugger().log("Block is SINGLE inventory", DebugLevels.PROTECTION);
-			plugin.getDebugger().log("Storage Block PerData: " + (conHas ? ((Container) checking.getState()).getPersistentDataContainer().get(plugin.getSignKey(), PersistentDataType.STRING) : "null"), DebugLevels.PROTECTION);
-			return conHas;
-        } catch (NullPointerException | ClassCastException ex) {
-			plugin.getDebugger().log("NPE thrown during isShopChest by: \n" + ex.getCause(), DebugLevels.PROTECTION);
-        }
-        return false;*/
     }
 
     public static boolean isShopChest(Inventory checking) {

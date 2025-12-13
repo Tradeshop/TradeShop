@@ -97,6 +97,12 @@ public class ShopUserSubCommand extends SubCommand {
             Set<Shop> ownedShops = new HashSet<>();
             Map<String, String> updateStatuses = new HashMap<>();
 
+            target = Bukkit.getOfflinePlayer(command.getArgAt(1));
+            if(target == null) {
+                Message.PLAYER_NOT_FOUND.sendMessage(command.getPlayerSender());
+                return;
+            }
+
             Shop tempShop = shopUserCommandStart(Bukkit.getOfflinePlayer(command.getArgAt(1)), applyAllOwned);
 
             if (applyAllOwned) {

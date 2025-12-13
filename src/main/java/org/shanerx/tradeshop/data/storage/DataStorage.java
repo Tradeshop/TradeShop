@@ -42,6 +42,9 @@ import org.shanerx.tradeshop.shoplocation.ShopLocation;
 import org.shanerx.tradeshop.utils.Utils;
 import org.shanerx.tradeshop.utils.debug.DebugLevels;
 
+import com.google.gson.JsonParseException;
+import com.google.gson.stream.MalformedJsonException;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -108,7 +111,18 @@ public class DataStorage extends Utils {
                 if (folder.exists() && folder.listFiles() != null) {
                     for (File file : folder.listFiles()) {
                         if (file.getName().contains(world.getName()))
+                            try {
                             count += new JsonShopConfiguration(ShopChunk.deserialize(file.getName().replace(".json", ""))).size();
+                            } catch(Exception ex){
+                                if(ex instanceof MalformedJsonException)
+                                {
+                                    TradeShop.getPlugin().getLogger().warning("[REINARD] - Malformed JSON in file: " + file.getName());
+                                }
+                                else
+                                {
+                                    TradeShop.getPlugin().getLogger().warning("[REINARD] - Error during loading shop" + file.getName() + ": " + ex.getClass().toString() + ": " + ex.getMessage() + ": " + ex.getCause());
+                                }
+                            }
                     }
                 }
                 break;

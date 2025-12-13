@@ -38,6 +38,7 @@ import org.shanerx.tradeshop.item.ShopItemSide;
 import org.shanerx.tradeshop.shop.Shop;
 import org.shanerx.tradeshop.shop.ShopType;
 import org.shanerx.tradeshop.utils.Utils;
+import org.shanerx.tradeshop.utils.debug.DebugLevels;
 
 @SuppressWarnings("unused")
 public class ShopCreateListener extends Utils implements Listener {
@@ -55,10 +56,15 @@ public class ShopCreateListener extends Utils implements Listener {
         shopSign.setLine(3, event.getLine(3));
 
         if (!ShopType.isShop(shopSign)) {
+            TradeShop.getPlugin().getDebugger().log("ShopType.isShop() returned false for sign: " + event.getLine(0), DebugLevels.SHOP_CREATION);
             return;
         }
 
         ShopType shopType = ShopType.getType(shopSign);
+        if (shopType == null) {
+            TradeShop.getPlugin().getDebugger().log("ShopType.getType() returned null for sign: " + event.getLine(0), DebugLevels.SHOP_CREATION);
+            return;
+        }
         Player p = event.getPlayer();
 
         // Clear the first line since we already know it is going to be a Shop, and we have the type to pass separately

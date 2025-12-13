@@ -473,11 +473,13 @@ public class Utils {
      */
     public Shop createShop(Sign shopSign, Player creator, ShopType shopType, ItemStack cost, ItemStack product, SignChangeEvent event) {
         if (ShopType.isShop(shopSign)) {
+            TradeShop.getPlugin().getDebugger().log("ShopType.isShop() returned true for sign: " + shopSign.getLine(0), DebugLevels.SHOP_CREATION);
             Message.EXISTING_SHOP.sendMessage(creator);
             return null;
         }
 
         if (!shopType.checkPerm(creator)) {
+            TradeShop.getPlugin().getDebugger().log("ShopType.checkPerm() returned false for player: " + creator.getName(), DebugLevels.SHOP_CREATION);
             Message.NO_TS_CREATE_PERMISSION.sendMessage(creator);
             return null;
         }
@@ -485,11 +487,13 @@ public class Utils {
         ShopUser owner = new ShopUser(creator, ShopRole.OWNER);
 
         if (!checkShopChest(shopSign.getBlock()) && !shopType.isITrade()) {
+            TradeShop.getPlugin().getDebugger().log("checkShopChest() returned false for sign at location: " + shopSign.getLocation().toString(), DebugLevels.SHOP_CREATION);
             Message.NO_CHEST.sendMessage(creator);
             return null;
         }
 
         if (Setting.MAX_SHOPS_PER_CHUNK.getInt() <= PLUGIN.getDataStorage().getShopCountInChunk(shopSign.getChunk())) {
+            PLUGIN.getDebugger().log("Max shops per chunk reached at chunk: " + shopSign.getChunk().toString(), DebugLevels.SHOP_CREATION);
             Message.TOO_MANY_CHESTS.sendMessage(creator);
             return null;
         }
@@ -506,11 +510,13 @@ public class Utils {
             }
 
             if (shopChest.hasOwner() && !shopChest.getOwner().equals(owner.getUUID())) {
+                PLUGIN.getDebugger().log("ShopChest has owner: " + shopChest.getOwner().toString() + " which does not match creator: " + owner.getUUID().toString(), DebugLevels.SHOP_CREATION);
                 Message.NO_SHOP_PERMISSION.sendMessage(creator);
                 return null;
             }
 
             if (shopChest.hasShopSign() && !shopChest.getShopSign().getLocation().equals(shopSign.getLocation())) {
+                PLUGIN.getDebugger().log("ShopChest is already linked to another shop sign at location: " + shopChest.getShopSign().getLocation().toString(), DebugLevels.SHOP_CREATION);
                 Message.EXISTING_SHOP.sendMessage(creator);
                 return null;
             }
@@ -533,7 +539,6 @@ public class Utils {
 
         PLUGIN.getDebugger().log("-----Pre-Event-----", DebugLevels.SHOP_CREATION);
         PLUGIN.getDebugger().log(shop.toDebug(), DebugLevels.SHOP_CREATION);
-
 
         PlayerShopCreateEvent shopCreateEvent = new PlayerShopCreateEvent(creator, shop);
         Bukkit.getPluginManager().callEvent(shopCreateEvent);
