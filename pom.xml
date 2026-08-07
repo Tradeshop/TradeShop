@@ -86,9 +86,7 @@
         <build/> <!-- default value for jenkins build number -->
 
         <!-- Changeable variables  -->
-        <outputDir>target/output-files
-        </outputDir> <!-- Set to relative directory output of PreShade and JavaDoc files  -->
-
+        <outputDir>target</outputDir>
     </properties>
 
     <profiles>
@@ -146,6 +144,8 @@
         <defaultGoal>${doClean} install</defaultGoal>
         <finalName>${project.name}-${project.version}${branch}${commit}${fileTimeStamp}${build}</finalName>
 
+        <directory>${outputDir}/PreShade/</directory>
+
         <sourceDirectory>src/main/java</sourceDirectory>
         <resources>
             <resource>
@@ -168,7 +168,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.8.1</version>
+                <version>3.12.1</version>
                 <configuration>
                     <source>1.8</source>
                     <target>1.8</target>
@@ -181,15 +181,14 @@
                 <configuration>
                     <minimizeJar>true</minimizeJar>
                     <createDependencyReducedPom>false</createDependencyReducedPom>
-                    <outputDirectory>${outputDir}/shade</outputDirectory>
-                    <outputFile>target/server/plugins/${build.finalName}.jar
-                    </outputFile>
+                    <outputFile>${outputDir}/server/plugins/${project.build.finalName}.jar</outputFile>
                     <artifactSet>
                         <includes>
                             <include>org.bstats:*</include>
                             <include>de.themoep:*</include>
                             <include>com.bergerkiller.bukkit:*</include>
                             <include>com.github.simplix-softworks:*</include>
+                            <include>de.leonhart:*</include>
                         </includes>
                     </artifactSet>
                     <relocations>
@@ -206,16 +205,39 @@
                         <filter>
                             <artifact>*:*</artifact>
                             <excludes>
-                                <exclude>META-INF/maven/**</exclude>
+                                <exclude>META-INF/**</exclude>
                             </excludes>
                         </filter>
                     </filters>
                 </configuration>
                 <executions>
                     <execution>
+                        <id>shade</id>
                         <phase>package</phase>
                         <goals>
                             <goal>shade</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>com.coderplus.maven.plugins</groupId>
+                <artifactId>copy-rename-maven-plugin</artifactId>
+                <version>1.0</version>
+                <configuration>
+                    <fileSets>
+                        <fileSet>
+                            <sourceFile>${outputDir}/server/plugins/${project.build.finalName}.jar</sourceFile>
+                            <destinationFile>${outputDir}/${project.build.finalName}.jar</destinationFile>
+                        </fileSet>
+                    </fileSets>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>copy</id>
+                        <phase>install</phase>
+                        <goals>
+                            <goal>copy</goal>
                         </goals>
                     </execution>
                 </executions>
@@ -227,7 +249,7 @@
                 <configuration>
                     <name>${project.build.finalName}</name>
                     <failOnError>false</failOnError>
-                    <jarOutputDirectory>${outputDir}/JavaDocs</jarOutputDirectory>
+                    <jarOutputDirectory>${outputDir}</jarOutputDirectory>
                     <!--suppress UnresolvedMavenProperty -->
                     <skip>${skipDocs}</skip>
                     <sourceFileExcludes>
@@ -287,7 +309,7 @@
         <dependency>
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot-api</artifactId>
-            <version>1.20-R0.1-SNAPSHOT</version>
+            <version>1.21.1-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
 
@@ -321,7 +343,7 @@
         <dependency>
             <groupId>io.papermc.paper</groupId>
             <artifactId>paper-api</artifactId>
-            <version>1.20.1-R0.1-20230627.215235-38</version>
+            <version>1.20.1-R0.1-SNAPSHOT</version>
         </dependency>
 
         <dependency>
@@ -334,7 +356,7 @@
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <version>1.18.26</version>
+            <version>1.18.30</version>
             <scope>provided</scope>
         </dependency>
 

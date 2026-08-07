@@ -29,7 +29,6 @@ import lombok.Getter;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
 import org.shanerx.tradeshop.TradeShop;
-import org.shanerx.tradeshop.data.config.Setting;
 import org.shanerx.tradeshop.data.storage.ShopConfiguration;
 import org.shanerx.tradeshop.shop.Shop;
 import org.shanerx.tradeshop.shoplocation.ShopChunk;
@@ -45,6 +44,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentSkipListSet;
+import org.shanerx.tradeshop.data.config.Setting;
 
 public class JsonShopData extends JsonConfiguration implements ShopConfiguration {
 
@@ -105,7 +105,23 @@ public class JsonShopData extends JsonConfiguration implements ShopConfiguration
 
     @Override
     protected void saveFile() {
-        SaveThreadMaster.getInstance().enqueue(this);
+        if (super.keySet().isEmpty()) {
+            super.file.delete();
+        } else {
+            super.saveFile();
+        }
+        
+        /*
+        //SaveThreadMaster.getInstance().enqueue(this);
+    
+        File file = op.jsonConfig.getFile();
+        if (op.jsonConfig.keySet().isEmpty()) {
+            file.delete();
+        } else {
+            op.jsonConfig.saveFile();
+        }
+        */
+        
     }
 
     @Override
@@ -131,6 +147,7 @@ public class JsonShopData extends JsonConfiguration implements ShopConfiguration
         }
     }
 
+    /*
     public static class SaveOperation implements Comparable<SaveOperation> {
       
         @Getter
@@ -259,4 +276,5 @@ public class JsonShopData extends JsonConfiguration implements ShopConfiguration
             return master.maxThreads == 0 ? 0 : super.getTaskId();
         }
     }
+*/
 }

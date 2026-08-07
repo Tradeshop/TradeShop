@@ -318,10 +318,12 @@ public class DataStorage {
 
     public void ensureFinalSave() {
         // for onDisable !!!
+        /* WILL BE ADDED BACK IN LATER
         if (dataType == DataType.FLATFILE) {
             JsonShopData.SaveThreadMaster.getInstance().saveEverythingNow();
         }
         // SQLITE will have an analogous branch
+        */
     }
 }
 
