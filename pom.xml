@@ -63,7 +63,7 @@
 
     <groupId>org.shanerx</groupId>
     <artifactId>tradeshop</artifactId>
-    <version>2.6.1-STABLE</version>
+    <version>2.6.2-DEV</version>
     <packaging>jar</packaging>
     <name>TradeShop</name>
     <url>https://tradeshop.github.io/</url>
@@ -86,9 +86,7 @@
         <build/> <!-- default value for jenkins build number -->
 
         <!-- Changeable variables  -->
-        <outputDir>target/output-files
-        </outputDir> <!-- Set to relative directory output of PreShade and JavaDoc files  -->
-
+        <outputDir>target</outputDir>
     </properties>
 
     <profiles>
@@ -146,6 +144,8 @@
         <defaultGoal>${doClean} install</defaultGoal>
         <finalName>${project.name}-${project.version}${branch}${commit}${fileTimeStamp}${build}</finalName>
 
+        <directory>${outputDir}/PreShade/</directory>
+
         <sourceDirectory>src/main/java</sourceDirectory>
         <resources>
             <resource>
@@ -168,23 +168,95 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.8.1</version>
+                <version>3.15.0</version>
                 <configuration>
                     <source>1.8</source>
                     <target>1.8</target>
+                    <!-- Main sources stay on 1.8; that is a separate decision from
+                         testing. MockBukkit and the paper-api it pulls in are compiled
+                         for 21, so the test sources have to be too. -->
+                    <testRelease>21</testRelease>
+                    <!-- JDK 23+ stopped running annotation processors found on the
+                         classpath by default, which silently skips Lombok and drops
+                         every generated accessor. <proc>full</proc> forces annotation
+                         processing regardless of JDK; valid since JDK 21, so it raises
+                         no floor. -->
+                    <proc>full</proc>
                 </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-shade-plugin</artifactId>
-                <version>3.3.0</version>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.2.5</version>
                 <configuration>
-                    <outputDirectory>${outputDir}/PreShade</outputDirectory>
+                    <!-- One JVM for the whole suite. The harness mocks Bukkit once per
+                         JVM rather than per class, because the plugin caches its own
+                         instance in static finals that a second mock/unmock cycle
+                         cannot refresh. See MockBukkitEnvironment. -->
+                    <reuseForks>true</reuseForks>
+                    <forkCount>1</forkCount>
+                    <systemPropertyVariables>
+                        <!-- bStats refuses to start unless the shade plugin has
+                             relocated it, which has not happened when tests run
+                             against target/classes. -->
+                        <bstats.relocatecheck>false</bstats.relocatecheck>
+                    </systemPropertyVariables>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>3.1.0</version>
+                <executions>
+                    <execution>
+                        <!-- A skipped test must break the build.
+
+                             MockBukkit reports API it has not implemented by throwing
+                             UnimplementedOperationException, which extends JUnit's
+                             TestAbortedException, so surefire files it as "Tests run: 1,
+                             Skipped: 1" and exits 0. A green build over a suite that
+                             tested nothing is worse than no suite, so every <skipped>
+                             element in the reports fails the build here. @Disabled and
+                             failed assumptions are caught by the same net, deliberately:
+                             if a test is not to run, delete it. -->
+                        <id>fail-on-skipped-tests</id>
+                        <phase>test</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <skip>${maven.test.skip}</skip>
+                            <target>
+                                <fail message="Skipped tests are failures here. See the surefire reports in ${project.build.directory}/surefire-reports for which, and why.">
+                                    <condition>
+                                        <resourcecount when="greater" count="0">
+                                            <fileset dir="${project.build.directory}/surefire-reports"
+                                                     includes="TEST-*.xml" erroronmissingdir="false">
+                                                <containsregexp expression="&lt;skipped"/>
+                                            </fileset>
+                                        </resourcecount>
+                                    </condition>
+                                </fail>
+                            </target>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>3.6.2</version>
+                <configuration>
+                    <minimizeJar>true</minimizeJar>
                     <createDependencyReducedPom>false</createDependencyReducedPom>
+                    <outputFile>${outputDir}/server/plugins/${project.build.finalName}.jar</outputFile>
                     <artifactSet>
                         <includes>
                             <include>org.bstats:*</include>
                             <include>de.themoep:*</include>
+                            <include>com.bergerkiller.bukkit:*</include>
+                            <include>com.github.simplix-softworks:*</include>
+                            <include>de.leonhart:*</include>
                         </includes>
                     </artifactSet>
                     <relocations>
@@ -201,13 +273,14 @@
                         <filter>
                             <artifact>*:*</artifact>
                             <excludes>
-                                <exclude>META-INF/maven/**</exclude>
+                                <exclude>META-INF/**</exclude>
                             </excludes>
                         </filter>
                     </filters>
                 </configuration>
                 <executions>
                     <execution>
+                        <id>shade</id>
                         <phase>package</phase>
                         <goals>
                             <goal>shade</goal>
@@ -216,13 +289,35 @@
                 </executions>
             </plugin>
             <plugin>
+                <groupId>com.coderplus.maven.plugins</groupId>
+                <artifactId>copy-rename-maven-plugin</artifactId>
+                <version>1.0</version>
+                <configuration>
+                    <fileSets>
+                        <fileSet>
+                            <sourceFile>${outputDir}/server/plugins/${project.build.finalName}.jar</sourceFile>
+                            <destinationFile>${outputDir}/${project.build.finalName}.jar</destinationFile>
+                        </fileSet>
+                    </fileSets>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>copy</id>
+                        <phase>install</phase>
+                        <goals>
+                            <goal>copy</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
-                <version>3.4.0</version>
+                <version>3.12.0</version>
                 <configuration>
                     <name>${project.build.finalName}</name>
                     <failOnError>false</failOnError>
-                    <jarOutputDirectory>${outputDir}/JavaDocs</jarOutputDirectory>
+                    <jarOutputDirectory>${outputDir}</jarOutputDirectory>
                     <!--suppress UnresolvedMavenProperty -->
                     <skip>${skipDocs}</skip>
                     <sourceFileExcludes>
@@ -246,6 +341,12 @@
     </build>
 
     <repositories>
+
+        <repository>
+            <id>MG-Dev Jenkins CI Maven Repository</id>
+            <url>https://ci.mg-dev.eu/plugin/repository/everything</url>
+        </repository>
+
         <repository>
             <id>spigot-repo</id>
             <url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
@@ -265,20 +366,42 @@
             <id>papermc</id>
             <url>https://repo.papermc.io/repository/maven-public/</url>
         </repository>
+
+        <repository>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
+        </repository>
     </repositories>
 
     <dependencies>
+        <!-- paper-api is declared FIRST, and the order is load-bearing.
+             Both jars ship org.bukkit.*, and only the first copy on the
+             classpath is ever used. Paper's is Spigot's with patches on top,
+             so putting Spigot first silently strips those patches: anything
+             reaching a Paper-added member of a shared class dies at run time
+             with NoSuchMethodError, invisibly to the compiler. Measured here —
+             Spigot first fails on SimpleCommandMap.<init>(Server, Map).
+
+             Both are pinned to the same Minecraft version on purpose. When
+             they disagreed (spigot 1.21.1, paper 1.20.1) the mismatch was
+             equally invisible to a build and equally fatal at run time. -->
+        <dependency>
+            <groupId>io.papermc.paper</groupId>
+            <artifactId>paper-api</artifactId>
+            <version>1.21.1-R0.1-SNAPSHOT</version>
+        </dependency>
+
         <dependency>
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot-api</artifactId>
-            <version>1.20-R0.1-SNAPSHOT</version>
+            <version>1.21.1-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>org.bstats</groupId>
             <artifactId>bstats-bukkit</artifactId>
-            <version>3.0.0</version>
+            <version>3.2.1</version>
             <scope>compile</scope>
         </dependency>
 
@@ -302,10 +425,50 @@
             <version>1.1.1</version>
         </dependency>
 
+        <!-- 2.0.2 is the current GA, and it is also what the plugin already meets
+             at run time: ci/integration.sh installs BKCommonLib 2.0.2-SNAPSHOT
+             build 2031 on the server it boots. Compiling against 1.20.2-v1 while
+             running against 2.0.x was a mismatch a build could not see - the same
+             shape of defect the paper/spigot ordering comment below is about.
+             The one type TradeShop touches, JsonSerializer, has identical
+             signatures in both, so nothing in src/ changes. -->
         <dependency>
-            <groupId>io.papermc.paper</groupId>
-            <artifactId>paper-api</artifactId>
-            <version>1.20.1-R0.1-20230627.215235-38</version>
+            <groupId>com.bergerkiller.bukkit</groupId>
+            <artifactId>BKCommonLib</artifactId>
+            <version>2.0.2</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>1.18.46</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.github.simplix-softworks</groupId>
+            <artifactId>SimplixStorage</artifactId>
+            <version>3.2.7</version>
+            <scope>compile</scope>
+        </dependency>
+
+        <!-- MockBukkit's v1.21 line is built against the same Minecraft version as the
+             spigot-api above, which is the one that has to match: both jars ship
+             org.bukkit.*, and spigot-api is declared first so it is what the plugin
+             actually compiles and runs against. -->
+        <dependency>
+            <groupId>com.github.seeseemelk</groupId>
+            <artifactId>MockBukkit-v1.21</artifactId>
+            <version>3.133.2</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>5.11.2</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 

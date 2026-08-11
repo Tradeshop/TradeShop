@@ -1,0 +1,80 @@
+# The checks every change has to pass.
+#
+# Every step here calls a script under ci/. What a step *does* therefore lives
+# in that script, which is writable by whoever is building this repository; what
+# a step *is* — the triggers, the permissions block, the JDK, the pinned
+# actions — lives here, and changing it needs the owner. That split is the whole
+# point of the file, and ci/README.md is where it is argued.
+#
+# Triggers are branch-agnostic on purpose. Naming a branch here means CI stops
+# firing the moment work moves to another one, and moving the branch back needs
+# a manual step from the owner — which is the most expensive way possible to
+# discover that a gate went quiet. A gate that only guards the branch somebody
+# remembered to name is not a gate.
+#
+# What this does not change: it still publishes nothing — Jenkins remains the
+# publisher for repo.killerofpie.com and this file writes no artifact anywhere.
+# `permissions:` is still contents: read. There is still no schedule: and no
+# workflow_dispatch:, so it cannot run except in response to a push or a pull
+# request. Triggers are untouched, `runs-on` is untouched, and JAVA_VERSION is
+# untouched. Nothing about what runs on push changes except that Node is present
+# before it runs.
+#
+# What it adds is one step: a Node toolchain, because ci/build.sh now also runs a
+# real Minecraft client against the server it boots. That client is
+# `it-client/play.js`, driven by Mineflayer and pinned by `it-client/package-lock.json`;
+# ci/integration.sh installs it with `npm ci`, which refuses to run if the
+# lockfile and package.json disagree. Without this step `ci/integration.sh` fails
+# on "node is required and is not on PATH" — deliberately, because the tier it
+# drives is the only one that exercises sign editing and the container-click
+# paths, and skipping a tier turns a gate into a green light.
+
+name: Build
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  # JDK 21, raised from 17 because the test suite needs it: MockBukkit's v1.21
+  # line is compiled for 21, so pom.xml sets <testRelease>21</testRelease> and a
+  # JDK 17 javac fails testCompile outright with "release version 21 not
+  # supported". Main is unaffected — it still compiles -source/-target 1.8.
+  #
+  # 21 is also what the plugin's own users run: Minecraft 1.20.5 and later
+  # require a Java 21 runtime, so testing on 21 tests the JVM the jar meets.
+  #
+  # Still not 8, for the original reason: spigot-api 1.21.1 ships Java 17
+  # bytecode (class major version 61) and a JDK 8 javac cannot read it.
+  JAVA_VERSION: "21"
+
+  # The tier-3 client's runtime. Pinned to a major line rather than a patch: the
+  # dependency tree that actually matters is locked by it-client/package-lock.json,
+  # and pinning Node to a patch as well buys nothing while going stale on its own
+  # schedule. 24 is what the tier was built and measured on.
+  NODE_VERSION: "24"
+
+jobs:
+  build:
+    name: Build and shade
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: ${{ env.JAVA_VERSION }}
+          cache: maven
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: it-client/package-lock.json
+      - name: Build
+        run: sh ci/build.sh

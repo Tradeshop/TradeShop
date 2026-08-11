@@ -25,6 +25,7 @@
 
 package org.shanerx.tradeshop.utils.debug;
 
+import java.util.Optional;
 import java.util.logging.Level;
 
 public enum DebugLevels {
@@ -46,8 +47,9 @@ public enum DebugLevels {
     SQLITE(12, Level.INFO), // 2048
     GSON(13, Level.INFO), // 4096
     DATA_VERIFICATION(14, Level.INFO), // 8192
-    FIND_COMMAND(15, Level.INFO) // 16384
-
+    FIND_COMMAND(15, Level.INFO), // 16384
+    JSON_SAVING(16, Level.INFO), // 32768
+    JSON_LOADING(17, Level.INFO) // 65536
 
     ;
 
@@ -86,6 +88,18 @@ public enum DebugLevels {
 
     public String getPrefix() {
         return " - " + name();
+    }
+
+    public static Optional<DebugLevels> match(String desiredLevel) {
+        Optional<DebugLevels> ret = Optional.empty();
+        for (DebugLevels level : values()) {
+            if (level.name().replaceAll("\\w", "").equalsIgnoreCase(desiredLevel)) {
+                ret = Optional.of(level);
+                break;
+            }
+        }
+
+        return ret;
     }
 
 }

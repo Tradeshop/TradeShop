@@ -25,6 +25,8 @@
 
 package org.shanerx.tradeshop.shop;
 
+import de.leonhard.storage.sections.FlatFileSection;
+import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -34,6 +36,7 @@ import org.bukkit.block.BlockState;
 import org.bukkit.block.Sign;
 import org.bukkit.event.block.SignChangeEvent;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.shanerx.tradeshop.TradeShop;
 import org.shanerx.tradeshop.data.config.Setting;
@@ -46,11 +49,9 @@ import org.shanerx.tradeshop.shoplocation.ShopChunk;
 import org.shanerx.tradeshop.shoplocation.ShopLocation;
 import org.shanerx.tradeshop.utils.Utils;
 import org.shanerx.tradeshop.utils.debug.DebugLevels;
-import org.shanerx.tradeshop.utils.gsonprocessing.GsonProcessor;
 import org.shanerx.tradeshop.utils.objects.ObjectHolder;
 import org.shanerx.tradeshop.utils.objects.Tuple;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -62,18 +63,32 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-public class Shop implements Serializable {
+public class Shop {
 
     private final ShopLocation shopLoc;
     private transient TradeShop plugin = TradeShop.getPlugin();
     private ShopUser owner;
     private Set<UUID> managers, members;
+    /**
+     * -- GETTER --
+     * Returns the type of the shop
+     *
+     * @return list of managers as ShopUser
+     */
+    @Getter
     private ShopType shopType;
     private List<ShopItemStack> product, cost;
     private ShopLocation chestLoc;
     private transient Utils utils = new Utils();
     private ShopStatus status = ShopStatus.INCOMPLETE;
     private Map<ShopSettingKeys, ObjectHolder<?>> shopSettings;
+    /**
+     * -- GETTER --
+     * Returns the amount of trades the shop could do when last accessed
+     *
+     * @return amount of trades the shop can do
+     */
+    @Getter
     private int availableTrades = 0;
     private transient boolean aSync = false;
 
@@ -146,19 +161,6 @@ public class Shop implements Serializable {
     }
 
     /**
-     * Deserializes the object to Json using Gson
-     *
-     * @param serialized Shop GSON to be deserialized
-     * @return Shop object from file
-     */
-    public static Shop deserialize(String serialized) {
-        Shop shop = new GsonProcessor().fromJson(serialized, Shop.class);
-        shop.fixAfterLoad();
-
-        return shop;
-    }
-
-    /**
      * Loads a shop from file and returns the Shop object
      *
      * @param loc Location of the shop sign
@@ -217,15 +219,6 @@ public class Shop implements Serializable {
     }
 
     /**
-     * Returns the type of the shop
-     *
-     * @return list of managers as ShopUser
-     */
-    public ShopType getShopType() {
-        return shopType;
-    }
-
-    /**
      * Sets the shops type
      *
      * @param newType new type as ShopType
@@ -238,12 +231,197 @@ public class Shop implements Serializable {
     }
 
     /**
-     * Returns the amount of trades the shop could do when last accessed
+     * Deserializes the object to Json using Gson
      *
-     * @return amount of trades the shop can do
+     * @param data Shop Map to be deserialized from file data
+     * @return Shop object from file
      */
-    public int getAvailableTrades() {
-        return availableTrades;
+    public static Shop deserialize(FlatFileSection data) {
+        Shop shop = new Shop(ShopLocation.deserialize(data.getMapParameterized("shopLoc")).getLocation(),
+            ShopType.valueOf(data.getString("shopType")),
+            ShopUser.deserialize(data.getMapParameterized("owner")));
+
+        StringBuilder dataRemaining = new StringBuilder();
+
+        // Nothing is written while the shop is being read, and that is load-bearing
+        // rather than tidy. `data` is a LIVE VIEW of the file: the storage layer
+        // re-reads it on every access once its modification time has moved. The loop
+        // below used to move it - addSideItem ends at saveShop - so the half-built
+        // shop was written over the file the loop was still reading, and every key
+        // after the first side was answered out of that. The cost side came back
+        // empty, the emptied shop was saved again, and the shop reloaded INCOMPLETE.
+        //
+        // aSync is the flag this class already uses for "not attached to the world,
+        // do not touch disk", and loadASync sets it the moment deserialization
+        // returns; it is simply set for the loop as well. Restored to false at the
+        // end because that is the state the constructor left it in.
+        shop.aSync = true;
+
+        try {
+            // singleLayerKeySet, NOT keySet. FlatFileSection.keySet() is the DEEP key set:
+            // a shop whose file holds a nested "chestLoc" object answers "chestLoc.world",
+            // "chestLoc.x", "chestLoc.y"... and never the bare "chestLoc" this switch is
+            // written against. Every branch below whose value is an object or a list was
+            // therefore dead, and the shop came back with no chest location, no settings and
+            // - the one that costs a shop owner their items - an empty product and cost side.
+            for (String key : data.singleLayerKeySet()) {
+                switch (key) {
+                    case "shopLoc":
+                    case "shopType":
+                    case "owner":
+                        break; // Already used so skip
+                    case "managers":
+                        shop.managers = deserializeUsers(data, key);
+                        break;
+                    case "members":
+                        shop.members = deserializeUsers(data, key);
+                        break;
+                    case "product":
+                        deserializeSide(data, key).forEach((itm) -> shop.addSideItem(ShopItemSide.PRODUCT, itm));
+                        break;
+                    case "cost":
+                        deserializeSide(data, key).forEach((itm) -> shop.addSideItem(ShopItemSide.COST, itm));
+                        break;
+                    case "chestLoc":
+                        // Written as a nested object today and as a location string by older
+                        // builds, so both are read. The object form goes through
+                        // getMapParameterized rather than a cast of get(): the raw get()
+                        // hands back the storage layer's own node type, which is not a
+                        // java.util.Map, and only the typed getters convert it.
+                        shop.chestLoc = data.get(key) instanceof String ?
+                                ShopLocation.deserialize(data.get(key).toString()) :
+                                ShopLocation.deserialize(data.getMapParameterized(key));
+                        break;
+                    case "status":
+                        shop.status = ShopStatus.valueOf(data.get(key).toString());
+                        break;
+                    case "shopSettings":
+                        shop.shopSettings = deserializeShopSettings(data.getMapParameterized(key));
+                        break;
+                    case "availableTrades":
+                        shop.availableTrades = (int) data.get(key);
+                        break;
+                    default:
+                        dataRemaining.append(key).append(": ").append(data.get(key)).append("\n");
+                        break;
+                }
+            }
+        } finally {
+            shop.aSync = false;
+        }
+
+        if (dataRemaining.length() > 0) {
+            TradeShop.getPlugin().getVarManager().getDebugger().log("Shop (" + shop.shopLoc + ") deserialized completed with data remaining: \n" + dataRemaining, DebugLevels.DATA_ERROR);
+        }
+
+        return shop;
+    }
+
+    /**
+     * Reads a shop's managers or its members out of its file.
+     *
+     * <p>Both keys used to be read with {@code data.getSerializableList(key,
+     * UUID.class)}, which maps every element of the stored list through
+     * {@code SimplixSerializer.deserialize(element, UUID.class)}. That call looks
+     * the <em>target</em> class up in a registry nothing in this plugin registers
+     * {@code UUID} in, so it threw
+     *
+     * <pre>
+     * SimplixValidationException: No serializable found for 'UUID'
+     * </pre>
+     *
+     * for any list with something in it - and an empty list, which never enters the
+     * mapping function at all, was the only case that worked. Every shop anyone had
+     * shared was therefore a shop the server could not load: it stops trading, and
+     * its owner's evidence is that it "just stopped".
+     *
+     * <h2>Why the parse is here rather than a registered serializable</h2>
+     * Registering a {@code UUID} serializable with SimplixStorage would fix this
+     * key and silently change how every other {@code UUID} in the plugin round
+     * trips, including ones written by builds that never had it. Two keys need this
+     * and both are here, so the parse is here.
+     *
+     * <h2>The two forms, and why both are read</h2>
+     * <b>Nothing about what is written changes</b>, and nothing on disk needs
+     * migrating: {@code serialize()} puts an {@code ArrayList<UUID>} into the
+     * document, and the JSON writer answers {@code toString()} for anything whose
+     * package starts with {@code java.}, so a file has always held
+     * {@code "managers": ["11111111-..."]} - an array of strings. What differs is
+     * <em>where</em> the read comes from. The storage layer hands the next reader of
+     * a chunk the very map this class gave it until the file is re-read, and in that
+     * map the elements are still {@code java.util.UUID} objects. So both are
+     * accepted: a string is parsed, a UUID is taken as it is.
+     *
+     * <p>An element that is neither is dropped with a log rather than failing the
+     * whole load, on the same reasoning as {@link #deserializeShopSettings}: one
+     * unreadable name costs a shop one of its staff, and refusing to load costs the
+     * owner the shop.
+     */
+    private static Set<UUID> deserializeUsers(FlatFileSection data, String key) {
+        Set<UUID> users = new HashSet<>();
+
+        for (Object stored : data.getList(key)) {
+            if (stored instanceof UUID) {
+                users.add((UUID) stored);
+                continue;
+            }
+
+            try {
+                users.add(UUID.fromString(String.valueOf(stored)));
+            } catch (IllegalArgumentException notAUuid) {
+                TradeShop.getPlugin().getVarManager().getDebugger().log(
+                        "Shop user '" + stored + "' under '" + key + "' is not a UUID and was skipped while loading a shop.",
+                        DebugLevels.DATA_ERROR);
+            }
+        }
+
+        return users;
+    }
+
+    /**
+     * Reads one side of a shop - the product list or the cost list - out of its file.
+     *
+     * <p>{@code serialize()} writes each side as a JSON list of item maps, so the side
+     * is read as a list of maps. It used to be walked with
+     * {@code data.keySet(key).forEach(...)}, which enumerates keys underneath a
+     * <em>section</em> and answers nothing at all for a list, so every reloaded shop
+     * came back with zero items on both sides.
+     */
+    private static List<ShopItemStack> deserializeSide(FlatFileSection data, String key) {
+        List<ShopItemStack> items = new ArrayList<>();
+
+        for (Map<String, Object> serializedItem : data.<Map<String, Object>>getListParameterized(key)) {
+            ShopItemStack item = ShopItemStack.deserialize(serializedItem);
+            if (item != null) items.add(item);
+        }
+
+        return items;
+    }
+
+    /**
+     * Turns the stored {@code shopSettings} object back into the typed map the field holds.
+     *
+     * <p>The keys on disk are config names - {@code hopper-export} - and the values are
+     * whatever {@link ObjectHolder} wrote. Assigning the raw map straight onto the field,
+     * as this branch used to, left it keyed by String and made the next
+     * {@code serialize()} throw. Any key this build no longer knows is dropped rather
+     * than failing the whole load, and {@code aFixup()} fills in whatever is missing.
+     */
+    private static Map<ShopSettingKeys, ObjectHolder<?>> deserializeShopSettings(Map<String, Object> stored) {
+        Map<ShopSettingKeys, ObjectHolder<?>> settings = new HashMap<>();
+
+        stored.forEach((name, value) -> {
+            try {
+                settings.put(ShopSettingKeys.findShopSetting(name),
+                        value instanceof Map ?
+                                ObjectHolder.deserialize((Map<String, Object>) value) :
+                                new ObjectHolder<>(value));
+            } catch (IllegalArgumentException unknownSetting) {
+                TradeShop.getPlugin().getVarManager().getDebugger().log("Unknown shop setting '" + name + "' skipped while loading a shop.", DebugLevels.DATA_ERROR);
+            }
+        });
+
+        return settings;
     }
 
     /**
@@ -251,8 +429,50 @@ public class Shop implements Serializable {
      *
      * @return serialized string
      */
-    public String serialize() {
-        return new GsonProcessor().toJson(this);
+    public Map<String, Object> serialize() {
+        Map<String, Object> map = new HashMap<>();
+        Map<String, ObjectHolder<?>> settings = new HashMap<>();
+        ArrayList<Map<String, Object>> products = new ArrayList<>(), costs = new ArrayList<>();
+
+        product.forEach(item -> products.add(item.serialize()));
+        cost.forEach(item -> costs.add(item.serialize()));
+        shopSettings.forEach((key, value) -> settings.put(key.getConfigKey(), value));
+
+        map.put("shopLoc", shopLoc.serialize());
+        map.put("owner", owner.serialize());
+        // Copied into lists rather than handed over as the Sets they are held in,
+        // and that is a correctness fix rather than defensive copying. This map is
+        // not only written to a file: ShopConfiguration.save puts it straight into
+        // the storage layer's IN-MEMORY document, which is what the next reader of
+        // that chunk is answered out of until the file is re-read. deserializeUsers
+        // asks for a List - as getSerializableList did before it - so a Set read
+        // back before the reload threw
+        //
+        //   java.lang.ClassCastException: class java.util.HashSet cannot be cast
+        //   to class java.util.List
+        //
+        // out of Shop.deserialize, and DataStorage.getMatchingShopsInChunk is the
+        // only caller of that reached from ShopUser.findProximityShop, which is
+        // /tradeshop find. A list is what the file holds and what the reader
+        // wants, so it is what is stored.
+        //
+        // The UUIDs themselves are handed over as they are and are NOT stringified
+        // here. What reaches a file is an array of strings either way - the JSON
+        // writer answers toString() for anything in a java.* package - so writing
+        // strings would change nothing on disk while making this map disagree with
+        // every shop file written before it. deserializeUsers reads both forms;
+        // see its comment for which read path sees which.
+        map.put("managers", new ArrayList<>(managers));
+        map.put("members", new ArrayList<>(members));
+        map.put("shopType", shopType.name());
+        map.put("product", products);
+        map.put("cost", costs);
+        map.put("chestLoc", chestLoc.serialize());
+        map.put("status", status.toString());
+        map.put("shopSettings", settings);
+        map.put("availableTrades", availableTrades);
+
+        return map;
     }
 
     /**
@@ -277,13 +497,12 @@ public class Shop implements Serializable {
      * Fixes values and objects after loading or creating a Shop
      */
     public void fixAfterLoad() {
-        aSyncFix();
         aSync = false;
 
         shopLoc.stringToWorld();
 
         if (!getShopType().isITrade()) {
-            if (chestLoc == null) {
+            if (chestLoc == null && getShopLocation() != null) {
                 chestLoc = new ShopLocation(new Utils().findShopChest(getShopLocation().getBlock()).getLocation());
             }
             chestLoc.stringToWorld();
@@ -291,6 +510,8 @@ public class Shop implements Serializable {
             cost.removeIf(item -> item.getItemStack() == null || (item.getItemStack().getType().toString().endsWith("SHULKER_BOX") && getInventoryLocation().getBlock().getType().toString().endsWith("SHULKER_BOX")));
             plugin.getDataStorage().addChestLinkage(chestLoc, shopLoc);
         }
+
+        aFixup();
 
         if (getShopSign() != null)
             updateSign();
@@ -301,6 +522,10 @@ public class Shop implements Serializable {
      */
     public void aSyncFix() {
         aSync = true;
+        aFixup();
+    }
+
+    private void aFixup() {
         if (utils == null) utils = new Utils();
         if (plugin == null) plugin = TradeShop.getPlugin();
 
@@ -319,10 +544,10 @@ public class Shop implements Serializable {
         StringBuilder sb = new StringBuilder();
         sb.append("Shop Debug: \n");
         sb.append("Shop Chunk: ").append(new ShopChunk(shopLoc.getChunk()).serialize()).append("\n");
-        sb.append("Sign Location: ").append(shopLoc.serialize()).append("\n");
+        sb.append("Sign Location: ").append(shopLoc).append("\n");
         sb.append("Shop Type: ").append((isMissingItems() ? Setting.SHOP_INCOMPLETE_COLOUR : Setting.SHOP_GOOD_COLOUR).getString()).append(shopType.toHeader()).append("\n");
         sb.append("Shop Status: ").append(status.getLine()).append("\n");
-        sb.append("Storage Location: ").append(hasStorage() ? getInventoryLocationAsSL().serialize() : "N/A").append("\n");
+        sb.append("Storage Location: ").append(hasStorage() ? getInventoryLocationAsSL().toString() : "N/A").append("\n");
         sb.append("Storage Type: ").append(hasStorage() ? getStorage().getType().toString() : "N/A").append("\n");
         sb.append("Owner: ").append(owner.getName()).append(" | ").append(owner.getUUID()).append("\n");
         sb.append("Managers: ").append(managers.isEmpty() ? "N/A" : managers.size()).append("\n");
@@ -343,6 +568,20 @@ public class Shop implements Serializable {
 
     /**
      * Saves the shop to file
+     *
+     * <p>{@link #updateStatus()} runs before the shop is handed to storage, not
+     * after. {@link #updateSign()} recomputes status on its way to line four
+     * ({@code updateSignLines} :592), and it used to be the only thing that did -
+     * from <em>after</em> the write - so what reached the file was the status the
+     * shop had before this save. A shop built from the chat bar was stored
+     * {@code INCOMPLETE}, the value the field starts at, however complete it
+     * actually was.
+     *
+     * <p>That value is read rather than recomputed by everything that comes at a
+     * shop through storage: {@code DataStorage.getMatchingShopsInChunk} loads with
+     * {@code loadASync}, which fixes a shop up without touching its status, and
+     * {@code ShopUser.findProximityShop} is {@code /tradeshop find}. So the sign in
+     * the world and the answer that command gives disagreed about the same shop.
      */
     public void saveShop() {
         if (aSync) {
@@ -351,8 +590,9 @@ public class Shop implements Serializable {
         }
 
         updateFullTradeCount();
+        updateStatus();
         plugin.getDataStorage().saveShop(this);
-        if (!aSync) updateSign();
+        updateSign();
         updateUserFiles();
     }
 
@@ -396,7 +636,7 @@ public class Shop implements Serializable {
         if (event == null || !event.getBlock().getLocation().equals(getShopLocation()))
             return;
 
-        String[] signLines = updateSignLines(Setting.SHOP_SIGN_DEFAULT_COLOURS.getMappedString(Signs.match(event.getBlock().getType()).name()));
+        String[] signLines = updateSignLines(ShopSign.getDefaultColour(event.getBlock().getType()));
 
         for (int i = 0; i < 4; i++) {
             event.setLine(i, signLines[i]);
@@ -412,7 +652,7 @@ public class Shop implements Serializable {
         if (sign == null || !sign.getLocation().equals(getShopLocation()))
             return;
 
-        String[] signLines = updateSignLines(Setting.SHOP_SIGN_DEFAULT_COLOURS.getMappedString(Signs.match(sign.getType()).name()));
+        String[] signLines = updateSignLines(ShopSign.getDefaultColour(sign.getType()));
 
         for (int i = 0; i < 4; i++) {
             sign.setLine(i, signLines[i]);
@@ -474,13 +714,37 @@ public class Shop implements Serializable {
     /**
      * Returns the shops inventory as a BlockState
      *
-     * @return shops inventory as BlockState
+     * <p>Null when the shop has no storage it can actually trade out of, which
+     * is not the same question as whether the location it remembers has a
+     * {@link BlockState}. <b>An air block still has one</b>, so a shop whose
+     * chest had been broken answered this call with the state of the hole and
+     * every guard built on it - {@link #hasStorage()} and therefore
+     * {@link #updateFullTradeCount()} :741 - was told the chest was still
+     * there. :746 then asked {@link #getChestAsSC()} for its inventory, which is
+     * null, because {@code ShopChest.getBlock} assigns its block only for a
+     * location that holds an inventory and {@code ShopChest.getInventory}
+     * answers null for one that does not. :748 dereferenced it:
+     * {@code Cannot invoke "Inventory.getStorageContents()" because
+     * "shopInventory" is null}.
+     *
+     * <p>So the test is the one {@code ShopChest} itself makes - is this a block
+     * this plugin reads a shop's stock out of - and the state is handed back only
+     * when it is. Whatever removed the block is irrelevant: a break, an
+     * explosion, a piston, an edit from another plugin, or an operator taking
+     * that storage type out of allowed-shops all arrive here the same way.
+     *
+     * @return shops inventory as BlockState, or null if the shop has none
      */
     public BlockState getStorage() {
         if (aSync) return null;
 
         try {
-            return getInventoryLocation().getBlock().getState();
+            Block block = getInventoryLocation().getBlock();
+
+            if (!plugin.getListManager().isInventory(block)) return null;
+
+            BlockState state = block.getState();
+            return state instanceof InventoryHolder ? state : null;
         } catch (NullPointerException npe) {
             return null;
         }
@@ -497,9 +761,9 @@ public class Shop implements Serializable {
     }
 
     /**
-     * Returns if the shops inventory exists
+     * Returns if the shop has storage it can trade out of
      *
-     * @return shops inventory as BlockState
+     * @return true if the shop's storage block is there and holds an inventory
      */
     public boolean hasStorage() {
         return getStorage() != null;
@@ -537,10 +801,27 @@ public class Shop implements Serializable {
 
     /**
      * Automatically updates a shops status if it is not CLOSED
+     *
+     * <p>A shop whose storage block is gone is {@link ShopStatus#INCOMPLETE} and
+     * stays that way until its owner puts one back. It is not closed - CLOSED is
+     * something an owner chooses and this method deliberately refuses to move a
+     * shop out of it, so a repaired shop would stay shut - and it is not
+     * removed, because the item lists on both sides are the owner's work and a
+     * block that vanished is not consent to throw them away. The repair itself
+     * is {@code ShopProtectionListener.onBlockPlace}, which re-links a storage
+     * block placed under the sign only while {@code !hasStorage()}.
      */
     public void updateStatus() {
         if (!status.equals(ShopStatus.CLOSED)) {
-            if (!isMissingItems() && (chestLoc != null || shopType.isITrade())) {
+            // hasStorage() rather than `chestLoc != null`: a shop can remember a
+            // storage location whose block is no longer there, and a shop that
+            // cannot reach its stock is incomplete rather than merely empty. An
+            // aSync shop is not attached to the world at all - getStorage()
+            // answers null for every one of them - so it keeps the weaker test
+            // instead of being reported broken for being off the main thread.
+            boolean somewhereToTradeFrom = shopType.isITrade() || (aSync ? chestLoc != null : hasStorage());
+
+            if (!isMissingItems() && somewhereToTradeFrom) {
                 if (getAvailableTrades() > 0)
                     setStatus(ShopStatus.OPEN);
                 else
@@ -614,7 +895,7 @@ public class Shop implements Serializable {
     }
 
     private int countItems(List<ShopItemStack> countItems, ItemStack[] storageContents) {
-        Inventory storage = Bukkit.createInventory(null, storageContents.length);
+        Inventory storage = Bukkit.createInventory(null, Utils.scratchInventorySize(storageContents.length));
         storage.setContents(storageContents);
 
         int totalCount = 0, currentCount = 0;
@@ -1145,15 +1426,16 @@ public class Shop implements Serializable {
      *
      * @param side            Side to be updated
      * @param updatedItemList list to set updatedItemList to
+     * @param save2disk       whether or not to save to disk
      */
-    public void updateSide(ShopItemSide side, List<ShopItemStack> updatedItemList) {
+    public void updateSide(ShopItemSide side, List<ShopItemStack> updatedItemList, boolean save2disk) {
         if (!getShopType().isITrade() && chestLoc != null)
             updatedItemList.removeIf(item -> item.getItemStack().getType().toString().endsWith("SHULKER_BOX") && getInventoryLocation().getBlock().getType().toString().endsWith("SHULKER_BOX"));
 
         if (side.equals(ShopItemSide.PRODUCT)) product = updatedItemList;
         else cost = updatedItemList;
 
-        saveShop();
+        if (save2disk) saveShop();
         updateSign();
     }
 
@@ -1164,7 +1446,7 @@ public class Shop implements Serializable {
      * @param updatedItem Item to be updated at the specified index and side
      * @param index       index of the item t be updated
      */
-    public void updateSideItem(ShopItemSide side, ShopItemStack updatedItem, int index) {
+    public void updateSideItem(ShopItemSide side, ShopItemStack updatedItem, int index, boolean save2disk) {
         if (!getShopType().isITrade() &&
                 chestLoc != null &&
                 updatedItem.getItemStack().getType().toString().endsWith("SHULKER_BOX") &&
@@ -1173,7 +1455,7 @@ public class Shop implements Serializable {
 
         (side.equals(ShopItemSide.PRODUCT) ? product : cost).set(index, updatedItem);
 
-        saveShop();
+        if (save2disk) saveShop();
         updateSign();
     }
 

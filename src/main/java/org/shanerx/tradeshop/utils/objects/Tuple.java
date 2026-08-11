@@ -26,11 +26,11 @@
 package org.shanerx.tradeshop.utils.objects;
 
 import com.google.gson.annotations.SerializedName;
-import org.shanerx.tradeshop.utils.gsonprocessing.GsonProcessor;
 
-import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
 
-public class Tuple<L, R> implements Serializable {
+public class Tuple<L, R> {
 
     @SerializedName("right")
     private R r;
@@ -58,12 +58,16 @@ public class Tuple<L, R> implements Serializable {
         return l;
     }
 
-    public String serialize() {
-        return new GsonProcessor().toJson(this);
+    public Map<String, Object> serialize() {
+        Map<String, Object> map = new HashMap<>();
+        map.put("L", l);
+        map.put("R", r);
+
+        return map;
     }
 
     @Override
     public String toString() {
-        return serialize();
+        return serialize().toString();
     }
 }

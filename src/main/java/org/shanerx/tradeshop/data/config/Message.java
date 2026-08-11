@@ -88,6 +88,7 @@ public enum Message {
     SHOP_EMPTY(MessageSection.NONE, "shop-empty"),
     SHOP_FULL(MessageSection.NONE, "shop-full"),
     SHOP_ITEM_LIST(MessageSection.NONE, "shop-item-list"),
+    SHOP_SIGN_FRONT_ONLY(MessageSection.NONE, "shop-sign-front-only"),
     SHOP_TYPE_SWITCHED(MessageSection.NONE, "shop-type-switched"),
     SUCCESSFUL_SETUP(MessageSection.NONE, "successful-setup"),
     TOO_MANY_CHESTS(MessageSection.NONE, "too-many-chests"),
@@ -320,7 +321,7 @@ public enum Message {
         boolean isJson = getString().startsWith("#json ");
         String message = getPrefixed().replaceFirst("#json ", "");
 
-        Debug debug = TradeShop.getPlugin().getDebugger();
+        Debug debug = TradeShop.getPlugin().getVarManager().getDebugger();
 
         for (Map.Entry<Variable, List<ItemStack>> entry : itemsToFill.entrySet()) {
             Pattern pattern = Pattern.compile(MULTILINEREGEX.replace("&V&", entry.getKey().toString()));
@@ -367,7 +368,7 @@ public enum Message {
         boolean isJson = getString().startsWith("#json ");
         String message = getPrefixed().replaceFirst("#json ", "");
 
-        Debug debug = TradeShop.getPlugin().getDebugger();
+        Debug debug = TradeShop.getPlugin().getVarManager().getDebugger();
 
         for (Map.Entry<Variable, Map<String, String>> entry : valuesToFill.entrySet()) {
             Pattern pattern = Pattern.compile(MULTILINEREGEX.replace("&V&", entry.getKey().toString()));

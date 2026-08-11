@@ -25,57 +25,53 @@
 
 package org.shanerx.tradeshop.data.storage.Json;
 
-import com.google.gson.reflect.TypeToken;
 import org.shanerx.tradeshop.data.storage.PlayerConfiguration;
 import org.shanerx.tradeshop.player.PlayerSetting;
 
 import java.io.File;
-import java.util.Map;
+import java.util.List;
 import java.util.UUID;
 
-public class JsonPlayerConfiguration extends JsonConfiguration implements PlayerConfiguration {
+public class JsonPlayerData extends JsonConfiguration implements PlayerConfiguration {
 
     private final transient UUID playerUUID;
     private transient PlayerSetting playerSetting;
     private static final String playerFolder = "Players";
 
-    public JsonPlayerConfiguration(UUID uuid) {
+    public JsonPlayerData(UUID uuid) {
         super(playerFolder, uuid.toString());
 
         playerUUID = uuid;
     }
 
+    public static List<File> getAllPlayers() {
+        return getFilesInFolder(playerFolder);
+    }
+
     @Override
     public void save(PlayerSetting playerSetting) {
         this.playerSetting = playerSetting;
-        jsonObj.add(playerSetting.getUuid().toString(), gson.toJsonTree(playerSetting));
+        set(playerSetting.getUuid().toString(), playerSetting.serialize());
 
         saveFile();
     }
 
     @Override
     public PlayerSetting load() {
-        if (jsonObj.has("data")) {
-            playerSetting = new PlayerSetting(playerUUID, gson.fromJson(jsonObj.get("data"), new TypeToken<Map<String, Integer>>() {
-            }.getType()));
-            jsonObj.remove("data");
-            saveFile();
-        } else {
-            playerSetting = gson.fromJson(jsonObj.get(playerUUID.toString()), PlayerSetting.class);
+        playerSetting = PlayerSetting.deserialize(getMapParameterized(playerUUID.toString()));
+
+        if (playerSetting == null) {
+            playerSetting = new PlayerSetting(playerUUID);
+            save(playerSetting);
         }
 
-        if (playerSetting != null)
-            playerSetting.load();
+        playerSetting.load();
 
         return playerSetting;
     }
 
     @Override
     public void remove() {
-        file.delete();
-    }
-
-    public static File[] getAllPlayers() {
-        return getFilesInFolder(playerFolder);
+        super.remove(playerUUID.toString());
     }
 }

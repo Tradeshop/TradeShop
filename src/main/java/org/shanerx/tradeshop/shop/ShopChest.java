@@ -44,7 +44,7 @@ import org.shanerx.tradeshop.utils.debug.DebugLevels;
 import java.util.List;
 import java.util.UUID;
 
-public class ShopChest extends Utils {
+public class ShopChest {
 
     private final static TradeShop PLUGIN = TradeShop.getPlugin();
     private final Location loc;
@@ -98,6 +98,19 @@ public class ShopChest extends Utils {
         return false;
     }
 
+    /**
+     * The block that makes up the other half of {@code check}'s double chest.
+     *
+     * <p>A double chest's combined inventory sits on the boundary between its two
+     * blocks, so exactly one of its coordinates ends in .5 and that coordinate is the
+     * axis the pair runs along. Whichever half is being asked about, the answer is the
+     * other end of that axis.
+     *
+     * <p>The Z branch used to compare {@code check.getX()} against the Z of the
+     * inventory - an X against a Z. The two agree only where the chest happens to sit
+     * on the diagonal, so off it one of the two halves was told its other half was
+     * itself, and which one depended on the coordinates.
+     */
     public static Block getOtherHalfOfDoubleChest(Block check) {
         Block otherChest = null;
         if (check.getState() instanceof Chest) {
@@ -106,7 +119,7 @@ public class ShopChest extends Utils {
             if (chestLoc.getX() - Math.floor(chestLoc.getX()) > 0) {
                 otherChestLoc.setX(check.getX() == Math.floor(chestLoc.getX()) ? Math.ceil(chestLoc.getX()) : Math.floor(chestLoc.getX()));
             } else if (chestLoc.getZ() - Math.floor(chestLoc.getZ()) > 0) {
-                otherChestLoc.setZ(check.getX() == Math.floor(chestLoc.getZ()) ? Math.ceil(chestLoc.getZ()) : Math.floor(chestLoc.getZ()));
+                otherChestLoc.setZ(check.getZ() == Math.floor(chestLoc.getZ()) ? Math.ceil(chestLoc.getZ()) : Math.floor(chestLoc.getZ()));
             }
             otherChest = otherChestLoc.getBlock();
         }
@@ -160,7 +173,7 @@ public class ShopChest extends Utils {
 
     public boolean hasStock(List<ShopItemStack> itemToCheck) {
         if (isEmpty()) return false;
-        return itemToCheck.size() > 0 && getItems(getInventory().getStorageContents(), itemToCheck, 1).get(0) != null;
+        return itemToCheck.size() > 0 && new Utils().getItems(getInventory().getStorageContents(), itemToCheck, 1).get(0) != null;
     }
 
     public boolean isEmpty() {

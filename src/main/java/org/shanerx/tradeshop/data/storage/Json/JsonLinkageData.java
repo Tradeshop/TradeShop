@@ -23,22 +23,37 @@
  *
  */
 
-package org.shanerx.tradeshop.shop.listeners;
+package org.shanerx.tradeshop.data.storage.Json;
 
-import io.papermc.paper.event.player.PlayerOpenSignEvent;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
-import org.bukkit.event.Listener;
-import org.shanerx.tradeshop.shop.ShopType;
+import org.bukkit.World;
+import org.shanerx.tradeshop.data.storage.LinkageConfiguration;
 
-public class PaperShopProtectionListener implements Listener {
-    public PaperShopProtectionListener() {
+import java.util.Map;
+
+public class JsonLinkageData extends JsonConfiguration implements LinkageConfiguration {
+
+    Map<String, Object> linkageData;
+
+    public JsonLinkageData(World world) {
+        super(world.getName(), "chest_linkage");
+        load();
     }
 
-    @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
-    public void onSignEdit(PlayerOpenSignEvent e) {
-        if (e.isCancelled()) return;
+    @Override
+    public void load() {
+        loadFile();
+        linkageData = getMapParameterized("linkage_data");
+    }
 
-        if (ShopType.isShop(e.getSign())) e.setCancelled(true);
+    @Override
+    public Map<String, Object> getLinkageData() {
+        return linkageData;
+    }
+
+    @Override
+    public void save() {
+        if (linkageData == null) load();
+        set("linkage_data", linkageData);
+        saveFile();
     }
 }

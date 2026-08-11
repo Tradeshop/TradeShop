@@ -30,9 +30,7 @@ import org.bukkit.Chunk;
 import org.bukkit.ChunkSnapshot;
 import org.bukkit.World;
 
-import java.io.Serializable;
-
-public class ShopChunk implements Serializable {
+public class ShopChunk {
 
     private final String div = ";;",
             worldName;

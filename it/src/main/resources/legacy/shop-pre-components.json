@@ -1,0 +1,84 @@
+{"l::world::0::1::0": {
+   "owner": {
+      "role": "OWNER",
+      "player": "49e7340c-d6ef-3e05-adb5-35da077c55dc"
+   },
+   "product": [{
+      "itemStackString": {
+         "type": "DIAMOND_SWORD",
+         "v": 3700,
+         "meta": {
+            "meta-type": "UNSPECIFIC",
+            "enchants": {"DAMAGE_ALL": 3},
+            "lore": [
+               "{\"text\":\"\",\"extra\":[{\"text\":\"forged before 1.20.5\",\"obfuscated\":false,\"italic\":false,\"underlined\":false,\"strikethrough\":false,\"color\":\"gray\",\"bold\":false}]}",
+               "{\"text\":\"\",\"extra\":[{\"text\":\"data components did not exist\",\"obfuscated\":false,\"italic\":false,\"underlined\":false,\"strikethrough\":false,\"color\":\"gray\",\"bold\":false}]}"
+            ],
+            "display-name": "{\"text\":\"\",\"extra\":[{\"text\":\"Migration Blade\",\"obfuscated\":false,\"italic\":false,\"underlined\":false,\"strikethrough\":false,\"color\":\"aqua\",\"bold\":false}]}"
+         }
+      },
+      "itemSettings": {
+         "compare-shulker-inventory": {"obj": true},
+         "compare-name": {"obj": true},
+         "compare-custom-model-data": {"obj": true},
+         "compare-item-flags": {"obj": true},
+         "compare-book-pages": {"obj": true},
+         "compare-firework-duration": {"obj": true},
+         "compare-bundle-inventory": {"obj": true},
+         "compare-unbreakable": {"obj": true},
+         "compare-lore": {"obj": true},
+         "compare-attribute-modifier": {"obj": true},
+         "compare-enchantments": {"obj": true},
+         "compare-firework-effects": {"obj": true},
+         "compare-book-author": {"obj": true},
+         "compare-durability": {"obj": 1}
+      }
+   }],
+   "shopSettings": {
+      "hopper-export": "false",
+      "no-cost": "false",
+      "hopper-import": "false"
+   },
+   "cost": [{
+      "itemStackString": {
+         "type": "EMERALD",
+         "v": 3700,
+         "amount": 3
+      },
+      "itemSettings": {
+         "compare-shulker-inventory": {"obj": true},
+         "compare-name": {"obj": true},
+         "compare-custom-model-data": {"obj": true},
+         "compare-item-flags": {"obj": true},
+         "compare-book-pages": {"obj": true},
+         "compare-firework-duration": {"obj": true},
+         "compare-bundle-inventory": {"obj": true},
+         "compare-unbreakable": {"obj": true},
+         "compare-lore": {"obj": true},
+         "compare-attribute-modifier": {"obj": true},
+         "compare-enchantments": {"obj": true},
+         "compare-firework-effects": {"obj": true},
+         "compare-book-author": {"obj": true},
+         "compare-durability": {"obj": 1}
+      }
+   }],
+   "members": [],
+   "availableTrades": 0,
+   "shopType": "TRADE",
+   "shopLoc": {
+      "div": "::",
+      "world": "world",
+      "x": 0,
+      "y": 1,
+      "z": 0
+   },
+   "managers": [],
+   "chestLoc": {
+      "div": "::",
+      "world": "world",
+      "x": 0,
+      "y": 0,
+      "z": 0
+   },
+   "status": "INCOMPLETE"
+}}

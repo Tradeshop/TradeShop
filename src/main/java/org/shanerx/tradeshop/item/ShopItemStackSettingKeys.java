@@ -31,8 +31,10 @@ import org.bukkit.inventory.ItemStack;
 import org.shanerx.tradeshop.data.config.Setting;
 import org.shanerx.tradeshop.utils.objects.ObjectHolder;
 
+import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Stream;
 
 public enum ShopItemStackSettingKeys {
 
@@ -51,7 +53,8 @@ public enum ShopItemStackSettingKeys {
     COMPARE_SHULKER_INVENTORY(new ItemStack(Material.CHEST_MINECART), true),
     COMPARE_BUNDLE_INVENTORY(new ItemStack(Material.CHEST_MINECART), true),
     COMPARE_FIREWORK_DURATION(new ItemStack(Material.GUNPOWDER), true),
-    COMPARE_FIREWORK_EFFECTS(new ItemStack(Material.FIREWORK_STAR), true);
+    COMPARE_FIREWORK_EFFECTS(new ItemStack(Material.FIREWORK_STAR), true),
+    COMPARE_POTION_EFFECTS(new ItemStack(Material.BREWING_STAND), true);
 
     private final ItemStack displayItem;
     private final Object preConfigDefault;
@@ -65,16 +68,34 @@ public enum ShopItemStackSettingKeys {
     public static Map<String, Object> getDefaultConfigMap() {
         Map<String, Object> configMap = new HashMap<>();
 
-        for (ShopItemStackSettingKeys value : values()) {
-            String key = value.getConfigName();
-            Map<String, Object> subConfigMap = new HashMap<>();
-            subConfigMap.put(defaultKey, value.preConfigDefault);
-            subConfigMap.put(userEditableKey, true);
+        Stream.of(values()).forEach(key -> configMap.put(key.getKey(String.class), key.getSubConfigMap()));
 
-            configMap.put(key, subConfigMap);
-        }
 
         return configMap;
+    }
+
+    public static Map<ShopItemStackSettingKeys, ObjectHolder<?>> getDefaultSettings() {
+        Map<ShopItemStackSettingKeys, ObjectHolder<?>> defaultMap = new HashMap<>();
+
+        Stream.of(values()).forEach(key -> defaultMap.put(key.getKey(ShopItemStackSettingKeys.class), key.getDefaultValue()));
+
+        return defaultMap;
+    }
+
+    private Map<String, Object> getSubConfigMap() {
+        Map<String, Object> subConfigMap = new HashMap<>();
+        subConfigMap.put(defaultKey, preConfigDefault);
+        subConfigMap.put(userEditableKey, true);
+        return subConfigMap;
+    }
+
+    private <T> T getKey(Type T) {
+        if (T.equals(ShopItemStackSettingKeys.class)) {
+            return (T) this;
+        } else if (T.equals(String.class)) {
+            return (T) getConfigName();
+        }
+        return null;
     }
 
     public String makeReadable() {
@@ -82,16 +103,42 @@ public enum ShopItemStackSettingKeys {
 
     }
 
+    /**
+     * The server-wide default for this setting.
+     *
+     * <p>Falls back to the value compiled into this enum when the config file has no
+     * answer. A hole in {@code shop-per-item-settings} used to produce a holder with
+     * nothing in it, and every caller of this method reads it as a boolean or an int:
+     * the boolean path threw and the int path handed back a null that was unboxed. The
+     * fallback is the same value the file would have held, so a hole now costs nothing
+     * beyond the operator's own override of it.
+     */
     public ObjectHolder<?> getDefaultValue() {
-        return new ObjectHolder<>(Setting.SHOP_PER_ITEM_SETTINGS.getMappedObject(getConfigName() + "." + defaultKey));
+        Object configured = Setting.SHOP_PER_ITEM_SETTINGS.getMappedObject(getConfigName() + "." + defaultKey);
+        return new ObjectHolder<>(configured != null ? configured : preConfigDefault);
     }
 
     public ItemStack getDisplayItem() {
         return displayItem;
     }
 
+    /**
+     * Whether a shop owner may override this setting on an item.
+     *
+     * <p>Falls back to editable when the config file has no answer, for the same
+     * reason {@link #getDefaultValue()} falls back to the value compiled into this
+     * enum - and with more at stake, because {@code false} here is not an absent
+     * answer, it is a decision. {@code user-editable: false} is how an operator pins
+     * a comparison server-wide, and {@code ShopItemStack.java:287} enforces it by
+     * refusing to read the item's own value at all. Reading a hole as {@code false},
+     * which is what {@code getBoolean} does for a key that is not there, therefore
+     * enacted the opposite of the default: every per-item override on the server
+     * stopped being consulted, shops went back to comparing things their owners had
+     * switched off, and nothing was logged.
+     */
     public boolean isUserEditable() {
-        return Setting.SHOP_PER_ITEM_SETTINGS.getMappedBoolean(getConfigName() + "." + userEditableKey);
+        Object configured = Setting.SHOP_PER_ITEM_SETTINGS.getMappedObject(getConfigName() + "." + userEditableKey);
+        return configured == null || new ObjectHolder<>(configured).asBoolean();
     }
 
     public String getConfigName() {

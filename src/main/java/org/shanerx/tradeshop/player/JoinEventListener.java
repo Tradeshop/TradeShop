@@ -32,11 +32,10 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.shanerx.tradeshop.TradeShop;
 import org.shanerx.tradeshop.data.config.Message;
-import org.shanerx.tradeshop.utils.Utils;
 import org.shanerx.tradeshop.utils.versionmanagement.Updater;
 import org.shanerx.tradeshop.utils.versionmanagement.Version;
 
-public class JoinEventListener extends Utils implements Listener {
+public class JoinEventListener implements Listener {
 
     private final TradeShop plugin;
 

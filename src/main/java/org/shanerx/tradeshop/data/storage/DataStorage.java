@@ -27,6 +27,8 @@ package org.shanerx.tradeshop.data.storage;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
+import de.leonhard.storage.shaded.json.JSONException;
+import de.leonhard.storage.shaded.json.JSONObject;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.NotImplementedException;
@@ -36,16 +38,15 @@ import org.bukkit.ChunkSnapshot;
 import org.bukkit.World;
 import org.bukkit.inventory.ItemStack;
 import org.shanerx.tradeshop.TradeShop;
-import org.shanerx.tradeshop.data.storage.Json.JsonLinkageConfiguration;
-import org.shanerx.tradeshop.data.storage.Json.JsonPlayerConfiguration;
-import org.shanerx.tradeshop.data.storage.Json.JsonShopConfiguration;
+import org.shanerx.tradeshop.data.storage.Json.JsonLinkageData;
+import org.shanerx.tradeshop.data.storage.Json.JsonPlayerData;
+import org.shanerx.tradeshop.data.storage.Json.JsonShopData;
 import org.shanerx.tradeshop.item.ShopItemSide;
 import org.shanerx.tradeshop.player.PlayerSetting;
 import org.shanerx.tradeshop.shop.Shop;
 import org.shanerx.tradeshop.shop.ShopStatus;
 import org.shanerx.tradeshop.shoplocation.ShopChunk;
 import org.shanerx.tradeshop.shoplocation.ShopLocation;
-import org.shanerx.tradeshop.utils.Utils;
 import org.shanerx.tradeshop.utils.debug.DebugLevels;
 
 import java.io.File;
@@ -53,7 +54,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -63,10 +63,18 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
-public class DataStorage extends Utils {
+public class DataStorage {
 
     private transient DataType dataType;
-    public final Map<File, String> saving;
+
+    /**
+     * Where a file with junk appended after a complete shop object is cut.
+     *
+     * <p>Only ever applied to a file that has already been shown NOT to parse, and
+     * only kept if the cut produces something that does. On its own this pattern
+     * cannot tell a broken file from a sound one: a '}' followed by more content is
+     * ordinary inside an item's data components, which embed JSON in a JSON string.
+     */
     private final String BROKEN_JSON_START = "}(.*[\"\\w:])";
 
     private final Cache<World, LinkageConfiguration> linkCache = CacheBuilder.newBuilder()
@@ -83,7 +91,6 @@ public class DataStorage extends Utils {
             .build();
 
     public DataStorage(DataType dataType) {
-        saving = new HashMap<>();
         reload(dataType);
     }
 
@@ -102,9 +109,9 @@ public class DataStorage extends Utils {
 
             //Check for err files
             Bukkit.getServer().getWorlds().forEach((w) -> {
-                File[] list = JsonShopConfiguration.getFilesInFolder(w.getName());
-                if (list != null && list.length > 0) {
-                    errFiles.addAll(Arrays.stream(list).filter((f) -> FilenameUtils.getExtension(f.getName()).toLowerCase().contains("err")).collect(Collectors.toList()));
+                List<File> list = JsonShopData.getFilesInFolder(w.getName());
+                if (!list.isEmpty()) {
+                    errFiles.addAll(list.stream().filter((f) -> FilenameUtils.getExtension(f.getName()).toLowerCase().contains("err")).collect(Collectors.toList()));
                 }
             });
 
@@ -112,16 +119,34 @@ public class DataStorage extends Utils {
 
             //Check for and correct malformed files
             Bukkit.getServer().getWorlds().forEach((w) -> {
-                File[] list = JsonShopConfiguration.getFilesInFolder(w.getName());
-                if (list != null && list.length > 0) {
-                    Arrays.stream(list).forEach((f) -> {
+                List<File> list = JsonShopData.getFilesInFolder(w.getName());
+                if (!list.isEmpty()) {
+                    list.forEach((f) -> {
                         try {
-                            String fileStr = FileUtils.readFileToString(f, StandardCharsets.UTF_8),
-                                    correctedString = fileStr.split(BROKEN_JSON_START)[0];
-                            if (correctedString.length() < fileStr.length()) {
+                            String fileStr = FileUtils.readFileToString(f, StandardCharsets.UTF_8);
+
+                            // A file that parses is not broken, whatever it happens to
+                            // contain. This test has to come first and has to be a parse:
+                            // BROKEN_JSON_START looks for a '}' followed by more content,
+                            // and since item data components an item's own JSON is embedded
+                            // INSIDE a JSON string - "minecraft:custom_name":
+                            // "{extra:[\"Kingsblade\"],text:\"\"}" - so that shape is now
+                            // normal content. No regex can tell it apart from a real break;
+                            // only a parser can.
+                            if (parses(fileStr)) return;
+
+                            String correctedString = fileStr.split(BROKEN_JSON_START)[0];
+
+                            // Only rewrite when the repair actually produces a readable
+                            // file. The truncation used to be written back unconditionally,
+                            // which could leave a file just as broken as before with data
+                            // additionally cut off the end.
+                            if (correctedString.length() < fileStr.length() && parses(correctedString)) {
                                 correctedFiles.put(f, correctedString);
 
                                 TradeShop.getPlugin().getDebugger().log("Error found in file: " + f.getName() + "\n Text Removed: ---\n" + correctedString, DebugLevels.DATA_VERIFICATION);
+                            } else {
+                                TradeShop.getPlugin().getDebugger().log("File " + f.getName() + " is not readable JSON and could not be repaired; it has been left untouched rather than truncated.", DebugLevels.DATA_ERROR);
                             }
                         } catch (IOException e) {
                             correctedFiles.put(f, null);
@@ -129,8 +154,6 @@ public class DataStorage extends Utils {
                     });
                 }
             });
-
-            TradeShop.getPlugin().getDebugger().log("FLATFILE Malformed Files Found: " + correctedFiles.size(), DebugLevels.DATA_ERROR);
 
             //Write corrected malformed files
             if (correctedFiles.size() > 0) {
@@ -151,11 +174,11 @@ public class DataStorage extends Utils {
 
             TradeShop.getPlugin().getDebugger().log("Removing empty player files... ", DebugLevels.DATA_VERIFICATION);
 
-            File[] playerFiles = JsonPlayerConfiguration.getAllPlayers();
+            List<File> playerFiles = JsonPlayerData.getAllPlayers();
             if (playerFiles != null) {
                 List<String> deletedResults = new ArrayList<>();
                 Map<String, Exception> failedResults = new HashMap<>();
-                Arrays.stream(playerFiles).forEach((file) -> {
+                playerFiles.forEach((file) -> {
                     if (file.isFile() && file.length() == 0) {
                         try {
                             file.delete();
@@ -166,8 +189,13 @@ public class DataStorage extends Utils {
                     }
                 });
 
-                TradeShop.getPlugin().getDebugger().log("Empty files deleted: " + deletedResults.size(), DebugLevels.DATA_VERIFICATION);
-                TradeShop.getPlugin().getDebugger().log("# of empty player files that couldn't be deleted: " + failedResults.size() + (failedResults.size() > 0 ? ("\nFailed Deletion results: \n" + failedResults.entrySet().stream().map((entry) -> entry.getKey() + ": " + entry.getValue().getMessage()).collect(Collectors.joining("\n"))) : "\n"), DebugLevels.DATA_ERROR);
+                if (deletedResults.size() != 0)
+                    TradeShop.getPlugin().getDebugger().log("Empty files deleted: " + deletedResults.size(), DebugLevels.DATA_VERIFICATION);
+                if (failedResults.size() != 0)
+                    TradeShop.getPlugin().getDebugger().log("# of empty player files that couldn't be deleted: "
+                            + failedResults.size()
+                            + (failedResults.size() > 0 ? ("\nFailed Deletion results: \n" + failedResults.entrySet().stream().map((entry) -> entry.getKey() + ": " + entry.getValue().getMessage()).collect(Collectors.joining("\n"))) : "\n")
+                            , DebugLevels.DATA_ERROR);
             }
 
             return errFiles.size() < 1;
@@ -175,79 +203,117 @@ public class DataStorage extends Utils {
         throw new NotImplementedException("Data storage type " + dataType + " has not been implemented yet.");
     }
 
+    /**
+     * Whether {@code json} is a document the shop loader can actually read.
+     *
+     * <p>Deliberately the same parser the storage layer itself uses, so that a
+     * "yes" here means "the loader will accept this" rather than "some parser
+     * somewhere accepted it".
+     */
+    private boolean parses(String json) {
+        try {
+            new JSONObject(json);
+            return true;
+        } catch (JSONException e) {
+            return false;
+        }
+    }
+
     public Shop loadShopFromSign(ShopLocation sign) {
-        Shop cached = shopCache.getIfPresent(sign.serialize());
-        return cached != null ? cached : getShopConfiguration(sign.getChunk()).load(sign);
+        if (sign == null) return null;
+        Shop cached = shopCache.getIfPresent(sign.toString());
+        if (cached != null) return cached;
+
+        Shop loaded = getShopData(sign.getChunk()).load(sign);
+
+        // One live object per shop, which is what the rest of the plugin assumes when
+        // it loads a shop, changes it and saves it. Deserialization used to reach this
+        // cache by saving the shop it was still building - the save is gone, so the
+        // caching it was doing as a side effect is done here on purpose.
+        if (loaded != null) shopCache.put(sign.toString(), loaded);
+
+        return loaded;
     }
 
     public Shop loadShopFromStorage(ShopLocation chest) {
-        return loadShopFromSign(getLinkageConfiguration(chest.getWorld()).getLinkedShop(chest));
+        return loadShopFromSign(getLinkageData(chest.getWorld()).getLinkedShop(chest));
     }
 
     public void saveShop(Shop shop) {
-        shopCache.put(shop.getShopLocationAsSL().serialize(), shop);
-        getShopConfiguration(shop.getShopLocation().getChunk()).save(shop);
+        shopCache.put(shop.getShopLocationAsSL().toString(), shop);
+        getShopData(shop.getShopLocation().getChunk()).save(shop);
     }
 
     public void removeShop(Shop shop) {
-        shopCache.invalidate(shop.getShopLocationAsSL().serialize());
-        getShopConfiguration(shop.getShopLocation().getChunk()).remove(shop.getShopLocationAsSL());
-        getLinkageConfiguration(shop.getShopLocationAsSL().getWorld()).removeShop(shop.getShopLocationAsSL());
+        shopCache.invalidate(shop.getShopLocationAsSL().toString());
+        getShopData(shop.getShopLocation().getChunk()).remove(shop.getShopLocationAsSL());
+        getLinkageData(shop.getShopLocationAsSL().getWorld()).removeShop(shop.getShopLocationAsSL());
     }
 
     public int getShopCountInChunk(Chunk chunk) {
-        return getShopConfiguration(chunk).size();
+        return getShopData(chunk).size();
     }
 
     public List<Shop> getMatchingShopsInChunk(ChunkSnapshot chunk, boolean inStock, List<ItemStack> desiredCosts, List<ItemStack> desiredProducts) {
         List<Shop> matchingShops = new ArrayList<>();
-        ShopChunk shopChunk = new ShopChunk(chunk);
 
-        if (chunkExists(shopChunk)) {
-            ShopConfiguration config = getShopConfiguration(shopChunk);
+        ShopConfiguration config = getShopData(new ShopChunk(chunk));
 
-            config.list().forEach((shopLoc) -> {
-                Shop shop = config.loadASync(shopLoc);
+        config.list().forEach((shopLoc) -> {
+            Shop shop = config.loadASync(shopLoc);
 
-                if ((desiredCosts != null && shop.isMissingSideItems(ShopItemSide.COST, desiredCosts)) ||
-                        (desiredProducts != null && shop.isMissingSideItems(ShopItemSide.PRODUCT, desiredProducts)))
-                    return; //Ignore any shops that don't have a matching product/cost
+            if ((desiredCosts != null && shop.isMissingSideItems(ShopItemSide.COST, desiredCosts)) ||
+                (desiredProducts != null && shop.isMissingSideItems(ShopItemSide.PRODUCT, desiredProducts)))
+                return; //Ignore any shops that don't have a matching product/cost
 
-                if (!inStock || shop.getStatus().equals(ShopStatus.OPEN)) {
-                    matchingShops.add(shop);
-                }
-            });
+            if (!inStock || shop.getStatus().equals(ShopStatus.OPEN)) {
+                matchingShops.add(shop);
+            }
+        });
 
-            TradeShop.getPlugin().getDebugger().log(" --- _G_M_ --- " + Arrays.toString(matchingShops.stream().map(shop -> shop.getShopLocationAsSL().serialize()).toArray(String[]::new)), DebugLevels.DATA_ERROR);
-        }
         return matchingShops;
     }
 
+    /**
+     * How many shops this world has on disk.
+     *
+     * <p>Counted on the calling thread and returned. It used to hand the counting to
+     * {@code runTaskAsynchronously} and then return {@code count.get()} on the next
+     * line, before the scheduler had given that task a thread - so the answer was
+     * zero, every time, and the {@link AtomicInteger} the task later filled in was
+     * never read by anybody. Its one caller is {@code VarManager.startup}, whose
+     * total feeds the bStats "shop-counter" chart, so the figure this plugin has
+     * been publishing about itself counted no shop that existed before the server
+     * started.
+     *
+     * <p>The thread hop was worth keeping and has moved to that caller, which is
+     * where a decision about blocking startup belongs: a method that says it returns
+     * a count cannot also decide not to have one yet. Reading the world's name here
+     * rather than inside a task keeps that call on the thread that owns the world.
+     */
     public int getShopCountInWorld(World world) {
         String worldName = world.getName();
 
-        AtomicInteger count = new AtomicInteger();
-        Bukkit.getScheduler().runTaskAsynchronously(TradeShop.getPlugin(), () -> {
-            switch (dataType) {
-                case FLATFILE:
-                    File folder = new File(TradeShop.getPlugin().getDataFolder().getAbsolutePath() + File.separator + "Data" + File.separator + worldName);
-                    if (folder.exists() && folder.listFiles() != null) {
-                        for (File file : folder.listFiles()) {
-                            if (file.getName().contains(worldName))
-                                count.addAndGet(new JsonShopConfiguration(ShopChunk.deserialize(file.getName().replace(".json", ""))).size());
-                        }
-                    }
-                    break;
-                case SQLITE:
-                    //TODO add SQLITE support
-                    throw new NotImplementedException("SQLITE for getShopCountInWorld has not been implemented yet.");
-            }
-        });
-        return count.get();
+        if (dataType != DataType.FLATFILE) {
+            //TODO add SQLITE support
+            throw new NotImplementedException("Data storage type " + dataType + " for getShopCountInWorld has not been implemented yet.");
+        }
+
+        File folder = new File(TradeShop.getPlugin().getDataFolder().getAbsolutePath() + File.separator + "Data" + File.separator + worldName);
+        File[] chunkFiles = folder.exists() ? folder.listFiles() : null;
+        if (chunkFiles == null) return 0;
+
+        int count = 0;
+        for (File file : chunkFiles) {
+            if (file.getName().contains(worldName) && file.getName().endsWith(".json"))
+                count += new JsonShopData(ShopChunk.deserialize(file.getName().replace(".json", ""))).size();
+        }
+
+        return count;
     }
 
     public PlayerSetting loadPlayer(UUID uuid) {
-        PlayerSetting playerSetting = playerCache.getIfPresent(uuid) != null ? playerCache.getIfPresent(uuid) : getPlayerConfiguration(uuid).load();
+        PlayerSetting playerSetting = playerCache.getIfPresent(uuid) != null ? playerCache.getIfPresent(uuid) : getPlayerData(uuid).load();
 
         //If playerSetting data not find create new and return
         return playerSetting != null ? playerSetting : new PlayerSetting(uuid);
@@ -255,57 +321,83 @@ public class DataStorage extends Utils {
 
     public void savePlayer(PlayerSetting playerSetting) {
         playerCache.put(playerSetting.getUuid(), playerSetting);
-        getPlayerConfiguration(playerSetting.getUuid()).save(playerSetting);
+        getPlayerData(playerSetting.getUuid()).save(playerSetting);
     }
 
     public void removePlayer(PlayerSetting playerSetting) {
         playerCache.invalidate(playerSetting.getUuid());
-        getPlayerConfiguration(playerSetting.getUuid()).remove();
+        getPlayerData(playerSetting.getUuid()).remove();
     }
 
     public ShopLocation getChestLinkage(ShopLocation chestLocation) {
-        return getLinkageConfiguration(chestLocation.getWorld()).getLinkedShop(chestLocation);
+        return getLinkageData(chestLocation.getWorld()).getLinkedShop(chestLocation);
     }
 
     public void addChestLinkage(ShopLocation chestLocation, ShopLocation shopLocation) {
         if (Bukkit.isPrimaryThread() && getChestLinkage(chestLocation) == null)
-            getLinkageConfiguration(chestLocation.getWorld()).add(chestLocation, shopLocation);
+            getLinkageData(chestLocation.getWorld()).add(chestLocation, shopLocation);
     }
 
     public void removeChestLinkage(ShopLocation chestLocation) {
-        getLinkageConfiguration(chestLocation.getWorld()).removeChest(chestLocation);
+        getLinkageData(chestLocation.getWorld()).removeChest(chestLocation);
     }
 
-    protected PlayerConfiguration getPlayerConfiguration(UUID uuid) {
+    protected PlayerConfiguration getPlayerData(UUID uuid) {
         if (dataType == DataType.FLATFILE) {
-            return new JsonPlayerConfiguration(uuid);
+            return new JsonPlayerData(uuid);
         }
         throw new NotImplementedException("Data storage type " + dataType + " has not been implemented yet.");
     }
 
-    protected ShopConfiguration getShopConfiguration(Chunk chunk) {
-        return getShopConfiguration(new ShopChunk(chunk));
+    protected ShopConfiguration getShopData(Chunk chunk) {
+        return getShopData(new ShopChunk(chunk));
     }
 
-    protected ShopConfiguration getShopConfiguration(ShopChunk chunk) {
+    private final Map<String, JsonShopData> chunkDataCache = new HashMap<>();
+
+    /**
+     * The one handle on a chunk's shops, cached per chunk.
+     *
+     * <p><b>The instance that is cached is the instance that is returned.</b> It
+     * used to cache one and hand back a second, freshly constructed from the same
+     * file, so the first caller after a cache miss worked on a copy nothing else
+     * could see. Every write that caller made - a save, or a remove - landed on
+     * disk and never on the cached object, and the next reader was answered out of
+     * the cached object.
+     *
+     * <p>That is not theoretical and it is not only a wasted file read.
+     * {@code ChunkUnloadListener} drops a chunk's entry on every unload, so any
+     * shop operation is one unload away from being the first call after a miss. A
+     * shop removed by that call is written out of its file and stays in memory,
+     * where the next {@link #loadShopFromSign} finds it and hands it back alive -
+     * and anything that then saves it writes it back to disk. Measured on Paper
+     * 1.21.11 build 132 while proving that breaking a sign removes the shop stored
+     * against it: the chunk's file was left holding {@code {}} and the shop still
+     * loaded.
+     */
+    protected ShopConfiguration getShopData(ShopChunk chunk) {
         if (dataType == DataType.FLATFILE) {
-            return new JsonShopConfiguration(chunk);
+            String serializedChunk = chunk.serialize();
+            if (chunkDataCache.containsKey(serializedChunk))
+                return chunkDataCache.get(serializedChunk);
+            JsonShopData data = new JsonShopData(chunk);
+            chunkDataCache.put(serializedChunk, data);
+            return data;
+
         }
+
         throw new NotImplementedException("Data storage type " + dataType + " has not been implemented yet.");
     }
 
-    protected boolean chunkExists(ShopChunk chunk) {
-        if (dataType == DataType.FLATFILE) {
-            return JsonShopConfiguration.doesConfigExist(chunk);
-        }
-        throw new NotImplementedException("Data storage type " + dataType + " has not been implemented yet.");
+    public void dropShopData(ShopChunk chunk) {
+        chunkDataCache.remove(chunk.serialize());
     }
 
-    protected LinkageConfiguration getLinkageConfiguration(World w) {
+    protected LinkageConfiguration getLinkageData(World w) {
 
         if (linkCache.getIfPresent(w) == null) {
             if (dataType == DataType.FLATFILE) {
-                linkCache.put(w, new JsonLinkageConfiguration(w));
+                linkCache.put(w, new JsonLinkageData(w));
             }
         }
 
@@ -314,6 +406,16 @@ public class DataStorage extends Utils {
 
 
         throw new NotImplementedException("Data storage type " + dataType + " has not been implemented yet.");
+    }
+
+    public void ensureFinalSave() {
+        // for onDisable !!!
+        /* WILL BE ADDED BACK IN LATER
+        if (dataType == DataType.FLATFILE) {
+            JsonShopData.SaveThreadMaster.getInstance().saveEverythingNow();
+        }
+        // SQLITE will have an analogous branch
+        */
     }
 }
 

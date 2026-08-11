@@ -28,7 +28,10 @@ package org.shanerx.tradeshop.utils.objects;
 import com.google.gson.annotations.SerializedName;
 import org.bukkit.Material;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 public class ObjectHolder<Type> {
 
@@ -39,8 +42,20 @@ public class ObjectHolder<Type> {
         this.obj = obj;
     }
 
+    public static ObjectHolder<?> deserialize(Map<String, Object> serialized) {
+        return new ObjectHolder<>(serialized.get("obj"));
+    }
+
+    public Map<String, Object> serialize() {
+        return Collections.singletonMap("obj", obj);
+    }
+
     public Type getObject() {
         return obj;
+    }
+
+    public boolean isNull() {
+        return obj == null;
     }
 
     public boolean isBoolean() {
@@ -50,9 +65,17 @@ public class ObjectHolder<Type> {
     /**
      * Converts string to boolean based on acceptable responses
      *
+     * <p>A holder with nothing in it answers false rather than throwing. This class
+     * exists to carry a value that may be absent - {@link #isNull()} is part of its
+     * interface - and a setting the config file does not contain arrives here as
+     * exactly that. Throwing meant a single missing key in config.yml took down every
+     * item comparison, and with it every trade on the server.
+     *
      * @return true if acceptable string was found
      */
     public boolean canBeBoolean() {
+        if (obj == null) return false;
+
         switch (obj.toString().toLowerCase()) {
             case "true":
             case "t":
@@ -115,16 +138,31 @@ public class ObjectHolder<Type> {
         return null;
     }
 
+    public boolean isList() {
+        return !isNull() && obj instanceof List;
+    }
+
+    public Optional<List<String>> asStringList() {
+        Optional<List<String>> ret = Optional.empty();
+        if (isList()) {
+            try {
+                ret = Optional.of((List<String>) obj);
+            } catch (ClassCastException ignored) {
+            }
+        }
+        return ret;
+    }
+
     public boolean canBeMaterial() {
         return asMaterial() != null;
     }
 
     public Material asMaterial() {
-        return Material.matchMaterial(obj.toString());
+        return obj == null ? null : Material.matchMaterial(obj.toString());
     }
 
     @Override
     public String toString() {
-        return obj.toString();
+        return String.valueOf(obj);
     }
 }

@@ -31,9 +31,13 @@ import org.bukkit.plugin.PluginDescriptionFile;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.shanerx.tradeshop.TradeShop;
 
 public class Updater {
 
@@ -85,6 +89,19 @@ public class Updater {
     public BuildType getBuildType() {
         return build;
     }
+    
+    public String buildNumberSuffix() {
+        try {
+            Path path = Paths.get(TradeShop.class.getProtectionDomain().getCodeSource().getLocation().toURI());
+            String name = path.getFileName().toString();
+            if (!name.matches(".+\\d+.jar$")) return "";
+            String buildNum = name.substring(name.length() - 7, name.length() - 4);
+            return " build " + buildNum;
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+        }
+        return "";
+    }
 
     public RelationalStatus checkCurrentVersion() {
         try {
@@ -106,11 +123,11 @@ public class Updater {
                     log.log(Level.WARNING, "[Updater] +------------------------------------------------+");
                     in.close();
                     return RelationalStatus.BEHIND;
-                } else if (rs == RelationalStatus.AHEAD) {
+                } else if (rs == RelationalStatus.AHEAD || getVersion().endsWith("DEV")) {
                     log.log(Level.WARNING, "[Updater] +-----------------------------------------------------+");
                     log.log(Level.WARNING, "[Updater] You are running a developmental version of " + pdf.getName() + "!");
                     log.log(Level.WARNING, "[Updater] Most recent stable version: " + inputLine);
-                    log.log(Level.WARNING, "[Updater] Current version: " + getVersion());
+                    log.log(Level.WARNING, "[Updater] Current version: " + getVersion() + buildNumberSuffix());
                     log.log(Level.WARNING, "[Updater] Please notice that the build may contain critical bugs!");
                     log.log(Level.WARNING, "[Updater] +-----------------------------------------------------+");
                     in.close();

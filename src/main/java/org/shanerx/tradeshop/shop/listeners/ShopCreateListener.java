@@ -27,6 +27,7 @@ package org.shanerx.tradeshop.shop.listeners;
 
 import org.bukkit.Material;
 import org.bukkit.block.Sign;
+import org.bukkit.block.sign.Side;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -34,6 +35,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.SignChangeEvent;
 import org.bukkit.inventory.ItemStack;
 import org.shanerx.tradeshop.TradeShop;
+import org.shanerx.tradeshop.data.config.Message;
 import org.shanerx.tradeshop.item.ShopItemSide;
 import org.shanerx.tradeshop.shop.Shop;
 import org.shanerx.tradeshop.shop.ShopType;
@@ -43,7 +45,7 @@ import org.shanerx.tradeshop.utils.debug.DebugLevels;
 import org.shanerx.tradeshop.utils.objects.ObjectHolder;
 
 @SuppressWarnings("unused")
-public class ShopCreateListener extends Utils implements Listener {
+public class ShopCreateListener implements Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onSignChange(SignChangeEvent event) {
@@ -64,17 +66,45 @@ public class ShopCreateListener extends Utils implements Listener {
         ShopType shopType = ShopType.getType(shopSign);
         Player p = event.getPlayer();
 
+        // A shop lives on the FRONT of its sign, and this is the only place that
+        // can say so. Every path that finds a shop again reads the front:
+        // ShopType.isShop(Block) hands the block state to getType(Sign), which
+        // answers from the front side, and that is the call ShopTradeListener,
+        // ShopProtectionListener and Shop.getShopSign all go through. Reading
+        // the event's lines through the front-side setLine above therefore files
+        // a back-side header as a shop, and the shop that results is saved,
+        // decorated on the face nobody reads, and unreachable for the rest of
+        // its life - the player sees a correct-looking shop that refuses to
+        // trade, with nothing to tell them why.
+        //
+        // The edit is refused rather than half-honoured. Creating the shop
+        // against the side it was written on is the other defensible answer and
+        // it is a feature, not a fix: the side would have to be stored with the
+        // shop and threaded through every read, and PlayerInteractEvent carries
+        // no side at all - only the block face the ray hit - so two shops on one
+        // sign could not be told apart at the moment somebody clicks it. That
+        // decision belongs to whoever owns the plugin. Leaving a shop stored
+        // where nothing can reach it does not.
+        //
+        // Narrow on purpose: this is reached only when line 0 is already a shop
+        // header, so ordinary text on the back of a sign is untouched.
+        if (event.getSide() != Side.FRONT) {
+            Message.SHOP_SIGN_FRONT_ONLY.sendMessage(p);
+            new Utils().failedSignReset(event, shopType);
+            return;
+        }
+
         // Clear the first line since we already know it is going to be a Shop, and we have the type to pass separately
         // Required as the createShop method needs to make sure the first line is blank for commands to avoid overwriting existing shops
         shopSign.setLine(0, "");
 
-        Shop shop = createShop(shopSign, p, shopType, lineCheck(ShopItemSide.COST, event.getLine(2)), lineCheck(ShopItemSide.PRODUCT, event.getLine(1)), event);
+        Shop shop = new Utils().createShop(shopSign, p, shopType, lineCheck(ShopItemSide.COST, event.getLine(2)), lineCheck(ShopItemSide.PRODUCT, event.getLine(1)), event);
 
         if (shop != null) {
             return;
         }
 
-        failedSignReset(event, shopType);
+        new Utils().failedSignReset(event, shopType);
     }
 
     private ItemStack lineCheck(ShopItemSide side, String line) {

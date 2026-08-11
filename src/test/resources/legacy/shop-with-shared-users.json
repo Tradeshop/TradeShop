@@ -1,0 +1,94 @@
+{"l::sharedshop::0::65::0": {
+   "owner": {
+      "role": "OWNER",
+      "player": "48cfef7e-2e91-4a74-9470-0e4a14feabd4"
+   },
+   "product": [{
+      "itemStackString": {
+         "type": "DIAMOND",
+         "v": 1,
+         "meta": {
+            "enchants": {},
+            "meta-type": "UNSPECIFIC",
+            "PublicBukkitValues": {},
+            "Unbreakable": false,
+            "ItemFlags": [],
+            "Damage": 0,
+            "repair-cost": 0
+         }
+      },
+      "itemSettings": {
+         "compare-shulker-inventory": {"obj": true},
+         "compare-name": {"obj": true},
+         "compare-custom-model-data": {"obj": true},
+         "compare-item-flags": {"obj": true},
+         "compare-book-pages": {"obj": true},
+         "compare-firework-duration": {"obj": true},
+         "compare-bundle-inventory": {"obj": true},
+         "compare-unbreakable": {"obj": true},
+         "compare-lore": {"obj": true},
+         "compare-attribute-modifier": {"obj": true},
+         "compare-enchantments": {"obj": true},
+         "compare-firework-effects": {"obj": true},
+         "compare-durability": {"obj": 1},
+         "compare-book-author": {"obj": true},
+         "compare-potion-effects": {"obj": true}
+      }
+   }],
+   "shopSettings": {
+      "hopper-export": "false",
+      "no-cost": "false",
+      "hopper-import": "false"
+   },
+   "cost": [{
+      "itemStackString": {
+         "type": "EMERALD",
+         "v": 1,
+         "meta": {
+            "enchants": {},
+            "meta-type": "UNSPECIFIC",
+            "PublicBukkitValues": {},
+            "Unbreakable": false,
+            "ItemFlags": [],
+            "Damage": 0,
+            "repair-cost": 0
+         }
+      },
+      "itemSettings": {
+         "compare-shulker-inventory": {"obj": true},
+         "compare-name": {"obj": true},
+         "compare-custom-model-data": {"obj": true},
+         "compare-item-flags": {"obj": true},
+         "compare-book-pages": {"obj": true},
+         "compare-firework-duration": {"obj": true},
+         "compare-bundle-inventory": {"obj": true},
+         "compare-unbreakable": {"obj": true},
+         "compare-lore": {"obj": true},
+         "compare-attribute-modifier": {"obj": true},
+         "compare-enchantments": {"obj": true},
+         "compare-firework-effects": {"obj": true},
+         "compare-durability": {"obj": 1},
+         "compare-book-author": {"obj": true},
+         "compare-potion-effects": {"obj": true}
+      }
+   }],
+   "members": ["66666666-7777-8888-9999-aaaaaaaaaaaa"],
+   "availableTrades": 0,
+   "shopType": "TRADE",
+   "shopLoc": {
+      "div": "::",
+      "world": "sharedshop",
+      "x": 0,
+      "y": 65,
+      "z": 0
+   },
+   "managers": ["11111111-2222-3333-4444-555555555555"],
+   "chestLoc": {
+      "div": "::",
+      "world": "sharedshop",
+      "x": 0,
+      "y": 64,
+      "z": 0
+   },
+   "status": "OUT_OF_STOCK"
+}}

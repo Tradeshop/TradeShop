@@ -3,6 +3,7 @@ version: ${project.version}
 main: org.shanerx.tradeshop.TradeShop
 api-version: 1.14
 load: POSTWORLD
+depend: [BKCommonLib]
 
 authors: [Lori00, KillerOfPie]
 description: ${project.description}

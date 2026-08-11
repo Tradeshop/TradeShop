@@ -47,6 +47,8 @@ setting:
     system-options:
       data-storage-type:
         pre-comment: "How would you like your servers data stored? (FLATFILE, SQLITE)"
+      max-save-threads:
+        pre-comment: "Max. number of additional subthreads to spawn. For the best performance, take into account how many cores you have.\n Set to 0 to save everything in the main thread (not recommended unless you experience issues with data saving)."
       enable-debug:
         pre-comment: "What debug code should be run. This will add significant amounts of spam to the console/log, generally not used unless requested by Devs"
       check-updates:
@@ -95,7 +97,7 @@ setting:
       allow-toggle-status:
         pre-comment: "Can players toggle view of involved shops?"
       allow-sign-break:
-        pre-comment: "Should we allow anyone to destroy a shops sign?"
+        pre-comment: "Should we allow anyone to destroy a shops sign?\n WARNING: when this is true ANY player can destroy ANY shop, including one they do not own."
       allow-chest-break:
         pre-comment: "Should we allow anyone to destroy a shops storage?"
         post-comment: "\n"
@@ -311,6 +313,9 @@ message:
       pre-comment: "Text to display when the shop storage is full:"
     shop-item-list:
       default: "&aThe shops %TYPE%:\n%LIST%"
+    shop-sign-front-only:
+      default: "&cA shop has to be written on the front of the sign, so nothing was created here."
+      pre-comment: "Text to display when a player writes a shop header on the back of a sign:"
     shop-type-switched:
       default: "&aShop type has been switched to %NEWTYPE%."
       pre-comment: "Text to display when a player uses '/ts toggle'\n Available variables are: %TYPE% %NEWTYPE%"

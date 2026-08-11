@@ -41,7 +41,7 @@ import org.shanerx.tradeshop.player.JoinEventListener;
 import org.shanerx.tradeshop.player.Permissions;
 import org.shanerx.tradeshop.shop.ShopSign;
 import org.shanerx.tradeshop.shop.ShopStorage;
-import org.shanerx.tradeshop.shop.listeners.PaperShopProtectionListener;
+import org.shanerx.tradeshop.shop.listeners.ChunkUnloadListener;
 import org.shanerx.tradeshop.shop.listeners.ShopCreateListener;
 import org.shanerx.tradeshop.shop.listeners.ShopProtectionListener;
 import org.shanerx.tradeshop.shop.listeners.ShopRestockListener;
@@ -90,18 +90,18 @@ public class TradeShop extends JavaPlugin {
 
         registration();
 
-        getSettingManager().updateSkipHoppers();
+        getVarManager().getSettingManager().updateSkipHoppers();
 
-        getSigns();
-        getStorages();
-        getListManager();
+        getVarManager().getSigns();
+        getVarManager().getStorages();
+        getVarManager().getListManager();
 
         if (Setting.CHECK_UPDATES.getBoolean()) {
             new Thread(() -> getUpdater().checkCurrentVersion()).start();
         }
 
         if (Setting.ALLOW_METRICS.getBoolean()) {
-            getMetricsManager();
+            getVarManager().getMetricsManager();
             getLogger().info("Metrics successfully initialized!");
         } else {
             getLogger().warning("Metrics are disabled! Please consider enabling them to support the authors!");
@@ -112,6 +112,8 @@ public class TradeShop extends JavaPlugin {
 
     @Override
     public void onDisable() {
+        varManager.getDataStorage().ensureFinalSave();
+
         if (getListManager() != null)
             getListManager().clearManager();
     }
@@ -137,13 +139,12 @@ public class TradeShop extends JavaPlugin {
         getSettingManager().reload();
         getMessageManager().reload();
 
-        return getDataStorage() != null;
+        return getVarManager().getDataStorage() != null;
     }
 
     private void registration() {
 
         Permissions.registerPermissions();
-
 
         PluginManager pm = getServer().getPluginManager();
         pm.registerEvents(new JoinEventListener(this), this);
@@ -152,10 +153,25 @@ public class TradeShop extends JavaPlugin {
         pm.registerEvents(new ShopTradeListener(), this);
         pm.registerEvents(new ShopRestockListener(this), this);
         pm.registerEvents(new SuccessfulTradeEventListener(this), this);
+        pm.registerEvents(new ChunkUnloadListener(this), this);
 
-        if (getServer().getVersion().toLowerCase().contains("paper")) {
-            pm.registerEvents(new PaperShopProtectionListener(), this);
-        }
+        // There is no server test here any more, and that is the change: the
+        // sign editor is refused through org.bukkit.event.player.PlayerSignOpenEvent,
+        // which is plain Bukkit API and ships in spigot-api as well as in
+        // paper-api, so ShopProtectionListener above carries the handler and
+        // every server that can run this plugin has the event.
+        //
+        // What was here instead was a registration of a second, Paper-only
+        // listener for io.papermc.paper.event.player.PlayerOpenSignEvent, gated
+        // on getServer().getVersion().toLowerCase().contains("paper"). That
+        // string is the server's own build description rather than a statement
+        // of which software is running - Paper 1.21.11 build 132 answers
+        // "1.21.11-132-c5eb079 (MC: 1.21.11)", which contains no "paper" at all
+        // - so the listener was not registered on the very servers it was
+        // written for. Asking the classpath instead of the string was the first
+        // repair and it was one repair too many: the portable event does the
+        // whole job, on Paper as well, and it was measured firing beside
+        // Paper's own on every path probed. See it/IssueRows.java.
 
         getCommand("tradeshop").setExecutor(new CommandCaller(this));
         getCommand("tradeshop").setTabCompleter(new CommandTabCaller(this));

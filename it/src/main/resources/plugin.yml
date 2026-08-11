@@ -1,0 +1,23 @@
+name: TradeShopIT
+version: ${project.version}
+main: org.shanerx.tradeshop.it.IntegrationPlugin
+api-version: '1.21'
+load: POSTWORLD
+description: ${project.description}
+
+# Hard dependency, not soft: if TradeShop is not on this server there is nothing
+# to assert, and a harness that quietly runs zero scenarios is the failure mode
+# this whole tier exists to close.
+depend: [TradeShop]
+
+# How the tier-3 bot reports what it just did. The bot acts and this command
+# makes the harness assert; the bot never asserts anything about server state.
+# It is a command rather than a chat listener because a real client sends a
+# command as its own packet, and because Paper's Brigadier dispatcher will only
+# accept one from a genuinely connected player - which is exactly the thing this
+# tier has that the tier-2 harness does not.
+commands:
+  itstep:
+    description: Run the named tier-3 step's assertions and report the verdict.
+    usage: /itstep <name>
+    permission-message: the integration harness refused a step

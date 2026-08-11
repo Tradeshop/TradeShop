@@ -38,7 +38,6 @@ import org.bukkit.event.block.SignChangeEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.material.MaterialData;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.shanerx.tradeshop.TradeShop;
 import org.shanerx.tradeshop.data.config.Message;
@@ -75,10 +74,10 @@ import java.util.UUID;
  */
 public class Utils {
 
-    private final UUID KOPUUID = UUID.fromString("daf79be7-bc1d-47d3-9896-f97b8d4cea7d");
-    private final UUID LORIUUID = UUID.fromString("e296bc43-2972-4111-9843-48fc32302fd4");
-    private final TradeShop PLUGIN = TradeShop.getPlugin();
-    protected PluginDescriptionFile pdf = PLUGIN.getDescription();
+    private final transient UUID KOPUUID = UUID.fromString("daf79be7-bc1d-47d3-9896-f97b8d4cea7d");
+    private final transient UUID LORIUUID = UUID.fromString("e296bc43-2972-4111-9843-48fc32302fd4");
+    private final transient TradeShop PLUGIN = TradeShop.getPlugin();
+    protected transient PluginDescriptionFile pdf = PLUGIN.getDescription();
 
     public Utils() {
     }
@@ -92,7 +91,7 @@ public class Utils {
      *
      * @return the name.
      */
-    protected String getPluginName() {
+    public String getPluginName() {
         return pdf.getName();
     }
 
@@ -148,19 +147,22 @@ public class Utils {
     public boolean itemCheck(ItemStack itm1, ItemStack itm2) {
         int i1 = itm1.getAmount(), i2 = itm2.getAmount();
         ItemMeta temp1 = itm1.getItemMeta();
-        MaterialData temp11 = itm1.getData();
         boolean ret;
         itm1.setAmount(1);
         itm2.setAmount(1);
 
+        // The MaterialData that used to be saved, copied and restored alongside
+        // the meta here carried exactly one thing on a 1.13+ server - the
+        // durability byte - and durability has lived in ItemMeta as Damageable
+        // since the flattening, so setItemMeta already moves it. The pair was
+        // redundant, and org.bukkit.material.MaterialData together with
+        // ItemStack.getData()/setData() is deprecated for removal.
         if (!itm1.hasItemMeta() && itm2.hasItemMeta()) {
             itm1.setItemMeta(itm2.getItemMeta());
-            itm1.setData(itm2.getData());
         }
         ret = itm1.equals(itm2);
 
         itm1.setItemMeta(temp1);
-        itm1.setData(temp11);
         itm1.setAmount(i1);
         itm2.setAmount(i2);
         return ret;
@@ -395,6 +397,25 @@ public class Utils {
         return badList;
     }
 
+    /**
+     * The size {@link Bukkit#createInventory} will accept for a scratch copy of a
+     * container that holds {@code slots} slots.
+     *
+     * <p>CraftBukkit takes a multiple of nine between nine and 54 and throws on
+     * anything else, and the storage types a shop may be built on are not all
+     * multiples of nine: a hopper and a brewing stand hold five, and a furnace, a
+     * smoker and a blast furnace hold three. Handing it the raw slot count meant a
+     * shop on any of those threw the moment it tried to count its own stock - which
+     * happens while the shop is being created, so the shop never existed at all.
+     *
+     * <p>Rounded up, never down. Every caller copies a real container into the result
+     * and then reads it back, so spare slots cost nothing - they read as null and are
+     * skipped - while a size too small would silently drop stock.
+     */
+    public static int scratchInventorySize(int slots) {
+        return Math.min(Math.max((int) (Math.ceil(slots / 9.0) * 9), 9), 54);
+    }
+
 
     /**
      * Checks whether a trade can take place.
@@ -410,7 +431,7 @@ public class Utils {
             return new Tuple<>(ExchangeStatus.NOT_TRADE, createBadList());
         }
 
-        Inventory playerInventory = Bukkit.createInventory(null, playerInv.getStorageContents().length);
+        Inventory playerInventory = Bukkit.createInventory(null, scratchInventorySize(playerInv.getStorageContents().length));
         playerInventory.setContents(playerInv.getStorageContents().clone());
 
         Inventory shopInventory = null;
@@ -425,7 +446,7 @@ public class Utils {
             }
         } else {
             Inventory shopInv = shop.getChestAsSC().getInventory();
-            shopInventory = Bukkit.createInventory(null, shopInv.getStorageContents().length);
+            shopInventory = Bukkit.createInventory(null, scratchInventorySize(shopInv.getStorageContents().length));
             shopInventory.setContents(shopInv.getStorageContents().clone());
         }
 
@@ -514,14 +535,14 @@ public class Utils {
         }
 
         Map<String, Integer> permittedLimits = Maps.filterEntries(PLUGIN.getListManager().getLimitPermissions(), (entry) -> creator.hasPermission(entry.getKey()));
-        int limit;
-        if (permittedLimits.containsValue(-1)) {
-            limit = -1;
-        } else if (Setting.SUM_PER_PLAYER_LIMIT.getBoolean()) {
-            limit = permittedLimits.values().stream().mapToInt(Integer::intValue).sum();
-        } else {
-            OptionalInt oInt = permittedLimits.values().stream().mapToInt(Integer::intValue).max();
-            limit = oInt.isPresent() ? oInt.getAsInt() : 0;
+        OptionalInt oMaxInt = permittedLimits.values().stream().mapToInt(Integer::intValue).reduce(Integer::max), //process max value
+            oSumInt = permittedLimits.values().stream().mapToInt(Integer::intValue).reduce(Integer::sum); //process sum value
+        int limit = -1; // set default value to -1
+
+        if (permittedLimits.size() > 0 && !permittedLimits.containsValue(-1)) { //If the player has set permissions and does not have an unlimited permission(-1)
+            limit = Setting.SUM_PER_PLAYER_LIMIT.getBoolean() ? //set based on config setting
+                oSumInt.getAsInt() : // set to sum if enabled
+                oMaxInt.getAsInt(); //set to max if disabled
         }
 
         final int OWNED_SHOPS = PLUGIN.getDataStorage().loadPlayer(owner.getUUID()).getOwnedShops().size();
@@ -537,13 +558,13 @@ public class Utils {
         Shop shop;
         Block chest = findShopChest(shopSign.getBlock());
 
-        if (!shopType.isITrade()) {
             if (ShopChest.isShopChest(chest)) {
                 shopChest = new ShopChest(chest.getLocation());
             } else {
                 shopChest = new ShopChest(chest, creator.getUniqueId(), shopSign.getLocation());
             }
 
+        if (!shopType.isITrade()) {
             if (shopChest.hasOwner() && !shopChest.getOwner().equals(owner.getUUID())) {
                 Message.NO_SHOP_PERMISSION.sendMessage(creator);
                 return null;
@@ -750,7 +771,7 @@ public class Utils {
     }
 
     public void scheduleShopDelayUpdate(String cause, Shop shop, Long delay) {
-        PLUGIN.getDebugger().log("Shop delay update caused by " + cause + ": " + shop.getShopLocationAsSL().serialize(), DebugLevels.PROTECTION);
+        PLUGIN.getDebugger().log("Shop delay update caused by " + cause + ": " + shop.getShopLocationAsSL().toString(), DebugLevels.PROTECTION);
         Bukkit.getScheduler().scheduleSyncDelayedTask(PLUGIN, () -> {
             shop.updateFullTradeCount();
             shop.updateSign();
