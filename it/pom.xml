@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  The in-server half of the tier-2 harness.
+
+  This is a SIBLING project, not a module of the root pom, and that is the whole
+  point of the directory. The root pom.xml is upstream's file: every line this
+  fork adds to it is rebase surface at the next sync, forever. A sibling adds a
+  directory and nothing else, and is built on its own with
+  `mvn -f it/pom.xml package`.
+
+  The dependency on TradeShop itself resolves to `it-local`, a fixed coordinate
+  that ci/integration.sh installs the freshly shaded jar under just before this
+  builds. That keeps the plugin's version out of this file entirely - whatever
+  was just built is what these assertions compile against - and it keeps the
+  root pom free of an install step it does not otherwise need.
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>org.shanerx.tradeshop</groupId>
+    <artifactId>tradeshop-integration</artifactId>
+    <version>1.0.0</version>
+    <packaging>jar</packaging>
+    <name>TradeShopIT</name>
+    <description>In-server assertions for the TradeShop tier-2 harness.</description>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <maven.compiler.release>21</maven.compiler.release>
+    </properties>
+
+    <repositories>
+        <repository>
+            <id>papermc</id>
+            <url>https://repo.papermc.io/repository/maven-public/</url>
+        </repository>
+
+        <!-- BKCommonLib below. Same coordinate and same repository as the root
+             pom's, deliberately: two different pins would be a version skew that
+             only shows up at run time. -->
+        <repository>
+            <id>MG-Dev Jenkins CI Maven Repository</id>
+            <url>https://ci.mg-dev.eu/plugin/repository/everything</url>
+        </repository>
+    </repositories>
+
+    <dependencies>
+        <dependency>
+            <groupId>io.papermc.paper</groupId>
+            <artifactId>paper-api</artifactId>
+            <version>1.21.1-R0.1-SNAPSHOT</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- Installed by ci/integration.sh from target/server/plugins/ immediately
+             before this project builds. Never bundled: the server has the real
+             plugin on its classpath and this one only reads it. -->
+        <dependency>
+            <groupId>org.shanerx</groupId>
+            <artifactId>tradeshop</artifactId>
+            <version>it-local</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- Needed to COMPILE against TradeShop, not to run: GsonProcessor's
+             signatures name com.bergerkiller.bukkit.common.config.JsonSerializer,
+             and BKCommonLib is `provided` in the root pom so the shaded jar does
+             not carry it. Without this, any call into GsonProcessor from here is
+             "cannot access JsonSerializer". The server already has the real plugin
+             on its classpath, so nothing is bundled. -->
+        <dependency>
+            <groupId>com.bergerkiller.bukkit</groupId>
+            <artifactId>BKCommonLib</artifactId>
+            <version>2.0.2</version>
+            <scope>provided</scope>
+            <!-- Nothing here links against BKCommonLib's own dependencies, and
+                 pulling its tree in would put a dozen artifacts on a classpath
+                 that needs one class off one jar. -->
+            <exclusions>
+                <exclusion>
+                    <groupId>*</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <finalName>${project.artifactId}-${project.version}</finalName>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
+    </build>
+</project>

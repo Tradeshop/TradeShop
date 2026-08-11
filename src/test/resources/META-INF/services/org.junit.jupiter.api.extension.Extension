@@ -1,0 +1,3 @@
+# Registered for every test in the suite, so no test class can opt out of it by
+# forgetting an annotation. See the class for what it does and why.
+org.shanerx.tradeshop.harness.SkippedTestsAreFailures

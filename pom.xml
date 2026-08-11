@@ -172,6 +172,10 @@
                 <configuration>
                     <source>1.8</source>
                     <target>1.8</target>
+                    <!-- Main sources stay on 1.8; that is a separate decision from
+                         testing. MockBukkit and the paper-api it pulls in are compiled
+                         for 21, so the test sources have to be too. -->
+                    <testRelease>21</testRelease>
                     <!-- JDK 23+ stopped running annotation processors found on the
                          classpath by default, which silently skips Lombok and drops
                          every generated accessor. <proc>full</proc> forces annotation
@@ -179,6 +183,64 @@
                          no floor. -->
                     <proc>full</proc>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.2.5</version>
+                <configuration>
+                    <!-- One JVM for the whole suite. The harness mocks Bukkit once per
+                         JVM rather than per class, because the plugin caches its own
+                         instance in static finals that a second mock/unmock cycle
+                         cannot refresh. See MockBukkitEnvironment. -->
+                    <reuseForks>true</reuseForks>
+                    <forkCount>1</forkCount>
+                    <systemPropertyVariables>
+                        <!-- bStats refuses to start unless the shade plugin has
+                             relocated it, which has not happened when tests run
+                             against target/classes. -->
+                        <bstats.relocatecheck>false</bstats.relocatecheck>
+                    </systemPropertyVariables>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>3.1.0</version>
+                <executions>
+                    <execution>
+                        <!-- A skipped test must break the build.
+
+                             MockBukkit reports API it has not implemented by throwing
+                             UnimplementedOperationException, which extends JUnit's
+                             TestAbortedException, so surefire files it as "Tests run: 1,
+                             Skipped: 1" and exits 0. A green build over a suite that
+                             tested nothing is worse than no suite, so every <skipped>
+                             element in the reports fails the build here. @Disabled and
+                             failed assumptions are caught by the same net, deliberately:
+                             if a test is not to run, delete it. -->
+                        <id>fail-on-skipped-tests</id>
+                        <phase>test</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <skip>${maven.test.skip}</skip>
+                            <target>
+                                <fail message="Skipped tests are failures here. See the surefire reports in ${project.build.directory}/surefire-reports for which, and why.">
+                                    <condition>
+                                        <resourcecount when="greater" count="0">
+                                            <fileset dir="${project.build.directory}/surefire-reports"
+                                                     includes="TEST-*.xml" erroronmissingdir="false">
+                                                <containsregexp expression="&lt;skipped"/>
+                                            </fileset>
+                                        </resourcecount>
+                                    </condition>
+                                </fail>
+                            </target>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -363,12 +425,13 @@
             <version>1.1.1</version>
         </dependency>
 
-        <!-- 2.0.2 is the current GA, and it is what current servers run.
-             Compiling against 1.20.2-v1 while running against 2.0.x was a
-             mismatch a build could not see - the same shape of defect the
-             paper/spigot ordering comment above is about. The one type
-             TradeShop touches, JsonSerializer, has identical signatures in
-             both, so nothing in src/ changes. -->
+        <!-- 2.0.2 is the current GA, and it is also what the plugin already meets
+             at run time: ci/integration.sh installs BKCommonLib 2.0.2-SNAPSHOT
+             build 2031 on the server it boots. Compiling against 1.20.2-v1 while
+             running against 2.0.x was a mismatch a build could not see - the same
+             shape of defect the paper/spigot ordering comment below is about.
+             The one type TradeShop touches, JsonSerializer, has identical
+             signatures in both, so nothing in src/ changes. -->
         <dependency>
             <groupId>com.bergerkiller.bukkit</groupId>
             <artifactId>BKCommonLib</artifactId>
@@ -388,6 +451,24 @@
             <artifactId>SimplixStorage</artifactId>
             <version>3.2.7</version>
             <scope>compile</scope>
+        </dependency>
+
+        <!-- MockBukkit's v1.21 line is built against the same Minecraft version as the
+             spigot-api above, which is the one that has to match: both jars ship
+             org.bukkit.*, and spigot-api is declared first so it is what the plugin
+             actually compiles and runs against. -->
+        <dependency>
+            <groupId>com.github.seeseemelk</groupId>
+            <artifactId>MockBukkit-v1.21</artifactId>
+            <version>3.133.2</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>5.11.2</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 
