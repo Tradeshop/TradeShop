@@ -26,6 +26,7 @@
 package org.shanerx.tradeshop.utils.management;
 
 import com.google.common.collect.Lists;
+import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
 import org.bukkit.World;
 import org.shanerx.tradeshop.TradeShop;
@@ -43,6 +44,7 @@ import org.shanerx.tradeshop.utils.versionmanagement.Expirer;
 import org.shanerx.tradeshop.utils.versionmanagement.Updater;
 import org.shanerx.tradeshop.utils.versionmanagement.Version;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class VarManager {
@@ -86,9 +88,42 @@ public class VarManager {
             expirer = null;
         }
 
-        for (World world : TRADESHOP.getServer().getWorlds()) {
-            adjustShops(getDataStorage().getShopCountInWorld(world));
-        }
+        countExistingShops();
+    }
+
+    /**
+     * Seeds {@link #shopCounter} with the shops already on disk.
+     *
+     * <p>Off the main thread, because it reads every chunk file of every world and
+     * that is a startup this plugin should not be lengthening. The count used to be
+     * scheduled asynchronously inside {@code DataStorage.getShopCountInWorld}, which
+     * then returned before the task had run - so the counter started at zero on
+     * every server and the bStats "shop-counter" chart has never reported a shop
+     * that predated the boot. The hop is kept and the result is now actually
+     * delivered.
+     *
+     * <p>The worlds are read here, on the thread that owns them, and the total is
+     * applied back on it too: {@link #adjustShops} is a plain {@code +=} and its
+     * other callers - {@code PlayerShopCreateEvent} and
+     * {@code PlayerShopDestroyEvent} - are events, so keeping every write on the
+     * main thread is what stops a late arrival from racing a shop being built while
+     * it counted.
+     */
+    private void countExistingShops() {
+        List<World> worlds = new ArrayList<>(TRADESHOP.getServer().getWorlds());
+
+        Bukkit.getScheduler().runTaskAsynchronously(TRADESHOP, () -> {
+            int counted = 0;
+            for (World world : worlds) {
+                counted += getDataStorage().getShopCountInWorld(world);
+            }
+
+            int total = counted;
+            Bukkit.getScheduler().runTask(TRADESHOP, () -> {
+                adjustShops(total);
+                getDebugger().log("Shops found at startup: " + total, DebugLevels.STARTUP);
+            });
+        });
     }
 
     //<editor-fold desc="Getters & (Re)Setters">

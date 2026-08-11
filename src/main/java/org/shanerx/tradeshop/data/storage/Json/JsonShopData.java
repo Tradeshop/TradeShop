@@ -91,16 +91,39 @@ public class JsonShopData extends JsonConfiguration implements ShopConfiguration
         return shop;
     }
 
+    /**
+     * The shops in this chunk file.
+     *
+     * <p>{@code singleLayerKeySet()} rather than {@code keySet()}. The storage
+     * library's {@code keySet()} is the deep one - {@code FileData.keySet} walks into
+     * every nested map and answers a dotted path per leaf - and a serialised shop is
+     * a nested document, so it answered "l::world::0::1::0.status" alongside the
+     * location itself. {@link ShopLocation#deserialize(String)} splits those on
+     * {@code ::} into five parts whose last is "0.status",
+     * {@code ObjectHolder.asInteger} cannot parse it and answers null, and
+     * {@code ShopLocation.java:82} unboxed the null. Every caller of this method is
+     * reached from {@code /tradeshop find}, so the command threw on any chunk that
+     * held a shop.
+     */
     @Override
     public List<ShopLocation> list() {
         List<ShopLocation> shopsInFile = new ArrayList<>();
-        keySet().forEach(str -> shopsInFile.add(ShopLocation.deserialize(str)));
+        singleLayerKeySet().forEach(str -> shopsInFile.add(ShopLocation.deserialize(str)));
         return shopsInFile;
     }
 
+    /**
+     * How many shops are in this chunk file.
+     *
+     * <p>The same correction as {@link #list()}, and it was a wrong number rather
+     * than an exception: the deep key set counted every field of every shop, so one
+     * shop read as twenty-two. {@code Utils.java:532} refuses to build a shop once
+     * {@code max-shops-per-chunk} is reached and compares the setting against this,
+     * so the default of 128 was really a limit of about five shops in a chunk.
+     */
     @Override
     public int size() {
-        return keySet().size();
+        return singleLayerKeySet().size();
     }
 
     @Override

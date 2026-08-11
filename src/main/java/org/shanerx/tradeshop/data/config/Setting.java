@@ -25,6 +25,7 @@
 
 package org.shanerx.tradeshop.data.config;
 
+import org.bukkit.configuration.ConfigurationSection;
 import org.shanerx.tradeshop.TradeShop;
 import org.shanerx.tradeshop.item.IllegalItemList;
 import org.shanerx.tradeshop.item.ShopItemStackSettingKeys;
@@ -37,6 +38,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -336,6 +338,52 @@ public enum Setting {
         return processed.toString();
     }
 
+    /**
+     * The value this setting is written back to the file with.
+     *
+     * <p>The loaded one, not the compiled-in default. That is what the non-map
+     * branch of {@link #getFileString()} has always done through {@code getSetting()},
+     * and writing the default instead meant every map-valued setting was reset by
+     * any boot that wrote the file at all - which is any boot that finds one key
+     * missing, because {@code ConfigManager.setDefaults} repairs it and
+     * {@code ConfigManager.reload} then saves. The operator's tuning survived until
+     * the first upgrade and no longer.
+     *
+     * <p>Read out of the config rather than merged with the default on purpose. The
+     * config has already been through {@code ConfigManager.addKeyValue}, which walks
+     * a map setting to its leaves and writes every one the file was missing, so by
+     * the time anything is written the loaded section holds the whole default and
+     * whatever the operator added on top. Merging here would only be able to put
+     * back keys that call had already put back, and would silently resurrect any key
+     * an operator had deliberately deleted.
+     *
+     * <p>Falls back to the default when the config has no section at all, which is
+     * the state a file is in before that repair has ever run.
+     */
+    private Map<?, ?> getMapSetting() {
+        ConfigurationSection loaded = PLUGIN.getVarManager().getSettingManager().getConfig().getConfigurationSection(getPath());
+        return loaded != null ? toNestedMap(loaded) : (Map<?, ?>) defaultValue;
+    }
+
+    /**
+     * A configuration section as the nested map {@link #processMapValue} renders.
+     *
+     * <p>Not {@code getValues(true)}: that flattens, answering both {@code compare-name}
+     * and {@code compare-name.default} as sibling keys, and rendering it would write
+     * every leaf twice - once inside its section and once as a dotted key beside it.
+     */
+    private static Map<String, Object> toNestedMap(ConfigurationSection section) {
+        Map<String, Object> nested = new LinkedHashMap<>();
+
+        for (Map.Entry<String, Object> entry : section.getValues(false).entrySet()) {
+            Object value = entry.getValue();
+            nested.put(entry.getKey(), value instanceof ConfigurationSection
+                    ? toNestedMap((ConfigurationSection) value) : value);
+        }
+
+        return nested;
+    }
+
     public String getFileString() {
         StringBuilder keyOutput = new StringBuilder();
 
@@ -345,7 +393,7 @@ public enum Setting {
 
         if (defaultValue instanceof Map) {
             keyOutput.append(section.getSectionLead()).append(getKey()).append(":\n");
-            keyOutput.append(processMapValue(((Map<?, ?>) defaultValue), section.getSectionLead() + leadIncrease));
+            keyOutput.append(processMapValue(getMapSetting(), section.getSectionLead() + leadIncrease));
         } else {
             keyOutput.append(section.getSectionLead()).append(getKey()).append(": ").append(new Yaml().dump(getSetting()));
         }

@@ -65,9 +65,17 @@ public class ObjectHolder<Type> {
     /**
      * Converts string to boolean based on acceptable responses
      *
+     * <p>A holder with nothing in it answers false rather than throwing. This class
+     * exists to carry a value that may be absent - {@link #isNull()} is part of its
+     * interface - and a setting the config file does not contain arrives here as
+     * exactly that. Throwing meant a single missing key in config.yml took down every
+     * item comparison, and with it every trade on the server.
+     *
      * @return true if acceptable string was found
      */
     public boolean canBeBoolean() {
+        if (obj == null) return false;
+
         switch (obj.toString().toLowerCase()) {
             case "true":
             case "t":
@@ -150,11 +158,11 @@ public class ObjectHolder<Type> {
     }
 
     public Material asMaterial() {
-        return Material.matchMaterial(obj.toString());
+        return obj == null ? null : Material.matchMaterial(obj.toString());
     }
 
     @Override
     public String toString() {
-        return obj.toString();
+        return String.valueOf(obj);
     }
 }

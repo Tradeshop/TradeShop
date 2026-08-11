@@ -204,17 +204,39 @@ public class ConfigManager {
         config = YamlConfiguration.loadConfiguration(file);
     }
 
+    /**
+     * Writes whatever part of {@code value} the file does not already hold.
+     *
+     * <p>A setting whose default is a map is walked all the way down rather than one
+     * level deep. Asking only whether the map's own keys are present cannot see the
+     * shape an older file actually has - the node is there and one of its children is
+     * not, because that child was added to the plugin after the file was written - so
+     * the hole was read as "present", nothing was written, and it survived every boot.
+     * Every later read of it answered null.
+     *
+     * <p>Every missing key is written in one pass. Returning as soon as one was written
+     * meant a file with two holes needed two boots to fill them, and the second boot
+     * only happened if something else asked for one.
+     *
+     * <p>A leaf is written as the value itself. It used to be written as
+     * {@code toString()}, which stored a whole nested map as the text
+     * "{default=1, user-editable=true}" under a key that is meant to hold a section.
+     *
+     * @return true if anything was written, which is what tells the caller to save
+     */
     private boolean addKeyValue(String node, Object value) {
         node = node.toLowerCase().replace("_", "-");
+
         if (value instanceof Map) {
-            for (@SuppressWarnings("rawtypes") Map.Entry entry : ((Map<?, ?>) value).entrySet()) {
-                String newNode = node + "." + entry.getKey().toString().toLowerCase().replace("_", "-");
-                if (config.get(newNode) == null || (config.get(newNode) != null && config.get(newNode).toString().isEmpty())) {
-                    config.set(newNode, entry.getValue().toString());
-                    return true;
-                }
+            boolean wrote = false;
+            for (Map.Entry<?, ?> entry : ((Map<?, ?>) value).entrySet()) {
+                wrote |= addKeyValue(node + "." + entry.getKey().toString(), entry.getValue());
             }
-        } else if (config.get(node) == null || (config.get(node) != null && config.get(node).toString().isEmpty())) {
+            return wrote;
+        }
+
+        Object current = config.get(node);
+        if (current == null || current.toString().isEmpty()) {
             config.set(node, value);
             return true;
         }

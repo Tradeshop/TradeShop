@@ -88,6 +88,7 @@ public enum Message {
     SHOP_EMPTY(MessageSection.NONE, "shop-empty"),
     SHOP_FULL(MessageSection.NONE, "shop-full"),
     SHOP_ITEM_LIST(MessageSection.NONE, "shop-item-list"),
+    SHOP_SIGN_FRONT_ONLY(MessageSection.NONE, "shop-sign-front-only"),
     SHOP_TYPE_SWITCHED(MessageSection.NONE, "shop-type-switched"),
     SUCCESSFUL_SETUP(MessageSection.NONE, "successful-setup"),
     TOO_MANY_CHESTS(MessageSection.NONE, "too-many-chests"),

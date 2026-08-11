@@ -42,6 +42,7 @@ import org.shanerx.tradeshop.shoplocation.IllegalWorldException;
 import org.shanerx.tradeshop.shoplocation.ShopLocation;
 import org.shanerx.tradeshop.utils.Utils;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -123,8 +124,15 @@ public class PlayerSetting {
     public Map<String, Object> serialize() {
         HashMap<String, Object> data = new HashMap<>();
         data.put("uuidString", uuidString);
-        data.put("ownedShops", ownedShops);
-        data.put("staffShops", staffShops);
+        // Lists, for the reason Shop.serialize gives: what goes in here is what the
+        // storage layer answers the next reader with until the file is re-read, and
+        // deserialize above casts both of these to List. Unlike the shop path this
+        // one cannot be reached today - DataStorage.getPlayerData builds a fresh
+        // JsonPlayerData per call, so every read is off disk, where these are
+        // already arrays. The shop path was exactly as unreachable until
+        // getShopData started returning the instance it caches.
+        data.put("ownedShops", new ArrayList<>(ownedShops));
+        data.put("staffShops", new ArrayList<>(staffShops));
         data.put("showInvolvedStatus", showInvolvedStatus);
         data.put("adminEnabled", adminEnabled);
         data.put("multi", multi);
