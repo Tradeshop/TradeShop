@@ -25,6 +25,7 @@
 
 package org.shanerx.tradeshop.data.storage;
 
+import org.bukkit.block.Block;
 import org.shanerx.tradeshop.shop.ShopChest;
 import org.shanerx.tradeshop.shoplocation.ShopLocation;
 
@@ -66,8 +67,32 @@ public interface LinkageConfiguration {
         save();
     }
 
+    /**
+     * Unlinks a storage block from whatever shop it was linked to.
+     *
+     * <p>Keyed by {@code toString()}, like every other method here. The map is keyed by
+     * String - see {@link #addLinkage} - and {@code Map.remove} takes an Object, so
+     * passing the {@link ShopLocation} itself compiled and never matched anything: the
+     * entry outlived the chest, and the block went on reading as a shop chest to every
+     * path that asks.
+     *
+     * <p>Both halves of a double chest, because {@link #add} links both halves. It has
+     * to: either block is what a player clicks or a hopper feeds, so either has to
+     * resolve to the shop. Removing one of the two left the other pointing at a shop
+     * that no longer owns it, and that surviving entry is what
+     * {@code ShopChest.isShopChest} answers - so the block stayed protected and stayed
+     * unusable, with nothing on it to say why. Unlinking has to undo what linking did
+     * or the pair is not a pair.
+     */
     default void removeChest(ShopLocation chestLocation) {
-        getLinkageData().remove(chestLocation);
+        Block block = chestLocation.getLocation().getBlock();
+
+        if (ShopChest.isDoubleChest(block)) {
+            getLinkageData().remove(new ShopLocation(
+                    ShopChest.getOtherHalfOfDoubleChest(block).getLocation()).toString());
+        }
+
+        getLinkageData().remove(chestLocation.toString());
         save();
     }
 

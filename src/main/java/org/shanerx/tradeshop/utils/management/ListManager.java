@@ -25,6 +25,7 @@
 
 package org.shanerx.tradeshop.utils.management;
 
+import com.bergerkiller.bukkit.common.utils.ItemUtil;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import org.bukkit.Bukkit;
@@ -37,7 +38,6 @@ import org.bukkit.plugin.PluginManager;
 import org.shanerx.tradeshop.TradeShop;
 import org.shanerx.tradeshop.data.config.Setting;
 import org.shanerx.tradeshop.item.IllegalItemList;
-import org.shanerx.tradeshop.item.NonObtainableMaterials;
 import org.shanerx.tradeshop.item.ShopItemSide;
 import org.shanerx.tradeshop.shop.ShopStorage;
 import org.shanerx.tradeshop.utils.debug.DebugLevels;
@@ -46,9 +46,11 @@ import org.shanerx.tradeshop.utils.relativedirection.RelativeDirection;
 
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
@@ -306,21 +308,69 @@ public class ListManager {
     private void setGameMatList() {
         gameMats.clear();
 
-        //Adds each Material from Minecraft to a list for command tab complete
+        Set<Material> obtainable = obtainableMaterials();
+
+        //Adds each Material from Minecraft that can exist as an item to a list for command tab complete
         for (Material mat : Material.values()) {
+            // A shop trades ItemStacks, so a material with no item form cannot be
+            // one side of a trade and has no business being offered as one.
+            if (!obtainable.contains(mat)) {
+                continue;
+            }
+
             // Only add the material if it isn't BlackListed
             if (!globalList.isIllegal(mat)) {
                 gameMats.add(mat.toString());
             }
         }
 
-        // Remove all non-obtainable materials that we have found
-        for (NonObtainableMaterials mat : NonObtainableMaterials.values()) {
-            gameMats.remove(mat.toString());
-        }
-
         //Adds any strings that have been added the AddOnMats list to the autocomplete list
         gameMats.addAll(addOnMats);
+    }
+
+    /**
+     * Every material the running server has an item form for.
+     *
+     * <p>This used to be the complement of {@code NonObtainableMaterials}, a
+     * sixty-nine constant blocklist written by hand. It was stale - its wall-sign
+     * entries stopped at {@code WARPED_WALL_SIGN}, so every hanging sign added
+     * since 1.20 and every wall sign added since 1.19 was still being offered as
+     * something a shop could trade - and it was stale by construction, because a
+     * list of what Minecraft has is a list that a Minecraft release invalidates.
+     *
+     * <p>{@link ItemUtil#getItemTypes()} walks the server's live item registry,
+     * which is the authoritative answer and the reason the library dependency
+     * exists. It reaches the server's internals to do it, so it cannot be class
+     * -initialised where those internals are absent - under MockBukkit the first
+     * touch throws {@code NoClassDefFoundError: Could not initialize class
+     * com.bergerkiller.bukkit.common.Common}. {@link Material#isItem()} is
+     * Bukkit's own answer to the same question and needs nothing bootstrapped,
+     * so it is what the tier-1 suite sees.
+     */
+    private static Set<Material> obtainableMaterials() {
+        Set<Material> obtainable = EnumSet.noneOf(Material.class);
+
+        try {
+            obtainable.addAll(ItemUtil.getItemTypes());
+        } catch (Throwable notBootstrapped) {
+            // An Error, not an Exception - see above. Falling through to Bukkit
+            // rather than propagating, because a tab-complete list is not worth
+            // refusing to enable over.
+        }
+
+        if (obtainable.isEmpty()) {
+            for (Material mat : Material.values()) {
+                // Legacy materials are the pre-1.13 name table. They are in the
+                // enum, they are not in any registry, and the blocklist never
+                // excluded them - so four hundred and sixty-three of them were
+                // being offered for trade.
+                if (!mat.isLegacy() && mat.isItem()) {
+                    obtainable.add(mat);
+                }
+            }
+        }
+
+        return obtainable;
     }
 
     private void updateDirections() {

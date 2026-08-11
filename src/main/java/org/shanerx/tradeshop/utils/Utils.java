@@ -38,7 +38,6 @@ import org.bukkit.event.block.SignChangeEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.material.MaterialData;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.shanerx.tradeshop.TradeShop;
 import org.shanerx.tradeshop.data.config.Message;
@@ -148,19 +147,22 @@ public class Utils {
     public boolean itemCheck(ItemStack itm1, ItemStack itm2) {
         int i1 = itm1.getAmount(), i2 = itm2.getAmount();
         ItemMeta temp1 = itm1.getItemMeta();
-        MaterialData temp11 = itm1.getData();
         boolean ret;
         itm1.setAmount(1);
         itm2.setAmount(1);
 
+        // The MaterialData that used to be saved, copied and restored alongside
+        // the meta here carried exactly one thing on a 1.13+ server - the
+        // durability byte - and durability has lived in ItemMeta as Damageable
+        // since the flattening, so setItemMeta already moves it. The pair was
+        // redundant, and org.bukkit.material.MaterialData together with
+        // ItemStack.getData()/setData() is deprecated for removal.
         if (!itm1.hasItemMeta() && itm2.hasItemMeta()) {
             itm1.setItemMeta(itm2.getItemMeta());
-            itm1.setData(itm2.getData());
         }
         ret = itm1.equals(itm2);
 
         itm1.setItemMeta(temp1);
-        itm1.setData(temp11);
         itm1.setAmount(i1);
         itm2.setAmount(i2);
         return ret;
@@ -395,6 +397,25 @@ public class Utils {
         return badList;
     }
 
+    /**
+     * The size {@link Bukkit#createInventory} will accept for a scratch copy of a
+     * container that holds {@code slots} slots.
+     *
+     * <p>CraftBukkit takes a multiple of nine between nine and 54 and throws on
+     * anything else, and the storage types a shop may be built on are not all
+     * multiples of nine: a hopper and a brewing stand hold five, and a furnace, a
+     * smoker and a blast furnace hold three. Handing it the raw slot count meant a
+     * shop on any of those threw the moment it tried to count its own stock - which
+     * happens while the shop is being created, so the shop never existed at all.
+     *
+     * <p>Rounded up, never down. Every caller copies a real container into the result
+     * and then reads it back, so spare slots cost nothing - they read as null and are
+     * skipped - while a size too small would silently drop stock.
+     */
+    public static int scratchInventorySize(int slots) {
+        return Math.min(Math.max((int) (Math.ceil(slots / 9.0) * 9), 9), 54);
+    }
+
 
     /**
      * Checks whether a trade can take place.
@@ -410,7 +431,7 @@ public class Utils {
             return new Tuple<>(ExchangeStatus.NOT_TRADE, createBadList());
         }
 
-        Inventory playerInventory = Bukkit.createInventory(null, playerInv.getStorageContents().length);
+        Inventory playerInventory = Bukkit.createInventory(null, scratchInventorySize(playerInv.getStorageContents().length));
         playerInventory.setContents(playerInv.getStorageContents().clone());
 
         Inventory shopInventory = null;
@@ -425,7 +446,7 @@ public class Utils {
             }
         } else {
             Inventory shopInv = shop.getChestAsSC().getInventory();
-            shopInventory = Bukkit.createInventory(null, shopInv.getStorageContents().length);
+            shopInventory = Bukkit.createInventory(null, scratchInventorySize(shopInv.getStorageContents().length));
             shopInventory.setContents(shopInv.getStorageContents().clone());
         }
 

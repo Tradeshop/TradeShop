@@ -27,6 +27,8 @@ package org.shanerx.tradeshop.data.storage;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
+import de.leonhard.storage.shaded.json.JSONException;
+import de.leonhard.storage.shaded.json.JSONObject;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.NotImplementedException;
@@ -64,6 +66,15 @@ import java.util.stream.Collectors;
 public class DataStorage {
 
     private transient DataType dataType;
+
+    /**
+     * Where a file with junk appended after a complete shop object is cut.
+     *
+     * <p>Only ever applied to a file that has already been shown NOT to parse, and
+     * only kept if the cut produces something that does. On its own this pattern
+     * cannot tell a broken file from a sound one: a '}' followed by more content is
+     * ordinary inside an item's data components, which embed JSON in a JSON string.
+     */
     private final String BROKEN_JSON_START = "}(.*[\"\\w:])";
 
     private final Cache<World, LinkageConfiguration> linkCache = CacheBuilder.newBuilder()
@@ -112,12 +123,30 @@ public class DataStorage {
                 if (!list.isEmpty()) {
                     list.forEach((f) -> {
                         try {
-                            String fileStr = FileUtils.readFileToString(f, StandardCharsets.UTF_8),
-                                    correctedString = fileStr.split(BROKEN_JSON_START)[0];
-                            if (correctedString.length() < fileStr.length()) {
+                            String fileStr = FileUtils.readFileToString(f, StandardCharsets.UTF_8);
+
+                            // A file that parses is not broken, whatever it happens to
+                            // contain. This test has to come first and has to be a parse:
+                            // BROKEN_JSON_START looks for a '}' followed by more content,
+                            // and since item data components an item's own JSON is embedded
+                            // INSIDE a JSON string - "minecraft:custom_name":
+                            // "{extra:[\"Kingsblade\"],text:\"\"}" - so that shape is now
+                            // normal content. No regex can tell it apart from a real break;
+                            // only a parser can.
+                            if (parses(fileStr)) return;
+
+                            String correctedString = fileStr.split(BROKEN_JSON_START)[0];
+
+                            // Only rewrite when the repair actually produces a readable
+                            // file. The truncation used to be written back unconditionally,
+                            // which could leave a file just as broken as before with data
+                            // additionally cut off the end.
+                            if (correctedString.length() < fileStr.length() && parses(correctedString)) {
                                 correctedFiles.put(f, correctedString);
 
                                 TradeShop.getPlugin().getDebugger().log("Error found in file: " + f.getName() + "\n Text Removed: ---\n" + correctedString, DebugLevels.DATA_VERIFICATION);
+                            } else {
+                                TradeShop.getPlugin().getDebugger().log("File " + f.getName() + " is not readable JSON and could not be repaired; it has been left untouched rather than truncated.", DebugLevels.DATA_ERROR);
                             }
                         } catch (IOException e) {
                             correctedFiles.put(f, null);
@@ -174,10 +203,36 @@ public class DataStorage {
         throw new NotImplementedException("Data storage type " + dataType + " has not been implemented yet.");
     }
 
+    /**
+     * Whether {@code json} is a document the shop loader can actually read.
+     *
+     * <p>Deliberately the same parser the storage layer itself uses, so that a
+     * "yes" here means "the loader will accept this" rather than "some parser
+     * somewhere accepted it".
+     */
+    private boolean parses(String json) {
+        try {
+            new JSONObject(json);
+            return true;
+        } catch (JSONException e) {
+            return false;
+        }
+    }
+
     public Shop loadShopFromSign(ShopLocation sign) {
         if (sign == null) return null;
         Shop cached = shopCache.getIfPresent(sign.toString());
-        return cached != null ? cached : getShopData(sign.getChunk()).load(sign);
+        if (cached != null) return cached;
+
+        Shop loaded = getShopData(sign.getChunk()).load(sign);
+
+        // One live object per shop, which is what the rest of the plugin assumes when
+        // it loads a shop, changes it and saves it. Deserialization used to reach this
+        // cache by saving the shop it was still building - the save is gone, so the
+        // caching it was doing as a side effect is done here on purpose.
+        if (loaded != null) shopCache.put(sign.toString(), loaded);
+
+        return loaded;
     }
 
     public Shop loadShopFromStorage(ShopLocation chest) {
@@ -219,27 +274,42 @@ public class DataStorage {
         return matchingShops;
     }
 
+    /**
+     * How many shops this world has on disk.
+     *
+     * <p>Counted on the calling thread and returned. It used to hand the counting to
+     * {@code runTaskAsynchronously} and then return {@code count.get()} on the next
+     * line, before the scheduler had given that task a thread - so the answer was
+     * zero, every time, and the {@link AtomicInteger} the task later filled in was
+     * never read by anybody. Its one caller is {@code VarManager.startup}, whose
+     * total feeds the bStats "shop-counter" chart, so the figure this plugin has
+     * been publishing about itself counted no shop that existed before the server
+     * started.
+     *
+     * <p>The thread hop was worth keeping and has moved to that caller, which is
+     * where a decision about blocking startup belongs: a method that says it returns
+     * a count cannot also decide not to have one yet. Reading the world's name here
+     * rather than inside a task keeps that call on the thread that owns the world.
+     */
     public int getShopCountInWorld(World world) {
         String worldName = world.getName();
 
-        AtomicInteger count = new AtomicInteger();
-        Bukkit.getScheduler().runTaskAsynchronously(TradeShop.getPlugin(), () -> {
-            switch (dataType) {
-                case FLATFILE:
-                    File folder = new File(TradeShop.getPlugin().getDataFolder().getAbsolutePath() + File.separator + "Data" + File.separator + worldName);
-                    if (folder.exists() && folder.listFiles() != null) {
-                        for (File file : folder.listFiles()) {
-                            if (file.getName().contains(worldName) && file.getName().endsWith(".json"))
-                                count.addAndGet(new JsonShopData(ShopChunk.deserialize(file.getName().replace(".json", ""))).size());
-                        }
-                    }
-                    break;
-                case SQLITE:
-                    //TODO add SQLITE support
-                    throw new NotImplementedException("SQLITE for getShopCountInWorld has not been implemented yet.");
-            }
-        });
-        return count.get();
+        if (dataType != DataType.FLATFILE) {
+            //TODO add SQLITE support
+            throw new NotImplementedException("Data storage type " + dataType + " for getShopCountInWorld has not been implemented yet.");
+        }
+
+        File folder = new File(TradeShop.getPlugin().getDataFolder().getAbsolutePath() + File.separator + "Data" + File.separator + worldName);
+        File[] chunkFiles = folder.exists() ? folder.listFiles() : null;
+        if (chunkFiles == null) return 0;
+
+        int count = 0;
+        for (File file : chunkFiles) {
+            if (file.getName().contains(worldName) && file.getName().endsWith(".json"))
+                count += new JsonShopData(ShopChunk.deserialize(file.getName().replace(".json", ""))).size();
+        }
+
+        return count;
     }
 
     public PlayerSetting loadPlayer(UUID uuid) {
@@ -284,6 +354,27 @@ public class DataStorage {
     }
 
     private final Map<String, JsonShopData> chunkDataCache = new HashMap<>();
+
+    /**
+     * The one handle on a chunk's shops, cached per chunk.
+     *
+     * <p><b>The instance that is cached is the instance that is returned.</b> It
+     * used to cache one and hand back a second, freshly constructed from the same
+     * file, so the first caller after a cache miss worked on a copy nothing else
+     * could see. Every write that caller made - a save, or a remove - landed on
+     * disk and never on the cached object, and the next reader was answered out of
+     * the cached object.
+     *
+     * <p>That is not theoretical and it is not only a wasted file read.
+     * {@code ChunkUnloadListener} drops a chunk's entry on every unload, so any
+     * shop operation is one unload away from being the first call after a miss. A
+     * shop removed by that call is written out of its file and stays in memory,
+     * where the next {@link #loadShopFromSign} finds it and hands it back alive -
+     * and anything that then saves it writes it back to disk. Measured on Paper
+     * 1.21.11 build 132 while proving that breaking a sign removes the shop stored
+     * against it: the chunk's file was left holding {@code {}} and the shop still
+     * loaded.
+     */
     protected ShopConfiguration getShopData(ShopChunk chunk) {
         if (dataType == DataType.FLATFILE) {
             String serializedChunk = chunk.serialize();
@@ -291,7 +382,8 @@ public class DataStorage {
                 return chunkDataCache.get(serializedChunk);
             JsonShopData data = new JsonShopData(chunk);
             chunkDataCache.put(serializedChunk, data);
-            return new JsonShopData(chunk);
+            return data;
+
         }
 
         throw new NotImplementedException("Data storage type " + dataType + " has not been implemented yet.");
