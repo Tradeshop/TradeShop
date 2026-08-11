@@ -1,5 +1,8 @@
 # Compiled binaries
 /target/
+# it/ is a sibling Maven project, not a module, so its build output is a second
+# target/ that the root-anchored rule above does not reach.
+/it/target/
 *.class
 /bin/
 
@@ -32,3 +35,12 @@ dependency-reduced-pom.xml
 *.log
 /.run/Run Test Server.run.xml
 /.vscode/settings.json
+
+# Coding-agent scratch space. /.claude/worktrees/ holds entire nested checkouts
+# of this repository, so without this one `git add -A` commits a second copy of
+# the repo into itself.
+/.claude/
+
+# The tier-3 client is an npm project, so its dependency tree is build output
+# too - pinned by package-lock.json and installed by ci/integration.sh.
+/it-client/node_modules/
